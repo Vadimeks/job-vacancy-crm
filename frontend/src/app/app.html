@@ -1,0 +1,51 @@
+<style>
+  .container {
+    padding: 40px;
+    font-family: 'Inter', sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: #f9f9f9;
+    min-height: 100vh;
+  }
+
+  .vacancy-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-left: 5px solid #007bff;
+  }
+
+  .vacancy-card h2 {
+    margin-top: 0;
+    color: #333;
+  }
+
+  .salary {
+    font-weight: bold;
+    color: #28a745;
+    font-size: 1.2em;
+  }
+
+  .contact {
+    color: #007bff;
+    text-decoration: none;
+  }
+</style>
+
+<div class="container">
+  <h1>📋 Актуальныя вакансіі</h1>
+
+  <div *ngFor="let v of vacancies" class="vacancy-card">
+    <h2>{{ v.title }}</h2>
+    <p><strong>📍 Лакацыя:</strong> {{ v.location }}</p>
+    <p class="salary">💰 {{ v.salary }}</p>
+    <p>{{ v.description }}</p>
+    <p><strong>📞 Кантакт:</strong> <span class="contact">{{ v.contact }}</span></p>
+  </div>
+
+  <div *ngIf="vacancies.length === 0" style="text-align: center; color: #666;">
+    <p>Загрузка вакансій з базы дадзеных...</p>
+  </div>
+</div>
