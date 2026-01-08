@@ -29,6 +29,53 @@ mongoose
   .catch((err) => console.error("❌ Памылка падключэння да базы:", err));
 
 // --- МАРШРУТЫ ДЛЯ ВАКАНСІЙ (VACANCIES) ---
+// Роут для аўтаматычнага стварэння вакансіі праз Агента
+app.post("/api/vacancies/auto", async (req, res) => {
+  try {
+    const { rawText } = req.body; // Атрымліваем тэкст з чата
+    if (!rawText) return res.status(400).json({ message: "Тэкст пусты" });
+
+    // 1. Бярэм усе шаблоны з базы
+    const templates = await Template.find();
+
+    // 2. Шукаем прыдатны шаблон па keywords
+    let foundTemplate = templates.find((t) =>
+      t.keywords.some((word) =>
+        rawText.toLowerCase().includes(word.toLowerCase())
+      )
+    );
+
+    let vacancyData;
+
+    if (foundTemplate) {
+      // 3. Калі шаблон знойдзены — злучаем дадзеныя
+      vacancyData = {
+        title: foundTemplate.title,
+        location: foundTemplate.location,
+        agencyName: foundTemplate.agencyName,
+        description: foundTemplate.description,
+        rawText: rawText, // захоўваем арыгінал на ўсялякі выпадак
+        status: "active",
+      };
+      console.log(`✅ Знойдзены шаблон: ${foundTemplate.templateName}`);
+    } else {
+      // 4. Калі не знойдзены — ствараем "пустую" вакансію толькі з тэкстам
+      vacancyData = {
+        title: "Новая вакансія (патрэбна ўдакладненне)",
+        location: "Не вызначана",
+        rawText: rawText,
+        status: "active",
+      };
+      console.log("⚠️ Шаблон не знойдзены, створана агульная вакансія");
+    }
+
+    const newVacancy = new Vacancy(vacancyData);
+    const savedVacancy = await newVacancy.save();
+    res.status(201).json(savedVacancy);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 app.get("/api/vacancies", async (req, res) => {
   try {

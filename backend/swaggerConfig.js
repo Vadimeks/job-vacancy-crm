@@ -41,6 +41,31 @@ const swaggerDefinition = {
     },
   },
   paths: {
+    // --- НОВЫ МАРШРУТ ДЛЯ АГЕНТА ---
+    "/api/vacancies/auto": {
+      post: {
+        tags: ["Agent (Automation)"],
+        summary: "Аўтаматычнае стварэнне вакансіі з тэксту",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  rawText: {
+                    type: "string",
+                    example: "На Ліснер трэба 10 чалавек, Калабжэг",
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: { 201: { description: "Created via Template" } },
+      },
+    },
+    // --- АСТАТНІЯ МАРШРУТЫ ---
     "/api/vacancies": {
       get: {
         tags: ["Vacancies"],
