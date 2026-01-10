@@ -10,7 +10,13 @@ export class VacancyService {
 
   constructor(private http: HttpClient) {}
 
+  // Атрымаць усе вакансіі
   getVacancies(): Observable<any[]> {
     return this.http.get<any[]>(this.apiUrl);
+  }
+
+  // Аўтаматычнае стварэнне праз Агента
+  createVacancyAuto(rawText: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/auto`, { rawText });
   }
 }

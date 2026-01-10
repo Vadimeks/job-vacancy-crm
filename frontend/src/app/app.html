@@ -1,4 +1,5 @@
 <style>
+  /* Твае існуючыя стылі застаюцца, дадаем толькі для Агента */
   .container {
     padding: 40px;
     font-family: 'Inter', sans-serif;
@@ -6,6 +7,42 @@
     margin: 0 auto;
     background-color: #f9f9f9;
     min-height: 100vh;
+  }
+
+  .agent-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e0e0e0;
+  }
+
+  .agent-card textarea {
+    width: 100%;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 12px;
+    font-family: inherit;
+    font-size: 14px;
+    resize: vertical;
+    margin-bottom: 12px;
+    box-sizing: border-box;
+  }
+
+  .agent-card button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
+  }
+
+  .agent-card button:disabled {
+    background-color: #ccc;
   }
 
   .vacancy-card {
@@ -17,32 +54,42 @@
     border-left: 5px solid #007bff;
   }
 
-  .vacancy-card h2 {
-    margin-top: 0;
-    color: #333;
-  }
-
   .salary {
     font-weight: bold;
     color: #28a745;
     font-size: 1.2em;
   }
 
-  .contact {
-    color: #007bff;
-    text-decoration: none;
+  .date {
+    font-size: 0.85em;
+    color: #888;
+    float: right;
   }
 </style>
 
 <div class="container">
+  <h1>🤖 Агент вакансій</h1>
+
+  <div class="agent-card">
+    <h3>Устаўце тэкст з чата</h3>
+    <textarea [(ngModel)]="rawText" placeholder="Напрыклад: На Lisner патрэбны мужчыны..." rows="4">
+    </textarea>
+    <button (click)="processText()" [disabled]="!rawText.trim()">
+      Апрацаваць і апублікаваць
+    </button>
+  </div>
+
+  <hr style="margin-bottom: 30px; opacity: 0.2;">
+
   <h1>📋 Актуальныя вакансіі</h1>
 
   <div *ngFor="let v of vacancies" class="vacancy-card">
+    <span class="date">{{ v.createdAt | date:'dd.MM.yyyy HH:mm' }}</span>
     <h2>{{ v.title }}</h2>
     <p><strong>📍 Лакацыя:</strong> {{ v.location }}</p>
-    <p class="salary">💰 {{ v.salary }}</p>
+    <p *ngIf="v.salary" class="salary">💰 {{ v.salary }}</p>
     <p>{{ v.description }}</p>
-    <p><strong>📞 Кантакт:</strong> <span class="contact">{{ v.contact }}</span></p>
+    <p *ngIf="v.agencyName"><strong>🏢 Агенцыя:</strong> {{ v.agencyName }}</p>
   </div>
 
   <div *ngIf="vacancies.length === 0" style="text-align: center; color: #666;">
