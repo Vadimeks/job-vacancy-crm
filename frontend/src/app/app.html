@@ -1,5 +1,4 @@
 <style>
-  /* Твае існуючыя стылі застаюцца, дадаем толькі для Агента */
   .container {
     padding: 40px;
     font-family: 'Inter', sans-serif;
@@ -65,6 +64,42 @@
     color: #888;
     float: right;
   }
+
+  /* Стылі для пагінацыі */
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin: 30px 0 50px;
+  }
+
+  .pagination button {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1px solid #007bff;
+    background: white;
+    color: #007bff;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+
+  .pagination button:hover:not(:disabled) {
+    background: #007bff;
+    color: white;
+  }
+
+  .pagination button:disabled {
+    border-color: #ccc;
+    color: #ccc;
+    cursor: not-allowed;
+  }
+
+  .pagination span {
+    font-weight: 600;
+    color: #333;
+  }
 </style>
 
 <div class="container">
@@ -81,15 +116,27 @@
 
   <hr style="margin-bottom: 30px; opacity: 0.2;">
 
-  <h1>📋 Актуальныя вакансіі</h1>
+  <h1>📋 Актуальныя вакансіі ({{ vacancies.length }})</h1>
 
-  <div *ngFor="let v of vacancies" class="vacancy-card">
+  <div *ngFor="let v of pagedVacancies" class="vacancy-card">
     <span class="date">{{ v.createdAt | date:'dd.MM.yyyy HH:mm' }}</span>
     <h2>{{ v.title }}</h2>
     <p><strong>📍 Лакацыя:</strong> {{ v.location }}</p>
     <p *ngIf="v.salary" class="salary">💰 {{ v.salary }}</p>
     <p>{{ v.description }}</p>
     <p *ngIf="v.agencyName"><strong>🏢 Агенцыя:</strong> {{ v.agencyName }}</p>
+  </div>
+
+  <div class="pagination" *ngIf="totalPages > 1">
+    <button (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
+      ← Назад
+    </button>
+
+    <span>Старонка {{ currentPage }} з {{ totalPages }}</span>
+
+    <button (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">
+      Наперад →
+    </button>
   </div>
 
   <div *ngIf="vacancies.length === 0" style="text-align: center; color: #666;">

@@ -1,18 +1,25 @@
+// src/app/app.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; // 1. Дадаем для працы з тэкставым полем
+import { FormsModule } from '@angular/forms';
 import { VacancyService } from './services/vacancy.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, FormsModule], // 2. Не забываем дадаць сюды
+  imports: [CommonModule, FormsModule],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
 export class App implements OnInit {
   vacancies: any[] = [];
-  rawText: string = ''; // 3. Зменная для тэксту з чата
+  rawText: string = '';
+
+  // Зменныя для пагінацыі
+  pagedVacancies: any[] = [];
+  currentPage: number = 1;
+  pageSize: number = 10;
+  totalPages: number = 1;
 
   constructor(private vacancyService: VacancyService) {}
 
@@ -23,25 +30,38 @@ export class App implements OnInit {
   loadVacancies(): void {
     this.vacancyService.getVacancies().subscribe({
       next: (data: any[]) => {
-        // Сартуем ад новых да старых па даце стварэння
         this.vacancies = data.sort(
           (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
+        this.calculatePagination();
         console.log('Дадзеныя атрыманы і адсартаваны');
       },
       error: (err: any) => console.error('Памылка загрузкі:', err),
     });
   }
 
-  // 4. Метад для кнопкі "Апрацаваць"
+  calculatePagination(): void {
+    this.totalPages = Math.ceil(this.vacancies.length / this.pageSize);
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    this.pagedVacancies = this.vacancies.slice(startIndex, startIndex + this.pageSize);
+  }
+
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.calculatePagination();
+      window.scrollTo(0, 0);
+    }
+  }
+
   processText(): void {
     if (!this.rawText.trim()) return;
 
     this.vacancyService.createVacancyAuto(this.rawText).subscribe({
       next: (res) => {
-        console.log('Вакансія створана:', res);
-        this.rawText = ''; // Ачышчаем поле пасля поспеху
-        this.loadVacancies(); // Асцерагальна абнаўляем спіс
+        this.rawText = '';
+        this.currentPage = 1; // Вяртаемся на першую старонку, каб бачыць новую вакансію
+        this.loadVacancies();
         alert('Вакансія апрацавана і адпраўлена ў Telegram!');
       },
       error: (err) => {
