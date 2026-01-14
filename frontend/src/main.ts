@@ -1,3 +1,4 @@
+// src/main.ts
 import 'zone.js'; // Дадаем толькі гэта
 import { bootstrapApplication } from '@angular/platform-browser';
 import { appConfig } from './app/app.config';

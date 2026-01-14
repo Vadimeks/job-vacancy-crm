@@ -1,4 +1,3 @@
-// src/app/app.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -15,7 +14,6 @@ export class App implements OnInit {
   vacancies: any[] = [];
   rawText: string = '';
 
-  // Зменныя для пагінацыі
   pagedVacancies: any[] = [];
   currentPage: number = 1;
   pageSize: number = 10;
@@ -34,7 +32,6 @@ export class App implements OnInit {
           (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
         this.calculatePagination();
-        console.log('Дадзеныя атрыманы і адсартаваны');
       },
       error: (err: any) => console.error('Памылка загрузкі:', err),
     });
@@ -60,7 +57,7 @@ export class App implements OnInit {
     this.vacancyService.createVacancyAuto(this.rawText).subscribe({
       next: (res) => {
         this.rawText = '';
-        this.currentPage = 1; // Вяртаемся на першую старонку, каб бачыць новую вакансію
+        this.currentPage = 1;
         this.loadVacancies();
         alert('Вакансія апрацавана і адпраўлена ў Telegram!');
       },
@@ -70,4 +67,46 @@ export class App implements OnInit {
       },
     });
   }
-}
+
+  // ВЫПРАЎЛЕНА: Метад цяпер унутры класа
+  deleteVacancy(id: string): void {
+    if (confirm('Вы ўпэўнены, што хочаце выдаліць гэтую вакансію?')) {
+      this.vacancyService.deleteVacancy(id).subscribe({
+        next: () => {
+          this.loadVacancies();
+        },
+        error: (err: any) => {
+          // Дадалі : any вось сюды
+          console.error('Памылка пры выдаленні:', err);
+          alert('Не ўдалося выдаліць вакансію');
+        },
+      });
+    }
+  }
+  editingId: string | null = null; // ID вакансіі, якую рэдагуем
+
+  // Увайсці ў рэжым рэдагавання
+  editVacancy(id: string): void {
+    this.editingId = id;
+  }
+
+  // Адмяніць рэдагаванне
+  cancelEdit(): void {
+    this.editingId = null;
+    this.loadVacancies(); // Скідваем змены да тых, што ў базе
+  }
+
+  // Захаваць змены
+  saveVacancy(vacancy: any): void {
+    this.vacancyService.updateVacancy(vacancy._id, vacancy).subscribe({
+      next: () => {
+        this.editingId = null;
+        alert('Захавана!');
+      },
+      error: (err: any) => {
+        console.error('Памылка пры захаванні:', err);
+        alert('Не ўдалося захаваць');
+      },
+    });
+  }
+} // Канец класа

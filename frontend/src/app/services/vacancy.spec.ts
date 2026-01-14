@@ -1,3 +1,4 @@
+// src/app/services/vacancy.spec.ts
 import { TestBed } from '@angular/core/testing';
 
 import { Vacancy } from './vacancy';

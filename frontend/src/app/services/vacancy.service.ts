@@ -19,4 +19,10 @@ export class VacancyService {
   createVacancyAuto(rawText: string): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/auto`, { rawText });
   }
+  deleteVacancy(id: string) {
+    return this.http.delete(`http://localhost:3000/api/vacancies/${id}`);
+  }
+  updateVacancy(id: string, data: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}`, data);
+  }
 }

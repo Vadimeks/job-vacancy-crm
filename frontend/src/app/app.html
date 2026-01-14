@@ -65,7 +65,6 @@
     float: right;
   }
 
-  /* Стылі для пагінацыі */
   .pagination {
     display: flex;
     justify-content: center;
@@ -100,6 +99,15 @@
     font-weight: 600;
     color: #333;
   }
+
+  /* Стыль для захавання пераносаў радкоў (спісаў) */
+  .description-text {
+    white-space: pre-wrap;
+    line-height: 1.5;
+    color: #444;
+    margin-bottom: 10px;
+    transition: max-height 0.3s ease-out;
+  }
 </style>
 
 <div class="container">
@@ -120,11 +128,62 @@
 
   <div *ngFor="let v of pagedVacancies" class="vacancy-card">
     <span class="date">{{ v.createdAt | date:'dd.MM.yyyy HH:mm' }}</span>
-    <h2>{{ v.title }}</h2>
-    <p><strong>📍 Лакацыя:</strong> {{ v.location }}</p>
-    <p *ngIf="v.salary" class="salary">💰 {{ v.salary }}</p>
-    <p>{{ v.description }}</p>
-    <p *ngIf="v.agencyName"><strong>🏢 Агенцыя:</strong> {{ v.agencyName }}</p>
+
+    <div *ngIf="editingId === v._id">
+      <label style="font-size: 0.8em; color: #666;">Назва пасады:</label>
+      <input [(ngModel)]="v.title"
+        style="width: 100%; font-size: 1.1em; margin-bottom: 10px; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+
+      <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+        <div style="flex: 1;">
+          <label style="font-size: 0.8em; color: #666;">📍 Лакацыя:</label>
+          <input [(ngModel)]="v.location"
+            style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+        </div>
+        <div style="flex: 1;">
+          <label style="font-size: 0.8em; color: #666;">💰 Зарплата:</label>
+          <input [(ngModel)]="v.salary" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+        </div>
+      </div>
+
+      <label style="font-size: 0.8em; color: #666;">Поўнае апісанне:</label>
+      <textarea [(ngModel)]="v.description"
+        style="width: 100%; height: 200px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit;"></textarea>
+
+      <div style="margin-top: 15px; display: flex; gap: 10px;">
+        <button (click)="saveVacancy(v)"
+          style="background-color: #28a745; color: white; border: none; padding: 8px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;">💾
+          Захаваць</button>
+        <button (click)="cancelEdit()"
+          style="background-color: #6c757d; color: white; border: none; padding: 8px 20px; border-radius: 4px; cursor: pointer;">Адмена</button>
+      </div>
+    </div>
+
+    <div *ngIf="editingId !== v._id">
+      <h2>{{ v.title }}</h2>
+      <p><strong>📍 Лакацыя:</strong> {{ v.location }}</p>
+      <p *ngIf="v.salary" class="salary">💰 {{ v.salary }}</p>
+
+      <div class="description-text" [style.max-height]="v.isExpanded ? 'none' : '100px'" [style.overflow]="'hidden'">
+        {{ v.description }}
+      </div>
+
+      <button *ngIf="v.description && v.description.length > 150" (click)="v.isExpanded = !v.isExpanded"
+        style="background: none; color: #007bff; border: none; padding: 0; cursor: pointer; font-size: 0.9em; margin-bottom: 15px; font-weight: 600;">
+        {{ v.isExpanded ? '▲ Згарнуць' : '▼ Чытаць цалкам...' }}
+      </button>
+
+      <p *ngIf="v.agencyName"><strong>🏢 Агенцыя:</strong> {{ v.agencyName }}</p>
+
+      <div style="margin-top: 15px; text-align: right; display: flex; justify-content: flex-end; gap: 10px;">
+        <button (click)="editVacancy(v._id)"
+          style="background-color: #ffc107; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer;">✏️
+          Рэдагаваць</button>
+        <button (click)="deleteVacancy(v._id)"
+          style="background-color: #dc3545; color: white; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer;">🗑️
+          Выдаліць</button>
+      </div>
+    </div>
   </div>
 
   <div class="pagination" *ngIf="totalPages > 1">

@@ -1,3 +1,4 @@
+// src/app/app.config.ts
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core'; // дадаў ZoneChangeDetection
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http'; // Гэта вельмі важна для сувязі з бэкендам
