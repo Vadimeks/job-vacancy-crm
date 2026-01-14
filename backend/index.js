@@ -1,3 +1,4 @@
+// backend/index.js
 require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
@@ -54,7 +55,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 // Падключэнне да MongoDB Atlas
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(process.env.MONGODB_URI)
   .then(() => console.log("✅ Паспяхова падключана да MongoDB Atlas!"))
   .catch((err) => console.error("❌ Памылка падключэння да базы:", err));
 

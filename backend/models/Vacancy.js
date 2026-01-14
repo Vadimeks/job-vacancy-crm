@@ -1,3 +1,4 @@
+// backend/models/Vacancy.js
 const mongoose = require("mongoose");
 
 const vacancySchema = new mongoose.Schema({
@@ -30,7 +31,11 @@ const vacancySchema = new mongoose.Schema({
   },
   description: String,
   rawText: String, // Арыгінальны допіс з чата
-  status: { type: String, enum: ["active", "expired"], default: "active" },
+  status: {
+    type: String,
+    enum: ["active", "closed", "archived"],
+    default: "active",
+  },
   arrivalDates: [String], // 14.01, 15.01
   createdAt: { type: Date, default: Date.now },
 });
