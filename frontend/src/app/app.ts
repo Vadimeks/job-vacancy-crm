@@ -14,15 +14,33 @@ export class App implements OnInit {
   vacancies: any[] = [];
   rawText: string = '';
 
+  // Дадаем для пошуку
+  searchText: string = '';
+
   pagedVacancies: any[] = [];
   currentPage: number = 1;
   pageSize: number = 10;
   totalPages: number = 1;
+  editingId: string | null = null;
 
   constructor(private vacancyService: VacancyService) {}
 
   ngOnInit(): void {
     this.loadVacancies();
+  }
+
+  // Гетэр для фільтрацыі: ён бярэ альбо адфільтраваныя вакансіі, альбо звычайную старонку
+  get filteredVacancies() {
+    if (!this.searchText.trim()) {
+      return this.pagedVacancies;
+    }
+    const term = this.searchText.toLowerCase();
+    return this.vacancies.filter(
+      (v) =>
+        v.title?.toLowerCase().includes(term) ||
+        v.location?.toLowerCase().includes(term) ||
+        v.description?.toLowerCase().includes(term)
+    );
   }
 
   loadVacancies(): void {
@@ -53,13 +71,12 @@ export class App implements OnInit {
 
   processText(): void {
     if (!this.rawText.trim()) return;
-
     this.vacancyService.createVacancyAuto(this.rawText).subscribe({
       next: (res) => {
         this.rawText = '';
         this.currentPage = 1;
         this.loadVacancies();
-        alert('Вакансія апрацавана і адпраўлена ў Telegram!');
+        alert('Вакансія апрацавана!');
       },
       error: (err) => {
         console.error('Памылка агента:', err);
@@ -68,45 +85,31 @@ export class App implements OnInit {
     });
   }
 
-  // ВЫПРАЎЛЕНА: Метад цяпер унутры класа
   deleteVacancy(id: string): void {
-    if (confirm('Вы ўпэўнены, што хочаце выдаліць гэтую вакансію?')) {
+    if (confirm('Вы ўпэўнены?')) {
       this.vacancyService.deleteVacancy(id).subscribe({
-        next: () => {
-          this.loadVacancies();
-        },
-        error: (err: any) => {
-          // Дадалі : any вось сюды
-          console.error('Памылка пры выдаленні:', err);
-          alert('Не ўдалося выдаліць вакансію');
-        },
+        next: () => this.loadVacancies(),
+        error: (err: any) => console.error('Памылка:', err),
       });
     }
   }
-  editingId: string | null = null; // ID вакансіі, якую рэдагуем
 
-  // Увайсці ў рэжым рэдагавання
   editVacancy(id: string): void {
     this.editingId = id;
   }
 
-  // Адмяніць рэдагаванне
   cancelEdit(): void {
     this.editingId = null;
-    this.loadVacancies(); // Скідваем змены да тых, што ў базе
+    this.loadVacancies();
   }
 
-  // Захаваць змены
   saveVacancy(vacancy: any): void {
     this.vacancyService.updateVacancy(vacancy._id, vacancy).subscribe({
       next: () => {
         this.editingId = null;
         alert('Захавана!');
       },
-      error: (err: any) => {
-        console.error('Памылка пры захаванні:', err);
-        alert('Не ўдалося захаваць');
-      },
+      error: (err: any) => alert('Памылка пры захаванні'),
     });
   }
-} // Канец класа
+}

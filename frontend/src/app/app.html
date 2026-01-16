@@ -100,13 +100,37 @@
     color: #333;
   }
 
-  /* Стыль для захавання пераносаў радкоў (спісаў) */
   .description-text {
     white-space: pre-wrap;
     line-height: 1.5;
     color: #444;
     margin-bottom: 10px;
     transition: max-height 0.3s ease-out;
+  }
+
+  /* Стыль для пошуку */
+  .search-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+
+  .search-input {
+    padding: 12px 18px;
+    border-radius: 10px;
+    border: 2px solid #007bff;
+    width: 100%;
+    max-width: 320px;
+    font-size: 15px;
+    outline: none;
+    transition: box-shadow 0.2s;
+  }
+
+  .search-input:focus {
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.25);
   }
 </style>
 
@@ -115,8 +139,7 @@
 
   <div class="agent-card">
     <h3>Устаўце тэкст з чата</h3>
-    <textarea [(ngModel)]="rawText" placeholder="Напрыклад: На Lisner патрэбны мужчыны..." rows="4">
-    </textarea>
+    <textarea [(ngModel)]="rawText" placeholder="Напрыклад: На Lisner патрэбны мужчыны..." rows="4"></textarea>
     <button (click)="processText()" [disabled]="!rawText.trim()">
       Апрацаваць і апублікаваць
     </button>
@@ -124,9 +147,12 @@
 
   <hr style="margin-bottom: 30px; opacity: 0.2;">
 
-  <h1>📋 Актуальныя вакансіі ({{ vacancies.length }})</h1>
+  <div class="search-wrapper">
+    <h1 style="margin: 0;">📋 Вакансіі ({{ vacancies.length }})</h1>
+    <input type="text" [(ngModel)]="searchText" placeholder="🔍 Пошук (горад, пасада...)" class="search-input">
+  </div>
 
-  <div *ngFor="let v of pagedVacancies" class="vacancy-card">
+  <div *ngFor="let v of filteredVacancies" class="vacancy-card">
     <span class="date">{{ v.createdAt | date:'dd.MM.yyyy HH:mm' }}</span>
 
     <div *ngIf="editingId === v._id">
@@ -186,19 +212,13 @@
     </div>
   </div>
 
-  <div class="pagination" *ngIf="totalPages > 1">
-    <button (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
-      ← Назад
-    </button>
-
+  <div class="pagination" *ngIf="totalPages > 1 && !searchText.trim()">
+    <button (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">← Назад</button>
     <span>Старонка {{ currentPage }} з {{ totalPages }}</span>
-
-    <button (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">
-      Наперад →
-    </button>
+    <button (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">Наперад →</button>
   </div>
 
   <div *ngIf="vacancies.length === 0" style="text-align: center; color: #666;">
-    <p>Загрузка вакансій з базы дадзеных...</p>
+    <p>Загрузка вакансій...</p>
   </div>
 </div>
