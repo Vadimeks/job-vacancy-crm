@@ -6,7 +6,7 @@ const cors = require("cors");
 const swaggerUi = require("swagger-ui-express");
 const swaggerJsdoc = require("swagger-jsdoc");
 const { Telegraf } = require("telegraf"); // 1. Падключаем Telegraf
-
+const aiService = require("./services/ai.service");
 // Мадэлі дадзеных
 const Vacancy = require("./models/Vacancy");
 const Template = require("./models/Template");
@@ -26,24 +26,49 @@ const CHANNEL_ID = process.env.TELEGRAM_CHANNEL_ID;
 
 // Функцыя для прыгожага фармаціравання і адпраўкі ў ТГ
 const sendToTelegram = async (vacancy) => {
+  // Формуємо гарний блок оплати
+  const salaryText = vacancy.salary?.base
+    ? `${vacancy.salary.base}${
+        vacancy.salary.student
+          ? " (студенти: " + vacancy.salary.student + ")"
+          : ""
+      }`
+    : "Па запыце";
+
+  // Формуємо блок житла
+  const housingText = vacancy.accommodation?.cost || "Уласнае / Не пазначана";
+  const housingDetails = vacancy.accommodation?.details
+    ? `\nℹ️ ${vacancy.accommodation.details}`
+    : "";
+
+  // Формуємо паведамленне
   const message = `
 🌟 *${vacancy.title}*
 
-📍 *Горад:* ${vacancy.location}
-🏢 *Агенцыя:* ${vacancy.agencyName || "Не пазначана"}
+🏢 *ПРАЦА*
+📍 Горад: ${vacancy.location}
+💰 Аплата: ${salaryText}
+⚙️ Умовы: ${vacancy.schedule || "10 гадзін / змены"}
+📝 *Абавязкі:*
+${vacancy.description || "Глядзіце апісанне на сайце"}
 
-📝 *Апісанне:*
-${vacancy.description || "Апісанне будзе дададзена пазней..."}
+🏠 *ЖЫТЛО І ДАВОЗ*
+💰 Кошт: ${housingText}${housingDetails}
+🚌 Давоз: ${vacancy.transport || "Інфармацыя адсутнічае"}
+
+👤 *ПАТРАБАВАННІ*
+🔞 Узрост: ${vacancy.requirements?.age || "Не абмежавана"}
+📄 Дасвед/Дакументы: ${vacancy.requirements?.docs?.join(", ") || "Бія/Віза"}
 
 ---
-💬 *З чата:* _${vacancy.rawText || ""}_
+🏢 Агенцыя: ${vacancy.agencyName || "Manual"}
   `;
 
   try {
     await bot.telegram.sendMessage(CHANNEL_ID, message, {
       parse_mode: "Markdown",
     });
-    console.log("✅ Вакансія адпраўлена ў Telegram канал");
+    console.log("✅ Вакансія адпраўлена ў Telegram з поўнымі дадзенымі");
   } catch (err) {
     console.error("❌ Памылка адпраўкі ў Telegram:", err.message);
   }
@@ -66,44 +91,77 @@ app.post("/api/vacancies/auto", async (req, res) => {
     const { rawText } = req.body;
     if (!rawText) return res.status(400).json({ message: "Тэкст пусты" });
 
-    const templates = await Template.find();
+    const aiData = await aiService.parseVacancyWithAI(rawText);
+    console.log("📦 AI Response:", JSON.stringify(aiData, null, 2));
 
+    const templates = await Template.find();
     let foundTemplate = templates.find((t) =>
-      t.keywords.some((word) =>
-        rawText.toLowerCase().includes(word.toLowerCase())
-      )
+      t.keywords.some((word) => rawText.toLowerCase().includes(word.toLowerCase()))
     );
 
-    let vacancyData;
+    // Функція-помічник для пошуку значень у вкладених об'єктах AI
+    const getVal = (path, fallback = "") => {
+      const parts = path.split('.');
+      let current = aiData;
+      for (const part of parts) {
+        if (current && typeof current === 'object') {
+          current = current[part];
+        } else {
+          return fallback;
+        }
+      }
+      return current || fallback;
+    };
 
-    if (foundTemplate) {
-      vacancyData = {
-        title: foundTemplate.title,
-        location: foundTemplate.location,
-        agencyName: foundTemplate.agencyName,
-        description: foundTemplate.description,
-        rawText: rawText,
-        status: "active",
-      };
-      console.log(`✅ Знойдзены шаблон: ${foundTemplate.templateName}`);
-    } else {
-      vacancyData = {
-        title: "Новая вакансія (патрэбна ўдакладненне)",
-        location: "Не вызначана",
-        rawText: rawText,
-        status: "active",
-      };
-      console.log("⚠️ Шаблон не знойдзены");
+    const vacancyData = {
+      title: aiData.title || aiData.job_title || (foundTemplate ? foundTemplate.title : "Новая вакансія"),
+      
+      // Шукаем лакацыю ў розных магчымых палях
+      location: aiData.location || aiData.work_location || aiData.workplace || (foundTemplate ? foundTemplate.location : "Не вызначана"),
+      
+      agencyName: foundTemplate ? foundTemplate.agencyName : (aiData.agencyName || aiData.company || "Manual"),
+
+      salary: {
+        base: aiData.salary?.base || aiData.salary?.rate_per_hour_netto_standard || (Array.isArray(aiData.salary) ? aiData.salary[1]?.amount_pln_net : ""),
+        student: aiData.salary?.student || aiData.salary?.rate_per_hour_netto_students_under_26 || (Array.isArray(aiData.salary) ? aiData.salary[0]?.amount_pln_net : ""),
+        bonus: aiData.salary?.bonus || ""
+      },
+
+      schedule: aiData.schedule || aiData.working_hours?.hours_per_shift || "",
+      
+      description: Array.isArray(aiData.responsibilities) 
+        ? aiData.responsibilities.join('\n• ') 
+        : (aiData.description || aiData.job_details_note || ""),
+
+      accommodation: {
+        cost: aiData.accommodation?.cost || aiData.accommodation?.rent_cost_pln || "",
+        details: aiData.accommodation?.details || aiData.accommodation?.notes || ""
+      },
+
+      transport: aiData.transport || aiData.work_conditions_and_benefits?.find(b => b.includes('transport')) || "",
+
+      requirements: {
+        gender: aiData.requirements?.gender || aiData.candidate_requirements?.gender || "",
+        age: aiData.requirements?.age || aiData.candidate_requirements?.age_limit || "",
+        docs: Array.isArray(aiData.requirements?.docs) ? aiData.requirements.docs : []
+      },
+
+      rawText: rawText,
+      status: "active"
+    };
+
+    // Калі лакацыя ўсё яшчэ аб'ект (як у вашым логу), ператвараем у радок
+    if (typeof vacancyData.location === 'object') {
+      vacancyData.location = vacancyData.location.workplace || vacancyData.location.city || "Не вызначана";
     }
 
     const newVacancy = new Vacancy(vacancyData);
     const savedVacancy = await newVacancy.save();
 
-    // 2. Аўтаматычная адпраўка ў канал
     await sendToTelegram(savedVacancy);
-
     res.status(201).json(savedVacancy);
   } catch (err) {
+    console.error("❌ Памылка:", err.message);
     res.status(500).json({ message: err.message });
   }
 });
