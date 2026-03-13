@@ -188,7 +188,12 @@
     <div *ngIf="editingId !== v._id">
       <h2>{{ v.title }}</h2>
       <p><strong>📍 Лакацыя:</strong> {{ v.location }}</p>
-      <p *ngIf="v.salary" class="salary">💰 {{ v.salary }}</p>
+      <p *ngIf="v.salary" class="salary">
+        💰 {{ v.salary.base }}
+        <small *ngIf="v.salary.student" style="font-size: 0.7em; color: #666;">
+          (студэнты: {{ v.salary.student }})
+        </small>
+      </p>
 
       <div class="description-text" [style.max-height]="v.isExpanded ? 'none' : '100px'" [style.overflow]="'hidden'">
         {{ v.description }}
