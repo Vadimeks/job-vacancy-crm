@@ -5,18 +5,14 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const swaggerUi = require("swagger-ui-express");
 const swaggerJsdoc = require("swagger-jsdoc");
-const { Telegraf } = require("telegraf"); // 1. Падключаем Telegraf
+const { Telegraf } = require("telegraf");
 const aiService = require("./services/ai.service");
-// Мадэлі дадзеных
+
 const Vacancy = require("./models/Vacancy");
 const Template = require("./models/Template");
-
-// Імпарт знешняй канфігурацыі Swagger
 const swaggerDefinition = require("./swaggerConfig");
 
 const app = express();
-
-// Middleware
 app.use(cors());
 app.use(express.json());
 
@@ -24,141 +20,130 @@ app.use(express.json());
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
 const CHANNEL_ID = process.env.TELEGRAM_CHANNEL_ID;
 
-// Функцыя для прыгожага фармаціравання і адпраўкі ў ТГ
-const sendToTelegram = async (vacancy) => {
-  // Формуємо гарний блок оплати
-  const salaryText = vacancy.salary?.base
-    ? `${vacancy.salary.base}${
-        vacancy.salary.student
-          ? " (студенти: " + vacancy.salary.student + ")"
-          : ""
-      }`
-    : "Па запыце";
+// ID чатаў агенцый, якія слухаем (з .env)
+// Фармат у .env: AGENCY_CHAT_IDS=-1001234567890,-1009876543210
+const AGENCY_CHAT_IDS = process.env.AGENCY_CHAT_IDS
+  ? process.env.AGENCY_CHAT_IDS.split(",").map((id) => id.trim())
+  : [];
 
-  // Формуємо блок житла
-  const housingText = vacancy.accommodation?.cost || "Уласнае / Не пазначана";
-  const housingDetails = vacancy.accommodation?.details
-    ? `\nℹ️ ${vacancy.accommodation.details}`
-    : "";
-
-  // Формуємо паведамленне
-  const message = `
-🌟 *${vacancy.title}*
-
-🏢 *ПРАЦА*
-📍 Горад: ${vacancy.location}
-💰 Аплата: ${salaryText}
-⚙️ Умовы: ${vacancy.schedule || "10 гадзін / змены"}
-📝 *Абавязкі:*
-${vacancy.description || "Глядзіце апісанне на сайце"}
-
-🏠 *ЖЫТЛО І ДАВОЗ*
-💰 Кошт: ${housingText}${housingDetails}
-🚌 Давоз: ${vacancy.transport || "Інфармацыя адсутнічае"}
-
-👤 *ПАТРАБАВАННІ*
-🔞 Узрост: ${vacancy.requirements?.age || "Не абмежавана"}
-📄 Дасвед/Дакументы: ${vacancy.requirements?.docs?.join(", ") || "Бія/Віза"}
-
----
-🏢 Агенцыя: ${vacancy.agencyName || "Manual"}
-  `;
-
+// --- ФУНКЦЫЯ АДПРАЎКІ Ў TELEGRAM ---
+// Цяпер прымае гатовы тэкст, а не збірае яго сама
+const sendToTelegram = async (postText) => {
   try {
-    await bot.telegram.sendMessage(CHANNEL_ID, message, {
+    await bot.telegram.sendMessage(CHANNEL_ID, postText, {
       parse_mode: "Markdown",
     });
-    console.log("✅ Вакансія адпраўлена ў Telegram з поўнымі дадзенымі");
+    console.log("✅ Вакансія адпраўлена ў Telegram-канал");
   } catch (err) {
-    console.error("❌ Памылка адпраўкі ў Telegram:", err.message);
+    // Калі Markdown зламаўся — адпраўляем без фарматавання
+    console.warn("⚠️ Markdown памылка, адпраўляем як plain text...");
+    try {
+      await bot.telegram.sendMessage(CHANNEL_ID, postText);
+      console.log("✅ Адпраўлена як plain text");
+    } catch (err2) {
+      console.error("❌ Памылка адпраўкі ў Telegram:", err2.message);
+    }
   }
 };
 
-// Налада Swagger UI
+// --- АСНОЎНАЯ ФУНКЦЫЯ АПРАЦОЎКІ ПАВЕДАМЛЕННЯ ---
+// Выкарыстоўваецца і ботам, і API эндпоінтам
+const processVacancyMessage = async (rawText) => {
+  // 1. Загружаем усе шаблоны
+  const templates = await Template.find();
+
+  if (templates.length === 0) {
+    console.warn("⚠️ Шаблоны не знойдзены ў базе");
+  }
+
+  // 2. Вызначаем шаблон
+  const template = await aiService.identifyTemplate(rawText, templates);
+
+  let vacancyData;
+
+  if (template) {
+    // 3а. Ёсць шаблон — мержуем
+    vacancyData = await aiService.mergeWithTemplate(rawText, template);
+    vacancyData.agencyName = template.agencyName;
+    vacancyData.templateId = template._id;
+  } else {
+    // 3б. Няма шаблона — парсім як раней (fallback)
+    console.log("⚠️ Шаблон не знойдзены, выкарыстоўваем fallback парсінг...");
+    vacancyData = await aiService.parseVacancyWithAI(rawText);
+  }
+
+  // 4. Фарматуем Telegram-пост
+  const postText = await aiService.formatTelegramPost(vacancyData);
+
+  // 5. Захоўваем вакансію ў базу
+  const newVacancy = new Vacancy({
+    title: vacancyData.title || "Новая вакансія",
+    agencyName: vacancyData.agencyName || "Manual",
+    location: vacancyData.location || "Не вызначана",
+    salary: vacancyData.salary || {},
+    schedule: vacancyData.schedule?.shifts || vacancyData.schedule || "",
+    description: vacancyData.description || "",
+    accommodation: vacancyData.accommodation || {},
+    transport: vacancyData.transport?.details || vacancyData.transport || "",
+    requirements: vacancyData.requirements || {},
+    rawText: rawText,
+    telegramPost: postText,
+    status: "active",
+  });
+
+  const savedVacancy = await newVacancy.save();
+
+  // 6. Адпраўляем у канал
+  await sendToTelegram(postText);
+
+  return savedVacancy;
+};
+
+// --- БОТ: СЛУХАННЕ ЧАТАЎ АГЕНЦЫЙ ---
+bot.on("message", async (ctx) => {
+  const chatId = ctx.chat.id.toString();
+  const text = ctx.message.text;
+
+  // Ігнаруем калі гэта не чат агенцыі
+  if (!AGENCY_CHAT_IDS.includes(chatId)) return;
+
+  // Ігнаруем кароткія паведамленні (менш за 10 сімвалаў)
+  if (!text || text.length < 10) return;
+
+  console.log(
+    `📨 Новае паведамленне з чата агенцыі [${chatId}]: ${text.substring(0, 50)}...`,
+  );
+
+  try {
+    await processVacancyMessage(text);
+  } catch (err) {
+    if (err.message === "RATE_LIMIT") {
+      console.error("⏱️ Rate limit Gemini. Паўтарыце пазней.");
+    } else {
+      console.error("❌ Памылка апрацоўкі паведамлення:", err.message);
+    }
+  }
+});
+
+// --- SWAGGER ---
 const specs = swaggerJsdoc({ swaggerDefinition, apis: [] });
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
-// Падключэнне да MongoDB Atlas
+// --- ПАДКЛЮЧЭННЕ ДА MONGODB ---
 mongoose
   .connect(process.env.MONGODB_URI)
-  .then(() => console.log("✅ Паспяхова падключана да MongoDB Atlas!"))
-  .catch((err) => console.error("❌ Памылка падключэння да базы:", err));
+  .then(() => console.log("✅ Падключана да MongoDB Atlas!"))
+  .catch((err) => console.error("❌ Памылка падключэння:", err));
 
-// --- МАРШРУТЫ ДЛЯ ВАКАНСІЙ (VACANCIES) ---
+// --- МАРШРУТЫ ВАКАНСІЙ ---
 
+// Аўтаматычнае стварэнне (праз API, напрыклад з Postman або фронта)
 app.post("/api/vacancies/auto", async (req, res) => {
   try {
     const { rawText } = req.body;
     if (!rawText) return res.status(400).json({ message: "Тэкст пусты" });
 
-    const aiData = await aiService.parseVacancyWithAI(rawText);
-    console.log("📦 AI Response:", JSON.stringify(aiData, null, 2));
-
-    const templates = await Template.find();
-    let foundTemplate = templates.find((t) =>
-      t.keywords.some((word) => rawText.toLowerCase().includes(word.toLowerCase()))
-    );
-
-    // Функція-помічник для пошуку значень у вкладених об'єктах AI
-    const getVal = (path, fallback = "") => {
-      const parts = path.split('.');
-      let current = aiData;
-      for (const part of parts) {
-        if (current && typeof current === 'object') {
-          current = current[part];
-        } else {
-          return fallback;
-        }
-      }
-      return current || fallback;
-    };
-
-    const vacancyData = {
-      title: aiData.title || aiData.job_title || (foundTemplate ? foundTemplate.title : "Новая вакансія"),
-      
-      // Шукаем лакацыю ў розных магчымых палях
-      location: aiData.location || aiData.work_location || aiData.workplace || (foundTemplate ? foundTemplate.location : "Не вызначана"),
-      
-      agencyName: foundTemplate ? foundTemplate.agencyName : (aiData.agencyName || aiData.company || "Manual"),
-
-      salary: {
-        base: aiData.salary?.base || aiData.salary?.rate_per_hour_netto_standard || (Array.isArray(aiData.salary) ? aiData.salary[1]?.amount_pln_net : ""),
-        student: aiData.salary?.student || aiData.salary?.rate_per_hour_netto_students_under_26 || (Array.isArray(aiData.salary) ? aiData.salary[0]?.amount_pln_net : ""),
-        bonus: aiData.salary?.bonus || ""
-      },
-
-      schedule: aiData.schedule || aiData.working_hours?.hours_per_shift || "",
-      
-      description: Array.isArray(aiData.responsibilities) 
-        ? aiData.responsibilities.join('\n• ') 
-        : (aiData.description || aiData.job_details_note || ""),
-
-      accommodation: {
-        cost: aiData.accommodation?.cost || aiData.accommodation?.rent_cost_pln || "",
-        details: aiData.accommodation?.details || aiData.accommodation?.notes || ""
-      },
-
-      transport: aiData.transport || aiData.work_conditions_and_benefits?.find(b => b.includes('transport')) || "",
-
-      requirements: {
-        gender: aiData.requirements?.gender || aiData.candidate_requirements?.gender || "",
-        age: aiData.requirements?.age || aiData.candidate_requirements?.age_limit || "",
-        docs: Array.isArray(aiData.requirements?.docs) ? aiData.requirements.docs : []
-      },
-
-      rawText: rawText,
-      status: "active"
-    };
-
-    // Калі лакацыя ўсё яшчэ аб'ект (як у вашым логу), ператвараем у радок
-    if (typeof vacancyData.location === 'object') {
-      vacancyData.location = vacancyData.location.workplace || vacancyData.location.city || "Не вызначана";
-    }
-
-    const newVacancy = new Vacancy(vacancyData);
-    const savedVacancy = await newVacancy.save();
-
-    await sendToTelegram(savedVacancy);
+    const savedVacancy = await processVacancyMessage(rawText);
     res.status(201).json(savedVacancy);
   } catch (err) {
     console.error("❌ Памылка:", err.message);
@@ -179,10 +164,9 @@ app.post("/api/vacancies", async (req, res) => {
   try {
     const newVacancy = new Vacancy(req.body);
     const savedVacancy = await newVacancy.save();
-
-    // 3. Адпраўка ў канал пры ручным стварэнні
-    await sendToTelegram(savedVacancy);
-
+    // Ручнае стварэнне — фарматуем і адпраўляем
+    const postText = await aiService.formatTelegramPost(savedVacancy);
+    await sendToTelegram(postText);
     res.status(201).json(savedVacancy);
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -209,7 +193,7 @@ app.delete("/api/vacancies/:id", async (req, res) => {
   }
 });
 
-// --- МАРШРУТЫ ДЛЯ ШАБЛОНАЎ (TEMPLATES) ---
+// --- МАРШРУТЫ ШАБЛОНАЎ ---
 
 app.get("/api/templates", async (req, res) => {
   try {
@@ -251,16 +235,15 @@ app.delete("/api/templates/:id", async (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  res.send(
-    "Бекенд працуе! Дакументацыя тут: <a href='/api-docs'>/api-docs</a>"
-  );
+  res.send("Бекенд працуе! Дакументацыя: <a href='/api-docs'>/api-docs</a>");
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🚀 Сервер запушчаны: http://localhost:${PORT}`);
-  console.log(`📜 Swagger даступны: http://localhost:${PORT}/api-docs`);
+  console.log(`🚀 Сервер: http://localhost:${PORT}`);
+  console.log(`📜 Swagger: http://localhost:${PORT}/api-docs`);
 });
 
-// 4. Запуск бота
 bot.launch();
+process.once("SIGINT", () => bot.stop("SIGINT"));
+process.once("SIGTERM", () => bot.stop("SIGTERM"));

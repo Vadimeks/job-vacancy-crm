@@ -3,40 +3,73 @@ const mongoose = require("mongoose");
 
 const vacancySchema = new mongoose.Schema({
   title: { type: String, required: true },
-  agencyName: { type: String, default: "Manual" }, // Агенцыя (напр. "Lucky Union")
+  agencyName: { type: String, default: "Manual" },
+  templateId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Template",
+    default: null,
+  },
+
   location: { type: String, required: true },
+  country: { type: String, default: "Польща" },
   city: String,
   address: String,
+
   salary: {
-    base: String, // 25.36 net / 31.40 brutto
-    student: String, // 31.40 net
+    base: String, // 25,36 zł нетто/год
+    student: String, // 31,40 zł нетто/год
+    monthly: String, // 4 250 – 6 000 zł/міс
     bonus: String, // Премія 200 zł
+    notes: String, // дадатковыя заўвагі
   },
-  schedule: String, // Графік: 3 зміни по 8 годин
+
+  schedule: {
+    shifts: String, // "2 зміни по 8-11 годин"
+    hours: String, // "220–270 годин на місяць"
+    details: String, // дадатковая інфа
+  },
+
   accommodation: {
-    cost: String, // 620 zł/міс
-    details: String, // 2-4 особи, кухня
+    available: { type: Boolean, default: true },
+    cost: String, // "750 zł/міс"
+    details: String, // "для пар — 2-місні кімнати"
+    deposit: String, // "200 zł (повертається)"
   },
-  food: String, // Безкоштовна кава, гаряча їжа за 1 zł
-  transport: String, // Безкоштовно зі Львову / 150 zł/місяць
+
+  transport: {
+    provided: { type: Boolean, default: true },
+    cost: String, // "безкоштовно" або "150 zł"
+    details: String,
+  },
+
   requirements: {
-    gender: String, // Чоловіки / Жінки
-    age: String, // до 50 років
-    docs: [String], // Санепід, UDT, Кат. B
-    physicalForm: String,
+    gender: String,
+    age: String,
+    nationalities: [String], // ["Україна", "Молдова"]
+    docs: [String],
+    physical: String,
   },
+
   conditions: {
-    temperature: String, // +5…+12°C
-    workClothes: String, // спецвзуття безкоштовно
+    temperature: String, // "+10°C"
+    workwear: String, // "спецодяг надається"
+    food: String, // "безкоштовний чай, кава"
   },
+
+  contractType: String, // "Umowa zlecenie"
   description: String,
-  rawText: String, // Арыгінальны допіс з чата
+  arrivalDate: String, // "20.03" (адна дата, з паведамлення)
+  count: Number, // колькасць людзей
+
+  rawText: String,
+  telegramPost: String, // гатовы тэкст які адправілі ў канал
+
   status: {
     type: String,
     enum: ["active", "closed", "archived"],
     default: "active",
   },
-  arrivalDates: [String], // 14.01, 15.01
+
   createdAt: { type: Date, default: Date.now },
 });
 
