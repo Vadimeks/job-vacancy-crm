@@ -70,6 +70,7 @@ const vacancySchema = new mongoose.Schema({
     default: "active",
   },
 
+  vacancyCode: { type: String, unique: true }, // VAC-0001
   createdAt: { type: Date, default: Date.now },
 });
 

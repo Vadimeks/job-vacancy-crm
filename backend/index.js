@@ -10,6 +10,7 @@ const aiService = require("./services/ai.service");
 
 const Vacancy = require("./models/Vacancy");
 const Template = require("./models/Template");
+const Candidate = require("./models/Candidate");
 const swaggerDefinition = require("./swaggerConfig");
 
 const app = express();
@@ -19,15 +20,20 @@ app.use(express.json());
 // --- НАЛАДА TELEGRAM БОТА ---
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
 const CHANNEL_ID = process.env.TELEGRAM_CHANNEL_ID;
+const RECRUITER_CHAT_ID = process.env.RECRUITER_CHAT_ID; // асабісты чат рэкрутэра
 
-// ID чатаў агенцый, якія слухаем (з .env)
-// Фармат у .env: AGENCY_CHAT_IDS=-1001234567890,-1009876543210
 const AGENCY_CHAT_IDS = process.env.AGENCY_CHAT_IDS
   ? process.env.AGENCY_CHAT_IDS.split(",").map((id) => id.trim())
   : [];
 
+// --- ГЕНЕРАЦЫЯ НУМАРА ВАКАНСІІ ---
+async function generateVacancyCode() {
+  const count = await Vacancy.countDocuments();
+  const num = String(count + 1).padStart(4, "0");
+  return `VAC-${num}`;
+}
+
 // --- ФУНКЦЫЯ АДПРАЎКІ Ў TELEGRAM ---
-// Цяпер прымае гатовы тэкст, а не збірае яго сама
 const sendToTelegram = async (postText) => {
   try {
     await bot.telegram.sendMessage(CHANNEL_ID, postText, {
@@ -35,7 +41,6 @@ const sendToTelegram = async (postText) => {
     });
     console.log("✅ Вакансія адпраўлена ў Telegram-канал");
   } catch (err) {
-    // Калі Markdown зламаўся — адпраўляем без фарматавання
     console.warn("⚠️ Markdown памылка, адпраўляем як plain text...");
     try {
       await bot.telegram.sendMessage(CHANNEL_ID, postText);
@@ -46,45 +51,145 @@ const sendToTelegram = async (postText) => {
   }
 };
 
+// --- ФУНКЦЫЯ АПАВЯШЧЭННЯ РЭКРУТЭРА ---
+const notifyRecruiter = async (text) => {
+  if (!RECRUITER_CHAT_ID) return;
+  try {
+    await bot.telegram.sendMessage(RECRUITER_CHAT_ID, text, {
+      parse_mode: "Markdown",
+    });
+  } catch (err) {
+    console.error("❌ Памылка апавяшчэння рэкрутэра:", err.message);
+  }
+};
+
+// --- МАТЧЫНГ КАНДЫДАТАЎ ДЛЯ ВАКАНСІІ ---
+const matchCandidatesForVacancy = async (vacancy) => {
+  try {
+    console.log(`🔍 Матчынг кандыдатаў для вакансіі ${vacancy.vacancyCode}...`);
+
+    // Бярэм толькі кандыдатаў у статусе waiting
+    const waitingCandidates = await Candidate.find({ status: "waiting" });
+
+    if (waitingCandidates.length === 0) {
+      console.log("ℹ️ Няма кандыдатаў у статусе waiting");
+      return;
+    }
+
+    const matched = [];
+
+    for (const candidate of waitingCandidates) {
+      const prefs = candidate.jobPreferences;
+      let score = 0;
+
+      // Праверка гендару
+      if (vacancy.requirements?.gender && candidate.gender) {
+        const vacGender = vacancy.requirements.gender.toLowerCase();
+        const candGender = candidate.gender === "female" ? "жінки" : "чоловіки";
+        if (vacGender.includes(candGender) || vacGender.includes("будь-який")) {
+          score += 3;
+        } else {
+          continue; // Гендар не супадае — прапускаем
+        }
+      }
+
+      // Праверка лакацыі
+      if (prefs?.locationFlexible) {
+        score += 2;
+      } else if (prefs?.location && vacancy.location) {
+        if (
+          vacancy.location
+            .toLowerCase()
+            .includes(prefs.location.toLowerCase()) ||
+          prefs.location.toLowerCase().includes(vacancy.location.toLowerCase())
+        ) {
+          score += 2;
+        }
+      }
+
+      // Праверка жытла
+      if (prefs?.needsAccommodation && vacancy.accommodation?.available) {
+        score += 1;
+      }
+
+      // Праверка графіка
+      if (prefs?.schedule?.length > 0 && vacancy.schedule?.shifts) {
+        const shifts = vacancy.schedule.shifts;
+        if (
+          (shifts.includes("1") && prefs.schedule.includes("1_shift")) ||
+          (shifts.includes("2") && prefs.schedule.includes("2_shifts")) ||
+          (shifts.includes("3") && prefs.schedule.includes("3_shifts"))
+        ) {
+          score += 1;
+        }
+      }
+
+      if (score >= 3) {
+        matched.push({ candidate, score });
+      }
+    }
+
+    if (matched.length === 0) {
+      console.log("ℹ️ Падыходзячых кандыдатаў не знойдзена");
+      return;
+    }
+
+    // Сартуем па score
+    matched.sort((a, b) => b.score - a.score);
+
+    console.log(`✅ Знойдзена ${matched.length} падыходзячых кандыдатаў`);
+
+    // Фармуем паведамленне для рэкрутэра
+    let recruiterMsg = `🎯 *Новая вакансія ${vacancy.vacancyCode} — знойдзены кандыдаты!*\n\n`;
+    recruiterMsg += `📋 *${vacancy.title}* (${vacancy.location})\n\n`;
+    recruiterMsg += `👥 *Падыходзячыя кандыдаты (${matched.length}):*\n`;
+
+    for (const { candidate, score } of matched) {
+      recruiterMsg += `\n• *${candidate.name}* (${candidate.nationality || "—"}, ${candidate.currentLocation || "—"})`;
+      recruiterMsg += `\n  📞 ${candidate.contactType}: ${candidate.telegram || candidate.phone || "—"}`;
+      recruiterMsg += `\n  ⭐ Супадзенне: ${score} балаў\n`;
+    }
+
+    await notifyRecruiter(recruiterMsg);
+  } catch (err) {
+    console.error("❌ Памылка матчынгу:", err.message);
+  }
+};
+
 // --- АСНОЎНАЯ ФУНКЦЫЯ АПРАЦОЎКІ ПАВЕДАМЛЕННЯ ---
-// Выкарыстоўваецца і ботам, і API эндпоінтам
 const processVacancyMessage = async (rawText) => {
-  // 1. Загружаем усе шаблоны
   const templates = await Template.find();
 
   if (templates.length === 0) {
     console.warn("⚠️ Шаблоны не знойдзены ў базе");
   }
 
-  // 2. Вызначаем шаблон
   const template = await aiService.identifyTemplate(rawText, templates);
 
   let vacancyData;
 
   if (template) {
-    // 3а. Ёсць шаблон — мержуем
     vacancyData = await aiService.mergeWithTemplate(rawText, template);
     vacancyData.agencyName = template.agencyName;
     vacancyData.templateId = template._id;
   } else {
-    // 3б. Няма шаблона — парсім як раней (fallback)
     console.log("⚠️ Шаблон не знойдзены, выкарыстоўваем fallback парсінг...");
     vacancyData = await aiService.parseVacancyWithAI(rawText);
   }
 
-  // 4. Фарматуем Telegram-пост
   const postText = await aiService.formatTelegramPost(vacancyData);
+  const vacancyCode = await generateVacancyCode();
 
-  // 5. Захоўваем вакансію ў базу
   const newVacancy = new Vacancy({
+    vacancyCode,
     title: vacancyData.title || "Новая вакансія",
     agencyName: vacancyData.agencyName || "Manual",
     location: vacancyData.location || "Не вызначана",
     salary: vacancyData.salary || {},
-    schedule: vacancyData.schedule?.shifts || vacancyData.schedule || "",
+    schedule: vacancyData.schedule || {},
     description: vacancyData.description || "",
     accommodation: vacancyData.accommodation || {},
-    transport: vacancyData.transport?.details || vacancyData.transport || "",
+    transport: vacancyData.transport || {},
     requirements: vacancyData.requirements || {},
     rawText: rawText,
     telegramPost: postText,
@@ -93,8 +198,11 @@ const processVacancyMessage = async (rawText) => {
 
   const savedVacancy = await newVacancy.save();
 
-  // 6. Адпраўляем у канал
+  // Адпраўляем у канал
   await sendToTelegram(postText);
+
+  // Запускаем матчынг аўтаматычна
+  await matchCandidatesForVacancy(savedVacancy);
 
   return savedVacancy;
 };
@@ -104,10 +212,7 @@ bot.on("message", async (ctx) => {
   const chatId = ctx.chat.id.toString();
   const text = ctx.message.text;
 
-  // Ігнаруем калі гэта не чат агенцыі
   if (!AGENCY_CHAT_IDS.includes(chatId)) return;
-
-  // Ігнаруем кароткія паведамленні (менш за 10 сімвалаў)
   if (!text || text.length < 10) return;
 
   console.log(
@@ -137,12 +242,10 @@ mongoose
 
 // --- МАРШРУТЫ ВАКАНСІЙ ---
 
-// Аўтаматычнае стварэнне (праз API, напрыклад з Postman або фронта)
 app.post("/api/vacancies/auto", async (req, res) => {
   try {
     const { rawText } = req.body;
     if (!rawText) return res.status(400).json({ message: "Тэкст пусты" });
-
     const savedVacancy = await processVacancyMessage(rawText);
     res.status(201).json(savedVacancy);
   } catch (err) {
@@ -162,11 +265,12 @@ app.get("/api/vacancies", async (req, res) => {
 
 app.post("/api/vacancies", async (req, res) => {
   try {
-    const newVacancy = new Vacancy(req.body);
+    const vacancyCode = await generateVacancyCode();
+    const newVacancy = new Vacancy({ ...req.body, vacancyCode });
     const savedVacancy = await newVacancy.save();
-    // Ручнае стварэнне — фарматуем і адпраўляем
     const postText = await aiService.formatTelegramPost(savedVacancy);
     await sendToTelegram(postText);
+    await matchCandidatesForVacancy(savedVacancy);
     res.status(201).json(savedVacancy);
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -231,6 +335,192 @@ app.delete("/api/templates/:id", async (req, res) => {
     res.json({ message: "✅ Шаблон выдалены" });
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+});
+
+// --- МАРШРУТЫ КАНДЫДАТАЎ ---
+
+// Атрымаць усіх кандыдатаў (з фільтрам па статусу)
+app.get("/api/candidates", async (req, res) => {
+  try {
+    const filter = {};
+    if (req.query.status) filter.status = req.query.status;
+    if (req.query.gender) filter.gender = req.query.gender;
+    const candidates = await Candidate.find(filter).sort({ createdAt: -1 });
+    res.json(candidates);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Атрымаць аднаго кандыдата
+app.get("/api/candidates/:id", async (req, res) => {
+  try {
+    const candidate = await Candidate.findById(req.params.id)
+      .populate("appliedVacancies.vacancyId")
+      .populate("currentVacancy");
+    if (!candidate) return res.status(404).json({ message: "Не знойдзена" });
+    res.json(candidate);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Стварыць кандыдата (ручное або з формы)
+app.post("/api/candidates", async (req, res) => {
+  try {
+    const newCandidate = new Candidate(req.body);
+    const saved = await newCandidate.save();
+    res.status(201).json(saved);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Абнавіць кандыдата
+app.put("/api/candidates/:id", async (req, res) => {
+  try {
+    const updated = await Candidate.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+    res.json(updated);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Дадаць нататку ў гісторыю кандыдата
+app.post("/api/candidates/:id/history", async (req, res) => {
+  try {
+    const { type, text } = req.body;
+    const candidate = await Candidate.findById(req.params.id);
+    if (!candidate) return res.status(404).json({ message: "Не знойдзена" });
+    candidate.history.push({ type, text, date: new Date() });
+    await candidate.save();
+    res.json(candidate);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Выдаліць кандыдата
+app.delete("/api/candidates/:id", async (req, res) => {
+  try {
+    await Candidate.findByIdAndDelete(req.params.id);
+    res.json({ message: "✅ Кандыдат выдалены" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Матчынг: падыходзячыя вакансіі для кандыдата
+app.get("/api/candidates/:id/match-vacancies", async (req, res) => {
+  try {
+    const candidate = await Candidate.findById(req.params.id);
+    if (!candidate) return res.status(404).json({ message: "Не знойдзена" });
+
+    const vacancies = await Vacancy.find({ status: "active" });
+    const prefs = candidate.jobPreferences;
+    const matched = [];
+
+    for (const vacancy of vacancies) {
+      let score = 0;
+
+      // Гендар
+      if (vacancy.requirements?.gender && candidate.gender) {
+        const vacGender = vacancy.requirements.gender.toLowerCase();
+        const candGender = candidate.gender === "female" ? "жінки" : "чоловіки";
+        if (vacGender.includes(candGender) || vacGender.includes("будь-який")) {
+          score += 3;
+        } else {
+          continue;
+        }
+      }
+
+      // Лакацыя
+      if (prefs?.locationFlexible) {
+        score += 2;
+      } else if (prefs?.location && vacancy.location) {
+        if (
+          vacancy.location.toLowerCase().includes(prefs.location.toLowerCase())
+        ) {
+          score += 2;
+        }
+      }
+
+      // Жытло
+      if (prefs?.needsAccommodation && vacancy.accommodation?.available) {
+        score += 1;
+      }
+
+      if (score >= 2) {
+        matched.push({ vacancy, score });
+      }
+    }
+
+    matched.sort((a, b) => b.score - a.score);
+    res.json(
+      matched.map((m) => ({ ...m.vacancy.toObject(), matchScore: m.score })),
+    );
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Публічная заяўка з сайта/бота
+app.post("/api/apply", async (req, res) => {
+  try {
+    const { vacancyId, name, contactType, telegram, phone, ...rest } = req.body;
+
+    // Захоўваем кандыдата
+    const candidate = new Candidate({
+      name,
+      contactType,
+      telegram,
+      phone,
+      source: "site",
+      status: "new",
+      ...rest,
+    });
+
+    if (vacancyId) {
+      candidate.appliedVacancies.push({
+        vacancyId,
+        appliedAt: new Date(),
+        type: req.body.applyType || "want_work",
+      });
+    }
+
+    const saved = await candidate.save();
+
+    // Знаходзім вакансію для паведамлення
+    let vacancyInfo = "";
+    if (vacancyId) {
+      const vacancy = await Vacancy.findById(vacancyId);
+      if (vacancy) {
+        vacancyInfo = `\n📋 Вакансія: *${vacancy.title}* (${vacancy.vacancyCode || vacancy._id})`;
+      }
+    }
+
+    // Апавяшчаем рэкрутэра
+    const applyType =
+      req.body.applyType === "want_info"
+        ? "Хоча дазнацца дэталі"
+        : "Хоча тут працаваць";
+    const msg = `
+🔔 *Новая заяўка!* (${applyType})${vacancyInfo}
+
+👤 *${name}*
+📞 ${contactType}: ${telegram || phone || "—"}
+🌍 Нацыянальнасць: ${rest.nationality || "—"}
+📍 Знаходзіцца: ${rest.currentLocation || "—"}
+🎂 Узрост: ${rest.age || "—"}
+    `;
+
+    await notifyRecruiter(msg);
+    res.status(201).json(saved);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
   }
 });
 
