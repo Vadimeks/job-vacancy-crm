@@ -32,7 +32,7 @@ const candidateSchema = new mongoose.Schema({
       type: String,
       enum: ["alone", "couple", "family"],
     },
-    readyDate: Date, // калі гатовы прыступіць
+    readyDate: String, // калі гатовы прыступіць
     notes: String, // дадатковыя пажаданні
   },
 
