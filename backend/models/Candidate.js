@@ -94,7 +94,7 @@ const candidateSchema = new mongoose.Schema({
 // Аўтаматычна абнаўляем updatedAt
 candidateSchema.pre("save", function (next) {
   this.updatedAt = new Date();
-  next();
+  return next();
 });
 
 module.exports = mongoose.model("Candidate", candidateSchema);
