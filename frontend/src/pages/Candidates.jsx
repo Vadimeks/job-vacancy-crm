@@ -1,6 +1,8 @@
 // frontend/src/pages/Candidates.jsx
 import { useEffect, useState, useCallback } from "react";
 import { getCandidates, deleteCandidate } from "../services/api";
+import ProfileModal from "../components/candidates/ProfileModal";
+import AddCandidateModal from "../components/candidates/AddCandidateModal";
 
 const STATUS_COLORS = {
   new: "bg-blue-500/10 text-blue-400 border border-blue-500/20",
@@ -26,6 +28,8 @@ export default function Candidates() {
   const [candidates, setCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState("");
+  const [profileId, setProfileId] = useState(null);
+  const [showAddForm, setShowAddForm] = useState(false);
 
   const fetchCandidates = useCallback(async () => {
     setLoading(true);
@@ -50,9 +54,19 @@ export default function Candidates() {
     try {
       await deleteCandidate(id);
       setCandidates((prev) => prev.filter((c) => c._id !== id));
-    } catch (_err) {
+    } catch {
       alert("Памылка выдалення");
     }
+  };
+
+  const handleUpdate = (updated) => {
+    setCandidates((prev) =>
+      prev.map((c) => (c._id === updated._id ? updated : c)),
+    );
+  };
+
+  const handleAdd = (newCandidate) => {
+    setCandidates((prev) => [newCandidate, ...prev]);
   };
 
   return (
@@ -65,12 +79,15 @@ export default function Candidates() {
             {candidates.length} кандыдатаў
           </p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-medium text-sm rounded-lg transition-colors">
+        <button
+          onClick={() => setShowAddForm(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-medium text-sm rounded-lg transition-colors"
+        >
           <span>＋</span> Дадаць кандыдата
         </button>
       </div>
 
-      {/* Фільтр па статусу */}
+      {/* Фільтр */}
       <div className="flex gap-2 mb-6 flex-wrap">
         <button
           onClick={() => setFilterStatus("")}
@@ -110,11 +127,12 @@ export default function Candidates() {
           {candidates.map((c) => (
             <div
               key={c._id}
-              className="bg-slate-900 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition-colors"
+              className="bg-slate-900 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition-colors cursor-pointer"
+              onClick={() => setProfileId(c._id)}
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-3 mb-2">
+                  <div className="flex items-center gap-3 mb-2 flex-wrap">
                     <span
                       className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLORS[c.status]}`}
                     >
@@ -126,6 +144,9 @@ export default function Candidates() {
                         : c.source === "telegram_bot"
                           ? "✈️ Telegram"
                           : "✋ Ручны"}
+                    </span>
+                    <span className="text-xs text-slate-700">
+                      {new Date(c.createdAt).toLocaleDateString("uk-UA")}
                     </span>
                   </div>
 
@@ -145,21 +166,32 @@ export default function Candidates() {
                     )}
                   </div>
 
-                  {c.jobPreferences?.location && (
+                  {c.jobPreferences?.locationFlexible && (
                     <div className="mt-2 text-xs text-slate-600">
-                      🔍 Шукае працу:{" "}
-                      {c.jobPreferences.locationFlexible
-                        ? "Гатовы да пераезду"
-                        : c.jobPreferences.location}
+                      🔍 Гатовы да пераезду
                     </div>
                   )}
+                  {!c.jobPreferences?.locationFlexible &&
+                    c.jobPreferences?.location && (
+                      <div className="mt-2 text-xs text-slate-600">
+                        🔍 Шукае: {c.jobPreferences.location}
+                      </div>
+                    )}
                 </div>
 
-                <div className="flex gap-2 shrink-0">
+                <div
+                  className="flex gap-2 shrink-0"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button
+                    onClick={() => setProfileId(c._id)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-slate-400 hover:text-slate-100 hover:bg-slate-800 rounded-lg transition-colors text-xs"
+                  >
+                    👤 Профіль
+                  </button>
                   <button
                     onClick={() => handleDelete(c._id)}
-                    className="p-2 text-slate-600 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors text-sm"
-                    title="Выдаліць"
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-slate-600 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors text-xs"
                   >
                     🗑
                   </button>
@@ -168,6 +200,21 @@ export default function Candidates() {
             </div>
           ))}
         </div>
+      )}
+
+      {profileId && (
+        <ProfileModal
+          candidateId={profileId}
+          onClose={() => setProfileId(null)}
+          onUpdate={handleUpdate}
+        />
+      )}
+
+      {showAddForm && (
+        <AddCandidateModal
+          onClose={() => setShowAddForm(false)}
+          onAdd={handleAdd}
+        />
       )}
     </div>
   );
