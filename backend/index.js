@@ -534,6 +534,19 @@ app.listen(PORT, () => {
   console.log(`📜 Swagger: http://localhost:${PORT}/api-docs`);
 });
 
-bot.launch();
+bot.launch().catch((err) => {
+  if (err.message?.includes("409")) {
+    console.warn(
+      "⚠️ Бот ужо запушчаны ў іншым месцы. Чакаем 5 сек і паўтараем...",
+    );
+    setTimeout(() => {
+      bot
+        .launch()
+        .catch((e) => console.error("❌ Бот не запусціўся:", e.message));
+    }, 5000);
+  } else {
+    console.error("❌ Памылка запуску бота:", err.message);
+  }
+});
 process.once("SIGINT", () => bot.stop("SIGINT"));
 process.once("SIGTERM", () => bot.stop("SIGTERM"));
