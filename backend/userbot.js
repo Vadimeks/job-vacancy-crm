@@ -69,6 +69,9 @@ async function startUserbot() {
         `📨 Новае паведамленне з чата [${chatId}]: ${text.substring(0, 60)}...`,
       );
 
+      // Паўза каб не перагружаць Gemini API
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+
       // Адпраўляем на апрацоўку ў бэкенд
       try {
         const res = await axios.post(`${BACKEND_URL}/api/vacancies/auto`, {
