@@ -7,6 +7,7 @@ import {
 } from "../services/api";
 import EditVacancyModal from "../components/vacancies/EditVacancyModal";
 import ApplyModal from "../components/vacancies/ApplyModal";
+import VacancyMatchModal from "../components/vacancies/VacancyMatchModal";
 
 const STATUS_COLORS = {
   active: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
@@ -28,8 +29,8 @@ export default function Vacancies() {
   const [showAutoForm, setShowAutoForm] = useState(false);
   const [editVacancy, setEditVacancy] = useState(null);
   const [applyVacancy, setApplyVacancy] = useState(null);
+  const [matchVacancy, setMatchVacancy] = useState(null);
   const [applyType, setApplyType] = useState(null);
-
   const fetchVacancies = async () => {
     try {
       const res = await getVacancies();
@@ -203,6 +204,12 @@ export default function Vacancies() {
 
                 <div className="flex gap-2 shrink-0">
                   <button
+                    onClick={() => setMatchVacancy(v)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-slate-400 hover:text-emerald-400 hover:bg-emerald-500/10 rounded-lg transition-colors text-xs"
+                  >
+                    🎯 Кандыдаты
+                  </button>
+                  <button
                     onClick={() => setEditVacancy(v)}
                     className="flex items-center gap-1.5 px-3 py-1.5 text-slate-400 hover:text-slate-100 hover:bg-slate-800 rounded-lg transition-colors text-xs"
                   >
@@ -237,6 +244,12 @@ export default function Vacancies() {
             setApplyVacancy(null);
             setApplyType(null);
           }}
+        />
+      )}
+      {matchVacancy && (
+        <VacancyMatchModal
+          vacancy={matchVacancy}
+          onClose={() => setMatchVacancy(null)}
         />
       )}
     </div>

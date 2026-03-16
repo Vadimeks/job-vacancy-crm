@@ -4,6 +4,7 @@ import {
   getCandidate,
   updateCandidate,
   addCandidateHistory,
+  matchVacanciesForCandidate,
 } from "../../services/api";
 import Divider from "../shared/Divider";
 import EditCandidateModal from "./EditCandidateModal";
@@ -33,7 +34,20 @@ export default function ProfileModal({ candidateId, onClose, onUpdate }) {
   const [addingNote, setAddingNote] = useState(false);
   const [editStatus, setEditStatus] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
+  const [matchedVacancies, setMatchedVacancies] = useState(null);
+  const [matchLoading, setMatchLoading] = useState(false);
 
+  const handleMatch = async () => {
+    setMatchLoading(true);
+    try {
+      const res = await matchVacanciesForCandidate(candidate._id);
+      setMatchedVacancies(res.data);
+    } catch {
+      alert("Памылка матчынгу");
+    } finally {
+      setMatchLoading(false);
+    }
+  };
   useEffect(() => {
     const load = async () => {
       try {
@@ -99,6 +113,13 @@ export default function ProfileModal({ candidateId, onClose, onUpdate }) {
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg transition-colors"
               >
                 ✏️ Рэдагаваць
+              </button>
+              <button
+                onClick={handleMatch}
+                disabled={matchLoading}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg transition-colors disabled:opacity-50"
+              >
+                🎯 {matchLoading ? "Пошук..." : "Вакансіі"}
               </button>
               <button
                 onClick={onClose}
@@ -313,7 +334,47 @@ export default function ProfileModal({ candidateId, onClose, onUpdate }) {
                   </div>
                 </>
               )}
-
+              {/* Матчынг вакансій */}
+              {matchedVacancies !== null && (
+                <>
+                  <Divider label="🎯 Падыходзячыя вакансіі" />
+                  {matchedVacancies.length === 0 ? (
+                    <p className="text-xs text-slate-600">
+                      Падыходзячых вакансій не знойдзена
+                    </p>
+                  ) : (
+                    <div className="space-y-2">
+                      {matchedVacancies.map((v) => (
+                        <div
+                          key={v._id}
+                          className="bg-slate-800 rounded-lg px-3 py-2"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <span className="text-sm text-slate-200 font-medium">
+                                {v.title}
+                              </span>
+                              {v.vacancyCode && (
+                                <span className="text-xs font-mono text-slate-500 ml-2">
+                                  ({v.vacancyCode})
+                                </span>
+                              )}
+                            </div>
+                            <span className="text-xs bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full">
+                              ⭐ {v.matchScore}
+                            </span>
+                          </div>
+                          <div className="flex gap-3 mt-1 text-xs text-slate-500">
+                            <span>📍 {v.location}</span>
+                            {v.agencyName && <span>🏢 {v.agencyName}</span>}
+                            {v.salary?.base && <span>💰 {v.salary.base}</span>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
               {/* Гісторыя */}
               <Divider label="🗂 Гісторыя зносін" />
               <div className="space-y-2 mb-3">

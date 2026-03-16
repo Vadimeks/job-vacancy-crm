@@ -32,5 +32,6 @@ export const matchVacanciesForCandidate = (id) =>
 
 // --- ЗАЯЎКІ ---
 export const submitApplication = (data) => api.post("/apply", data);
-
+export const matchCandidatesForVacancy = (id) =>
+  api.get(`/vacancies/${id}/match-candidates`);
 export default api;
