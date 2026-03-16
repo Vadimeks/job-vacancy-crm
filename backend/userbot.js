@@ -32,6 +32,8 @@ async function startUserbot() {
   });
 
   console.log("✅ Userbot аўтарызаваны!");
+  // const savedSession = client.session.save();
+  // console.log("SESSION:", savedSession);
 
   // Паказваем усе чаты (для атрымання ID)
   if (AGENCY_CHAT_IDS.length === 0) {
