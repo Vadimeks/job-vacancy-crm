@@ -287,17 +287,24 @@ ROLE: Professional HR Dispatcher for the Polish job market.
 TASK: Parse job text into a FLAT JSON structure in UKRAINIAN.
 Return ONLY valid JSON matching this structure:
 {
-  "title": "string", "location": "string", "agencyName": "string",
+  "title": "string",
+  "location": "string",
+  "agencyName": "string",
   "salary": { "base": "string", "student": "string", "bonus": "string" },
-  "schedule": "string", "description": "string",
-  "accommodation": { "cost": "string", "details": "string" },
-  "transport": "string",
-  "requirements": { "gender": "string", "age": "string", "docs": [] }
-}`;
+  "schedule": { "shifts": "string", "hours": "string", "details": "string" },
+  "description": "string",
+  "accommodation": { "available": true, "cost": "string", "details": "string" },
+  "transport": { "provided": true, "cost": "string", "details": "string" },
+  "requirements": { "gender": "string", "age": "string", "nationalities": [], "docs": [] },
+  "conditions": { "temperature": "string", "workwear": "string", "food": "string" },
+  "contractType": "string"
+}
+IMPORTANT: Return ONLY valid JSON. No markdown. No explanations.`;
 
     const result = await model.generateContent(
       `${SYSTEM_INSTRUCTION}\n\nInput text:\n${rawText}`,
     );
+
     let cleanJson = result.response.text().trim();
     cleanJson = cleanJson.replace(/```json\s*/g, "").replace(/```\s*/g, "");
     const jsonMatch = cleanJson.match(/\{[\s\S]*\}/);
@@ -308,9 +315,25 @@ Return ONLY valid JSON matching this structure:
     if (error.message?.includes("429") || error.status === 429) {
       throw new Error("RATE_LIMIT");
     }
+
+    // Калі JSON не парсіцца — вяртаем базавы аб'ект
     if (error instanceof SyntaxError) {
-      throw new Error("INVALID_JSON_RESPONSE");
+      console.warn("⚠️ JSON не парсіцца, выкарыстоўваем базавы аб'ект");
+      return {
+        title: "Новая вакансія",
+        location: "Польща",
+        agencyName: "Manual",
+        salary: { base: "", student: "", bonus: "" },
+        schedule: { shifts: "", hours: "", details: "" },
+        description: rawText.substring(0, 500),
+        accommodation: { available: false, cost: "", details: "" },
+        transport: { provided: false, cost: "", details: "" },
+        requirements: { gender: "", age: "", nationalities: [], docs: [] },
+        conditions: { temperature: "", workwear: "", food: "" },
+        contractType: "",
+      };
     }
+
     throw error;
   }
 }
