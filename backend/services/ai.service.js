@@ -1,9 +1,10 @@
 // backend/services/ai.service.js
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const Groq = require("groq-sdk");
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+const MODEL = "llama-3.3-70b-versatile";
 
-// --- СІСТЭМНЫ ПРОМПТ ДЛЯ ВЫЗНАЧЭННЯ АГЕНЦЫІ/ШАБЛОНА ---
+// --- ПРОМПТЫ (без змен) ---
 const IDENTIFY_PROMPT = `
 ROLE: HR Dispatcher assistant.
 TASK: Identify which agency and job template this message belongs to.
@@ -22,7 +23,6 @@ Return ONLY a JSON object:
 IMPORTANT: Return ONLY valid JSON, no markdown, no explanations.
 `;
 
-// --- СІСТЭМНЫ ПРОМПТ ДЛЯ МЕРЖАВАННЯ ШАБЛОНА З НОВЫМІ ДАДЗЕНЫМІ ---
 const MERGE_PROMPT = `
 ROLE: Professional HR Dispatcher for the Polish job market.
 TASK: You have a job template and a new short message. 
@@ -94,7 +94,6 @@ Return ONLY valid JSON with the complete merged result using this structure:
 IMPORTANT: Return ONLY valid JSON, no markdown, no explanations.
 `;
 
-// --- ПРОМПТ ДЛЯ ФАРМАТАВАННЯ ФІНАЛЬНАГА ПАСТА ---
 const FORMAT_PROMPT = `
 ROLE: Professional HR content formatter.
 TASK: Format the job data into a beautiful Telegram post in UKRAINIAN.
@@ -140,18 +139,31 @@ Use this EXACT structure (skip blocks if data is empty/null/empty string):
 
 Rules:
 - Write in Ukrainian
-- Use ONLY • for bullet points, never use "- •" or "-" before bullets
-- Do NOT repeat location after title — title already contains location info
-- Use Markdown bold (*text*) for section headers as shown
+- Use ONLY • for bullet points
+- Do NOT repeat location after title
+- Use Markdown bold (*text*) for section headers
 - Split description by semicolons into bullet points with •
-- If entire block has no data — skip it completely, do not write the header
-- requirements.physical goes into Умови праці block, NOT into Вимоги block
+- If entire block has no data — skip it completely
+- requirements.physical goes into Умови праці block
 - Return ONLY the formatted post text, no JSON, no explanations
 `;
 
-// --- ФУНКЦЫЯ 1: Вызначэнне шаблона па тэксту паведамлення ---
+// --- ДАПАМОЖНАЯ ФУНКЦЫЯ для запыту да Groq ---
+async function groqRequest(systemPrompt, userContent, jsonMode = true) {
+  const response = await groq.chat.completions.create({
+    model: MODEL,
+    temperature: 0.2,
+    response_format: jsonMode ? { type: "json_object" } : undefined,
+    messages: [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userContent },
+    ],
+  });
+  return response.choices[0]?.message?.content || "";
+}
+
+// --- ФУНКЦЫЯ 1: Вызначэнне шаблона ---
 async function identifyTemplate(rawText, templates) {
-  // Спачатку спрабуем знайсці па ключавых словах (хутка, без AI)
   const lowerText = rawText.toLowerCase();
   const found = templates.find((t) =>
     t.keywords.some((kw) => lowerText.includes(kw.toLowerCase())),
@@ -162,17 +174,8 @@ async function identifyTemplate(rawText, templates) {
     return found;
   }
 
-  // Калі не знайшлі па словах — пытаемся ў AI
   console.log(`🤖 Ключавыя словы не знайшлі. Пытаемся ў AI...`);
   try {
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash",
-      generationConfig: {
-        temperature: 0.1,
-        responseMimeType: "application/json",
-      },
-    });
-
     const templateList = templates.map((t) => ({
       _id: t._id.toString(),
       templateName: t.templateName,
@@ -180,9 +183,9 @@ async function identifyTemplate(rawText, templates) {
       keywords: t.keywords,
     }));
 
-    const prompt = `${IDENTIFY_PROMPT}\n\nMESSAGE:\n${rawText}\n\nAVAILABLE TEMPLATES:\n${JSON.stringify(templateList, null, 2)}`;
-    const result = await model.generateContent(prompt);
-    const parsed = JSON.parse(result.response.text());
+    const content = `MESSAGE:\n${rawText}\n\nAVAILABLE TEMPLATES:\n${JSON.stringify(templateList, null, 2)}`;
+    const text = await groqRequest(IDENTIFY_PROMPT, content, true);
+    const parsed = JSON.parse(text);
 
     if (parsed.templateId) {
       const matched = templates.find(
@@ -203,25 +206,17 @@ async function identifyTemplate(rawText, templates) {
   return null;
 }
 
-// --- ФУНКЦЫЯ 2: Мерж шаблона з новымі дадзенымі з паведамлення ---
+// --- ФУНКЦЫЯ 2: Мерж шаблона ---
 async function mergeWithTemplate(rawText, template) {
   try {
     console.log(
       `🤖 Мерж шаблона "${template.templateName}" з паведамленнем...`,
     );
 
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash",
-      generationConfig: {
-        temperature: 0.2,
-        responseMimeType: "application/json",
-      },
-    });
+    const content = `TEMPLATE:\n${JSON.stringify(template, null, 2)}\n\nMESSAGE:\n${rawText}`;
+    const text = await groqRequest(MERGE_PROMPT, content, true);
 
-    const prompt = `${MERGE_PROMPT}\n\nTEMPLATE:\n${JSON.stringify(template, null, 2)}\n\nMESSAGE:\n${rawText}`;
-    const result = await model.generateContent(prompt);
-
-    let cleanJson = result.response.text().trim();
+    let cleanJson = text.trim();
     cleanJson = cleanJson.replace(/```json\s*/g, "").replace(/```\s*/g, "");
     const jsonMatch = cleanJson.match(/\{[\s\S]*\}/);
     if (jsonMatch) cleanJson = jsonMatch[0];
@@ -240,24 +235,17 @@ async function mergeWithTemplate(rawText, template) {
   }
 }
 
-// --- ФУНКЦЫЯ 3: Фарматаванне гатовага Telegram-паста ---
+// --- ФУНКЦЫЯ 3: Фарматаванне паста ---
 async function formatTelegramPost(vacancyData) {
   try {
     console.log(`🤖 Фарматаванне Telegram-паста...`);
-
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash",
-      generationConfig: {
-        temperature: 0.3,
-      },
-    });
-
-    const prompt = `${FORMAT_PROMPT}\n\nDATA:\n${JSON.stringify(vacancyData, null, 2)}`;
-    const result = await model.generateContent(prompt);
-    const text = result.response.text().trim();
-
+    const text = await groqRequest(
+      FORMAT_PROMPT,
+      `DATA:\n${JSON.stringify(vacancyData, null, 2)}`,
+      false,
+    );
     console.log(`✅ Пост сфарматаваны`);
-    return text;
+    return text.trim();
   } catch (error) {
     if (error.message?.includes("429") || error.status === 429) {
       throw new Error("RATE_LIMIT");
@@ -266,61 +254,52 @@ async function formatTelegramPost(vacancyData) {
   }
 }
 
-// --- СТАРАЯ ФУНКЦЫЯ (пакідаем для сумяшчальнасці) ---
+// --- ФУНКЦЫЯ 4: Парсінг без шаблона ---
 async function parseVacancyWithAI(rawText) {
   try {
-    console.log(`🤖 Парсінг без шаблона (Gemini 2.5 Flash)...`);
-
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash",
-      generationConfig: {
-        temperature: 0.2,
-        topP: 0.8,
-        topK: 40,
-        maxOutputTokens: 2048,
-        responseMimeType: "application/json",
-      },
-    });
+    console.log(`🤖 Парсінг без шаблона (Groq Llama)...`);
 
     const SYSTEM_INSTRUCTION = `
 ROLE: Professional HR Dispatcher for the Polish job market.
 TASK: Parse job vacancy text into structured JSON in UKRAINIAN.
 
 RULES:
-- "title": short professional job title in Ukrainian (e.g. "Збір спаржі", "Виробництво морозива", "Догляд за квітами"). NOT "Новая вакансія".
-- "location": city name only (e.g. "Освенцим", "Намислув"). If Netherlands — add "(Нідерланди)".
-- "agencyName": recruitment agency name ONLY if explicitly mentioned, otherwise "Manual". Factory/farm names are NOT agencies.
-- "contractType": "zlecenie" if "umowa zlecenie", "o_prace" if "umowa o pracę", otherwise ""
-- "salary.base": hourly rate as string (e.g. "22,63 zł нетто/год", "17,55 € брутто/год")
-- "salary.monthly": monthly earnings (e.g. "2800-3800 € брутто/міс")
+- "title": short professional job title in Ukrainian. NOT "Новая вакансія".
+- "location": city name only. If Netherlands — add "(Нідерланди)".
+- "agencyName": recruitment agency name ONLY if explicitly mentioned, otherwise "Manual".
+- "contractType": "zlecenie" / "o_prace" / ""
+- "salary.base": hourly rate as string
+- "salary.monthly": monthly earnings
 - "salary.student": student rate if mentioned
 - "salary.bonus": bonuses if any
-- "schedule.shifts": shift count/type (e.g. "1 зміна", "2 денні зміни", "3 зміни (6-14, 14-22, 22-06)")
-- "schedule.hours": hours per month (e.g. "160-220 годин/міс")
-- "schedule.details": additional schedule info (days, seasons)
+- "schedule.shifts": shift count/type
+- "schedule.hours": hours per month
+- "schedule.details": additional schedule info
 - "description": duties as semicolon-separated list in Ukrainian
-- "accommodation.available": true if housing mentioned, false otherwise
-- "accommodation.cost": housing cost as string
+- "accommodation.available": true if housing mentioned
+- "accommodation.cost": housing cost
 - "accommodation.details": housing details
 - "transport.provided": true if transport mentioned
-- "transport.cost": transport cost or "безкоштовно"
+- "transport.cost": transport cost
 - "transport.details": transport details
-- "requirements.gender": "жінки", "чоловіки", "жінки та чоловіки", or ""
-- "requirements.age": age as string (e.g. "від 30 до 50 років", "без обмежень")
-- "requirements.nationalities": array, empty if not specified
-- "requirements.docs": required documents array (e.g. ["санепід", "карта побиту або віза"])
-- "requirements.physical": physical requirements as string
+- "requirements.gender": "жінки" / "чоловіки" / "жінки та чоловіки" / ""
+- "requirements.age": age as string
+- "requirements.nationalities": array
+- "requirements.docs": required documents array
+- "requirements.physical": physical requirements
 - "conditions.temperature": temperature if mentioned
 - "conditions.workwear": work clothes info
 - "conditions.food": food/kitchen info
 
 Return ONLY valid JSON. No markdown. No explanations.`;
 
-    const result = await model.generateContent(
-      `${SYSTEM_INSTRUCTION}\n\nInput text:\n${rawText}`,
+    const text = await groqRequest(
+      SYSTEM_INSTRUCTION,
+      `Input text:\n${rawText}`,
+      true,
     );
 
-    let cleanJson = result.response.text().trim();
+    let cleanJson = text.trim();
     cleanJson = cleanJson.replace(/```json\s*/g, "").replace(/```\s*/g, "");
     const jsonMatch = cleanJson.match(/\{[\s\S]*\}/);
     if (jsonMatch) cleanJson = jsonMatch[0];
@@ -330,8 +309,6 @@ Return ONLY valid JSON. No markdown. No explanations.`;
     if (error.message?.includes("429") || error.status === 429) {
       throw new Error("RATE_LIMIT");
     }
-
-    // Калі JSON не парсіцца — вяртаем базавы аб'ект
     if (error instanceof SyntaxError) {
       console.warn("⚠️ JSON не парсіцца, выкарыстоўваем базавы аб'ект");
       return {
@@ -348,21 +325,17 @@ Return ONLY valid JSON. No markdown. No explanations.`;
         contractType: "",
       };
     }
-
     throw error;
   }
 }
 
 async function testConnection() {
   try {
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash",
-    });
-    await model.generateContent("Test");
-    console.log("✅ Gemini 2.5 Flash даступны");
+    await groqRequest("You are helpful.", "Test", false);
+    console.log("✅ Groq Llama даступны");
     return true;
   } catch (error) {
-    console.error("❌ Gemini API недаступны:", error.message);
+    console.error("❌ Groq API недаступны:", error.message);
     return false;
   }
 }
