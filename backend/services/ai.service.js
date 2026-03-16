@@ -166,7 +166,7 @@ async function identifyTemplate(rawText, templates) {
   console.log(`🤖 Ключавыя словы не знайшлі. Пытаемся ў AI...`);
   try {
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash-latest",
+      model: "gemini-1.5-flash-8b",
       generationConfig: {
         temperature: 0.1,
         responseMimeType: "application/json",
@@ -211,7 +211,7 @@ async function mergeWithTemplate(rawText, template) {
     );
 
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash-latest",
+      model: "gemini-1.5-flash-8b",
       generationConfig: {
         temperature: 0.2,
         responseMimeType: "application/json",
@@ -246,7 +246,7 @@ async function formatTelegramPost(vacancyData) {
     console.log(`🤖 Фарматаванне Telegram-паста...`);
 
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash-latest",
+      model: "gemini-1.5-flash-8b",
       generationConfig: {
         temperature: 0.3,
       },
@@ -272,7 +272,7 @@ async function parseVacancyWithAI(rawText) {
     console.log(`🤖 Парсінг без шаблона (Gemini 2.5 Flash)...`);
 
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash-latest",
+      model: "gemini-1.5-flash-8b",
       generationConfig: {
         temperature: 0.2,
         topP: 0.8,
@@ -356,7 +356,7 @@ Return ONLY valid JSON. No markdown. No explanations.`;
 async function testConnection() {
   try {
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash-latest",
+      model: "gemini-1.5-flash-8b",
     });
     await model.generateContent("Test");
     console.log("✅ Gemini 2.5 Flash даступны");
