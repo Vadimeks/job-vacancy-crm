@@ -33,12 +33,6 @@ async function startUserbot() {
 
   console.log("✅ Userbot аўтарызаваны!");
 
-  // Захоўваем сесію каб не аўтарызавацца кожны раз
-  const savedSession = client.session.save();
-  console.log("\n🔑 ЗАХАВАЙЦЕ ГЭТЫ SESSION STRING У .env як TELEGRAM_SESSION:");
-  console.log(savedSession);
-  console.log("\n");
-
   // Паказваем усе чаты (для атрымання ID)
   if (AGENCY_CHAT_IDS.length === 0) {
     console.log("📋 Вашы чаты (скапіруйце патрэбныя ID у AGENCY_CHAT_IDS):");
