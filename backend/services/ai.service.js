@@ -284,22 +284,37 @@ async function parseVacancyWithAI(rawText) {
 
     const SYSTEM_INSTRUCTION = `
 ROLE: Professional HR Dispatcher for the Polish job market.
-TASK: Parse job text into a FLAT JSON structure in UKRAINIAN.
-Return ONLY valid JSON matching this structure:
-{
-  "title": "string",
-  "location": "string",
-  "agencyName": "string",
-  "salary": { "base": "string", "student": "string", "bonus": "string" },
-  "schedule": { "shifts": "string", "hours": "string", "details": "string" },
-  "description": "string",
-  "accommodation": { "available": true, "cost": "string", "details": "string" },
-  "transport": { "provided": true, "cost": "string", "details": "string" },
-  "requirements": { "gender": "string", "age": "string", "nationalities": [], "docs": [] },
-  "conditions": { "temperature": "string", "workwear": "string", "food": "string" },
-  "contractType": "string"
-}
-IMPORTANT: Return ONLY valid JSON. No markdown. No explanations.`;
+TASK: Parse job vacancy text into structured JSON in UKRAINIAN.
+
+RULES:
+- "title": short professional job title in Ukrainian (e.g. "Збір спаржі", "Виробництво морозива", "Догляд за квітами"). NOT "Новая вакансія".
+- "location": city name only (e.g. "Освенцим", "Намислув"). If Netherlands — add "(Нідерланди)".
+- "agencyName": recruitment agency name ONLY if explicitly mentioned, otherwise "Manual". Factory/farm names are NOT agencies.
+- "contractType": "zlecenie" if "umowa zlecenie", "o_prace" if "umowa o pracę", otherwise ""
+- "salary.base": hourly rate as string (e.g. "22,63 zł нетто/год", "17,55 € брутто/год")
+- "salary.monthly": monthly earnings (e.g. "2800-3800 € брутто/міс")
+- "salary.student": student rate if mentioned
+- "salary.bonus": bonuses if any
+- "schedule.shifts": shift count/type (e.g. "1 зміна", "2 денні зміни", "3 зміни (6-14, 14-22, 22-06)")
+- "schedule.hours": hours per month (e.g. "160-220 годин/міс")
+- "schedule.details": additional schedule info (days, seasons)
+- "description": duties as semicolon-separated list in Ukrainian
+- "accommodation.available": true if housing mentioned, false otherwise
+- "accommodation.cost": housing cost as string
+- "accommodation.details": housing details
+- "transport.provided": true if transport mentioned
+- "transport.cost": transport cost or "безкоштовно"
+- "transport.details": transport details
+- "requirements.gender": "жінки", "чоловіки", "жінки та чоловіки", or ""
+- "requirements.age": age as string (e.g. "від 30 до 50 років", "без обмежень")
+- "requirements.nationalities": array, empty if not specified
+- "requirements.docs": required documents array (e.g. ["санепід", "карта побиту або віза"])
+- "requirements.physical": physical requirements as string
+- "conditions.temperature": temperature if mentioned
+- "conditions.workwear": work clothes info
+- "conditions.food": food/kitchen info
+
+Return ONLY valid JSON. No markdown. No explanations.`;
 
     const result = await model.generateContent(
       `${SYSTEM_INSTRUCTION}\n\nInput text:\n${rawText}`,
