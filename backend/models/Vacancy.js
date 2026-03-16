@@ -1,6 +1,15 @@
 // backend/models/Vacancy.js
 const mongoose = require("mongoose");
 
+const SPHERES = [
+  "warehouse",
+  "food_production",
+  "automotive",
+  "agriculture",
+  "retail",
+  "other",
+];
+
 const vacancySchema = new mongoose.Schema({
   title: { type: String, required: true },
   agencyName: { type: String, default: "Manual" },
@@ -15,54 +24,65 @@ const vacancySchema = new mongoose.Schema({
   city: String,
   address: String,
 
+  // Сфера вытворчасці
+  sphere: { type: String, enum: SPHERES },
+
   salary: {
-    base: String, // 25,36 zł нетто/год
-    student: String, // 31,40 zł нетто/год
-    monthly: String, // 4 250 – 6 000 zł/міс
-    bonus: String, // Премія 200 zł
-    notes: String, // дадатковыя заўвагі
+    base: String,
+    student: String,
+    monthly: String,
+    bonus: String,
+    notes: String,
   },
 
   schedule: {
-    shifts: String, // "2 зміни по 8-11 годин"
-    hours: String, // "220–270 годин на місяць"
-    details: String, // дадатковая інфа
+    shifts: String,
+    hours: String,
+    details: String,
+    types: [String], // ["day", "night", "rotating"]
   },
+
+  overtimeAvailable: { type: Boolean, default: false },
 
   accommodation: {
     available: { type: Boolean, default: true },
-    cost: String, // "750 zł/міс"
-    details: String, // "для пар — 2-місні кімнати"
-    deposit: String, // "200 zł (повертається)"
+    cost: String,
+    details: String,
+    deposit: String,
   },
 
   transport: {
     provided: { type: Boolean, default: true },
-    cost: String, // "безкоштовно" або "150 zł"
+    cost: String,
     details: String,
   },
 
   requirements: {
     gender: String,
     age: String,
-    nationalities: [String], // ["Україна", "Молдова"]
-    docs: [String],
+    ageMax: Number, // 58 — для матчынгу
+    ageMin: Number, // 18 — мінімальны ўзрост
+    nationalities: [String],
+    docs: [String], // ["санепід", "UDT"]
     physical: String,
+    languages: [String], // ["польська", "нідэрландская"]
+    languageLevel: String, // "камунікатыўны" / "базавы" / "не патрабуецца"
   },
+
+  contractType: String, // "zlecenie" / "o_prace" / "any"
 
   conditions: {
-    temperature: String, // "+10°C"
-    workwear: String, // "спецодяг надається"
-    food: String, // "безкоштовний чай, кава"
+    temperature: String,
+    workwear: String,
+    food: String,
   },
 
-  contractType: String, // "Umowa zlecenie"
   description: String,
-  arrivalDate: String, // "20.03" (адна дата, з паведамлення)
-  count: Number, // колькасць людзей
+  arrivalDate: String,
+  count: Number,
 
   rawText: String,
-  telegramPost: String, // гатовы тэкст які адправілі ў канал
+  telegramPost: String,
 
   status: {
     type: String,
@@ -70,7 +90,7 @@ const vacancySchema = new mongoose.Schema({
     default: "active",
   },
 
-  vacancyCode: { type: String, unique: true }, // VAC-0001
+  vacancyCode: { type: String, unique: true },
   createdAt: { type: Date, default: Date.now },
 });
 

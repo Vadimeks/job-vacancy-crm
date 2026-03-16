@@ -68,91 +68,181 @@ const matchCandidatesForVacancy = async (vacancy) => {
   try {
     console.log(`🔍 Матчынг кандыдатаў для вакансіі ${vacancy.vacancyCode}...`);
 
-    // Бярэм толькі кандыдатаў у статусе waiting
-    const waitingCandidates = await Candidate.find({ status: "waiting" });
+    const candidates = await Candidate.find({
+      status: { $in: ["new", "active", "waiting"] },
+    });
 
-    if (waitingCandidates.length === 0) {
-      console.log("ℹ️ Няма кандыдатаў у статусе waiting");
-      return;
+    if (candidates.length === 0) {
+      console.log("ℹ️ Няма кандыдатаў");
+      return [];
     }
 
     const matched = [];
 
-    for (const candidate of waitingCandidates) {
+    for (const candidate of candidates) {
       const prefs = candidate.jobPreferences;
-      let score = 0;
 
-      // Праверка гендару
+      // --- HARD FILTERS (абавязковыя) ---
+
+      // Гендар
       if (vacancy.requirements?.gender && candidate.gender) {
         const vacGender = vacancy.requirements.gender.toLowerCase();
-        const candGender = candidate.gender === "female" ? "жінки" : "чоловіки";
-        if (vacGender.includes(candGender) || vacGender.includes("будь-який")) {
-          score += 3;
-        } else {
-          continue; // Гендар не супадае — прапускаем
+        const isFemale =
+          vacGender.includes("жінк") ||
+          vacGender.includes("женщ") ||
+          vacGender.includes("female");
+        const isMale =
+          vacGender.includes("чолов") ||
+          vacGender.includes("мужч") ||
+          vacGender.includes("male");
+        const isBoth =
+          vacGender.includes("будь") ||
+          vacGender.includes("any") ||
+          (!isFemale && !isMale);
+        if (!isBoth) {
+          if (isFemale && candidate.gender !== "female") continue;
+          if (isMale && candidate.gender !== "male") continue;
         }
       }
 
-      // Праверка лакацыі
-      if (prefs?.locationFlexible) {
-        score += 2;
-      } else if (prefs?.location && vacancy.location) {
+      // Узрост
+      if (vacancy.requirements?.ageMax && candidate.age) {
+        if (candidate.age > vacancy.requirements.ageMax) continue;
+      }
+      if (vacancy.requirements?.ageMin && candidate.age) {
+        if (candidate.age < vacancy.requirements.ageMin) continue;
+      }
+
+      // Нацыянальнасць
+      if (
+        vacancy.requirements?.nationalities?.length > 0 &&
+        candidate.nationality
+      ) {
+        const allowed = vacancy.requirements.nationalities.map((n) =>
+          n.toLowerCase(),
+        );
+        if (!allowed.includes(candidate.nationality.toLowerCase())) continue;
+      }
+
+      // Жытло (калі кандыдат патрабуе — вакансія павінна мець)
+      if (prefs?.needsAccommodation && !vacancy.accommodation?.available)
+        continue;
+
+      // Дакументы (калі вакансія патрабуе — кандыдат павінен мець)
+      if (vacancy.requirements?.docs?.length > 0) {
+        const requiredDocs = vacancy.requirements.docs.map((d) =>
+          d.toLowerCase(),
+        );
         if (
-          vacancy.location
-            .toLowerCase()
-            .includes(prefs.location.toLowerCase()) ||
-          prefs.location.toLowerCase().includes(vacancy.location.toLowerCase())
+          requiredDocs.some((d) => d.includes("санеп") || d.includes("sanep"))
         ) {
-          score += 2;
+          if (!candidate.documents?.hasSanepid) continue;
+        }
+        if (requiredDocs.some((d) => d.includes("udt"))) {
+          if (!candidate.documents?.hasUDT) continue;
         }
       }
 
-      // Праверка жытла
-      if (prefs?.needsAccommodation && vacancy.accommodation?.available) {
-        score += 1;
+      // --- SOFT FILTERS (балы) ---
+      let score = 0;
+
+      // Лакацыя (25 балаў)
+      if (prefs?.locationFlexible) {
+        score += 25;
+      } else if (prefs?.locationRadius) {
+        score += 15; // радыус 100км — частковае супадзенне
+      } else if (prefs?.location && vacancy.location) {
+        const candLoc = prefs.location.toLowerCase();
+        const vacLoc = vacancy.location.toLowerCase();
+        if (vacLoc.includes(candLoc) || candLoc.includes(vacLoc)) {
+          score += 25;
+        }
       }
 
-      // Праверка графіка
+      // Сфера (20 балаў)
+      if (vacancy.sphere && prefs?.spheres?.length > 0) {
+        if (prefs.spheres.includes(vacancy.sphere)) score += 20;
+      } else {
+        score += 10; // калі не пазначана — нейтральна
+      }
+
+      // Тып дагавора (15 балаў)
+      if (vacancy.contractType && prefs?.contractType) {
+        if (
+          prefs.contractType === "any" ||
+          prefs.contractType === vacancy.contractType
+        ) {
+          score += 15;
+        }
+      } else {
+        score += 10;
+      }
+
+      // Графік змен (15 балаў)
       if (prefs?.schedule?.length > 0 && vacancy.schedule?.shifts) {
         const shifts = vacancy.schedule.shifts;
-        if (
+        const hasMatch =
           (shifts.includes("1") && prefs.schedule.includes("1_shift")) ||
           (shifts.includes("2") && prefs.schedule.includes("2_shifts")) ||
-          (shifts.includes("3") && prefs.schedule.includes("3_shifts"))
-        ) {
-          score += 1;
+          (shifts.includes("3") && prefs.schedule.includes("3_shifts"));
+        if (hasMatch) score += 15;
+        else score += 5;
+      } else {
+        score += 10;
+      }
+
+      // Надгадзіны (10 балаў)
+      if (vacancy.overtimeAvailable && prefs?.wantsOvertime) {
+        score += 10;
+      } else if (!vacancy.overtimeAvailable && !prefs?.wantsOvertime) {
+        score += 10;
+      } else {
+        score += 5;
+      }
+
+      // Тып групы (10 балаў)
+      if (prefs?.travelGroup) {
+        if (vacancy.accommodation?.details) {
+          const details = vacancy.accommodation.details.toLowerCase();
+          if (prefs.travelGroup === "couple" && details.includes("пар"))
+            score += 10;
+          else if (prefs.travelGroup === "alone") score += 10;
+          else score += 5;
+        } else {
+          score += 7;
         }
+      } else {
+        score += 7;
       }
 
-      if (score >= 3) {
-        matched.push({ candidate, score });
+      // Мовы (5 балаў)
+      if (vacancy.requirements?.languages?.length > 0) {
+        if (vacancy.requirements.languageLevel === "не патрабуецца") {
+          score += 5;
+        } else if (candidate.languages?.length > 0) {
+          const hasLang = vacancy.requirements.languages.some((l) =>
+            candidate.languages
+              .map((cl) => cl.toLowerCase())
+              .includes(l.toLowerCase()),
+          );
+          if (hasLang) score += 5;
+        }
+      } else {
+        score += 5;
+      }
+
+      // Парог 60 балаў з 100
+      if (score >= 60) {
+        matched.push({ ...candidate.toObject(), matchScore: score });
       }
     }
 
-    if (matched.length === 0) {
-      console.log("ℹ️ Падыходзячых кандыдатаў не знойдзена");
-      return;
-    }
-
-    // Сартуем па score
-    matched.sort((a, b) => b.score - a.score);
-
+    matched.sort((a, b) => b.matchScore - a.matchScore);
     console.log(`✅ Знойдзена ${matched.length} падыходзячых кандыдатаў`);
-
-    // Фармуем паведамленне для рэкрутэра
-    let recruiterMsg = `🎯 *Новая вакансія ${vacancy.vacancyCode} — знойдзены кандыдаты!*\n\n`;
-    recruiterMsg += `📋 *${vacancy.title}* (${vacancy.location})\n\n`;
-    recruiterMsg += `👥 *Падыходзячыя кандыдаты (${matched.length}):*\n`;
-
-    for (const { candidate, score } of matched) {
-      recruiterMsg += `\n• *${candidate.name}* (${candidate.nationality || "—"}, ${candidate.currentLocation || "—"})`;
-      recruiterMsg += `\n  📞 ${candidate.contactType}: ${candidate.telegram || candidate.phone || "—"}`;
-      recruiterMsg += `\n  ⭐ Супадзенне: ${score} балаў\n`;
-    }
-
-    await notifyRecruiter(recruiterMsg);
+    return matched;
   } catch (err) {
     console.error("❌ Памылка матчынгу:", err.message);
+    return [];
   }
 };
 
@@ -424,44 +514,130 @@ app.get("/api/candidates/:id/match-vacancies", async (req, res) => {
     const matched = [];
 
     for (const vacancy of vacancies) {
-      let score = 0;
+      // --- HARD FILTERS ---
 
       // Гендар
       if (vacancy.requirements?.gender && candidate.gender) {
         const vacGender = vacancy.requirements.gender.toLowerCase();
-        const candGender = candidate.gender === "female" ? "жінки" : "чоловіки";
-        if (vacGender.includes(candGender) || vacGender.includes("будь-який")) {
-          score += 3;
-        } else {
-          continue;
+        const isFemale =
+          vacGender.includes("жінк") || vacGender.includes("female");
+        const isMale =
+          vacGender.includes("чолов") || vacGender.includes("male");
+        const isBoth = !isFemale && !isMale;
+        if (!isBoth) {
+          if (isFemale && candidate.gender !== "female") continue;
+          if (isMale && candidate.gender !== "male") continue;
         }
       }
 
-      // Лакацыя
-      if (prefs?.locationFlexible) {
-        score += 2;
-      } else if (prefs?.location && vacancy.location) {
-        if (
-          vacancy.location.toLowerCase().includes(prefs.location.toLowerCase())
-        ) {
-          score += 2;
-        }
+      // Узрост
+      if (vacancy.requirements?.ageMax && candidate.age) {
+        if (candidate.age > vacancy.requirements.ageMax) continue;
+      }
+
+      // Нацыянальнасць
+      if (
+        vacancy.requirements?.nationalities?.length > 0 &&
+        candidate.nationality
+      ) {
+        const allowed = vacancy.requirements.nationalities.map((n) =>
+          n.toLowerCase(),
+        );
+        if (!allowed.includes(candidate.nationality.toLowerCase())) continue;
       }
 
       // Жытло
-      if (prefs?.needsAccommodation && vacancy.accommodation?.available) {
-        score += 1;
+      if (prefs?.needsAccommodation && !vacancy.accommodation?.available)
+        continue;
+
+      // Дакументы
+      if (vacancy.requirements?.docs?.length > 0) {
+        const requiredDocs = vacancy.requirements.docs.map((d) =>
+          d.toLowerCase(),
+        );
+        if (
+          requiredDocs.some((d) => d.includes("санеп") || d.includes("sanep"))
+        ) {
+          if (!candidate.documents?.hasSanepid) continue;
+        }
+        if (requiredDocs.some((d) => d.includes("udt"))) {
+          if (!candidate.documents?.hasUDT) continue;
+        }
       }
 
-      if (score >= 2) {
-        matched.push({ vacancy, score });
+      // --- SOFT FILTERS ---
+      let score = 0;
+
+      // Лакацыя (25)
+      if (prefs?.locationFlexible) score += 25;
+      else if (prefs?.locationRadius) score += 15;
+      else if (prefs?.location && vacancy.location) {
+        const candLoc = prefs.location.toLowerCase();
+        const vacLoc = vacancy.location.toLowerCase();
+        if (vacLoc.includes(candLoc) || candLoc.includes(vacLoc)) score += 25;
+      }
+
+      // Сфера (20)
+      if (vacancy.sphere && prefs?.spheres?.length > 0) {
+        if (prefs.spheres.includes(vacancy.sphere)) score += 20;
+      } else score += 10;
+
+      // Дагавор (15)
+      if (vacancy.contractType && prefs?.contractType) {
+        if (
+          prefs.contractType === "any" ||
+          prefs.contractType === vacancy.contractType
+        )
+          score += 15;
+      } else score += 10;
+
+      // Графік (15)
+      if (prefs?.schedule?.length > 0 && vacancy.schedule?.shifts) {
+        const shifts = vacancy.schedule.shifts;
+        const hasMatch =
+          (shifts.includes("1") && prefs.schedule.includes("1_shift")) ||
+          (shifts.includes("2") && prefs.schedule.includes("2_shifts")) ||
+          (shifts.includes("3") && prefs.schedule.includes("3_shifts"));
+        if (hasMatch) score += 15;
+        else score += 5;
+      } else score += 10;
+
+      // Надгадзіны (10)
+      if (vacancy.overtimeAvailable && prefs?.wantsOvertime) score += 10;
+      else if (!vacancy.overtimeAvailable && !prefs?.wantsOvertime) score += 10;
+      else score += 5;
+
+      // Група (10)
+      if (prefs?.travelGroup) {
+        if (vacancy.accommodation?.details) {
+          const details = vacancy.accommodation.details.toLowerCase();
+          if (prefs.travelGroup === "couple" && details.includes("пар"))
+            score += 10;
+          else if (prefs.travelGroup === "alone") score += 10;
+          else score += 5;
+        } else score += 7;
+      } else score += 7;
+
+      // Мовы (5)
+      if (vacancy.requirements?.languages?.length > 0) {
+        if (vacancy.requirements.languageLevel === "не патрабуецца") score += 5;
+        else if (candidate.languages?.length > 0) {
+          const hasLang = vacancy.requirements.languages.some((l) =>
+            candidate.languages
+              .map((cl) => cl.toLowerCase())
+              .includes(l.toLowerCase()),
+          );
+          if (hasLang) score += 5;
+        }
+      } else score += 5;
+
+      if (score >= 60) {
+        matched.push({ ...vacancy.toObject(), matchScore: score });
       }
     }
 
-    matched.sort((a, b) => b.score - a.score);
-    res.json(
-      matched.map((m) => ({ ...m.vacancy.toObject(), matchScore: m.score })),
-    );
+    matched.sort((a, b) => b.matchScore - a.matchScore);
+    res.json(matched);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -471,67 +647,7 @@ app.get("/api/vacancies/:id/match-candidates", async (req, res) => {
   try {
     const vacancy = await Vacancy.findById(req.params.id);
     if (!vacancy) return res.status(404).json({ message: "Не знойдзена" });
-
-    const candidates = await Candidate.find({
-      status: { $in: ["new", "active", "waiting"] },
-    });
-    const matched = [];
-
-    for (const candidate of candidates) {
-      const prefs = candidate.jobPreferences;
-      let score = 0;
-
-      // Гендар
-      if (vacancy.requirements?.gender && candidate.gender) {
-        const vacGender = vacancy.requirements.gender.toLowerCase();
-        const candGender = candidate.gender === "female" ? "жінки" : "чоловіки";
-        if (vacGender.includes(candGender) || vacGender.includes("будь-який")) {
-          score += 3;
-        } else {
-          continue;
-        }
-      }
-
-      // Лакацыя
-      if (prefs?.locationFlexible) {
-        score += 2;
-      } else if (prefs?.location && vacancy.location) {
-        if (
-          vacancy.location
-            .toLowerCase()
-            .includes(prefs.location.toLowerCase()) ||
-          prefs.location.toLowerCase().includes(vacancy.location.toLowerCase())
-        ) {
-          score += 2;
-        }
-      }
-
-      // Жытло
-      if (prefs?.needsAccommodation && vacancy.accommodation?.available) {
-        score += 1;
-      }
-
-      // Графік
-      if (prefs?.schedule?.length > 0 && vacancy.schedule?.shifts) {
-        const shifts = vacancy.schedule.shifts;
-        if (
-          (shifts.includes("1") && prefs.schedule.includes("1_shift")) ||
-          (shifts.includes("2") && prefs.schedule.includes("2_shifts")) ||
-          (shifts.includes("3") && prefs.schedule.includes("3_shifts"))
-        ) {
-          score += 1;
-        }
-      }
-
-      if (score >= 2) {
-        matched.push({
-          ...candidate.toObject(),
-          matchScore: score,
-        });
-      }
-    }
-
-    matched.sort((a, b) => b.matchScore - a.matchScore);
+    const matched = await matchCandidatesForVacancy(vacancy);
     res.json(matched);
   } catch (err) {
     res.status(500).json({ message: err.message });

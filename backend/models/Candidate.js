@@ -1,6 +1,15 @@
 // backend/models/Candidate.js
 const mongoose = require("mongoose");
 
+const SPHERES = [
+  "warehouse",
+  "food_production",
+  "automotive",
+  "agriculture",
+  "retail",
+  "other",
+];
+
 const candidateSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
@@ -16,11 +25,18 @@ const candidateSchema = new mongoose.Schema(
     age: Number,
     gender: { type: String, enum: ["male", "female"] },
 
+    // Мовы
+    languages: [String], // ["польська", "нідэрландская"]
+
     jobPreferences: {
       location: String,
-      locationFlexible: Boolean,
-      schedule: [String],
-      contractType: String,
+      locationFlexible: Boolean, // гатовы да пераезду куды заўгодна
+      locationRadius: Boolean, // гатовы ў радыусе 100км ад свайго горада
+      spheres: [{ type: String, enum: SPHERES }], // сферы якія цікавяць
+      schedule: [String], // ["1_shift", "2_shifts", "3_shifts"]
+      scheduleTypes: [String], // ["day", "night", "rotating"]
+      wantsOvertime: Boolean, // гатовы да надгадзін
+      contractType: String, // "zlecenie" / "o_prace" / "any"
       needsAccommodation: Boolean,
       travelGroup: {
         type: String,
