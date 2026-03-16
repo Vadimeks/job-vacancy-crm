@@ -466,7 +466,77 @@ app.get("/api/candidates/:id/match-vacancies", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+// Матчынг: падыходзячыя кандыдаты для вакансіі
+app.get("/api/vacancies/:id/match-candidates", async (req, res) => {
+  try {
+    const vacancy = await Vacancy.findById(req.params.id);
+    if (!vacancy) return res.status(404).json({ message: "Не знойдзена" });
 
+    const candidates = await Candidate.find({
+      status: { $in: ["new", "active", "waiting"] },
+    });
+    const matched = [];
+
+    for (const candidate of candidates) {
+      const prefs = candidate.jobPreferences;
+      let score = 0;
+
+      // Гендар
+      if (vacancy.requirements?.gender && candidate.gender) {
+        const vacGender = vacancy.requirements.gender.toLowerCase();
+        const candGender = candidate.gender === "female" ? "жінки" : "чоловіки";
+        if (vacGender.includes(candGender) || vacGender.includes("будь-який")) {
+          score += 3;
+        } else {
+          continue;
+        }
+      }
+
+      // Лакацыя
+      if (prefs?.locationFlexible) {
+        score += 2;
+      } else if (prefs?.location && vacancy.location) {
+        if (
+          vacancy.location
+            .toLowerCase()
+            .includes(prefs.location.toLowerCase()) ||
+          prefs.location.toLowerCase().includes(vacancy.location.toLowerCase())
+        ) {
+          score += 2;
+        }
+      }
+
+      // Жытло
+      if (prefs?.needsAccommodation && vacancy.accommodation?.available) {
+        score += 1;
+      }
+
+      // Графік
+      if (prefs?.schedule?.length > 0 && vacancy.schedule?.shifts) {
+        const shifts = vacancy.schedule.shifts;
+        if (
+          (shifts.includes("1") && prefs.schedule.includes("1_shift")) ||
+          (shifts.includes("2") && prefs.schedule.includes("2_shifts")) ||
+          (shifts.includes("3") && prefs.schedule.includes("3_shifts"))
+        ) {
+          score += 1;
+        }
+      }
+
+      if (score >= 2) {
+        matched.push({
+          ...candidate.toObject(),
+          matchScore: score,
+        });
+      }
+    }
+
+    matched.sort((a, b) => b.matchScore - a.matchScore);
+    res.json(matched);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 // Публічная заяўка з сайта/бота
 app.post("/api/apply", async (req, res) => {
   try {
