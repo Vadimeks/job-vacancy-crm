@@ -720,8 +720,21 @@ app.listen(PORT, () => {
   console.log(`📜 Swagger: http://localhost:${PORT}/api-docs`);
 });
 
-bot.telegram
-  .deleteWebhook({ drop_pending_updates: true })
-  .then(() => bot.launch())
-  .then(() => console.log("✅ Бот запушчаны"))
-  .catch((err) => console.error("❌ Памылка запуску бота:", err.message));
+const startBot = async () => {
+  try {
+    await bot.telegram.deleteWebhook({ drop_pending_updates: true });
+    await bot.launch();
+    console.log("✅ Бот запушчаны");
+  } catch (err) {
+    if (err.message?.includes("409")) {
+      console.warn("⚠️ Бот ужо запушчаны ў іншым месцы — працягваем без бота");
+    } else {
+      console.error("❌ Памылка запуску бота:", err.message);
+    }
+  }
+};
+
+startBot();
+
+process.once("SIGINT", () => bot.stop("SIGINT"));
+process.once("SIGTERM", () => bot.stop("SIGTERM"));
