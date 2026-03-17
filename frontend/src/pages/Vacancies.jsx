@@ -8,6 +8,7 @@ import {
 import EditVacancyModal from "../components/vacancies/EditVacancyModal";
 import ApplyModal from "../components/vacancies/ApplyModal";
 import VacancyMatchModal from "../components/vacancies/VacancyMatchModal";
+import VacancyViewModal from "../components/vacancies/VacancyViewModal";
 
 const STATUS_COLORS = {
   active: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
@@ -31,6 +32,7 @@ export default function Vacancies() {
   const [applyVacancy, setApplyVacancy] = useState(null);
   const [matchVacancy, setMatchVacancy] = useState(null);
   const [applyType, setApplyType] = useState(null);
+  const [viewVacancy, setViewVacancy] = useState(null);
   const fetchVacancies = async () => {
     try {
       const res = await getVacancies();
@@ -204,6 +206,12 @@ export default function Vacancies() {
 
                 <div className="flex gap-2 shrink-0">
                   <button
+                    onClick={() => setViewVacancy(v)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-slate-400 hover:text-slate-100 hover:bg-slate-800 rounded-lg transition-colors text-xs"
+                  >
+                    👁 Паглядзець
+                  </button>
+                  <button
                     onClick={() => setMatchVacancy(v)}
                     className="flex items-center gap-1.5 px-3 py-1.5 text-slate-400 hover:text-emerald-400 hover:bg-emerald-500/10 rounded-lg transition-colors text-xs"
                   >
@@ -250,6 +258,25 @@ export default function Vacancies() {
         <VacancyMatchModal
           vacancy={matchVacancy}
           onClose={() => setMatchVacancy(null)}
+        />
+      )}
+      {viewVacancy && (
+        <VacancyViewModal
+          vacancy={viewVacancy}
+          onClose={() => setViewVacancy(null)}
+          onEdit={(v) => {
+            setViewVacancy(null);
+            setEditVacancy(v);
+          }}
+          onDelete={(id) => {
+            setViewVacancy(null);
+            handleDelete(id);
+          }}
+          onApply={openApply}
+          onMatch={(v) => {
+            setViewVacancy(null);
+            setMatchVacancy(v);
+          }}
         />
       )}
     </div>

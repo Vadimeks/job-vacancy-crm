@@ -1,60 +1,120 @@
 // frontend/src/components/Layout.jsx
-import { NavLink } from "react-router-dom";
+import { useState } from "react";
+import { NavLink, Link } from "react-router-dom";
 
-const navItems = [
-  { to: "/vacancies", icon: "💼", label: "Вакансіі" },
-  { to: "/candidates", icon: "👥", label: "Кандыдаты" },
-  { to: "/templates", icon: "📋", label: "Шаблоны" },
+const NAV_ITEMS = [
+  { to: "/", label: "Галоўная", exact: true },
+  { to: "/vacancies", label: "Вакансіі" },
+  { to: "/candidates", label: "Кандыдаты" },
+  { to: "/templates", label: "Шаблоны" },
+  { to: "/agencies", label: "Агенцыі" },
 ];
 
 export default function Layout({ children }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+
   return (
-    <div className="flex min-h-screen bg-slate-950 text-slate-100 font-['IBM_Plex_Sans']">
-      {/* Сайдбар */}
-      <aside className="w-60 bg-slate-900 border-r border-slate-800 flex flex-col">
-        {/* Лагатып */}
-        <div className="px-6 py-6 border-b border-slate-800">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-slate-900 font-bold text-sm">
-              RC
-            </div>
-            <div>
-              <div className="font-semibold text-sm text-slate-100">
-                RecrutCRM
+    <div className="min-h-screen bg-slate-950 text-slate-100 font-['IBM_Plex_Sans']">
+      {/* ХЕДАР */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Лагатып */}
+            <Link to="/" className="flex items-center gap-3 shrink-0">
+              <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-slate-900 font-bold text-sm">
+                RC
               </div>
-              <div className="text-xs text-slate-500">v1.0</div>
-            </div>
+              <span className="font-semibold text-slate-100 hidden sm:block">
+                RecrutCRM
+              </span>
+            </Link>
+
+            {/* Дэсктопная навігацыя */}
+            <nav className="hidden md:flex items-center gap-1">
+              {NAV_ITEMS.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  end={item.exact}
+                  className={({ isActive }) =>
+                    `px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150 ${
+                      isActive
+                        ? "bg-emerald-500/10 text-emerald-400"
+                        : "text-slate-400 hover:bg-slate-800 hover:text-slate-100"
+                    }`
+                  }
+                >
+                  {item.label}
+                </NavLink>
+              ))}
+            </nav>
+
+            {/* Мабільны бургер */}
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="md:hidden p-2 text-slate-400 hover:text-slate-100 hover:bg-slate-800 rounded-lg transition-colors"
+            >
+              {menuOpen ? (
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
+                </svg>
+              )}
+            </button>
           </div>
         </div>
 
-        {/* Навігацыя */}
-        <nav className="flex-1 px-3 py-4 space-y-1">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150 ${
-                  isActive
-                    ? "bg-emerald-500/10 text-emerald-400 font-medium"
-                    : "text-slate-400 hover:bg-slate-800 hover:text-slate-100"
-                }`
-              }
-            >
-              <span className="text-base">{item.icon}</span>
-              <span>{item.label}</span>
-            </NavLink>
-          ))}
-        </nav>
+        {/* Мабільнае меню */}
+        {menuOpen && (
+          <div className="md:hidden border-t border-slate-800 bg-slate-900">
+            <nav className="px-4 py-3 space-y-1">
+              {NAV_ITEMS.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  end={item.exact}
+                  onClick={() => setMenuOpen(false)}
+                  className={({ isActive }) =>
+                    `flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                      isActive
+                        ? "bg-emerald-500/10 text-emerald-400"
+                        : "text-slate-400 hover:bg-slate-800 hover:text-slate-100"
+                    }`
+                  }
+                >
+                  {item.label}
+                </NavLink>
+              ))}
+            </nav>
+          </div>
+        )}
+      </header>
 
-        {/* Ніз сайдбара */}
-        <div className="px-6 py-4 border-t border-slate-800">
-          <div className="text-xs text-slate-600">Рэкрутэр-фрылансер</div>
-        </div>
-      </aside>
-
-      {/* Галоўная вобласць */}
-      <main className="flex-1 overflow-auto">{children}</main>
+      {/* Кантэнт */}
+      <main className="pt-16">{children}</main>
     </div>
   );
 }
