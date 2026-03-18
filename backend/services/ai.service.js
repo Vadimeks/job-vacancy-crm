@@ -165,16 +165,59 @@ async function groqRequest(systemPrompt, userContent, jsonMode = true) {
 // --- ФУНКЦЫЯ 1: Вызначэнне шаблона ---
 async function identifyTemplate(rawText, templates) {
   const lowerText = rawText.toLowerCase();
-  const found = templates.find((t) =>
-    t.keywords.some((kw) => lowerText.includes(kw.toLowerCase())),
-  );
 
-  if (found) {
-    console.log(`✅ Шаблон знойдзены па ключавым слове: ${found.templateName}`);
-    return found;
+  console.log(`🔍 Пошук шаблона сярод ${templates.length} варыянтаў...`);
+
+  let bestMatch = null;
+  let maxScore = 0;
+
+  // 1. ЛАКАЛЬНЫ ПОШУК ПА БАЛАХ (Scoring System)
+  templates.forEach((t) => {
+    let score = 0;
+
+    // Вызначаем асноўнае імя брэнда (першае слова з назвы шаблона, напр. "ARVATO")
+    const brandName = t.templateName.split(" ")[0].toLowerCase();
+
+    // Прыярытэт №1: Назва прадпрыемства/брэнду (+15 балаў)
+    if (lowerText.includes(brandName)) {
+      score += 15;
+    }
+
+    // Прыярытэт №2: Дакладнае супадзенне лакацыі (+7 балаў)
+    if (t.location && lowerText.includes(t.location.toLowerCase())) {
+      score += 7;
+    }
+
+    // Прыярытэт №3: Ключавыя словы з масіва (+1 бал за кожнае)
+    if (t.keywords && Array.isArray(t.keywords)) {
+      t.keywords.forEach((kw) => {
+        if (lowerText.includes(kw.toLowerCase())) {
+          score += 1;
+        }
+      });
+    }
+
+    // Калі гэты шаблон набраў больш балаў за папярэдні — запамінаем яго
+    if (score > maxScore) {
+      maxScore = score;
+      bestMatch = t;
+    }
+  });
+
+  // Калі максімальны бал дастаткова высокі (мінімум супадзенне брэнда або лакацыі + тэгаў)
+  // Парог 10 азначае, што мы ўпэўнены, бо знайшлі брэнд або лакацыю з тэгамі
+  if (bestMatch && maxScore >= 10) {
+    console.log(
+      `✅ Шаблон знойдзены лакальна: ${bestMatch.templateName} (Score: ${maxScore})`,
+    );
+    return bestMatch;
   }
 
-  console.log(`🤖 Ключавыя словы не знайшлі. Пытаемся ў AI...`);
+  // 2. КАЛІ ЛАКАЛЬНЫ ПОШУК НЕ ДАЎ ВЫНІКУ — ЗВАРОТ ДА AI
+  console.log(
+    `🤖 Лакальны пошук непэўны (Max Score: ${maxScore}). Пытаемся ў AI...`,
+  );
+
   try {
     const templateList = templates.map((t) => ({
       _id: t._id.toString(),
@@ -202,7 +245,7 @@ async function identifyTemplate(rawText, templates) {
     console.error("❌ AI identify error:", err.message);
   }
 
-  console.log(`⚠️ Шаблон не знойдзены`);
+  console.log(`⚠️ Шаблон не знойдзены ні лакальна, ні праз AI`);
   return null;
 }
 
