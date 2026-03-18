@@ -13,3 +13,17 @@ export const EMPTY_FILTERS = {
   docs: [],
   agencyName: [],
 };
+
+export const EMPTY_CANDIDATE_FILTERS = {
+  search: "",
+  status: "",
+  gender: [],
+  nationality: [],
+  sphere: [],
+  location: [],
+  accommodation: [],
+  travelGroup: [],
+  schedule: [],
+  docs: [],
+  source: [],
+};

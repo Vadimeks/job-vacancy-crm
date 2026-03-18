@@ -1,8 +1,10 @@
 // frontend/src/pages/Candidates.jsx
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { getCandidates, deleteCandidate } from "../services/api";
 import ProfileModal from "../components/candidates/ProfileModal";
 import AddCandidateModal from "../components/candidates/AddCandidateModal";
+import CandidateFilters from "../components/candidates/CandidateFilters";
+import { EMPTY_CANDIDATE_FILTERS } from "../constants/filters";
 
 const STATUS_COLORS = {
   new: "bg-blue-500/10 text-blue-400 border border-blue-500/20",
@@ -22,32 +24,147 @@ const STATUS_LABELS = {
   blacklist: "Блэкліст",
 };
 
-const STATUSES = Object.keys(STATUS_LABELS);
+function applyFilters(candidates, filters) {
+  return candidates.filter((c) => {
+    // Пошук
+    if (filters.search) {
+      const s = filters.search.toLowerCase();
+      if (
+        !c.name?.toLowerCase().includes(s) &&
+        !c.phone?.toLowerCase().includes(s) &&
+        !c.telegram?.toLowerCase().includes(s) &&
+        !c.currentLocation?.toLowerCase().includes(s)
+      )
+        return false;
+    }
+
+    // Статус
+    if (filters.status && c.status !== filters.status) return false;
+
+    // Гендар
+    if (filters.gender.length > 0) {
+      if (!filters.gender.includes(c.gender)) return false;
+    }
+
+    // Нацыянальнасць
+    if (filters.nationality.length > 0) {
+      if (
+        !filters.nationality.some(
+          (n) => c.nationality?.toLowerCase() === n.toLowerCase(),
+        )
+      )
+        return false;
+    }
+
+    // Сфера
+    if (filters.sphere.length > 0) {
+      const prefs = c.jobPreferences?.spheres || [];
+      if (!filters.sphere.some((s) => prefs.includes(s))) return false;
+    }
+
+    // Лакацыя
+    if (filters.location.length > 0) {
+      const match = filters.location.some((l) => {
+        if (l === "any") return c.jobPreferences?.locationFlexible;
+        if (l === "city_area") return c.jobPreferences?.locationRadius;
+        if (l === "region") return c.jobPreferences?.locationRadius;
+        if (l === "city")
+          return (
+            !c.jobPreferences?.locationFlexible &&
+            !c.jobPreferences?.locationRadius
+          );
+        return false;
+      });
+      if (!match) return false;
+    }
+
+    // Жытло
+    if (filters.accommodation.length > 0) {
+      const match = filters.accommodation.some((a) => {
+        if (a === "needs") return c.jobPreferences?.needsAccommodation;
+        if (a === "own") return !c.jobPreferences?.needsAccommodation;
+        return false;
+      });
+      if (!match) return false;
+    }
+
+    // Група
+    if (filters.travelGroup.length > 0) {
+      if (!filters.travelGroup.includes(c.jobPreferences?.travelGroup))
+        return false;
+    }
+
+    // Графік
+    if (filters.schedule.length > 0) {
+      const prefs = c.jobPreferences?.schedule || [];
+      if (!filters.schedule.some((s) => prefs.includes(s))) return false;
+    }
+
+    // Дакументы
+    if (filters.docs.length > 0) {
+      const match = filters.docs.some((d) => {
+        if (d === "visa") return c.documents?.hasVisa;
+        if (d === "sanepid") return c.documents?.hasSanepid;
+        if (d === "udt") return c.documents?.hasUDT;
+        return false;
+      });
+      if (!match) return false;
+    }
+
+    // Крыніца
+    if (filters.source.length > 0) {
+      if (!filters.source.includes(c.source)) return false;
+    }
+
+    return true;
+  });
+}
 
 export default function Candidates() {
   const [candidates, setCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filterStatus, setFilterStatus] = useState("");
   const [profileId, setProfileId] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
-
-  const fetchCandidates = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params = {};
-      if (filterStatus) params.status = filterStatus;
-      const res = await getCandidates(params);
-      setCandidates(res.data);
-    } catch {
-      console.error("Памылка загрузкі кандыдатаў");
-    } finally {
-      setLoading(false);
-    }
-  }, [filterStatus]);
+  const [draft, setDraft] = useState(EMPTY_CANDIDATE_FILTERS);
+  const [applied, setApplied] = useState(EMPTY_CANDIDATE_FILTERS);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    fetchCandidates();
-  }, [fetchCandidates]);
+    const load = async () => {
+      setLoading(true);
+      try {
+        const res = await getCandidates();
+        setCandidates(res.data);
+      } catch {
+        console.error("Памылка загрузкі кандыдатаў");
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, []);
+
+  const previewCount = useMemo(
+    () => applyFilters(candidates, draft).length,
+    [candidates, draft],
+  );
+
+  const filtered = useMemo(
+    () => applyFilters(candidates, applied),
+    [candidates, applied],
+  );
+
+  const isDirty = JSON.stringify(draft) !== JSON.stringify(applied);
+
+  const handleApplyFilters = () => {
+    setApplied(draft);
+    setSidebarOpen(false);
+  };
+
+  const handleResetFilters = () => {
+    setDraft(EMPTY_CANDIDATE_FILTERS);
+    setApplied(EMPTY_CANDIDATE_FILTERS);
+  };
 
   const handleDelete = async (id) => {
     if (!confirm("Выдаліць кандыдата?")) return;
@@ -70,135 +187,194 @@ export default function Candidates() {
   };
 
   return (
-    <div className="p-8">
-      {/* Загаловак */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-100">Кандыдаты</h1>
-          <p className="text-sm text-slate-500 mt-1">
-            {candidates.length} кандыдатаў
-          </p>
-        </div>
-        <button
-          onClick={() => setShowAddForm(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-medium text-sm rounded-lg transition-colors"
-        >
-          <span>＋</span> Дадаць кандыдата
-        </button>
-      </div>
-
-      {/* Фільтр */}
-      <div className="flex gap-2 mb-6 flex-wrap">
-        <button
-          onClick={() => setFilterStatus("")}
-          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-            filterStatus === ""
-              ? "bg-emerald-500 text-slate-900"
-              : "bg-slate-800 text-slate-400 hover:bg-slate-700"
-          }`}
-        >
-          Усе
-        </button>
-        {STATUSES.map((s) => (
-          <button
-            key={s}
-            onClick={() => setFilterStatus(s)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-              filterStatus === s
-                ? "bg-emerald-500 text-slate-900"
-                : "bg-slate-800 text-slate-400 hover:bg-slate-700"
-            }`}
-          >
-            {STATUS_LABELS[s]}
-          </button>
-        ))}
-      </div>
-
-      {/* Спіс */}
-      {loading ? (
-        <div className="text-slate-500 text-sm">Загрузка...</div>
-      ) : candidates.length === 0 ? (
-        <div className="text-center py-16 text-slate-600">
-          <div className="text-4xl mb-3">👥</div>
-          <div className="text-sm">Кандыдатаў пакуль няма</div>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {candidates.map((c) => (
-            <div
-              key={c._id}
-              className="bg-slate-900 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition-colors cursor-pointer"
-              onClick={() => setProfileId(c._id)}
+    <div className="flex min-h-screen bg-slate-950">
+      {/* САЙДБАР — дэсктоп */}
+      <aside className="hidden lg:flex flex-col w-72 shrink-0 border-r border-slate-800 bg-slate-900/50 sticky top-16 h-[calc(100vh-4rem)]">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800">
+          <span className="text-sm font-medium text-slate-300">Фільтры</span>
+          {isDirty && (
+            <button
+              onClick={handleResetFilters}
+              className="text-xs text-slate-500 hover:text-slate-300 transition-colors"
             >
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-3 mb-2 flex-wrap">
-                    <span
-                      className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLORS[c.status]}`}
-                    >
-                      {STATUS_LABELS[c.status]}
-                    </span>
-                    <span className="text-xs text-slate-600">
-                      {c.source === "site"
-                        ? "🌐 Сайт"
-                        : c.source === "telegram_bot"
-                          ? "✈️ Telegram"
-                          : "✋ Ручны"}
-                    </span>
-                    <span className="text-xs text-slate-700">
-                      {new Date(c.createdAt).toLocaleDateString("uk-UA")}
-                    </span>
-                  </div>
+              Скінуць
+            </button>
+          )}
+        </div>
+        <CandidateFilters draft={draft} onChange={setDraft} />
+      </aside>
 
-                  <h3 className="font-medium text-slate-100">{c.name}</h3>
+      {/* САЙДБАР — мабільны */}
+      {sidebarOpen && (
+        <div className="lg:hidden fixed inset-0 z-40 flex">
+          <div
+            className="absolute inset-0 bg-black/60"
+            onClick={() => setSidebarOpen(false)}
+          />
+          <div className="relative w-80 bg-slate-900 border-r border-slate-800 flex flex-col h-full overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800">
+              <span className="text-sm font-medium text-slate-300">
+                Фільтры
+              </span>
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="text-slate-500 hover:text-slate-200 text-sm"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              <CandidateFilters draft={draft} onChange={setDraft} />
+            </div>
+            <div className="p-4 border-t border-slate-800">
+              <button
+                onClick={handleApplyFilters}
+                className="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-semibold text-sm rounded-lg transition-colors"
+              >
+                Паказаць {previewCount} кандыдатаў
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
-                  <div className="flex flex-wrap gap-4 mt-2 text-xs text-slate-500">
-                    {c.contactType === "telegram" && c.telegram && (
-                      <span>✈️ {c.telegram}</span>
-                    )}
-                    {(c.contactType === "viber" || c.contactType === "phone") &&
-                      c.phone && <span>📞 {c.phone}</span>}
-                    {c.nationality && <span>🌍 {c.nationality}</span>}
-                    {c.currentLocation && <span>📍 {c.currentLocation}</span>}
-                    {c.age && <span>🎂 {c.age} г.</span>}
-                    {c.gender && (
-                      <span>{c.gender === "female" ? "👩" : "👨"}</span>
-                    )}
-                  </div>
+      {/* ГАЛОЎНАЯ ВОБЛАСЦЬ */}
+      <div className="flex-1 min-w-0 p-6 lg:p-8">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden flex items-center gap-2 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm rounded-lg transition-colors"
+            >
+              ⚙️ Фільтры
+              {isDirty && (
+                <span className="w-2 h-2 bg-emerald-400 rounded-full" />
+              )}
+            </button>
+            <div>
+              <h1 className="text-2xl font-semibold text-slate-100">
+                Кандыдаты
+              </h1>
+              <p className="text-sm text-slate-500 mt-0.5">
+                {filtered.length} з {candidates.length} кандыдатаў
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => setShowAddForm(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-medium text-sm rounded-lg transition-colors"
+          >
+            <span>＋</span> Дадаць кандыдата
+          </button>
+        </div>
 
-                  {c.jobPreferences?.locationFlexible && (
-                    <div className="mt-2 text-xs text-slate-600">
-                      🔍 Гатовы да пераезду
+        {/* Спіс */}
+        {loading ? (
+          <div className="text-slate-500 text-sm">Загрузка...</div>
+        ) : filtered.length === 0 ? (
+          <div className="text-center py-16 text-slate-600">
+            <div className="text-4xl mb-3">👥</div>
+            <div className="text-sm">
+              Кандыдатаў па гэтых фільтрах не знойдзена
+            </div>
+            <button
+              onClick={handleResetFilters}
+              className="mt-4 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-400 text-xs rounded-lg transition-colors"
+            >
+              Скінуць фільтры
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {filtered.map((c) => (
+              <div
+                key={c._id}
+                className="bg-slate-900 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition-colors cursor-pointer"
+                onClick={() => setProfileId(c._id)}
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-3 mb-2 flex-wrap">
+                      <span
+                        className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLORS[c.status]}`}
+                      >
+                        {STATUS_LABELS[c.status]}
+                      </span>
+                      <span className="text-xs text-slate-600">
+                        {c.source === "site"
+                          ? "🌐 Сайт"
+                          : c.source === "telegram_bot"
+                            ? "✈️ Telegram"
+                            : "✋ Ручны"}
+                      </span>
+                      <span className="text-xs text-slate-700">
+                        {new Date(c.createdAt).toLocaleDateString("uk-UA")}
+                      </span>
                     </div>
-                  )}
-                  {!c.jobPreferences?.locationFlexible &&
-                    c.jobPreferences?.location && (
+
+                    <h3 className="font-medium text-slate-100">{c.name}</h3>
+
+                    <div className="flex flex-wrap gap-4 mt-2 text-xs text-slate-500">
+                      {c.contactType === "telegram" && c.telegram && (
+                        <span>✈️ {c.telegram}</span>
+                      )}
+                      {(c.contactType === "viber" ||
+                        c.contactType === "phone") &&
+                        c.phone && <span>📞 {c.phone}</span>}
+                      {c.nationality && <span>🌍 {c.nationality}</span>}
+                      {c.currentLocation && <span>📍 {c.currentLocation}</span>}
+                      {c.age && <span>🎂 {c.age} г.</span>}
+                      {c.gender && (
+                        <span>{c.gender === "female" ? "👩" : "👨"}</span>
+                      )}
+                    </div>
+
+                    {c.jobPreferences?.locationFlexible && (
                       <div className="mt-2 text-xs text-slate-600">
-                        🔍 Шукае: {c.jobPreferences.location}
+                        🔍 Гатовы да пераезду
                       </div>
                     )}
-                </div>
+                    {!c.jobPreferences?.locationFlexible &&
+                      c.jobPreferences?.location && (
+                        <div className="mt-2 text-xs text-slate-600">
+                          🔍 Шукае: {c.jobPreferences.location}
+                        </div>
+                      )}
+                  </div>
 
-                <div
-                  className="flex gap-2 shrink-0"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <button
-                    onClick={() => setProfileId(c._id)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 text-slate-400 hover:text-slate-100 hover:bg-slate-800 rounded-lg transition-colors text-xs"
+                  <div
+                    className="flex gap-2 shrink-0"
+                    onClick={(e) => e.stopPropagation()}
                   >
-                    👤 Профіль
-                  </button>
-                  <button
-                    onClick={() => handleDelete(c._id)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 text-slate-600 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors text-xs"
-                  >
-                    🗑
-                  </button>
+                    <button
+                      onClick={() => setProfileId(c._id)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-slate-400 hover:text-slate-100 hover:bg-slate-800 rounded-lg transition-colors text-xs"
+                    >
+                      👤 Профіль
+                    </button>
+                    <button
+                      onClick={() => handleDelete(c._id)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-slate-600 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors text-xs"
+                    >
+                      🗑
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* ПЛАВАЮЧАЯ КНОПКА */}
+      {isDirty && (
+        <div className="hidden lg:block fixed bottom-6 right-6 z-30">
+          <button
+            onClick={handleApplyFilters}
+            className="flex items-center gap-2 px-5 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-semibold text-sm rounded-xl shadow-lg shadow-emerald-500/20 transition-all"
+          >
+            Паказаць {previewCount} кандыдатаў ✓
+          </button>
         </div>
       )}
 
@@ -209,7 +385,6 @@ export default function Candidates() {
           onUpdate={handleUpdate}
         />
       )}
-
       {showAddForm && (
         <AddCandidateModal
           onClose={() => setShowAddForm(false)}
