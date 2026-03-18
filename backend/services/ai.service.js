@@ -101,7 +101,7 @@ TASK: Format the job data into a beautiful Telegram post in UKRAINIAN.
 Use this EXACT structure (skip blocks if data is empty/null/empty string):
 
 *[title]*
-👥 Набір: [count] [requirements.gender][, приїзд [arrivalDate] if arrivalDate exists]
+👥 Набір: [requirements.gender][, приїзд [arrivalDate] if arrivalDate exists]
 
 💰 *Оплата праці*
 [salary.base]
