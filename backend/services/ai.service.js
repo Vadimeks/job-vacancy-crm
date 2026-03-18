@@ -88,7 +88,8 @@ Return ONLY valid JSON with the complete merged result using this structure:
     "workwear": "string",
     "food": "string"
   },
-  "contractType": "string"
+  "contractType": "string",
+  "additionalNotes": "string or null"
 }
 
 IMPORTANT: Return ONLY valid JSON, no markdown, no explanations.
@@ -136,7 +137,10 @@ Use this EXACT structure (skip blocks if data is empty/null/empty string):
 - [conditions.workwear if not empty]
 - [conditions.food if not empty]
 - [requirements.physical if not empty]
+📝 *Додаткова*
+[additionalNotes if not empty]
 
+IMPORTANT: Return ONLY the formatted post text.
 Rules:
 - Write in Ukrainian
 - Use ONLY • for bullet points

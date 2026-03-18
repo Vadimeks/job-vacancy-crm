@@ -32,7 +32,7 @@ const vacancySchema = new mongoose.Schema({
     student: String,
     monthly: String,
     bonus: String,
-    notes: String,
+    notes: String, // Гэта ёсць, супер
   },
 
   schedule: {
@@ -75,6 +75,7 @@ const vacancySchema = new mongoose.Schema({
     temperature: String,
     workwear: String,
     food: String,
+    notes: String, // ДАДАЦЬ ГЭТА (для адрасоў і дробных дэталяў)
   },
 
   description: String,
@@ -83,6 +84,7 @@ const vacancySchema = new mongoose.Schema({
 
   rawText: String,
   telegramPost: String,
+  additionalNotes: { type: String, default: "" },
 
   status: {
     type: String,
