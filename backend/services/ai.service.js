@@ -338,35 +338,25 @@ async function parseVacancyWithAI(rawText) {
 ROLE: Professional HR Dispatcher for the Polish job market.
 TASK: Parse job vacancy text into structured JSON in UKRAINIAN.
 
-RULES:
-- "title": short professional job title in Ukrainian. NOT "Новая вакансія".
+IMPORTANT RULES FOR SHORT TEXTS:
+- If the text is very short (e.g., "Sopot Kasa"), create a title from available keywords (e.g., "Працівник на касу").
+- If there is an address or street name, ALWAYS put it in "conditions.notes".
+- If there is a phone number or urgent notice ("ТЕРМІНОВО"), ALWAYS put it in "additionalNotes".
+- If no agency is mentioned, "agencyName" must be "Manual".
+
+FIELD GUIDELINES:
+- "title": short professional job title in Ukrainian.
 - "location": city name only. If Netherlands — add "(Нідерланди)".
 - "agencyName": recruitment agency name ONLY if explicitly mentioned, otherwise "Manual".
 - "contractType": "zlecenie" / "o_prace" / ""
-- "salary.base": hourly rate as string
-- "salary.monthly": monthly earnings
-- "salary.student": student rate if mentioned
-- "salary.bonus": bonuses if any
-- "schedule.shifts": shift count/type
-- "schedule.hours": hours per month
-- "schedule.details": additional schedule info
-- "description": duties as semicolon-separated list in Ukrainian
-- "accommodation.available": true if housing mentioned
-- "accommodation.cost": housing cost
-- "accommodation.details": housing details
-- "transport.provided": true if transport mentioned
-- "transport.cost": transport cost
-- "transport.details": transport details
-- "requirements.gender": "жінки" / "чоловіки" / "жінки та чоловіки" / ""
-- "requirements.age": age as string
-- "requirements.nationalities": array
-- "requirements.docs": required documents array
-- "requirements.physical": physical requirements
-- "conditions.temperature": temperature if mentioned
-- "conditions.workwear": work clothes info
-- "conditions.food": food/kitchen info
-- "conditions.notes": extra workplace info (address, etc.)
-- "additionalNotes": IMPORTANT recruiter notes, security rules, "no phones" policy, or special candidate requirements.
+- "salary": { "base": "hourly rate", "monthly": "total", "student": "rate", "bonus": "bonuses" }
+- "schedule": { "shifts": "count", "hours": "per month", "details": "extra info" }
+- "description": duties as semicolon-separated list in Ukrainian.
+- "accommodation": { "available": boolean, "cost": "string", "details": "string" }
+- "transport": { "provided": boolean, "cost": "string", "details": "string" }
+- "requirements": { "gender": "жінки/чоловіки/пари", "age": "string", "nationalities": [], "docs": [], "physical": "" }
+- "conditions": { "temperature": "string", "workwear": "string", "food": "string", "notes": "STREET ADDRESS OR WORKPLACE LOCATION" }
+- "additionalNotes": "PHONE NUMBERS, URGENT TAGS, SPECIAL RECRUITER NOTES".
 
 Return ONLY valid JSON. No markdown. No explanations.`;
 
@@ -381,7 +371,14 @@ Return ONLY valid JSON. No markdown. No explanations.`;
     const jsonMatch = cleanJson.match(/\{[\s\S]*\}/);
     if (jsonMatch) cleanJson = jsonMatch[0];
 
-    return JSON.parse(cleanJson);
+    const parsed = JSON.parse(cleanJson);
+
+    // Калі AI ўсё ж вярнуў "Нова вакансія", паспрабуем узяць першыя словы тэксту
+    if (!parsed.title || parsed.title.includes("Нова вакансія")) {
+      parsed.title = rawText.split(/[.\n]/)[0].substring(0, 50);
+    }
+
+    return parsed;
   } catch (error) {
     if (error.message?.includes("429") || error.status === 429) {
       throw new Error("RATE_LIMIT");
@@ -389,7 +386,7 @@ Return ONLY valid JSON. No markdown. No explanations.`;
     if (error instanceof SyntaxError) {
       console.warn("⚠️ JSON не парсіцца, выкарыстоўваем базавы аб'ект");
       return {
-        title: "Новая вакансія",
+        title: rawText.substring(0, 40) + "...",
         location: "Польща",
         agencyName: "Manual",
         salary: { base: "", student: "", bonus: "" },
@@ -398,8 +395,9 @@ Return ONLY valid JSON. No markdown. No explanations.`;
         accommodation: { available: false, cost: "", details: "" },
         transport: { provided: false, cost: "", details: "" },
         requirements: { gender: "", age: "", nationalities: [], docs: [] },
-        conditions: { temperature: "", workwear: "", food: "" },
+        conditions: { temperature: "", workwear: "", food: "", notes: "" },
         contractType: "",
+        additionalNotes: "",
       };
     }
     throw error;

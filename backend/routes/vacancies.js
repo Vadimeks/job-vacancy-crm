@@ -41,21 +41,50 @@ async function processVacancyMessage(rawText) {
   // ГЭТА МЕСЦА Я ВЫПРАВІЎ:
   const newVacancy = new Vacancy({
     vacancyCode,
-    title: vacancyData.title || "Новая вакансія",
+    title: vacancyData.title || "Нова вакансія",
     agencyName: vacancyData.agencyName || "Manual",
     location: vacancyData.location || "Не вызначана",
-    country: vacancyData.country || "Польща", // Дадаем краіну
-    arrivalDate: vacancyData.arrivalDate || null, // ВАЖНА: Дадаем даты прыезду
-    count: vacancyData.count || null, // ВАЖНА: Дадаем колькасць людзей
-    salary: vacancyData.salary || {},
-    schedule: vacancyData.schedule || {},
+    country: vacancyData.country || "Польща",
+    arrivalDate: vacancyData.arrivalDate || null,
+    count: vacancyData.count || null,
+    salary: {
+      base: vacancyData.salary?.base || "",
+      student: vacancyData.salary?.student || "",
+      monthly: vacancyData.salary?.monthly || "",
+      bonus: vacancyData.salary?.bonus || "",
+      notes: vacancyData.salary?.notes || "",
+    },
+    schedule: {
+      shifts: vacancyData.schedule?.shifts || "",
+      hours: vacancyData.schedule?.hours || "",
+      details: vacancyData.schedule?.details || "",
+    },
     description: vacancyData.description || "",
-    accommodation: vacancyData.accommodation || {},
-    transport: vacancyData.transport || {},
-    requirements: vacancyData.requirements || {},
-    conditions: vacancyData.conditions || {}, // ВАЖНА: Дадаем умовы (кава, адзенне)
-    contractType: vacancyData.contractType || "", // ВАЖНА: Тып дагавора
-    additionalNotes: vacancyData.additionalNotes || "", // ВАЖНА: Нататкі рэкрутэра
+    accommodation: {
+      available: vacancyData.accommodation?.available || false,
+      cost: vacancyData.accommodation?.cost || "",
+      details: vacancyData.accommodation?.details || "",
+    },
+    transport: {
+      provided: vacancyData.transport?.provided || false,
+      cost: vacancyData.transport?.cost || "",
+      details: vacancyData.transport?.details || "",
+    },
+    requirements: {
+      gender: vacancyData.requirements?.gender || "",
+      age: vacancyData.requirements?.age || "",
+      nationalities: vacancyData.requirements?.nationalities || [],
+      docs: vacancyData.requirements?.docs || [],
+      physical: vacancyData.requirements?.physical || "",
+    },
+    conditions: {
+      temperature: vacancyData.conditions?.temperature || "",
+      workwear: vacancyData.conditions?.workwear || "",
+      food: vacancyData.conditions?.food || "",
+      notes: vacancyData.conditions?.notes || "", // Тут будзе адрас для кароткіх вакансій
+    },
+    contractType: vacancyData.contractType || "",
+    additionalNotes: vacancyData.additionalNotes || "", // Нататкі рэкрутэра (ТЕРМІНОВО, Тэлефон)
     rawText: rawText,
     telegramPost: postText,
     status: "active",

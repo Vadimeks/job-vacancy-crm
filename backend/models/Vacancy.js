@@ -1,4 +1,3 @@
-// backend/models/Vacancy.js
 const mongoose = require("mongoose");
 
 const SPHERES = [
@@ -32,7 +31,7 @@ const vacancySchema = new mongoose.Schema({
     student: String,
     monthly: String,
     bonus: String,
-    notes: String, // Гэта ёсць, супер
+    notes: String,
   },
 
   schedule: {
@@ -60,27 +59,27 @@ const vacancySchema = new mongoose.Schema({
   requirements: {
     gender: String,
     age: String,
-    ageMax: Number, // 58 — для матчынгу
-    ageMin: Number, // 18 — мінімальны ўзрост
+    ageMax: Number,
+    ageMin: Number,
     nationalities: [String],
-    docs: [String], // ["санепід", "UDT"]
+    docs: [String],
     physical: String,
-    languages: [String], // ["польська", "нідэрландская"]
-    languageLevel: String, // "камунікатыўны" / "базавы" / "не патрабуецца"
+    languages: [String],
+    languageLevel: String,
   },
 
-  contractType: String, // "zlecenie" / "o_prace" / "any"
+  contractType: String,
 
   conditions: {
     temperature: String,
     workwear: String,
     food: String,
-    notes: String, // ДАДАЦЬ ГЭТА (для адрасоў і дробных дэталяў)
+    notes: { type: String, default: "" }, // ДАДАЎ: Для адрасоў і дробных дэталяў
   },
 
   description: String,
-  arrivalDate: String,
-  count: Number,
+  arrivalDate: { type: String, default: "" }, // Зрабіў String, бо там можа быць спіс дат
+  count: { type: String, default: "" }, // Змяніў на String, бо AI піша "5 пар", "10 хлопцаў"
 
   rawText: String,
   telegramPost: String,
