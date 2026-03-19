@@ -270,7 +270,6 @@ async function mergeWithTemplate(rawText, template) {
     if (jsonMatch) cleanJson = jsonMatch[0];
 
     const merged = JSON.parse(cleanJson);
-    const merged = JSON.parse(cleanJson);
     // Калі ў шаблоне былі нататкі, а AI вярнуў пусты радок або null - захоўваем старыя нататкі
     if (template.additionalNotes && !merged.additionalNotes) {
       merged.additionalNotes = template.additionalNotes;
