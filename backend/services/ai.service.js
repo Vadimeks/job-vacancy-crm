@@ -35,6 +35,8 @@ You will receive:
 
 Rules:
 - ALWAYS keep title EXACTLY as in template — never modify it
+- If message contains recruiter-only info, security rules, "no phones" policy, or Asian students availability → ALWAYS put this into "additionalNotes".
+- If message mentions new address or small workplace details → put into "conditions.notes".
 - If message mentions count (e.g. "2 жінки", "5 чоловіків") → set count field (number only, e.g. 2)
 - If message mentions gender → update requirements.gender only
 - If message mentions arrival date (e.g. "приїзд 20.03", "набір 15.04") → update arrivalDate field
@@ -86,13 +88,12 @@ Return ONLY valid JSON with the complete merged result using this structure:
   "conditions": {
     "temperature": "string",
     "workwear": "string",
-    "food": "string"
+    "food": "string",
+    "notes": "string"
   },
   "contractType": "string",
-  "additionalNotes": "string or null"
+  "additionalNotes": "string"
 }
-
-IMPORTANT: Return ONLY valid JSON, no markdown, no explanations.
 `;
 
 const FORMAT_PROMPT = `
@@ -269,6 +270,11 @@ async function mergeWithTemplate(rawText, template) {
     if (jsonMatch) cleanJson = jsonMatch[0];
 
     const merged = JSON.parse(cleanJson);
+    const merged = JSON.parse(cleanJson);
+    // Калі ў шаблоне былі нататкі, а AI вярнуў пусты радок або null - захоўваем старыя нататкі
+    if (template.additionalNotes && !merged.additionalNotes) {
+      merged.additionalNotes = template.additionalNotes;
+    }
     console.log(`✅ Мерж паспяховы`);
     return merged;
   } catch (error) {
@@ -337,6 +343,8 @@ RULES:
 - "conditions.temperature": temperature if mentioned
 - "conditions.workwear": work clothes info
 - "conditions.food": food/kitchen info
+- "conditions.notes": extra workplace info (address, etc.)
+- "additionalNotes": IMPORTANT recruiter notes, security rules, "no phones" policy, or special candidate requirements.
 
 Return ONLY valid JSON. No markdown. No explanations.`;
 
