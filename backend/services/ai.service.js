@@ -21,6 +21,7 @@ Return ONLY a JSON object:
 }
 
 IMPORTANT: Return ONLY valid JSON, no markdown, no explanations.
+If the message does not clearly match any template by Brand Name or specific Job Title, return templateId: null. Never guess if you are not sure. It is better to return null than a wrong match.
 `;
 
 const MERGE_PROMPT = `
@@ -180,7 +181,7 @@ async function identifyTemplate(rawText, templates) {
   templates.forEach((t) => {
     let score = 0;
 
-    // Вызначаем асноўнае імя брэнда (першае слова з назвы шаблона, напр. "ARVATO")
+    // Вызначаем асноўнае імя брэнда (напр. "ID Logistics" -> "id")
     const brandName = t.templateName.split(" ")[0].toLowerCase();
 
     // Прыярытэт №1: Назва прадпрыемства/брэнду (+15 балаў)
@@ -202,23 +203,23 @@ async function identifyTemplate(rawText, templates) {
       });
     }
 
-    // Калі гэты шаблон набраў больш балаў за папярэдні — запамінаем яго
     if (score > maxScore) {
       maxScore = score;
       bestMatch = t;
     }
   });
 
-  // Калі максімальны бал дастаткова высокі (мінімум супадзенне брэнда або лакацыі + тэгаў)
-  // Парог 10 азначае, што мы ўпэўнены, бо знайшлі брэнд або лакацыю з тэгамі
-  if (bestMatch && maxScore >= 10) {
+  // ПАРОГ ПАВЫШАНЫ ДА 15:
+  // Цяпер трэба АБО дакладнае супадзенне Брэнда (15),
+  // АБО Лакацыя + мінімум 8 ключавых слоў, што малаверагодна для выпадковага супадзення.
+  if (bestMatch && maxScore >= 15) {
     console.log(
       `✅ Шаблон знойдзены лакальна: ${bestMatch.templateName} (Score: ${maxScore})`,
     );
     return bestMatch;
   }
 
-  // 2. КАЛІ ЛАКАЛЬНЫ ПОШУК НЕ ДАЎ ВЫНІКУ — ЗВАРОТ ДА AI
+  // 2. КАЛІ ЛАКАЛЬНЫ ПОШУК НЕ ПЭЎНЫ — ЗВАРОТ ДА AI З ЖОРСТКІМІ ПРАВІЛАМІ
   console.log(
     `🤖 Лакальны пошук непэўны (Max Score: ${maxScore}). Пытаемся ў AI...`,
   );
@@ -227,22 +228,42 @@ async function identifyTemplate(rawText, templates) {
     const templateList = templates.map((t) => ({
       _id: t._id.toString(),
       templateName: t.templateName,
-      agencyName: t.agencyName,
-      keywords: t.keywords,
+      industry: t.templateName.includes("Logistics")
+        ? "Logistics"
+        : "Production", // Дапамагаем AI зразумець сферу
+      location: t.location,
     }));
 
-    const content = `MESSAGE:\n${rawText}\n\nAVAILABLE TEMPLATES:\n${JSON.stringify(templateList, null, 2)}`;
-    const text = await groqRequest(IDENTIFY_PROMPT, content, true);
-    const parsed = JSON.parse(text);
+    // Строгі промпт для AI, каб пазбегнуць галюцынацый
+    const STRICT_IDENTIFY_PROMPT = `
+    TASK: Identify if the message matches ONE specific template from the list.
+    RULES:
+    1. Compare the JOB TYPE (e.g., Dairy vs Logistics) and BRAND.
+    2. If the message is about food production and the template is about logistics - they DO NOT match.
+    3. Return {"templateId": "ID"} ONLY if you are 90% sure.
+    4. If there is no clear match, return {"templateId": null, "reason": "No match found"}.
+    5. Return ONLY JSON.
+    `;
 
+    const content = `MESSAGE:\n${rawText}\n\nAVAILABLE TEMPLATES:\n${JSON.stringify(templateList, null, 2)}`;
+
+    // Выкарыстоўваем наш стандартны groqRequest з новым строгім промптам
+    const responseText = await groqRequest(
+      STRICT_IDENTIFY_PROMPT,
+      content,
+      true,
+    );
+    const parsed = JSON.parse(responseText);
+
+    // Калі AI вярнуў ID і мы знайшлі такі шаблон
     if (parsed.templateId) {
       const matched = templates.find(
         (t) => t._id.toString() === parsed.templateId,
       );
+
+      // Дадатковая праверка: ці не "прыдумаў" AI супадзенне для розных гарадоў?
       if (matched) {
-        console.log(
-          `✅ AI знайшоў шаблон: ${matched.templateName} (${parsed.confidence})`,
-        );
+        console.log(`✅ AI знайшоў шаблон: ${matched.templateName}`);
         return matched;
       }
     }
@@ -250,7 +271,9 @@ async function identifyTemplate(rawText, templates) {
     console.error("❌ AI identify error:", err.message);
   }
 
-  console.log(`⚠️ Шаблон не знойдзены ні лакальна, ні праз AI`);
+  console.log(
+    `⚠️ Шаблон не знойдзены. Вакансія будзе апрацавана як новая (без шаблона).`,
+  );
   return null;
 }
 
