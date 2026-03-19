@@ -252,7 +252,23 @@ async function identifyTemplate(rawText, templates) {
       brand: t.templateName.split(" ")[0],
     }));
 
-    const content = `MESSAGE:\n${rawText}\n\nAVAILABLE TEMPLATES:\n${JSON.stringify(templateList, null, 2)}`;
+    // Адпраўляем толькі патрэбныя палі шаблона (без keywords, _id і інш.)
+    const templateSlim = {
+      title: template.title,
+      location: template.location,
+      country: template.country,
+      agencyName: template.agencyName,
+      salary: template.salary,
+      schedule: template.schedule,
+      description: template.description,
+      accommodation: template.accommodation,
+      transport: template.transport,
+      requirements: template.requirements,
+      conditions: template.conditions,
+      contractType: template.contractType,
+      additionalNotes: template.additionalNotes,
+    };
+    const content = `TEMPLATE:\n${JSON.stringify(templateSlim, null, 2)}\n\nMESSAGE:\n${rawText}`;
 
     // Выкарыстоўваем наш стандартны groqRequest з новым строгім промптам
     const responseText = await groqRequest(IDENTIFY_PROMPT, content, true);
