@@ -4,7 +4,6 @@ const Groq = require("groq-sdk");
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const MODEL = "llama-3.3-70b-versatile";
 
-// --- ПРОМПТЫ (без змен) ---
 const IDENTIFY_PROMPT = `
 ROLE: HR Dispatcher assistant.
 TASK: Identify which template this job vacancy message belongs to.
@@ -41,7 +40,7 @@ You will receive:
 
 Rules:
 - ALWAYS keep title EXACTLY as in template — never modify it
-- If message contains recruiter-only info, security rules, "no phones" policy, or Asian students availability → ALWAYS put this into "additionalNotes".
+- If message contains recruiter-only info, security rules, "no phones" policy → ALWAYS put this into "additionalNotes".
 - If message mentions new address or small workplace details → put into "conditions.notes".
 - If message mentions count (e.g. "2 жінки", "5 чоловіків") → set count field (number only, e.g. 2)
 - If message mentions gender → update requirements.gender only
@@ -55,7 +54,7 @@ Rules:
 Return ONLY valid JSON with the complete merged result using this structure:
 {
   "title": "string",
-  "location": "string", 
+  "location": "string",
   "country": "string",
   "agencyName": "string",
   "arrivalDate": "string or null",
@@ -100,6 +99,8 @@ Return ONLY valid JSON with the complete merged result using this structure:
   "contractType": "string",
   "additionalNotes": "string"
 }
+
+IMPORTANT: Return ONLY valid JSON, no markdown, no explanations.
 `;
 
 const FORMAT_PROMPT = `
@@ -122,29 +123,31 @@ Use this EXACT structure (skip blocks if data is empty/null/empty string):
 
 📋 *Вимоги*
 - [requirements.age if not empty]
-- [requirements.docs joined by ", " if not empty]
+- [requirements.docs joined by ", " if not empty — skip contractType values like "Umowa Zlecenie"]
 - [requirements.nationalities if contains more than just "Україна"]
 
 🕒 *Графік роботи*
-[schedule.shifts]
+[schedule.shifts — write full human-readable text, e.g. "2 зміни по 10 годин" not just "2"]
 [schedule.details if not empty]
-[schedule.hours if not empty]
+[schedule.hours if not empty — write full text, e.g. "160-200 годин/міс" not just "160-200"]
 
-📄 Тип договору: [contractType]
+📄 Тип договору: [contractType — write full name: "Umowa zlecenie" or "Umowa o pracę", never abbreviate]
 
 🏠 *Проживання*
-[accommodation.cost]
+[if accommodation.available = false → write "Житло не надається"]
+[if accommodation.available = true → accommodation.cost]
 [accommodation.details if not empty]
 [accommodation.deposit if not empty]
 
-🚌 Транспорт: [transport.cost][, transport.details if not empty]
+🚌 Транспорт: [transport.cost — write full text with units, e.g. "200 zł/міс" not just "200"][, transport.details if not empty]
 
 🌡 *Умови праці*
 - [conditions.temperature if not empty]
 - [conditions.workwear if not empty]
 - [conditions.food if not empty]
 - [requirements.physical if not empty]
-📝 *Додаткова*
+
+📝 *Додаткова інформація*
 [additionalNotes if not empty]
 
 IMPORTANT: Return ONLY the formatted post text.
@@ -155,12 +158,51 @@ Rules:
 - Use Markdown bold (*text*) for section headers
 - Split description by semicolons into bullet points with •
 - If entire block has no data — skip it completely
-- requirements.physical goes into Умови праці block
+- requirements.physical goes into Умови праці block, NOT into Вимоги block
+- conditions.notes is an ADDRESS — do NOT put it into Умови праці, skip it entirely in the post
 - Return ONLY the formatted post text, no JSON, no explanations
 `;
 
-// --- ДАПАМОЖНАЯ ФУНКЦЫЯ для запыту да Groq ---
+const CREATE_TEMPLATE_PROMPT = `
+ROLE: Professional HR Dispatcher for the Polish job market.
+TASK: Create a reusable job template from a parsed vacancy JSON.
+
+The template should:
+1. Extract the BRAND/COMPANY name from title or description
+2. Generate a short descriptive templateName: "[Brand] [City] - [Short job description]"
+   Example: "Aurora Kąty Wrocławskie - Склад одягу та аксесуарів"
+   Example: "BREMBO Dąbrowa Górnicza - Виробництво гальмівних дисків"
+3. Generate keywords array (5-10 items): brand name, location, key job terms in Ukrainian, Polish and Russian variants
+4. Keep ALL other fields exactly as in the vacancy data
+5. Set agencyName to the value from vacancy, or "Unknown" if not specified
+
+Return ONLY valid JSON with this structure:
+{
+  "templateName": "string",
+  "agencyName": "string",
+  "keywords": ["string"],
+  "title": "string",
+  "location": "string",
+  "country": "string",
+  "salary": { "base": "string", "student": "string", "monthly": "string", "bonus": "string", "notes": "string" },
+  "schedule": { "shifts": "string", "hours": "string", "details": "string" },
+  "description": "string",
+  "accommodation": { "available": true, "cost": "string", "details": "string", "deposit": "string" },
+  "transport": { "provided": true, "cost": "string", "details": "string" },
+  "requirements": { "gender": "string", "age": "string", "nationalities": ["string"], "docs": ["string"], "physical": "string" },
+  "conditions": { "temperature": "string", "workwear": "string", "food": "string", "notes": "string" },
+  "contractType": "string",
+  "additionalNotes": "string"
+}
+
+IMPORTANT: Return ONLY valid JSON, no markdown, no explanations.
+`;
+
+// --- ДАПАМОЖНАЯ ФУНКЦЫЯ ---
 async function groqRequest(systemPrompt, userContent, jsonMode = true) {
+  // Затрымка каб не перавышаць rate limit
+  await new Promise((resolve) => setTimeout(resolve, 2000));
+
   const response = await groq.chat.completions.create({
     model: MODEL,
     temperature: 0.2,
@@ -179,17 +221,11 @@ async function identifyTemplate(rawText, templates) {
 
   console.log(`🔍 Пошук шаблона сярод ${templates.length} варыянтаў...`);
 
-  // --- КРОК 0: Збіраем усе брэнды з шаблонаў ---
-  const allBrands = templates.map((t) => {
-    // Бярэм першае слова з templateName як брэнд (напр. "ZALANDO Kąty..." → "zalando")
-    return {
-      brand: t.templateName.split(" ")[0].toLowerCase(),
-      id: t._id.toString(),
-    };
-  });
+  const allBrands = templates.map((t) => ({
+    brand: t.templateName.split(" ")[0].toLowerCase(),
+    id: t._id.toString(),
+  }));
 
-  // --- КРОК 1: Калі ў паведамленні ёсць ІНШЫ брэнд — шаблон не падыходзіць ---
-  // Знаходзім які брэнд згадваецца ў паведамленні
   const mentionedBrands = allBrands.filter((b) => lowerText.includes(b.brand));
 
   let bestMatch = null;
@@ -199,30 +235,20 @@ async function identifyTemplate(rawText, templates) {
     let score = 0;
     const brandName = t.templateName.split(" ")[0].toLowerCase();
 
-    // Калі ў паведамленні згадваецца іншы брэнд — гэты шаблон пропускаем
     if (mentionedBrands.length > 0) {
       const matchesThisBrand = mentionedBrands.some(
         (b) => b.brand === brandName,
       );
-      if (!matchesThisBrand) return; // пропускаем
+      if (!matchesThisBrand) return;
     }
 
-    // Прыярытэт №1: Назва брэнда (+15 балаў)
-    if (lowerText.includes(brandName)) {
-      score += 15;
-    }
+    if (lowerText.includes(brandName)) score += 15;
 
-    // Прыярытэт №2: Лакацыя (+7 балаў)
-    if (t.location && lowerText.includes(t.location.toLowerCase())) {
-      score += 7;
-    }
+    if (t.location && lowerText.includes(t.location.toLowerCase())) score += 7;
 
-    // Прыярытэт №3: Ключавыя словы (+1 бал за кожнае)
     if (t.keywords && Array.isArray(t.keywords)) {
       t.keywords.forEach((kw) => {
-        if (lowerText.includes(kw.toLowerCase())) {
-          score += 1;
-        }
+        if (lowerText.includes(kw.toLowerCase())) score += 1;
       });
     }
 
@@ -239,7 +265,6 @@ async function identifyTemplate(rawText, templates) {
     return bestMatch;
   }
 
-  // --- КРОК 2: AI fallback ---
   console.log(
     `🤖 Лакальны пошук непэўны (Max Score: ${maxScore}). Пытаемся ў AI...`,
   );
@@ -252,7 +277,34 @@ async function identifyTemplate(rawText, templates) {
       brand: t.templateName.split(" ")[0],
     }));
 
-    // Адпраўляем толькі патрэбныя палі шаблона (без keywords, _id і інш.)
+    const content = `MESSAGE:\n${rawText}\n\nAVAILABLE TEMPLATES:\n${JSON.stringify(templateList, null, 2)}`;
+    const responseText = await groqRequest(IDENTIFY_PROMPT, content, true);
+    const parsed = JSON.parse(responseText);
+
+    if (parsed.templateId) {
+      const matched = templates.find(
+        (t) => t._id.toString() === parsed.templateId,
+      );
+      if (matched) {
+        console.log(`✅ AI знайшоў шаблон: ${matched.templateName}`);
+        return matched;
+      }
+    }
+  } catch (err) {
+    console.error("❌ AI identify error:", err.message);
+  }
+
+  console.log(`⚠️ Шаблон не знойдзены. Вакансія будзе апрацавана як новая.`);
+  return null;
+}
+
+// --- ФУНКЦЫЯ 2: Мерж шаблона ---
+async function mergeWithTemplate(rawText, template) {
+  try {
+    console.log(
+      `🤖 Мерж шаблона "${template.templateName}" з повідомленням...`,
+    );
+
     const templateSlim = {
       title: template.title,
       location: template.location,
@@ -268,42 +320,8 @@ async function identifyTemplate(rawText, templates) {
       contractType: template.contractType,
       additionalNotes: template.additionalNotes,
     };
+
     const content = `TEMPLATE:\n${JSON.stringify(templateSlim, null, 2)}\n\nMESSAGE:\n${rawText}`;
-
-    // Выкарыстоўваем наш стандартны groqRequest з новым строгім промптам
-    const responseText = await groqRequest(IDENTIFY_PROMPT, content, true);
-    const parsed = JSON.parse(responseText);
-
-    // Калі AI вярнуў ID і мы знайшлі такі шаблон
-    if (parsed.templateId) {
-      const matched = templates.find(
-        (t) => t._id.toString() === parsed.templateId,
-      );
-
-      // Дадатковая праверка: ці не "прыдумаў" AI супадзенне для розных гарадоў?
-      if (matched) {
-        console.log(`✅ AI знайшоў шаблон: ${matched.templateName}`);
-        return matched;
-      }
-    }
-  } catch (err) {
-    console.error("❌ AI identify error:", err.message);
-  }
-
-  console.log(
-    `⚠️ Шаблон не знойдзены. Вакансія будзе апрацавана як новая (без шаблона).`,
-  );
-  return null;
-}
-
-// --- ФУНКЦЫЯ 2: Мерж шаблона ---
-async function mergeWithTemplate(rawText, template) {
-  try {
-    console.log(
-      `🤖 Мерж шаблона "${template.templateName}" з паведамленнем...`,
-    );
-
-    const content = `TEMPLATE:\n${JSON.stringify(template, null, 2)}\n\nMESSAGE:\n${rawText}`;
     const text = await groqRequest(MERGE_PROMPT, content, true);
 
     let cleanJson = text.trim();
@@ -312,11 +330,12 @@ async function mergeWithTemplate(rawText, template) {
     if (jsonMatch) cleanJson = jsonMatch[0];
 
     const merged = JSON.parse(cleanJson);
-    // Калі ў шаблоне былі нататкі, а AI вярнуў пусты радок або null - захоўваем старыя нататкі
+
     if (template.additionalNotes && !merged.additionalNotes) {
       merged.additionalNotes = template.additionalNotes;
     }
-    console.log(`✅ Мерж паспяховы`);
+
+    console.log(`✅ Мерж успішний`);
     return merged;
   } catch (error) {
     if (error.message?.includes("429") || error.status === 429) {
@@ -332,13 +351,13 @@ async function mergeWithTemplate(rawText, template) {
 // --- ФУНКЦЫЯ 3: Фарматаванне паста ---
 async function formatTelegramPost(vacancyData) {
   try {
-    console.log(`🤖 Фарматаванне Telegram-паста...`);
+    console.log(`🤖 Форматування Telegram-посту...`);
     const text = await groqRequest(
       FORMAT_PROMPT,
       `DATA:\n${JSON.stringify(vacancyData, null, 2)}`,
       false,
     );
-    console.log(`✅ Пост сфарматаваны`);
+    console.log(`✅ Пост відформатовано`);
     return text.trim();
   } catch (error) {
     if (error.message?.includes("429") || error.status === 429) {
@@ -351,31 +370,40 @@ async function formatTelegramPost(vacancyData) {
 // --- ФУНКЦЫЯ 4: Парсінг без шаблона ---
 async function parseVacancyWithAI(rawText) {
   try {
-    console.log(`🤖 Парсінг без шаблона (Groq Llama)...`);
+    console.log(`🤖 Парсинг без шаблону (Groq Llama)...`);
 
     const SYSTEM_INSTRUCTION = `
 ROLE: Professional HR Dispatcher for the Polish job market.
 TASK: Parse job vacancy text into structured JSON in UKRAINIAN.
 
-IMPORTANT RULES FOR SHORT TEXTS:
-- If the text is very short (e.g., "Sopot Kasa"), create a title from available keywords (e.g., "Працівник на касу").
-- If there is an address or street name, ALWAYS put it in "conditions.notes".
-- If there is a phone number or urgent notice ("ТЕРМІНОВО"), ALWAYS put it in "additionalNotes".
-- If no agency is mentioned, "agencyName" must be "Manual".
-
-FIELD GUIDELINES:
-- "title": short professional job title in Ukrainian.
+IMPORTANT RULES:
+- "title": ALWAYS include company/brand name + short job description. Format: "[Brand] [City] - [Job]". Example: "Aurora Kąty Wrocławskie - Склад одягу та аксесуарів". Never use generic "Складський працівник" without brand.
 - "location": city name only. If Netherlands — add "(Нідерланди)".
 - "agencyName": recruitment agency name ONLY if explicitly mentioned, otherwise "Manual".
-- "contractType": "zlecenie" / "o_prace" / ""
-- "salary": { "base": "hourly rate", "monthly": "total", "student": "rate", "bonus": "bonuses" }
-- "schedule": { "shifts": "count", "hours": "per month", "details": "extra info" }
+- "contractType": full name — "Umowa zlecenie" or "Umowa o pracę", never abbreviate.
+- "salary.base": ALWAYS include units. Example: "31,40 zł/год brutto". Never just "31.40".
+- "salary.monthly": monthly total with description.
+- "salary.student": student rate if mentioned.
+- "salary.bonus": bonuses with full description including units.
+- "schedule.shifts": FULL text. Example: "2 зміни по 10 годин (06:00–16:30 та 18:00–04:30)". Never just "2".
+- "schedule.hours": FULL text with units. Example: "160–200 годин/міс". Never just "160-200".
+- "schedule.details": work days, breaks, rotation schedule.
 - "description": duties as semicolon-separated list in Ukrainian.
-- "accommodation": { "available": boolean, "cost": "string", "details": "string" }
-- "transport": { "provided": boolean, "cost": "string", "details": "string" }
-- "requirements": { "gender": "жінки/чоловіки/пари", "age": "string", "nationalities": [], "docs": [], "physical": "" }
-- "conditions": { "temperature": "string", "workwear": "string", "food": "string", "notes": "STREET ADDRESS OR WORKPLACE LOCATION" }
-- "additionalNotes": "PHONE NUMBERS, URGENT TAGS, SPECIAL RECRUITER NOTES".
+- "accommodation.available": true/false. If "Житло не надається" → false.
+- "accommodation.cost": cost with units.
+- "transport.provided": true if transport mentioned.
+- "transport.cost": ALWAYS with units. Example: "200 zł/міс". Never just "200".
+- "transport.details": pickup points, route details.
+- "requirements.gender": "жінки", "чоловіки", "жінки та чоловіки".
+- "requirements.age": full text. Example: "до 55 років".
+- "requirements.nationalities": array, empty if not specified.
+- "requirements.docs": ONLY real documents: ["CV", "санепід", "UDT", "водійське посвідчення кат. B"]. Never put contract type here.
+- "requirements.physical": physical requirements, language requirements, experience.
+- "conditions.temperature": temperature if mentioned.
+- "conditions.workwear": work clothes info.
+- "conditions.food": food/kitchen info.
+- "conditions.notes": STREET ADDRESS ONLY. Example: "ul. Logistyczna 4, Kąty Wrocławskie".
+- "additionalNotes": signing date, start date, available spots, security rules, phone bans.
 
 Return ONLY valid JSON. No markdown. No explanations.`;
 
@@ -390,20 +418,13 @@ Return ONLY valid JSON. No markdown. No explanations.`;
     const jsonMatch = cleanJson.match(/\{[\s\S]*\}/);
     if (jsonMatch) cleanJson = jsonMatch[0];
 
-    const parsed = JSON.parse(cleanJson);
-
-    // Калі AI ўсё ж вярнуў "Нова вакансія", паспрабуем узяць першыя словы тэксту
-    if (!parsed.title || parsed.title.includes("Нова вакансія")) {
-      parsed.title = rawText.split(/[.\n]/)[0].substring(0, 50);
-    }
-
-    return parsed;
+    return JSON.parse(cleanJson);
   } catch (error) {
     if (error.message?.includes("429") || error.status === 429) {
       throw new Error("RATE_LIMIT");
     }
     if (error instanceof SyntaxError) {
-      console.warn("⚠️ JSON не парсіцца, выкарыстоўваем базавы аб'ект");
+      console.warn("⚠️ JSON не парситься, використовуємо базовий об'єкт");
       return {
         title: rawText.substring(0, 40) + "...",
         location: "Польща",
@@ -423,13 +444,41 @@ Return ONLY valid JSON. No markdown. No explanations.`;
   }
 }
 
+// --- ФУНКЦЫЯ 5: Стварэнне шаблона з вакансіі ---
+async function createTemplateFromVacancy(vacancyData) {
+  try {
+    console.log(`🤖 Створення шаблону з вакансії...`);
+
+    const text = await groqRequest(
+      CREATE_TEMPLATE_PROMPT,
+      `VACANCY DATA:\n${JSON.stringify(vacancyData, null, 2)}`,
+      true,
+    );
+
+    let cleanJson = text.trim();
+    cleanJson = cleanJson.replace(/```json\s*/g, "").replace(/```\s*/g, "");
+    const jsonMatch = cleanJson.match(/\{[\s\S]*\}/);
+    if (jsonMatch) cleanJson = jsonMatch[0];
+
+    const template = JSON.parse(cleanJson);
+    console.log(`✅ Шаблон створено: ${template.templateName}`);
+    return template;
+  } catch (error) {
+    if (error.message?.includes("429") || error.status === 429) {
+      throw new Error("RATE_LIMIT");
+    }
+    console.error("❌ Помилка створення шаблону:", error.message);
+    return null;
+  }
+}
+
 async function testConnection() {
   try {
     await groqRequest("You are helpful.", "Test", false);
-    console.log("✅ Groq Llama даступны");
+    console.log("✅ Groq Llama доступний");
     return true;
   } catch (error) {
-    console.error("❌ Groq API недаступны:", error.message);
+    console.error("❌ Groq API недоступний:", error.message);
     return false;
   }
 }
@@ -439,5 +488,6 @@ module.exports = {
   identifyTemplate,
   mergeWithTemplate,
   formatTelegramPost,
+  createTemplateFromVacancy,
   testConnection,
 };

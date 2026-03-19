@@ -31,8 +31,29 @@ async function processVacancyMessage(rawText) {
     vacancyData.agencyName = template.agencyName;
     vacancyData.templateId = template._id;
   } else {
-    console.log("⚠️ Шаблон не знойдзены, выкарыстоўваем fallback парсінг...");
+    console.log("⚠️ Шаблон не знойдзены, використовуємо fallback парсинг...");
     vacancyData = await aiService.parseVacancyWithAI(rawText);
+
+    // Автоматично створюємо шаблон для майбутнього використання
+    try {
+      const newTemplate =
+        await aiService.createTemplateFromVacancy(vacancyData);
+      if (newTemplate) {
+        // Перевіряємо чи шаблон з такою назвою вже існує
+        const existing = await Template.findOne({
+          templateName: newTemplate.templateName,
+        });
+        if (!existing) {
+          await Template.create(newTemplate);
+          console.log(`✅ Новий шаблон збережено: ${newTemplate.templateName}`);
+        } else {
+          console.log(`ℹ️ Шаблон вже існує: ${newTemplate.templateName}`);
+        }
+      }
+    } catch (err) {
+      // Помилка створення шаблону не повинна зупиняти обробку вакансії
+      console.error("⚠️ Не вдалося створити шаблон:", err.message);
+    }
   }
 
   const postText = await aiService.formatTelegramPost(vacancyData);
