@@ -38,17 +38,24 @@ async function processVacancyMessage(rawText) {
   const postText = await aiService.formatTelegramPost(vacancyData);
   const vacancyCode = await generateVacancyCode();
 
+  // ГЭТА МЕСЦА Я ВЫПРАВІЎ:
   const newVacancy = new Vacancy({
     vacancyCode,
     title: vacancyData.title || "Новая вакансія",
     agencyName: vacancyData.agencyName || "Manual",
     location: vacancyData.location || "Не вызначана",
+    country: vacancyData.country || "Польща", // Дадаем краіну
+    arrivalDate: vacancyData.arrivalDate || null, // ВАЖНА: Дадаем даты прыезду
+    count: vacancyData.count || null, // ВАЖНА: Дадаем колькасць людзей
     salary: vacancyData.salary || {},
     schedule: vacancyData.schedule || {},
     description: vacancyData.description || "",
     accommodation: vacancyData.accommodation || {},
     transport: vacancyData.transport || {},
     requirements: vacancyData.requirements || {},
+    conditions: vacancyData.conditions || {}, // ВАЖНА: Дадаем умовы (кава, адзенне)
+    contractType: vacancyData.contractType || "", // ВАЖНА: Тып дагавора
+    additionalNotes: vacancyData.additionalNotes || "", // ВАЖНА: Нататкі рэкрутэра
     rawText: rawText,
     telegramPost: postText,
     status: "active",
