@@ -7,11 +7,17 @@ const MODEL = "llama-3.3-70b-versatile";
 // --- ПРОМПТЫ (без змен) ---
 const IDENTIFY_PROMPT = `
 ROLE: HR Dispatcher assistant.
-TASK: Identify which agency and job template this message belongs to.
+TASK: Identify which template this job vacancy message belongs to.
 
-You will receive:
-1. A message from a Telegram chat
-2. A list of available templates with their keywords
+CRITICAL RULES:
+1. The BRAND NAME in the message must EXACTLY match the brand in the template name.
+   - If message mentions "Aurora" → only match templates with "Aurora" in the name.
+   - If message mentions "Zalando" → only match templates with "Zalando" in the name.
+   - If message mentions "BREMBO" → only match templates with "BREMBO" in the name.
+2. Location alone is NOT enough to match — brand must match too.
+3. If no brand match found → return templateId: null.
+4. If you are less than 90% sure → return templateId: null.
+5. It is ALWAYS better to return null than a wrong match.
 
 Return ONLY a JSON object:
 {
@@ -21,7 +27,6 @@ Return ONLY a JSON object:
 }
 
 IMPORTANT: Return ONLY valid JSON, no markdown, no explanations.
-If the message does not clearly match any template by Brand Name or specific Job Title, return templateId: null. Never guess if you are not sure. It is better to return null than a wrong match.
 `;
 
 const MERGE_PROMPT = `
@@ -40,7 +45,7 @@ Rules:
 - If message mentions new address or small workplace details → put into "conditions.notes".
 - If message mentions count (e.g. "2 жінки", "5 чоловіків") → set count field (number only, e.g. 2)
 - If message mentions gender → update requirements.gender only
-- If message mentions arrival date (e.g. "приїзд 20.03", "набір 15.04") → update arrivalDate field
+- If message mentions arrival date (e.g. "приїзд 20.03", "набір 15.04") → update arrivalDate field. ALWAYS keep the original format (e.g. "23.03", never "2023-03-23").
 - If message mentions housing change → update accommodation fields
 - If message mentions salary change → update salary fields
 - If message mentions schedule change → update schedule fields
@@ -104,7 +109,7 @@ TASK: Format the job data into a beautiful Telegram post in UKRAINIAN.
 Use this EXACT structure (skip blocks if data is empty/null/empty string):
 
 *[title]*
-👥 Набір: [requirements.gender][, приїзд [arrivalDate] if arrivalDate exists]
+👥 Набір: [requirements.gender][, приїзд [arrivalDate] if arrivalDate exists - use EXACTLY as stored, never convert to ISO format]
 
 💰 *Оплата праці*
 [salary.base]
@@ -174,27 +179,45 @@ async function identifyTemplate(rawText, templates) {
 
   console.log(`🔍 Пошук шаблона сярод ${templates.length} варыянтаў...`);
 
+  // --- КРОК 0: Збіраем усе брэнды з шаблонаў ---
+  const allBrands = templates.map((t) => {
+    // Бярэм першае слова з templateName як брэнд (напр. "ZALANDO Kąty..." → "zalando")
+    return {
+      brand: t.templateName.split(" ")[0].toLowerCase(),
+      id: t._id.toString(),
+    };
+  });
+
+  // --- КРОК 1: Калі ў паведамленні ёсць ІНШЫ брэнд — шаблон не падыходзіць ---
+  // Знаходзім які брэнд згадваецца ў паведамленні
+  const mentionedBrands = allBrands.filter((b) => lowerText.includes(b.brand));
+
   let bestMatch = null;
   let maxScore = 0;
 
-  // 1. ЛАКАЛЬНЫ ПОШУК ПА БАЛАХ (Scoring System)
   templates.forEach((t) => {
     let score = 0;
-
-    // Вызначаем асноўнае імя брэнда (напр. "ID Logistics" -> "id")
     const brandName = t.templateName.split(" ")[0].toLowerCase();
 
-    // Прыярытэт №1: Назва прадпрыемства/брэнду (+15 балаў)
+    // Калі ў паведамленні згадваецца іншы брэнд — гэты шаблон пропускаем
+    if (mentionedBrands.length > 0) {
+      const matchesThisBrand = mentionedBrands.some(
+        (b) => b.brand === brandName,
+      );
+      if (!matchesThisBrand) return; // пропускаем
+    }
+
+    // Прыярытэт №1: Назва брэнда (+15 балаў)
     if (lowerText.includes(brandName)) {
       score += 15;
     }
 
-    // Прыярытэт №2: Дакладнае супадзенне лакацыі (+7 балаў)
+    // Прыярытэт №2: Лакацыя (+7 балаў)
     if (t.location && lowerText.includes(t.location.toLowerCase())) {
       score += 7;
     }
 
-    // Прыярытэт №3: Ключавыя словы з масіва (+1 бал за кожнае)
+    // Прыярытэт №3: Ключавыя словы (+1 бал за кожнае)
     if (t.keywords && Array.isArray(t.keywords)) {
       t.keywords.forEach((kw) => {
         if (lowerText.includes(kw.toLowerCase())) {
@@ -209,9 +232,6 @@ async function identifyTemplate(rawText, templates) {
     }
   });
 
-  // ПАРОГ ПАВЫШАНЫ ДА 15:
-  // Цяпер трэба АБО дакладнае супадзенне Брэнда (15),
-  // АБО Лакацыя + мінімум 8 ключавых слоў, што малаверагодна для выпадковага супадзення.
   if (bestMatch && maxScore >= 15) {
     console.log(
       `✅ Шаблон знойдзены лакальна: ${bestMatch.templateName} (Score: ${maxScore})`,
@@ -219,7 +239,7 @@ async function identifyTemplate(rawText, templates) {
     return bestMatch;
   }
 
-  // 2. КАЛІ ЛАКАЛЬНЫ ПОШУК НЕ ПЭЎНЫ — ЗВАРОТ ДА AI З ЖОРСТКІМІ ПРАВІЛАМІ
+  // --- КРОК 2: AI fallback ---
   console.log(
     `🤖 Лакальны пошук непэўны (Max Score: ${maxScore}). Пытаемся ў AI...`,
   );
@@ -228,31 +248,14 @@ async function identifyTemplate(rawText, templates) {
     const templateList = templates.map((t) => ({
       _id: t._id.toString(),
       templateName: t.templateName,
-      industry: t.templateName.includes("Logistics")
-        ? "Logistics"
-        : "Production", // Дапамагаем AI зразумець сферу
       location: t.location,
+      brand: t.templateName.split(" ")[0],
     }));
-
-    // Строгі промпт для AI, каб пазбегнуць галюцынацый
-    const STRICT_IDENTIFY_PROMPT = `
-    TASK: Identify if the message matches ONE specific template from the list.
-    RULES:
-    1. Compare the JOB TYPE (e.g., Dairy vs Logistics) and BRAND.
-    2. If the message is about food production and the template is about logistics - they DO NOT match.
-    3. Return {"templateId": "ID"} ONLY if you are 90% sure.
-    4. If there is no clear match, return {"templateId": null, "reason": "No match found"}.
-    5. Return ONLY JSON.
-    `;
 
     const content = `MESSAGE:\n${rawText}\n\nAVAILABLE TEMPLATES:\n${JSON.stringify(templateList, null, 2)}`;
 
     // Выкарыстоўваем наш стандартны groqRequest з новым строгім промптам
-    const responseText = await groqRequest(
-      STRICT_IDENTIFY_PROMPT,
-      content,
-      true,
-    );
+    const responseText = await groqRequest(IDENTIFY_PROMPT, content, true);
     const parsed = JSON.parse(responseText);
 
     // Калі AI вярнуў ID і мы знайшлі такі шаблон
