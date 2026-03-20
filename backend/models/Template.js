@@ -45,12 +45,12 @@ const templateSchema = new mongoose.Schema({
     details: String,
   },
 
-  // Патрабаванні (дэфолтныя для гэтага шаблона)
+  // Патрабаванні
   requirements: {
     gender: String, // "жінки" / "чоловіки" / "жінки, чоловіки"
     age: String, // "до 58 років"
     nationalities: [String], // ["Україна", "Молдова", "Білорусь"]
-    docs: [String], // ["санепід", "віза"]
+    docs: [String], // ["санепід", "UDT", "CV"]
     physical: String,
   },
 
@@ -59,10 +59,14 @@ const templateSchema = new mongoose.Schema({
     temperature: String, // "+10°C"
     workwear: String, // "спецодяг та взуття надається"
     food: String, // "безкоштовний чай, кава"
+    notes: String, // адрас або дрібні деталі місця роботи
   },
 
   // Тып дагавора
-  contractType: String, // "Umowa zlecenie"
+  contractType: String, // "Umowa zlecenie" / "Umowa o pracę"
+
+  // Нататкі для рэкрутэра
+  additionalNotes: String, // тэрмінова, тэлефоны, забароны, асаблівасці
 
   createdAt: { type: Date, default: Date.now },
 });

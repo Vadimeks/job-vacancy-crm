@@ -15,7 +15,9 @@ const seedTemplates = async () => {
     const templatesDir = path.join(__dirname, "../data/templates");
     const files = fs
       .readdirSync(templatesDir)
-      .filter((file) => file.endsWith(".js"));
+      .filter(
+        (file) => file.endsWith(".js") && file !== "universal_template.js",
+      );
 
     let allTemplates = [];
 
