@@ -406,7 +406,9 @@ export default function Vacancies() {
                     </h3>
                     <div className="flex flex-wrap gap-4 mt-2 text-xs text-slate-500">
                       <span>📍 {v.location}</span>
-                      {v.agencyName && <span>🏢 {v.agencyName}</span>}
+                      {v.agencyName && v.agencyName !== "Manual" && (
+                        <span>🏢 {v.agencyName}</span>
+                      )}
                       {v.salary?.base && <span>💰 {v.salary.base}</span>}
                       {v.requirements?.gender && (
                         <span>👤 {v.requirements.gender}</span>
