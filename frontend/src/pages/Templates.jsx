@@ -9,6 +9,7 @@ export default function Templates() {
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterAgency, setFilterAgency] = useState("");
+  const [search, setSearch] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
   const [editTemplate, setEditTemplate] = useState(null);
   const [viewTemplate, setViewTemplate] = useState(null);
@@ -30,9 +31,18 @@ export default function Templates() {
   }, []);
 
   const agencies = [...new Set(templates.map((t) => t.agencyName))].sort();
-  const filtered = filterAgency
-    ? templates.filter((t) => t.agencyName === filterAgency)
-    : templates;
+
+  const filtered = templates.filter((t) => {
+    const matchAgency = !filterAgency || t.agencyName === filterAgency;
+    const q = search.toLowerCase().trim();
+    const matchSearch =
+      !q ||
+      t.templateName?.toLowerCase().includes(q) ||
+      t.title?.toLowerCase().includes(q) ||
+      t.location?.toLowerCase().includes(q) ||
+      t.keywords?.some((kw) => kw.toLowerCase().includes(q));
+    return matchAgency && matchSearch;
+  });
 
   const handleDelete = async (id) => {
     if (!confirm("Выдаліць шаблон?")) return;
@@ -54,7 +64,6 @@ export default function Templates() {
     );
   };
 
-  // З вью адразу адкрываем рэдагаванне
   const handleEditFromView = (template) => {
     setViewTemplate(null);
     setEditTemplate(template);
@@ -67,7 +76,8 @@ export default function Templates() {
         <div>
           <h1 className="text-2xl font-semibold text-slate-100">Шаблоны</h1>
           <p className="text-sm text-slate-500 mt-1">
-            {templates.length} шаблонаў у {agencies.length} агенцыях
+            {filtered.length} з {templates.length} шаблонаў у {agencies.length}{" "}
+            агенцыях
           </p>
         </div>
         <button
@@ -76,6 +86,17 @@ export default function Templates() {
         >
           <span>＋</span> Новы шаблон
         </button>
+      </div>
+
+      {/* Пошук */}
+      <div className="mb-4">
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Пошук па назве, фірме, горадзе, ключавых словах..."
+          className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors"
+        />
       </div>
 
       {/* Фільтр па агенцыях */}
@@ -113,7 +134,19 @@ export default function Templates() {
       ) : filtered.length === 0 ? (
         <div className="text-center py-16 text-slate-600">
           <div className="text-4xl mb-3">📋</div>
-          <div className="text-sm">Шаблонаў пакуль няма</div>
+          <div className="text-sm">
+            {search
+              ? `Нічога не знойдзена па «${search}»`
+              : "Шаблонаў пакуль няма"}
+          </div>
+          {search && (
+            <button
+              onClick={() => setSearch("")}
+              className="mt-3 text-xs text-emerald-500 hover:text-emerald-400"
+            >
+              Ачысціць пошук
+            </button>
+          )}
         </div>
       ) : (
         <div className="space-y-3">
