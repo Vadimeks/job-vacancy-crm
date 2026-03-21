@@ -221,63 +221,73 @@ async function identifyTemplate(rawText, templates) {
 
   console.log(`🔍 Пошук шаблона сярод ${templates.length} варыянтаў...`);
 
+  // Збіраем усе брэнды з шаблонаў
   const allBrands = templates.map((t) => ({
     brand: t.templateName.split(" ")[0].toLowerCase(),
     id: t._id.toString(),
   }));
 
+  // Шукаем якія брэнды ёсць у тэксце
   const mentionedBrands = allBrands.filter((b) => lowerText.includes(b.brand));
 
-  let bestMatch = null;
-  let maxScore = 0;
+  // ⚠️ КЛЮЧАВАЯ ПРАБЛЕМА: калі брэнд не знойдзены — не рабіць лакальны пошук
+  // Ключавыя словы без брэнда не могуць ідэнтыфікаваць шаблон надзейна
+  if (mentionedBrands.length === 0) {
+    console.log(`⚠️ Брэнд у тэксце не знойдзены — пераходзім да AI...`);
+  } else {
+    // Лакальны пошук ТОЛЬКІ калі брэнд знойдзены
+    let bestMatch = null;
+    let maxScore = 0;
 
-  templates.forEach((t) => {
-    let score = 0;
-    const brandName = t.templateName.split(" ")[0].toLowerCase();
+    templates.forEach((t) => {
+      const brandName = t.templateName.split(" ")[0].toLowerCase();
 
-    if (mentionedBrands.length > 0) {
+      // Прапускаем шаблоны якіх брэнд не згадваецца ў тэксце
       const matchesThisBrand = mentionedBrands.some(
         (b) => b.brand === brandName,
       );
       if (!matchesThisBrand) return;
+
+      let score = 0;
+      score += 15; // брэнд знойдзены — аснова
+
+      if (t.location && lowerText.includes(t.location.toLowerCase()))
+        score += 7;
+
+      if (t.keywords && Array.isArray(t.keywords)) {
+        t.keywords.forEach((kw) => {
+          if (lowerText.includes(kw.toLowerCase())) score += 1;
+        });
+      }
+
+      if (score > maxScore) {
+        maxScore = score;
+        bestMatch = t;
+      }
+    });
+
+    if (bestMatch) {
+      console.log(
+        `✅ Шаблон знойдзены лакальна: ${bestMatch.templateName} (Score: ${maxScore})`,
+      );
+      return bestMatch;
     }
-
-    if (lowerText.includes(brandName)) score += 15;
-
-    if (t.location && lowerText.includes(t.location.toLowerCase())) score += 7;
-
-    if (t.keywords && Array.isArray(t.keywords)) {
-      t.keywords.forEach((kw) => {
-        if (lowerText.includes(kw.toLowerCase())) score += 1;
-      });
-    }
-
-    if (score > maxScore) {
-      maxScore = score;
-      bestMatch = t;
-    }
-  });
-
-  if (bestMatch && maxScore >= 15) {
-    console.log(
-      `✅ Шаблон знойдзены лакальна: ${bestMatch.templateName} (Score: ${maxScore})`,
-    );
-    return bestMatch;
   }
 
-  console.log(
-    `🤖 Лакальны пошук непэўны (Max Score: ${maxScore}). Пытаемся ў AI...`,
-  );
+  // AI fallback — адпраўляем толькі сціслы спіс (не поўныя шаблоны)
+  console.log(`🤖 Лакальны пошук не знайшоў — пытаемся ў AI...`);
 
   try {
+    // Адпраўляем толькі назву + location + brand — без keywords
+    // Гэта зніжае памер запыту ў ~5 разоў
     const templateList = templates.map((t) => ({
       _id: t._id.toString(),
       templateName: t.templateName,
-      location: t.location,
+      location: t.location || "",
       brand: t.templateName.split(" ")[0],
     }));
 
-    const content = `MESSAGE:\n${rawText}\n\nAVAILABLE TEMPLATES:\n${JSON.stringify(templateList, null, 2)}`;
+    const content = `MESSAGE:\n${rawText}\n\nAVAILABLE TEMPLATES:\n${JSON.stringify(templateList)}`;
     const responseText = await groqRequest(IDENTIFY_PROMPT, content, true);
     const parsed = JSON.parse(responseText);
 
