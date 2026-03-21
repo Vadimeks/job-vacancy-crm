@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { getTemplates, deleteTemplate } from "../services/api";
 import AddTemplateModal from "../components/templates/AddTemplateModal";
 import EditTemplateModal from "../components/templates/EditTemplateModal";
+import TemplateViewModal from "../components/templates/TemplateViewModal";
 
 export default function Templates() {
   const [templates, setTemplates] = useState([]);
@@ -10,6 +11,7 @@ export default function Templates() {
   const [filterAgency, setFilterAgency] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
   const [editTemplate, setEditTemplate] = useState(null);
+  const [viewTemplate, setViewTemplate] = useState(null);
 
   const fetchTemplates = async () => {
     setLoading(true);
@@ -50,6 +52,12 @@ export default function Templates() {
     setTemplates((prev) =>
       prev.map((t) => (t._id === updated._id ? updated : t)),
     );
+  };
+
+  // З вью адразу адкрываем рэдагаванне
+  const handleEditFromView = (template) => {
+    setViewTemplate(null);
+    setEditTemplate(template);
   };
 
   return (
@@ -112,23 +120,26 @@ export default function Templates() {
           {filtered.map((t) => (
             <div
               key={t._id}
-              className="bg-slate-900 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition-colors"
+              className="bg-slate-900 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition-colors cursor-pointer"
+              onClick={() => setViewTemplate(t)}
             >
               <div className="flex items-start justify-between gap-4">
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 mb-1">
-                    <span className="text-xs bg-slate-800 text-emerald-400 px-2 py-0.5 rounded font-mono">
+                    <span className="text-xs bg-slate-800 text-emerald-400 px-2 py-0.5 rounded font-mono shrink-0">
                       {t.agencyName}
                     </span>
-                    <h3 className="font-medium text-slate-100">
+                    <h3 className="font-medium text-slate-100 truncate">
                       {t.templateName}
                     </h3>
                   </div>
                   {t.title && (
-                    <p className="text-sm text-slate-400 mt-1">{t.title}</p>
+                    <p className="text-sm text-slate-400 mt-1 truncate">
+                      {t.title}
+                    </p>
                   )}
                   <div className="flex flex-wrap gap-2 mt-2">
-                    {t.keywords?.map((kw) => (
+                    {t.keywords?.slice(0, 6).map((kw) => (
                       <span
                         key={kw}
                         className="text-xs bg-slate-800 text-slate-500 px-2 py-0.5 rounded"
@@ -136,20 +147,37 @@ export default function Templates() {
                         {kw}
                       </span>
                     ))}
+                    {t.keywords?.length > 6 && (
+                      <span className="text-xs text-slate-600">
+                        +{t.keywords.length - 6}
+                      </span>
+                    )}
                   </div>
                 </div>
-                <div className="flex gap-2 shrink-0">
+                <div
+                  className="flex gap-1 shrink-0"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button
+                    onClick={() => setViewTemplate(t)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-slate-400 hover:text-slate-100 hover:bg-slate-800 rounded-lg transition-colors text-xs"
+                    title="Паглядзець"
+                  >
+                    👁
+                  </button>
                   <button
                     onClick={() => setEditTemplate(t)}
                     className="flex items-center gap-1.5 px-3 py-1.5 text-slate-400 hover:text-slate-100 hover:bg-slate-800 rounded-lg transition-colors text-xs"
+                    title="Рэдагаваць"
                   >
-                    ✏️ Рэд.
+                    ✏️
                   </button>
                   <button
                     onClick={() => handleDelete(t._id)}
                     className="flex items-center gap-1.5 px-3 py-1.5 text-slate-600 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors text-xs"
+                    title="Выдаліць"
                   >
-                    🗑 Выд.
+                    🗑
                   </button>
                 </div>
               </div>
@@ -170,6 +198,14 @@ export default function Templates() {
           template={editTemplate}
           onClose={() => setEditTemplate(null)}
           onSave={handleSaveEdit}
+        />
+      )}
+
+      {viewTemplate && (
+        <TemplateViewModal
+          template={viewTemplate}
+          onClose={() => setViewTemplate(null)}
+          onEdit={handleEditFromView}
         />
       )}
     </div>
