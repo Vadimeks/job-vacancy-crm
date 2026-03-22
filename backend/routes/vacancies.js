@@ -130,7 +130,58 @@ router.post("/auto", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+// POST /api/vacancies/from-template/:templateId
+router.post("/from-template/:templateId", async (req, res) => {
+  try {
+    const template = await Template.findById(req.params.templateId);
+    if (!template)
+      return res.status(404).json({ message: "Шаблон не знойдзены" });
 
+    const { rawText } = req.body;
+    if (!rawText?.trim())
+      return res.status(400).json({ message: "Тэкст пусты" });
+
+    // AI мержыць тэкст з гатовым шаблонам — без identifyTemplate
+    const merged = await aiService.mergeWithTemplate(rawText, template);
+    merged.agencyName = template.agencyName;
+    merged.templateId = template._id;
+
+    const postText = await aiService.formatTelegramPost(merged);
+    const vacancyCode = await generateVacancyCode();
+
+    const newVacancy = new Vacancy({
+      vacancyCode,
+      title: merged.title || template.title,
+      agencyName: merged.agencyName,
+      location: merged.location || template.location,
+      country: merged.country || template.country,
+      templateId: template._id,
+      arrivalDate: merged.arrivalDate || null,
+      count: merged.count || null,
+      salary: merged.salary || template.salary,
+      schedule: merged.schedule || template.schedule,
+      description: merged.description || template.description,
+      accommodation: merged.accommodation || template.accommodation,
+      transport: merged.transport || template.transport,
+      requirements: merged.requirements || template.requirements,
+      conditions: merged.conditions || template.conditions,
+      contractType: merged.contractType || template.contractType,
+      additionalNotes: merged.additionalNotes || template.additionalNotes || "",
+      rawText,
+      telegramPost: postText,
+      status: "active",
+    });
+
+    const saved = await newVacancy.save();
+    await sendToTelegram(postText);
+    await matchCandidatesForVacancy(saved);
+
+    res.status(201).json(saved);
+  } catch (err) {
+    console.error("❌ from-template error:", err.message);
+    res.status(500).json({ message: err.message });
+  }
+});
 // GET /api/vacancies
 router.get("/", async (req, res) => {
   try {
