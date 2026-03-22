@@ -10,6 +10,8 @@ export const getVacancies = () => api.get("/vacancies");
 export const createVacancy = (data) => api.post("/vacancies", data);
 export const createVacancyAuto = (rawText) =>
   api.post("/vacancies/auto", { rawText });
+export const createVacancyFromTemplate = (templateId, rawText) =>
+  api.post(`/vacancies/from-template/${templateId}`, { rawText });
 export const updateVacancy = (id, data) => api.put(`/vacancies/${id}`, data);
 export const deleteVacancy = (id) => api.delete(`/vacancies/${id}`);
 
@@ -34,4 +36,5 @@ export const matchVacanciesForCandidate = (id) =>
 export const submitApplication = (data) => api.post("/apply", data);
 export const matchCandidatesForVacancy = (id) =>
   api.get(`/vacancies/${id}/match-candidates`);
+
 export default api;

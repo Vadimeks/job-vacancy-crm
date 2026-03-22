@@ -2,8 +2,10 @@
 import { useEffect, useState, useMemo } from "react";
 import {
   getVacancies,
+  getTemplates,
   deleteVacancy,
   createVacancyAuto,
+  createVacancyFromTemplate,
 } from "../services/api";
 import EditVacancyModal from "../components/vacancies/EditVacancyModal";
 import ApplyModal from "../components/vacancies/ApplyModal";
@@ -136,14 +138,23 @@ export default function Vacancies() {
   const [autoText, setAutoText] = useState("");
   const [autoLoading, setAutoLoading] = useState(false);
   const [showAutoForm, setShowAutoForm] = useState(false);
+
+  // Рэжым формы: "auto" або "template"
+  const [formMode, setFormMode] = useState("auto");
+
+  // Для рэжыму "template"
+  const [templates, setTemplates] = useState([]);
+  const [templatesLoading, setTemplatesLoading] = useState(false);
+  const [selectedAgency, setSelectedAgency] = useState("");
+  const [templateSearch, setTemplateSearch] = useState("");
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
+
   const [editVacancy, setEditVacancy] = useState(null);
   const [applyVacancy, setApplyVacancy] = useState(null);
   const [matchVacancy, setMatchVacancy] = useState(null);
   const [applyType, setApplyType] = useState(null);
   const [viewVacancy, setViewVacancy] = useState(null);
 
-  // draft — тое што выбірае карыстальнік
-  // applied — тое што прымянілі
   const [draft, setDraft] = useState(EMPTY_FILTERS);
   const [applied, setApplied] = useState(EMPTY_FILTERS);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -163,25 +174,54 @@ export default function Vacancies() {
     fetchVacancies();
   }, []);
 
-  const agencies = useMemo(
+  // Загружаем шаблоны калі адкрываем форму ў рэжыме template
+  useEffect(() => {
+    if (showAutoForm && formMode === "template" && templates.length === 0) {
+      setTemplatesLoading(true);
+      getTemplates()
+        .then((res) => setTemplates(res.data))
+        .catch(() => console.error("Памылка загрузкі шаблонаў"))
+        .finally(() => setTemplatesLoading(false));
+    }
+  }, [showAutoForm, formMode, templates.length]);
+
+  const vacancyAgencies = useMemo(
     () =>
       [...new Set(vacancies.map((v) => v.agencyName).filter(Boolean))].sort(),
     [vacancies],
   );
 
-  // Колькасць вакансій па draft (для плаваючай кнопкі)
+  // Агенцыі з шаблонаў
+  const templateAgencies = useMemo(
+    () =>
+      [...new Set(templates.map((t) => t.agencyName).filter(Boolean))].sort(),
+    [templates],
+  );
+
+  // Адфільтраваныя шаблоны па агенцыі і пошуку
+  const filteredTemplates = useMemo(() => {
+    return templates.filter((t) => {
+      const matchAgency = !selectedAgency || t.agencyName === selectedAgency;
+      const q = templateSearch.toLowerCase().trim();
+      const matchSearch =
+        !q ||
+        t.templateName?.toLowerCase().includes(q) ||
+        t.location?.toLowerCase().includes(q) ||
+        t.keywords?.some((kw) => kw.toLowerCase().includes(q));
+      return matchAgency && matchSearch;
+    });
+  }, [templates, selectedAgency, templateSearch]);
+
   const previewCount = useMemo(
     () => applyFilters(vacancies, draft).length,
     [vacancies, draft],
   );
 
-  // Адфільтраваныя па applied
   const filtered = useMemo(
     () => applyFilters(vacancies, applied),
     [vacancies, applied],
   );
 
-  // Ці змяніўся draft адносна applied
   const isDirty = JSON.stringify(draft) !== JSON.stringify(applied);
 
   const handleApplyFilters = () => {
@@ -204,6 +244,7 @@ export default function Vacancies() {
     }
   };
 
+  // Рэжым AUTO
   const handleAutoCreate = async () => {
     if (!autoText.trim()) return;
     setAutoLoading(true);
@@ -217,6 +258,35 @@ export default function Vacancies() {
     } finally {
       setAutoLoading(false);
     }
+  };
+
+  // Рэжым TEMPLATE
+  const handleTemplateCreate = async () => {
+    if (!selectedTemplate) return alert("Выберыце шаблон");
+    if (!autoText.trim()) return alert("Устаўце тэкст вакансіі");
+    setAutoLoading(true);
+    try {
+      await createVacancyFromTemplate(selectedTemplate._id, autoText);
+      setAutoText("");
+      setSelectedTemplate(null);
+      setSelectedAgency("");
+      setTemplateSearch("");
+      setShowAutoForm(false);
+      await fetchVacancies();
+    } catch {
+      alert("Памылка стварэння вакансіі");
+    } finally {
+      setAutoLoading(false);
+    }
+  };
+
+  const handleCloseForm = () => {
+    setShowAutoForm(false);
+    setAutoText("");
+    setSelectedTemplate(null);
+    setSelectedAgency("");
+    setTemplateSearch("");
+    setFormMode("auto");
   };
 
   const handleSaveEdit = (updated) => {
@@ -248,7 +318,7 @@ export default function Vacancies() {
         <VacancyFilters
           draft={draft}
           onChange={setDraft}
-          agencies={agencies}
+          agencies={vacancyAgencies}
           showAgency={true}
         />
       </aside>
@@ -276,7 +346,7 @@ export default function Vacancies() {
               <VacancyFilters
                 draft={draft}
                 onChange={setDraft}
-                agencies={agencies}
+                agencies={vacancyAgencies}
                 showAgency={true}
               />
             </div>
@@ -297,7 +367,6 @@ export default function Vacancies() {
         {/* Загаловак */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            {/* Мабільная кнопка фільтраў */}
             <button
               onClick={() => setSidebarOpen(true)}
               className="lg:hidden flex items-center gap-2 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm rounded-lg transition-colors"
@@ -324,29 +393,168 @@ export default function Vacancies() {
           </button>
         </div>
 
-        {/* Форма AI */}
+        {/* ФОРМА ДАДАВАННЯ */}
         {showAutoForm && (
           <div className="mb-6 bg-slate-900 border border-slate-800 rounded-xl p-5">
-            <h3 className="text-sm font-medium text-slate-300 mb-3">
-              🤖 Аўтаматычная апрацоўка праз AI
-            </h3>
+            {/* Перамыкач рэжымаў */}
+            <div className="flex gap-2 mb-4">
+              <button
+                onClick={() => setFormMode("auto")}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  formMode === "auto"
+                    ? "bg-emerald-500 text-slate-900"
+                    : "bg-slate-800 text-slate-400 hover:bg-slate-700"
+                }`}
+              >
+                🤖 Аўта (AI)
+              </button>
+              <button
+                onClick={() => {
+                  setFormMode("template");
+                }}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  formMode === "template"
+                    ? "bg-emerald-500 text-slate-900"
+                    : "bg-slate-800 text-slate-400 hover:bg-slate-700"
+                }`}
+              >
+                📋 З шаблона
+              </button>
+            </div>
+
+            {/* РЭЖЫМ: З ШАБЛОНА */}
+            {formMode === "template" && (
+              <div className="mb-4 space-y-3">
+                {templatesLoading ? (
+                  <div className="text-slate-500 text-sm">
+                    Загрузка шаблонаў...
+                  </div>
+                ) : (
+                  <>
+                    {/* Выбар агенцыі */}
+                    <div className="flex gap-2 flex-wrap">
+                      <button
+                        onClick={() => {
+                          setSelectedAgency("");
+                          setSelectedTemplate(null);
+                        }}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                          selectedAgency === ""
+                            ? "bg-emerald-500 text-slate-900"
+                            : "bg-slate-800 text-slate-400 hover:bg-slate-700"
+                        }`}
+                      >
+                        Усе
+                      </button>
+                      {templateAgencies.map((a) => (
+                        <button
+                          key={a}
+                          onClick={() => {
+                            setSelectedAgency(a);
+                            setSelectedTemplate(null);
+                          }}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                            selectedAgency === a
+                              ? "bg-emerald-500 text-slate-900"
+                              : "bg-slate-800 text-slate-400 hover:bg-slate-700"
+                          }`}
+                        >
+                          {a}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Пошук шаблона */}
+                    <input
+                      type="text"
+                      value={templateSearch}
+                      onChange={(e) => {
+                        setTemplateSearch(e.target.value);
+                        setSelectedTemplate(null);
+                      }}
+                      placeholder="Пошук па назве фірмы або горадзе..."
+                      className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors"
+                    />
+
+                    {/* Спіс шаблонаў */}
+                    {(templateSearch || selectedAgency) && (
+                      <div className="max-h-48 overflow-y-auto space-y-1 border border-slate-800 rounded-lg p-1">
+                        {filteredTemplates.length === 0 ? (
+                          <div className="text-slate-500 text-xs px-3 py-2">
+                            Нічога не знойдзена
+                          </div>
+                        ) : (
+                          filteredTemplates.map((t) => (
+                            <button
+                              key={t._id}
+                              onClick={() => setSelectedTemplate(t)}
+                              className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                                selectedTemplate?._id === t._id
+                                  ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                                  : "text-slate-300 hover:bg-slate-800"
+                              }`}
+                            >
+                              <span className="text-xs text-slate-500 font-mono mr-2">
+                                {t.agencyName}
+                              </span>
+                              {t.templateName}
+                            </button>
+                          ))
+                        )}
+                      </div>
+                    )}
+
+                    {/* Абраны шаблон */}
+                    {selectedTemplate && (
+                      <div className="flex items-center gap-2 bg-emerald-500/5 border border-emerald-500/20 rounded-lg px-3 py-2">
+                        <span className="text-emerald-400 text-sm">✓</span>
+                        <span className="text-sm text-emerald-400 font-medium">
+                          {selectedTemplate.templateName}
+                        </span>
+                        <button
+                          onClick={() => setSelectedTemplate(null)}
+                          className="ml-auto text-slate-500 hover:text-slate-300 text-xs"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* TEXTAREA — агульная для абодвух рэжымаў */}
             <textarea
               value={autoText}
               onChange={(e) => setAutoText(e.target.value)}
-              placeholder="Устаўце тэкст вакансіі з чата агенцыі..."
+              placeholder={
+                formMode === "template"
+                  ? "Устаўце тэкст вакансіі — AI зробіць мерж з абраным шаблонам..."
+                  : "Устаўце тэкст вакансіі з чата агенцыі..."
+              }
               rows={4}
               className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 resize-none"
             />
+
             <div className="flex gap-3 mt-3">
               <button
-                onClick={handleAutoCreate}
-                disabled={autoLoading || !autoText.trim()}
+                onClick={
+                  formMode === "template"
+                    ? handleTemplateCreate
+                    : handleAutoCreate
+                }
+                disabled={
+                  autoLoading ||
+                  !autoText.trim() ||
+                  (formMode === "template" && !selectedTemplate)
+                }
                 className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed text-slate-900 font-medium text-sm rounded-lg transition-colors"
               >
                 {autoLoading ? "Апрацоўка..." : "Апрацаваць і дадаць"}
               </button>
               <button
-                onClick={() => setShowAutoForm(false)}
+                onClick={handleCloseForm}
                 className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm rounded-lg transition-colors"
               >
                 Адмена
@@ -355,7 +563,7 @@ export default function Vacancies() {
           </div>
         )}
 
-        {/* Спіс */}
+        {/* СПІС ВАКАНСІЙ */}
         {loading ? (
           <div className="text-slate-500 text-sm">Загрузка...</div>
         ) : filtered.length === 0 ? (
@@ -465,7 +673,7 @@ export default function Vacancies() {
         )}
       </div>
 
-      {/* ПЛАВАЮЧАЯ КНОПКА (дэсктоп) */}
+      {/* ПЛАВАЮЧАЯ КНОПКА */}
       {isDirty && (
         <div className="hidden lg:block fixed bottom-6 right-6 z-30">
           <button
@@ -477,7 +685,7 @@ export default function Vacancies() {
         </div>
       )}
 
-      {/* Мадалкі */}
+      {/* МАДАЛКІ */}
       {editVacancy && (
         <EditVacancyModal
           vacancy={editVacancy}
