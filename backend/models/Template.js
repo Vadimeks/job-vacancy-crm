@@ -1,72 +1,120 @@
-// backend/models/Template.js
 const mongoose = require("mongoose");
 
 const templateSchema = new mongoose.Schema({
-  agencyName: { type: String, required: true },
-  templateName: { type: String, required: true },
-  keywords: [String], // ["Гольчево", "Голчево", "маринад"]
+  // === 1. СІСТЭМНЫЯ ПАЛІ (Групаванне і пошук) ===
+  agencyName: { type: String, required: true }, // Назва агенцыі (напрыклад: "APOLO")
+  templateName: { type: String, required: true }, // Поўная тэхнічная назва (напрыклад: "NOTINO Głuchów - Склад")
 
-  // Асноўная інфа
-  title: String, // "Гольчево. 80 км від Щецина"
-  location: String, // "Гольчево (Golczewo)"
+  // 🌟 ПУБЛІЧНАЯ НАЗВА ДЛЯ КАНДЫДАТАЎ (Загаловак у Telegram / на сайце)
+  vacancydescription: { type: String, required: true }, // Напрыклад: "Логістичний склад косметики"
+
+  category: { type: String, required: true }, // Катэгорыя для фільтрацыі
+  keywords: [String], // Ключавыя словы для пошуку
+  contractType: { type: String, required: true }, // "Umowa zlecenie" / "Umowa o pracę"
+
+  // 🔒 УНУТРАНЫ БЛОК ДЛЯ РЭКРУТЭРАЎ (Пакуль паказваем усім, потым фільтруем)
+  forRecruiter: {
+    internalNotes: { type: String, default: "" }, // Інструкцыі па Viber, забароненых краінах, ПФ і г.д.
+    hideAgencyNameForCandidate: { type: Boolean, default: true }, // Ці трэба выразаць APOLO пры публікацыі
+    hideEnterpriseNameForCandidate: { type: Boolean, default: true }, // Ці трэба выразаць назву завода пры публікацыі
+  },
+
+  // === 2. ЛАКАЦЫІ І ГЕАГРАФІЯ ===
+  location: { type: String, required: true }, // Чыстая назва горада для радыус-фільтраў
+  locationDescription: String, // Тэкст для карткі (напрыклад: "45 км від Варшави")
+  voivodeship: { type: String, required: true }, // Ваяводства
   country: { type: String, default: "Польща" },
+  checkInCity: String, // Дзе офіс падпісання дакументаў
 
-  // Аплата
+  // === 3. ФІНАНСЫ ===
   salary: {
-    base: String, // "25,36 zł нетто/год"
-    student: String, // "31,40 zł нетто/год (до 26 років)"
-    monthly: String, // "4 250 – 6 000 zł нетто/місяць"
-    bonus: String,
-    notes: String,
+    baseNetto: { type: String, required: true }, // Базавая стаўка
+    studentNetto: String, // Стаўка для студэнтаў
+    hoursRange: String, // Дыяпазон гадзін (напрыклад: "210–270")
+    payoutDates: String, // Даты выплаты
+    bonusDetails: String, // Прэміі
+    salaryNotes: String, // Падаткі і іншыя фінансавыя нюансы
   },
 
-  // Графік
+  // === 4. ГРАФІК ===
   schedule: {
-    shifts: String, // "2 зміни по 8-11 годин"
-    hours: String, // "220–270 годин на місяць"
-    details: String, // дадатковая інфа па зменах
+    shiftsCount: Number, // Колькасць змен
+    hoursPerShift: String, // Колькі гадзін у змене (8, 12)
+    workDaysWeek: String, // Працоўныя дні
+    breakDuration: String, // Перапынкі
+    canChooseShiftOnStart: { type: Boolean, default: false },
+    shiftChoiceDetails: String,
+    description: String, // Поўны тэкст графіка
   },
 
-  // Абавязкі
-  description: String, // поўны тэкст абавязкаў
-
-  // Жытло
+  // === 5. ПРАЖЫВАННЕ І ТРАНСПАРТ ===
   accommodation: {
-    available: { type: Boolean, default: true },
-    cost: String, // "750 zł/місяць"
-    details: String, // "для пар — 2-місні кімнати"
-    deposit: String, // "200 zł (повертається)"
+    type: { type: String, required: true }, // "Безкоштовне", "Платне", "Частково безкоштовне"
+    forCouples: { type: Boolean, default: false },
+    withChildren: { type: Boolean, default: false },
+    withPets: { type: Boolean, default: false },
+    costRaw: String, // Кошт (тэкстам)
+    details: String, // Апісанне жытла
   },
-
-  // Транспарт
   transport: {
-    provided: { type: Boolean, default: true },
-    cost: String, // "безкоштовно" або "150 zł"
+    provided: { type: Boolean, default: false },
+    costRaw: String,
     details: String,
   },
 
-  // Патрабаванні
+  // === 6. КАМПЕНСАЦЫІ АД ПРАЦАДАЎЦЫ ===
+  employerCompensations: {
+    hasCompensations: { type: Boolean, default: false },
+    details: String, // Даплаты за сваё жыллё і г.д.
+  },
+
+  // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
   requirements: {
-    gender: String, // "жінки" / "чоловіки" / "жінки, чоловіки"
-    age: String, // "до 58 років"
-    nationalities: [String], // ["Україна", "Молдова", "Білорусь"]
-    docs: [String], // ["санепід", "UDT", "CV"]
-    physical: String,
+    gender: { type: [String], default: [] }, // Масіў ["Чоловіки", "Жінки", "Пари"]
+    ageMax: Number,
+    nationalities: [String],
+    standardDocs: [String],
+    needsAdditionalDocs: { type: Boolean, default: false },
+    additionalDocsDetails: String,
+    experienceRequired: { type: Boolean, default: false },
+    hasEntranceTests: { type: Boolean, default: false },
+    entranceTestsDetails: String,
+    polishLanguageLevel: { type: String, default: "Не потрібна" }, // Тэг для фільтра
+    languageDetails: String, // Тлумачэнне тэкстам пра мову
+    physicalLoad: String,
   },
 
-  // Умовы працы
+  // === 8. ВАДРЫХТОЎКА Ў ЕЎРОПУ (ДЭЛЕГАЦЫІ А1) ===
+  businessTrip: {
+    isBusinessTrip: { type: Boolean, default: false },
+    requiresPolishExperience: { type: Boolean, default: false },
+    requiredDocuments: [String],
+    tripDetails: String,
+  },
+
+  // === 9. СПЕЦЫФІЧНЫЯ ЎМОВЫ І ХАРЧАВАННЕ ===
   conditions: {
-    temperature: String, // "+10°C"
-    workwear: String, // "спецодяг та взуття надається"
-    food: String, // "безкоштовний чай, кава"
-    notes: String, // адрас або дрібні деталі місця роботи
+    hasSpecificConditions: { type: Boolean, default: false },
+    specificNuances: [String], // Напрыклад: ["Холод", "Шум"]
+    specificConditionsDetails: String,
+    workwearFree: { type: Boolean, default: true },
+    foodType: String, // "Частково-безкоштовно", "За свій рахунок"
+    foodDetails: String,
   },
 
-  // Тып дагавора
-  contractType: String, // "Umowa zlecenie" / "Umowa o pracę"
+  // === 10. ВЫДАТКІ НА СТАРЦЕ І АДКАЗНАСЦЬ ===
+  startExpenses: {
+    hasStartExpenses: { type: Boolean, default: false },
+    details: String, // Медагляд, санэпід
+  },
+  earlyTerminationLiability: {
+    hasLiability: { type: Boolean, default: false },
+    details: String, // Кошт абутку / адзення пры заўчасным звальненні
+  },
 
-  // Нататкі для рэкрутэра
-  additionalNotes: String, // тэрмінова, тэлефоны, забароны, асаблівасці
+  // === 11. АПІСАННЕ ПРАЦЭСАЎ І НАТАТКІ ===
+  description: { type: String, required: true }, // Спіс абавязкаў
+  additionalNotes: String, // Адрас, каардынаты, музыка на складзе
 
   createdAt: { type: Date, default: Date.now },
 });

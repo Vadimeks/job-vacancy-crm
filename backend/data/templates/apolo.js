@@ -5,6 +5,8 @@ const apoloTemplates = [
     // === 1. СІСТЭМНЫЯ ПАЛІ (Групаванне і пошук) ===
     agencyName: "APOLO",
     templateName: "VIRTU Zawiercie - Виробництво готових обідів",
+    vacancydescription:
+      "Виробництво готових обідів (піца, крокети, вареники, паста та інше)", // 👍 Публічная назва для кандыдатаў
     category: "⚙️ Виробництво і прамысловасть / Гатові страви / кейтэрынг",
     keywords: [
       "VIRTU",
@@ -21,6 +23,13 @@ const apoloTemplates = [
     ],
     contractType: "Umowa zlecenie",
 
+    // === УНУТРАНАЯ ІНФАРМАЦЫЯ (ТОЛЬКІ ДЛЯ РЭКРУТЭРА) ===
+    forRecruiter: {
+      internalNotes: "", // Для VIRTU тут пакуль няма спецыфічных унутраных нататак
+      hideAgencyNameForCandidate: true, // Схаваць APOLO ад кандыдата пры посцінгу
+      hideEnterpriseNameForCandidate: true, // Схаваць VIRTU ад кандыдата пры посцінгу
+    },
+
     // === 2. ЛАКАЦЫІ І ГЕАГРАФІЯ ===
     location: "Zawiercie",
     locationDescription: "48 км від Катовіце",
@@ -36,7 +45,7 @@ const apoloTemplates = [
       payoutDates: "20–22 числа за попередній місяць.",
       bonusDetails: "+1 zł/год після відпрацювання 180 годин (чоловіки).",
       salaryNotes:
-        "У 2025/2026 р. після перевищення ліміту доходу в 30 000 зл брутто ставка нетта може зменшуватися. Нарахування житла залежить від годин: при 250 год — 450 zł, при 280 год — безкоштовно.",
+        "У 2025/2026 р. після перевищення ліміту доходу в 30 000 зл брутто ставка нетто може зменшуватися. Нарахування житла залежить від годин: при 250 год — 450 zł, при 280 год — безкоштовно. Для студентів житло: 25 zł/доба, при 250 год — 600 zł, при 280 год — безкоштовно.",
     },
 
     // === 4. ГРАФІК ===
@@ -44,11 +53,11 @@ const apoloTemplates = [
       shiftsCount: 2,
       hoursPerShift: "12",
       workDaysWeek: "Пн–Нд, плаваючий вихідний",
-      breakDuration: "2 перерви по 20 хв",
+      breakDuration: "2 перерви па 15-20 хв",
       canChooseShiftOnStart: false,
       shiftChoiceDetails: "",
       description:
-        "2 зміни по 12 годин: I зміна 06:00–18:00, II зміна 18:00–06:00",
+        "2 зміни по 12 годин: I зміна 06:00–18:00, II зміна 18:00–06:00. Від 230 до 290 робочих годин на місяць.",
     },
 
     // === 5. ПРАЖЫВАННЕ І ТРАНСПАРТ ===
@@ -58,14 +67,14 @@ const apoloTemplates = [
       withChildren: false,
       withPets: false,
       costRaw:
-        "600 zł/місяць (при 250 год — 450 zł, при 280 год — безкоштовно)",
+        "600 zł/місяць (при 250 год — 450 zł, при 280 год — безкоштовно). Студенти: 25 zł/доба (при 250 год — 600 zł, пры 280 год — безкоштовно).",
       details: "Будинки та квартири з хорошими умовами. Кімнати по 3–4 особи.",
     },
     transport: {
       provided: false,
       costRaw: "безкоштовний міський транспорт",
       details:
-        "Пішки або громадський транспорт. Міський транспорт безкоштовний.",
+        "Пішки або громадський транспорт. Міський транспорт по місту безкоштовний.",
     },
 
     // === 6. КАМПЕНСАЦЫІ АД ПРАЦАДАЎЦЫ ===
@@ -78,7 +87,15 @@ const apoloTemplates = [
     requirements: {
       gender: ["Чоловіки", "Жінки", "Пари"],
       ageMax: 55,
-      nationalities: ["Україна", "Молдова", "Білорусь"],
+      nationalities: [
+        "Україна",
+        "Молдова",
+        "Білорусь",
+        "Азербайджан",
+        "Таджикистан",
+        "Киргизстан",
+        "Казахстан",
+      ],
       standardDocs: ["PESEL UKR", "Віза", "Карта побиту"],
       needsAdditionalDocs: true,
       additionalDocsDetails: "Потрібна санітарна книжка (санепід).",
@@ -86,7 +103,8 @@ const apoloTemplates = [
       hasEntranceTests: false,
       entranceTestsDetails: "",
       polishLanguageLevel: "Не потрібна",
-      polishLanguageDetails: "", // 👍 Асобнае тэкставае поле для тлумачэння
+      languageDetails:
+        "Обов'язкове знання російської або української мови для кандидатів з Азії.",
       physicalLoad:
         "Робота стоячи. Вага повної коробки близько 10 кг. Можна вибрати теплий або холодний цех.",
     },
@@ -104,15 +122,15 @@ const apoloTemplates = [
       hasSpecificConditions: true,
       specificNuances: [
         "Холод",
-        "Спека", // Для пекарні (+20°C/+30°C)
+        "Спека",
         "Заборона прикрас / макіяжу / нігтів",
       ],
       specificConditionsDetails:
         "У пекарні +20°C, налисники +30°C, на упаковці +5°C. Заборонено розпущене волосся та будь-які прикраси.",
       workwearFree: true,
-      foodType: "Частково-безкоштовно",
+      foodType: "Безкоштовно",
       foodDetails:
-        "Продукція підприємства безкоштовна для працівників щодня. Також зі знижкою.",
+        "Продукція підприємства безкоштовна для працівників щодня на зміні. Також продукція доступна зі знижкою (піци, паста, вареники, млинці тощо).",
     },
 
     // === 10. ВЫДАТКІ НА СТАРЦЕ І АДКАЗНАСЦЬ ===
@@ -139,6 +157,8 @@ const apoloTemplates = [
     // === 1. СІСТЭМНЫЯ ПАЛІ (Групаванне і пошук) ===
     agencyName: "APOLO",
     templateName: "CARFI Siedlce - Виробництво пластикових деталей",
+    vacancydescription:
+      "Виробництво пластикових деталей для садівництва та промисловості", // 👍 Публічная назва для кандыдатаў
     category: "⚙️ Виробництво і прамысловасть / Пластикові вироби",
     keywords: [
       "CARFI",
@@ -153,6 +173,13 @@ const apoloTemplates = [
       "медицина",
     ],
     contractType: "Umowa zlecenie",
+
+    // === УНУТРАНАЯ ІНФАРМАЦЫЯ (ТОЛЬКІ ДЛЯ РЭКРУТЭРА) ===
+    forRecruiter: {
+      internalNotes: "", // Тут пакуль няма спецыфічных унутраных нататак для CARFI
+      hideAgencyNameForCandidate: true, // Схаваць APOLO ад кандыдата пры посцінгу
+      hideEnterpriseNameForCandidate: true, // Схаваць CARFI ад кандыдата пры посцінгу
+    },
 
     // === 2. ЛАКАЦЫІ І ГЕАГРАФІЯ ===
     location: "Siedlce",
@@ -169,7 +196,7 @@ const apoloTemplates = [
       payoutDates: "20–22 числа за попередній місяць.",
       bonusDetails: "Доплата +1 zł/год нетто при проживанні на власному житлі.",
       salaryNotes:
-        "У 2025/2026 р. після перевищення ліміту доходу в 30 000 зл брутто ставка нетта може зменшуватися.",
+        "У 2025/2026 р. після перевищення ліміту доходу в 30 000 зл брутто ставка нетто може зменшуватися. Для осіб до 26 років зі статусом студента страхування 97 zł/міс.",
     },
 
     // === 4. ГРАФІК ===
@@ -181,7 +208,7 @@ const apoloTemplates = [
       canChooseShiftOnStart: false,
       shiftChoiceDetails: "",
       description:
-        "Продукція: 06:00–14:00, 14:00–22:00, 22:00–06:00. Монтаж: 06:00–14:00, 14:00–22:00",
+        "Продукція: 06:00–14:00, 14:00–22:00, 22:00–06:00. Монтаж: 06:00–14:00, 14:00–22:00. Надгодини можливі при збільшенні замовлень.",
     },
 
     // === 5. ПРАЖЫВАННЕ І ТРАНСПАРТ ===
@@ -207,9 +234,9 @@ const apoloTemplates = [
 
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
-      gender: ["Чоловіки", "Жінки"],
+      gender: ["Чоловіки", "Жінки", "Пари"],
       ageMax: 55,
-      nationalities: ["Україна", "Молдова", "Білорусь", "Грузія"],
+      nationalities: ["Україна", "Молдова", "Білорусь", "Грузія", "Англомовні"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побиту"],
       needsAdditionalDocs: false,
       additionalDocsDetails: "",
@@ -217,9 +244,8 @@ const apoloTemplates = [
       hasEntranceTests: false,
       entranceTestsDetails: "",
 
-      polishLanguageLevel: "А1", // Дакладны тэг для фільтра
-      polishLanguageDetails:
-        "Комунікативне знання польської мови (розуміти та відповідати на рівні А1-А2).", // 👍 Асобнае тэкставае поле для тлумачэння
+      polishLanguageLevel: "А1",
+      languageDetails: "Комунікативне знання польської мови.",
 
       physicalLoad:
         "Мінімальне фізичне навантаження. Робота більше мануальна, ніж ходьба.",
@@ -258,7 +284,7 @@ const apoloTemplates = [
     description:
       "Робота на виробничій лінії (темп помірний); Контроль якості готової продукції; Монтаж та з'єднання пластикових деталей; Упаковування виробів; Обслуговування простих виробничих машин; Дотримання інструкцій техніки безпеки.",
     additionalNotes:
-      "Адреса: Berdyczowska 9, 08-110 Siedlce. Прыємна музика на складі.",
+      "Berdyczowska 9, 08-110 Siedlce. Приємна музика на складі. Досвід не потрібен — усьому навчають на місці.",
   },
 
   // 3
@@ -266,6 +292,7 @@ const apoloTemplates = [
     // === 1. СІСТЭМНЫЯ ПАЛІ (Групаванне і пошук) ===
     agencyName: "APOLO",
     templateName: "Rhenus Logistics Swarzędz - Склад брендового одягу",
+    vacancydescription: "Логістичний склад брендового одягу та аксесуарів", // 👍 Публічная назва для кандыдатаў
     category: "📦 Логістика / Склади одягу та взуття",
     keywords: [
       "Rhenus",
@@ -281,6 +308,13 @@ const apoloTemplates = [
     ],
     contractType: "Umowa zlecenie",
 
+    // === УНУТРАНАЯ ІНФАРМАЦЫЯ (ТОЛЬКІ ДЛЯ РЭКРУТЭРА) ===
+    forRecruiter: {
+      internalNotes: "", // Тут пакуль няма спецыфічных унутраных нататак для Rhenus Swarzędz
+      hideAgencyNameForCandidate: true, // Схаваць APOLO ад кандыдата пры посцінгу
+      hideEnterpriseNameForCandidate: true, // Схаваць Rhenus ад кандыдата пры посцінгу
+    },
+
     // === 2. ЛАКАЦЫІ І ГЕАГРАФІЯ ===
     location: "Swarzędz",
     locationDescription: "13 км від Познані",
@@ -295,21 +329,21 @@ const apoloTemplates = [
       hoursRange: "210–270",
       payoutDates: "20–22 числа за попередній місяць.",
       bonusDetails:
-        "Доплата за власне житло +1 zł/год. Премії за відвідуваність та участь у сезоні розпродажів. Зростання ставки за рівнями (1 рівень: +0,80 zł, 2 рівень: +1,60 zł, 3 рівень: +2,40 zł).",
+        "Доплата за власне житло +1 zł/год нетто. Премії за відвідуваність та участь у сезоні розпродажів. Зростання преміальної ставки за рівнями: 1 рівень — 26.40 zł, 2 рівень — 27.20 zł, 3 рівень — 28.00 zł. Для студентів підвищені рівні: 1 рівень — 31.50 zł, 2 рівень — 32.50 zł, 3 рівень — 33.50 zł.",
       salaryNotes:
-        "Для студентів діють підвищені ставки за рівнями (1 рівень: 31,50 zł, 2 рівень: 32,50 zł, 3 рівень: 33,50 zł). У 2025/2026 р. після перевищення ліміту доходу в 30 000 зл брутто ставка нетто може зменшуватися.",
+        "Після зароблених 30 000 зл брутто ставки нетто знижуються: 1 рівень — 22.75 zł, 2 рівень — 23.48 zł, 3 рівень — 24.20 zł. Щомісячне страхування для осіб до 26 років зі статусом студента — 97 zł/місяць.",
     },
 
     // === 4. ГРАФІК ===
     schedule: {
-      shiftsCount: 3, // Працуюць у 3 змены (раніца, дзень, ноч)
+      shiftsCount: 3,
       hoursPerShift: "12",
-      workDaysWeek: "Пн–Нд (плаваючі вихідні)",
-      breakDuration: "8-год — 2×15 хв, 12-год — 3×15 хв.",
+      workDaysWeek: "Пн–Нд (графік встановлює заклад)",
+      breakDuration: "при 8 год — 2х15 хв, при 12 год — 3х15 хв",
       canChooseShiftOnStart: false,
       shiftChoiceDetails: "",
       description:
-        "Зміни по 12 годин: D 06:00–18:00, P 10:00–22:00, S 14:00–02:00, N 18:00–06:00, R 08:00–20:00, Z 20:00–08:00. Зміни по 8 годин: I 06:00–14:00, II 14:00–22:00, III 22:00–06:00, IV 18:00–02:00. В низький сезон — по 8 годин, стандартний — 12 годин.",
+        "Зміни по 12 годин: D 06:00–18:00, P 10:00–22:00, S 14:00–02:00, N 18:00–06:00, R 08:00–20:00, Z 20:00–08:00. Зміни по 8 годин: I 06:00–14:00, II 14:00–22:00, III 22:00–06:00, IV 18:00–02:00. У низький сезон можлива робота по 8 годин. Можливість додатково брати 3 вихідних на місяць (крім розпродажів).",
     },
 
     // === 5. ПРАЖЫВАННЕ І ТРАНСПАРТ ===
@@ -336,7 +370,7 @@ const apoloTemplates = [
 
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
-      gender: ["Чоловіки", "Жінки"],
+      gender: ["Чоловіки", "Жінки", "Пари"],
       ageMax: 53,
       nationalities: ["Україна", "Білорусь", "Молдова"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побиту"],
@@ -345,10 +379,8 @@ const apoloTemplates = [
       experienceRequired: false,
       hasEntranceTests: false,
       entranceTestsDetails: "",
-
       polishLanguageLevel: "Не потрібна",
-      polishLanguageDetails: "Знання польської мови не вимагається.",
-
+      languageDetails: "Знання польської мови не вимагається.",
       physicalLoad:
         "Робота динамічна, на ногах. Процеси INBOUND, PICK, SORT, PACK, OUTBOUND.",
     },
@@ -366,20 +398,21 @@ const apoloTemplates = [
       hasSpecificConditions: false,
       specificNuances: [],
       specificConditionsDetails: "",
-      workwearFree: false, // Выдаткі здымаюцца, калі не адпрацаваць 1 месяц
+      workwearFree: false,
       foodType: "За свій рахунок",
       foodDetails: "",
     },
 
     // === 10. ВЫДАТКІ НА СТАРЦЕ І АДКАЗНАСЦЬ ===
     startExpenses: {
-      hasStartExpenses: false,
-      details: "",
+      hasStartExpenses: true,
+      details:
+        "Одноразово вираховується за робочий одяг: 70 zł за 2 футболки та 90–100 zł за теплий полар.",
     },
     earlyTerminationLiability: {
       hasLiability: true,
       details:
-        "Якщо не відпрацювати 1 місяць, утримується за одяг: 70 zł — 2 футболки, 100 zł — теплий полар, 100 zł — взуття.",
+        "Якщо не відпрацювати 1 місяць, утримується 100 zł за спеціальне взуття.",
     },
 
     // === 11. АПІСАННЕ ПРАЦЭСАЎ І НАТАТКІ ===
@@ -393,7 +426,9 @@ const apoloTemplates = [
     // === 1. СІСТЭМНЫЯ ПАЛІ (Групаванне і пошук) ===
     agencyName: "APOLO",
     templateName: "Rhenus Logistics Błonie - Склад інтернет-магазину Lidl",
-    category: "📦 Логістика / Склади одягу та взуття", // Lidl одяг/текстиль/аксесуари
+    vacancydescription:
+      "Склад інтернет-магазину (одяг, текстиль, дрібна побутова техніка)", // 👍 Публічны загаловак
+    category: "📦 Логістика / Склади одягу, взуття та побутової техніки",
     keywords: [
       "Rhenus",
       "Rhenus Logistics",
@@ -408,6 +443,14 @@ const apoloTemplates = [
       "текстиль",
     ],
     contractType: "Umowa zlecenie",
+
+    // === УНУТРАНАЯ ІНФАРМАЦЫЯ (ТОЛЬКІ ДЛЯ РЭКРУТЭРА) ===
+    forRecruiter: {
+      internalNotes:
+        "ВСІ КАНДИДАТИ МАЮТЬ ЗАВАНТАЖИТИ Viber. Перед підписанням умови кандидат має пройти онбординг та отримати сертифікат: реєстрація в ПФ (прописуємо мейл і номер телефону). Координатор надасть доступ і потім ми це передаємо людям.",
+      hideAgencyNameForCandidate: true,
+      hideEnterpriseNameForCandidate: true,
+    },
 
     // === 2. ЛАКАЦЫІ І ГЕАГРАФІЯ ===
     location: "Błonie",
@@ -430,8 +473,8 @@ const apoloTemplates = [
 
     // === 4. ГРАФІК ===
     schedule: {
-      shiftsCount: 2, // Дзённыя змены (без нічных)
-      hoursPerShift: "12", // Можа быць 8, 10 або 12
+      shiftsCount: 2,
+      hoursPerShift: "12",
       workDaysWeek:
         "Пн–Пт (вихідні субота-неділя, робочі під час Black Friday)",
       breakDuration: "30 хв (при 12 год + 15 хв додатково)",
@@ -472,12 +515,12 @@ const apoloTemplates = [
       needsAdditionalDocs: false,
       additionalDocsDetails: "",
       experienceRequired: false,
-      hasEntranceTests: true, // Онбордынг і сертыфікат
+      hasEntranceTests: true,
       entranceTestsDetails:
-        "Перед підписанням умови проводиться онбординг та отримання сертифікату.",
+        "Перед підписанням умови кандидат має пройти онбординг та отримати сертифікат (реєстрація в ПФ через мейл та номер телефону). Координатор надає доступ.",
 
-      polishLanguageLevel: "А1", // Базавы ўзровень
-      polishLanguageDetails:
+      polishLanguageLevel: "А1",
+      languageDetails:
         "Базовий рівень польської мови (А1) для розуміння на складі.",
 
       physicalLoad:
@@ -516,8 +559,7 @@ const apoloTemplates = [
     // === 11. АПІСАННЕ ПРАЦЭСАЎ І НАТАТКІ ===
     description:
       "Комплектація замовлень — їзда по складу на візках зі сканером, завантаження товару та доставка на полицю; Відправлення — робота на лінії, підготовка товару до відправлення, перевірка та пакування; Повернення товару — робота зі сканером, перевірка коробок, передача товару на наступну позицію; Розміщення і сортування товару по складу.",
-    additionalNotes:
-      "Адреса: ul. Batorego 6 Pass, Błonie. Всі кандидати мають завантажити Viber.",
+    additionalNotes: "Адреса: ul. Batorego 6 Pass, Błonie.", // Прыбралі Viber (ён цяпер вышэй у рэкрутэра)
   },
 
   // 5
@@ -525,6 +567,7 @@ const apoloTemplates = [
     // === 1. СІСТЭМНЫЯ ПАЛІ (Групаванне і пошук) ===
     agencyName: "APOLO",
     templateName: "NOTINO Głuchów - Склад косметики та засобів гігієни",
+    vacancydescription: "Логістичний склад косметики та засобів гігієни", // 👍 Публічны загаловак для кандыдатаў
     category: "📦 Логістика / Склади косметики та побутової хімії",
     keywords: [
       "NOTINO",
@@ -539,7 +582,14 @@ const apoloTemplates = [
     ],
     contractType: "Umowa zlecenie",
 
-    // === 2. ЛAKAЦЫІ І ГЕАГРАФІЯ ===
+    // === УНУТРАНАЯ ІНФАРМАЦЫЯ (ТОЛЬКІ ДЛЯ РЭКРУТЭРА) ===
+    forRecruiter: {
+      internalNotes: "", // Пакуль няма спецыфічных унутраных патрабаванняў для Notino
+      hideAgencyNameForCandidate: true, // Схаваць APOLO ад кандыдата пры посцінгу
+      hideEnterpriseNameForCandidate: true, // Схаваць NOTINO ад кандыдата пры посцінгу
+    },
+
+    // === 2. ЛАКАЦЫІ І ГЕАГРАФІЯ ===
     location: "Głuchów",
     locationDescription: "біля Лодзі",
     voivodeship: "Лодзинське",
@@ -560,8 +610,8 @@ const apoloTemplates = [
 
     // === 4. ГРАФІК ===
     schedule: {
-      shiftsCount: 2, // Стандартна 2 змены
-      hoursPerShift: "8", // У сезон па 12
+      shiftsCount: 2,
+      hoursPerShift: "8",
       workDaysWeek: "Плаваючий вихідний",
       breakDuration: "30 хв",
       canChooseShiftOnStart: false,
@@ -604,7 +654,7 @@ const apoloTemplates = [
       entranceTestsDetails: "",
 
       polishLanguageLevel: "Не потрібна",
-      polishLanguageDetails: "Знання польської мови не вимагається.",
+      languageDetails: "Знання польської мови не вимагається.",
 
       physicalLoad:
         "Обов'язково мати штани без кишень. Робота стояча на ногах, ходьба па складу са сканерам.",
@@ -621,10 +671,10 @@ const apoloTemplates = [
     // === 9. СПЕЦЫФІЧНЫЯ ЎМОВЫ І ХАРЧАВАННЕ ===
     conditions: {
       hasSpecificConditions: true,
-      specificNuances: ["Заборона прикрас / макіяжу / нігтів"],
+      specificNuances: ["Заборона біжутерії та прикрас"], // Скарэктавана, каб адпавядаць толькі тэксту апісання
       specificConditionsDetails:
         "На складі суворо заборонено носити біжутерію та прикраси.",
-      workwearFree: false, // Ёсць вылікі, калі не адпрацаваць 1 месяц
+      workwearFree: false,
       foodType: "За свій рахунок",
       foodDetails: "",
     },
@@ -733,7 +783,7 @@ const apoloTemplates = [
       entranceTestsDetails: "",
 
       polishLanguageLevel: "Не потрібна",
-      polishLanguageDetails: "Знання польської мови не вимагається.",
+      languageDetails: "Знання польської мови не вимагається.",
 
       physicalLoad:
         "Робота на ногах, ходьба па складу. Про процесах PICK/PACK можна у своєму взутті, на INBOUND/OUTBOUND — обов'язково робоче. Потрібен хороший зір.",
@@ -862,7 +912,7 @@ const apoloTemplates = [
       entranceTestsDetails: "",
 
       polishLanguageLevel: "Не потрібна",
-      polishLanguageDetails: "Знання польської мови не вимагається.",
+      languageDetails: "Знання польської мови не вимагається.",
 
       physicalLoad:
         "Хороша фізична форма. Готовність до нічних змін. Вага посилок від 300 грамів до 40 кг. Завантаження та розвантаження вантажівок.",
@@ -987,7 +1037,7 @@ const apoloTemplates = [
       entranceTestsDetails: "",
 
       polishLanguageLevel: "Не потрібна",
-      polishLanguageDetails: "Знання польської мови не вимагається.",
+      languageDetails: "Знання польської мови не вимагається.",
 
       physicalLoad:
         "Робота на ногах, збирання товару зі сканером, упаковка та підготовка до відправки. Чоловіки залучаються до розвантаження машин із товаром.",
@@ -1116,7 +1166,7 @@ const apoloTemplates = [
       entranceTestsDetails: "",
 
       polishLanguageLevel: "Не потрібна",
-      polishLanguageDetails: "Знання польської мови не вимагається.",
+      languageDetails: "Знання польської мови не вимагається.",
 
       physicalLoad:
         "Робота на ногах, збір товару зі сканером, упаковка. Товари вагою від 5 до 30 кг.",
@@ -1246,7 +1296,7 @@ const apoloTemplates = [
       entranceTestsDetails: "",
 
       polishLanguageLevel: "А2", // Комунікативна польська мова
-      polishLanguageDetails:
+      languageDetails:
         "Комунікативна польська мова (розуміння та відповіді на виробничі завдання).",
 
       physicalLoad: "Робота стояча, ротація між подібними позиціями.",
@@ -1376,7 +1426,7 @@ const apoloTemplates = [
       entranceTestsDetails: "",
 
       polishLanguageLevel: "Не потрібна",
-      polishLanguageDetails: "Знання польської мови не вимагається.",
+      languageDetails: "Знання польської мови не вимагається.",
 
       physicalLoad:
         "Робота на ногах, ходьба па складу. У своєму одязі працювати не можна.",
@@ -1508,7 +1558,7 @@ const apoloTemplates = [
       entranceTestsDetails: "",
 
       polishLanguageLevel: "А2", // Комунікативний рівень
-      polishLanguageDetails:
+      languageDetails:
         "Комунікативний рівень польської мови (для розуміння голосових команд system voice).",
 
       physicalLoad:
