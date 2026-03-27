@@ -1,72 +1,118 @@
 const estTemplates = [
+  // === 1. Пусты шаблон-заглушка ===
   {
-    // ── ІДЕНТИФІКАЦІЯ ──────────────────────────────────────────
+    // === 1. СІСТЭМНЫЯ ПАЛІ (Групаванне і пошук) ===
     agencyName: "EST",
     templateName: "EST-empty",
+    vacancydescription: "Назва вакансії (Публічна назва для кандидатів)",
+    category: "", // Напрыклад: "⚙️ Виробництво і прамысловасть / ..."
+    keywords: ["EST", "Польща"],
+    contractType: "Umowa zlecenie", // Або "Umowa o pracę"
 
-    keywords: [],
+    // === УНУТРАНАЯ ІНФАРМАЦЫЯ (ТОЛЬКІ ДЛЯ РЭКРУТЭРА) ===
+    forRecruiter: {
+      internalNotes: "",
+      hideAgencyNameForCandidate: true,
+      hideEnterpriseNameForCandidate: true,
+    },
 
-    // ── ОСНОВНЕ ────────────────────────────────────────────────
-    title: "",
+    // === 2. ЛАКАЦЫІ І ГЕАГРАФІЯ ===
     location: "",
-    country: "",
+    locationDescription: "",
+    voivodeship: "",
+    country: "Польща",
+    checkInCity: "",
 
-    // ── ОПЛАТА ─────────────────────────────────────────────────
+    // === 3. ФІНАНСЫ ===
     salary: {
-      base: "",
-      student: "",
-      monthly: "",
-      bonus: "",
-      notes: "",
+      baseNetto: "",
+      studentNetto: "",
+      hoursRange: "",
+      payoutDates: "",
+      bonusDetails: "",
+      salaryNotes: "",
     },
 
-    // ── ГРАФІК ─────────────────────────────────────────────────
+    // === 4. ГРАФІК ===
     schedule: {
-      shifts: "",
-      hours: "",
-      details: "",
+      shiftsCount: 0,
+      hoursPerShift: "",
+      workDaysWeek: "",
+      breakDuration: "",
+      canChooseShiftOnStart: false,
+      shiftChoiceDetails: "",
+      description: "",
     },
 
-    // ── ОПИС РОБОТИ ────────────────────────────────────────────
-    description: "",
-
-    // ── ПРОЖИВАННЯ ─────────────────────────────────────────────
+    // === 5. ПРАЖЫВАННЕ І ТРАНСПАРТ ===
     accommodation: {
-      available: false,
-      cost: "",
+      type: "Платне", // Або "Безкоштовне" / "Частково безкоштовне"
+      forCouples: false,
+      withChildren: false,
+      withPets: false,
+      costRaw: "",
       details: "",
-      deposit: "",
     },
-
-    // ── ТРАНСПОРТ ──────────────────────────────────────────────
     transport: {
       provided: false,
-      cost: "",
+      costRaw: "",
       details: "",
     },
 
-    // ── ВИМОГИ ─────────────────────────────────────────────────
+    // === 6. КАМПЕНСАЦЫІ АД ПРАЦАДАЎЦЫ ===
+    employerCompensations: {
+      hasCompensations: false,
+      details: "",
+    },
+
+    // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
-      gender: "",
-      age: "",
-      nationalities: [],
-      docs: [],
-      physical: "",
+      gender: [], // Напрыклад: ["Чоловіки", "Жінки", "Пари"]
+      ageMax: 0,
+      nationalities: ["Україна"],
+      standardDocs: ["PESEL UKR", "Віза", "Карта побиту"],
+      needsAdditionalDocs: false,
+      additionalDocsDetails: "",
+      experienceRequired: false,
+      hasEntranceTests: false,
+      entranceTestsDetails: "",
+      polishLanguageLevel: "Не потрібна", // Або "A1", "A2" і г.д.
+      languageDetails: "",
+      physicalLoad: "",
     },
 
-    // ── УМОВИ ПРАЦІ ────────────────────────────────────────────
+    // === 8. ВАДРЫХТОЎКА Ў ЕЎРОПУ (ДЭЛЕГАЦЫІ А1) ===
+    businessTrip: {
+      isBusinessTrip: false,
+      requiresPolishExperience: false,
+      requiredDocuments: [],
+      tripDetails: "",
+    },
+
+    // === 9. СПЕЦЫФІЧНЫЯ ЎМОВЫ І ХАРЧАВАННЕ ===
     conditions: {
-      temperature: "",
-      workwear: "",
-      food: "",
-      notes: "",
+      hasSpecificConditions: false,
+      specificNuances: [], // Напрыклад: ["Холод", "Шум"]
+      specificConditionsDetails: "",
+      workwearFree: true,
+      foodType: "За свій рахунок", // Або "Безкоштовно"
+      foodDetails: "",
     },
 
-    // ── ДОГОВІР ────────────────────────────────────────────────
-    contractType: "",
+    // === 10. ВЫДАТКІ НА СТАРЦЕ І АДКАЗНАСЦЬ ===
+    startExpenses: {
+      hasStartExpenses: false,
+      details: "",
+    },
+    earlyTerminationLiability: {
+      hasLiability: false,
+      details: "",
+    },
 
-    // ── ДОДАТКОВА ІНФОРМАЦІЯ ───────────────────────────────────
+    // === 11. АПІСАННЕ ПРАЦЭСАЎ І НАТАТКІ ===
+    description: "",
     additionalNotes: "",
   },
 ];
+
 module.exports = estTemplates;
