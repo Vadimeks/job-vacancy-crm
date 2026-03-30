@@ -1,24 +1,26 @@
 // backend/data/templates/mrowki.js
 const mrowkiTemplates = [
-  // 1
+  // Вакансія №1 - AMI Mikstat
   {
     // === 1. СІСТЭМНЫЯ ПАЛІ (Групаванне і пошук) ===
     agencyName: "MRÓWKI",
-    templateName: "AMI Mikstat - Забій і обробка птиці",
-    vacancydescription: "Мясний заклад. Забій і обробка птиці (курятина)",
-    category: "⚙️ Виробництво і прамысловасть / М'ясокомбінати та рибзаводи",
+    templateName: "AMI Mikstat",
+    vacancydescription:
+      "Робота на м'ясному заводі з переробки птиці, що включає забій, обробку та миття.",
+    category: "⚙️ Виробництво і промисловість / Харчова промисловість",
     keywords: [
       "AMI",
       "Mikstat",
-      "Мікстат",
-      "мясо",
+      "м'ясокомбінат",
       "птиця",
       "забій",
+      "обробка",
+      "мийка",
       "курятина",
-      "Ostrów Wielkopolski",
     ],
     contractType: "Umowa zlecenie",
 
+    // === УНУТРАНАЯ ІНФАРМАЦЫЯ (ТОЛЬКІ ДЛЯ РЭКРУТЭРА) ===
     forRecruiter: {
       internalNotes: "",
       hideAgencyNameForCandidate: true,
@@ -27,33 +29,31 @@ const mrowkiTemplates = [
 
     // === 2. ЛАКАЦЫІ І ГЕАГРАФІЯ ===
     location: "Mikstat",
-    locationDescription: "Mikstat, 63-510 (околиця Ostrów Wielkopolski)",
-    voivodeship: "Великопольське",
-    country: "Польща",
-    checkInCity: "Ostrów Wielkopolski",
+    locationDescription: "63-510 Mikstat",
+    voivodeship: "Wielkopolskie",
+    country: "Polska",
+    checkInCity: "",
 
     // === 3. ФІНАНСЫ ===
     salary: {
-      baseNetto: "24 zł/год",
-      studentNetto: "30.50 zł/год (для студентів до 26 років)",
-      hoursRange: "220–280 годин/місяць",
-      payoutDates: "20–22 числа за попередній місяць.",
-      bonusDetails: "Доступні аванси.",
-      salaryNotes:
-        "У 2025/2026 р. після перевищення ліміту доходу в 30 000 зл брутто ставка нетто може зменшуватися.",
+      baseNetto: "24 zł/год нетто",
+      studentNetto: "30.50 zł/год",
+      hoursRange: "",
+      payoutDates: "",
+      bonusDetails: "",
+      salaryNotes: "",
     },
 
     // === 4. ГРАФІК ===
     schedule: {
-      shiftsCount: 3,
+      shiftsCount: 2,
       hoursPerShift: "10-12",
-      workDaysWeek: "Нд–Пт (нічна/ранкова робота)",
-      breakDuration:
-        "Після 3 год роботи — 30 хв, додатково — 15 хв. Обидві перерви оплачувані.",
+      workDaysWeek: "Нд-Пт",
+      breakDuration: "30 хв + 15 хв (оплачувані)",
       canChooseShiftOnStart: false,
       shiftChoiceDetails: "",
       description:
-        "Зміни по 10-12 годин на день. Нічна: 22:00–08:00, Ранкова: 04:00–16:00, Друга денна зміна: з 05:00-06:00 до 15:00-16:00. Працюють з неділі по п'ятницю.",
+        "Нічна/ранкова робота. Зміни: 22:00–08:00, 04:00–16:00, друга денна зміна з 05:00-06:00 до 15:00-16:00.",
     },
 
     // === 5. ПРАЖЫВАННЕ І ТРАНСПАРТ ===
@@ -63,12 +63,12 @@ const mrowkiTemplates = [
       withChildren: false,
       withPets: false,
       costRaw: "500 zł/місяць",
-      details: "Житло з умовами (вираховується із зарплати).",
+      details: "Житло з умовами.",
     },
     transport: {
       provided: false,
-      costRaw: "не вказано",
-      details: "Доїзд/відстань не вказані.",
+      costRaw: "",
+      details: "",
     },
 
     // === 6. КАМПЕНСАЦЫІ АД ПРАЦАДАЎЦЫ ===
@@ -79,22 +79,18 @@ const mrowkiTemplates = [
 
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
-      gender: ["Жінки", "Чоловіки"],
+      gender: ["Жінки"],
       ageMax: 55,
       nationalities: ["Україна"],
-      standardDocs: ["PESEL UKR", "Віза", "Карта побиту"],
-      needsAdditionalDocs: false,
-      additionalDocsDetails:
-        "Санітарна книжка (допомагають оформити, 165 zł утримують із зарплати).",
+      standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
+      needsAdditionalDocs: true,
+      additionalDocsDetails: "Санітарна книжка",
       experienceRequired: false,
       hasEntranceTests: false,
       entranceTestsDetails: "",
-
-      polishLanguageLevel: "Не потрібна",
+      polishLanguageLevel: "Базовий",
       languageDetails: "Бажано хоча б розуміння польської мови.",
-
-      physicalLoad:
-        "Відсутність проблем зі здоров'ям. Ручна обробка та нарізка філе курей. Допомога на лінії забою. Прибирання робочих місць, укладання фольги в контейнери. Також передбачено розміщення, зважування та сортування курей у ящиках (вага близько 15 кг + коробка 2 кг).",
+      physicalLoad: "Робота в умовах різної температури (від 5-6°C до 25°C).",
     },
 
     // === 8. ВАДРЫХТОЎКА Ў ЕЎРОПУ (ДЭЛЕГАЦЫІ А1) ===
@@ -108,18 +104,19 @@ const mrowkiTemplates = [
     // === 9. СПЕЦЫФІЧНЫЯ ЎМОВЫ І ХАРЧАВАННЕ ===
     conditions: {
       hasSpecificConditions: true,
-      specificNuances: ["Холод", "Запах"],
+      specificNuances: ["Холодний цех", "Запах м'яса"],
       specificConditionsDetails:
-        "Температура на виробництві: ділянка розбору 5–6°C, інші місця — до 25°C.",
+        "Температура на ділянці розбору: 5–6°C, в інших місцях: до 25°C.",
       workwearFree: true,
-      foodType: "За свій рахунок",
+      foodType: "Власне",
       foodDetails: "",
     },
 
     // === 10. ВЫДАТКІ НА СТАРЦЕ І АДКАЗНАСЦЬ ===
     startExpenses: {
       hasStartExpenses: true,
-      details: "Оформлення санітарної книжки: 165 zł (утримують із зарплати).",
+      details:
+        "165 zł за оформлення санітарної книжки утримуються із зарплати.",
     },
     earlyTerminationLiability: {
       hasLiability: false,
@@ -128,29 +125,31 @@ const mrowkiTemplates = [
 
     // === 11. АПІСАННЕ ПРАЦЭСАЎ І НАТАТКІ ===
     description:
-      "Допомога на лінії забою курей; прибирання робочих місць; укладання фольги в контейнери. Ручна обробка та нарізка філе. Для чоловіків (при потребі) передбачено розміщення, зважування та сортування курей у ящиках (вага близько 15 кг + коробка 2 кг). Надається робоча форма та допомога в продовженні легального перебування в Польщі.",
-    additionalNotes: "Адреса: Mikstat, 63-510.",
+      "Допомога на лінії забою курей, прибирання робочих місць, укладання фольги в контейнери. Для жінок: ручна обробка та нарізка філе.",
+    additionalNotes:
+      "Допомога в продовженні легального перебування в Польщі, надаються аванси.",
   },
-  // 2
+
+  // Вакансія №2 - Збірка меблів Sława
   {
     // === 1. СІСТЭМНЫЯ ПАЛІ (Групаванне і пошук) ===
     agencyName: "MRÓWKI",
-    templateName: "Sława - Монтаж і збірка меблів",
+    templateName: "Sława",
     vacancydescription:
-      "Монтажник меблів / збірник меблів (виробництво готельних меблів, бари, стійки ресепшен)",
-    category:
-      "⚙️ Виробництво і прамысловасть / Виробництво меблів та деревообробка",
+      "Робота монтажником меблів на виробництві та у відрядженнях по Польщі.",
+    category: "⚙️ Виробництво і промисловість / Виробництво меблів",
     keywords: [
       "Sława",
-      "Poznań",
       "меблі",
+      "монтажник",
+      "збірник",
       "Corian",
-      "монтаж",
-      "збірка меблів",
       "відрядження",
+      "Poznań",
     ],
     contractType: "Umowa zlecenie",
 
+    // === УНУТРАНАЯ ІНФОРМАЦЫЯ (ТОЛЬКІ ДЛЯ РЭКРУТЭРА) ===
     forRecruiter: {
       internalNotes: "",
       hideAgencyNameForCandidate: true,
@@ -160,32 +159,30 @@ const mrowkiTemplates = [
     // === 2. ЛАКАЦЫІ І ГЕАГРАФІЯ ===
     location: "Sława",
     locationDescription:
-      "База: 67-410 Sława + делегації (відрядження) по Польщі",
-    voivodeship: "Любуське",
-    country: "Польща",
-    checkInCity: "Poznań",
+      "База: 67-410 Sława. Делегації (відрядження) по Польщі.",
+    voivodeship: "Lubuskie",
+    country: "Polska",
+    checkInCity: "",
 
     // === 3. ФІНАНСЫ ===
     salary: {
-      baseNetto: "29 zł/год",
+      baseNetto: "29 zł/год нетто",
       studentNetto: "",
-      hoursRange: "210–250 годин/місяць",
-      payoutDates: "20–22 числа за попередній місяць.",
-      bonusDetails: "Доступні аванси.",
-      salaryNotes:
-        "У 2025/2026 р. після перевищення ліміту доходу в 30 000 зл брутто ставка нетто може зменшуватися. Офіційне працевлаштування (Umowa zlecenie), допомога з легалізацією/продовженням перебування в Польщі.",
+      hoursRange: "",
+      payoutDates: "",
+      bonusDetails: "",
+      salaryNotes: "",
     },
 
     // === 4. ГРАФІК ===
     schedule: {
       shiftsCount: 1,
       hoursPerShift: "10",
-      workDaysWeek: "Пн–Сб",
-      breakDuration: "Перерви за домовленістю",
+      workDaysWeek: "Пн-Сб",
+      breakDuration: "За домовленістю",
       canChooseShiftOnStart: false,
       shiftChoiceDetails: "",
-      description:
-        "Понеділок–П’ятниця: 07:00–17:00. Субота: 8 годин. Неділя — вихідний. Перерви за домовленістю.",
+      description: "Пн–Пт: 07:00–17:00. Сб: 8 годин. Нд: вихідний.",
     },
 
     // === 5. ПРАЖЫВАННЕ І ТРАНСПАРТ ===
@@ -194,13 +191,13 @@ const mrowkiTemplates = [
       forCouples: false,
       withChildren: false,
       withPets: false,
-      costRaw: "0 zł",
-      details: "Безкоштовне житло з необхідними умовами.",
+      costRaw: "Безкоштовно",
+      details: "Житло з необхідними умовами.",
     },
     transport: {
       provided: false,
-      costRaw: "не вказано",
-      details: "Транспорт для доїзду не вказаний.",
+      costRaw: "",
+      details: "",
     },
 
     // === 6. КАМПЕНСАЦЫІ АД ПРАЦАДАЎЦЫ ===
@@ -214,18 +211,15 @@ const mrowkiTemplates = [
       gender: ["Чоловіки"],
       ageMax: 55,
       nationalities: ["Україна"],
-      standardDocs: ["PESEL UKR", "Віза", "Карта побиту"],
+      standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
       additionalDocsDetails: "",
       experienceRequired: true,
       hasEntranceTests: false,
       entranceTestsDetails: "",
-
-      polishLanguageLevel: "Не потрібна",
-      languageDetails: "Знання польської мови не вимагається.",
-
-      physicalLoad:
-        "Обов'язковий досвід у збірці/монтажі меблів або суміжних монтажних роботах. Фізична витривалість, точність, сумлінність, акуратність, 'відчуття естетики'. Вміння працювати з ручними та стаціонарними інструментами. Вміння працювати в команді, самостійність, хороша організація. Здатність працювати на висоті (за потреби). Готовність вчитися та працювати.",
+      polishLanguageLevel: "Не вимагається",
+      languageDetails: "",
+      physicalLoad: "Фізична витривалість, здатність працювати на висоті.",
     },
 
     // === 8. ВАДРЫХТОЎКА Ў ЕЎРОПУ (ДЭЛЕГАЦЫІ А1) ===
@@ -233,7 +227,7 @@ const mrowkiTemplates = [
       isBusinessTrip: true,
       requiresPolishExperience: false,
       requiredDocuments: [],
-      tripDetails: "Делегації (відрядження) по Польщі.",
+      tripDetails: "Відрядження по Польщі.",
     },
 
     // === 9. СПЕЦЫФІЧНЫЯ ЎМОВЫ І ХАРЧАВАННЕ ===
@@ -242,7 +236,7 @@ const mrowkiTemplates = [
       specificNuances: [],
       specificConditionsDetails: "",
       workwearFree: true,
-      foodType: "За свій рахунок",
+      foodType: "Власне",
       foodDetails: "",
     },
 
@@ -258,29 +252,30 @@ const mrowkiTemplates = [
 
     // === 11. АПІСАННЕ ПРАЦЭСАЎ І НАТАТКІ ===
     description:
-      "Оббивка/оздоблення меблів відповідно до замовлення; Підбір матеріалів та інструментів під конкретне замовлення; Монтаж готельних меблів: бари, стійки ресепшен, комори/шафи, вироби з Corian, настінні покриття, двері всіх типів; Заміри на об'єкті, підгонка елементів 'по місцю'; Загальні будівельні та оздоблювальні роботи; Дотримання техніки безпеки, порядок на робочому місці; Дбайливе користування інструментом та робочим одягом; За потреби: завантаження/розвантаження обладнання. Видається безкоштовна робоча форма.",
+      "Оббивка/оздоблення меблів, підбір матеріалів та інструментів, монтаж готельних меблів (бари, стійки ресепшен, шафи, вироби з Corian, настінні покриття, двері), заміри на об'єкті, підгонка елементів, загальні будівельні та оздоблювальні роботи, дотримання техніки безпеки, порядок на робочому місці, дбайливе користування інструментом та робочим одягом. За потреби: завантаження/розвантаження обладнання.",
     additionalNotes:
-      "Адреса бази: 67-410 Sława. Робота передбачає відрядження по Польщі.",
+      "Допомога з легалізацією/продовженням перебування в Польщі, надаються аванси.",
   },
-  // 3
+
+  // Вакансія №3 - ОПЕРАТОР МАШИН Gostyń
   {
     // === 1. СІСТЭМНЫЯ ПАЛІ (Групаванне і пошук) ===
     agencyName: "MRÓWKI",
-    templateName: "Gostyń - Оператор офсетных машин",
+    templateName: "Поліграфічне підприємство Gostyń",
     vacancydescription:
-      "Поліграфічне підприємство по виготовленню упакування. Оператор машин",
-    category:
-      "⚙️ Виробництво і прамысловасть / Поліграфія та паперова промисловість",
+      "Робота оператором офсетних машин на поліграфічному підприємстві з виготовлення упакування.",
+    category: "⚙️ Виробництво і промисловість / Поліграфія",
     keywords: [
       "Gostyń",
-      "Poznań",
-      "поліграфія",
-      "упаковка",
+      "оператор",
       "офсетні машини",
-      "Гостинь",
+      "упакування",
+      "поліграфія",
+      "Poznań",
     ],
     contractType: "Umowa zlecenie",
 
+    // === УНУТРАНАЯ ІНФОРМАЦЫЯ (ТОЛЬКІ ДЛЯ РЭКРУТЭРА) ===
     forRecruiter: {
       internalNotes: "",
       hideAgencyNameForCandidate: true,
@@ -289,32 +284,31 @@ const mrowkiTemplates = [
 
     // === 2. ЛАКАЦЫІ І ГЕАГРАФІЯ ===
     location: "Gostyń",
-    locationDescription: "63-800 Gostyń (70 км від Познані)",
-    voivodeship: "Великопольське",
-    country: "Польща",
-    checkInCity: "Poznań",
+    locationDescription: "63-800 Gostyń (70 км від Poznań)",
+    voivodeship: "Wielkopolskie",
+    country: "Polska",
+    checkInCity: "",
 
     // === 3. ФІНАНСЫ ===
     salary: {
-      baseNetto: "26 zł/год",
-      studentNetto: "30.50 zł/год (до 26 років на руки)",
-      hoursRange: "~240 годин/місяць",
-      payoutDates: "20–22 числа за попередній місяць.",
-      bonusDetails: "Доступні аванси.",
-      salaryNotes:
-        "У 2025/2026 р. після перевищення ліміту доходу в 30 000 зл брутто ставка нетто може зменшуватися. Надається допомога в легалізації перебування в Польщі.",
+      baseNetto: "26 зл/год на руки",
+      studentNetto: "30.50 зл/год на руки",
+      hoursRange: "~240",
+      payoutDates: "",
+      bonusDetails: "",
+      salaryNotes: "",
     },
 
     // === 4. ГРАФІК ===
     schedule: {
       shiftsCount: 2,
-      hoursPerShift: "8-12",
-      workDaysWeek: "Пн-Пт (можлива робоча субота)",
-      breakDuration: "Визначається внутрішнім розпорядком підприємства",
+      hoursPerShift: "10-12",
+      workDaysWeek: "Пн-Пт, іноді суботи",
+      breakDuration: "",
       canChooseShiftOnStart: false,
       shiftChoiceDetails: "",
       description:
-        "Робота у 2 зміни. Пн–Пт: 06:00–18:00 / 22:00–06:00. Нд: 18:00–06:00. Пн–Чт: 18:00–06:00. Можлива робоча субота.",
+        "2 зміни: Пн–Пт: 06:00–18:00 / 22:00–06:00. Нд: 18:00–06:00. Пн–Чт: 18:00–06:00. Можлива робоча субота.",
     },
 
     // === 5. ПРАЖЫВАННЕ І ТРАНСПАРТ ===
@@ -323,13 +317,13 @@ const mrowkiTemplates = [
       forCouples: false,
       withChildren: false,
       withPets: false,
-      costRaw: "450 zł/місяць",
-      details: "Житло з усіма умовами (вираховується із зарплати).",
+      costRaw: "450 зл/місяць",
+      details: "Житло з усіма умовами.",
     },
     transport: {
       provided: false,
-      costRaw: "не вказано",
-      details: "Інформація про доїзд відсутня.",
+      costRaw: "",
+      details: "",
     },
 
     // === 6. КАМПЕНСАЦЫІ АД ПРАЦАДАЎЦЫ ===
@@ -343,17 +337,15 @@ const mrowkiTemplates = [
       gender: ["Чоловіки"],
       ageMax: 50,
       nationalities: ["Україна"],
-      standardDocs: ["PESEL UKR", "Віза", "Карта побиту"],
+      standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
       additionalDocsDetails: "",
       experienceRequired: false,
       hasEntranceTests: false,
       entranceTestsDetails: "",
-
-      polishLanguageLevel: "А1",
-      languageDetails: "Польська мова — обов’язковий рівень розуміння.",
-
-      physicalLoad: "Хороший стан здоров’я. Бажання працювати.",
+      polishLanguageLevel: "Базовий",
+      languageDetails: "Обов’язковий рівень розуміння польської мови.",
+      physicalLoad: "Хороший стан здоров’я.",
     },
 
     // === 8. ВАДРЫХТОЎКА Ў ЕЎРОПУ (ДЭЛЕГАЦЫІ А1) ===
@@ -369,8 +361,8 @@ const mrowkiTemplates = [
       hasSpecificConditions: false,
       specificNuances: [],
       specificConditionsDetails: "",
-      workwearFree: true,
-      foodType: "За свій рахунок",
+      workwearFree: false,
+      foodType: "Власне",
       foodDetails: "",
     },
 
@@ -381,33 +373,36 @@ const mrowkiTemplates = [
     },
     earlyTerminationLiability: {
       hasLiability: true,
-      details:
-        "Робочий одяг — безкоштовно після 1,5 місяця роботи (до цього моменту може бути утримання, якщо звільнитися раніше).",
+      details: "Робочий одяг безкоштовно після 1,5 місяця.",
     },
 
     // === 11. АПІСАННЕ ПРАЦЭСАЎ І НАТАТКІ ===
     description:
-      "Зняття склеєних коробок з машини та укладання на піддони; Ручне обгортання плівкою, наклеювання етикеток; Вивіз повних піддонів ручним візком; Транспортування пустих піддонів; Допомога оператору машини (очищення аркушів, подача палетів/пакетів); Вивіз макулатури та виробничих відходів; Підтримка чистоти на робочому місці; Виконання вказівок керівника.",
-    additionalNotes: "Адреса підприємства: 63-800 Gostyń.",
+      "Зняття склеєних коробок з машини та укладання на піддони, ручне обгортання плівкою, наклеювання етикеток, вивіз повних піддонів ручним візком, транспортування пустих піддонів, допомога оператору машини (очищення аркушів, подача пакетів), вивіз макулатури та виробничих відходів, підтримка чистоти на робочому місці, виконання вказівок керівника.",
+    additionalNotes:
+      "Допомога в легалізації перебування в Польщі, надаються аванси.",
   },
-  // 4
+
+  // Вакансія №4 - КАЙТЕРИНГ Wysogotowo
   {
     // === 1. СІСТЭМНЫЯ ПАЛІ (Групаванне і пошук) ===
     agencyName: "MRÓWKI",
-    templateName: "Wysogotowo - Кейтеринг, виробництво страв",
+    templateName: "Кейтеринг Wysogotowo",
     vacancydescription:
-      "Працівник сфери громадського харчування (Кейтеринг, виробництво готових страв)",
-    category: "⚙️ Виробництво і прамысловасть / Гатові страви / кейтэрынг",
+      "Робота в сфері громадського харчування на виробництві готових страв.",
+    category: "⚙️ Виробництво і промисловість / Харчова промисловість",
     keywords: [
       "Wysogotowo",
-      "Poznań",
       "кейтеринг",
-      "харчування",
+      "громадське харчування",
       "готові страви",
-      "Висоготово",
+      "кухар",
+      "упаковка",
+      "Poznań",
     ],
     contractType: "Umowa zlecenie",
 
+    // === УНУТРАНАЯ ІНФОРМАЦЫЯ (ТОЛЬКІ ДЛЯ РЭКРУТЭРА) ===
     forRecruiter: {
       internalNotes: "",
       hideAgencyNameForCandidate: true,
@@ -416,76 +411,71 @@ const mrowkiTemplates = [
 
     // === 2. ЛАКАЦЫІ І ГЕАГРАФІЯ ===
     location: "Wysogotowo",
-    locationDescription: "62-081 Wysogotowo (10 км від Познані)",
-    voivodeship: "Великопольське",
-    country: "Польща",
-    checkInCity: "Poznań",
+    locationDescription: "62-081 Wysogotowo (10 км від Poznań)",
+    voivodeship: "Wielkopolskie",
+    country: "Polska",
+    checkInCity: "",
 
     // === 3. ФІНАНСЫ ===
     salary: {
-      baseNetto: "26 zł/год",
-      studentNetto: "30.50 zł/год (студенти до 26 років)",
-      hoursRange: "200–240 годин/місяць",
-      payoutDates: "20–22 числа за попередній місяць.",
-      bonusDetails: "Доступні аванси.",
-      salaryNotes:
-        "У 2025/2026 р. після перевищення ліміту доходу в 30 000 зл брутто ставка нетто може зменшуватися. Надається допомога в продовженні легального перебування на території Польщі.",
+      baseNetto: "26 зл/год на руки",
+      studentNetto: "30.50 зл/год",
+      hoursRange: "",
+      payoutDates: "",
+      bonusDetails: "",
+      salaryNotes: "",
     },
 
     // === 4. ГРАФІК ===
     schedule: {
       shiftsCount: 2,
       hoursPerShift: "9-12",
-      workDaysWeek: "5 днів на тиждень",
+      workDaysWeek:
+        "5 днів/тиждень (плаваючі вихідні, суботи та неділі завжди робочі)",
       breakDuration:
-        "Кавовий — 10 хв, сніданок — 15 хв, обід — 20 хв, куріння — 5 хв (є зони для куріння).",
+        "10 хв (кавова), 15 хв (сніданок), 20 хв (обід), 5 хв (куріння)",
       canChooseShiftOnStart: false,
       shiftChoiceDetails: "",
       description:
-        "Робота по 5 днів на тиждень по 9–12 годин у 2 зміни. 1-а зміна: з 07:30 до 19:30 (або з 10:00 до 20:00), 2-а зміна: з 20:00 до 07:30. Графік складається один раз на місяць. Вихідні дні плаваючі. Суботи та неділі завжди робочі. Іноді п'ятниці можуть бути вільними або з коротшими змінами.",
+        "Графік складається один раз на місяць. 1-а зміна з 07:30 до 19:30 (або з 10:00 до 20:00). 2-а зміна з 20:00 до 07:30.",
     },
 
     // === 5. ПРАЖЫВАННЕ І ТРАНСПАРТ ===
     accommodation: {
       type: "Власне",
-      forCouples: true,
+      forCouples: false,
       withChildren: false,
       withPets: false,
-      costRaw: "0 zł",
-      details: "Житло не надається (няма інфармації про житло від агенціі).",
+      costRaw: "",
+      details: "",
     },
     transport: {
       provided: true,
-      costRaw: "безкоштовно",
-      details:
-        "Безкоштовний транспорт (доїзд з Познані з зупинки Bułgarska/Polska).",
+      costRaw: "Безкоштовно",
+      details: "Безкоштовний доїзд з Bułgarska/Polska (Poznań).",
     },
 
     // === 6. КАМПЕНСАЦЫІ АД ПРАЦАДАЎЦЫ ===
     employerCompensations: {
-      hasCompensations: false,
-      details: "",
+      hasCompensations: true,
+      details:
+        "Безкоштовний обід + солодощі, безкоштовна кава (кавові машини), чай.",
     },
 
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
-      gender: ["Чоловіки", "Жінки", "Пари"],
+      gender: ["Чоловіки", "Жінки"],
       ageMax: 45,
       nationalities: ["Україна"],
-      standardDocs: ["PESEL UKR", "Віза", "Карта побиту"],
+      standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: true,
-      additionalDocsDetails:
-        "Потрібна санітарна книжка (допомагають з оформленням — 165 зл при оформленні в офісі).",
+      additionalDocsDetails: "Санітарна книжка",
       experienceRequired: false,
       hasEntranceTests: false,
       entranceTestsDetails: "",
-
-      polishLanguageLevel: "А1",
-      languageDetails:
-        "Розуміння польської мови. Вміння працювати в колективі.",
-
-      physicalLoad:
-        "Робота на кухні та складі. Проходження БХП обов'язково на підприємстві.",
+      polishLanguageLevel: "Базовий",
+      languageDetails: "Розуміння польської мови.",
+      physicalLoad: "",
     },
 
     // === 8. ВАДРЫХТОЎКА Ў ЕЎРОПУ (ДЭЛЕГАЦЫІ А1) ===
@@ -499,22 +489,18 @@ const mrowkiTemplates = [
     // === 9. СПЕЦЫФІЧНЫЯ ЎМОВЫ І ХАРЧАВАННЕ ===
     conditions: {
       hasSpecificConditions: true,
-      specificNuances: [
-        "Холод у зоні пакування і сортування",
-        "Спека на кухні",
-      ],
+      specificNuances: ["Різні температурні режими"],
       specificConditionsDetails:
-        "Температура: у цеху — від +20 взимку до +30 і більше влітку. Зона упаковки +8 градусів (можна працювати не більше 3 годин). Склад для сортування товару +4...+8 градусів (працюють не більше 15-20 хвилин).",
+        "У цеху: від 20°C взимку до 30°C+ влітку. Зона упаковки: +8°C (працювати не більше 3 годин). Склад для сортування товару: +4°C до +8°C (працювати не більше 15-20 хвилин).",
       workwearFree: true,
-      foodType: "Безкоштовно",
-      foodDetails:
-        "Безкоштовний обід + солодощі. Безкоштовна кава (кавові машини) та чай.",
+      foodType: "Обіди",
+      foodDetails: "Безкоштовний обід.",
     },
 
     // === 10. ВЫДАТКІ НА СТАРЦЕ І АДКАЗНАСЦЬ ===
     startExpenses: {
       hasStartExpenses: true,
-      details: "Оформлення санітарної книжки: 165 зл (при оформленні в офісі).",
+      details: "165 зл за оформлення санітарної книжки при оформленні в офісі.",
     },
     earlyTerminationLiability: {
       hasLiability: false,
@@ -523,8 +509,9 @@ const mrowkiTemplates = [
 
     // === 11. АПІСАННЕ ПРАЦЭСАЎ І НАТАТКІ ===
     description:
-      "Допомога кухарю в простих кулінарних процесах; Допомога в приготуванні страв; Упаковка готових страв; Сортування готових страв на складі; Прибирання та миття кухонних приміщень та кухонного обладнання; Підтримання чистоти на робочому місці. Надається робоча форма.",
-    additionalNotes: "Адреса підприємства: 62-081 Wysogotowo.",
+      "Допомога кухарю в простих кулінарних процесах, допомога в приготуванні страв, упаковка готових страв, сортування готових страв на складі, прибирання та миття кухонних приміщень, прибирання та миття кухонного обладнання, підтримання чистоти на робочому місці.",
+    additionalNotes:
+      "Оформлення та інструктаж на завтра. Допомога в продовженні легального перебування на території Польщі, надаються аванси.",
   },
 ];
 module.exports = mrowkiTemplates;

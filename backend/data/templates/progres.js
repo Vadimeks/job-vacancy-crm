@@ -1,104 +1,91 @@
 // backend/data/templates/progres.js
 const progresTemplates = [
+  // Вакансія №1 - LPP Pruszcz Gdański
   {
     // === 1. СІСТЭМНЫЯ ПАЛІ (Групаванне і пошук) ===
     agencyName: "PROGRES",
-    templateName: "LPP Pruszcz Gdański - Склад нового одягу",
-    vacancydescription: "Pruszcz Gdański — Склад нового одягу. E-Commerce",
-    category: "📦 Логістика / Склади одягу та взуття",
+    templateName: "LPP Pruszcz Gdański",
+    vacancydescription:
+      "Склад нового одягу: зняття кліпсів, комплектація та пакування інтернет-замовлень.",
+    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
     keywords: [
       "LPP",
       "Pruszcz Gdański",
       "Гданськ",
-      "одяг",
-      "e-commerce",
-      "Sinsay",
-      "Cropp",
-      "House",
-      "Reserved",
-      "Mohito",
+      "Склад",
+      "Одяг",
+      "Пакування",
+      "Комплектація",
     ],
     contractType: "Umowa zlecenie",
-
+    // === УНУТРАНАЯ ІНФАРМАЦЫЯ (ТОЛЬКІ ДЛЯ РЭКРУТЭРА) ===
     forRecruiter: {
       internalNotes: "",
       hideAgencyNameForCandidate: true,
       hideEnterpriseNameForCandidate: true,
     },
-
     // === 2. ЛАКАЦЫІ І ГЕАГРАФІЯ ===
     location: "Pruszcz Gdański",
-    locationDescription: "Pruszcz Gdański (околиця Гданська)",
-    voivodeship: "Поморське",
-    country: "Польща",
-    checkInCity: "Gdańsk",
-
+    locationDescription: "Околиця Гданська",
+    voivodeship: "Pomorskie",
+    country: "Polska",
+    checkInCity: "",
     // === 3. ФІНАНСЫ ===
     salary: {
-      baseNetto: "25.36 zł/год (з PIT-2); 22.36 zł/год (без PIT-2)",
-      studentNetto: "31.40 zł/год (для студентів брутто = нетто)",
-      hoursRange: "від 200 до 240 годин/місяць",
-      payoutDates: "20–22 числа за попередній місяць.",
+      baseNetto: "31,40 zł брутто/год",
+      studentNetto: "31,40 zł нетто/год",
+      hoursRange: "",
+      payoutDates: "",
       bonusDetails:
-        "Премії за перевиконання норм від 100 до 1000 zł брутто (норма залежить від відділу). Після 2 місяців роботи — знижка -25% у магазинах LPP (Sinsay, Cropp, House, Reserved, Mohito).",
+        "Премії за перевиконання норм: 100–1000 zł брутто (норма залежить від відділу)",
       salaryNotes:
-        "Ставка 31.40 zł брутто/год. У 2025/2026 р. після перевищення ліміту доходу в 30 000 зл брутто ставка нетто може зменшуватися.",
+        "25,36 zł нетто/год — з PIT-2; 22,36 zł нетто/год — без PIT-2",
     },
-
     // === 4. ГРАФІК ===
     schedule: {
       shiftsCount: 2,
       hoursPerShift: "12",
       workDaysWeek: "5–6 днів на тиждень",
-      breakDuration: "Визначається внутрішнім розпорядком складу",
+      breakDuration: "",
       canChooseShiftOnStart: false,
       shiftChoiceDetails: "",
-      description:
-        "Зміни по 12 годин. Денна: 06:00–18:00, нічна: 18:00–04:00 / 06:00. Працюють 5–6 днів на тиждень.",
+      description: "Денна зміна: 06:00–18:00; Нічна зміна: 18:00–04:00 / 06:00",
     },
-
     // === 5. ПРАЖЫВАННЕ І ТРАНСПАРТ ===
     accommodation: {
       type: "Платне",
       forCouples: true,
       withChildren: false,
       withPets: false,
-      costRaw: "500 zł/місяць (утримують із зарплати)",
+      costRaw: "500 zł/міс",
       details:
-        "Локації житла: Pruszcz Gdański / Łęgowo / Cieplewo / Pszczółki. Проживання 1–2 км до складу. Кімнати на 2–4 особи, всі зручності. Інтернет і постіль надаються.",
+        "Локації: Pruszcz Gdański / Łęgowo / Cieplewo / Pszczółki. 1–2 км до складу. Кімнати 2–4 особи, всі зручності, інтернет + постіль надаються. Вартість утримують із зарплати.",
     },
     transport: {
       provided: true,
-      costRaw: "130 zł/місяць",
-      details: "Автобус від роботодавця — 130 зл/місяць.",
+      costRaw: "130 zł/міс",
+      details: "Автобус від роботодавця",
     },
-
     // === 6. КАМПЕНСАЦЫІ АД ПРАЦАДАЎЦЫ ===
     employerCompensations: {
       hasCompensations: false,
       details: "",
     },
-
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Чоловіки", "Жінки", "Пари"],
-      ageMax: 55,
-      nationalities: ["Україна", "Молдова", "Білорусь"],
-      standardDocs: ["PESEL UKR", "Віза", "Карта побиту"],
+      ageMax: 99,
+      nationalities: ["Україна"],
+      standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
       additionalDocsDetails: "",
       experienceRequired: false,
       hasEntranceTests: false,
       entranceTestsDetails: "",
-
-      polishLanguageLevel: "Не потрібна",
-      languageDetails:
-        "Знання польської мови не обов'язкове (сканер і прості процеси).",
-
-      physicalLoad:
-        "Легка робота, зняття кліпсів/захистів з одягу (товар подається на стіл), комплектація замовлень зі сканером.",
+      polishLanguageLevel: "Не вимагається",
+      languageDetails: "Сканер + прості процеси",
+      physicalLoad: "Легка робота",
     },
-
     // === 8. ВАДРЫХТОЎКА Ў ЕЎРОПУ (ДЭЛЕГАЦЫІ А1) ===
     businessTrip: {
       isBusinessTrip: false,
@@ -106,17 +93,15 @@ const progresTemplates = [
       requiredDocuments: [],
       tripDetails: "",
     },
-
     // === 9. СПЕЦЫФІЧНЫЯ ЎМОВЫ І ХАРЧАВАННЕ ===
     conditions: {
       hasSpecificConditions: false,
       specificNuances: [],
       specificConditionsDetails: "",
       workwearFree: true,
-      foodType: "За свій рахунок",
+      foodType: "Власне",
       foodDetails: "",
     },
-
     // === 10. ВЫДАТКІ НА СТАРЦЕ І АДКАЗНАСЦЬ ===
     startExpenses: {
       hasStartExpenses: false,
@@ -126,11 +111,11 @@ const progresTemplates = [
       hasLiability: false,
       details: "",
     },
-
     // === 11. АПІСАННЕ ПРАЦЭСАЎ І НАТАТКІ ===
     description:
-      "Зняття кліпсів/захистів з одягу (товар подається на стіл); Комплектація замовлень зі сканером (як телефон); Пакування інтернет-замовлень, сканування штрих-коду та передача на наступний процес. Роботодавець видає жилетку, штани та закрите взуття — свої.",
-    additionalNotes: "Адреса: Pruszcz Gdański. Оформлення у Гданську.",
+      "Робота на складі нового одягу. Обов'язки включають зняття кліпсів/захистів з одягу (легка робота, товар подається на стіл), комплектацію замовлень зі сканером (схожим на телефон), пакування інтернет-замовлень, сканування штрих-коду та передачу на наступний процес.",
+    additionalNotes:
+      "Бонус: після 2 місяців роботи — знижка -25% у магазинах Sinsay, Cropp, House, Reserved, Mohito. Робочий одяг: видають жилетку, взуття закрите та штани — свої.",
   },
 ];
 
