@@ -2,10 +2,8 @@ const mongoose = require("mongoose");
 
 const vacancySchema = new mongoose.Schema({
   // === 1. СІСТЭМНЫЯ ПАЛІ (Групаванне і пошук) ===
-  title: { type: String, required: true }, // Напрыклад: "VIRTU Zawiercie - Виробництво готових обідів"
-
-  // 🌟 ПУБЛІЧНАЯ НАЗВА ДЛЯ КАНДЫДАТАЎ (Загаловак у Telegram / на сайце)
-  vacancydescription: { type: String, required: true }, // Напрыклад: "Виробництво готових обідів (піца, вареники)"
+  title: { type: String, required: true }, // Поўная назва: "Brembo Dąbrowa Górnicza"
+  vacancydescription: { type: String, required: true }, // Кароткі опіс суці (укр)
 
   agencyName: { type: String, default: "Manual" },
   templateId: {
@@ -13,120 +11,123 @@ const vacancySchema = new mongoose.Schema({
     ref: "Template",
     default: null,
   },
-  category: { type: String, required: true }, // Напрыклад: "📦 Логістика / Склади одягу та взуття"
-  keywords: [String],
+  category: { type: String, required: true },
+  keywords: { type: [String], default: [] },
   contractType: { type: String, required: true }, // "Umowa zlecenie" / "Umowa o pracę"
 
-  // 🔒 УНУТРАНЫ БЛОК ДЛЯ РЭКРУТЭРАЎ (Пакуль паказваем усім, потым фільтруем)
+  // 🔒 УНУТРАНЫ БЛОК ДЛЯ РЭКРУТЭРАЎ
   forRecruiter: {
-    internalNotes: { type: String, default: "" }, // Інструкції па Viber, забароненых краінах, ПФ і г.д.
-    hideAgencyNameForCandidate: { type: Boolean, default: true }, // Ці трэба выразаць APOLO пры публікацыі
-    hideEnterpriseNameForCandidate: { type: Boolean, default: true }, // Ці трэба выразаць назву завода пры публікацыі
+    internalNotes: { type: String, default: "" },
+    hideAgencyNameForCandidate: { type: Boolean, default: true },
+    hideEnterpriseNameForCandidate: { type: Boolean, default: true },
   },
 
   // === 2. ЛАКАЦЫІ І ГЕАГРАФІЯ ===
-  location: { type: String, required: true }, // Чыстая назва для радыус-фільтраў
-  locationDescription: String,
+  location: { type: String, required: true }, // Горад ПОЛЬСЬКАЮ
+  locationDescription: { type: String, default: "" },
   voivodeship: { type: String, required: true },
-  country: { type: String, default: "Польща" },
-  checkInCity: String,
+  country: { type: String, default: "Polska" }, // Зменена з "Польща"
+  checkInCity: { type: String, default: "" },
 
   // === 3. ФІНАНСЫ ===
   salary: {
     baseNetto: { type: String, required: true },
-    studentNetto: String,
-    hoursRange: String,
-    payoutDates: String,
-    bonusDetails: String,
-    salaryNotes: String,
+    studentNetto: { type: String, default: "" },
+    hoursRange: { type: String, default: "" },
+    payoutDates: { type: String, default: "" },
+    bonusDetails: { type: String, default: "" },
+    salaryNotes: { type: String, default: "" },
   },
 
   // === 4. ГРАФІК ===
   schedule: {
-    shiftsCount: Number,
-    hoursPerShift: String,
-    workDaysWeek: String,
-    breakDuration: String,
+    shiftsCount: { type: Number, default: 0 },
+    hoursPerShift: { type: String, default: "" },
+    workDaysWeek: { type: String, default: "" },
+    breakDuration: { type: String, default: "" },
     canChooseShiftOnStart: { type: Boolean, default: false },
-    shiftChoiceDetails: String,
-    description: String,
+    shiftChoiceDetails: { type: String, default: "" },
+    description: { type: String, default: "" },
   },
 
   // === 5. ПРАЖЫВАННЕ І ТРАНСПАРТ ===
   accommodation: {
-    type: { type: String, required: true }, // "Безкоштовне", "Платне", "Частково безкоштовне"
+    type: { type: String, required: true }, // "Безкоштовне", "Платне", "Власне"
     forCouples: { type: Boolean, default: false },
     withChildren: { type: Boolean, default: false },
     withPets: { type: Boolean, default: false },
-    costRaw: String,
-    details: String,
+    costRaw: { type: String, default: "" },
+    details: { type: String, default: "" },
   },
   transport: {
     provided: { type: Boolean, default: false },
-    costRaw: String,
-    details: String,
+    costRaw: { type: String, default: "" },
+    details: { type: String, default: "" },
   },
 
   // === 6. КАМПЕНСАЦЫІ АД ПРАЦАДАЎЦЫ ===
   employerCompensations: {
     hasCompensations: { type: Boolean, default: false },
-    details: String,
+    details: { type: String, default: "" },
   },
 
   // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
   requirements: {
-    gender: { type: [String], default: [] }, // Строга масіў [String]
-    ageMax: Number,
-    nationalities: [String],
-    standardDocs: [String],
+    gender: { type: [String], default: ["Чоловіки", "Жінки"] },
+    ageMax: { type: Number, default: 99 },
+    nationalities: { type: [String], default: ["Україна"] },
+    standardDocs: {
+      type: [String],
+      default: ["PESEL UKR", "Віза", "Карта побуту"],
+    },
     needsAdditionalDocs: { type: Boolean, default: false },
-    additionalDocsDetails: String,
+    additionalDocsDetails: { type: String, default: "" },
     experienceRequired: { type: Boolean, default: false },
     hasEntranceTests: { type: Boolean, default: false },
-    entranceTestsDetails: String,
-    polishLanguageLevel: { type: String, default: "Не потрібна" },
-    languageDetails: String,
-    physicalLoad: String,
+    entranceTestsDetails: { type: String, default: "" },
+    polishLanguageLevel: { type: String, default: "Не вимагається" }, // Зменена для сінхранізацыі
+    languageDetails: { type: String, default: "" },
+    physicalLoad: { type: String, default: "" },
   },
 
   // === 8. ВАДРЫХТОЎКА Ў ЕЎРОПУ (ДЭЛЕГАЦЫІ А1) ===
   businessTrip: {
     isBusinessTrip: { type: Boolean, default: false },
     requiresPolishExperience: { type: Boolean, default: false },
-    requiredDocuments: [String],
-    tripDetails: String,
+    requiredDocuments: { type: [String], default: [] },
+    tripDetails: { type: String, default: "" },
   },
 
   // === 9. СПЕЦЫФІЧНЫЯ ЎМОВЫ І ХАРЧАВАННЕ ===
   conditions: {
     hasSpecificConditions: { type: Boolean, default: false },
-    specificNuances: [String],
-    specificConditionsDetails: String,
-    workwearFree: { type: Boolean, default: true },
-    foodType: String,
-    foodDetails: String,
+    specificNuances: { type: [String], default: [] },
+    specificConditionsDetails: { type: String, default: "" },
+    workwearFree: { type: Boolean, default: false },
+    foodType: { type: String, default: "Власне" },
+    foodDetails: { type: String, default: "" },
   },
 
   // === 10. ВЫДАТКІ НА СТАРЦЕ І АДКАЗНАСЦЬ ===
   startExpenses: {
     hasStartExpenses: { type: Boolean, default: false },
-    details: String,
+    details: { type: String, default: "" },
   },
   earlyTerminationLiability: {
     hasLiability: { type: Boolean, default: false },
-    details: String,
+    details: { type: String, default: "" },
   },
 
   // === 11. АПІСАННЕ ПРАЦЭСАЎ І НАТАТКІ ===
   description: { type: String, required: true },
-  additionalNotes: String, // Дадатковыя нататкі па вакансіі
+  additionalNotes: { type: String, default: "" },
 
-  // === 🔴 Спецыфічныя палі толькі для ВАКАНСІЙ (не для шаблонаў) ===
-  arrivalDate: { type: String, default: "" }, // Спіс дат заездаў
-  count: { type: String, default: "" }, // "5 пар", "10 хлопців"
+  // === 🔴 Спецыфічныя палі толькі для ВАКАНСІЙ ===
+  arrivalDate: { type: String, default: "" },
+  count: { type: String, default: "" },
 
-  rawText: String, // Сыры тэкст, з якога парсілі
-  telegramPost: String, // Гатовы пост для тг
+  rawText: { type: String, default: "" },
+  telegramPost: { type: String, default: "" },
 
   status: {
     type: String,
@@ -134,7 +135,7 @@ const vacancySchema = new mongoose.Schema({
     default: "active",
   },
 
-  vacancyCode: { type: String, unique: true }, // Унікальны код (ID) вакансіі
+  vacancyCode: { type: String, unique: true },
   createdAt: { type: Date, default: Date.now },
 });
 
