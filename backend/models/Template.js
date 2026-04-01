@@ -6,11 +6,11 @@ const templateSchema = new mongoose.Schema({
   templateName: { type: String, required: true }, // Назва завода + горад ПОЛЬСЬКАЮ (напр. "Hutchinson Dębica")
 
   // Публічная назва для кандыдатаў
-  vacancydescription: { type: String, required: true }, // Кароткі опіс суці работы (укр)
+  vacancydescription: { type: String, default: "" }, // Кароткі опіс суці работы (укр)
 
-  category: { type: String, required: true }, // Напр: "⚙️ Виробництво і промисловість / Логістика, склади та пакування"
+  category: { type: String, default: "" }, // Напр: "⚙️ Виробництво і промисловість / Логістика, склади та пакування"
   keywords: { type: [String], default: [] },
-  contractType: { type: String, required: true }, // "Umowa zlecenie" / "Umowa o pracę"
+  contractType: { type: String, default: "" }, // "Umowa zlecenie" / "Umowa o pracę"
 
   // 🔒 УНУТРАНЫ БЛОК ДЛЯ РЭКРУТЭРАЎ
   forRecruiter: {
@@ -20,15 +20,15 @@ const templateSchema = new mongoose.Schema({
   },
 
   // === 2. ЛАКАЦЫІ І ГЕАГРАФІЯ ===
-  location: { type: String, required: true }, // Горад працы ПОЛЬСЬКАЮ (напр. "Warszawa")
+  location: { type: String, default: "" }, // Горад працы ПОЛЬСЬКАЮ (напр. "Warszawa")
   locationDescription: { type: String, default: "" }, // Дакладная адраса або апісанне лакацыі
-  voivodeship: { type: String, required: true }, // Ваяводства ПОЛЬСЬКАЮ
+  voivodeship: { type: String, default: "" }, // Ваяводства ПОЛЬСЬКАЮ
   country: { type: String, default: "Polska" }, // Заўсёды "Polska"
   checkInCity: { type: String, default: "" }, // Місто оформлення документів ПОЛЬСЬКАЮ
 
   // === 3. ФІНАНСЫ ===
   salary: {
-    baseNetto: { type: String, required: true },
+    baseNetto: { type: String, default: "" },
     studentNetto: { type: String, default: "" },
     hoursRange: { type: String, default: "" },
     payoutDates: { type: String, default: "" },
@@ -49,7 +49,7 @@ const templateSchema = new mongoose.Schema({
 
   // === 5. ПРАЖЫВАННЕ І ТРАНСПАРТ ===
   accommodation: {
-    type: { type: String, required: true }, // "Безкоштовне", "Платне", "Власне"
+    type: { type: String, default: "" }, // "Безкоштовне", "Платне", "Власне"
     forCouples: { type: Boolean, default: false },
     withChildren: { type: Boolean, default: false },
     withPets: { type: Boolean, default: false },
@@ -116,10 +116,13 @@ const templateSchema = new mongoose.Schema({
   },
 
   // === 11. АПІСАННЕ ПРАЦЭСАЎ І НАТАТКІ ===
-  description: { type: String, required: true },
+  description: { type: String, default: "" },
   additionalNotes: { type: String, default: "" },
 
   createdAt: { type: Date, default: Date.now },
 });
+
+// Унікальны індэкс: пара agencyName + templateName (БЕЗ unique: true, каб заліць усё)
+templateSchema.index({ agencyName: 1, templateName: 1 });
 
 module.exports = mongoose.model("Template", templateSchema);
