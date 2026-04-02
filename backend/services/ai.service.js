@@ -43,6 +43,7 @@ Return ONLY a JSON object:
 }
 
 IMPORTANT: Return ONLY valid JSON, no markdown, no explanations.
+CRITICAL RULE: If the factory and location match, but the JOB PROCESS (duties/process field) is different, return templateId: null. We need a new template for different roles.
 `;
 
 // FIX: MERGE_PROMPT тепер використовує повну структуру v2.0 — жодне поле не губиться
@@ -187,6 +188,8 @@ TASK: Format the job data into a beautiful Telegram post in UKRAINIAN.
 Use this EXACT structure (skip entire blocks if ALL data inside is empty/null):
 
 *[templateName]*
+📍 Місто: [location] 
+[• Оформлення: м. [checkInCity] — тільки якщо checkInCity не пусте]
 👥 Набір: [requirements.gender joined by ", "][, приїзд [arrivalDate] — тільки якщо arrivalDate не пусте]
 
 💰 *Оплата праці*
@@ -221,9 +224,14 @@ Use this EXACT structure (skip entire blocks if ALL data inside is empty/null):
 🚌 *Транспорт*
 [transport.costRaw — якщо не пусте][, transport.details — якщо не пусте]
 
+[💸 *Витрати та відповідальність*
+[• На старті: [startExpenses.details] — якщо hasStartExpenses = true]
+[• При передчасному звільненні: [earlyTerminationLiability.details] — якщо hasLiability = true].]
+
 🌡 *Умови праці*
 • Робочий одяг: [conditions.workwearFree ? "Безкоштовно" : "За рахунок працівника"]
 • Харчування: [conditions.foodType]
+[• Нюанси: [conditions.specificNuances joined by ", "] — якщо не пусте]
 [conditions.foodDetails — якщо не пусте]
 [conditions.specificConditionsDetails — якщо не пусте]
 
@@ -238,9 +246,10 @@ Rules:
 - Use ONLY • for bullet points
 - Do NOT show forRecruiter data — це тільки для рекрутера
 - Use Markdown bold (*text*) for section headers
-- Split description by semicolons into bullet points with •
+- Split description into logical sentences and format each as a new line starting with •
 - If entire block has no data — skip it completely
 - Return ONLY the formatted post text, no JSON, no explanations
+- If information in specificNuances and specificConditionsDetails is identical, display it only once
 `;
 
 const CREATE_TEMPLATE_PROMPT = `
@@ -328,6 +337,8 @@ async function identifyTemplate(rawText, templates) {
       templateName: t.templateName,
       location: t.location || "",
       brand: t.templateName.split(" ")[0],
+      // ДАДАЕМ ПОЛЕ PROCESS (бярэм з апісання працы)
+      process: t.description?.substring(0, 150),
     }));
 
     const content = `MESSAGE:\n${rawText}\n\nAVAILABLE TEMPLATES:\n${JSON.stringify(templateList)}`;
@@ -355,15 +366,14 @@ async function mergeWithTemplate(rawText, template) {
     // FIX: templateSlim цяпер змяшчае ВСЕ палі v2.0 — нічога не губіцца
     const templateSlim = {
       agencyName: template.agencyName,
-      templateName: template.templateName, // FIX: было "title" — не існуе ў схеме
+      templateName: template.templateName,
       vacancydescription: template.vacancydescription,
       category: template.category,
       keywords: template.keywords,
       contractType: template.contractType,
       arrivalDate: template.arrivalDate,
       count: template.count,
-
-      forRecruiter: template.forRecruiter, // FIX: раней губілася
+      forRecruiter: template.forRecruiter,
 
       location: template.location,
       locationDescription: template.locationDescription,
@@ -376,15 +386,15 @@ async function mergeWithTemplate(rawText, template) {
 
       accommodation: template.accommodation,
       transport: template.transport,
-      employerCompensations: template.employerCompensations, // FIX: раней губілася
+      employerCompensations: template.employerCompensations,
 
       requirements: template.requirements,
-      businessTrip: template.businessTrip, // FIX: раней губілася
+      businessTrip: template.businessTrip,
 
       conditions: template.conditions,
 
-      startExpenses: template.startExpenses, // FIX: раней губілася
-      earlyTerminationLiability: template.earlyTerminationLiability, // FIX: раней губілася
+      startExpenses: template.startExpenses,
+      earlyTerminationLiability: template.earlyTerminationLiability,
 
       description: template.description,
       additionalNotes: template.additionalNotes,
@@ -405,7 +415,18 @@ async function mergeWithTemplate(rawText, template) {
       merged.additionalNotes = template.additionalNotes;
     if (template.forRecruiter && !merged.forRecruiter)
       merged.forRecruiter = template.forRecruiter;
-
+    // Калі AI вярнуў пустыя масівы, якія дакладно былі ў шаблоне — аднаўляем іх
+    if (
+      (!merged.keywords || merged.keywords.length === 0) &&
+      template.keywords?.length > 0
+    )
+      merged.keywords = template.keywords;
+    if (
+      (!merged.requirements?.standardDocs ||
+        merged.requirements.standardDocs.length === 0) &&
+      template.requirements?.standardDocs?.length > 0
+    )
+      merged.requirements.standardDocs = template.requirements.standardDocs;
     return merged;
   } catch (error) {
     if (error.message?.includes("429")) throw new Error("RATE_LIMIT");
@@ -434,19 +455,23 @@ async function parseVacancyWithAI(rawText) {
     console.log(`🤖 Парсинг v2.0 з поўнай структурай палёў...`);
 
     const SYSTEM_INSTRUCTION = `
-ROLE: Professional HR Dispatcher.
-TASK: Parse job vacancy into JSON v2.0 according to the provided schema.
+ROLE: Professional automated job vacancy parser (Version 2.0).
+TASK: Convert job text into a JSON object based on the strict v2.0 template.
 
-CRITICAL RULES:
-- Language: Ukrainian for descriptions, Polish for locations (cities, voivodeships).
-- If info is missing, use "" or null. NEVER use the word "string".
-- If age is not specified, return null for ageMax (it will be set to 60 by the cleaner).
-- agencyName must be in UPPERCASE.
-- Do not invent data. If a specific detail (like temperature) is not mentioned, do not guess it.
-- description must be written in Ukrainian WITHOUT agency or factory names.
-- Keep "vacancydescription" as a short summary in Ukrainian (max 100 chars).
+STRICT RULES:
+1. LANGUAGE: All descriptions, duties, and notes MUST be in UKRAINIAN. 
+2. GEOGRAPHY: Fields 'location', 'voivodeship', 'checkInCity', and 'country' MUST be in POLISH only (e.g., Warszawa, Śląskie). Do not translate them!
+3. ZERO LOSS PRINCIPLE: 100% completeness. Do not ignore minor details (free drinks, microwave, jewelry ban, laundry bonuses, attendance bonuses). Everything must be in the corresponding fields.
+4. checkInCity ALGORITHM:
+   - Step 1: Check for office/registration address. If the office city differs from the work city -> put it in checkInCity.
+   - Step 2: If the header says "Arrival to [City]" and work is elsewhere -> put that city in checkInCity.
+   - Step 3: If cities match or no info -> leave empty "".
+5. NO INTERPRETATION: If no specific number is mentioned (temperature, distance), do not guess. Write as in text: "cold warehouse".
+6. CONFIDENTIALITY: Remove agency names (Manpower, OTTO). KEEP product brands (Sinsay, Samsung, Bosch).
+7. AUTONOMY: Each vacancy (No. 81, 82...) must be a standalone object. No "same as above" references.
+8. vacancydescription must be a concise job title in Ukrainian (e.g., 'Пакування цукерак'), excluding factory names.
 
-Return ONLY valid JSON.`;
+OUTPUT: Return ONLY a valid JSON object.`;
 
     const text = await groqRequest(
       SYSTEM_INSTRUCTION,
@@ -461,16 +486,18 @@ Return ONLY valid JSON.`;
       // === 1. СИСТЕМНІ ПОЛЯ ===
       agencyName: cleaned.agencyName?.toUpperCase() || null,
       templateName: cleaned.templateName || "",
+      //  Назва: Калі няма канкрэтнай назвы, бярэм першы сказ з апісання працэсу
       vacancydescription:
-        cleaned.vacancydescription ||
-        // FIX: не пускаем rawText у апісанне — там могуць быць назвы агенцый
-        cleaned.description?.substring(0, 100) ||
-        "Нова вакансія",
-      category:
-        cleaned.category ||
-        "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+        cleaned.vacancydescription &&
+        cleaned.vacancydescription !== "Нова вакансія"
+          ? cleaned.vacancydescription
+          : cleaned.description?.split(/[.;]/)[0].substring(0, 100).trim() ||
+            "Опис вакансії",
+      //  Катэгорыя: Бярэм ТОЛЬКІ тое, што знайшоў AI. Калі не знайшоў — null (каб потым узяць з шаблона)
+      category: cleaned.category || null,
       keywords: Array.isArray(cleaned.keywords) ? cleaned.keywords : [],
-      contractType: cleaned.contractType || "Umowa zlecenie",
+      //  Тып кантракта: Ніякіх "Umowa zlecenie" па дэфолце. Толькі тое, што ў тэксце.
+      contractType: cleaned.contractType || null,
       arrivalDate: cleaned.arrivalDate || null,
       count: cleaned.count || null,
 
@@ -540,7 +567,7 @@ Return ONLY valid JSON.`;
           : ["Україна"],
         standardDocs: Array.isArray(cleaned.requirements?.standardDocs)
           ? cleaned.requirements.standardDocs
-          : ["PESEL UKR"],
+          : [],
         needsAdditionalDocs: !!cleaned.requirements?.needsAdditionalDocs,
         additionalDocsDetails:
           cleaned.requirements?.additionalDocsDetails || "",
@@ -573,7 +600,7 @@ Return ONLY valid JSON.`;
           ? cleaned.conditions.specificNuances
           : [],
         specificConditionsDetails:
-          cleaned.conditions?.specificConditionsDetails || "", // FIX: было conditions.notes — не існуе ў схеме
+          cleaned.conditions?.specificConditionsDetails || "",
         workwearFree: !!cleaned.conditions?.workwearFree,
         foodType: cleaned.conditions?.foodType || "Власне",
         foodDetails: cleaned.conditions?.foodDetails || "",
@@ -590,7 +617,7 @@ Return ONLY valid JSON.`;
       },
 
       // === 11. АПІСАННЕ ПРАЦЭСАЎ ===
-      description: cleaned.description || "", // FIX: не пускаем rawText — там назвы агенцый
+      description: cleaned.description || "",
       additionalNotes: cleaned.additionalNotes || "",
     };
   } catch (error) {
