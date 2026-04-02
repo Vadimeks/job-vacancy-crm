@@ -218,10 +218,10 @@ const manpawerTemplates = [
     additionalNotes:
       "Працевлаштування на основі трудового договору (Umowa o pracę). Можливість довгострокової співпраці та кар'єрного росту.",
   },
-  // Вакансія №3 - McCormick Stefanowo
+  // Вакансія №3 - McCormick Stefanowo-2
   {
     agencyName: "MANPAWER",
-    templateName: "McCormick Stefanowo",
+    templateName: "McCormick Stefanowo-2",
     vacancydescription: "Виробництво та пакування спецій та приправ.",
     category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
     keywords: [
@@ -414,10 +414,10 @@ const manpawerTemplates = [
     additionalNotes:
       "Робота на відомому кондитерському підприємстві. Пакет переваг MANPAWERGroup Premium.",
   },
-  // Вакансія №5 - Allegro Adamów
+  // Вакансія №5 - Allegro Adamów-1
   {
     agencyName: "MANPAWER",
-    templateName: "Allegro Adamów",
+    templateName: "Allegro Adamów-1",
     vacancydescription:
       "Склад інтернет-магазину: комплектація та пакування товарів.",
     category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
@@ -514,10 +514,10 @@ const manpawerTemplates = [
     additionalNotes:
       "Робота на великому логістичному складі відомого маркетплейсу. Можливість працювати багато годин у сезон.",
   },
-  // Вакансія №6 - Media Expert Łódź
+  // Вакансія №6 - Media Expert Łódź-1
   {
     agencyName: "MANPAWER",
-    templateName: "Media Expert Łódź",
+    templateName: "Media Expert Łódź-1",
     vacancydescription:
       "Склад побутової техніки та електроніки: комплектація та відвантаження.",
     category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
@@ -898,10 +898,10 @@ const manpawerTemplates = [
       "Обслуговування машин монтажу та зварювання. Робота з труборізними машинами. Пакування деталей.",
     additionalNotes: "Замовлення на 50 людей до кінця року.",
   },
-  // Вакансія №10 - Hutchinson Dębica
+  // Вакансія №10 - Hutchinson Dębica-1
   {
     agencyName: "MANPAWER",
-    templateName: "Hutchinson Dębica",
+    templateName: "Hutchinson Dębica-1",
     vacancydescription:
       "Виробництво силіконових ущільнювачів для авто та авіації.",
     category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
@@ -990,11 +990,11 @@ const manpawerTemplates = [
     additionalNotes:
       "Продукція використовується в автомобільній та авіаційній промисловості.",
   },
-  // Вакансія №11 - Mahle Krotoszyn
+  // Вакансія №11 - Mahle Krotoszyn-1
   {
     // === 1. СІСТЭМНЫЯ ПАЛІ (Групаванне і пошук) ===
     agencyName: "MANPAWER",
-    templateName: "Mahle Krotoszyn",
+    templateName: "Mahle Krotoszyn-1",
     vacancydescription:
       "Оператор машин на заводі з виготовлення автомобільних деталей.",
     category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
@@ -1759,10 +1759,10 @@ const manpawerTemplates = [
       "Автоклави (ч): монтаж деталей у форми, обслуговування парових контейнерів. Монтаж (ч/ж): складання компонентів (затискачі, фітинги), маркування, сортування та пакування продукції.",
     additionalNotes: "Робота на виробництві гумових автокомпонентів.",
   },
-  // Вакансія №19 - Brembo Dąbrowa Górnicza
+  // Вакансія №19 - Brembo Dąbrowa Górnicza-1
   {
     agencyName: "MANPAWER",
-    templateName: "Brembo Dąbrowa Górnicza",
+    templateName: "Brembo Dąbrowa Górnicza-1",
     vacancydescription:
       "Працівник виробничої лінії на заводі гальмівних дисків (ливарня та обробка).",
     category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
@@ -2151,10 +2151,10 @@ const manpawerTemplates = [
     additionalNotes:
       "Безкоштовне житло — велика перевага. Робота в автомобільній галузі (металеві компоненти).",
   },
-  // Вакансія №23 - Kerry Oleśnica
+  // Вакансія №23 - Kerry Oleśnica-1
   {
     agencyName: "MANPAWER",
-    templateName: "Kerry Oleśnica",
+    templateName: "Kerry Oleśnica-1",
     vacancydescription:
       "Виробництво харчових добавок та ароматизаторів: підготовка сировини та пакування.",
     category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
@@ -2344,10 +2344,10 @@ const manpawerTemplates = [
     additionalNotes:
       "Стабільне працевлаштування на Umowa o pracę. Пакет MANPAWER Group Premium.",
   },
-  // Вакансія №25 - McCormick Stefanowo (Чоловіки)
+  // Вакансія №25 - McCormick Stefanowo-3
   {
     agencyName: "MANPAWER",
-    templateName: "McCormick Stefanowo Men",
+    templateName: "McCormick Stefanowo-3",
     vacancydescription:
       "Оператор машин та навантажувачів на виробництві приправ: подача сировини та контроль якості.",
     category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
@@ -2829,10 +2829,10 @@ const manpawerTemplates = [
       "Обслуговування монтажних та зварювальних машин, робота з труборізними та мийними машинами, пакування, маркування деталей.",
     additionalNotes: "Замовлення на 50 людей. Допомога з картами побиту.",
   },
-  // Вакансія №30 - Onnera Palmiry
+  // Вакансія №30 - Onnera Palmiry-1
   {
     agencyName: "MANPAWER",
-    templateName: "Onnera Palmiry",
+    templateName: "Onnera Palmiry-1",
     vacancydescription:
       "Збірка та монтаж промислових холодильних установок та миючих машин.",
     category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
@@ -3029,7 +3029,7 @@ const manpawerTemplates = [
   // Вакансія №32 - Hutchinson Żywiec 2 (Autoklaw)
   {
     agencyName: "MANPAWER",
-    templateName: "Hutchinson Żywiec 2",
+    templateName: "Hutchinson Żywiec 2 (Autoklaw)",
     vacancydescription:
       "Виробництво металевих трубок та гумових елементів для авто: обслуговування автоклавів та печей.",
     category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
@@ -3122,10 +3122,10 @@ const manpawerTemplates = [
       "Для жінок: обслуговування машин, гнуття паливних систем, контроль якості. Для чоловіків: обслуговування автоклавів або печей, контроль параметрів процесу, перевірка техстану машин.",
     additionalNotes: "Рішення щодо робочого місця приймається після тестів.",
   },
-  // Вакансія №33 - Mondelez Tomaszów Mazowiecki
+  // Вакансія №33 - Mondelez Tomaszów Mazowiecki-1
   {
     agencyName: "MANPAWER",
-    templateName: "Mondelez Tomaszów Mazowiecki",
+    templateName: "Mondelez Tomaszów Mazowiecki-1",
     vacancydescription:
       "Виробництво круасанів відомого бренду 7DAYS: формування, пакування та контроль якості.",
     category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
@@ -3403,10 +3403,10 @@ const manpawerTemplates = [
     additionalNotes:
       "Можливість переходу на прямий контракт із заводом. Один із найбільших виробників у світі.",
   },
-  // Вакансія №36 - Gates Legnica
+  // Вакансія №36 - Gates Legnica-1
   {
     agencyName: "MANPAWER",
-    templateName: "Gates Legnica",
+    templateName: "Gates Legnica-1",
     vacancydescription:
       "Виробництво високотехнологічних гумових ременів та шлангів для промисловості.",
     category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
@@ -3489,10 +3489,10 @@ const manpawerTemplates = [
     additionalNotes:
       "Лідер ринку гумових ременів. Оплачувані відпустки та лікарняні.",
   },
-  // Вакансія №37 - Lisner Poznań
+  // Вакансія №37 - Lisner Poznań-1
   {
     agencyName: "MANPAWER",
-    templateName: "Lisner Poznań",
+    templateName: "Lisner Poznań-1",
     vacancydescription:
       "Пакування та сортування готової рибної продукції (пасти, салати).",
     category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
@@ -3770,10 +3770,10 @@ const manpawerTemplates = [
     additionalNotes:
       "Система 4 рівнів розвитку дозволяє швидко збільшити ставку.",
   },
-  // Вакансія №40 - Corning Stryków
+  // Вакансія №40 - Corning Stryków-1
   {
     agencyName: "MANPAWER",
-    templateName: "Corning Stryków",
+    templateName: "Corning Stryków-1",
     vacancydescription:
       "Виготовлення оптичного кабельного з’єднання: обрізка, спаювання та контроль якості.",
     category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
@@ -3863,11 +3863,11 @@ const manpawerTemplates = [
     additionalNotes:
       "Стабільне працевлаштування на основі Umowa o pracę. Пакет MANPAWERGroup Premium.",
   },
-  // Вакансія №41 - Gillette Łódź
+  // Вакансія №41 - Gillette Łódź-1
   {
     // === 1. СІСТЭМНЫЯ ПАЛІ (Групаванне і пошук) ===
     agencyName: "MANPAWER",
-    templateName: "Gillette Łódź",
+    templateName: "Gillette Łódź-1",
     vacancydescription:
       "Обслуговування машин з виробництва станків для гоління, комплектація та пакування готової продукції.",
     category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
@@ -3977,97 +3977,118 @@ const manpawerTemplates = [
     additionalNotes:
       "Стабільне працевлаштування на основі Umowa o pracę. Пакет MANPAWERGroup Premium.",
   },
-  // Вакансія №42 - Lisner Poznań
-{
-"agencyName": "MANPAWER",
-"templateName": "Lisner Poznań",
-"vacancydescription": "Фасування та пакування готової рибної продукції та салатів",
-"category": "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
-"keywords": ["Lisner", "Poznań", "риба", "салати", "пакування", "харчова промисловість", "безкоштовні обіди", "Wielkopolskie"],
-"contractType": "Umowa o pracę",
-"forRecruiter": {
-"internalNotes": "Адреса: Strzeszyńska 38/42, 60-479 Poznań. Потрібна книжечка санепід. Робота в прохолодному приміщенні (10-14°C).",
-"hideAgencyNameForCandidate": true,
-"hideEnterpriseNameForCandidate": true
-},
-"location": "Poznań",
-"locationDescription": "ul. Strzeszyńska 38/42, 60-479 Poznań",
-"voivodeship": "Wielkopolskie",
-"country": "Polska",
-"checkInCity": "",
-"salary": {
-"baseNetto": "4800 зл брутто в місяць (28.58 зл/год брутто)",
-"studentNetto": "",
-"hoursRange": "168",
-"payoutDates": "Згідно з регламентом",
-"bonusDetails": "Премія; доплата за нічні зміни +20%; додаток за надгодини +50% у робочі дні та +100% у вихідні.",
-"salaryNotes": "Стабільна виплата на карту."
-},
-"schedule": {
-"shiftsCount": 2,
-"hoursPerShift": "8",
-"workDaysWeek": "Пн-Пт",
-"breakDuration": "25 хв",
-"canChooseShiftOnStart": false,
-"shiftChoiceDetails": "",
-"description": "I зміна: 05:45 - 13:45; ІІ зміна: 13:45 - 21:45. У період великих замовлень можлива нічна зміна."
-},
-"accommodation": {
-"type": "Власне",
-"forCouples": false,
-"withChildren": false,
-"withPets": false,
-"costRaw": "",
-"details": "Житло не надається."
-},
-"transport": {
-"provided": true,
-"costRaw": "Безкоштовно",
-"details": "Безкоштовний транспорт із міст: Czarnków, Mieleszyn, Gniezno, Wągrowiec, Damasławek, Sieraków, Szamotuły, Wolsztyn, Września."
-},
-"employerCompensations": {
-"hasCompensations": true,
-"details": "Карта Multisport, страхування життя, приватне медичне обслуговування."
-},
-"requirements": {
-"gender": ["Чоловіки", "Жінки"],
-"ageMax": 99,
-"nationalities": ["Україна"],
-"standardDocs": ["PESEL UKR", "Віза", "Карта побуту"],
-"needsAdditionalDocs": true,
-"additionalDocsDetails": "Книжечка санепід (або готовність до її виготовлення).",
-"experienceRequired": false,
-"hasEntranceTests": false,
-"entranceTestsDetails": "",
-"polishLanguageLevel": "Не вимагається",
-"languageDetails": "",
-"physicalLoad": "Робота на лінії пакування, температура 10-14 градусів тепла."
-},
-"businessTrip": {
-"isBusinessTrip": false,
-"requiresPolishExperience": false,
-"requiredDocuments": [],
-"tripDetails": ""
-},
-"conditions": {
-"hasSpecificConditions": true,
-"specificNuances": ["Холодний склад (10-14°C)"],
-"specificConditionsDetails": "Температура на підприємстві від 10 до 14 градусів тепла. Видається одноразовий одяг (штани, фартух, чепчик, рукавички), який одягається поверх свого, та робоче взуття.",
-"workwearFree": true,
-"foodType": "Обіди",
-"foodDetails": "Безкоштовні обіди 1 раз на день і 2 безкоштовні гарячі напої протягом дня. Є їдальня з мікрохвильовкою та автоматами."
-},
-"startExpenses": {
-"hasStartExpenses": false,
-"details": ""
-},
-"earlyTerminationLiability": {
-"hasLiability": false,
-"details": ""
-},
-"description": "Фасування та сортування готової рибної продукції (пасти, салати, оселедець). Працівник пакує готову продукцію на лінії в ємності, пластикові коробочки та баночки. До обов'язків також входить прибирання робочого місця, транспортування продуктів та змішування інгредієнтів. Продукція повністю готова, не потребує чищення чи нарізки. На лінії працює від 8-10 осіб.",
-"additionalNotes": "Стабільна робота від зараз у лідера харчової промисловості. Вільні вихідні та можливість наднормових годин."
-},
+  // Вакансія №42 - Lisner Poznań-2
+  {
+    agencyName: "MANPAWER",
+    templateName: "Lisner Poznań-2",
+    vacancydescription:
+      "Фасування та пакування готової рибної продукції та салатів",
+    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    keywords: [
+      "Lisner",
+      "Poznań",
+      "риба",
+      "салати",
+      "пакування",
+      "харчова промисловість",
+      "безкоштовні обіди",
+      "Wielkopolskie",
+    ],
+    contractType: "Umowa o pracę",
+    forRecruiter: {
+      internalNotes:
+        "Адреса: Strzeszyńska 38/42, 60-479 Poznań. Потрібна книжечка санепід. Робота в прохолодному приміщенні (10-14°C).",
+      hideAgencyNameForCandidate: true,
+      hideEnterpriseNameForCandidate: true,
+    },
+    location: "Poznań",
+    locationDescription: "ul. Strzeszyńska 38/42, 60-479 Poznań",
+    voivodeship: "Wielkopolskie",
+    country: "Polska",
+    checkInCity: "",
+    salary: {
+      baseNetto: "4800 зл брутто в місяць (28.58 зл/год брутто)",
+      studentNetto: "",
+      hoursRange: "168",
+      payoutDates: "Згідно з регламентом",
+      bonusDetails:
+        "Премія; доплата за нічні зміни +20%; додаток за надгодини +50% у робочі дні та +100% у вихідні.",
+      salaryNotes: "Стабільна виплата на карту.",
+    },
+    schedule: {
+      shiftsCount: 2,
+      hoursPerShift: "8",
+      workDaysWeek: "Пн-Пт",
+      breakDuration: "25 хв",
+      canChooseShiftOnStart: false,
+      shiftChoiceDetails: "",
+      description:
+        "I зміна: 05:45 - 13:45; ІІ зміна: 13:45 - 21:45. У період великих замовлень можлива нічна зміна.",
+    },
+    accommodation: {
+      type: "Власне",
+      forCouples: false,
+      withChildren: false,
+      withPets: false,
+      costRaw: "",
+      details: "Житло не надається.",
+    },
+    transport: {
+      provided: true,
+      costRaw: "Безкоштовно",
+      details:
+        "Безкоштовний транспорт із міст: Czarnków, Mieleszyn, Gniezno, Wągrowiec, Damasławek, Sieraków, Szamotuły, Wolsztyn, Września.",
+    },
+    employerCompensations: {
+      hasCompensations: true,
+      details:
+        "Карта Multisport, страхування життя, приватне медичне обслуговування.",
+    },
+    requirements: {
+      gender: ["Чоловіки", "Жінки"],
+      ageMax: 99,
+      nationalities: ["Україна"],
+      standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
+      needsAdditionalDocs: true,
+      additionalDocsDetails:
+        "Книжечка санепід (або готовність до її виготовлення).",
+      experienceRequired: false,
+      hasEntranceTests: false,
+      entranceTestsDetails: "",
+      polishLanguageLevel: "Не вимагається",
+      languageDetails: "",
+      physicalLoad:
+        "Робота на лінії пакування, температура 10-14 градусів тепла.",
+    },
+    businessTrip: {
+      isBusinessTrip: false,
+      requiresPolishExperience: false,
+      requiredDocuments: [],
+      tripDetails: "",
+    },
+    conditions: {
+      hasSpecificConditions: true,
+      specificNuances: ["Холодний склад (10-14°C)"],
+      specificConditionsDetails:
+        "Температура на підприємстві від 10 до 14 градусів тепла. Видається одноразовий одяг (штани, фартух, чепчик, рукавички), який одягається поверх свого, та робоче взуття.",
+      workwearFree: true,
+      foodType: "Обіди",
+      foodDetails:
+        "Безкоштовні обіди 1 раз на день і 2 безкоштовні гарячі напої протягом дня. Є їдальня з мікрохвильовкою та автоматами.",
+    },
+    startExpenses: {
+      hasStartExpenses: false,
+      details: "",
+    },
+    earlyTerminationLiability: {
+      hasLiability: false,
+      details: "",
+    },
+    description:
+      "Фасування та сортування готової рибної продукції (пасти, салати, оселедець). Працівник пакує готову продукцію на лінії в ємності, пластикові коробочки та баночки. До обов'язків також входить прибирання робочого місця, транспортування продуктів та змішування інгредієнтів. Продукція повністю готова, не потребує чищення чи нарізки. На лінії працює від 8-10 осіб.",
+    additionalNotes:
+      "Стабільна робота від зараз у лідера харчової промисловості. Вільні вихідні та можливість наднормових годин.",
+  },
   // Вакансія №43 - Fiege Mszczonów (UDT)
   {
     agencyName: "MANPAWER",
@@ -4157,7 +4178,7 @@ const manpawerTemplates = [
   // Вакансія №44 - Lisner Poznań (Салати)
   {
     agencyName: "MANPAWER",
-    templateName: "Lisner Poznań Salads",
+    templateName: "Lisner Poznań (Салати)",
     vacancydescription:
       "Виробництво та приготування рибних салатів та паст за рецептами.",
     category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
@@ -4250,101 +4271,122 @@ const manpawerTemplates = [
       "Приготування салатів і паст за рецептами, поєднання інгредієнтів, сегрегація продуктів, укладання запакованої продукції в коробки або на піддони, доставка упаковки на станції.",
     additionalNotes: "Вільні вихідні. Стабільна робота на Umowa o pracę.",
   },
-  // Вакансія №45 - Lisner Poznań
-{
-"agencyName": "MANPAWER",
-"templateName": "Lisner Poznań",
-"vacancydescription": "Працівник виробництва у відділ конфекції (рибна продукція)",
-"category": "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
-"keywords": ["Lisner", "Poznań", "рибна продукція", "конфекція", "етикетування", "маркування", "холодний склад", "безкоштовні обіди", "Wielkopolskie"],
-"contractType": "Umowa o pracę",
-"forRecruiter": {
-"internalNotes": "Відділ конфекції (magazyn konfekcja). Температура 4 градуси. Потрібна книжечка санепід (направляємо безкоштовно). 1 місце для чоловіка та 1 місце для жінки.",
-"hideAgencyNameForCandidate": true,
-"hideEnterpriseNameForCandidate": true
-},
-"location": "Poznań",
-"locationDescription": "м. Познань",
-"voivodeship": "Wielkopolskie",
-"country": "Polska",
-"checkInCity": "",
-"salary": {
-"baseNetto": "28,58 зл/год брутто",
-"studentNetto": "",
-"hoursRange": "168",
-"payoutDates": "Згідно з регламентом",
-"bonusDetails": "Премія в залежності від ефективності цілого відділу; оплата нічних змін +20%.",
-"salaryNotes": "Надгодини: +50% у робочі дні та +100% у вихідні. Оплачувана відпустка та лікарняні."
-},
-"schedule": {
-"shiftsCount": 3,
-"hoursPerShift": "8",
-"workDaysWeek": "Пн-Пт (можливі суботи)",
-"breakDuration": "Згідно з КЗпП",
-"canChooseShiftOnStart": false,
-"shiftChoiceDetails": "",
-"description": "05:45 – 13:45, 13:45 – 21:45, 21:45 – 05:45."
-},
-"accommodation": {
-"type": "Власне",
-"forCouples": false,
-"withChildren": false,
-"withPets": false,
-"costRaw": "",
-"details": "Житло не надається."
-},
-"transport": {
-"provided": true,
-"costRaw": "Безкоштовно",
-"details": "Безкоштовний транспорт із найближчих міст: Czarnków, Mieleszyn, Gniezno, Wągrowiec, Damasławek, Sieraków, Szamotuły, Wolsztyn, Września."
-},
-"employerCompensations": {
-"hasCompensations": true,
-"details": "Карта Multisport, страхування життя, приватне медичне обслуговування Medicover."
-},
-"requirements": {
-"gender": ["Чоловіки", "Жінки"],
-"ageMax": 99,
-"nationalities": ["Україна"],
-"standardDocs": ["PESEL UKR", "Віза", "Карта побуту"],
-"needsAdditionalDocs": true,
-"additionalDocsDetails": "Книжечка санепід (якщо немає, видається направлення на безкоштовні аналізи).",
-"experienceRequired": false,
-"hasEntranceTests": false,
-"entranceTestsDetails": "",
-"polishLanguageLevel": "Не вимагається",
-"languageDetails": "",
-"physicalLoad": "Робота в холодному приміщенні (4°C)."
-},
-"businessTrip": {
-"isBusinessTrip": false,
-"requiresPolishExperience": false,
-"requiredDocuments": [],
-"tripDetails": ""
-},
-"conditions": {
-"hasSpecificConditions": true,
-"specificNuances": ["Холодний склад (4°C)"],
-"specificConditionsDetails": "Температура на робочому місці 4 градуси тепла. Видається одноразовий одяг (штани, фартух, чепчик, рукавички), який одягається поверх свого, та робоче взуття.",
-"workwearFree": true,
-"foodType": "Обіди",
-"foodDetails": "Безкоштовні обіди 1 раз на день і 2 безкоштовні гарячі напої протягом дня. Є їдальня з мікрохвильовкою та автоматами."
-},
-"startExpenses": {
-"hasStartExpenses": false,
-"details": ""
-},
-"earlyTerminationLiability": {
-"hasLiability": false,
-"details": ""
-},
-"description": "Етикетування, маркування та перепакування готової рибної продукції (пасти, салати, закуски). Перевірка та контроль якості продукції на відповідність стандартам. Робота з машинами та обладнанням на виробництві. Продукція вже готова та оброблена.",
-"additionalNotes": "Стабільна робота у лідера харчової промисловості. Допомога з виготовленням санепід книжки."
-},
-  // Вакансія №46 - MAN Trucks Niepołomice
+  // Вакансія №45 - Lisner Poznań-3
   {
     agencyName: "MANPAWER",
-    templateName: "MAN Trucks Niepołomice",
+    templateName: "Lisner Poznań-3",
+    vacancydescription:
+      "Працівник виробництва у відділ конфекції (рибна продукція)",
+    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    keywords: [
+      "Lisner",
+      "Poznań",
+      "рибна продукція",
+      "конфекція",
+      "етикетування",
+      "маркування",
+      "холодний склад",
+      "безкоштовні обіди",
+      "Wielkopolskie",
+    ],
+    contractType: "Umowa o pracę",
+    forRecruiter: {
+      internalNotes:
+        "Відділ конфекції (magazyn konfekcja). Температура 4 градуси. Потрібна книжечка санепід (направляємо безкоштовно). 1 місце для чоловіка та 1 місце для жінки.",
+      hideAgencyNameForCandidate: true,
+      hideEnterpriseNameForCandidate: true,
+    },
+    location: "Poznań",
+    locationDescription: "м. Познань",
+    voivodeship: "Wielkopolskie",
+    country: "Polska",
+    checkInCity: "",
+    salary: {
+      baseNetto: "28,58 зл/год брутто",
+      studentNetto: "",
+      hoursRange: "168",
+      payoutDates: "Згідно з регламентом",
+      bonusDetails:
+        "Премія в залежності від ефективності цілого відділу; оплата нічних змін +20%.",
+      salaryNotes:
+        "Надгодини: +50% у робочі дні та +100% у вихідні. Оплачувана відпустка та лікарняні.",
+    },
+    schedule: {
+      shiftsCount: 3,
+      hoursPerShift: "8",
+      workDaysWeek: "Пн-Пт (можливі суботи)",
+      breakDuration: "Згідно з КЗпП",
+      canChooseShiftOnStart: false,
+      shiftChoiceDetails: "",
+      description: "05:45 – 13:45, 13:45 – 21:45, 21:45 – 05:45.",
+    },
+    accommodation: {
+      type: "Власне",
+      forCouples: false,
+      withChildren: false,
+      withPets: false,
+      costRaw: "",
+      details: "Житло не надається.",
+    },
+    transport: {
+      provided: true,
+      costRaw: "Безкоштовно",
+      details:
+        "Безкоштовний транспорт із найближчих міст: Czarnków, Mieleszyn, Gniezno, Wągrowiec, Damasławek, Sieraków, Szamotuły, Wolsztyn, Września.",
+    },
+    employerCompensations: {
+      hasCompensations: true,
+      details:
+        "Карта Multisport, страхування життя, приватне медичне обслуговування Medicover.",
+    },
+    requirements: {
+      gender: ["Чоловіки", "Жінки"],
+      ageMax: 99,
+      nationalities: ["Україна"],
+      standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
+      needsAdditionalDocs: true,
+      additionalDocsDetails:
+        "Книжечка санепід (якщо немає, видається направлення на безкоштовні аналізи).",
+      experienceRequired: false,
+      hasEntranceTests: false,
+      entranceTestsDetails: "",
+      polishLanguageLevel: "Не вимагається",
+      languageDetails: "",
+      physicalLoad: "Робота в холодному приміщенні (4°C).",
+    },
+    businessTrip: {
+      isBusinessTrip: false,
+      requiresPolishExperience: false,
+      requiredDocuments: [],
+      tripDetails: "",
+    },
+    conditions: {
+      hasSpecificConditions: true,
+      specificNuances: ["Холодний склад (4°C)"],
+      specificConditionsDetails:
+        "Температура на робочому місці 4 градуси тепла. Видається одноразовий одяг (штани, фартух, чепчик, рукавички), який одягається поверх свого, та робоче взуття.",
+      workwearFree: true,
+      foodType: "Обіди",
+      foodDetails:
+        "Безкоштовні обіди 1 раз на день і 2 безкоштовні гарячі напої протягом дня. Є їдальня з мікрохвильовкою та автоматами.",
+    },
+    startExpenses: {
+      hasStartExpenses: false,
+      details: "",
+    },
+    earlyTerminationLiability: {
+      hasLiability: false,
+      details: "",
+    },
+    description:
+      "Етикетування, маркування та перепакування готової рибної продукції (пасти, салати, закуски). Перевірка та контроль якості продукції на відповідність стандартам. Робота з машинами та обладнанням на виробництві. Продукція вже готова та оброблена.",
+    additionalNotes:
+      "Стабільна робота у лідера харчової промисловості. Допомога з виготовленням санепід книжки.",
+  },
+  // Вакансія №46 - MAN Trucks Niepołomice-1
+  {
+    agencyName: "MANPAWER",
+    templateName: "MAN Trucks Niepołomice-1",
     vacancydescription:
       "Збірка вантажних автомобілів відомого бренду на сучасному конвеєрі.",
     category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
@@ -4437,98 +4479,121 @@ const manpawerTemplates = [
     additionalNotes:
       "Один із найсучасніших заводів у виробничій мережі відомого бренду вантажівок.",
   },
-  
-// Вакансія №47 - Media Expert Łódź
-{
-"agencyName": "MANPAWER",
-"templateName": "Media Expert Łódź",
-"vacancydescription": "Склад електронної техніки: комплектація, розвантаження та обслуговування сканера",
-"category": "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
-"keywords": ["Media Expert", "Łódź", "склад", "електроніка", "сканер", "UDT", "retrak", "чоловіки", "комплектація"],
-"contractType": "Umowa o pracę",
-"forRecruiter": {
-"internalNotes": "Тільки чоловіки (жінки лише на Zakładowa 90/92). Вимога до зросту: мінімум 1.75 м. Мова А2. Відділ повернень вимагає вільну польську (мова + письмо). Оператор UDT (retrak) — обов'язковий досвід. ВАЖЛИВО: від травня житла та додатка за власне житло не буде.",
-"hideAgencyNameForCandidate": true,
-"hideEnterpriseNameForCandidate": true
-},
-"location": "Łódź",
-"locationDescription": "Jędrzejowska 45a, Jędrzejowska 43a, Zakładowa 90/92, ul. Józefów 3C",
-"voivodeship": "Łódzkie",
-"country": "Polska",
-"checkInCity": "",
-"salary": {
-"baseNetto": "4900 - 5300 зл брутто/міс",
-"studentNetto": "",
-"hoursRange": "168-200",
-"payoutDates": "Згідно з регламентом",
-"bonusDetails": "Премія 400 зл брутто; бонус за відсутність пропусків 300-550 зл брутто; додаток за нічні години 40%.",
-"salaryNotes": "Ставки за відділами: Загальний — 4900, Заладунка — 5100, Повернення — 4900, UDT — 5300. Надгодини: +50%, +100%. Харчування коштує 2,5 зл."
-},
-"schedule": {
-"shiftsCount": 3,
-"hoursPerShift": "8-10",
-"workDaysWeek": "Нд-Пт",
-"breakDuration": "20-30 хв",
-"canChooseShiftOnStart": false,
-"shiftChoiceDetails": "Відділ та графік визначаються на складі.",
-"description": "2 або 3 зміни. Робота з неділі по п'ятницю. Вихідний у суботу та один день серед тижня."
-},
-"accommodation": {
-"type": "Платне",
-"forCouples": false,
-"withChildren": false,
-"withPets": false,
-"costRaw": "280 зл/міс",
-"details": "Житло надається за 280 зл/міс (до травня). 3-4 особи в кімнаті. Дофінансування до власного житла 250 зл брутто (на 6 міс, до травня)."
-},
-"transport": {
-"provided": true,
-"costRaw": "Безкоштовно",
-"details": "Безкоштовний автобус для працівників (крім локації Zakładowa 90/92 — туди доїзд самостійний)."
-},
-"employerCompensations": {
-"hasCompensations": true,
-"details": "Medicover, Multisport, страхування PZU."
-},
-"requirements": {
-"gender": ["Чоловіки"],
-"ageMax": 99,
-"nationalities": ["Україна"],
-"standardDocs": ["PESEL UKR", "Віза", "Карта побуту"],
-"needsAdditionalDocs": false,
-"additionalDocsDetails": "Для операторів — права UDT (retrak).",
-"experienceRequired": false,
-"hasEntranceTests": false,
-"entranceTestsDetails": "",
-"polishLanguageLevel": "Початковий (А2)",
-"languageDetails": "Для відділу повернень — вільна польська (мова та письмо).",
-"physicalLoad": "Зріст мінімум 1.75 м. Робота з різними габаритами техніки (від телефонів до холодильників)."
-},
-"businessTrip": {
-"isBusinessTrip": false,
-"requiresPolishExperience": false,
-"requiredDocuments": [],
-"tripDetails": ""
-},
-"conditions": {
-"hasSpecificConditions": false,
-"specificNuances": [],
-"specificConditionsDetails": "Приміщення теплі.",
-"workwearFree": true,
-"foodType": "Субсидоване",
-"foodDetails": "Харчування за 2,5 зл. Їдальня з мікрохвильовкою та автоматами."
-},
-"startExpenses": {
-"hasStartExpenses": false,
-"details": ""
-},
-"earlyTerminationLiability": {
-"hasLiability": false,
-"details": ""
-},
-"description": "Обслуговування сканера та комплектація замовлень електронної техніки. Розвантаження і завантаження вантажних автомобілів. Навколоскладські роботи. Робота на різних типах складів: від дрібних гаджетів до великої побутової техніки (холодильники, пральні машини).",
-"additionalNotes": "Допомога у виготовленні карт побиту та запрошень. Стабільна робота у великій торговельній мережі."
-},
+
+  // Вакансія №47 - Media Expert Łódź-2
+  {
+    agencyName: "MANPAWER",
+    templateName: "Media Expert Łódź-2",
+    vacancydescription:
+      "Склад електронної техніки: комплектація, розвантаження та обслуговування сканера",
+    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    keywords: [
+      "Media Expert",
+      "Łódź",
+      "склад",
+      "електроніка",
+      "сканер",
+      "UDT",
+      "retrak",
+      "чоловіки",
+      "комплектація",
+    ],
+    contractType: "Umowa o pracę",
+    forRecruiter: {
+      internalNotes:
+        "Тільки чоловіки (жінки лише на Zakładowa 90/92). Вимога до зросту: мінімум 1.75 м. Мова А2. Відділ повернень вимагає вільну польську (мова + письмо). Оператор UDT (retrak) — обов'язковий досвід. ВАЖЛИВО: від травня житла та додатка за власне житло не буде.",
+      hideAgencyNameForCandidate: true,
+      hideEnterpriseNameForCandidate: true,
+    },
+    location: "Łódź",
+    locationDescription:
+      "Jędrzejowska 45a, Jędrzejowska 43a, Zakładowa 90/92, ul. Józefów 3C",
+    voivodeship: "Łódzkie",
+    country: "Polska",
+    checkInCity: "",
+    salary: {
+      baseNetto: "4900 - 5300 зл брутто/міс",
+      studentNetto: "",
+      hoursRange: "168-200",
+      payoutDates: "Згідно з регламентом",
+      bonusDetails:
+        "Премія 400 зл брутто; бонус за відсутність пропусків 300-550 зл брутто; додаток за нічні години 40%.",
+      salaryNotes:
+        "Ставки за відділами: Загальний — 4900, Заладунка — 5100, Повернення — 4900, UDT — 5300. Надгодини: +50%, +100%. Харчування коштує 2,5 зл.",
+    },
+    schedule: {
+      shiftsCount: 3,
+      hoursPerShift: "8-10",
+      workDaysWeek: "Нд-Пт",
+      breakDuration: "20-30 хв",
+      canChooseShiftOnStart: false,
+      shiftChoiceDetails: "Відділ та графік визначаються на складі.",
+      description:
+        "2 або 3 зміни. Робота з неділі по п'ятницю. Вихідний у суботу та один день серед тижня.",
+    },
+    accommodation: {
+      type: "Платне",
+      forCouples: false,
+      withChildren: false,
+      withPets: false,
+      costRaw: "280 зл/міс",
+      details:
+        "Житло надається за 280 зл/міс (до травня). 3-4 особи в кімнаті. Дофінансування до власного житла 250 зл брутто (на 6 міс, до травня).",
+    },
+    transport: {
+      provided: true,
+      costRaw: "Безкоштовно",
+      details:
+        "Безкоштовний автобус для працівників (крім локації Zakładowa 90/92 — туди доїзд самостійний).",
+    },
+    employerCompensations: {
+      hasCompensations: true,
+      details: "Medicover, Multisport, страхування PZU.",
+    },
+    requirements: {
+      gender: ["Чоловіки"],
+      ageMax: 99,
+      nationalities: ["Україна"],
+      standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
+      needsAdditionalDocs: false,
+      additionalDocsDetails: "Для операторів — права UDT (retrak).",
+      experienceRequired: false,
+      hasEntranceTests: false,
+      entranceTestsDetails: "",
+      polishLanguageLevel: "Початковий (А2)",
+      languageDetails:
+        "Для відділу повернень — вільна польська (мова та письмо).",
+      physicalLoad:
+        "Зріст мінімум 1.75 м. Робота з різними габаритами техніки (від телефонів до холодильників).",
+    },
+    businessTrip: {
+      isBusinessTrip: false,
+      requiresPolishExperience: false,
+      requiredDocuments: [],
+      tripDetails: "",
+    },
+    conditions: {
+      hasSpecificConditions: false,
+      specificNuances: [],
+      specificConditionsDetails: "Приміщення теплі.",
+      workwearFree: true,
+      foodType: "Субсидоване",
+      foodDetails:
+        "Харчування за 2,5 зл. Їдальня з мікрохвильовкою та автоматами.",
+    },
+    startExpenses: {
+      hasStartExpenses: false,
+      details: "",
+    },
+    earlyTerminationLiability: {
+      hasLiability: false,
+      details: "",
+    },
+    description:
+      "Обслуговування сканера та комплектація замовлень електронної техніки. Розвантаження і завантаження вантажних автомобілів. Навколоскладські роботи. Робота на різних типах складів: від дрібних гаджетів до великої побутової техніки (холодильники, пральні машини).",
+    additionalNotes:
+      "Допомога у виготовленні карт побиту та запрошень. Стабільна робота у великій торговельній мережі.",
+  },
   // Вакансія №48 - Pro Cars Tychy
   {
     agencyName: "MANPAWER",
@@ -4615,96 +4680,112 @@ const manpawerTemplates = [
       "Платні лікарняні та відпустка. Беремо громадян України, Білорусі, Молдови.",
   },
   // Вакансія №49 - Nexteer Tychy
-{
-"agencyName": "MANPAWER",
-"templateName": "Nexteer Tychy",
-"vacancydescription": "Оператор машин на виробництві автомобільних рульових систем",
-"category": "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
-"keywords": ["Nexteer", "Tychy", "автомобільна промисловість", "рульові системи", "оператор машин", "збірка", "контроль якості"],
-"contractType": "Umowa o pracę",
-"forRecruiter": {
-"internalNotes": "Знання польської мови на комунікативному рівні (А2). Базова ставка підвищується через місяць. Співфінансування харчування 300 зл/міс.",
-"hideAgencyNameForCandidate": true,
-"hideEnterpriseNameForCandidate": true
-},
-"location": "Tychy",
-"locationDescription": "ul. Towarowa 6",
-"voivodeship": "Śląskie",
-"country": "Polska",
-"checkInCity": "",
-"salary": {
-"baseNetto": "27 - 28 зл брутто/год",
-"studentNetto": "",
-"hoursRange": "168",
-"payoutDates": "Згідно з регламентом",
-"bonusDetails": "Щомісячний бонус до 300 зл; доплата за нічні зміни 20%.",
-"salaryNotes": "Ставка 27 зл/год, через місяць — 28 зл/год. Оплата надгодин 100%. Співфінансування харчування 300 зл/міс."
-},
-"schedule": {
-"shiftsCount": 3,
-"hoursPerShift": "8",
-"workDaysWeek": "Система 4 бригади",
-"breakDuration": "Згідно з КЗпП",
-"canChooseShiftOnStart": false,
-"shiftChoiceDetails": "",
-"description": "Робота в 3-змінній або 4-бригадній системі."
-},
-"accommodation": {
-"type": "Власне",
-"forCouples": false,
-"withChildren": false,
-"withPets": false,
-"costRaw": "",
-"details": "Житло не надається."
-},
-"transport": {
-"provided": false,
-"costRaw": "",
-"details": "Зручне розташування — зупинка прямо навпроти підприємства."
-},
-"employerCompensations": {
-"hasCompensations": true,
-"details": "Приватне медичне обслуговування, картка MultiSport, групове страхування, професійне навчання, інтеграційні заходи."
-},
-"requirements": {
-"gender": ["Чоловіки", "Жінки"],
-"ageMax": 99,
-"nationalities": ["Україна"],
-"standardDocs": ["PESEL UKR", "Віза", "Карта побуту"],
-"needsAdditionalDocs": false,
-"additionalDocsDetails": "",
-"experienceRequired": false,
-"hasEntranceTests": false,
-"entranceTestsDetails": "",
-"polishLanguageLevel": "Початковий (А2)",
-"languageDetails": "Знання польської мови на комунікативному рівні.",
-"physicalLoad": "Обслуговування машин, компонентна збірка, контроль якості."
-},
-"businessTrip": {
-"isBusinessTrip": false,
-"requiresPolishExperience": false,
-"requiredDocuments": [],
-"tripDetails": ""
-},
-"conditions": {
-"hasSpecificConditions": false,
-"specificNuances": [],
-"specificConditionsDetails": "Циклічні кампанії по зміцненню здоров'я (тести та лікування).",
-"workwearFree": true,
-"foodType": "Субсидоване",
-"foodDetails": "Співфінансування харчування 300 злотих на місяць."
-},
-"startExpenses": {
-"hasStartExpenses": false,
-"details": ""
-},
-"earlyTerminationLiability": {
-"hasLiability": false,
-"details": ""
-},
-"description": "Обслуговування машин на виробництві автомобільних рульових систем. Компонентна збірка деталей. Контроль якості готової продукції на відповідність технічним стандартам.",
-"additionalNotes": "Допомога в отриманні посвідки на проживання (карта побиту). Можливість професійного розвитку."
-},
+  {
+    agencyName: "MANPAWER",
+    templateName: "Nexteer Tychy",
+    vacancydescription:
+      "Оператор машин на виробництві автомобільних рульових систем",
+    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    keywords: [
+      "Nexteer",
+      "Tychy",
+      "автомобільна промисловість",
+      "рульові системи",
+      "оператор машин",
+      "збірка",
+      "контроль якості",
+    ],
+    contractType: "Umowa o pracę",
+    forRecruiter: {
+      internalNotes:
+        "Знання польської мови на комунікативному рівні (А2). Базова ставка підвищується через місяць. Співфінансування харчування 300 зл/міс.",
+      hideAgencyNameForCandidate: true,
+      hideEnterpriseNameForCandidate: true,
+    },
+    location: "Tychy",
+    locationDescription: "ul. Towarowa 6",
+    voivodeship: "Śląskie",
+    country: "Polska",
+    checkInCity: "",
+    salary: {
+      baseNetto: "27 - 28 зл брутто/год",
+      studentNetto: "",
+      hoursRange: "168",
+      payoutDates: "Згідно з регламентом",
+      bonusDetails: "Щомісячний бонус до 300 зл; доплата за нічні зміни 20%.",
+      salaryNotes:
+        "Ставка 27 зл/год, через місяць — 28 зл/год. Оплата надгодин 100%. Співфінансування харчування 300 зл/міс.",
+    },
+    schedule: {
+      shiftsCount: 3,
+      hoursPerShift: "8",
+      workDaysWeek: "Система 4 бригади",
+      breakDuration: "Згідно з КЗпП",
+      canChooseShiftOnStart: false,
+      shiftChoiceDetails: "",
+      description: "Робота в 3-змінній або 4-бригадній системі.",
+    },
+    accommodation: {
+      type: "Власне",
+      forCouples: false,
+      withChildren: false,
+      withPets: false,
+      costRaw: "",
+      details: "Житло не надається.",
+    },
+    transport: {
+      provided: false,
+      costRaw: "",
+      details: "Зручне розташування — зупинка прямо навпроти підприємства.",
+    },
+    employerCompensations: {
+      hasCompensations: true,
+      details:
+        "Приватне медичне обслуговування, картка MultiSport, групове страхування, професійне навчання, інтеграційні заходи.",
+    },
+    requirements: {
+      gender: ["Чоловіки", "Жінки"],
+      ageMax: 99,
+      nationalities: ["Україна"],
+      standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
+      needsAdditionalDocs: false,
+      additionalDocsDetails: "",
+      experienceRequired: false,
+      hasEntranceTests: false,
+      entranceTestsDetails: "",
+      polishLanguageLevel: "Початковий (А2)",
+      languageDetails: "Знання польської мови на комунікативному рівні.",
+      physicalLoad:
+        "Обслуговування машин, компонентна збірка, контроль якості.",
+    },
+    businessTrip: {
+      isBusinessTrip: false,
+      requiresPolishExperience: false,
+      requiredDocuments: [],
+      tripDetails: "",
+    },
+    conditions: {
+      hasSpecificConditions: false,
+      specificNuances: [],
+      specificConditionsDetails:
+        "Циклічні кампанії по зміцненню здоров'я (тести та лікування).",
+      workwearFree: true,
+      foodType: "Субсидоване",
+      foodDetails: "Співфінансування харчування 300 злотих на місяць.",
+    },
+    startExpenses: {
+      hasStartExpenses: false,
+      details: "",
+    },
+    earlyTerminationLiability: {
+      hasLiability: false,
+      details: "",
+    },
+    description:
+      "Обслуговування машин на виробництві автомобільних рульових систем. Компонентна збірка деталей. Контроль якості готової продукції на відповідність технічним стандартам.",
+    additionalNotes:
+      "Допомога в отриманні посвідки на проживання (карта побиту). Можливість професійного розвитку.",
+  },
   // Вакансія №50 - Gestamp Chocicza Mała (Suwnica)
   {
     agencyName: "MANPAWER",
@@ -5366,7 +5447,7 @@ const manpawerTemplates = [
   {
     // === 1. СІСТЭМНЫЯ ПАЛІ (Групаванне і пошук) ===
     agencyName: "MANPAWER",
-    templateName: "Aluplast Nagradowice",
+    templateName: "Aluplast Nagradowice Warehouse",
     vacancydescription:
       "Працівник складу віконних систем (робота з довгими профілями)",
     category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
@@ -5471,11 +5552,11 @@ const manpawerTemplates = [
       "Робота на складі віконних систем ПВХ. Завдання: робота з профілями нестандартної довжини (до 8 м), витягування з полиць, завантаження та розвантаження товарів, перевірка запасів.",
     additionalNotes: "Відомий виробник віконних систем ПВХ. Дружня атмосфера.",
   },
-  // Вакансія №57 - Aluplast Nagradowice Operator
+  // Вакансія №57 - Aluplast Nagradowice Operator-1
   {
     // === 1. СІСТЭМНЫЯ ПАЛІ (Групаванне і пошук) ===
     agencyName: "MANPAWER",
-    templateName: "Aluplast Nagradowice Operator",
+    templateName: "Aluplast Nagradowice Operator-1",
     vacancydescription:
       "Молодший оператор машин (пакування та контроль якості профілів)",
     category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
@@ -5584,11 +5665,11 @@ const manpawerTemplates = [
       "Пакування профілів, планок та додатків згідно з інструкціями. Візуальний огляд виготовлених виробів на наявність подряпин, складок, контроль ваги та довжини. Контроль якості та кількості продукції.",
     additionalNotes: "Виробництво високоякісних віконних систем ПВХ.",
   },
-  // Вакансія №58 - Wkręt-Met Częstochowa
+  // Вакансія №58 - Wkręt-Met Częstochowa-1
   {
     // === 1. СІСТЭМНЫЯ ПАЛІ (Групаванне і пошук) ===
     agencyName: "MANPAWER",
-    templateName: "Wkręt-Met Częstochowa",
+    templateName: "Wkręt-Met Częstochowa-1",
     vacancydescription:
       "Пакування кріпильної продукції (гвинти, болти) та обслуговування машин",
     category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
@@ -5692,11 +5773,11 @@ const manpawerTemplates = [
     additionalNotes:
       "Стабільна робота в організованому виробничому середовищі. Допомога у виготовленні карти побуту.",
   },
-  // Вакансія №59 - Corning Stryków
+  // Вакансія №59 - Corning Stryków-2
   {
     // === 1. СІСТЭМНЫЯ ПАЛІ (Групаванне і пошук) ===
     agencyName: "MANPAWER",
-    templateName: "Corning Stryków",
+    templateName: "Corning Stryków-2",
     vacancydescription: "Оператор машин на виробництві оптичних кабелів",
     category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
     keywords: [
@@ -5805,11 +5886,11 @@ const manpawerTemplates = [
       "Виготовлення оптичного кабельного з’єднання. Приготування робочого місця, робота при машинах, допомога в переобладненні, намотування готової продукції згідно зі стандартами якості, робота з комп'ютером та штангенциркулем.",
     additionalNotes: "Світовий лідер у галузі. Допомога з картами побиту.",
   },
-  // Вакансія №60 - Hutchinson Łódź
+  // Вакансія №60 - Hutchinson Łódź-1
   {
     // === 1. СІСТЭМНЫЯ ПАЛІ (Групаванне і пошук) ===
     agencyName: "MANPAWER",
-    templateName: "Hutchinson Łódź",
+    templateName: "Hutchinson Łódź-1",
     vacancydescription:
       "Водій навантажувача (UDT) на виробництво силіконових виробів",
     category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
@@ -5918,7 +5999,7 @@ const manpawerTemplates = [
   {
     // === 1. СІСТЭМНЫЯ ПАЛІ (Групаванне і пошук) ===
     agencyName: "MANPAWER",
-    templateName: "Pesa Bydgoszcz",
+    templateName: "Pesa Bydgoszcz Spawacz-Ślusarz",
     vacancydescription:
       "Зварювальник MAG або слюсар на виробництво потягів та трамваїв",
     category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
@@ -6138,11 +6219,11 @@ const manpawerTemplates = [
     additionalNotes:
       "Безкоштовна допомога з документами на карту побиту. Оплачувана відпустка та лікарняні.",
   },
-  // Вакансія №63 - McCormick Stefanowo
+  // Вакансія №63 - McCormick Stefanowo-1
   {
     // === 1. СІСТЭМНЫЯ ПАЛІ (Групаванне і пошук) ===
     agencyName: "MANPAWER",
-    templateName: "McCormick Stefanowo",
+    templateName: "McCormick Stefanowo-1",
     vacancydescription: "Пакування та контроль якості на виробництві приправ",
     category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
     keywords: [
@@ -6589,11 +6670,11 @@ const manpawerTemplates = [
       "Збирання дрібних деталей інтер’єру авто (сидіння), лютування, клейка, шиття. Робота в комфортних умовах без різких запахів.",
     additionalNotes: "Стабільність та підтримка на кожному етапі.",
   },
-  // Вакансія №67 - Mondelez Tomaszów Mazowiecki
+  // Вакансія №67 - Mondelez Tomaszów Mazowiecki-2
   {
     // === 1. СІСТЭМНЫЯ ПАЛІ (Групаванне і пошук) ===
     agencyName: "MANPAWER",
-    templateName: "Mondelez Tomaszów Mazowiecki",
+    templateName: "Mondelez Tomaszów Mazowiecki-2",
     vacancydescription: "Виробництво та пакування круасанів 7DAYS",
     category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
     keywords: [
@@ -6702,11 +6783,11 @@ const manpawerTemplates = [
     additionalNotes:
       "Тимчасовий трудовий договір зараховується до стажу роботи. Допомога з реєстрацією PESEL.",
   },
-  // Вакансія №68 - Corning Stryków Operator
+  // Вакансія №68 - Corning Stryków-3
   {
     // === 1. СІСТЭМНЫЯ ПАЛІ (Групаванне і пошук) ===
     agencyName: "MANPAWER",
-    templateName: "Corning Stryków",
+    templateName: "Corning Stryków-3",
     vacancydescription: "Оператор машин на виробництві оптичних кабелів",
     category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
     keywords: [
@@ -6921,97 +7002,119 @@ const manpawerTemplates = [
     additionalNotes: "Допомога з картами побиту. Оплачувані відпустки.",
   },
 
-// Вакансія №70 - Pesa Bydgoszcz
-{
-"agencyName": "MANPAWER",
-"templateName": "Pesa Bydgoszcz",
-"vacancydescription": "Виробництво потягів та трамваїв: зварювальні та слюсарні роботи",
-"category": "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
-"keywords": ["Pesa", "Bydgoszcz", "зварювальник", "слюсар", "MAG", "потяги", "трамваї", "WPS", "технічне креслення"],
-"contractType": "Umowa o pracę",
-"forRecruiter": {
-"internalNotes": "Потрібна комунікативна польська мова. Обов'язкове знання технічного креслення. Робота на висоті понад 3 метри (не повинно бути протипоказань). Для зварювальників потрібен сертифікат MAG.",
-"hideAgencyNameForCandidate": true,
-"hideEnterpriseNameForCandidate": true
-},
-"location": "Bydgoszcz",
-"locationDescription": "ul. Zygmunta Augusta 11, 85-082 Bydgoszcz",
-"voivodeship": "Kujawsko-pomorskie",
-"country": "Polska",
-"checkInCity": "",
-"salary": {
-"baseNetto": "Зварювальник: 33-40 зл/год брутто; Слюсар: 30-36 зл/год брутто",
-"studentNetto": "",
-"hoursRange": "168",
-"payoutDates": "Згідно з регламентом",
-"bonusDetails": "Премія для зварювальників 500-900 зл брутто; для слюсарів 400-700 зл брутто. Доплата за нічні зміни +20%.",
-"salaryNotes": "Надгодини: +50% у робочі дні, +100% у вихідні. Співфінансування окулярів, відпочинку, спортивних та культурних заходів. Ювілейні нагороди, Різдвяні пільги."
-},
-"schedule": {
-"shiftsCount": 2,
-"hoursPerShift": "8",
-"workDaysWeek": "Пн-Пт",
-"breakDuration": "Згідно з КЗпП",
-"canChooseShiftOnStart": false,
-"shiftChoiceDetails": "",
-"description": "06:00-14:00, 14:00-22:00. Тимчасово може впроваджуватися нічна зміна 22:00-06:00."
-},
-"accommodation": {
-"type": "Власне",
-"forCouples": false,
-"withChildren": false,
-"withPets": false,
-"costRaw": "",
-"details": "Житло не надається, дофінансування до власного житла немає."
-},
-"transport": {
-"provided": false,
-"costRaw": "",
-"details": "Доїзд самостійний. Підприємство знаходиться майже в центрі міста."
-},
-"employerCompensations": {
-"hasCompensations": true,
-"details": "Приватне мед. обслуговування, страхування життя, професійне та мовне навчання, можливість отримання кредиту на житло, фінансова допомога у складних ситуаціях."
-},
-"requirements": {
-"gender": ["Чоловіки"],
-"ageMax": 99,
-"nationalities": ["Україна"],
-"standardDocs": ["PESEL UKR", "Віза", "Карта побуту"],
-"needsAdditionalDocs": true,
-"additionalDocsDetails": "Сертифікат MAG (для зварювальників).",
-"experienceRequired": true,
-"hasEntranceTests": false,
-"entranceTestsDetails": "",
-"polishLanguageLevel": "Комунікативний",
-"languageDetails": "Знання польської мови на комунікативному рівні.",
-"physicalLoad": "Відсутність медичних протипоказань до роботи на висоті понад 3 метри. Вміння працювати з електроінструментами (шліфувальна машина)."
-},
-"businessTrip": {
-"isBusinessTrip": false,
-"requiresPolishExperience": false,
-"requiredDocuments": [],
-"tripDetails": ""
-},
-"conditions": {
-"hasSpecificConditions": true,
-"specificNuances": ["Шум"],
-"specificConditionsDetails": "Робота в цеху з виробництва залізничного транспорту. Видається високоякісний робочий одяг та захисне спорядження.",
-"workwearFree": true,
-"foodType": "Власне",
-"foodDetails": "Є можливість користуватися їдальнею."
-},
-"startExpenses": {
-"hasStartExpenses": false,
-"details": ""
-},
-"earlyTerminationLiability": {
-"hasLiability": false,
-"details": ""
-},
-"description": "Для зварювальників-слюсарів: MAG-зварювання модулів та конструкцій потягів і трамваїв, складання зварних елементів. Для слюсарів: виготовлення конструкційних модулів згідно з технічною документацією, шліфування швів, обрізання кромок, очищення від бризок зварювання, підготовка кузова до зварювання. Робота з інструкціями WPS та технічними кресленнями.",
-"additionalNotes": "Pesa — найбільший польський виробник залізничного транспорту. Пропонується широкий пакет соціальних пільг та стабільне працевлаштування."
-},
+  // Вакансія №70 - Pesa Bydgoszcz-1
+  {
+    agencyName: "MANPAWER",
+    templateName: "Pesa Bydgoszcz-1",
+    vacancydescription:
+      "Виробництво потягів та трамваїв: зварювальні та слюсарні роботи",
+    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    keywords: [
+      "Pesa",
+      "Bydgoszcz",
+      "зварювальник",
+      "слюсар",
+      "MAG",
+      "потяги",
+      "трамваї",
+      "WPS",
+      "технічне креслення",
+    ],
+    contractType: "Umowa o pracę",
+    forRecruiter: {
+      internalNotes:
+        "Потрібна комунікативна польська мова. Обов'язкове знання технічного креслення. Робота на висоті понад 3 метри (не повинно бути протипоказань). Для зварювальників потрібен сертифікат MAG.",
+      hideAgencyNameForCandidate: true,
+      hideEnterpriseNameForCandidate: true,
+    },
+    location: "Bydgoszcz",
+    locationDescription: "ul. Zygmunta Augusta 11, 85-082 Bydgoszcz",
+    voivodeship: "Kujawsko-pomorskie",
+    country: "Polska",
+    checkInCity: "",
+    salary: {
+      baseNetto:
+        "Зварювальник: 33-40 зл/год брутто; Слюсар: 30-36 зл/год брутто",
+      studentNetto: "",
+      hoursRange: "168",
+      payoutDates: "Згідно з регламентом",
+      bonusDetails:
+        "Премія для зварювальників 500-900 зл брутто; для слюсарів 400-700 зл брутто. Доплата за нічні зміни +20%.",
+      salaryNotes:
+        "Надгодини: +50% у робочі дні, +100% у вихідні. Співфінансування окулярів, відпочинку, спортивних та культурних заходів. Ювілейні нагороди, Різдвяні пільги.",
+    },
+    schedule: {
+      shiftsCount: 2,
+      hoursPerShift: "8",
+      workDaysWeek: "Пн-Пт",
+      breakDuration: "Згідно з КЗпП",
+      canChooseShiftOnStart: false,
+      shiftChoiceDetails: "",
+      description:
+        "06:00-14:00, 14:00-22:00. Тимчасово може впроваджуватися нічна зміна 22:00-06:00.",
+    },
+    accommodation: {
+      type: "Власне",
+      forCouples: false,
+      withChildren: false,
+      withPets: false,
+      costRaw: "",
+      details: "Житло не надається, дофінансування до власного житла немає.",
+    },
+    transport: {
+      provided: false,
+      costRaw: "",
+      details:
+        "Доїзд самостійний. Підприємство знаходиться майже в центрі міста.",
+    },
+    employerCompensations: {
+      hasCompensations: true,
+      details:
+        "Приватне мед. обслуговування, страхування життя, професійне та мовне навчання, можливість отримання кредиту на житло, фінансова допомога у складних ситуаціях.",
+    },
+    requirements: {
+      gender: ["Чоловіки"],
+      ageMax: 99,
+      nationalities: ["Україна"],
+      standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
+      needsAdditionalDocs: true,
+      additionalDocsDetails: "Сертифікат MAG (для зварювальників).",
+      experienceRequired: true,
+      hasEntranceTests: false,
+      entranceTestsDetails: "",
+      polishLanguageLevel: "Комунікативний",
+      languageDetails: "Знання польської мови на комунікативному рівні.",
+      physicalLoad:
+        "Відсутність медичних протипоказань до роботи на висоті понад 3 метри. Вміння працювати з електроінструментами (шліфувальна машина).",
+    },
+    businessTrip: {
+      isBusinessTrip: false,
+      requiresPolishExperience: false,
+      requiredDocuments: [],
+      tripDetails: "",
+    },
+    conditions: {
+      hasSpecificConditions: true,
+      specificNuances: ["Шум"],
+      specificConditionsDetails:
+        "Робота в цеху з виробництва залізничного транспорту. Видається високоякісний робочий одяг та захисне спорядження.",
+      workwearFree: true,
+      foodType: "Власне",
+      foodDetails: "Є можливість користуватися їдальнею.",
+    },
+    startExpenses: {
+      hasStartExpenses: false,
+      details: "",
+    },
+    earlyTerminationLiability: {
+      hasLiability: false,
+      details: "",
+    },
+    description:
+      "Для зварювальників-слюсарів: MAG-зварювання модулів та конструкцій потягів і трамваїв, складання зварних елементів. Для слюсарів: виготовлення конструкційних модулів згідно з технічною документацією, шліфування швів, обрізання кромок, очищення від бризок зварювання, підготовка кузова до зварювання. Робота з інструкціями WPS та технічними кресленнями.",
+    additionalNotes:
+      "Pesa — найбільший польський виробник залізничного транспорту. Пропонується широкий пакет соціальних пільг та стабільне працевлаштування.",
+  },
   // Вакансія №71 - Hitachi Energy Łódź Monter
   {
     // === 1. СІСТЭМНЫЯ ПАЛІ (Групаванне і пошук) ===
@@ -7241,11 +7344,11 @@ const manpawerTemplates = [
     additionalNotes:
       "Шанс на працевлаштування напряму на підприємстві. Навчання та підтримка на всіх етапах.",
   },
-  // Вакансія №73 - MAN Trucks Niepołomice
+  // Вакансія №73 - MAN Trucks Niepołomice-2
   {
     // === 1. СІСТЭМНЫЯ ПАЛІ (Групаванне і пошук) ===
     agencyName: "MANPAWER",
-    templateName: "MAN Trucks Niepołomice",
+    templateName: "MAN Trucks Niepołomice-2",
     vacancydescription: "Збірка вантажних автомобілів на конвеєрі",
     category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
     keywords: [
@@ -7356,11 +7459,11 @@ const manpawerTemplates = [
     additionalNotes:
       "Один з найсучасніших заводів MAN Group. Допомога з картами побиту.",
   },
-  // Вакансія №74 - Gates Legnica
+  // Вакансія №74 - Gates Legnica-2
   {
     // === 1. СІСТЭМНЫЯ ПАЛІ (Групаванне і пошук) ===
     agencyName: "MANPAWER",
-    templateName: "Gates Legnica",
+    templateName: "Gates Legnica-2",
     vacancydescription: "Оператор виробництва гумових ременів та шлангів",
     category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
     keywords: ["Legnica", "Легніца", "Gates", "гумові ремені", "вулканізація"],
@@ -7466,11 +7569,11 @@ const manpawerTemplates = [
     additionalNotes:
       "Лідер ринку. Можливість переходу безпосередньо на контракт із заводом.",
   },
-  // Вакансія №75 - Brembo Dąbrowa Górnicza
+  // Вакансія №75 - Brembo Dąbrowa Górnicza-2
   {
     // === 1. СІСТЭМНЫЯ ПАЛІ (Групаванне і пошук) ===
     agencyName: "MANPAWER",
-    templateName: "Brembo Dąbrowa Górnicza",
+    templateName: "Brembo Dąbrowa Górnicza-2",
     vacancydescription:
       "Виготовлення гальмівних дисків для світових автобрендів",
     category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
@@ -7692,11 +7795,11 @@ const manpawerTemplates = [
     additionalNotes:
       "Допомога з картами побиту. Бонусна програма для нових працівників.",
   },
-  // Вакансія №77 - Hutchinson Łódź
+  // Вакансія №77 - Hutchinson Łódź-2
   {
     // === 1. СІСТЭМНЫЯ ПАЛІ (Групаванне і пошук) ===
     agencyName: "MANPAWER",
-    templateName: "Hutchinson Łódź",
+    templateName: "Hutchinson Łódź-2",
     vacancydescription:
       "Виготовлення силіконових ущільнювачів для авто та авіації",
     category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
@@ -7799,11 +7902,11 @@ const manpawerTemplates = [
     additionalNotes:
       "Допомога з картами побиту. Безкоштовний паркінг для власних авто.",
   },
-  // Вакансія №78 - Kerry Oleśnica
+  // Вакансія №78 - Kerry Oleśnica-2
   {
     // === 1. СІСТЭМНЫЯ ПАЛІ (Групаванне і пошук) ===
     agencyName: "MANPAWER",
-    templateName: "Kerry Oleśnica",
+    templateName: "Kerry Oleśnica-2",
     vacancydescription: "Фасовка спецій та харчових добавок у мішки",
     category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
     keywords: ["Oleśnica", "Олешниця", "Kerry", "спеції", "фасовка", "санепід"],
@@ -7906,11 +8009,11 @@ const manpawerTemplates = [
       "Оператор виробництва харчових добавок. Фасовка спецій у мішки вагою від 10 кг, передача готової продукції на склад, підтримання порядку.",
     additionalNotes: "Допомога у виготовленні санітарної книжки.",
   },
-  // Вакансія №79 - Lisner Poznań Operator UDT
+  // Вакансія №79 - Lisner Poznań Operator UDT-2
   {
     // === 1. СІСТЭМНЫЯ ПАЛІ (Групаванне і пошук) ===
     agencyName: "MANPAWER",
-    templateName: "Lisner Poznań",
+    templateName: "Lisner Poznań Operator UDT-2",
     vacancydescription:
       "Водій навантажувача (UDT) на склад сировини та упаковки",
     category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
@@ -8016,11 +8119,11 @@ const manpawerTemplates = [
     additionalNotes:
       "Lisner — лідер у виробництві рибної продукції та салатів. Вільні вихідні.",
   },
-  // Вакансія №80 - Lisner Poznań Operator UDT
+  // Вакансія №80 - Lisner Poznań Operator UDT-1
   {
     // === 1. СІСТЭМНЫЯ ПАЛІ (Групаванне і пошук) ===
     agencyName: "MANPAWER",
-    templateName: "Lisner Poznań",
+    templateName: "Lisner Poznań Operator UDT-1",
     vacancydescription:
       "Водій навантажувача (UDT) на склад сировини та упаковки харчового підприємства",
     category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
@@ -8136,2644 +8239,3064 @@ const manpawerTemplates = [
     additionalNotes:
       "Робота на підприємстві, що є лідером у виробництві рибної продукції та готових салатів. Вільні вихідні, можливість надгодин, стабільне працевлаштування.",
   },
-// Вакансія №81 - Hutchinson Dębica
-{
-"agencyName": "MANPAWER",
-"templateName": "Hutchinson Dębica",
-"vacancydescription": "Виробництво автомобільних та авіаційних ущільнювачів",
-"category": "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
-"keywords": ["Hutchinson", "Dębica", "Zawada", "ущільнювачі", "автомобільна промисловість", "авіаційна промисловість", "оператор машин", "контроль якості"],
-"contractType": "Umowa o pracę",
-"forRecruiter": {
-"internalNotes": "Офіс у Дембіці. У публічних оголошеннях не вказувати назву підприємства, вартість транспорту та деталі додатків. Потрібна комунікативна польська мова.",
-"hideAgencyNameForCandidate": true,
-"hideEnterpriseNameForCandidate": true
-},
-"location": "Zawada",
-"locationDescription": "Zawada 79N, 39-200 Dębica",
-"voivodeship": "Podkarpackie",
-"country": "Polska",
-"checkInCity": "Dębica",
-"salary": {
-"baseNetto": "4700 zł brutto/місяць",
-"studentNetto": "",
-"hoursRange": "168",
-"payoutDates": "Згідно з регламентом підприємства",
-"bonusDetails": "+20% за нічні зміни; групова премія 200 зл брутто; надбавка за посаду 20-30 зл брутто/день (при відпрацюванні мін. 6 годин).",
-"salaryNotes": "Надгодини: +50% у будні, +100% у вихідні (або вихідний в інший день). Доплата за власне житло 475 зл брутто (пропорційно дням)."
-},
-"schedule": {
-"shiftsCount": 3,
-"hoursPerShift": "8",
-"workDaysWeek": "Пн-Пт",
-"breakDuration": "Згідно з КЗпП Польщі",
-"canChooseShiftOnStart": false,
-"shiftChoiceDetails": "",
-"description": "06:00–14:00, 14:00–22:00, 22:00–06:00"
-},
-"accommodation": {
-"type": "Власне",
-"forCouples": false,
-"withChildren": false,
-"withPets": false,
-"costRaw": "",
-"details": "Житло не надається. Виплачується додаток 475 зл брутто/місяць за власне житло."
-},
-"transport": {
-"provided": true,
-"costRaw": "30-64 зл/міс",
-"details": "Фірмові автобуси з Brzostek (64 зл), Pilzno (36 зл), Ropczyce (30 зл), Wielopole Skrzyńskie (60 зл), Nagoszyn (40 зл). Автобус MKS №17 (роботодавець сплачує 70 зл за квиток)."
-},
-"employerCompensations": {
-"hasCompensations": false,
-"details": ""
-},
-"requirements": {
-"gender": ["Чоловіки"],
-"ageMax": 99,
-"nationalities": ["Україна"],
-"standardDocs": ["PESEL UKR", "Віза", "Карта побуту"],
-"needsAdditionalDocs": false,
-"additionalDocsDetails": "",
-"experienceRequired": false,
-"hasEntranceTests": false,
-"entranceTestsDetails": "",
-"polishLanguageLevel": "Комунікативний",
-"languageDetails": "Польська мова на комунікативному рівні",
-"physicalLoad": "Обслуговування машин, робота на виробничій лінії."
-},
-"businessTrip": {
-"isBusinessTrip": false,
-"requiresPolishExperience": false,
-"requiredDocuments": [],
-"tripDetails": ""
-},
-"conditions": {
-"hasSpecificConditions": false,
-"specificNuances": [],
-"specificConditionsDetails": "",
-"workwearFree": true,
-"foodType": "Власне",
-"foodDetails": ""
-},
-"startExpenses": {
-"hasStartExpenses": false,
-"details": ""
-},
-"earlyTerminationLiability": {
-"hasLiability": false,
-"details": ""
-},
-"description": "Обслуговування виробничих машин для виготовлення ущільнювачів. Контроль якості готової продукції на відповідність стандартам. Заповнення необхідної технічної документації.",
-"additionalNotes": "Робота у лідера автомобільної та авіаційної галузі. Стабільне працевлаштування на основі Umowa o pracę."
-},
-  // Вакансія №82 - Hutchinson Dębica (copy)
+  // Вакансія №81 - Hutchinson Dębica-2
   {
-"agencyName": "MANPAWER",
-"templateName": "Hutchinson Dębica",
-"vacancydescription": "Виробництво автомобільних та авіаційних ущільнювачів",
-"category": "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
-"keywords": ["Hutchinson", "Dębica", "Zawada", "ущільнювачі", "автомобільна промисловість", "авіаційна промисловість", "оператор машин", "контроль якості"],
-"contractType": "Umowa o pracę",
-"forRecruiter": {
-"internalNotes": "Офіс у Дембіці. У публічних оголошеннях не вказувати назву підприємства, вартість транспорту та деталі додатків. Потрібна комунікативна польська мова.",
-"hideAgencyNameForCandidate": true,
-"hideEnterpriseNameForCandidate": true
-},
-"location": "Zawada",
-"locationDescription": "Zawada 79N, 39-200 Dębica",
-"voivodeship": "Podkarpackie",
-"country": "Polska",
-"checkInCity": "Dębica",
-"salary": {
-"baseNetto": "4700 zł brutto/місяць",
-"studentNetto": "",
-"hoursRange": "168",
-"payoutDates": "Згідно з регламентом підприємства",
-"bonusDetails": "+20% за нічні зміни; групова премія 200 зл брутто; надбавка за посаду 20-30 зл брутто/день (при відпрацюванні мін. 6 годин).",
-"salaryNotes": "Надгодини: +50% у будні, +100% у вихідні (або вихідний в інший день). Доплата за власне житло 475 зл брутто (пропорційно дням)."
-},
-"schedule": {
-"shiftsCount": 3,
-"hoursPerShift": "8",
-"workDaysWeek": "Пн-Пт",
-"breakDuration": "Згідно з КЗпП Польщі",
-"canChooseShiftOnStart": false,
-"shiftChoiceDetails": "",
-"description": "06:00–14:00, 14:00–22:00, 22:00–06:00"
-},
-"accommodation": {
-"type": "Власне",
-"forCouples": false,
-"withChildren": false,
-"withPets": false,
-"costRaw": "",
-"details": "Житло не надається. Виплачується додаток 475 зл брутто/місяць за власне житло."
-},
-"transport": {
-"provided": true,
-"costRaw": "30-64 зл/міс",
-"details": "Фірмові автобуси з Brzostek (64 зл), Pilzno (36 зл), Ropczyce (30 зл), Wielopole Skrzyńskie (60 зл), Nagoszyn (40 зл). Автобус MKS №17 (роботодавець сплачує 70 зл за квиток)."
-},
-"employerCompensations": {
-"hasCompensations": false,
-"details": ""
-},
-"requirements": {
-"gender": ["Чоловіки"],
-"ageMax": 99,
-"nationalities": ["Україна"],
-"standardDocs": ["PESEL UKR", "Віза", "Карта побуту"],
-"needsAdditionalDocs": false,
-"additionalDocsDetails": "",
-"experienceRequired": false,
-"hasEntranceTests": false,
-"entranceTestsDetails": "",
-"polishLanguageLevel": "Комунікативний",
-"languageDetails": "Польська мова на комунікативному рівні",
-"physicalLoad": "Обслуговування машин, робота на виробничій лінії."
-},
-"businessTrip": {
-"isBusinessTrip": false,
-"requiresPolishExperience": false,
-"requiredDocuments": [],
-"tripDetails": ""
-},
-"conditions": {
-"hasSpecificConditions": false,
-"specificNuances": [],
-"specificConditionsDetails": "",
-"workwearFree": true,
-"foodType": "Власне",
-"foodDetails": ""
-},
-"startExpenses": {
-"hasStartExpenses": false,
-"details": ""
-},
-"earlyTerminationLiability": {
-"hasLiability": false,
-"details": ""
-},
-"description": "Обслуговування виробничих машин для виготовлення ущільнювачів. Контроль якості готової продукції на відповідність стандартам. Заповнення необхідної технічної документації.",
-"additionalNotes": "Робота у лідера автомобільної та авіаційної галузі. Стабільне працевлаштування на основі Umowa o pracę."
-},
-  // Вакансія №83 - Aluplast Nagradowice
-{
-"agencyName": "MANPAWER",
-"templateName": "Aluplast Nagradowice",
-"vacancydescription": "Працівник складу у відділ пакування віконних профілів",
-"category": "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
-"keywords": ["Aluplast", "Nagradowice", "Poznań", "віконні профілі", "пакування", "склад", "чоловіки"],
-"contractType": "Umowa o pracę",
-"forRecruiter": {
-"internalNotes": "Офіс: Poznań, ul. Głogowska 31/33. Етапи: CV -> розмова в офісі -> медогляд -> робота. Не вказувати назву заводу в оголошенні. Потрібна польська мова B1.",
-"hideAgencyNameForCandidate": true,
-"hideEnterpriseNameForCandidate": true
-},
-"location": "Nagradowice",
-"locationDescription": "ul. Profilowa 1",
-"voivodeship": "Wielkopolskie",
-"country": "Polska",
-"checkInCity": "Poznań",
-"salary": {
-"baseNetto": "5025 zł brutto/місяць",
-"studentNetto": "",
-"hoursRange": "168",
-"payoutDates": "Згідно з регламентом",
-"bonusDetails": "Премія 753 зл брутто; додаток за нічні зміни 311 зл брутто.",
-"salaryNotes": "Надгодини: +50% у робочий день, +100% у вихідний (після набуття досвіду)."
-},
-"schedule": {
-"shiftsCount": 3,
-"hoursPerShift": "8",
-"workDaysWeek": "Пн-Пт",
-"breakDuration": "20-30 хв",
-"canChooseShiftOnStart": false,
-"shiftChoiceDetails": "",
-"description": "06:00–14:00, 14:00–22:00, 22:00–06:00"
-},
-"accommodation": {
-"type": "Власне",
-"forCouples": false,
-"withChildren": false,
-"withPets": false,
-"costRaw": "",
-"details": "Житло не надається."
-},
-"transport": {
-"provided": true,
-"costRaw": "Безкоштовно",
-"details": "Безкоштовний автобус з Poznań (зупинки: Szymanowskiego, Aleje Solidarności, AWF, Uniwersytet Ekonomiczny, os. Jagiellońskie, os. Lecha 1, Szpitalna, Głogowska, Rolna, Falista, Orła Białego 1, Szczepankowo)."
-},
-"employerCompensations": {
-"hasCompensations": true,
-"details": "Картка MultiSport, приватне медичне страхування, групове страхування PZU, платформи MyBenefit та MANPAWERGroup Premium зі знижками."
-},
-"requirements": {
-"gender": ["Чоловіки"],
-"ageMax": 99,
-"nationalities": ["Україна"],
-"standardDocs": ["PESEL UKR", "Віза", "Карта побуту"],
-"needsAdditionalDocs": false,
-"additionalDocsDetails": "",
-"experienceRequired": false,
-"hasEntranceTests": false,
-"entranceTestsDetails": "",
-"polishLanguageLevel": "Середній (B1)",
-"languageDetails": "Потрібне знання польської мови для комунікації.",
-"physicalLoad": "Робота з профілями до 8 метрів довжиною, завантаження/розвантаження."
-},
-"businessTrip": {
-"isBusinessTrip": false,
-"requiresPolishExperience": false,
-"requiredDocuments": [],
-"tripDetails": ""
-},
-"conditions": {
-"hasSpecificConditions": false,
-"specificNuances": [],
-"specificConditionsDetails": "",
-"workwearFree": true,
-"foodType": "Власне",
-"foodDetails": "Їдальня на території, автомати з кавою/чаєм/снеками, мікрохвильовки."
-},
-"startExpenses": {
-"hasStartExpenses": false,
-"details": ""
-},
-"earlyTerminationLiability": {
-"hasLiability": false,
-"details": ""
-},
-"description": "Робота з віконними профілями ПВХ (пластикові або алюмінієві балки до 8 м). Витягування профілів зі стелажів, підготовка до відправлення, пакування деталей. Завантаження та розвантаження товарів, перевірка рівня запасів та контроль якості продукції.",
-"additionalNotes": "Стабільна робота у відомій компанії, повний пакет соціальних переваг."
-},
-// Вакансія №84 - Aluplast Nagradowice (чоловіки)
-{
-"agencyName": "MANPAWER",
-"templateName": "Aluplast Nagradowice",
-"vacancydescription": "Працівник складу (відділ пакування віконних систем)",
-"category": "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
-"keywords": ["Aluplast", "Nagradowice", "Poznań", "віконні системи", "пакування", "склад", "чоловіки"],
-"contractType": "Umowa o pracę",
-"forRecruiter": {
-"internalNotes": "Робота в Nagradowice або Poznań. Потрібна польська мова. Не вказувати назву заводу.",
-"hideAgencyNameForCandidate": true,
-"hideEnterpriseNameForCandidate": true
-},
-"location": "Nagradowice",
-"locationDescription": "ul. Profilowa 1",
-"voivodeship": "Wielkopolskie",
-"country": "Polska",
-"checkInCity": "Poznań",
-"salary": {
-"baseNetto": "5025 zł brutto/місяць",
-"studentNetto": "",
-"hoursRange": "168",
-"payoutDates": "Згідно з регламентом",
-"bonusDetails": "Премія 753 зл брутто; додаток за нічні зміни 311 зл брутто.",
-"salaryNotes": "Надгодини: +50% у робочий день."
-},
-"schedule": {
-"shiftsCount": 3,
-"hoursPerShift": "8",
-"workDaysWeek": "Пн-Пт",
-"breakDuration": "Згідно з КЗпП",
-"canChooseShiftOnStart": false,
-"shiftChoiceDetails": "",
-"description": "06:00–14:00, 14:00–22:00, 22:00–06:00"
-},
-"accommodation": {
-"type": "Власне",
-"forCouples": false,
-"withChildren": false,
-"withPets": false,
-"costRaw": "",
-"details": "Житло не надається."
-},
-"transport": {
-"provided": true,
-"costRaw": "Безкоштовно",
-"details": "Безкоштовний автобус з Познані (Szymanowskiego, Aleje Solidarności, AWF, Uniwersytet Ekonomiczny, os. Jagiellońskie, os. Lecha 1, Szpitalna, Głogowska, Rolna, Falista, Orła białego 1, Szczepankowo)."
-},
-"employerCompensations": {
-"hasCompensations": true,
-"details": "Карта Мультіспорт, приватне мед. обслуговування Medicover, групове страхування."
-},
-"requirements": {
-"gender": ["Чоловіки"],
-"ageMax": 99,
-"nationalities": ["Україна"],
-"standardDocs": ["PESEL UKR", "Віза", "Карта побуту"],
-"needsAdditionalDocs": false,
-"additionalDocsDetails": "",
-"experienceRequired": false,
-"hasEntranceTests": false,
-"entranceTestsDetails": "",
-"polishLanguageLevel": "Комунікативний",
-"languageDetails": "Чоловіки зі знанням польської мови.",
-"physicalLoad": "Робота з довгими профілями (до 8 м), витягування з полиць, пакування."
-},
-"businessTrip": {
-"isBusinessTrip": false,
-"requiresPolishExperience": false,
-"requiredDocuments": [],
-"tripDetails": ""
-},
-"conditions": {
-"hasSpecificConditions": false,
-"specificNuances": [],
-"specificConditionsDetails": "",
-"workwearFree": true,
-"foodType": "Власне",
-"foodDetails": ""
-},
-"startExpenses": {
-"hasStartExpenses": false,
-"details": ""
-},
-"earlyTerminationLiability": {
-"hasLiability": false,
-"details": ""
-},
-"description": "Робота з віконними профілями нестандартної довжини (до 8 м). Витягування балок з полиць, підготовка до доставки, пакування деталей. Завантаження та розвантаження товарів, перевірка запасів, контроль якості та співпраця з іншими відділами.",
-"additionalNotes": "Підтримка консультанта під час рекрутації, дружня атмосфера."
-},
-// Вакансія №85 - Pilkington Skierniewice
-{
-"agencyName": "MANPAWER",
-"templateName": "Pilkington Skierniewice",
-"vacancydescription": "Оператор машини для обробки скла (виробництво склопакетів)",
-"category": "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
-"keywords": ["Pilkington", "Skierniewice", "скло", "склопакети", "оператор машин", "чоловіки", "4 бригади"],
-"contractType": "Umowa o pracę",
-"forRecruiter": {
-"internalNotes": "Офіс: Grodzisk Mazowiecki, ul. Żwirki i Wigury 1A. Рекрутація: розмова в офісі, потім на заводі. Потрібна польська А2. До 60 років.",
-"hideAgencyNameForCandidate": true,
-"hideEnterpriseNameForCandidate": true
-},
-"location": "Skierniewice",
-"locationDescription": "ul. Przemysłowa 4, 96-100 Skierniewice",
-"voivodeship": "Łódzkie",
-"country": "Polska",
-"checkInCity": "Grodzisk Mazowiecki",
-"salary": {
-"baseNetto": "27 zł/год брутто",
-"studentNetto": "",
-"hoursRange": "168-180",
-"payoutDates": "Згідно з регламентом",
-"bonusDetails": "Додаток за нічні зміни +6 зл/год; премія 15% (перший місяць), далі групова (~500 зл); надбавка за відвідуваність 500 зл; надбавка за якість 200 зл; доплата за прання 20 зл.",
-"salaryNotes": "Середня ставка на старті ~32 зл/год брутто, з досвідом ~35 зл/год брутто. Є наднормові години."
-},
-"schedule": {
-"shiftsCount": 3,
-"hoursPerShift": "8",
-"workDaysWeek": "Система 4 бригади",
-"breakDuration": "Згідно з КЗпП",
-"canChooseShiftOnStart": false,
-"shiftChoiceDetails": "",
-"description": "06:00–14:00, 14:00–22:00, 22:00–06:00. Вихідні за графіком (можуть бути серед тижня)."
-},
-"accommodation": {
-"type": "Власне",
-"forCouples": false,
-"withChildren": false,
-"withPets": false,
-"costRaw": "",
-"details": "Житло не надається."
-},
-"transport": {
-"provided": false,
-"costRaw": "",
-"details": "Довіз відсутній."
-},
-"employerCompensations": {
-"hasCompensations": false,
-"details": ""
-},
-"requirements": {
-"gender": ["Чоловіки"],
-"ageMax": 60,
-"nationalities": ["Україна"],
-"standardDocs": ["PESEL UKR", "Віза", "Карта побуту"],
-"needsAdditionalDocs": false,
-"additionalDocsDetails": "Посвідчення на вилочний навантажувач (бажано, але не обов'язково).",
-"experienceRequired": false,
-"hasEntranceTests": true,
-"entranceTestsDetails": "Перевірка зору, мануальних здібностей, вміння читати креслення/схеми польською мовою.",
-"polishLanguageLevel": "Початковий (А2)",
-"languageDetails": "Вміння читати креслення та схеми польською мовою.",
-"physicalLoad": "Робота на виробничій лінії з переробки скла, управління машинами."
-},
-"businessTrip": {
-"isBusinessTrip": false,
-"requiresPolishExperience": false,
-"requiredDocuments": [],
-"tripDetails": ""
-},
-"conditions": {
-"hasSpecificConditions": true,
-"specificNuances": ["Шум"],
-"specificConditionsDetails": "Шум у межах норми, приміщення тепле.",
-"workwearFree": true,
-"foodType": "Власне",
-"foodDetails": ""
-},
-"startExpenses": {
-"hasStartExpenses": false,
-"details": ""
-},
-"earlyTerminationLiability": {
-"hasLiability": false,
-"details": ""
-},
-"description": "Робота при виробництві склопакетів. Управління виробничою лінією, експлуатація машин та обладнання. Первинний контроль якості на етапі виробництва. Підтримання чистоти робочого місця.",
-"additionalNotes": "Pilkington — частина японської NSG Group, одного з найбільших світових виробників скла."
-},
-// Вакансія №86 - Lisner Poznań
-{
-"agencyName": "MANPAWER",
-"templateName": "Lisner Poznań",
-"vacancydescription": "Пакувальник готової рибної продукції",
-"category": "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
-"keywords": ["Lisner", "Poznań", "рибна продукція", "пакування", "харчова промисловість", "безкоштовні обіди"],
-"contractType": "Umowa o pracę",
-"forRecruiter": {
-"internalNotes": "Адреса: Poznań, ul. Strzeszyńska 38/42. Контакт: Viktoriia +48 668 895 919. Потрібна книжечка санепід (направляємо безкоштовно). На прохідній мати паспорт.",
-"hideAgencyNameForCandidate": true,
-"hideEnterpriseNameForCandidate": true
-},
-"location": "Poznań",
-"locationDescription": "ul. Strzeszyńska 38/42, 60-479 Poznań",
-"voivodeship": "Wielkopolskie",
-"country": "Polska",
-"checkInCity": "",
-"salary": {
-"baseNetto": "28.58 zł/год брутто",
-"studentNetto": "",
-"hoursRange": "168",
-"payoutDates": "Згідно з регламентом",
-"bonusDetails": "Премія; доплата за нічні зміни +20%.",
-"salaryNotes": "Близько 4800 зл брутто/місяць + премії. Надгодини: +50% у будні, +100% у вихідні."
-},
-"schedule": {
-"shiftsCount": 3,
-"hoursPerShift": "8",
-"workDaysWeek": "Пн-Пт",
-"breakDuration": "25 хв",
-"canChooseShiftOnStart": false,
-"shiftChoiceDetails": "",
-"description": "05:45–13:45, 13:45–21:45, 21:45–05:45. Вільні вихідні."
-},
-"accommodation": {
-"type": "Власне",
-"forCouples": false,
-"withChildren": false,
-"withPets": false,
-"costRaw": "",
-"details": "Житло не надається."
-},
-"transport": {
-"provided": true,
-"costRaw": "Безкоштовно",
-"details": "Безкоштовний транспорт з міст: Czarnków, Mieleszyn, Gniezno, Wągrowiec, Damasławek, Sieraków, Szamotuły, Wolsztyn, Września."
-},
-"employerCompensations": {
-"hasCompensations": true,
-"details": "Карта Multisport, страхування життя, приватне медичне обслуговування."
-},
-"requirements": {
-"gender": ["Чоловіки", "Жінки"],
-"ageMax": 99,
-"nationalities": ["Україна"],
-"standardDocs": ["PESEL UKR", "Віза", "Карта побуту"],
-"needsAdditionalDocs": true,
-"additionalDocsDetails": "Книжечка санепід (якщо немає, робимо безкоштовно).",
-"experienceRequired": false,
-"hasEntranceTests": false,
-"entranceTestsDetails": "",
-"polishLanguageLevel": "Не вимагається",
-"languageDetails": "",
-"physicalLoad": "Температура 10-14°C. Робота на лінії в групі 8-10 осіб."
-},
-"businessTrip": {
-"isBusinessTrip": false,
-"requiresPolishExperience": false,
-"requiredDocuments": [],
-"tripDetails": ""
-},
-"conditions": {
-"hasSpecificConditions": true,
-"specificNuances": ["Холодний склад (10-14°C)"],
-"specificConditionsDetails": "Температура 10-14 градусів. Видається одноразовий одяг поверх свого та робоче взуття.",
-"workwearFree": true,
-"foodType": "Обіди",
-"foodDetails": "Безкоштовні обіди 1 раз на день та 3 безкоштовні гарячі напої. Їдальня з мікрохвильовкою та автоматами."
-},
-"startExpenses": {
-"hasStartExpenses": false,
-"details": ""
-},
-"earlyTerminationLiability": {
-"hasLiability": false,
-"details": ""
-},
-"description": "Фасування та сортування готової рибної продукції (пасти, салати, оселедець). Пакування готового продукту в пластикові коробочки/баночки на лінії. Транспортування продуктів, змішування інгредієнтів, прибирання робочого місця. Продукція не потребує чищення чи нарізки.",
-"additionalNotes": "Стабільна робота в Познані, можливість наднормових годин."
-},
-// Вакансія №87 - Weber Zabrze
-{
-"agencyName": "MANPAWER",
-"templateName": "Weber Zabrze",
-"vacancydescription": "Виробництво та монтаж газових, електричних та вугільних грилів",
-"category": "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
-"keywords": ["Weber", "Zabrze", "Gliwice", "грилі", "монтаж", "пакування", "чоловіки", "B1"],
-"contractType": "Umowa o pracę",
-"forRecruiter": {
-"internalNotes": "Сезонна робота: січень 2026 – травень 2026. Офіс: Gliwice, ul. Piwna 10. Потрібне резюме польською мовою. Розмова в офісі перед працевлаштуванням.",
-"hideAgencyNameForCandidate": true,
-"hideEnterpriseNameForCandidate": true
-},
-"location": "Zabrze",
-"locationDescription": "ul. Guido Henckela Donnersmarcka 19, 41-807 Zabrze",
-"voivodeship": "Śląskie",
-"country": "Polska",
-"checkInCity": "Gliwice",
-"salary": {
-"baseNetto": "5000 zł brutto/місяць",
-"studentNetto": "",
-"hoursRange": "168",
-"payoutDates": "Згідно з регламентом",
-"bonusDetails": "+20% за нічні зміни; премія 10%; додаток за прання 38 зл брутто/міс.",
-"salaryNotes": ""
-},
-"schedule": {
-"shiftsCount": 3,
-"hoursPerShift": "8",
-"workDaysWeek": "Пн-Пт",
-"breakDuration": "30 хв",
-"canChooseShiftOnStart": false,
-"shiftChoiceDetails": "",
-"description": "06:00–14:00, 14:00–22:00, 22:00–06:00"
-},
-"accommodation": {
-"type": "Власне",
-"forCouples": false,
-"withChildren": false,
-"withPets": false,
-"costRaw": "",
-"details": "Житло не надається, доплати немає."
-},
-"transport": {
-"provided": false,
-"costRaw": "",
-"details": "Безкоштовного автобусу немає. Доїзд самостійно пішки або міським транспортом."
-},
-"employerCompensations": {
-"hasCompensations": true,
-"details": "Обслуговування в Medicover, карта Multisport, страхування Generali."
-},
-"requirements": {
-"gender": ["Чоловіки"],
-"ageMax": 99,
-"nationalities": ["Україна", "Білорусь", "Молдова"],
-"standardDocs": ["PESEL UKR", "Віза", "Карта побуту"],
-"needsAdditionalDocs": false,
-"additionalDocsDetails": "Потрібне резюме польською мовою.",
-"experienceRequired": false,
-"hasEntranceTests": false,
-"entranceTestsDetails": "",
-"polishLanguageLevel": "Середній (B1)",
-"languageDetails": "Потрібна польська мова на рівні B1.",
-"physicalLoad": "Ручне переміщення та підвішування елементів на конвеєрі, пакування."
-},
-"businessTrip": {
-"isBusinessTrip": false,
-"requiresPolishExperience": false,
-"requiredDocuments": [],
-"tripDetails": ""
-},
-"conditions": {
-"hasSpecificConditions": false,
-"specificNuances": [],
-"specificConditionsDetails": "Приміщення теплі.",
-"workwearFree": true,
-"foodType": "Субсидоване",
-"foodDetails": "Дофінансування до обідів. Їдальня з мікрохвильовкою та автоматами."
-},
-"startExpenses": {
-"hasStartExpenses": false,
-"details": ""
-},
-"earlyTerminationLiability": {
-"hasLiability": false,
-"details": ""
-},
-"description": "Робота на лінії монтування та виробництва грилів. Пакування готових комплектуючих і аксесуарів у картонні коробки. Ручне переміщення та підвішування елементів на конвеєрі. Візуальний контроль якості готових елементів. Дотримання правил охорони праці.",
-"additionalNotes": "Допомога у виготовленні карт побиту та запрошень. Сезонна робота у світового лідера з виробництва грилів."
-},
-// Вакансія №88 - ASG Poland Pruszków
-{
-"agencyName": "MANPAWER",
-"templateName": "ASG Poland Pruszków",
-"vacancydescription": "Ручне виготовлення та пакування брендової упаковки",
-"category": "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
-"keywords": ["ASG Poland", "Pruszków", "упаковка", "GPA Global", "жінки", "ручна робота", "Bacardi", "Swarovski"],
-"contractType": "Umowa zlecenie",
-"forRecruiter": {
-"internalNotes": "Рекрутація для жінок з базовою польською мовою. Робота в системі 4 бригад.",
-"hideAgencyNameForCandidate": true,
-"hideEnterpriseNameForCandidate": true
-},
-"location": "Pruszków",
-"locationDescription": "ul. 3 Maja 8, 05-800 Pruszków (Teren MPL)",
-"voivodeship": "Mazowieckie",
-"country": "Polska",
-"checkInCity": "",
-"salary": {
-"baseNetto": "30.6 zł/год брутто",
-"studentNetto": "",
-"hoursRange": "200-240",
-"payoutDates": "Згідно з регламентом",
-"bonusDetails": "",
-"salaryNotes": "Можливість брати надгодини."
-},
-"schedule": {
-"shiftsCount": 2,
-"hoursPerShift": "12",
-"workDaysWeek": "Система 4 бригади",
-"breakDuration": "Згідно з КЗпП",
-"canChooseShiftOnStart": false,
-"shiftChoiceDetails": "",
-"description": "06:00–18:00, 18:00–06:00. Графік: 2 дні роботи / 2 дні вихідні."
-},
-"accommodation": {
-"type": "Власне",
-"forCouples": false,
-"withChildren": false,
-"withPets": false,
-"costRaw": "",
-"details": "Житло не надається."
-},
-"transport": {
-"provided": false,
-"costRaw": "",
-"details": "Доїзд не надається."
-},
-"employerCompensations": {
-"hasCompensations": false,
-"details": ""
-},
-"requirements": {
-"gender": ["Жінки"],
-"ageMax": 99,
-"nationalities": ["Україна"],
-"standardDocs": ["PESEL UKR", "Віза", "Карта побуту"],
-"needsAdditionalDocs": false,
-"additionalDocsDetails": "",
-"experienceRequired": false,
-"hasEntranceTests": false,
-"entranceTestsDetails": "",
-"polishLanguageLevel": "Початковий (А2)",
-"languageDetails": "Базова польська мова.",
-"physicalLoad": "Легка праця, сидячи або стоячи."
-},
-"businessTrip": {
-"isBusinessTrip": false,
-"requiresPolishExperience": false,
-"requiredDocuments": [],
-"tripDetails": ""
-},
-"conditions": {
-"hasSpecificConditions": false,
-"specificNuances": [],
-"specificConditionsDetails": "",
-"workwearFree": true,
-"foodType": "Власне",
-"foodDetails": ""
-},
-"startExpenses": {
-"hasStartExpenses": false,
-"details": ""
-},
-"earlyTerminationLiability": {
-"hasLiability": false,
-"details": ""
-},
-"description": "Виконання ручних робіт з виготовлення упаковки для престижних брендів (Bacardi, Swarovski, Lancome тощо). Складання та склеювання коробочок та пакувальних елементів. Контроль якості готової продукції. Підтримка чистоти на робочому місці.",
-"additionalNotes": "Стабільна робота у міжнародній компанії GPA Global, дружня атмосфера."
-},
-// Вакансія №89 - Wkręt-Met Częstochowa
-{
-"agencyName": "MANPAWER",
-"templateName": "Wkręt-Met Częstochowa",
-"vacancydescription": "Пакування та контроль якості кріпильної техніки",
-"category": "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
-"keywords": ["Wkręt-Met", "Częstochowa", "Wrzosowa", "кріплення", "пакування", "контроль якості", "чоловіки", "жінки"],
-"contractType": "Umowa zlecenie",
-"forRecruiter": {
-"internalNotes": "Офіс: Częstochowa, Al. Wolności 1. Безкоштовна допомога з картами побиту.",
-"hideAgencyNameForCandidate": true,
-"hideEnterpriseNameForCandidate": true
-},
-"location": "Częstochowa",
-"locationDescription": "Wrzosowa / Wanaty (згідно з маршрутом автобуса)",
-"voivodeship": "Śląskie",
-"country": "Polska",
-"checkInCity": "Częstochowa",
-"salary": {
-"baseNetto": "30.50 zł/год брутто",
-"studentNetto": "",
-"hoursRange": "200-240",
-"payoutDates": "Згідно з регламентом",
-"bonusDetails": "",
-"salaryNotes": "Дофінансування до власного житла 330 зл/міс брутто."
-},
-"schedule": {
-"shiftsCount": 2,
-"hoursPerShift": "12",
-"workDaysWeek": "За графіком підприємства",
-"breakDuration": "Згідно з КЗпП",
-"canChooseShiftOnStart": false,
-"shiftChoiceDetails": "",
-"description": "06:00–18:00, 18:00–06:00."
-},
-"accommodation": {
-"type": "Платне",
-"forCouples": true,
-"withChildren": false,
-"withPets": false,
-"costRaw": "550 зл/міс",
-"details": "Житло від фірми коштує 550 зл. При власному житлі — доплата 330 зл/міс."
-},
-"transport": {
-"provided": true,
-"costRaw": "Безкоштовно",
-"details": "Безкоштовний автобус з Częstochowa, Wrzosowa."
-},
-"employerCompensations": {
-"hasCompensations": true,
-"details": "Карта Multisport, Medicover, групове страхування."
-},
-"requirements": {
-"gender": ["Чоловіки", "Жінки", "Пари"],
-"ageMax": 99,
-"nationalities": ["Україна", "Молдова"],
-"standardDocs": ["PESEL UKR", "Віза", "Карта побуту"],
-"needsAdditionalDocs": false,
-"additionalDocsDetails": "",
-"experienceRequired": false,
-"hasEntranceTests": false,
-"entranceTestsDetails": "",
-"polishLanguageLevel": "Не вимагається",
-"languageDetails": "",
-"physicalLoad": "Робота стоячи, вимагає уважності та акуратності."
-},
-"businessTrip": {
-"isBusinessTrip": false,
-"requiresPolishExperience": false,
-"requiredDocuments": [],
-"tripDetails": ""
-},
-"conditions": {
-"hasSpecificConditions": false,
-"specificNuances": [],
-"specificConditionsDetails": "",
-"workwearFree": true,
-"foodType": "Власне",
-"foodDetails": ""
-},
-"startExpenses": {
-"hasStartExpenses": false,
-"details": ""
-},
-"earlyTerminationLiability": {
-"hasLiability": false,
-"details": ""
-},
-"description": "Контроль якості та пакування кріпильної техніки (дюбелі, гвинти, болти). Перевірка етикеток, якості друку, відповідності кольору та кількості продукції. Звірка даних з планшетом. Складання коробок на палети згідно зі стандартами. Підтримання чистоти на робочому місці.",
-"additionalNotes": "Робота у провідного польського виробника кріпильних систем."
-},
-// Вакансія №90 - Hutchinson Łódź
-{
-"agencyName": "MANPAWER",
-"templateName": "Hutchinson Łódź",
-"vacancydescription": "Виробництво гумових ущільнювачів для автомобілів",
-"category": "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
-"keywords": ["Hutchinson", "Łódź", "ущільнювачі", "гума", "прес-форми", "пари", "екструзія"],
-"contractType": "Umowa o pracę",
-"forRecruiter": {
-"internalNotes": "Адреса: ul. Zakładowa 99 або Kurczaki 130. Перед роботою — екскурсія на виробництво. Допомога з картами побиту.",
-"hideAgencyNameForCandidate": true,
-"hideEnterpriseNameForCandidate": true
-},
-"location": "Łódź",
-"locationDescription": "ul. Zakładowa 99 / ul. Kurczaki 130",
-"voivodeship": "Łódzkie",
-"country": "Polska",
-"checkInCity": "",
-"salary": {
-"baseNetto": "4350 - 4660 zł brutto/місяць",
-"studentNetto": "",
-"hoursRange": "168",
-"payoutDates": "Згідно з регламентом",
-"bonusDetails": "+20% за нічні зміни; премія до 330 зл брутто.",
-"salaryNotes": "Ставка 4350 (Zakładowa) або 4660 (Kurczaki). Надгодини: +50% будні, +100% субота, +200% неділя/свята. Доплата за власне житло 475 зл брутто (зменшується пропорційно лікарняним)."
-},
-"schedule": {
-"shiftsCount": 3,
-"hoursPerShift": "8",
-"workDaysWeek": "Пн-Пт",
-"breakDuration": "20-30 хв",
-"canChooseShiftOnStart": false,
-"shiftChoiceDetails": "",
-"description": "05:45–13:45, 13:45–21:45, 21:45–05:45."
-},
-"accommodation": {
-"type": "Платне",
-"forCouples": true,
-"withChildren": false,
-"withPets": false,
-"costRaw": "260 зл/міс",
-"details": "Хостел, 3-4 особи в кімнаті, всі зручності. При власному житлі — доплата 475 зл брутто."
-},
-"transport": {
-"provided": false,
-"costRaw": "",
-"details": "Доїзд самостійно. З міст Łask, Pabianice, Piotrków Trybunalski — платний транспорт."
-},
-"employerCompensations": {
-"hasCompensations": true,
-"details": "Обслуговування в Medicover, карта Multisport, страхування PZU."
-},
-"requirements": {
-"gender": ["Чоловіки", "Жінки", "Пари"],
-"ageMax": 99,
-"nationalities": ["Україна", "Білорусь", "Молдова"],
-"standardDocs": ["PESEL UKR", "Віза", "Карта побуту"],
-"needsAdditionalDocs": false,
-"additionalDocsDetails": "",
-"experienceRequired": false,
-"hasEntranceTests": false,
-"entranceTestsDetails": "",
-"polishLanguageLevel": "Не вимагається",
-"languageDetails": "",
-"physicalLoad": "Чоловіки: обслуговування прес-машин (висока температура). Жінки: обробка, контроль якості, пакування."
-},
-"businessTrip": {
-"isBusinessTrip": false,
-"requiresPolishExperience": false,
-"requiredDocuments": [],
-"tripDetails": ""
-},
-"conditions": {
-"hasSpecificConditions": true,
-"specificNuances": ["Запах гуми", "Висока температура"],
-"specificConditionsDetails": "Робота при високій температурі (біля прес-форм), присутній запах гуми.",
-"workwearFree": true,
-"foodType": "Власне",
-"foodDetails": "Їдальня з мікрохвильовкою та автоматами."
-},
-"startExpenses": {
-"hasStartExpenses": false,
-"details": ""
-},
-"earlyTerminationLiability": {
-"hasLiability": false,
-"details": ""
-},
-"description": "Обслуговування прес-формувальних машин (завантаження деталей, запуск, відбір готових матеріалів). Подальша обробка гумових виробів: чищення, контроль якості, наклеювання кодів та пакування готової продукції.",
-"additionalNotes": "Можливість роботи для сімейних пар. Стабільне підприємство автомобільної галузі."
-},
-// Вакансія №91 - Huber+Suhner Polatis Chrzanów
-{
-"agencyName": "MANPAWER",
-"templateName": "Huber+Suhner Nawojowa Góra / Pisary",
-"vacancydescription": "Виробництво оптичних перемикачів в електротехнічній галузі",
-"category": "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
-"keywords": ["Huber+Suhner", "Nawojowa Góra", "Pisary", "Chrzanów", "оптичні перемикачі", "пайка", "монтаж", "електротехніка"],
-"contractType": "Umowa o pracę",
-"forRecruiter": {
-"internalNotes": "Офіс: Biblioteka miejska w Chrzanowie. Обов'язкова перевірка, чи працював кандидат тут раніше. Мануальний тест польською мовою. Не вказувати назву заводу в оголошенні.",
-"hideAgencyNameForCandidate": true,
-"hideEnterpriseNameForCandidate": true
-},
-"location": "Nawojowa Góra",
-"locationDescription": "Nawojowa Góra / Pisary (заклади поруч)",
-"voivodeship": "Małopolskie",
-"country": "Polska",
-"checkInCity": "Chrzanów",
-"salary": {
-"baseNetto": "4950 zł брутто/місяць",
-"studentNetto": "",
-"hoursRange": "168",
-"payoutDates": "До 10 числа",
-"bonusDetails": "+10% за другу зміну; +40% за нічні години (для нічного графіка); квартальна премія за відвідуваність ~300 зл брутто.",
-"salaryNotes": "Робота у вихідні: 35,35–42,42 зл брутто/год. Гнучкі графіки на вибір."
-},
-"schedule": {
-"shiftsCount": 2,
-"hoursPerShift": "8",
-"workDaysWeek": "Пн-Пт / Нд-Пт / Сб-Нд",
-"breakDuration": "2 перерви по 15 хв",
-"canChooseShiftOnStart": true,
-"shiftChoiceDetails": "Можна обрати: 2 зміни (6-14, 14-22), тільки нічні (22-6) або тільки вихідні.",
-"description": "Залежить від обраного варіанту: 06:00-14:00, 14:00-22:00, 22:00-06:00."
-},
-"accommodation": {
-"type": "Власне",
-"forCouples": false,
-"withChildren": false,
-"withPets": false,
-"costRaw": "",
-"details": "Житло не надається."
-},
-"transport": {
-"provided": true,
-"costRaw": "Безкоштовно",
-"details": "Безкоштовний транспорт з міст: Trzebinia, Chrzanów."
-},
-"employerCompensations": {
-"hasCompensations": true,
-"details": "картка MultiSport, приватне медичне страхування, групове страхування PZU, MyBenefit, MANPAWERGroup Premium."
-},
-"requirements": {
-"gender": ["Чоловіки", "Жінки"],
-"ageMax": 99,
-"nationalities": ["Україна"],
-"standardDocs": ["PESEL UKR", "Віза", "Карта побуту"],
-"needsAdditionalDocs": false,
-"additionalDocsDetails": "",
-"experienceRequired": false,
-"hasEntranceTests": true,
-"entranceTestsDetails": "Мануальний тест польською мовою під час екскурсії.",
-"polishLanguageLevel": "Середній (B1)",
-"languageDetails": "Знання польської на комунікативному рівні (B1).",
-"physicalLoad": "Робота переважно сидяча. Робота з дрібними елементами, потрібен хороший зір."
-},
-"businessTrip": {
-"isBusinessTrip": false,
-"requiresPolishExperience": false,
-"requiredDocuments": [],
-"tripDetails": ""
-},
-"conditions": {
-"hasSpecificConditions": false,
-"specificNuances": [],
-"specificConditionsDetails": "Робота з паяльником.",
-"workwearFree": true,
-"foodType": "Власне",
-"foodDetails": "Автомати з кавою, чаєм, снеками, мікрохвильові печі."
-},
-"startExpenses": {
-"hasStartExpenses": false,
-"details": ""
-},
-"earlyTerminationLiability": {
-"hasLiability": false,
-"details": ""
-},
-"description": "Монтаж елементів оптичних перемикачів згідно з інструкцією. Робота з паяльником. Внесення даних у виробничу систему. Контроль якості готової продукції.",
-"additionalNotes": "Еластичні години праці до вибору працівника. Стабільне працевлаштування у лідера електротехнічної галузі."
-},
-// Вакансія №92 - Hutchinson Zakładowa
-{
-"agencyName": "MANPAWER",
-"templateName": "Hutchinson Łódź",
-"vacancydescription": "Виробництво гумових ущільнювачів для автомобілів",
-"category": "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
-"keywords": ["Hutchinson", "Łódź", "ущільнювачі", "гума", "прес-форми", "пари", "автомобільна промисловість"],
-"contractType": "Umowa o pracę",
-"forRecruiter": {
-"internalNotes": "Адреса: ul. Zakładowa 99 або Kurczaki 130. Перед працевлаштуванням екскурсія. Допомога з картами побиту.",
-"hideAgencyNameForCandidate": true,
-"hideEnterpriseNameForCandidate": true
-},
-"location": "Łódź",
-"locationDescription": "ul. Zakładowa 99 / ul. Kurczaki 130",
-"voivodeship": "Łódzkie",
-"country": "Polska",
-"checkInCity": "",
-"salary": {
-"baseNetto": "4350 - 4660 zł брутто/місяць",
-"studentNetto": "",
-"hoursRange": "168",
-"payoutDates": "До 10 числа",
-"bonusDetails": "+20% за нічні зміни; премія до 330 зл брутто.",
-"salaryNotes": "Ставка 4350 (Zakładowa) або 4660 (Kurczaki). Надгодини: +50% будні, +100% субота, +200% неділя. Доплата за власне житло 475 зл брутто (пропорційно відсутності лікарняних)."
-},
-"schedule": {
-"shiftsCount": 3,
-"hoursPerShift": "8",
-"workDaysWeek": "Пн-Пт",
-"breakDuration": "20-30 хв",
-"canChooseShiftOnStart": false,
-"shiftChoiceDetails": "",
-"description": "05:45-13:45; 13:45-21:45; 21:45-5:45."
-},
-"accommodation": {
-"type": "Платне",
-"forCouples": true,
-"withChildren": false,
-"withPets": false,
-"costRaw": "260 зл/міс",
-"details": "Хостел, 3-4 особи в кімнаті. При власному житлі — доплата 475 зл брутто."
-},
-"transport": {
-"provided": false,
-"costRaw": "",
-"details": "Безкоштовного автобуса немає. Платний транспорт з Łask, Pabianice, Piotrków Trybunalski."
-},
-"employerCompensations": {
-"hasCompensations": true,
-"details": "Medicover, Multisport, страхування PZU."
-},
-"requirements": {
-"gender": ["Чоловіки", "Жінки", "Пари"],
-"ageMax": 99,
-"nationalities": ["Україна", "Білорусь", "Молдова"],
-"standardDocs": ["PESEL UKR", "Віза", "Карта побуту"],
-"needsAdditionalDocs": false,
-"additionalDocsDetails": "",
-"experienceRequired": false,
-"hasEntranceTests": false,
-"entranceTestsDetails": "",
-"polishLanguageLevel": "Не вимагається",
-"languageDetails": "",
-"physicalLoad": "Чоловіки: обслуговування прес-машин (висока температура). Жінки: обробка, контроль якості, пакування."
-},
-"businessTrip": {
-"isBusinessTrip": false,
-"requiresPolishExperience": false,
-"requiredDocuments": [],
-"tripDetails": ""
-},
-"conditions": {
-"hasSpecificConditions": true,
-"specificNuances": ["Запах гуми", "Висока температура"],
-"specificConditionsDetails": "Робота при високій температурі біля прес-форм. Запах гуми.",
-"workwearFree": true,
-"foodType": "Власне",
-"foodDetails": "Їдальня з мікрохвильовкою та автоматами."
-},
-"startExpenses": {
-"hasStartExpenses": false,
-"details": ""
-},
-"earlyTerminationLiability": {
-"hasLiability": false,
-"details": ""
-},
-"description": "Обслуговування прес-формувальних машин (завантаження деталей, запуск, відбір матеріалів). Подальша обробка деталей (очищення, контроль якості, пакування). Видрук наклейок з кодами деталей.",
-"additionalNotes": "Допомога з картами побиту та запрошеннями."
-},
-// Вакансія №93 - Allegro Adamów
-{
-"agencyName": "MANPAWER",
-"templateName": "Allegro Adamów",
-"vacancydescription": "Складська робота: збирання та упаковка замовлень",
-"category": "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
-"keywords": ["Allegro", "Adamów", "склад", "сканер", "пакування", "тимчасова робота", "Warszawa"],
-"contractType": "Umowa zlecenie",
-"forRecruiter": {
-"internalNotes": "Тимчасова робота. Досвід буде перевагою.",
-"hideAgencyNameForCandidate": true,
-"hideEnterpriseNameForCandidate": true
-},
-"location": "Adamów",
-"locationDescription": "Склад Allegro",
-"voivodeship": "Mazowieckie",
-"country": "Polska",
-"checkInCity": "",
-"salary": {
-"baseNetto": "32,00 зл/год брутто",
-"studentNetto": "",
-"hoursRange": "168-220",
-"payoutDates": "Згідно з регламентом",
-"bonusDetails": "Премія за продуктивність до 20%; сезонний бонус 1500 зл брутто (за 100% відвідуваність з 10.11 по 23.12).",
-"salaryNotes": "Обід за 1 зл."
-},
-"schedule": {
-"shiftsCount": 2,
-"hoursPerShift": "8-12",
-"workDaysWeek": "Пн-Нд",
-"breakDuration": "Згідно з КЗпП",
-"canChooseShiftOnStart": false,
-"shiftChoiceDetails": "",
-"description": "Пн-Пт: 6:00-14:00, 14:00-22:00. Сб-Нд: 8:00-16:00 або 12:00-20:00. Можна працювати у вихідні."
-},
-"accommodation": {
-"type": "Власне",
-"forCouples": false,
-"withChildren": false,
-"withPets": false,
-"costRaw": "",
-"details": "Житло не надається."
-},
-"transport": {
-"provided": true,
-"costRaw": "Безкоштовно",
-"details": "Безкоштовний автобус з: Żyrardów, Sochaczew, Skierniewice, Warszawa."
-},
-"employerCompensations": {
-"hasCompensations": false,
-"details": ""
-},
-"requirements": {
-"gender": ["Чоловіки", "Жінки"],
-"ageMax": 99,
-"nationalities": ["Україна"],
-"standardDocs": ["PESEL UKR", "Віза", "Карта побуту"],
-"needsAdditionalDocs": false,
-"additionalDocsDetails": "",
-"experienceRequired": false,
-"hasEntranceTests": false,
-"entranceTestsDetails": "",
-"polishLanguageLevel": "Не вимагається",
-"languageDetails": "",
-"physicalLoad": "Проста складська робота, збирання замовлень."
-},
-"businessTrip": {
-"isBusinessTrip": false,
-"requiresPolishExperience": false,
-"requiredDocuments": [],
-"tripDetails": ""
-},
-"conditions": {
-"hasSpecificConditions": false,
-"specificNuances": [],
-"specificConditionsDetails": "",
-"workwearFree": true,
-"foodType": "Субсидоване",
-"foodDetails": "Обід за 1 зл."
-},
-"startExpenses": {
-"hasStartExpenses": false,
-"details": ""
-},
-"earlyTerminationLiability": {
-"hasLiability": false,
-"details": ""
-},
-"description": "Збирання і упаковка замовлень на складі. Проста складська робота з використанням сканера.",
-"additionalNotes": "Тимчасова робота з можливістю високого заробітку в сезон."
-},
-// Вакансія №94 - Weber Zabrze
-{
-"agencyName": "MANPAWER",
-"templateName": "Weber Zabrze",
-"vacancydescription": "Виробництво та монтаж газових, електричних та вугільних грилів",
-"category": "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
-"keywords": ["Weber", "Zabrze", "грилі", "монтаж", "пакування", "чоловіки", "B1"],
-"contractType": "Umowa o pracę",
-"forRecruiter": {
-"internalNotes": "Сезонна робота: вересень 2025 – травень 2026. Потрібне резюме польською мовою. Розмова в офісі перед працевлаштуванням.",
-"hideAgencyNameForCandidate": true,
-"hideEnterpriseNameForCandidate": true
-},
-"location": "Zabrze",
-"locationDescription": "ul. Guido Henckela Donnersmarcka 19, 41-807 Zabrze",
-"voivodeship": "Śląskie",
-"country": "Polska",
-"checkInCity": "",
-"salary": {
-"baseNetto": "5300 зл. бруттo /міс.",
-"studentNetto": "",
-"hoursRange": "168",
-"payoutDates": "Згідно з регламентом",
-"bonusDetails": "+20% за нічні зміни; 10% премія; додаток за прання 38 зл брутто/міс.",
-"salaryNotes": ""
-},
-"schedule": {
-"shiftsCount": 3,
-"hoursPerShift": "8",
-"workDaysWeek": "Пн-Пт",
-"breakDuration": "30 хв",
-"canChooseShiftOnStart": false,
-"shiftChoiceDetails": "",
-"description": "06:00-14:00, 14:00-22:00, 22:00-06:00"
-},
-"accommodation": {
-"type": "Власне",
-"forCouples": false,
-"withChildren": false,
-"withPets": false,
-"costRaw": "",
-"details": "Житло не надається, додатку немає."
-},
-"transport": {
-"provided": false,
-"costRaw": "",
-"details": "Безкоштовного автобусу немає. Доїзд самостійно."
-},
-"employerCompensations": {
-"hasCompensations": true,
-"details": "Medicover, Multisport, страхування Generali."
-},
-"requirements": {
-"gender": ["Чоловіки"],
-"ageMax": 99,
-"nationalities": ["Україна", "Білорусь", "Молдова"],
-"standardDocs": ["PESEL UKR", "Віза", "Карта побуту"],
-"needsAdditionalDocs": false,
-"additionalDocsDetails": "Потрібне резюме польською мовою.",
-"experienceRequired": false,
-"hasEntranceTests": false,
-"entranceTestsDetails": "",
-"polishLanguageLevel": "Комунікативний",
-"languageDetails": "Потрібна польська мова для проходження співбесіди.",
-"physicalLoad": "Ручне переміщення та підвішування елементів на конвеєрі."
-},
-"businessTrip": {
-"isBusinessTrip": false,
-"requiresPolishExperience": false,
-"requiredDocuments": [],
-"tripDetails": ""
-},
-"conditions": {
-"hasSpecificConditions": false,
-"specificNuances": [],
-"specificConditionsDetails": "Приміщення теплі.",
-"workwearFree": true,
-"foodType": "Субсидоване",
-"foodDetails": "Дофінансування до обідів. Їдальня з мікрохвильовкою та автоматами."
-},
-"startExpenses": {
-"hasStartExpenses": false,
-"details": ""
-},
-"earlyTerminationLiability": {
-"hasLiability": false,
-"details": ""
-},
-"description": "Пакування готових комплектуючих і аксесуарів гриля в картонну коробку. Ручне переміщення та підвішування елементів на конвеєрі. Візуальний контроль готових елементів. Дотримання порядку на робочому місці.",
-"additionalNotes": "Допомога з картами побиту та запрошеннями."
-},
-// Вакансія №95 - Media Expert Łódź
-{
-"agencyName": "MANPAWER",
-"templateName": "Media Expert Łódź",
-"vacancydescription": "Склад електроніки: комплектація та розвантаження",
-"category": "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
-"keywords": ["Media Expert", "Łódзь", "електроніка", "склад", "сканер", "комплектація", "чоловіки", "жінки"],
-"contractType": "Umowa zlecenia",
-"forRecruiter": {
-"internalNotes": "Тест з мови обов'язковий. Три локації: Zakładowa (дрібна техніка, жінки), Jędrzejowska 43a (середня), Jędrzejowska 45a (велика).",
-"hideAgencyNameForCandidate": true,
-"hideEnterpriseNameForCandidate": true
-},
-"location": "Łódź",
-"locationDescription": "Jędrzejowska 45a, Jędrzejowska 43a, Zakładowa 90/92",
-"voivodeship": "Łódzkie",
-"country": "Polska",
-"checkInCity": "",
-"salary": {
-"baseNetto": "34,00 зл/год брутто",
-"studentNetto": "",
-"hoursRange": "168-220",
-"payoutDates": "Згідно з регламентом",
-"bonusDetails": "Ставка зростає: 37,00 (жовтень), 38,50 (листопад), 40,00 (грудень) за умови виконання положень договору.",
-"salaryNotes": "Харчування – 2,5 зл."
-},
-"schedule": {
-"shiftsCount": 3,
-"hoursPerShift": "8-10",
-"workDaysWeek": "Нд-Пт",
-"breakDuration": "20-30 хв",
-"canChooseShiftOnStart": true,
-"shiftChoiceDetails": "Можна вибрати відділ (габарити техніки).",
-"description": "2 або 3 зміни, робота з неділі по п'ятницю. Вихідний у суботу та один день серед тижня."
-},
-"accommodation": {
-"type": "Власне",
-"forCouples": false,
-"withChildren": false,
-"withPets": false,
-"costRaw": "",
-"details": "Житло не надається."
-},
-"transport": {
-"provided": true,
-"costRaw": "Безкоштовно",
-"details": "Безкоштовний автобус (крім локації Zakładowa 90/92 — туди доїзд самостійний)."
-},
-"employerCompensations": {
-"hasCompensations": true,
-"details": "Medicover, Multisport, страхування PZU."
-},
-"requirements": {
-"gender": ["Чоловіки", "Жінки"],
-"ageMax": 99,
-"nationalities": ["Україна"],
-"standardDocs": ["PESEL UKR", "Віза", "Карта побуту"],
-"needsAdditionalDocs": false,
-"additionalDocsDetails": "",
-"experienceRequired": false,
-"hasEntranceTests": true,
-"entranceTestsDetails": "Тест з польської мови.",
-"polishLanguageLevel": "Комунікативний",
-"languageDetails": "Потрібне розуміння та спілкування для роботи зі сканером.",
-"physicalLoad": "Залежить від відділу: від дрібної техніки до холодильників (до 20+ кг)."
-},
-"businessTrip": {
-"isBusinessTrip": false,
-"requiresPolishExperience": false,
-"requiredDocuments": [],
-"tripDetails": ""
-},
-"conditions": {
-"hasSpecificConditions": false,
-"specificNuances": [],
-"specificConditionsDetails": "Приміщення теплі.",
-"workwearFree": true,
-"foodType": "Субсидоване",
-"foodDetails": "Харчування за 2,5 зл. Їдальня з мікрохвильовкою та автоматами."
-},
-"startExpenses": {
-"hasStartExpenses": false,
-"details": ""
-},
-"earlyTerminationLiability": {
-"hasLiability": false,
-"details": ""
-},
-"description": "Обслуговування сканера. Комплектація замовлень електроніки. Розвантаження і завантаження вантажних автомобілів. Навколоскладські роботи. Робота з різними габаритами техніки (від телефонів до холодильників).",
-"additionalNotes": "Допомога з картами побиту та запрошеннями."
-},
-// Вакансія №96 - Faurecia Frames Wałbrzych
-{
-"agencyName": "MANPAWER",
-"templateName": "Faurecia Frames Wałbrzych",
-"vacancydescription": "Монтаж каркасів автомобільних сидінь",
-"category": "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
-"keywords": ["Faurecia", "Wałbrzych", "автомобільні сидіння", "монтаж", "зварювання", "лакерування", "чоловіки"],
-"contractType": "Umowa o pracę",
-"forRecruiter": {
-"internalNotes": "Потрібна комунікативна польська мова. Житло не надається.",
-"hideAgencyNameForCandidate": true,
-"hideEnterpriseNameForCandidate": true
-},
-"location": "Wałbrzych",
-"locationDescription": "ul. Jachimowicza 3",
-"voivodeship": "Dolnośląskie",
-"country": "Polska",
-"checkInCity": "",
-"salary": {
-"baseNetto": "4666 зл./міс. брутто",
-"studentNetto": "",
-"hoursRange": "168",
-"payoutDates": "Згідно з регламентом",
-"bonusDetails": "Продукційна премія до 15%; +20% за нічні зміни.",
-"salaryNotes": "Надгодини: +50% (Пн-Пт), +100% (вихідні)."
-},
-"schedule": {
-"shiftsCount": 3,
-"hoursPerShift": "8",
-"workDaysWeek": "Пн-Пт",
-"breakDuration": "20-30 хв",
-"canChooseShiftOnStart": false,
-"shiftChoiceDetails": "",
-"description": "06:00–14:00, 14:00–22:00, 22:00–06:00"
-},
-"accommodation": {
-"type": "Власне",
-"forCouples": false,
-"withChildren": false,
-"withPets": false,
-"costRaw": "",
-"details": "Житло не надається і не дофінансовується."
-},
-"transport": {
-"provided": false,
-"costRaw": "",
-"details": "Доїзд самостійний."
-},
-"employerCompensations": {
-"hasCompensations": true,
-"details": "Multisport, приватне мед. страхування, групова страховка."
-},
-"requirements": {
-"gender": ["Чоловіки"],
-"ageMax": 99,
-"nationalities": ["Україна"],
-"standardDocs": ["PESEL UKR", "Віза", "Карта побуту"],
-"needsAdditionalDocs": false,
-"additionalDocsDetails": "",
-"experienceRequired": false,
-"hasEntranceTests": false,
-"entranceTestsDetails": "",
-"polishLanguageLevel": "Комунікативний",
-"languageDetails": "Знання польської мови на комунікативному рівні.",
-"physicalLoad": "Монтаж деталей, обслуговування зварювальних столів, лакерування."
-},
-"businessTrip": {
-"isBusinessTrip": false,
-"requiresPolishExperience": false,
-"requiredDocuments": [],
-"tripDetails": ""
-},
-"conditions": {
-"hasSpecificConditions": false,
-"specificNuances": [],
-"specificConditionsDetails": "",
-"workwearFree": true,
-"foodType": "Власне",
-"foodDetails": "Їдальня з мікрохвильовкою та автоматами."
-},
-"startExpenses": {
-"hasStartExpenses": false,
-"details": ""
-},
-"earlyTerminationLiability": {
-"hasLiability": false,
-"details": ""
-},
-"description": "Монтаж деталей до каркасів сидінь автомобілів. Контроль якості та складання готової продукції. Обслуговування зварювальних столів. Лакерування деталей.",
-"additionalNotes": "Безкоштовна допомога з документами на карту побиту."
-},
-// Вакансія №97 - Faurecia Wałbrzych Recliners
-{
-"agencyName": "MANPAWER",
-"templateName": "Faurecia Recliners Wałbrzych",
-"vacancydescription": "Монтаж механізмів регулювання автомобільних сидінь",
-"category": "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
-"keywords": ["Faurecia", "Wałbrzych", "автомобільна промисловість", "механізми сидінь", "монтаж", "пари", "CV"],
-"contractType": "Umowa o pracę",
-"forRecruiter": {
-"internalNotes": "Потрібне резюме (CV). Комунікативна польська мова. Робота в 4-бригадній системі.",
-"hideAgencyNameForCandidate": true,
-"hideEnterpriseNameForCandidate": true
-},
-"location": "Wałbrzych",
-"locationDescription": "ul. Jachimowicza 3",
-"voivodeship": "Dolnośląskie",
-"country": "Polska",
-"checkInCity": "",
-"salary": {
-"baseNetto": "4666 зл/міс. брутто",
-"studentNetto": "",
-"hoursRange": "168",
-"payoutDates": "Згідно з регламентом",
-"bonusDetails": "Премії до 15%; +20% за нічні зміни.",
-"salaryNotes": "Надгодини: +50% (Пн-Пт), +100% (вихідні та свята)."
-},
-"schedule": {
-"shiftsCount": 3,
-"hoursPerShift": "8",
-"workDaysWeek": "Система 4 бригади",
-"breakDuration": "Згідно з КЗпП",
-"canChooseShiftOnStart": false,
-"shiftChoiceDetails": "",
-"description": "07:00–15:00 / 15:00–23:00 / 23:00–07:00 згідно з графіком."
-},
-"accommodation": {
-"type": "Власне",
-"forCouples": true,
-"withChildren": false,
-"withPets": false,
-"costRaw": "",
-"details": "Житло не надається."
-},
-"transport": {
-"provided": false,
-"costRaw": "",
-"details": "Транспорту немає."
-},
-"employerCompensations": {
-"hasCompensations": true,
-"details": "Безкоштовні супи, основні страви за 6-8 зл. Medicover, Multisport, групове страхування."
-},
-"requirements": {
-"gender": ["Чоловіки", "Жінки", "Пари"],
-"ageMax": 99,
-"nationalities": ["Україна"],
-"standardDocs": ["PESEL UKR", "Віза", "Карта побуту"],
-"needsAdditionalDocs": false,
-"additionalDocsDetails": "Потрібне резюме (CV).",
-"experienceRequired": false,
-"hasEntranceTests": false,
-"entranceTestsDetails": "",
-"polishLanguageLevel": "Комунікативний",
-"languageDetails": "Комунікативна польська мова.",
-"physicalLoad": "Робота на виробничій лінії, монтаж дрібних деталей."
-},
-"businessTrip": {
-"isBusinessTrip": false,
-"requiresPolishExperience": false,
-"requiredDocuments": [],
-"tripDetails": ""
-},
-"conditions": {
-"hasSpecificConditions": false,
-"specificNuances": [],
-"specificConditionsDetails": "",
-"workwearFree": true,
-"foodType": "Субсидоване",
-"foodDetails": "Безкоштовні супи, обіди за 6-8 зл."
-},
-"startExpenses": {
-"hasStartExpenses": false,
-"details": ""
-},
-"earlyTerminationLiability": {
-"hasLiability": false,
-"details": ""
-},
-"description": "Монтаж деталей до механізмів регулювання автомобільних сидінь. Контроль якості готової продукції. Робота на виробничій лінії в 3-змінному режимі.",
-"additionalNotes": "Допомога в підготовці документів на карту побиту."
-},
-// Вакансія №98 - Prospekta Nysa
-{
-"agencyName": "MANPAWER",
-"templateName": "Prospekta Nysa",
-"vacancydescription": "Виробництво та пакування желейних цукерок",
-"category": "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
-"keywords": ["Prospekta", "Nysa", "цукерки", "желейки", "пакування", "харчова промисловість", "пари"],
-"contractType": "Umowa zlecenie",
-"forRecruiter": {
-"internalNotes": "Книжка санепід обов'язкова (можна зробити в Нисі, чекати 4 дні). Поселення за 5 днів до старту. Стандарт житла високий.",
-"hideAgencyNameForCandidate": true,
-"hideEnterpriseNameForCandidate": true
-},
-"location": "Nysa",
-"locationDescription": "Завод желейних цукерок",
-"voivodeship": "Opolskie",
-"country": "Polska",
-"checkInCity": "",
-"salary": {
-"baseNetto": "30,50 зл/год брутто",
-"studentNetto": "",
-"hoursRange": "168-220",
-"payoutDates": "Згідно з регламентом",
-"bonusDetails": "",
-"salaryNotes": "В середньому 220 годин на місяць."
-},
-"schedule": {
-"shiftsCount": 2,
-"hoursPerShift": "12",
-"workDaysWeek": "Система 4 бригади",
-"breakDuration": "Згідно з КЗпП",
-"canChooseShiftOnStart": false,
-"shiftChoiceDetails": "",
-"description": "Робота по 12 годин у 4-бригадній системі."
-},
-"accommodation": {
-"type": "Платне",
-"forCouples": true,
-"withChildren": false,
-"withPets": false,
-"costRaw": "350 зл/міс",
-"details": "Надається житло, вартість 350 зл/міс."
-},
-"transport": {
-"provided": false,
-"costRaw": "",
-"details": "Службового транспорту немає."
-},
-"employerCompensations": {
-"hasCompensations": false,
-"details": ""
-},
-"requirements": {
-"gender": ["Чоловіки", "Жінки", "Пари"],
-"ageMax": 99,
-"nationalities": ["Україна"],
-"standardDocs": ["PESEL UKR", "Віза", "Карта побуту"],
-"needsAdditionalDocs": true,
-"additionalDocsDetails": "Книжка санепід.",
-"experienceRequired": false,
-"hasEntranceTests": false,
-"entranceTestsDetails": "",
-"polishLanguageLevel": "Комунікативний",
-"languageDetails": "Комунікативний рівень польської мови.",
-"physicalLoad": "Стояча робота. Чоловіки: перенесення кошиків 10-15 кг. Зріст від 160 см."
-},
-"businessTrip": {
-"isBusinessTrip": false,
-"requiresPolishExperience": false,
-"requiredDocuments": [],
-"tripDetails": ""
-},
-"conditions": {
-"hasSpecificConditions": true,
-"specificNuances": ["Запах солодощів"],
-"specificConditionsDetails": "Температура +20…+22 °C. Характерний солодкий запах. Заборона штучних вій, нігтів, прикрас.",
-"workwearFree": true,
-"foodType": "Власне",
-"foodDetails": ""
-},
-"startExpenses": {
-"hasStartExpenses": false,
-"details": ""
-},
-"earlyTerminationLiability": {
-"hasLiability": false,
-"details": ""
-},
-"description": "Для жінок: збір готової продукції, пакування та перенесення коробок, укладання на стелажі. Для чоловіків: перенесення кошиків з желейними цукерками (10–15 кг), допомога у постачанні виробів до лінії.",
-"additionalNotes": "Перший день – навчання (4 години). Чоловіки з бородою працюють у захисних масках."
-},
-// Вакансія №99 - Prospekta Nysa
-{
-"agencyName": "MANPAWER",
-"templateName": "Prospekta Nysa",
-"vacancydescription": "Виробництво та пакування желейних цукерок",
-"category": "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
-"keywords": ["Prospekta", "Nysa", "цукерки", "желейки", "пакування", "харчова промисловість", "пари"],
-"contractType": "Umowa zlecenie",
-"forRecruiter": {
-"internalNotes": "Книжка санепід обов'язкова (можна зробити в Нисі, чекати 4 дні). Поселення за 5 днів до старту. Житло в 15 хв пішки від роботи.",
-"hideAgencyNameForCandidate": true,
-"hideEnterpriseNameForCandidate": true
-},
-"location": "Nysa",
-"locationDescription": "Завод желейних цукерок",
-"voivodeship": "Opolskie",
-"country": "Polska",
-"checkInCity": "",
-"salary": {
-"baseNetto": "30,50 зл/год брутто",
-"studentNetto": "",
-"hoursRange": "168-220",
-"payoutDates": "Згідно з регламентом",
-"bonusDetails": "",
-"salaryNotes": "В середньому 220 годин на місяць."
-},
-"schedule": {
-"shiftsCount": 2,
-"hoursPerShift": "12",
-"workDaysWeek": "Система 4 бригади",
-"breakDuration": "Згідно з КЗпП",
-"canChooseShiftOnStart": false,
-"shiftChoiceDetails": "",
-"description": "Робота по 12 годин у 4-бригадній системі."
-},
-"accommodation": {
-"type": "Платне",
-"forCouples": true,
-"withChildren": false,
-"withPets": false,
-"costRaw": "350 зл/міс",
-"details": "Надається житло, вартість 350 зл/міс. 15 хвилин пішки до праці."
-},
-"transport": {
-"provided": false,
-"costRaw": "",
-"details": "Службового транспорту немає."
-},
-"employerCompensations": {
-"hasCompensations": false,
-"details": ""
-},
-"requirements": {
-"gender": ["Чоловіки", "Жінки", "Пари"],
-"ageMax": 99,
-"nationalities": ["Україна"],
-"standardDocs": ["PESEL UKR", "Віза", "Карта побуту"],
-"needsAdditionalDocs": true,
-"additionalDocsDetails": "Книжка санепід.",
-"experienceRequired": false,
-"hasEntranceTests": false,
-"entranceTestsDetails": "",
-"polishLanguageLevel": "Комунікативний",
-"languageDetails": "Комунікативний рівень польської мови.",
-"physicalLoad": "Стояча робота. Чоловіки: перенесення кошиків 10-15 кг. Зріст від 160 см."
-},
-"businessTrip": {
-"isBusinessTrip": false,
-"requiresPolishExperience": false,
-"requiredDocuments": [],
-"tripDetails": ""
-},
-"conditions": {
-"hasSpecificConditions": true,
-"specificNuances": ["Запах солодощів"],
-"specificConditionsDetails": "Температура +20…+22 °C. Характерний солодкий запах. Заборона штучних вій, нігтів, прикрас.",
-"workwearFree": true,
-"foodType": "Власне",
-"foodDetails": ""
-},
-"startExpenses": {
-"hasStartExpenses": false,
-"details": ""
-},
-"earlyTerminationLiability": {
-"hasLiability": false,
-"details": ""
-},
-"description": "Для жінок: збір готової продукції, пакування та перенесення коробок, укладання на стелажі. Для чоловіків: перенесення кошиків з желейними цукерками (10–15 кг), допомога у постачанні виробів до лінії.",
-"additionalNotes": "Перший день – навчання (4 години). Чоловіки з бородою працюють у захисних масках."
-},
-// Вакансія №100 - Faurecia Frames Wałbrzych
-{
-"agencyName": "MANPAWER",
-"templateName": "Faurecia Frames Wałbrzych",
-"vacancydescription": "Монтаж каркасів автомобільних сидінь",
-"category": "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
-"keywords": ["Faurecia", "Wałbrzych", "автомобільні сидіння", "монтаж", "зварювання", "лакерування", "чоловіки"],
-"contractType": "Umowa o pracę",
-"forRecruiter": {
-"internalNotes": "Потрібна комунікативна польська мова. Житло не надається.",
-"hideAgencyNameForCandidate": true,
-"hideEnterpriseNameForCandidate": true
-},
-"location": "Wałbrzych",
-"locationDescription": "ul. Jachimowicza 3",
-"voivodeship": "Dolnośląskie",
-"country": "Polska",
-"checkInCity": "",
-"salary": {
-"baseNetto": "4666 зл./міс. брутто",
-"studentNetto": "",
-"hoursRange": "168",
-"payoutDates": "Згідно з регламентом",
-"bonusDetails": "Продукційна премія до 15%; +20% за нічні зміни.",
-"salaryNotes": "Надгодини: +50% (Пн-Пт), +100% (вихідні)."
-},
-"schedule": {
-"shiftsCount": 3,
-"hoursPerShift": "8",
-"workDaysWeek": "Пн-Пт",
-"breakDuration": "20-30 хв",
-"canChooseShiftOnStart": false,
-"shiftChoiceDetails": "",
-"description": "06:00–14:00, 14:00–22:00, 22:00–06:00"
-},
-"accommodation": {
-"type": "Власне",
-"forCouples": false,
-"withChildren": false,
-"withPets": false,
-"costRaw": "",
-"details": "Житло не надається і не дофінансовується."
-},
-"transport": {
-"provided": false,
-"costRaw": "",
-"details": "Доїзд самостійний."
-},
-"employerCompensations": {
-"hasCompensations": true,
-"details": "Multisport, приватне мед. страхування, групова страховка."
-},
-"requirements": {
-"gender": ["Чоловіки"],
-"ageMax": 99,
-"nationalities": ["Україна"],
-"standardDocs": ["PESEL UKR", "Віза", "Карта побуту"],
-"needsAdditionalDocs": false,
-"additionalDocsDetails": "",
-"experienceRequired": false,
-"hasEntranceTests": false,
-"entranceTestsDetails": "",
-"polishLanguageLevel": "Комунікативний",
-"languageDetails": "Знання польської мови на комунікативному рівні.",
-"physicalLoad": "Монтаж деталей, обслуговування зварювальних столів, лакерування."
-},
-"businessTrip": {
-"isBusinessTrip": false,
-"requiresPolishExperience": false,
-"requiredDocuments": [],
-"tripDetails": ""
-},
-"conditions": {
-"hasSpecificConditions": false,
-"specificNuances": [],
-"specificConditionsDetails": "",
-"workwearFree": true,
-"foodType": "Власне",
-"foodDetails": "Їдальня з мікрохвильовкою та автоматами."
-},
-"startExpenses": {
-"hasStartExpenses": false,
-"details": ""
-},
-"earlyTerminationLiability": {
-"hasLiability": false,
-"details": ""
-},
-"description": "Монтаж деталей до каркасів сидінь автомобілів. Контроль якості та складання готової продукції. Обслуговування зварювальних столів. Лакерування деталей.",
-"additionalNotes": "Безкоштовна допомога з документами на карту побиту."
-},
-// Вакансія №101 - Faurecia Wałbrzych Recliners
-{
-"agencyName": "MANPAWER",
-"templateName": "Faurecia Recliners Wałbrzych",
-"vacancydescription": "Монтаж механізмів регулювання автомобільних сидінь",
-"category": "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
-"keywords": ["Faurecia", "Wałbrzych", "автомобільна промисловість", "механізми сидінь", "монтаж", "пари", "CV"],
-"contractType": "Umowa o pracę",
-"forRecruiter": {
-"internalNotes": "Потрібне резюме (CV). Комунікативна польська мова. Робота в 4-бригадній системі.",
-"hideAgencyNameForCandidate": true,
-"hideEnterpriseNameForCandidate": true
-},
-"location": "Wałbrzych",
-"locationDescription": "ul. Jachimowicza 3",
-"voivodeship": "Dolnośląskie",
-"country": "Polska",
-"checkInCity": "",
-"salary": {
-"baseNetto": "4666 зл/міс. брутто",
-"studentNetto": "",
-"hoursRange": "168",
-"payoutDates": "Згідно з регламентом",
-"bonusDetails": "Премії до 15%; +20% за нічні зміни.",
-"salaryNotes": "Надгодини: +50% (Пн-Пт), +100% (вихідні та свята)."
-},
-"schedule": {
-"shiftsCount": 3,
-"hoursPerShift": "8",
-"workDaysWeek": "Система 4 бригади",
-"breakDuration": "Згідно з КЗпП",
-"canChooseShiftOnStart": false,
-"shiftChoiceDetails": "",
-"description": "07:00–15:00 / 15:00–23:00 / 23:00–07:00 згідно з графіком."
-},
-"accommodation": {
-"type": "Власне",
-"forCouples": true,
-"withChildren": false,
-"withPets": false,
-"costRaw": "",
-"details": "Житло не надається."
-},
-"transport": {
-"provided": false,
-"costRaw": "",
-"details": "Транспорту немає."
-},
-"employerCompensations": {
-"hasCompensations": true,
-"details": "Безкоштовні супи, основні страви за 6-8 зл. Medicover, Multisport, групове страхування."
-},
-"requirements": {
-"gender": ["Чоловіки", "Жінки", "Пари"],
-"ageMax": 99,
-"nationalities": ["Україна"],
-"standardDocs": ["PESEL UKR", "Віза", "Карта побуту"],
-"needsAdditionalDocs": false,
-"additionalDocsDetails": "Потрібне резюме (CV).",
-"experienceRequired": false,
-"hasEntranceTests": false,
-"entranceTestsDetails": "",
-"polishLanguageLevel": "Комунікативний",
-"languageDetails": "Комунікативна польська мова.",
-"physicalLoad": "Робота на виробничій лінії, монтаж дрібних деталей."
-},
-"businessTrip": {
-"isBusinessTrip": false,
-"requiresPolishExperience": false,
-"requiredDocuments": [],
-"tripDetails": ""
-},
-"conditions": {
-"hasSpecificConditions": false,
-"specificNuances": [],
-"specificConditionsDetails": "",
-"workwearFree": true,
-"foodType": "Субсидоване",
-"foodDetails": "Безкоштовні супи, обіди за 6-8 зл."
-},
-"startExpenses": {
-"hasStartExpenses": false,
-"details": ""
-},
-"earlyTerminationLiability": {
-"hasLiability": false,
-"details": ""
-},
-"description": "Монтаж деталей до механізмів регулювання автомобільних сидінь. Контроль якості готової продукції. Робота на виробничій лінії в 3-змінному режимі.",
-"additionalNotes": "Допомога в підготовці документів на карту побиту."
-},
-// Вакансія №102 - ID Logistic Psary
-{
-"agencyName": "MANPAWER",
-"templateName": "ID Logistic Psary",
-"vacancydescription": "Склад одягу: упаковка та сортування",
-"category": "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
-"keywords": ["ID Logistic", "Psary", "одяг", "склад", "сканер", "упаковка", "сортування"],
-"contractType": "Umowa o pracę",
-"forRecruiter": {
-"internalNotes": "Можна вибрати тип договору (UoP або UZ). Вимагається досвід на складі та польська мова А1.",
-"hideAgencyNameForCandidate": true,
-"hideEnterpriseNameForCandidate": true
-},
-"location": "Psary",
-"locationDescription": "ul. Akacjowa 6, 42-512 Psary",
-"voivodeship": "Śląskie",
-"country": "Polska",
-"checkInCity": "",
-"salary": {
-"baseNetto": "4666 zł brutto/міс (UoP) або 30,5 zł brutto/h (UZ)",
-"studentNetto": "",
-"hoursRange": "168",
-"payoutDates": "Згідно з регламентом",
-"bonusDetails": "Премія за результати після першого місяця роботи.",
-"salaryNotes": ""
-},
-"schedule": {
-"shiftsCount": 1,
-"hoursPerShift": "8",
-"workDaysWeek": "Пн-Пт",
-"breakDuration": "Згідно з КЗпП",
-"canChooseShiftOnStart": false,
-"shiftChoiceDetails": "",
-"description": "06:00 – 14:00."
-},
-"accommodation": {
-"type": "Власне",
-"forCouples": false,
-"withChildren": false,
-"withPets": false,
-"costRaw": "",
-"details": "Житло не надається."
-},
-"transport": {
-"provided": true,
-"costRaw": "Безкоштовно",
-"details": "Безкоштовний транспорт з: Катовіце, Сосновець, Битом, Домброва Гурніча."
-},
-"employerCompensations": {
-"hasCompensations": false,
-"details": ""
-},
-"requirements": {
-"gender": ["Чоловіки", "Жінки"],
-"ageMax": 99,
-"nationalities": ["Україна"],
-"standardDocs": ["PESEL UKR", "Віза", "Карта побуту"],
-"needsAdditionalDocs": false,
-"additionalDocsDetails": "",
-"experienceRequired": true,
-"hasEntranceTests": false,
-"entranceTestsDetails": "",
-"polishLanguageLevel": "Початковий (А1)",
-"languageDetails": "Польська мова на рівні А1.",
-"physicalLoad": "Приготування робочого місця, упаковка, сортування."
-},
-"businessTrip": {
-"isBusinessTrip": false,
-"requiresPolishExperience": false,
-"requiredDocuments": [],
-"tripDetails": ""
-},
-"conditions": {
-"hasSpecificConditions": false,
-"specificNuances": [],
-"specificConditionsDetails": "",
-"workwearFree": true,
-"foodType": "Власне",
-"foodDetails": ""
-},
-"startExpenses": {
-"hasStartExpenses": false,
-"details": ""
-},
-"earlyTerminationLiability": {
-"hasLiability": false,
-"details": ""
-},
-"description": "Завдання пов’язані з приготуванням робочого місця, упаковкою і сортуванням одягу, роботою зі сканером.",
-"additionalNotes": "Стабільна робота на великому логістичному складі."
-},
-// Вакансія №103 - Gillette Łódź
-{
-"agencyName": "MANPAWER",
-"templateName": "Gillette Łódź",
-"vacancydescription": "Водій навантажувача (вузковий) на виробництво станків для гоління",
-"category": "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
-"keywords": ["Gillette", "Łódź", "UDT", "навантажувач", "вузковий", "WJO", "чоловіки"],
-"contractType": "Umowa o pracę",
-"forRecruiter": {
-"internalNotes": "Обов'язково: UDT II WJO, MS Office, високий рівень польської. Не вказувати назву Gillette в оголошенні.",
-"hideAgencyNameForCandidate": true,
-"hideEnterpriseNameForCandidate": true
-},
-"location": "Łódź",
-"locationDescription": "ul. Nowy Józefów 70",
-"voivodeship": "Łódzkie",
-"country": "Polska",
-"checkInCity": "",
-"salary": {
-"baseNetto": "4666 зл. бруттo /міс.",
-"studentNetto": "",
-"hoursRange": "168",
-"payoutDates": "Згідно з регламентом",
-"bonusDetails": "+20% за нічні зміни; додаток за 4-бригадну систему 700 зл брутто.",
-"salaryNotes": "Надгодини: +50% у будні, +100% у вихідні. Доплата за обіди (60% покриває клієнт)."
-},
-"schedule": {
-"shiftsCount": 3,
-"hoursPerShift": "8",
-"workDaysWeek": "Система 4 бригади",
-"breakDuration": "30 хв",
-"canChooseShiftOnStart": false,
-"shiftChoiceDetails": "",
-"description": "4 дні 6-14 (1 вихідний), 4 дні 14-22 (1 вихідний), 4 дні 22-6 (2 вихідних)."
-},
-"accommodation": {
-"type": "Власне",
-"forCouples": false,
-"withChildren": false,
-"withPets": false,
-"costRaw": "",
-"details": "Житло не надається."
-},
-"transport": {
-"provided": false,
-"costRaw": "",
-"details": "Безкоштовного автобуса немає. Доїзд міським транспортом (автобуси G1/G2 від Retkinia)."
-},
-"employerCompensations": {
-"hasCompensations": true,
-"details": "Medicover, Multisport, страхування Generali."
-},
-"requirements": {
-"gender": ["Чоловіки"],
-"ageMax": 99,
-"nationalities": ["Україна"],
-"standardDocs": ["PESEL UKR", "Віза", "Карта побуту"],
-"needsAdditionalDocs": true,
-"additionalDocsDetails": "UDT II WJO (обов'язково).",
-"experienceRequired": true,
-"hasEntranceTests": false,
-"entranceTestsDetails": "",
-"polishLanguageLevel": "Середній (B1)",
-"languageDetails": "Знання польської мови на високому рівні.",
-"physicalLoad": "Обслуговування вантажопідйомника, транспортування компонентів."
-},
-"businessTrip": {
-"isBusinessTrip": false,
-"requiresPolishExperience": false,
-"requiredDocuments": [],
-"tripDetails": ""
-},
-"conditions": {
-"hasSpecificConditions": true,
-"specificNuances": ["Шум"],
-"specificConditionsDetails": "Обов'язково: взуття з металевим носком, окуляри, беруші. Заборона біжутерії (крім гвоздиків), пірсингу, розпущеного волосся.",
-"workwearFree": true,
-"foodType": "Субсидоване",
-"foodDetails": "Дофінансування 60% вартості обідів."
-},
-"startExpenses": {
-"hasStartExpenses": false,
-"details": ""
-},
-"earlyTerminationLiability": {
-"hasLiability": false,
-"details": ""
-},
-"description": "Обслуговування вантажопідйомника. Транспортування компонентів зі складу в зал виготовлення продукції. Транспортування готових і запакованих виробів на склад готових виробів. Робота з комп'ютером (MS Office).",
-"additionalNotes": "Допомога з документами на карту побиту."
-},
-// Вакансія №104 - Mahle Krotoszyn
-{
-"agencyName": "MANPAWER",
-"templateName": "Mahle Krotoszyn",
-"vacancydescription": "Оператор машин з виготовлення автомобільних деталей",
-"category": "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
-"keywords": ["Mahle", "Krotoszyn", "автодеталі", "оператор машин", "математичний тест", "пари", "4 бригади"],
-"contractType": "Umowa o pracę",
-"forRecruiter": {
-"internalNotes": "Екскурсія + розмова + математичний тест польською мовою. Потрібне резюме польською. Житло не надається.",
-"hideAgencyNameForCandidate": true,
-"hideEnterpriseNameForCandidate": true
-},
-"location": "Krotoszyn",
-"locationDescription": "ul. Mahle 6",
-"voivodeship": "Wielkopolskie",
-"country": "Polska",
-"checkInCity": "",
-"salary": {
-"baseNetto": "4400 зл брутто",
-"studentNetto": "",
-"hoursRange": "168",
-"payoutDates": "До 10 числа",
-"bonusDetails": "Премія 10%; +20% за нічні зміни; бонус 75 зл брутто за роботу в Сб/Нд по графіку.",
-"salaryNotes": "Надгодини +100% (тільки у вихідний за графіком)."
-},
-"schedule": {
-"shiftsCount": 3,
-"hoursPerShift": "8",
-"workDaysWeek": "Система 4 бригади",
-"breakDuration": "20-30 хв",
-"canChooseShiftOnStart": false,
-"shiftChoiceDetails": "",
-"description": "6-14, 14-22, 22-6. Графік: 2 ранки, 2 дні, 2 ночі, 2 вихідних."
-},
-"accommodation": {
-"type": "Власне",
-"forCouples": true,
-"withChildren": false,
-"withPets": false,
-"costRaw": "",
-"details": "Житло не надається."
-},
-"transport": {
-"provided": true,
-"costRaw": "50 зл",
-"details": "Автобус з міст: Jarocin, Koźmin, Ostrów, Kobylin, Milicz, Zduny, Pleszew, Kobierno, Odolanów, Sulmierzyce."
-},
-"employerCompensations": {
-"hasCompensations": true,
-"details": "Medicover, Multisport, групова страховка."
-},
-"requirements": {
-"gender": ["Чоловіки", "Жінки", "Пари"],
-"ageMax": 99,
-"nationalities": ["Україна", "Молдова", "Білорусь", "Грузія", "Вірменія"],
-"standardDocs": ["PESEL UKR", "Віза", "Карта побуту"],
-"needsAdditionalDocs": false,
-"additionalDocsDetails": "",
-"experienceRequired": false,
-"hasEntranceTests": true,
-"entranceTestsDetails": "Математичний тест польською мовою (читання та письмо).",
-"polishLanguageLevel": "Початковий (А2)",
-"languageDetails": "Потрібно вміти читати та писати польською на базовому рівні.",
-"physicalLoad": "Робота стоячи, контроль кількох машин одночасно."
-},
-"businessTrip": {
-"isBusinessTrip": false,
-"requiresPolishExperience": false,
-"requiredDocuments": [],
-"tripDetails": ""
-},
-"conditions": {
-"hasSpecificConditions": false,
-"specificNuances": [],
-"specificConditionsDetails": "",
-"workwearFree": true,
-"foodType": "Власне",
-"foodDetails": "Їдальня, автомати, мікрохвильовка."
-},
-"startExpenses": {
-"hasStartExpenses": false,
-"details": ""
-},
-"earlyTerminationLiability": {
-"hasLiability": false,
-"details": ""
-},
-"description": "Робота при машинах, які виготовляють автомобільні деталі. Контроль роботи обладнання, візуальний огляд продукції. Робота стоячи з необхідністю переміщення між машинами.",
-"additionalNotes": "Можливість переходу на прямий контракт із заводом у майбутньому."
-},
-// Вакансія №105 - Aluplast Nagradowice (Production)
-{
-"agencyName": "MANPAWER",
-"templateName": "Aluplast Nagradowice",
-"vacancydescription": "Працівник виробництва віконних систем ПВХ",
-"category": "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
-"keywords": ["Aluplast", "Nagradowice", "Poznań", "віконні системи", "упаковка", "контроль якості", "чоловіки"],
-"contractType": "Umowa o pracę",
-"forRecruiter": {
-"internalNotes": "Потрібна польська мова. Надається житло (450 зл).",
-"hideAgencyNameForCandidate": true,
-"hideEnterpriseNameForCandidate": true
-},
-"location": "Nagradowice",
-"locationDescription": "ul. Profilowa 1",
-"voivodeship": "Wielkopolskie",
-"country": "Polska",
-"checkInCity": "Poznań",
-"salary": {
-"baseNetto": "4785-5025 зл брутто в місяць",
-"studentNetto": "",
-"hoursRange": "168",
-"payoutDates": "Згідно з регламентом",
-"bonusDetails": "Премія 15% від з/п; премія за роботу у вихідні; +20% за нічні зміни.",
-"salaryNotes": "Надгодини +50% у робочий день."
-},
-"schedule": {
-"shiftsCount": 3,
-"hoursPerShift": "8",
-"workDaysWeek": "Пн-Пт",
-"breakDuration": "Згідно з КЗпП",
-"canChooseShiftOnStart": false,
-"shiftChoiceDetails": "",
-"description": "6-14, 14-22, 22-6."
-},
-"accommodation": {
-"type": "Платне",
-"forCouples": false,
-"withChildren": false,
-"withPets": false,
-"costRaw": "450 зл",
-"details": "Надається житло за 450 зл. Дофінансування до власного немає."
-},
-"transport": {
-"provided": true,
-"costRaw": "Безкоштовно",
-"details": "Безкоштовний автобус з Познані (Szymanowskiego, Aleje Solidarności, AWF, os. Jagiellońskie та ін.)."
-},
-"employerCompensations": {
-"hasCompensations": true,
-"details": "Medicover, Multisport, групове страхування."
-},
-"requirements": {
-"gender": ["Чоловіки"],
-"ageMax": 99,
-"nationalities": ["Україна"],
-"standardDocs": ["PESEL UKR", "Віза", "Карта побуту"],
-"needsAdditionalDocs": false,
-"additionalDocsDetails": "",
-"experienceRequired": false,
-"hasEntranceTests": false,
-"entranceTestsDetails": "",
-"polishLanguageLevel": "Комунікативний",
-"languageDetails": "Чоловіки зі знанням польської мови.",
-"physicalLoad": "Упаковка, заміна матеріалів на лінії, візуальний огляд профілів."
-},
-"businessTrip": {
-"isBusinessTrip": false,
-"requiresPolishExperience": false,
-"requiredDocuments": [],
-"tripDetails": ""
-},
-"conditions": {
-"hasSpecificConditions": false,
-"specificNuances": [],
-"specificConditionsDetails": "",
-"workwearFree": true,
-"foodType": "Власне",
-"foodDetails": ""
-},
-"startExpenses": {
-"hasStartExpenses": false,
-"details": ""
-},
-"earlyTerminationLiability": {
-"hasLiability": false,
-"details": ""
-},
-"description": "Упаковка згідно з інструкціями. Заміна та налаштування виробничих матеріалів на лінії для безперервності виробництва. Візуальний огляд виготовлених профілів (подряпини, складки, вага та довжина).",
-"additionalNotes": "Підтримка консультанта під час рекрутації."
-},
-// Вакансія №106 - Aluplast Nagradowice (Junior Operator)
-{
-"agencyName": "MANPAWER",
-"templateName": "Aluplast Nagradowice",
-"vacancydescription": "Молодший оператор машин (виробництво віконних систем)",
-"category": "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
-"keywords": ["Aluplast", "Nagradowice", "Poznań", "оператор машин", "досвід", "віконні системи", "чоловіки"],
-"contractType": "Umowa o pracę",
-"forRecruiter": {
-"internalNotes": "Обов'язково: досвід роботи при машинах мін. 1 рік. Знання польської мови.",
-"hideAgencyNameForCandidate": true,
-"hideEnterpriseNameForCandidate": true
-},
-"location": "Nagradowice",
-"locationDescription": "ul. Profilowa 1",
-"voivodeship": "Wielkopolskie",
-"country": "Polska",
-"checkInCity": "Poznań",
-"salary": {
-"baseNetto": "5740 зл брутто в місяць",
-"studentNetto": "",
-"hoursRange": "168",
-"payoutDates": "Згідно з регламентом",
-"bonusDetails": "Премія 860 зл брутто; додаток за нічні зміни 311 зл брутто.",
-"salaryNotes": "Надгодини +50% у робочий день."
-},
-"schedule": {
-"shiftsCount": 3,
-"hoursPerShift": "8",
-"workDaysWeek": "Пн-Пт",
-"breakDuration": "Згідно з КЗпП",
-"canChooseShiftOnStart": false,
-"shiftChoiceDetails": "",
-"description": "6-14, 14-22, 22-6."
-},
-"accommodation": {
-"type": "Власне",
-"forCouples": false,
-"withChildren": false,
-"withPets": false,
-"costRaw": "",
-"details": "Житло не вказано (власне)."
-},
-"transport": {
-"provided": true,
-"costRaw": "Безкоштовно",
-"details": "Безкоштовний автобус з Познані (Szymanowskiego, Aleje Solidarności, AWF та ін.)."
-},
-"employerCompensations": {
-"hasCompensations": true,
-"details": "Medicover, Multisport, групове страхування."
-},
-"requirements": {
-"gender": ["Чоловіки"],
-"ageMax": 99,
-"nationalities": ["Україна"],
-"standardDocs": ["PESEL UKR", "Віза", "Карта побуту"],
-"needsAdditionalDocs": false,
-"additionalDocsDetails": "",
-"experienceRequired": true,
-"hasEntranceTests": false,
-"entranceTestsDetails": "",
-"polishLanguageLevel": "Комунікативний",
-"languageDetails": "Знання польської мови.",
-"physicalLoad": "Обслуговування машин, упаковка профілів, контроль якості та кількості."
-},
-"businessTrip": {
-"isBusinessTrip": false,
-"requiresPolishExperience": false,
-"requiredDocuments": [],
-"tripDetails": ""
-},
-"conditions": {
-"hasSpecificConditions": false,
-"specificNuances": [],
-"specificConditionsDetails": "",
-"workwearFree": true,
-"foodType": "Власне",
-"foodDetails": ""
-},
-"startExpenses": {
-"hasStartExpenses": false,
-"details": ""
-},
-"earlyTerminationLiability": {
-"hasLiability": false,
-"details": ""
-},
-"description": "Упаковка згідно з інструкціями (профілі, планки). Співпраця з іншими працівниками. Візуальний огляд виготовлених профілів, контроль якості та кількості виготовленої продукції.",
-"additionalNotes": "Робота у філіалі в Наградовіце або Познані."
-},
-// Вакансія №107 - Colquimica Plewiska
-{
-"agencyName": "MANPAWER",
-"templateName": "Colquimica Plewiska",
-"vacancydescription": "Оператор виробництва промислових клеїв",
-"category": "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
-"keywords": ["Colquimica", "Plewiska", "Poznań", "клеї", "англійська мова", "оператор", "чоловіки", "4 бригади"],
-"contractType": "Umowa o pracę",
-"forRecruiter": {
-"internalNotes": "Працевлаштування напряму до клієнта. Обов'язкове знання англійської мови. Потрібне резюме. Не вказувати назву Colquimica в оголошенні.",
-"hideAgencyNameForCandidate": true,
-"hideEnterpriseNameForCandidate": true
-},
-"location": "Plewiska",
-"locationDescription": "ul. Szkolna 30, 62-064 Plewiska",
-"voivodeship": "Wielkopolskie",
-"country": "Polska",
-"checkInCity": "Poznań",
-"salary": {
-"baseNetto": "5500–5800 зл брутто / місяць",
-"studentNetto": "",
-"hoursRange": "168",
-"payoutDates": "Згідно з регламентом",
-"bonusDetails": "Стартова премія 550 зл брутто; робота у вихідні +50 зл/день; поповнення карти Pluxee 350 зл/місяць.",
-"salaryNotes": "Обід за 1 зл."
-},
-"schedule": {
-"shiftsCount": 2,
-"hoursPerShift": "12",
-"workDaysWeek": "Система 4 бригади",
-"breakDuration": "Згідно з КЗпП",
-"canChooseShiftOnStart": false,
-"shiftChoiceDetails": "",
-"description": "3 дні роботи (07:00–19:00), 3 дні вихідні, 3 дні роботи (19:00–07:00), 3 дні вихідні."
-},
-"accommodation": {
-"type": "Власне",
-"forCouples": false,
-"withChildren": false,
-"withPets": false,
-"costRaw": "",
-"details": "Житло не надається."
-},
-"transport": {
-"provided": true,
-"costRaw": "Безкоштовно",
-"details": "Безкоштовний транспорт з Познані (Rondo Rataje → Poznań Główny → вул. Głogowska → Plewiska)."
-},
-"employerCompensations": {
-"hasCompensations": true,
-"details": "Medicover, Multisport, групове страхування, lunch-карта, професійні навчання."
-},
-"requirements": {
-"gender": ["Чоловіки"],
-"ageMax": 99,
-"nationalities": ["Україна"],
-"standardDocs": ["PESEL UKR", "Віза", "Карта побуту"],
-"needsAdditionalDocs": false,
-"additionalDocsDetails": "Потрібне резюме (CV).",
-"experienceRequired": false,
-"hasEntranceTests": false,
-"entranceTestsDetails": "",
-"polishLanguageLevel": "Не вимагається",
-"languageDetails": "Обов’язкове знання англійської мови (комунікативний рівень).",
-"physicalLoad": "Можливе перенесення вантажів до 20 кг."
-},
-"businessTrip": {
-"isBusinessTrip": false,
-"requiresPolishExperience": false,
-"requiredDocuments": [],
-"tripDetails": ""
-},
-"conditions": {
-"hasSpecificConditions": false,
-"specificNuances": [],
-"specificConditionsDetails": "Сучасне автоматизоване виробництво. Теплі приміщення.",
-"workwearFree": true,
-"foodType": "Субсидоване",
-"foodDetails": "Обід для працівника коштує 1 зл."
-},
-"startExpenses": {
-"hasStartExpenses": false,
-"details": ""
-},
-"earlyTerminationLiability": {
-"hasLiability": false,
-"details": ""
-},
-"description": "Обслуговування нескладних виробничих машин. Контроль якості готової продукції (промислові клеї). Пакування продукції, передача на склад. Робота з внутрішніми комп’ютерними системами та виробничою звітністю.",
-"additionalNotes": "Пряме працевлаштування до міжнародної компанії."
-},
-// Вакансія №108 - Mueller Grudziądz
-{
-"agencyName": "MANPAWER",
-"templateName": "Mueller Grudziądz",
-"vacancydescription": "Обслуговування машин з виробництва свічок",
-"category": "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
-"keywords": ["Mueller", "Grudziądz", "Biały Bór", "свічки", "фізична робота", "чоловіки", "50кг"],
-"contractType": "Umowa o pracę",
-"forRecruiter": {
-"internalNotes": "Фізично важка робота (пакети 50 кг). Етапи: CV -> розмова з консультантом -> розмова з клієнтом + екскурсія.",
-"hideAgencyNameForCandidate": true,
-"hideEnterpriseNameForCandidate": true
-},
-"location": "Biały Bór",
-"locationDescription": "Biały Bór II 211, 86-302 Biały Bór (біля Grudziądz)",
-"voivodeship": "Kujawsko-pomorskie",
-"country": "Polska",
-"checkInCity": "Grudziądz",
-"salary": {
-"baseNetto": "5088 злотих брутто/місяць",
-"studentNetto": "",
-"hoursRange": "168-240",
-"payoutDates": "Згідно з регламентом",
-"bonusDetails": "Премія до 10% за продуктивність (після 2 міс); надбавка за нічні зміни 25%.",
-"salaryNotes": "Максимум 60 годин на тиждень."
-},
-"schedule": {
-"shiftsCount": 3,
-"hoursPerShift": "8",
-"workDaysWeek": "Пн-Пт",
-"breakDuration": "Згідно з КЗпП",
-"canChooseShiftOnStart": false,
-"shiftChoiceDetails": "",
-"description": "3 зміни по 8 годин."
-},
-"accommodation": {
-"type": "Платне",
-"forCouples": false,
-"withChildren": false,
-"withPets": false,
-"costRaw": "400 PLN",
-"details": "Можливе проживання з доплатою працівника до 400 PLN."
-},
-"transport": {
-"provided": false,
-"costRaw": "",
-"details": "Доїзд не надається."
-},
-"employerCompensations": {
-"hasCompensations": false,
-"details": ""
-},
-"requirements": {
-"gender": ["Чоловіки"],
-"ageMax": 99,
-"nationalities": ["Україна"],
-"standardDocs": ["PESEL UKR", "Віза", "Карта побуту"],
-"needsAdditionalDocs": false,
-"additionalDocsDetails": "",
-"experienceRequired": false,
-"hasEntranceTests": false,
-"entranceTestsDetails": "",
-"polishLanguageLevel": "Початковий (А2)",
-"languageDetails": "Польська мова на комунікативному рівні (А2).",
-"physicalLoad": "Важка фізична робота: подача сировини (пакети 50 кг) до машини поштучно кілька разів на день."
-},
-"businessTrip": {
-"isBusinessTrip": false,
-"requiresPolishExperience": false,
-"requiredDocuments": [],
-"tripDetails": ""
-},
-"conditions": {
-"hasSpecificConditions": true,
-"specificNuances": ["Запилення"],
-"specificConditionsDetails": "Легке запилення у відділі, тепло.",
-"workwearFree": true,
-"foodType": "Власне",
-"foodDetails": ""
-},
-"startExpenses": {
-"hasStartExpenses": false,
-"details": ""
-},
-"earlyTerminationLiability": {
-"hasLiability": false,
-"details": ""
-},
-"description": "Обслуговування виробничих машин. Подача сировини для виробництва свічок до машини (пакети вагою 50 кг, які закидаються поштучно). Контроль за роботою машин, підтримання порядку, виконання дрібного ремонту за потреби.",
-"additionalNotes": "Стабільне працевлаштування на основі Umowa o pracę."
-},
-// Вакансія №109 - Onnera Palmiry
-{
-"agencyName": "MANPAWER",
-"templateName": "Onnera Palmiry",
-"vacancydescription": "Оператор штампувального верстату (виробництво миючих машин)",
-"category": "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
-"keywords": ["Onnera", "Palmiry", "Czosnów", "Варшава", "метал", "штампування", "оператор", "чоловіки"],
-"contractType": "Umowa o pracę",
-"forRecruiter": {
-"internalNotes": "Офіс: Nowy Dwór Mazowiecki, ul. Przejazd 7. Потрібна польська мова. Не вказувати назву Onnera в оголошенні.",
-"hideAgencyNameForCandidate": true,
-"hideEnterpriseNameForCandidate": true
-},
-"location": "Palmiry",
-"locationDescription": "Palmiry (біля Czosnów, поблизу Варшави)",
-"voivodeship": "Mazowieckie",
-"country": "Polska",
-"checkInCity": "Nowy Dwór Mazowiecki",
-"salary": {
-"baseNetto": "5200 zł брутто / місяць",
-"studentNetto": "",
-"hoursRange": "168",
-"payoutDates": "Згідно з регламентом",
-"bonusDetails": "Премія від 1-го місяця — 500 zł брутто; додаткові нагороди за рішенням керівника.",
-"salaryNotes": "Надгодини: +50% у будні, +100% у вихідні."
-},
-"schedule": {
-"shiftsCount": 3,
-"hoursPerShift": "8",
-"workDaysWeek": "Пн-Пт",
-"breakDuration": "20-30 хв",
-"canChooseShiftOnStart": false,
-"shiftChoiceDetails": "",
-"description": "06:00–14:00, 14:00–22:00, 22:00–06:00."
-},
-"accommodation": {
-"type": "Платне",
-"forCouples": false,
-"withChildren": false,
-"withPets": false,
-"costRaw": "300 zł / місяць",
-"details": "Хостел, 3–4 особи в кімнаті, повністю укомплектований."
-},
-"transport": {
-"provided": true,
-"costRaw": "Безкоштовно",
-"details": "Безкоштовний доїзд з: Płońsk, Nowy Dwór Mazowiecki."
-},
-"employerCompensations": {
-"hasCompensations": true,
-"details": "Medicover, Multisport, групове страхування PZU, MyBenefit."
-},
-"requirements": {
-"gender": ["Чоловіки"],
-"ageMax": 99,
-"nationalities": ["Україна"],
-"standardDocs": ["PESEL UKR", "Віза", "Карта побуту"],
-"needsAdditionalDocs": false,
-"additionalDocsDetails": "",
-"experienceRequired": true,
-"hasEntranceTests": false,
-"entranceTestsDetails": "",
-"polishLanguageLevel": "Комунікативний",
-"languageDetails": "Потрібне знання польської мови для налаштування програм верстату.",
-"physicalLoad": "Завантаження листів металу, вирізання деталей, робота стоячи."
-},
-"businessTrip": {
-"isBusinessTrip": false,
-"requiresPolishExperience": false,
-"requiredDocuments": [],
-"tripDetails": ""
-},
-"conditions": {
-"hasSpecificConditions": false,
-"specificNuances": [],
-"specificConditionsDetails": "Теплі виробничі приміщення.",
-"workwearFree": true,
-"foodType": "Власне",
-"foodDetails": "Їдальня, автомати, мікрохвильовка."
-},
-"startExpenses": {
-"hasStartExpenses": false,
-"details": ""
-},
-"earlyTerminationLiability": {
-"hasLiability": false,
-"details": ""
-},
-"description": "Обслуговування штампувального верстату для листового металу. Завантаження листів металу у верстат, встановлення інструментів. Налаштування програми згідно з виробничим замовленням. Вирізання деталей та розміщення їх на піддонах.",
-"additionalNotes": "Допомога в підготовці документів на карту побиту."
-},
+    agencyName: "MANPAWER",
+    templateName: "Hutchinson Dębica-2",
+    vacancydescription: "Виробництво автомобільних та авіаційних ущільнювачів",
+    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    keywords: [
+      "Hutchinson",
+      "Dębica",
+      "Zawada",
+      "ущільнювачі",
+      "автомобільна промисловість",
+      "авіаційна промисловість",
+      "оператор машин",
+      "контроль якості",
+    ],
+    contractType: "Umowa o pracę",
+    forRecruiter: {
+      internalNotes:
+        "Офіс у Дембіці. У публічних оголошеннях не вказувати назву підприємства, вартість транспорту та деталі додатків. Потрібна комунікативна польська мова.",
+      hideAgencyNameForCandidate: true,
+      hideEnterpriseNameForCandidate: true,
+    },
+    location: "Zawada",
+    locationDescription: "Zawada 79N, 39-200 Dębica",
+    voivodeship: "Podkarpackie",
+    country: "Polska",
+    checkInCity: "Dębica",
+    salary: {
+      baseNetto: "4700 zł brutto/місяць",
+      studentNetto: "",
+      hoursRange: "168",
+      payoutDates: "Згідно з регламентом підприємства",
+      bonusDetails:
+        "+20% за нічні зміни; групова премія 200 зл брутто; надбавка за посаду 20-30 зл брутто/день (при відпрацюванні мін. 6 годин).",
+      salaryNotes:
+        "Надгодини: +50% у будні, +100% у вихідні (або вихідний в інший день). Доплата за власне житло 475 зл брутто (пропорційно дням).",
+    },
+    schedule: {
+      shiftsCount: 3,
+      hoursPerShift: "8",
+      workDaysWeek: "Пн-Пт",
+      breakDuration: "Згідно з КЗпП Польщі",
+      canChooseShiftOnStart: false,
+      shiftChoiceDetails: "",
+      description: "06:00–14:00, 14:00–22:00, 22:00–06:00",
+    },
+    accommodation: {
+      type: "Власне",
+      forCouples: false,
+      withChildren: false,
+      withPets: false,
+      costRaw: "",
+      details:
+        "Житло не надається. Виплачується додаток 475 зл брутто/місяць за власне житло.",
+    },
+    transport: {
+      provided: true,
+      costRaw: "30-64 зл/міс",
+      details:
+        "Фірмові автобуси з Brzostek (64 зл), Pilzno (36 зл), Ropczyce (30 зл), Wielopole Skrzyńskie (60 зл), Nagoszyn (40 зл). Автобус MKS №17 (роботодавець сплачує 70 зл за квиток).",
+    },
+    employerCompensations: {
+      hasCompensations: false,
+      details: "",
+    },
+    requirements: {
+      gender: ["Чоловіки"],
+      ageMax: 99,
+      nationalities: ["Україна"],
+      standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
+      needsAdditionalDocs: false,
+      additionalDocsDetails: "",
+      experienceRequired: false,
+      hasEntranceTests: false,
+      entranceTestsDetails: "",
+      polishLanguageLevel: "Комунікативний",
+      languageDetails: "Польська мова на комунікативному рівні",
+      physicalLoad: "Обслуговування машин, робота на виробничій лінії.",
+    },
+    businessTrip: {
+      isBusinessTrip: false,
+      requiresPolishExperience: false,
+      requiredDocuments: [],
+      tripDetails: "",
+    },
+    conditions: {
+      hasSpecificConditions: false,
+      specificNuances: [],
+      specificConditionsDetails: "",
+      workwearFree: true,
+      foodType: "Власне",
+      foodDetails: "",
+    },
+    startExpenses: {
+      hasStartExpenses: false,
+      details: "",
+    },
+    earlyTerminationLiability: {
+      hasLiability: false,
+      details: "",
+    },
+    description:
+      "Обслуговування виробничих машин для виготовлення ущільнювачів. Контроль якості готової продукції на відповідність стандартам. Заповнення необхідної технічної документації.",
+    additionalNotes:
+      "Робота у лідера автомобільної та авіаційної галузі. Стабільне працевлаштування на основі Umowa o pracę.",
+  },
+  // Вакансія №82 - Hutchinson Dębica-3
+  {
+    agencyName: "MANPAWER",
+    templateName: "Hutchinson Dębica-3",
+    vacancydescription: "Виробництво автомобільних та авіаційних ущільнювачів",
+    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    keywords: [
+      "Hutchinson",
+      "Dębica",
+      "Zawada",
+      "ущільнювачі",
+      "автомобільна промисловість",
+      "авіаційна промисловість",
+      "оператор машин",
+      "контроль якості",
+    ],
+    contractType: "Umowa o pracę",
+    forRecruiter: {
+      internalNotes:
+        "Офіс у Дембіці. У публічних оголошеннях не вказувати назву підприємства, вартість транспорту та деталі додатків. Потрібна комунікативна польська мова.",
+      hideAgencyNameForCandidate: true,
+      hideEnterpriseNameForCandidate: true,
+    },
+    location: "Zawada",
+    locationDescription: "Zawada 79N, 39-200 Dębica",
+    voivodeship: "Podkarpackie",
+    country: "Polska",
+    checkInCity: "Dębica",
+    salary: {
+      baseNetto: "4700 zł brutto/місяць",
+      studentNetto: "",
+      hoursRange: "168",
+      payoutDates: "Згідно з регламентом підприємства",
+      bonusDetails:
+        "+20% за нічні зміни; групова премія 200 зл брутто; надбавка за посаду 20-30 зл брутто/день (при відпрацюванні мін. 6 годин).",
+      salaryNotes:
+        "Надгодини: +50% у будні, +100% у вихідні (або вихідний в інший день). Доплата за власне житло 475 зл брутто (пропорційно дням).",
+    },
+    schedule: {
+      shiftsCount: 3,
+      hoursPerShift: "8",
+      workDaysWeek: "Пн-Пт",
+      breakDuration: "Згідно з КЗпП Польщі",
+      canChooseShiftOnStart: false,
+      shiftChoiceDetails: "",
+      description: "06:00–14:00, 14:00–22:00, 22:00–06:00",
+    },
+    accommodation: {
+      type: "Власне",
+      forCouples: false,
+      withChildren: false,
+      withPets: false,
+      costRaw: "",
+      details:
+        "Житло не надається. Виплачується додаток 475 зл брутто/місяць за власне житло.",
+    },
+    transport: {
+      provided: true,
+      costRaw: "30-64 зл/міс",
+      details:
+        "Фірмові автобуси з Brzostek (64 зл), Pilzno (36 зл), Ropczyce (30 зл), Wielopole Skrzyńskie (60 зл), Nagoszyn (40 зл). Автобус MKS №17 (роботодавець сплачує 70 зл за квиток).",
+    },
+    employerCompensations: {
+      hasCompensations: false,
+      details: "",
+    },
+    requirements: {
+      gender: ["Чоловіки"],
+      ageMax: 99,
+      nationalities: ["Україна"],
+      standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
+      needsAdditionalDocs: false,
+      additionalDocsDetails: "",
+      experienceRequired: false,
+      hasEntranceTests: false,
+      entranceTestsDetails: "",
+      polishLanguageLevel: "Комунікативний",
+      languageDetails: "Польська мова на комунікативному рівні",
+      physicalLoad: "Обслуговування машин, робота на виробничій лінії.",
+    },
+    businessTrip: {
+      isBusinessTrip: false,
+      requiresPolishExperience: false,
+      requiredDocuments: [],
+      tripDetails: "",
+    },
+    conditions: {
+      hasSpecificConditions: false,
+      specificNuances: [],
+      specificConditionsDetails: "",
+      workwearFree: true,
+      foodType: "Власне",
+      foodDetails: "",
+    },
+    startExpenses: {
+      hasStartExpenses: false,
+      details: "",
+    },
+    earlyTerminationLiability: {
+      hasLiability: false,
+      details: "",
+    },
+    description:
+      "Обслуговування виробничих машин для виготовлення ущільнювачів. Контроль якості готової продукції на відповідність стандартам. Заповнення необхідної технічної документації.",
+    additionalNotes:
+      "Робота у лідера автомобільної та авіаційної галузі. Стабільне працевлаштування на основі Umowa o pracę.",
+  },
+  // Вакансія №83 - Aluplast Nagradowice-1
+  {
+    agencyName: "MANPAWER",
+    templateName: "Aluplast Nagradowice-1",
+    vacancydescription: "Працівник складу у відділ пакування віконних профілів",
+    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    keywords: [
+      "Aluplast",
+      "Nagradowice",
+      "Poznań",
+      "віконні профілі",
+      "пакування",
+      "склад",
+      "чоловіки",
+    ],
+    contractType: "Umowa o pracę",
+    forRecruiter: {
+      internalNotes:
+        "Офіс: Poznań, ul. Głogowska 31/33. Етапи: CV -> розмова в офісі -> медогляд -> робота. Не вказувати назву заводу в оголошенні. Потрібна польська мова B1.",
+      hideAgencyNameForCandidate: true,
+      hideEnterpriseNameForCandidate: true,
+    },
+    location: "Nagradowice",
+    locationDescription: "ul. Profilowa 1",
+    voivodeship: "Wielkopolskie",
+    country: "Polska",
+    checkInCity: "Poznań",
+    salary: {
+      baseNetto: "5025 zł brutto/місяць",
+      studentNetto: "",
+      hoursRange: "168",
+      payoutDates: "Згідно з регламентом",
+      bonusDetails:
+        "Премія 753 зл брутто; додаток за нічні зміни 311 зл брутто.",
+      salaryNotes:
+        "Надгодини: +50% у робочий день, +100% у вихідний (після набуття досвіду).",
+    },
+    schedule: {
+      shiftsCount: 3,
+      hoursPerShift: "8",
+      workDaysWeek: "Пн-Пт",
+      breakDuration: "20-30 хв",
+      canChooseShiftOnStart: false,
+      shiftChoiceDetails: "",
+      description: "06:00–14:00, 14:00–22:00, 22:00–06:00",
+    },
+    accommodation: {
+      type: "Власне",
+      forCouples: false,
+      withChildren: false,
+      withPets: false,
+      costRaw: "",
+      details: "Житло не надається.",
+    },
+    transport: {
+      provided: true,
+      costRaw: "Безкоштовно",
+      details:
+        "Безкоштовний автобус з Poznań (зупинки: Szymanowskiego, Aleje Solidarności, AWF, Uniwersytet Ekonomiczny, os. Jagiellońskie, os. Lecha 1, Szpitalna, Głogowska, Rolna, Falista, Orła Białego 1, Szczepankowo).",
+    },
+    employerCompensations: {
+      hasCompensations: true,
+      details:
+        "Картка MultiSport, приватне медичне страхування, групове страхування PZU, платформи MyBenefit та MANPAWERGroup Premium зі знижками.",
+    },
+    requirements: {
+      gender: ["Чоловіки"],
+      ageMax: 99,
+      nationalities: ["Україна"],
+      standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
+      needsAdditionalDocs: false,
+      additionalDocsDetails: "",
+      experienceRequired: false,
+      hasEntranceTests: false,
+      entranceTestsDetails: "",
+      polishLanguageLevel: "Середній (B1)",
+      languageDetails: "Потрібне знання польської мови для комунікації.",
+      physicalLoad:
+        "Робота з профілями до 8 метрів довжиною, завантаження/розвантаження.",
+    },
+    businessTrip: {
+      isBusinessTrip: false,
+      requiresPolishExperience: false,
+      requiredDocuments: [],
+      tripDetails: "",
+    },
+    conditions: {
+      hasSpecificConditions: false,
+      specificNuances: [],
+      specificConditionsDetails: "",
+      workwearFree: true,
+      foodType: "Власне",
+      foodDetails:
+        "Їдальня на території, автомати з кавою/чаєм/снеками, мікрохвильовки.",
+    },
+    startExpenses: {
+      hasStartExpenses: false,
+      details: "",
+    },
+    earlyTerminationLiability: {
+      hasLiability: false,
+      details: "",
+    },
+    description:
+      "Робота з віконними профілями ПВХ (пластикові або алюмінієві балки до 8 м). Витягування профілів зі стелажів, підготовка до відправлення, пакування деталей. Завантаження та розвантаження товарів, перевірка рівня запасів та контроль якості продукції.",
+    additionalNotes:
+      "Стабільна робота у відомій компанії, повний пакет соціальних переваг.",
+  },
+  // Вакансія №84 - Aluplast Nagradowice-2
+  {
+    agencyName: "MANPAWER",
+    templateName: "Aluplast Nagradowice-2",
+    vacancydescription: "Працівник складу (відділ пакування віконних систем)",
+    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    keywords: [
+      "Aluplast",
+      "Nagradowice",
+      "Poznań",
+      "віконні системи",
+      "пакування",
+      "склад",
+      "чоловіки",
+    ],
+    contractType: "Umowa o pracę",
+    forRecruiter: {
+      internalNotes:
+        "Робота в Nagradowice або Poznań. Потрібна польська мова. Не вказувати назву заводу.",
+      hideAgencyNameForCandidate: true,
+      hideEnterpriseNameForCandidate: true,
+    },
+    location: "Nagradowice",
+    locationDescription: "ul. Profilowa 1",
+    voivodeship: "Wielkopolskie",
+    country: "Polska",
+    checkInCity: "Poznań",
+    salary: {
+      baseNetto: "5025 zł brutto/місяць",
+      studentNetto: "",
+      hoursRange: "168",
+      payoutDates: "Згідно з регламентом",
+      bonusDetails:
+        "Премія 753 зл брутто; додаток за нічні зміни 311 зл брутто.",
+      salaryNotes: "Надгодини: +50% у робочий день.",
+    },
+    schedule: {
+      shiftsCount: 3,
+      hoursPerShift: "8",
+      workDaysWeek: "Пн-Пт",
+      breakDuration: "Згідно з КЗпП",
+      canChooseShiftOnStart: false,
+      shiftChoiceDetails: "",
+      description: "06:00–14:00, 14:00–22:00, 22:00–06:00",
+    },
+    accommodation: {
+      type: "Власне",
+      forCouples: false,
+      withChildren: false,
+      withPets: false,
+      costRaw: "",
+      details: "Житло не надається.",
+    },
+    transport: {
+      provided: true,
+      costRaw: "Безкоштовно",
+      details:
+        "Безкоштовний автобус з Познані (Szymanowskiego, Aleje Solidarności, AWF, Uniwersytet Ekonomiczny, os. Jagiellońskie, os. Lecha 1, Szpitalna, Głogowska, Rolna, Falista, Orła białego 1, Szczepankowo).",
+    },
+    employerCompensations: {
+      hasCompensations: true,
+      details:
+        "Карта Мультіспорт, приватне мед. обслуговування Medicover, групове страхування.",
+    },
+    requirements: {
+      gender: ["Чоловіки"],
+      ageMax: 99,
+      nationalities: ["Україна"],
+      standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
+      needsAdditionalDocs: false,
+      additionalDocsDetails: "",
+      experienceRequired: false,
+      hasEntranceTests: false,
+      entranceTestsDetails: "",
+      polishLanguageLevel: "Комунікативний",
+      languageDetails: "Чоловіки зі знанням польської мови.",
+      physicalLoad:
+        "Робота з довгими профілями (до 8 м), витягування з полиць, пакування.",
+    },
+    businessTrip: {
+      isBusinessTrip: false,
+      requiresPolishExperience: false,
+      requiredDocuments: [],
+      tripDetails: "",
+    },
+    conditions: {
+      hasSpecificConditions: false,
+      specificNuances: [],
+      specificConditionsDetails: "",
+      workwearFree: true,
+      foodType: "Власне",
+      foodDetails: "",
+    },
+    startExpenses: {
+      hasStartExpenses: false,
+      details: "",
+    },
+    earlyTerminationLiability: {
+      hasLiability: false,
+      details: "",
+    },
+    description:
+      "Робота з віконними профілями нестандартної довжини (до 8 м). Витягування балок з полиць, підготовка до доставки, пакування деталей. Завантаження та розвантаження товарів, перевірка запасів, контроль якості та співпраця з іншими відділами.",
+    additionalNotes:
+      "Підтримка консультанта під час рекрутації, дружня атмосфера.",
+  },
+  // Вакансія №85 - Pilkington Skierniewice
+  {
+    agencyName: "MANPAWER",
+    templateName: "Pilkington Skierniewice",
+    vacancydescription:
+      "Оператор машини для обробки скла (виробництво склопакетів)",
+    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    keywords: [
+      "Pilkington",
+      "Skierniewice",
+      "скло",
+      "склопакети",
+      "оператор машин",
+      "чоловіки",
+      "4 бригади",
+    ],
+    contractType: "Umowa o pracę",
+    forRecruiter: {
+      internalNotes:
+        "Офіс: Grodzisk Mazowiecki, ul. Żwirki i Wigury 1A. Рекрутація: розмова в офісі, потім на заводі. Потрібна польська А2. До 60 років.",
+      hideAgencyNameForCandidate: true,
+      hideEnterpriseNameForCandidate: true,
+    },
+    location: "Skierniewice",
+    locationDescription: "ul. Przemysłowa 4, 96-100 Skierniewice",
+    voivodeship: "Łódzkie",
+    country: "Polska",
+    checkInCity: "Grodzisk Mazowiecki",
+    salary: {
+      baseNetto: "27 zł/год брутто",
+      studentNetto: "",
+      hoursRange: "168-180",
+      payoutDates: "Згідно з регламентом",
+      bonusDetails:
+        "Додаток за нічні зміни +6 зл/год; премія 15% (перший місяць), далі групова (~500 зл); надбавка за відвідуваність 500 зл; надбавка за якість 200 зл; доплата за прання 20 зл.",
+      salaryNotes:
+        "Середня ставка на старті ~32 зл/год брутто, з досвідом ~35 зл/год брутто. Є наднормові години.",
+    },
+    schedule: {
+      shiftsCount: 3,
+      hoursPerShift: "8",
+      workDaysWeek: "Система 4 бригади",
+      breakDuration: "Згідно з КЗпП",
+      canChooseShiftOnStart: false,
+      shiftChoiceDetails: "",
+      description:
+        "06:00–14:00, 14:00–22:00, 22:00–06:00. Вихідні за графіком (можуть бути серед тижня).",
+    },
+    accommodation: {
+      type: "Власне",
+      forCouples: false,
+      withChildren: false,
+      withPets: false,
+      costRaw: "",
+      details: "Житло не надається.",
+    },
+    transport: {
+      provided: false,
+      costRaw: "",
+      details: "Довіз відсутній.",
+    },
+    employerCompensations: {
+      hasCompensations: false,
+      details: "",
+    },
+    requirements: {
+      gender: ["Чоловіки"],
+      ageMax: 60,
+      nationalities: ["Україна"],
+      standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
+      needsAdditionalDocs: false,
+      additionalDocsDetails:
+        "Посвідчення на вилочний навантажувач (бажано, але не обов'язково).",
+      experienceRequired: false,
+      hasEntranceTests: true,
+      entranceTestsDetails:
+        "Перевірка зору, мануальних здібностей, вміння читати креслення/схеми польською мовою.",
+      polishLanguageLevel: "Початковий (А2)",
+      languageDetails: "Вміння читати креслення та схеми польською мовою.",
+      physicalLoad:
+        "Робота на виробничій лінії з переробки скла, управління машинами.",
+    },
+    businessTrip: {
+      isBusinessTrip: false,
+      requiresPolishExperience: false,
+      requiredDocuments: [],
+      tripDetails: "",
+    },
+    conditions: {
+      hasSpecificConditions: true,
+      specificNuances: ["Шум"],
+      specificConditionsDetails: "Шум у межах норми, приміщення тепле.",
+      workwearFree: true,
+      foodType: "Власне",
+      foodDetails: "",
+    },
+    startExpenses: {
+      hasStartExpenses: false,
+      details: "",
+    },
+    earlyTerminationLiability: {
+      hasLiability: false,
+      details: "",
+    },
+    description:
+      "Робота при виробництві склопакетів. Управління виробничою лінією, експлуатація машин та обладнання. Первинний контроль якості на етапі виробництва. Підтримання чистоти робочого місця.",
+    additionalNotes:
+      "Pilkington — частина японської NSG Group, одного з найбільших світових виробників скла.",
+  },
+  // Вакансія №86 - Lisner Poznań-4
+  {
+    agencyName: "MANPAWER",
+    templateName: "Lisner Poznań-4",
+    vacancydescription: "Пакувальник готової рибної продукції",
+    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    keywords: [
+      "Lisner",
+      "Poznań",
+      "рибна продукція",
+      "пакування",
+      "харчова промисловість",
+      "безкоштовні обіди",
+    ],
+    contractType: "Umowa o pracę",
+    forRecruiter: {
+      internalNotes:
+        "Адреса: Poznań, ul. Strzeszyńska 38/42. Контакт: Viktoriia +48 668 895 919. Потрібна книжечка санепід (направляємо безкоштовно). На прохідній мати паспорт.",
+      hideAgencyNameForCandidate: true,
+      hideEnterpriseNameForCandidate: true,
+    },
+    location: "Poznań",
+    locationDescription: "ul. Strzeszyńska 38/42, 60-479 Poznań",
+    voivodeship: "Wielkopolskie",
+    country: "Polska",
+    checkInCity: "",
+    salary: {
+      baseNetto: "28.58 zł/год брутто",
+      studentNetto: "",
+      hoursRange: "168",
+      payoutDates: "Згідно з регламентом",
+      bonusDetails: "Премія; доплата за нічні зміни +20%.",
+      salaryNotes:
+        "Близько 4800 зл брутто/місяць + премії. Надгодини: +50% у будні, +100% у вихідні.",
+    },
+    schedule: {
+      shiftsCount: 3,
+      hoursPerShift: "8",
+      workDaysWeek: "Пн-Пт",
+      breakDuration: "25 хв",
+      canChooseShiftOnStart: false,
+      shiftChoiceDetails: "",
+      description: "05:45–13:45, 13:45–21:45, 21:45–05:45. Вільні вихідні.",
+    },
+    accommodation: {
+      type: "Власне",
+      forCouples: false,
+      withChildren: false,
+      withPets: false,
+      costRaw: "",
+      details: "Житло не надається.",
+    },
+    transport: {
+      provided: true,
+      costRaw: "Безкоштовно",
+      details:
+        "Безкоштовний транспорт з міст: Czarnków, Mieleszyn, Gniezno, Wągrowiec, Damasławek, Sieraków, Szamotuły, Wolsztyn, Września.",
+    },
+    employerCompensations: {
+      hasCompensations: true,
+      details:
+        "Карта Multisport, страхування життя, приватне медичне обслуговування.",
+    },
+    requirements: {
+      gender: ["Чоловіки", "Жінки"],
+      ageMax: 99,
+      nationalities: ["Україна"],
+      standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
+      needsAdditionalDocs: true,
+      additionalDocsDetails:
+        "Книжечка санепід (якщо немає, робимо безкоштовно).",
+      experienceRequired: false,
+      hasEntranceTests: false,
+      entranceTestsDetails: "",
+      polishLanguageLevel: "Не вимагається",
+      languageDetails: "",
+      physicalLoad: "Температура 10-14°C. Робота на лінії в групі 8-10 осіб.",
+    },
+    businessTrip: {
+      isBusinessTrip: false,
+      requiresPolishExperience: false,
+      requiredDocuments: [],
+      tripDetails: "",
+    },
+    conditions: {
+      hasSpecificConditions: true,
+      specificNuances: ["Холодний склад (10-14°C)"],
+      specificConditionsDetails:
+        "Температура 10-14 градусів. Видається одноразовий одяг поверх свого та робоче взуття.",
+      workwearFree: true,
+      foodType: "Обіди",
+      foodDetails:
+        "Безкоштовні обіди 1 раз на день та 3 безкоштовні гарячі напої. Їдальня з мікрохвильовкою та автоматами.",
+    },
+    startExpenses: {
+      hasStartExpenses: false,
+      details: "",
+    },
+    earlyTerminationLiability: {
+      hasLiability: false,
+      details: "",
+    },
+    description:
+      "Фасування та сортування готової рибної продукції (пасти, салати, оселедець). Пакування готового продукту в пластикові коробочки/баночки на лінії. Транспортування продуктів, змішування інгредієнтів, прибирання робочого місця. Продукція не потребує чищення чи нарізки.",
+    additionalNotes:
+      "Стабільна робота в Познані, можливість наднормових годин.",
+  },
+  // Вакансія №87 - Weber Zabrze-1
+  {
+    agencyName: "MANPAWER",
+    templateName: "Weber Zabrze-1",
+    vacancydescription:
+      "Виробництво та монтаж газових, електричних та вугільних грилів",
+    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    keywords: [
+      "Weber",
+      "Zabrze",
+      "Gliwice",
+      "грилі",
+      "монтаж",
+      "пакування",
+      "чоловіки",
+      "B1",
+    ],
+    contractType: "Umowa o pracę",
+    forRecruiter: {
+      internalNotes:
+        "Сезонна робота: січень 2026 – травень 2026. Офіс: Gliwice, ul. Piwna 10. Потрібне резюме польською мовою. Розмова в офісі перед працевлаштуванням.",
+      hideAgencyNameForCandidate: true,
+      hideEnterpriseNameForCandidate: true,
+    },
+    location: "Zabrze",
+    locationDescription: "ul. Guido Henckela Donnersmarcka 19, 41-807 Zabrze",
+    voivodeship: "Śląskie",
+    country: "Polska",
+    checkInCity: "Gliwice",
+    salary: {
+      baseNetto: "5000 zł brutto/місяць",
+      studentNetto: "",
+      hoursRange: "168",
+      payoutDates: "Згідно з регламентом",
+      bonusDetails:
+        "+20% за нічні зміни; премія 10%; додаток за прання 38 зл брутто/міс.",
+      salaryNotes: "",
+    },
+    schedule: {
+      shiftsCount: 3,
+      hoursPerShift: "8",
+      workDaysWeek: "Пн-Пт",
+      breakDuration: "30 хв",
+      canChooseShiftOnStart: false,
+      shiftChoiceDetails: "",
+      description: "06:00–14:00, 14:00–22:00, 22:00–06:00",
+    },
+    accommodation: {
+      type: "Власне",
+      forCouples: false,
+      withChildren: false,
+      withPets: false,
+      costRaw: "",
+      details: "Житло не надається, доплати немає.",
+    },
+    transport: {
+      provided: false,
+      costRaw: "",
+      details:
+        "Безкоштовного автобусу немає. Доїзд самостійно пішки або міським транспортом.",
+    },
+    employerCompensations: {
+      hasCompensations: true,
+      details:
+        "Обслуговування в Medicover, карта Multisport, страхування Generali.",
+    },
+    requirements: {
+      gender: ["Чоловіки"],
+      ageMax: 99,
+      nationalities: ["Україна", "Білорусь", "Молдова"],
+      standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
+      needsAdditionalDocs: false,
+      additionalDocsDetails: "Потрібне резюме польською мовою.",
+      experienceRequired: false,
+      hasEntranceTests: false,
+      entranceTestsDetails: "",
+      polishLanguageLevel: "Середній (B1)",
+      languageDetails: "Потрібна польська мова на рівні B1.",
+      physicalLoad:
+        "Ручне переміщення та підвішування елементів на конвеєрі, пакування.",
+    },
+    businessTrip: {
+      isBusinessTrip: false,
+      requiresPolishExperience: false,
+      requiredDocuments: [],
+      tripDetails: "",
+    },
+    conditions: {
+      hasSpecificConditions: false,
+      specificNuances: [],
+      specificConditionsDetails: "Приміщення теплі.",
+      workwearFree: true,
+      foodType: "Субсидоване",
+      foodDetails:
+        "Дофінансування до обідів. Їдальня з мікрохвильовкою та автоматами.",
+    },
+    startExpenses: {
+      hasStartExpenses: false,
+      details: "",
+    },
+    earlyTerminationLiability: {
+      hasLiability: false,
+      details: "",
+    },
+    description:
+      "Робота на лінії монтування та виробництва грилів. Пакування готових комплектуючих і аксесуарів у картонні коробки. Ручне переміщення та підвішування елементів на конвеєрі. Візуальний контроль якості готових елементів. Дотримання правил охорони праці.",
+    additionalNotes:
+      "Допомога у виготовленні карт побиту та запрошень. Сезонна робота у світового лідера з виробництва грилів.",
+  },
+  // Вакансія №88 - ASG Poland Pruszków
+  {
+    agencyName: "MANPAWER",
+    templateName: "ASG Poland Pruszków",
+    vacancydescription: "Ручне виготовлення та пакування брендової упаковки",
+    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    keywords: [
+      "ASG Poland",
+      "Pruszków",
+      "упаковка",
+      "GPA Global",
+      "жінки",
+      "ручна робота",
+      "Bacardi",
+      "Swarovski",
+    ],
+    contractType: "Umowa zlecenie",
+    forRecruiter: {
+      internalNotes:
+        "Рекрутація для жінок з базовою польською мовою. Робота в системі 4 бригад.",
+      hideAgencyNameForCandidate: true,
+      hideEnterpriseNameForCandidate: true,
+    },
+    location: "Pruszków",
+    locationDescription: "ul. 3 Maja 8, 05-800 Pruszków (Teren MPL)",
+    voivodeship: "Mazowieckie",
+    country: "Polska",
+    checkInCity: "",
+    salary: {
+      baseNetto: "30.6 zł/год брутто",
+      studentNetto: "",
+      hoursRange: "200-240",
+      payoutDates: "Згідно з регламентом",
+      bonusDetails: "",
+      salaryNotes: "Можливість брати надгодини.",
+    },
+    schedule: {
+      shiftsCount: 2,
+      hoursPerShift: "12",
+      workDaysWeek: "Система 4 бригади",
+      breakDuration: "Згідно з КЗпП",
+      canChooseShiftOnStart: false,
+      shiftChoiceDetails: "",
+      description:
+        "06:00–18:00, 18:00–06:00. Графік: 2 дні роботи / 2 дні вихідні.",
+    },
+    accommodation: {
+      type: "Власне",
+      forCouples: false,
+      withChildren: false,
+      withPets: false,
+      costRaw: "",
+      details: "Житло не надається.",
+    },
+    transport: {
+      provided: false,
+      costRaw: "",
+      details: "Доїзд не надається.",
+    },
+    employerCompensations: {
+      hasCompensations: false,
+      details: "",
+    },
+    requirements: {
+      gender: ["Жінки"],
+      ageMax: 99,
+      nationalities: ["Україна"],
+      standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
+      needsAdditionalDocs: false,
+      additionalDocsDetails: "",
+      experienceRequired: false,
+      hasEntranceTests: false,
+      entranceTestsDetails: "",
+      polishLanguageLevel: "Початковий (А2)",
+      languageDetails: "Базова польська мова.",
+      physicalLoad: "Легка праця, сидячи або стоячи.",
+    },
+    businessTrip: {
+      isBusinessTrip: false,
+      requiresPolishExperience: false,
+      requiredDocuments: [],
+      tripDetails: "",
+    },
+    conditions: {
+      hasSpecificConditions: false,
+      specificNuances: [],
+      specificConditionsDetails: "",
+      workwearFree: true,
+      foodType: "Власне",
+      foodDetails: "",
+    },
+    startExpenses: {
+      hasStartExpenses: false,
+      details: "",
+    },
+    earlyTerminationLiability: {
+      hasLiability: false,
+      details: "",
+    },
+    description:
+      "Виконання ручних робіт з виготовлення упаковки для престижних брендів (Bacardi, Swarovski, Lancome тощо). Складання та склеювання коробочок та пакувальних елементів. Контроль якості готової продукції. Підтримка чистоти на робочому місці.",
+    additionalNotes:
+      "Стабільна робота у міжнародній компанії GPA Global, дружня атмосфера.",
+  },
+  // Вакансія №89 - Wkręt-Met Częstochowa-2
+  {
+    agencyName: "MANPAWER",
+    templateName: "Wkręt-Met Częstochowa-2",
+    vacancydescription: "Пакування та контроль якості кріпильної техніки",
+    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    keywords: [
+      "Wkręt-Met",
+      "Częstochowa",
+      "Wrzosowa",
+      "кріплення",
+      "пакування",
+      "контроль якості",
+      "чоловіки",
+      "жінки",
+    ],
+    contractType: "Umowa zlecenie",
+    forRecruiter: {
+      internalNotes:
+        "Офіс: Częstochowa, Al. Wolności 1. Безкоштовна допомога з картами побиту.",
+      hideAgencyNameForCandidate: true,
+      hideEnterpriseNameForCandidate: true,
+    },
+    location: "Częstochowa",
+    locationDescription: "Wrzosowa / Wanaty (згідно з маршрутом автобуса)",
+    voivodeship: "Śląskie",
+    country: "Polska",
+    checkInCity: "Częstochowa",
+    salary: {
+      baseNetto: "30.50 zł/год брутто",
+      studentNetto: "",
+      hoursRange: "200-240",
+      payoutDates: "Згідно з регламентом",
+      bonusDetails: "",
+      salaryNotes: "Дофінансування до власного житла 330 зл/міс брутто.",
+    },
+    schedule: {
+      shiftsCount: 2,
+      hoursPerShift: "12",
+      workDaysWeek: "За графіком підприємства",
+      breakDuration: "Згідно з КЗпП",
+      canChooseShiftOnStart: false,
+      shiftChoiceDetails: "",
+      description: "06:00–18:00, 18:00–06:00.",
+    },
+    accommodation: {
+      type: "Платне",
+      forCouples: true,
+      withChildren: false,
+      withPets: false,
+      costRaw: "550 зл/міс",
+      details:
+        "Житло від фірми коштує 550 зл. При власному житлі — доплата 330 зл/міс.",
+    },
+    transport: {
+      provided: true,
+      costRaw: "Безкоштовно",
+      details: "Безкоштовний автобус з Częstochowa, Wrzosowa.",
+    },
+    employerCompensations: {
+      hasCompensations: true,
+      details: "Карта Multisport, Medicover, групове страхування.",
+    },
+    requirements: {
+      gender: ["Чоловіки", "Жінки", "Пари"],
+      ageMax: 99,
+      nationalities: ["Україна", "Молдова"],
+      standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
+      needsAdditionalDocs: false,
+      additionalDocsDetails: "",
+      experienceRequired: false,
+      hasEntranceTests: false,
+      entranceTestsDetails: "",
+      polishLanguageLevel: "Не вимагається",
+      languageDetails: "",
+      physicalLoad: "Робота стоячи, вимагає уважності та акуратності.",
+    },
+    businessTrip: {
+      isBusinessTrip: false,
+      requiresPolishExperience: false,
+      requiredDocuments: [],
+      tripDetails: "",
+    },
+    conditions: {
+      hasSpecificConditions: false,
+      specificNuances: [],
+      specificConditionsDetails: "",
+      workwearFree: true,
+      foodType: "Власне",
+      foodDetails: "",
+    },
+    startExpenses: {
+      hasStartExpenses: false,
+      details: "",
+    },
+    earlyTerminationLiability: {
+      hasLiability: false,
+      details: "",
+    },
+    description:
+      "Контроль якості та пакування кріпильної техніки (дюбелі, гвинти, болти). Перевірка етикеток, якості друку, відповідності кольору та кількості продукції. Звірка даних з планшетом. Складання коробок на палети згідно зі стандартами. Підтримання чистоти на робочому місці.",
+    additionalNotes:
+      "Робота у провідного польського виробника кріпильних систем.",
+  },
+  // Вакансія №90 - Hutchinson Łódź-3
+  {
+    agencyName: "MANPAWER",
+    templateName: "Hutchinson Łódź-3",
+    vacancydescription: "Виробництво гумових ущільнювачів для автомобілів",
+    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    keywords: [
+      "Hutchinson",
+      "Łódź",
+      "ущільнювачі",
+      "гума",
+      "прес-форми",
+      "пари",
+      "екструзія",
+    ],
+    contractType: "Umowa o pracę",
+    forRecruiter: {
+      internalNotes:
+        "Адреса: ul. Zakładowa 99 або Kurczaki 130. Перед роботою — екскурсія на виробництво. Допомога з картами побиту.",
+      hideAgencyNameForCandidate: true,
+      hideEnterpriseNameForCandidate: true,
+    },
+    location: "Łódź",
+    locationDescription: "ul. Zakładowa 99 / ul. Kurczaki 130",
+    voivodeship: "Łódzkie",
+    country: "Polska",
+    checkInCity: "",
+    salary: {
+      baseNetto: "4350 - 4660 zł brutto/місяць",
+      studentNetto: "",
+      hoursRange: "168",
+      payoutDates: "Згідно з регламентом",
+      bonusDetails: "+20% за нічні зміни; премія до 330 зл брутто.",
+      salaryNotes:
+        "Ставка 4350 (Zakładowa) або 4660 (Kurczaki). Надгодини: +50% будні, +100% субота, +200% неділя/свята. Доплата за власне житло 475 зл брутто (зменшується пропорційно лікарняним).",
+    },
+    schedule: {
+      shiftsCount: 3,
+      hoursPerShift: "8",
+      workDaysWeek: "Пн-Пт",
+      breakDuration: "20-30 хв",
+      canChooseShiftOnStart: false,
+      shiftChoiceDetails: "",
+      description: "05:45–13:45, 13:45–21:45, 21:45–05:45.",
+    },
+    accommodation: {
+      type: "Платне",
+      forCouples: true,
+      withChildren: false,
+      withPets: false,
+      costRaw: "260 зл/міс",
+      details:
+        "Хостел, 3-4 особи в кімнаті, всі зручності. При власному житлі — доплата 475 зл брутто.",
+    },
+    transport: {
+      provided: false,
+      costRaw: "",
+      details:
+        "Доїзд самостійно. З міст Łask, Pabianice, Piotrków Trybunalski — платний транспорт.",
+    },
+    employerCompensations: {
+      hasCompensations: true,
+      details: "Обслуговування в Medicover, карта Multisport, страхування PZU.",
+    },
+    requirements: {
+      gender: ["Чоловіки", "Жінки", "Пари"],
+      ageMax: 99,
+      nationalities: ["Україна", "Білорусь", "Молдова"],
+      standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
+      needsAdditionalDocs: false,
+      additionalDocsDetails: "",
+      experienceRequired: false,
+      hasEntranceTests: false,
+      entranceTestsDetails: "",
+      polishLanguageLevel: "Не вимагається",
+      languageDetails: "",
+      physicalLoad:
+        "Чоловіки: обслуговування прес-машин (висока температура). Жінки: обробка, контроль якості, пакування.",
+    },
+    businessTrip: {
+      isBusinessTrip: false,
+      requiresPolishExperience: false,
+      requiredDocuments: [],
+      tripDetails: "",
+    },
+    conditions: {
+      hasSpecificConditions: true,
+      specificNuances: ["Запах гуми", "Висока температура"],
+      specificConditionsDetails:
+        "Робота при високій температурі (біля прес-форм), присутній запах гуми.",
+      workwearFree: true,
+      foodType: "Власне",
+      foodDetails: "Їдальня з мікрохвильовкою та автоматами.",
+    },
+    startExpenses: {
+      hasStartExpenses: false,
+      details: "",
+    },
+    earlyTerminationLiability: {
+      hasLiability: false,
+      details: "",
+    },
+    description:
+      "Обслуговування прес-формувальних машин (завантаження деталей, запуск, відбір готових матеріалів). Подальша обробка гумових виробів: чищення, контроль якості, наклеювання кодів та пакування готової продукції.",
+    additionalNotes:
+      "Можливість роботи для сімейних пар. Стабільне підприємство автомобільної галузі.",
+  },
+  // Вакансія №91 - Huber+Suhner Polatis Chrzanów
+  {
+    agencyName: "MANPAWER",
+    templateName: "Huber+Suhner Nawojowa Góra / Pisary",
+    vacancydescription:
+      "Виробництво оптичних перемикачів в електротехнічній галузі",
+    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    keywords: [
+      "Huber+Suhner",
+      "Nawojowa Góra",
+      "Pisary",
+      "Chrzanów",
+      "оптичні перемикачі",
+      "пайка",
+      "монтаж",
+      "електротехніка",
+    ],
+    contractType: "Umowa o pracę",
+    forRecruiter: {
+      internalNotes:
+        "Офіс: Biblioteka miejska w Chrzanowie. Обов'язкова перевірка, чи працював кандидат тут раніше. Мануальний тест польською мовою. Не вказувати назву заводу в оголошенні.",
+      hideAgencyNameForCandidate: true,
+      hideEnterpriseNameForCandidate: true,
+    },
+    location: "Nawojowa Góra",
+    locationDescription: "Nawojowa Góra / Pisary (заклади поруч)",
+    voivodeship: "Małopolskie",
+    country: "Polska",
+    checkInCity: "Chrzanów",
+    salary: {
+      baseNetto: "4950 zł брутто/місяць",
+      studentNetto: "",
+      hoursRange: "168",
+      payoutDates: "До 10 числа",
+      bonusDetails:
+        "+10% за другу зміну; +40% за нічні години (для нічного графіка); квартальна премія за відвідуваність ~300 зл брутто.",
+      salaryNotes:
+        "Робота у вихідні: 35,35–42,42 зл брутто/год. Гнучкі графіки на вибір.",
+    },
+    schedule: {
+      shiftsCount: 2,
+      hoursPerShift: "8",
+      workDaysWeek: "Пн-Пт / Нд-Пт / Сб-Нд",
+      breakDuration: "2 перерви по 15 хв",
+      canChooseShiftOnStart: true,
+      shiftChoiceDetails:
+        "Можна обрати: 2 зміни (6-14, 14-22), тільки нічні (22-6) або тільки вихідні.",
+      description:
+        "Залежить від обраного варіанту: 06:00-14:00, 14:00-22:00, 22:00-06:00.",
+    },
+    accommodation: {
+      type: "Власне",
+      forCouples: false,
+      withChildren: false,
+      withPets: false,
+      costRaw: "",
+      details: "Житло не надається.",
+    },
+    transport: {
+      provided: true,
+      costRaw: "Безкоштовно",
+      details: "Безкоштовний транспорт з міст: Trzebinia, Chrzanów.",
+    },
+    employerCompensations: {
+      hasCompensations: true,
+      details:
+        "картка MultiSport, приватне медичне страхування, групове страхування PZU, MyBenefit, MANPAWERGroup Premium.",
+    },
+    requirements: {
+      gender: ["Чоловіки", "Жінки"],
+      ageMax: 99,
+      nationalities: ["Україна"],
+      standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
+      needsAdditionalDocs: false,
+      additionalDocsDetails: "",
+      experienceRequired: false,
+      hasEntranceTests: true,
+      entranceTestsDetails:
+        "Мануальний тест польською мовою під час екскурсії.",
+      polishLanguageLevel: "Середній (B1)",
+      languageDetails: "Знання польської на комунікативному рівні (B1).",
+      physicalLoad:
+        "Робота переважно сидяча. Робота з дрібними елементами, потрібен хороший зір.",
+    },
+    businessTrip: {
+      isBusinessTrip: false,
+      requiresPolishExperience: false,
+      requiredDocuments: [],
+      tripDetails: "",
+    },
+    conditions: {
+      hasSpecificConditions: false,
+      specificNuances: [],
+      specificConditionsDetails: "Робота з паяльником.",
+      workwearFree: true,
+      foodType: "Власне",
+      foodDetails: "Автомати з кавою, чаєм, снеками, мікрохвильові печі.",
+    },
+    startExpenses: {
+      hasStartExpenses: false,
+      details: "",
+    },
+    earlyTerminationLiability: {
+      hasLiability: false,
+      details: "",
+    },
+    description:
+      "Монтаж елементів оптичних перемикачів згідно з інструкцією. Робота з паяльником. Внесення даних у виробничу систему. Контроль якості готової продукції.",
+    additionalNotes:
+      "Еластичні години праці до вибору працівника. Стабільне працевлаштування у лідера електротехнічної галузі.",
+  },
+  // Вакансія №92 - Hutchinson Zakładowa
+  {
+    agencyName: "MANPAWER",
+    templateName: "Hutchinson Zakładowa",
+    vacancydescription: "Виробництво гумових ущільнювачів для автомобілів",
+    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    keywords: [
+      "Hutchinson",
+      "Łódź",
+      "ущільнювачі",
+      "гума",
+      "прес-форми",
+      "пари",
+      "автомобільна промисловість",
+    ],
+    contractType: "Umowa o pracę",
+    forRecruiter: {
+      internalNotes:
+        "Адреса: ul. Zakładowa 99 або Kurczaki 130. Перед працевлаштуванням екскурсія. Допомога з картами побиту.",
+      hideAgencyNameForCandidate: true,
+      hideEnterpriseNameForCandidate: true,
+    },
+    location: "Łódź",
+    locationDescription: "ul. Zakładowa 99 / ul. Kurczaki 130",
+    voivodeship: "Łódzkie",
+    country: "Polska",
+    checkInCity: "",
+    salary: {
+      baseNetto: "4350 - 4660 zł брутто/місяць",
+      studentNetto: "",
+      hoursRange: "168",
+      payoutDates: "До 10 числа",
+      bonusDetails: "+20% за нічні зміни; премія до 330 зл брутто.",
+      salaryNotes:
+        "Ставка 4350 (Zakładowa) або 4660 (Kurczaki). Надгодини: +50% будні, +100% субота, +200% неділя. Доплата за власне житло 475 зл брутто (пропорційно відсутності лікарняних).",
+    },
+    schedule: {
+      shiftsCount: 3,
+      hoursPerShift: "8",
+      workDaysWeek: "Пн-Пт",
+      breakDuration: "20-30 хв",
+      canChooseShiftOnStart: false,
+      shiftChoiceDetails: "",
+      description: "05:45-13:45; 13:45-21:45; 21:45-5:45.",
+    },
+    accommodation: {
+      type: "Платне",
+      forCouples: true,
+      withChildren: false,
+      withPets: false,
+      costRaw: "260 зл/міс",
+      details:
+        "Хостел, 3-4 особи в кімнаті. При власному житлі — доплата 475 зл брутто.",
+    },
+    transport: {
+      provided: false,
+      costRaw: "",
+      details:
+        "Безкоштовного автобуса немає. Платний транспорт з Łask, Pabianice, Piotrków Trybunalski.",
+    },
+    employerCompensations: {
+      hasCompensations: true,
+      details: "Medicover, Multisport, страхування PZU.",
+    },
+    requirements: {
+      gender: ["Чоловіки", "Жінки", "Пари"],
+      ageMax: 99,
+      nationalities: ["Україна", "Білорусь", "Молдова"],
+      standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
+      needsAdditionalDocs: false,
+      additionalDocsDetails: "",
+      experienceRequired: false,
+      hasEntranceTests: false,
+      entranceTestsDetails: "",
+      polishLanguageLevel: "Не вимагається",
+      languageDetails: "",
+      physicalLoad:
+        "Чоловіки: обслуговування прес-машин (висока температура). Жінки: обробка, контроль якості, пакування.",
+    },
+    businessTrip: {
+      isBusinessTrip: false,
+      requiresPolishExperience: false,
+      requiredDocuments: [],
+      tripDetails: "",
+    },
+    conditions: {
+      hasSpecificConditions: true,
+      specificNuances: ["Запах гуми", "Висока температура"],
+      specificConditionsDetails:
+        "Робота при високій температурі біля прес-форм. Запах гуми.",
+      workwearFree: true,
+      foodType: "Власне",
+      foodDetails: "Їдальня з мікрохвильовкою та автоматами.",
+    },
+    startExpenses: {
+      hasStartExpenses: false,
+      details: "",
+    },
+    earlyTerminationLiability: {
+      hasLiability: false,
+      details: "",
+    },
+    description:
+      "Обслуговування прес-формувальних машин (завантаження деталей, запуск, відбір матеріалів). Подальша обробка деталей (очищення, контроль якості, пакування). Видрук наклейок з кодами деталей.",
+    additionalNotes: "Допомога з картами побиту та запрошеннями.",
+  },
+  // Вакансія №93 - Allegro Adamów-2
+  {
+    agencyName: "MANPAWER",
+    templateName: "Allegro Adamów-2",
+    vacancydescription: "Складська робота: збирання та упаковка замовлень",
+    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    keywords: [
+      "Allegro",
+      "Adamów",
+      "склад",
+      "сканер",
+      "пакування",
+      "тимчасова робота",
+      "Warszawa",
+    ],
+    contractType: "Umowa zlecenie",
+    forRecruiter: {
+      internalNotes: "Тимчасова робота. Досвід буде перевагою.",
+      hideAgencyNameForCandidate: true,
+      hideEnterpriseNameForCandidate: true,
+    },
+    location: "Adamów",
+    locationDescription: "Склад Allegro",
+    voivodeship: "Mazowieckie",
+    country: "Polska",
+    checkInCity: "",
+    salary: {
+      baseNetto: "32,00 зл/год брутто",
+      studentNetto: "",
+      hoursRange: "168-220",
+      payoutDates: "Згідно з регламентом",
+      bonusDetails:
+        "Премія за продуктивність до 20%; сезонний бонус 1500 зл брутто (за 100% відвідуваність з 10.11 по 23.12).",
+      salaryNotes: "Обід за 1 зл.",
+    },
+    schedule: {
+      shiftsCount: 2,
+      hoursPerShift: "8-12",
+      workDaysWeek: "Пн-Нд",
+      breakDuration: "Згідно з КЗпП",
+      canChooseShiftOnStart: false,
+      shiftChoiceDetails: "",
+      description:
+        "Пн-Пт: 6:00-14:00, 14:00-22:00. Сб-Нд: 8:00-16:00 або 12:00-20:00. Можна працювати у вихідні.",
+    },
+    accommodation: {
+      type: "Власне",
+      forCouples: false,
+      withChildren: false,
+      withPets: false,
+      costRaw: "",
+      details: "Житло не надається.",
+    },
+    transport: {
+      provided: true,
+      costRaw: "Безкоштовно",
+      details:
+        "Безкоштовний автобус з: Żyrardów, Sochaczew, Skierniewice, Warszawa.",
+    },
+    employerCompensations: {
+      hasCompensations: false,
+      details: "",
+    },
+    requirements: {
+      gender: ["Чоловіки", "Жінки"],
+      ageMax: 99,
+      nationalities: ["Україна"],
+      standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
+      needsAdditionalDocs: false,
+      additionalDocsDetails: "",
+      experienceRequired: false,
+      hasEntranceTests: false,
+      entranceTestsDetails: "",
+      polishLanguageLevel: "Не вимагається",
+      languageDetails: "",
+      physicalLoad: "Проста складська робота, збирання замовлень.",
+    },
+    businessTrip: {
+      isBusinessTrip: false,
+      requiresPolishExperience: false,
+      requiredDocuments: [],
+      tripDetails: "",
+    },
+    conditions: {
+      hasSpecificConditions: false,
+      specificNuances: [],
+      specificConditionsDetails: "",
+      workwearFree: true,
+      foodType: "Субсидоване",
+      foodDetails: "Обід за 1 зл.",
+    },
+    startExpenses: {
+      hasStartExpenses: false,
+      details: "",
+    },
+    earlyTerminationLiability: {
+      hasLiability: false,
+      details: "",
+    },
+    description:
+      "Збирання і упаковка замовлень на складі. Проста складська робота з використанням сканера.",
+    additionalNotes:
+      "Тимчасова робота з можливістю високого заробітку в сезон.",
+  },
+  // Вакансія №94 - Weber Zabrze-2
+  {
+    agencyName: "MANPAWER",
+    templateName: "Weber Zabrze-2",
+    vacancydescription:
+      "Виробництво та монтаж газових, електричних та вугільних грилів",
+    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    keywords: [
+      "Weber",
+      "Zabrze",
+      "грилі",
+      "монтаж",
+      "пакування",
+      "чоловіки",
+      "B1",
+    ],
+    contractType: "Umowa o pracę",
+    forRecruiter: {
+      internalNotes:
+        "Сезонна робота: вересень 2025 – травень 2026. Потрібне резюме польською мовою. Розмова в офісі перед працевлаштуванням.",
+      hideAgencyNameForCandidate: true,
+      hideEnterpriseNameForCandidate: true,
+    },
+    location: "Zabrze",
+    locationDescription: "ul. Guido Henckela Donnersmarcka 19, 41-807 Zabrze",
+    voivodeship: "Śląskie",
+    country: "Polska",
+    checkInCity: "",
+    salary: {
+      baseNetto: "5300 зл. бруттo /міс.",
+      studentNetto: "",
+      hoursRange: "168",
+      payoutDates: "Згідно з регламентом",
+      bonusDetails:
+        "+20% за нічні зміни; 10% премія; додаток за прання 38 зл брутто/міс.",
+      salaryNotes: "",
+    },
+    schedule: {
+      shiftsCount: 3,
+      hoursPerShift: "8",
+      workDaysWeek: "Пн-Пт",
+      breakDuration: "30 хв",
+      canChooseShiftOnStart: false,
+      shiftChoiceDetails: "",
+      description: "06:00-14:00, 14:00-22:00, 22:00-06:00",
+    },
+    accommodation: {
+      type: "Власне",
+      forCouples: false,
+      withChildren: false,
+      withPets: false,
+      costRaw: "",
+      details: "Житло не надається, додатку немає.",
+    },
+    transport: {
+      provided: false,
+      costRaw: "",
+      details: "Безкоштовного автобусу немає. Доїзд самостійно.",
+    },
+    employerCompensations: {
+      hasCompensations: true,
+      details: "Medicover, Multisport, страхування Generali.",
+    },
+    requirements: {
+      gender: ["Чоловіки"],
+      ageMax: 99,
+      nationalities: ["Україна", "Білорусь", "Молдова"],
+      standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
+      needsAdditionalDocs: false,
+      additionalDocsDetails: "Потрібне резюме польською мовою.",
+      experienceRequired: false,
+      hasEntranceTests: false,
+      entranceTestsDetails: "",
+      polishLanguageLevel: "Комунікативний",
+      languageDetails: "Потрібна польська мова для проходження співбесіди.",
+      physicalLoad: "Ручне переміщення та підвішування елементів на конвеєрі.",
+    },
+    businessTrip: {
+      isBusinessTrip: false,
+      requiresPolishExperience: false,
+      requiredDocuments: [],
+      tripDetails: "",
+    },
+    conditions: {
+      hasSpecificConditions: false,
+      specificNuances: [],
+      specificConditionsDetails: "Приміщення теплі.",
+      workwearFree: true,
+      foodType: "Субсидоване",
+      foodDetails:
+        "Дофінансування до обідів. Їдальня з мікрохвильовкою та автоматами.",
+    },
+    startExpenses: {
+      hasStartExpenses: false,
+      details: "",
+    },
+    earlyTerminationLiability: {
+      hasLiability: false,
+      details: "",
+    },
+    description:
+      "Пакування готових комплектуючих і аксесуарів гриля в картонну коробку. Ручне переміщення та підвішування елементів на конвеєрі. Візуальний контроль готових елементів. Дотримання порядку на робочому місці.",
+    additionalNotes: "Допомога з картами побиту та запрошеннями.",
+  },
+  // Вакансія №95 - Media Expert Łódź-3
+  {
+    agencyName: "MANPAWER",
+    templateName: "Media Expert Łódź-3",
+    vacancydescription: "Склад електроніки: комплектація та розвантаження",
+    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    keywords: [
+      "Media Expert",
+      "Łódзь",
+      "електроніка",
+      "склад",
+      "сканер",
+      "комплектація",
+      "чоловіки",
+      "жінки",
+    ],
+    contractType: "Umowa zlecenia",
+    forRecruiter: {
+      internalNotes:
+        "Тест з мови обов'язковий. Три локації: Zakładowa (дрібна техніка, жінки), Jędrzejowska 43a (середня), Jędrzejowska 45a (велика).",
+      hideAgencyNameForCandidate: true,
+      hideEnterpriseNameForCandidate: true,
+    },
+    location: "Łódź",
+    locationDescription: "Jędrzejowska 45a, Jędrzejowska 43a, Zakładowa 90/92",
+    voivodeship: "Łódzkie",
+    country: "Polska",
+    checkInCity: "",
+    salary: {
+      baseNetto: "34,00 зл/год брутто",
+      studentNetto: "",
+      hoursRange: "168-220",
+      payoutDates: "Згідно з регламентом",
+      bonusDetails:
+        "Ставка зростає: 37,00 (жовтень), 38,50 (листопад), 40,00 (грудень) за умови виконання положень договору.",
+      salaryNotes: "Харчування – 2,5 зл.",
+    },
+    schedule: {
+      shiftsCount: 3,
+      hoursPerShift: "8-10",
+      workDaysWeek: "Нд-Пт",
+      breakDuration: "20-30 хв",
+      canChooseShiftOnStart: true,
+      shiftChoiceDetails: "Можна вибрати відділ (габарити техніки).",
+      description:
+        "2 або 3 зміни, робота з неділі по п'ятницю. Вихідний у суботу та один день серед тижня.",
+    },
+    accommodation: {
+      type: "Власне",
+      forCouples: false,
+      withChildren: false,
+      withPets: false,
+      costRaw: "",
+      details: "Житло не надається.",
+    },
+    transport: {
+      provided: true,
+      costRaw: "Безкоштовно",
+      details:
+        "Безкоштовний автобус (крім локації Zakładowa 90/92 — туди доїзд самостійний).",
+    },
+    employerCompensations: {
+      hasCompensations: true,
+      details: "Medicover, Multisport, страхування PZU.",
+    },
+    requirements: {
+      gender: ["Чоловіки", "Жінки"],
+      ageMax: 99,
+      nationalities: ["Україна"],
+      standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
+      needsAdditionalDocs: false,
+      additionalDocsDetails: "",
+      experienceRequired: false,
+      hasEntranceTests: true,
+      entranceTestsDetails: "Тест з польської мови.",
+      polishLanguageLevel: "Комунікативний",
+      languageDetails:
+        "Потрібне розуміння та спілкування для роботи зі сканером.",
+      physicalLoad:
+        "Залежить від відділу: від дрібної техніки до холодильників (до 20+ кг).",
+    },
+    businessTrip: {
+      isBusinessTrip: false,
+      requiresPolishExperience: false,
+      requiredDocuments: [],
+      tripDetails: "",
+    },
+    conditions: {
+      hasSpecificConditions: false,
+      specificNuances: [],
+      specificConditionsDetails: "Приміщення теплі.",
+      workwearFree: true,
+      foodType: "Субсидоване",
+      foodDetails:
+        "Харчування за 2,5 зл. Їдальня з мікрохвильовкою та автоматами.",
+    },
+    startExpenses: {
+      hasStartExpenses: false,
+      details: "",
+    },
+    earlyTerminationLiability: {
+      hasLiability: false,
+      details: "",
+    },
+    description:
+      "Обслуговування сканера. Комплектація замовлень електроніки. Розвантаження і завантаження вантажних автомобілів. Навколоскладські роботи. Робота з різними габаритами техніки (від телефонів до холодильників).",
+    additionalNotes: "Допомога з картами побиту та запрошеннями.",
+  },
+  // Вакансія №96 - Faurecia Frames Wałbrzych-1
+  {
+    agencyName: "MANPAWER",
+    templateName: "Faurecia Frames Wałbrzych-1",
+    vacancydescription: "Монтаж каркасів автомобільних сидінь",
+    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    keywords: [
+      "Faurecia",
+      "Wałbrzych",
+      "автомобільні сидіння",
+      "монтаж",
+      "зварювання",
+      "лакерування",
+      "чоловіки",
+    ],
+    contractType: "Umowa o pracę",
+    forRecruiter: {
+      internalNotes:
+        "Потрібна комунікативна польська мова. Житло не надається.",
+      hideAgencyNameForCandidate: true,
+      hideEnterpriseNameForCandidate: true,
+    },
+    location: "Wałbrzych",
+    locationDescription: "ul. Jachimowicza 3",
+    voivodeship: "Dolnośląskie",
+    country: "Polska",
+    checkInCity: "",
+    salary: {
+      baseNetto: "4666 зл./міс. брутто",
+      studentNetto: "",
+      hoursRange: "168",
+      payoutDates: "Згідно з регламентом",
+      bonusDetails: "Продукційна премія до 15%; +20% за нічні зміни.",
+      salaryNotes: "Надгодини: +50% (Пн-Пт), +100% (вихідні).",
+    },
+    schedule: {
+      shiftsCount: 3,
+      hoursPerShift: "8",
+      workDaysWeek: "Пн-Пт",
+      breakDuration: "20-30 хв",
+      canChooseShiftOnStart: false,
+      shiftChoiceDetails: "",
+      description: "06:00–14:00, 14:00–22:00, 22:00–06:00",
+    },
+    accommodation: {
+      type: "Власне",
+      forCouples: false,
+      withChildren: false,
+      withPets: false,
+      costRaw: "",
+      details: "Житло не надається і не дофінансовується.",
+    },
+    transport: {
+      provided: false,
+      costRaw: "",
+      details: "Доїзд самостійний.",
+    },
+    employerCompensations: {
+      hasCompensations: true,
+      details: "Multisport, приватне мед. страхування, групова страховка.",
+    },
+    requirements: {
+      gender: ["Чоловіки"],
+      ageMax: 99,
+      nationalities: ["Україна"],
+      standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
+      needsAdditionalDocs: false,
+      additionalDocsDetails: "",
+      experienceRequired: false,
+      hasEntranceTests: false,
+      entranceTestsDetails: "",
+      polishLanguageLevel: "Комунікативний",
+      languageDetails: "Знання польської мови на комунікативному рівні.",
+      physicalLoad:
+        "Монтаж деталей, обслуговування зварювальних столів, лакерування.",
+    },
+    businessTrip: {
+      isBusinessTrip: false,
+      requiresPolishExperience: false,
+      requiredDocuments: [],
+      tripDetails: "",
+    },
+    conditions: {
+      hasSpecificConditions: false,
+      specificNuances: [],
+      specificConditionsDetails: "",
+      workwearFree: true,
+      foodType: "Власне",
+      foodDetails: "Їдальня з мікрохвильовкою та автоматами.",
+    },
+    startExpenses: {
+      hasStartExpenses: false,
+      details: "",
+    },
+    earlyTerminationLiability: {
+      hasLiability: false,
+      details: "",
+    },
+    description:
+      "Монтаж деталей до каркасів сидінь автомобілів. Контроль якості та складання готової продукції. Обслуговування зварювальних столів. Лакерування деталей.",
+    additionalNotes: "Безкоштовна допомога з документами на карту побиту.",
+  },
+  // Вакансія №97 - Faurecia Recliners Wałbrzych-2
+  {
+    agencyName: "MANPAWER",
+    templateName: "Faurecia Recliners Wałbrzych-2",
+    vacancydescription: "Монтаж механізмів регулювання автомобільних сидінь",
+    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    keywords: [
+      "Faurecia",
+      "Wałbrzych",
+      "автомобільна промисловість",
+      "механізми сидінь",
+      "монтаж",
+      "пари",
+      "CV",
+    ],
+    contractType: "Umowa o pracę",
+    forRecruiter: {
+      internalNotes:
+        "Потрібне резюме (CV). Комунікативна польська мова. Робота в 4-бригадній системі.",
+      hideAgencyNameForCandidate: true,
+      hideEnterpriseNameForCandidate: true,
+    },
+    location: "Wałbrzych",
+    locationDescription: "ul. Jachimowicza 3",
+    voivodeship: "Dolnośląskie",
+    country: "Polska",
+    checkInCity: "",
+    salary: {
+      baseNetto: "4666 зл/міс. брутто",
+      studentNetto: "",
+      hoursRange: "168",
+      payoutDates: "Згідно з регламентом",
+      bonusDetails: "Премії до 15%; +20% за нічні зміни.",
+      salaryNotes: "Надгодини: +50% (Пн-Пт), +100% (вихідні та свята).",
+    },
+    schedule: {
+      shiftsCount: 3,
+      hoursPerShift: "8",
+      workDaysWeek: "Система 4 бригади",
+      breakDuration: "Згідно з КЗпП",
+      canChooseShiftOnStart: false,
+      shiftChoiceDetails: "",
+      description: "07:00–15:00 / 15:00–23:00 / 23:00–07:00 згідно з графіком.",
+    },
+    accommodation: {
+      type: "Власне",
+      forCouples: true,
+      withChildren: false,
+      withPets: false,
+      costRaw: "",
+      details: "Житло не надається.",
+    },
+    transport: {
+      provided: false,
+      costRaw: "",
+      details: "Транспорту немає.",
+    },
+    employerCompensations: {
+      hasCompensations: true,
+      details:
+        "Безкоштовні супи, основні страви за 6-8 зл. Medicover, Multisport, групове страхування.",
+    },
+    requirements: {
+      gender: ["Чоловіки", "Жінки", "Пари"],
+      ageMax: 99,
+      nationalities: ["Україна"],
+      standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
+      needsAdditionalDocs: false,
+      additionalDocsDetails: "Потрібне резюме (CV).",
+      experienceRequired: false,
+      hasEntranceTests: false,
+      entranceTestsDetails: "",
+      polishLanguageLevel: "Комунікативний",
+      languageDetails: "Комунікативна польська мова.",
+      physicalLoad: "Робота на виробничій лінії, монтаж дрібних деталей.",
+    },
+    businessTrip: {
+      isBusinessTrip: false,
+      requiresPolishExperience: false,
+      requiredDocuments: [],
+      tripDetails: "",
+    },
+    conditions: {
+      hasSpecificConditions: false,
+      specificNuances: [],
+      specificConditionsDetails: "",
+      workwearFree: true,
+      foodType: "Субсидоване",
+      foodDetails: "Безкоштовні супи, обіди за 6-8 зл.",
+    },
+    startExpenses: {
+      hasStartExpenses: false,
+      details: "",
+    },
+    earlyTerminationLiability: {
+      hasLiability: false,
+      details: "",
+    },
+    description:
+      "Монтаж деталей до механізмів регулювання автомобільних сидінь. Контроль якості готової продукції. Робота на виробничій лінії в 3-змінному режимі.",
+    additionalNotes: "Допомога в підготовці документів на карту побиту.",
+  },
+  // Вакансія №98 - Prospekta Nysa-1
+  {
+    agencyName: "MANPAWER",
+    templateName: "Prospekta Nysa-1",
+    vacancydescription: "Виробництво та пакування желейних цукерок",
+    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    keywords: [
+      "Prospekta",
+      "Nysa",
+      "цукерки",
+      "желейки",
+      "пакування",
+      "харчова промисловість",
+      "пари",
+    ],
+    contractType: "Umowa zlecenie",
+    forRecruiter: {
+      internalNotes:
+        "Книжка санепід обов'язкова (можна зробити в Нисі, чекати 4 дні). Поселення за 5 днів до старту. Стандарт житла високий.",
+      hideAgencyNameForCandidate: true,
+      hideEnterpriseNameForCandidate: true,
+    },
+    location: "Nysa",
+    locationDescription: "Завод желейних цукерок",
+    voivodeship: "Opolskie",
+    country: "Polska",
+    checkInCity: "",
+    salary: {
+      baseNetto: "30,50 зл/год брутто",
+      studentNetto: "",
+      hoursRange: "168-220",
+      payoutDates: "Згідно з регламентом",
+      bonusDetails: "",
+      salaryNotes: "В середньому 220 годин на місяць.",
+    },
+    schedule: {
+      shiftsCount: 2,
+      hoursPerShift: "12",
+      workDaysWeek: "Система 4 бригади",
+      breakDuration: "Згідно з КЗпП",
+      canChooseShiftOnStart: false,
+      shiftChoiceDetails: "",
+      description: "Робота по 12 годин у 4-бригадній системі.",
+    },
+    accommodation: {
+      type: "Платне",
+      forCouples: true,
+      withChildren: false,
+      withPets: false,
+      costRaw: "350 зл/міс",
+      details: "Надається житло, вартість 350 зл/міс.",
+    },
+    transport: {
+      provided: false,
+      costRaw: "",
+      details: "Службового транспорту немає.",
+    },
+    employerCompensations: {
+      hasCompensations: false,
+      details: "",
+    },
+    requirements: {
+      gender: ["Чоловіки", "Жінки", "Пари"],
+      ageMax: 99,
+      nationalities: ["Україна"],
+      standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
+      needsAdditionalDocs: true,
+      additionalDocsDetails: "Книжка санепід.",
+      experienceRequired: false,
+      hasEntranceTests: false,
+      entranceTestsDetails: "",
+      polishLanguageLevel: "Комунікативний",
+      languageDetails: "Комунікативний рівень польської мови.",
+      physicalLoad:
+        "Стояча робота. Чоловіки: перенесення кошиків 10-15 кг. Зріст від 160 см.",
+    },
+    businessTrip: {
+      isBusinessTrip: false,
+      requiresPolishExperience: false,
+      requiredDocuments: [],
+      tripDetails: "",
+    },
+    conditions: {
+      hasSpecificConditions: true,
+      specificNuances: ["Запах солодощів"],
+      specificConditionsDetails:
+        "Температура +20…+22 °C. Характерний солодкий запах. Заборона штучних вій, нігтів, прикрас.",
+      workwearFree: true,
+      foodType: "Власне",
+      foodDetails: "",
+    },
+    startExpenses: {
+      hasStartExpenses: false,
+      details: "",
+    },
+    earlyTerminationLiability: {
+      hasLiability: false,
+      details: "",
+    },
+    description:
+      "Для жінок: збір готової продукції, пакування та перенесення коробок, укладання на стелажі. Для чоловіків: перенесення кошиків з желейними цукерками (10–15 кг), допомога у постачанні виробів до лінії.",
+    additionalNotes:
+      "Перший день – навчання (4 години). Чоловіки з бородою працюють у захисних масках.",
+  },
+  // Вакансія №99 - Prospekta Nysa-2
+  {
+    agencyName: "MANPAWER",
+    templateName: "Prospekta Nysa-2",
+    vacancydescription: "Виробництво та пакування желейних цукерок",
+    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    keywords: [
+      "Prospekta",
+      "Nysa",
+      "цукерки",
+      "желейки",
+      "пакування",
+      "харчова промисловість",
+      "пари",
+    ],
+    contractType: "Umowa zlecenie",
+    forRecruiter: {
+      internalNotes:
+        "Книжка санепід обов'язкова (можна зробити в Нисі, чекати 4 дні). Поселення за 5 днів до старту. Житло в 15 хв пішки від роботи.",
+      hideAgencyNameForCandidate: true,
+      hideEnterpriseNameForCandidate: true,
+    },
+    location: "Nysa",
+    locationDescription: "Завод желейних цукерок",
+    voivodeship: "Opolskie",
+    country: "Polska",
+    checkInCity: "",
+    salary: {
+      baseNetto: "30,50 зл/год брутто",
+      studentNetto: "",
+      hoursRange: "168-220",
+      payoutDates: "Згідно з регламентом",
+      bonusDetails: "",
+      salaryNotes: "В середньому 220 годин на місяць.",
+    },
+    schedule: {
+      shiftsCount: 2,
+      hoursPerShift: "12",
+      workDaysWeek: "Система 4 бригади",
+      breakDuration: "Згідно з КЗпП",
+      canChooseShiftOnStart: false,
+      shiftChoiceDetails: "",
+      description: "Робота по 12 годин у 4-бригадній системі.",
+    },
+    accommodation: {
+      type: "Платне",
+      forCouples: true,
+      withChildren: false,
+      withPets: false,
+      costRaw: "350 зл/міс",
+      details:
+        "Надається житло, вартість 350 зл/міс. 15 хвилин пішки до праці.",
+    },
+    transport: {
+      provided: false,
+      costRaw: "",
+      details: "Службового транспорту немає.",
+    },
+    employerCompensations: {
+      hasCompensations: false,
+      details: "",
+    },
+    requirements: {
+      gender: ["Чоловіки", "Жінки", "Пари"],
+      ageMax: 99,
+      nationalities: ["Україна"],
+      standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
+      needsAdditionalDocs: true,
+      additionalDocsDetails: "Книжка санепід.",
+      experienceRequired: false,
+      hasEntranceTests: false,
+      entranceTestsDetails: "",
+      polishLanguageLevel: "Комунікативний",
+      languageDetails: "Комунікативний рівень польської мови.",
+      physicalLoad:
+        "Стояча робота. Чоловіки: перенесення кошиків 10-15 кг. Зріст від 160 см.",
+    },
+    businessTrip: {
+      isBusinessTrip: false,
+      requiresPolishExperience: false,
+      requiredDocuments: [],
+      tripDetails: "",
+    },
+    conditions: {
+      hasSpecificConditions: true,
+      specificNuances: ["Запах солодощів"],
+      specificConditionsDetails:
+        "Температура +20…+22 °C. Характерний солодкий запах. Заборона штучних вій, нігтів, прикрас.",
+      workwearFree: true,
+      foodType: "Власне",
+      foodDetails: "",
+    },
+    startExpenses: {
+      hasStartExpenses: false,
+      details: "",
+    },
+    earlyTerminationLiability: {
+      hasLiability: false,
+      details: "",
+    },
+    description:
+      "Для жінок: збір готової продукції, пакування та перенесення коробок, укладання на стелажі. Для чоловіків: перенесення кошиків з желейними цукерками (10–15 кг), допомога у постачанні виробів до лінії.",
+    additionalNotes:
+      "Перший день – навчання (4 години). Чоловіки з бородою працюють у захисних масках.",
+  },
+  // Вакансія №100 - Faurecia Frames Wałbrzych-2
+  {
+    agencyName: "MANPAWER",
+    templateName: "Faurecia Frames Wałbrzych-2",
+    vacancydescription: "Монтаж каркасів автомобільних сидінь",
+    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    keywords: [
+      "Faurecia",
+      "Wałbrzych",
+      "автомобільні сидіння",
+      "монтаж",
+      "зварювання",
+      "лакерування",
+      "чоловіки",
+    ],
+    contractType: "Umowa o pracę",
+    forRecruiter: {
+      internalNotes:
+        "Потрібна комунікативна польська мова. Житло не надається.",
+      hideAgencyNameForCandidate: true,
+      hideEnterpriseNameForCandidate: true,
+    },
+    location: "Wałbrzych",
+    locationDescription: "ul. Jachimowicza 3",
+    voivodeship: "Dolnośląskie",
+    country: "Polska",
+    checkInCity: "",
+    salary: {
+      baseNetto: "4666 зл./міс. брутто",
+      studentNetto: "",
+      hoursRange: "168",
+      payoutDates: "Згідно з регламентом",
+      bonusDetails: "Продукційна премія до 15%; +20% за нічні зміни.",
+      salaryNotes: "Надгодини: +50% (Пн-Пт), +100% (вихідні).",
+    },
+    schedule: {
+      shiftsCount: 3,
+      hoursPerShift: "8",
+      workDaysWeek: "Пн-Пт",
+      breakDuration: "20-30 хв",
+      canChooseShiftOnStart: false,
+      shiftChoiceDetails: "",
+      description: "06:00–14:00, 14:00–22:00, 22:00–06:00",
+    },
+    accommodation: {
+      type: "Власне",
+      forCouples: false,
+      withChildren: false,
+      withPets: false,
+      costRaw: "",
+      details: "Житло не надається і не дофінансовується.",
+    },
+    transport: {
+      provided: false,
+      costRaw: "",
+      details: "Доїзд самостійний.",
+    },
+    employerCompensations: {
+      hasCompensations: true,
+      details: "Multisport, приватне мед. страхування, групова страховка.",
+    },
+    requirements: {
+      gender: ["Чоловіки"],
+      ageMax: 99,
+      nationalities: ["Україна"],
+      standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
+      needsAdditionalDocs: false,
+      additionalDocsDetails: "",
+      experienceRequired: false,
+      hasEntranceTests: false,
+      entranceTestsDetails: "",
+      polishLanguageLevel: "Комунікативний",
+      languageDetails: "Знання польської мови на комунікативному рівні.",
+      physicalLoad:
+        "Монтаж деталей, обслуговування зварювальних столів, лакерування.",
+    },
+    businessTrip: {
+      isBusinessTrip: false,
+      requiresPolishExperience: false,
+      requiredDocuments: [],
+      tripDetails: "",
+    },
+    conditions: {
+      hasSpecificConditions: false,
+      specificNuances: [],
+      specificConditionsDetails: "",
+      workwearFree: true,
+      foodType: "Власне",
+      foodDetails: "Їдальня з мікрохвильовкою та автоматами.",
+    },
+    startExpenses: {
+      hasStartExpenses: false,
+      details: "",
+    },
+    earlyTerminationLiability: {
+      hasLiability: false,
+      details: "",
+    },
+    description:
+      "Монтаж деталей до каркасів сидінь автомобілів. Контроль якості та складання готової продукції. Обслуговування зварювальних столів. Лакерування деталей.",
+    additionalNotes: "Безкоштовна допомога з документами на карту побиту.",
+  },
+  // Вакансія №101 - Faurecia Recliners Wałbrzych-1
+  {
+    agencyName: "MANPAWER",
+    templateName: "Faurecia Recliners Wałbrzych-1",
+    vacancydescription: "Монтаж механізмів регулювання автомобільних сидінь",
+    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    keywords: [
+      "Faurecia",
+      "Wałbrzych",
+      "автомобільна промисловість",
+      "механізми сидінь",
+      "монтаж",
+      "пари",
+      "CV",
+    ],
+    contractType: "Umowa o pracę",
+    forRecruiter: {
+      internalNotes:
+        "Потрібне резюме (CV). Комунікативна польська мова. Робота в 4-бригадній системі.",
+      hideAgencyNameForCandidate: true,
+      hideEnterpriseNameForCandidate: true,
+    },
+    location: "Wałbrzych",
+    locationDescription: "ul. Jachimowicza 3",
+    voivodeship: "Dolnośląskie",
+    country: "Polska",
+    checkInCity: "",
+    salary: {
+      baseNetto: "4666 зл/міс. брутто",
+      studentNetto: "",
+      hoursRange: "168",
+      payoutDates: "Згідно з регламентом",
+      bonusDetails: "Премії до 15%; +20% за нічні зміни.",
+      salaryNotes: "Надгодини: +50% (Пн-Пт), +100% (вихідні та свята).",
+    },
+    schedule: {
+      shiftsCount: 3,
+      hoursPerShift: "8",
+      workDaysWeek: "Система 4 бригади",
+      breakDuration: "Згідно з КЗпП",
+      canChooseShiftOnStart: false,
+      shiftChoiceDetails: "",
+      description: "07:00–15:00 / 15:00–23:00 / 23:00–07:00 згідно з графіком.",
+    },
+    accommodation: {
+      type: "Власне",
+      forCouples: true,
+      withChildren: false,
+      withPets: false,
+      costRaw: "",
+      details: "Житло не надається.",
+    },
+    transport: {
+      provided: false,
+      costRaw: "",
+      details: "Транспорту немає.",
+    },
+    employerCompensations: {
+      hasCompensations: true,
+      details:
+        "Безкоштовні супи, основні страви за 6-8 зл. Medicover, Multisport, групове страхування.",
+    },
+    requirements: {
+      gender: ["Чоловіки", "Жінки", "Пари"],
+      ageMax: 99,
+      nationalities: ["Україна"],
+      standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
+      needsAdditionalDocs: false,
+      additionalDocsDetails: "Потрібне резюме (CV).",
+      experienceRequired: false,
+      hasEntranceTests: false,
+      entranceTestsDetails: "",
+      polishLanguageLevel: "Комунікативний",
+      languageDetails: "Комунікативна польська мова.",
+      physicalLoad: "Робота на виробничій лінії, монтаж дрібних деталей.",
+    },
+    businessTrip: {
+      isBusinessTrip: false,
+      requiresPolishExperience: false,
+      requiredDocuments: [],
+      tripDetails: "",
+    },
+    conditions: {
+      hasSpecificConditions: false,
+      specificNuances: [],
+      specificConditionsDetails: "",
+      workwearFree: true,
+      foodType: "Субсидоване",
+      foodDetails: "Безкоштовні супи, обіди за 6-8 зл.",
+    },
+    startExpenses: {
+      hasStartExpenses: false,
+      details: "",
+    },
+    earlyTerminationLiability: {
+      hasLiability: false,
+      details: "",
+    },
+    description:
+      "Монтаж деталей до механізмів регулювання автомобільних сидінь. Контроль якості готової продукції. Робота на виробничій лінії в 3-змінному режимі.",
+    additionalNotes: "Допомога в підготовці документів на карту побиту.",
+  },
+  // Вакансія №102 - ID Logistic Psary
+  {
+    agencyName: "MANPAWER",
+    templateName: "ID Logistic Psary",
+    vacancydescription: "Склад одягу: упаковка та сортування",
+    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    keywords: [
+      "ID Logistic",
+      "Psary",
+      "одяг",
+      "склад",
+      "сканер",
+      "упаковка",
+      "сортування",
+    ],
+    contractType: "Umowa o pracę",
+    forRecruiter: {
+      internalNotes:
+        "Можна вибрати тип договору (UoP або UZ). Вимагається досвід на складі та польська мова А1.",
+      hideAgencyNameForCandidate: true,
+      hideEnterpriseNameForCandidate: true,
+    },
+    location: "Psary",
+    locationDescription: "ul. Akacjowa 6, 42-512 Psary",
+    voivodeship: "Śląskie",
+    country: "Polska",
+    checkInCity: "",
+    salary: {
+      baseNetto: "4666 zł brutto/міс (UoP) або 30,5 zł brutto/h (UZ)",
+      studentNetto: "",
+      hoursRange: "168",
+      payoutDates: "Згідно з регламентом",
+      bonusDetails: "Премія за результати після першого місяця роботи.",
+      salaryNotes: "",
+    },
+    schedule: {
+      shiftsCount: 1,
+      hoursPerShift: "8",
+      workDaysWeek: "Пн-Пт",
+      breakDuration: "Згідно з КЗпП",
+      canChooseShiftOnStart: false,
+      shiftChoiceDetails: "",
+      description: "06:00 – 14:00.",
+    },
+    accommodation: {
+      type: "Власне",
+      forCouples: false,
+      withChildren: false,
+      withPets: false,
+      costRaw: "",
+      details: "Житло не надається.",
+    },
+    transport: {
+      provided: true,
+      costRaw: "Безкоштовно",
+      details:
+        "Безкоштовний транспорт з: Катовіце, Сосновець, Битом, Домброва Гурніча.",
+    },
+    employerCompensations: {
+      hasCompensations: false,
+      details: "",
+    },
+    requirements: {
+      gender: ["Чоловіки", "Жінки"],
+      ageMax: 99,
+      nationalities: ["Україна"],
+      standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
+      needsAdditionalDocs: false,
+      additionalDocsDetails: "",
+      experienceRequired: true,
+      hasEntranceTests: false,
+      entranceTestsDetails: "",
+      polishLanguageLevel: "Початковий (А1)",
+      languageDetails: "Польська мова на рівні А1.",
+      physicalLoad: "Приготування робочого місця, упаковка, сортування.",
+    },
+    businessTrip: {
+      isBusinessTrip: false,
+      requiresPolishExperience: false,
+      requiredDocuments: [],
+      tripDetails: "",
+    },
+    conditions: {
+      hasSpecificConditions: false,
+      specificNuances: [],
+      specificConditionsDetails: "",
+      workwearFree: true,
+      foodType: "Власне",
+      foodDetails: "",
+    },
+    startExpenses: {
+      hasStartExpenses: false,
+      details: "",
+    },
+    earlyTerminationLiability: {
+      hasLiability: false,
+      details: "",
+    },
+    description:
+      "Завдання пов’язані з приготуванням робочого місця, упаковкою і сортуванням одягу, роботою зі сканером.",
+    additionalNotes: "Стабільна робота на великому логістичному складі.",
+  },
+  // Вакансія №103 - Gillette Łódź-2
+  {
+    agencyName: "MANPAWER",
+    templateName: "Gillette Łódź-2",
+    vacancydescription:
+      "Водій навантажувача (вузковий) на виробництво станків для гоління",
+    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    keywords: [
+      "Gillette",
+      "Łódź",
+      "UDT",
+      "навантажувач",
+      "вузковий",
+      "WJO",
+      "чоловіки",
+    ],
+    contractType: "Umowa o pracę",
+    forRecruiter: {
+      internalNotes:
+        "Обов'язково: UDT II WJO, MS Office, високий рівень польської. Не вказувати назву Gillette в оголошенні.",
+      hideAgencyNameForCandidate: true,
+      hideEnterpriseNameForCandidate: true,
+    },
+    location: "Łódź",
+    locationDescription: "ul. Nowy Józefów 70",
+    voivodeship: "Łódzkie",
+    country: "Polska",
+    checkInCity: "",
+    salary: {
+      baseNetto: "4666 зл. бруттo /міс.",
+      studentNetto: "",
+      hoursRange: "168",
+      payoutDates: "Згідно з регламентом",
+      bonusDetails:
+        "+20% за нічні зміни; додаток за 4-бригадну систему 700 зл брутто.",
+      salaryNotes:
+        "Надгодини: +50% у будні, +100% у вихідні. Доплата за обіди (60% покриває клієнт).",
+    },
+    schedule: {
+      shiftsCount: 3,
+      hoursPerShift: "8",
+      workDaysWeek: "Система 4 бригади",
+      breakDuration: "30 хв",
+      canChooseShiftOnStart: false,
+      shiftChoiceDetails: "",
+      description:
+        "4 дні 6-14 (1 вихідний), 4 дні 14-22 (1 вихідний), 4 дні 22-6 (2 вихідних).",
+    },
+    accommodation: {
+      type: "Власне",
+      forCouples: false,
+      withChildren: false,
+      withPets: false,
+      costRaw: "",
+      details: "Житло не надається.",
+    },
+    transport: {
+      provided: false,
+      costRaw: "",
+      details:
+        "Безкоштовного автобуса немає. Доїзд міським транспортом (автобуси G1/G2 від Retkinia).",
+    },
+    employerCompensations: {
+      hasCompensations: true,
+      details: "Medicover, Multisport, страхування Generali.",
+    },
+    requirements: {
+      gender: ["Чоловіки"],
+      ageMax: 99,
+      nationalities: ["Україна"],
+      standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
+      needsAdditionalDocs: true,
+      additionalDocsDetails: "UDT II WJO (обов'язково).",
+      experienceRequired: true,
+      hasEntranceTests: false,
+      entranceTestsDetails: "",
+      polishLanguageLevel: "Середній (B1)",
+      languageDetails: "Знання польської мови на високому рівні.",
+      physicalLoad:
+        "Обслуговування вантажопідйомника, транспортування компонентів.",
+    },
+    businessTrip: {
+      isBusinessTrip: false,
+      requiresPolishExperience: false,
+      requiredDocuments: [],
+      tripDetails: "",
+    },
+    conditions: {
+      hasSpecificConditions: true,
+      specificNuances: ["Шум"],
+      specificConditionsDetails:
+        "Обов'язково: взуття з металевим носком, окуляри, беруші. Заборона біжутерії (крім гвоздиків), пірсингу, розпущеного волосся.",
+      workwearFree: true,
+      foodType: "Субсидоване",
+      foodDetails: "Дофінансування 60% вартості обідів.",
+    },
+    startExpenses: {
+      hasStartExpenses: false,
+      details: "",
+    },
+    earlyTerminationLiability: {
+      hasLiability: false,
+      details: "",
+    },
+    description:
+      "Обслуговування вантажопідйомника. Транспортування компонентів зі складу в зал виготовлення продукції. Транспортування готових і запакованих виробів на склад готових виробів. Робота з комп'ютером (MS Office).",
+    additionalNotes: "Допомога з документами на карту побиту.",
+  },
+  // Вакансія №104 - Mahle Krotoszyn-2
+  {
+    agencyName: "MANPAWER",
+    templateName: "Mahle Krotoszyn-2",
+    vacancydescription: "Оператор машин з виготовлення автомобільних деталей",
+    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    keywords: [
+      "Mahle",
+      "Krotoszyn",
+      "автодеталі",
+      "оператор машин",
+      "математичний тест",
+      "пари",
+      "4 бригади",
+    ],
+    contractType: "Umowa o pracę",
+    forRecruiter: {
+      internalNotes:
+        "Екскурсія + розмова + математичний тест польською мовою. Потрібне резюме польською. Житло не надається.",
+      hideAgencyNameForCandidate: true,
+      hideEnterpriseNameForCandidate: true,
+    },
+    location: "Krotoszyn",
+    locationDescription: "ul. Mahle 6",
+    voivodeship: "Wielkopolskie",
+    country: "Polska",
+    checkInCity: "",
+    salary: {
+      baseNetto: "4400 зл брутто",
+      studentNetto: "",
+      hoursRange: "168",
+      payoutDates: "До 10 числа",
+      bonusDetails:
+        "Премія 10%; +20% за нічні зміни; бонус 75 зл брутто за роботу в Сб/Нд по графіку.",
+      salaryNotes: "Надгодини +100% (тільки у вихідний за графіком).",
+    },
+    schedule: {
+      shiftsCount: 3,
+      hoursPerShift: "8",
+      workDaysWeek: "Система 4 бригади",
+      breakDuration: "20-30 хв",
+      canChooseShiftOnStart: false,
+      shiftChoiceDetails: "",
+      description:
+        "6-14, 14-22, 22-6. Графік: 2 ранки, 2 дні, 2 ночі, 2 вихідних.",
+    },
+    accommodation: {
+      type: "Власне",
+      forCouples: true,
+      withChildren: false,
+      withPets: false,
+      costRaw: "",
+      details: "Житло не надається.",
+    },
+    transport: {
+      provided: true,
+      costRaw: "50 зл",
+      details:
+        "Автобус з міст: Jarocin, Koźmin, Ostrów, Kobylin, Milicz, Zduny, Pleszew, Kobierno, Odolanów, Sulmierzyce.",
+    },
+    employerCompensations: {
+      hasCompensations: true,
+      details: "Medicover, Multisport, групова страховка.",
+    },
+    requirements: {
+      gender: ["Чоловіки", "Жінки", "Пари"],
+      ageMax: 99,
+      nationalities: ["Україна", "Молдова", "Білорусь", "Грузія", "Вірменія"],
+      standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
+      needsAdditionalDocs: false,
+      additionalDocsDetails: "",
+      experienceRequired: false,
+      hasEntranceTests: true,
+      entranceTestsDetails:
+        "Математичний тест польською мовою (читання та письмо).",
+      polishLanguageLevel: "Початковий (А2)",
+      languageDetails:
+        "Потрібно вміти читати та писати польською на базовому рівні.",
+      physicalLoad: "Робота стоячи, контроль кількох машин одночасно.",
+    },
+    businessTrip: {
+      isBusinessTrip: false,
+      requiresPolishExperience: false,
+      requiredDocuments: [],
+      tripDetails: "",
+    },
+    conditions: {
+      hasSpecificConditions: false,
+      specificNuances: [],
+      specificConditionsDetails: "",
+      workwearFree: true,
+      foodType: "Власне",
+      foodDetails: "Їдальня, автомати, мікрохвильовка.",
+    },
+    startExpenses: {
+      hasStartExpenses: false,
+      details: "",
+    },
+    earlyTerminationLiability: {
+      hasLiability: false,
+      details: "",
+    },
+    description:
+      "Робота при машинах, які виготовляють автомобільні деталі. Контроль роботи обладнання, візуальний огляд продукції. Робота стоячи з необхідністю переміщення між машинами.",
+    additionalNotes:
+      "Можливість переходу на прямий контракт із заводом у майбутньому.",
+  },
+  // Вакансія №105 - Aluplast Nagradowice (Production)
+  {
+    agencyName: "MANPAWER",
+    templateName: "Aluplast Nagradowice (Production)",
+    vacancydescription: "Працівник виробництва віконних систем ПВХ",
+    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    keywords: [
+      "Aluplast",
+      "Nagradowice",
+      "Poznań",
+      "віконні системи",
+      "упаковка",
+      "контроль якості",
+      "чоловіки",
+    ],
+    contractType: "Umowa o pracę",
+    forRecruiter: {
+      internalNotes: "Потрібна польська мова. Надається житло (450 зл).",
+      hideAgencyNameForCandidate: true,
+      hideEnterpriseNameForCandidate: true,
+    },
+    location: "Nagradowice",
+    locationDescription: "ul. Profilowa 1",
+    voivodeship: "Wielkopolskie",
+    country: "Polska",
+    checkInCity: "Poznań",
+    salary: {
+      baseNetto: "4785-5025 зл брутто в місяць",
+      studentNetto: "",
+      hoursRange: "168",
+      payoutDates: "Згідно з регламентом",
+      bonusDetails:
+        "Премія 15% від з/п; премія за роботу у вихідні; +20% за нічні зміни.",
+      salaryNotes: "Надгодини +50% у робочий день.",
+    },
+    schedule: {
+      shiftsCount: 3,
+      hoursPerShift: "8",
+      workDaysWeek: "Пн-Пт",
+      breakDuration: "Згідно з КЗпП",
+      canChooseShiftOnStart: false,
+      shiftChoiceDetails: "",
+      description: "6-14, 14-22, 22-6.",
+    },
+    accommodation: {
+      type: "Платне",
+      forCouples: false,
+      withChildren: false,
+      withPets: false,
+      costRaw: "450 зл",
+      details: "Надається житло за 450 зл. Дофінансування до власного немає.",
+    },
+    transport: {
+      provided: true,
+      costRaw: "Безкоштовно",
+      details:
+        "Безкоштовний автобус з Познані (Szymanowskiego, Aleje Solidarności, AWF, os. Jagiellońskie та ін.).",
+    },
+    employerCompensations: {
+      hasCompensations: true,
+      details: "Medicover, Multisport, групове страхування.",
+    },
+    requirements: {
+      gender: ["Чоловіки"],
+      ageMax: 99,
+      nationalities: ["Україна"],
+      standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
+      needsAdditionalDocs: false,
+      additionalDocsDetails: "",
+      experienceRequired: false,
+      hasEntranceTests: false,
+      entranceTestsDetails: "",
+      polishLanguageLevel: "Комунікативний",
+      languageDetails: "Чоловіки зі знанням польської мови.",
+      physicalLoad:
+        "Упаковка, заміна матеріалів на лінії, візуальний огляд профілів.",
+    },
+    businessTrip: {
+      isBusinessTrip: false,
+      requiresPolishExperience: false,
+      requiredDocuments: [],
+      tripDetails: "",
+    },
+    conditions: {
+      hasSpecificConditions: false,
+      specificNuances: [],
+      specificConditionsDetails: "",
+      workwearFree: true,
+      foodType: "Власне",
+      foodDetails: "",
+    },
+    startExpenses: {
+      hasStartExpenses: false,
+      details: "",
+    },
+    earlyTerminationLiability: {
+      hasLiability: false,
+      details: "",
+    },
+    description:
+      "Упаковка згідно з інструкціями. Заміна та налаштування виробничих матеріалів на лінії для безперервності виробництва. Візуальний огляд виготовлених профілів (подряпини, складки, вага та довжина).",
+    additionalNotes: "Підтримка консультанта під час рекрутації.",
+  },
+  // Вакансія №106 - Aluplast Nagradowice (Junior Operator)
+  {
+    agencyName: "MANPAWER",
+    templateName: "Aluplast Nagradowice (Junior Operator)",
+    vacancydescription: "Молодший оператор машин (виробництво віконних систем)",
+    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    keywords: [
+      "Aluplast",
+      "Nagradowice",
+      "Poznań",
+      "оператор машин",
+      "досвід",
+      "віконні системи",
+      "чоловіки",
+    ],
+    contractType: "Umowa o pracę",
+    forRecruiter: {
+      internalNotes:
+        "Обов'язково: досвід роботи при машинах мін. 1 рік. Знання польської мови.",
+      hideAgencyNameForCandidate: true,
+      hideEnterpriseNameForCandidate: true,
+    },
+    location: "Nagradowice",
+    locationDescription: "ul. Profilowa 1",
+    voivodeship: "Wielkopolskie",
+    country: "Polska",
+    checkInCity: "Poznań",
+    salary: {
+      baseNetto: "5740 зл брутто в місяць",
+      studentNetto: "",
+      hoursRange: "168",
+      payoutDates: "Згідно з регламентом",
+      bonusDetails:
+        "Премія 860 зл брутто; додаток за нічні зміни 311 зл брутто.",
+      salaryNotes: "Надгодини +50% у робочий день.",
+    },
+    schedule: {
+      shiftsCount: 3,
+      hoursPerShift: "8",
+      workDaysWeek: "Пн-Пт",
+      breakDuration: "Згідно з КЗпП",
+      canChooseShiftOnStart: false,
+      shiftChoiceDetails: "",
+      description: "6-14, 14-22, 22-6.",
+    },
+    accommodation: {
+      type: "Власне",
+      forCouples: false,
+      withChildren: false,
+      withPets: false,
+      costRaw: "",
+      details: "Житло не вказано (власне).",
+    },
+    transport: {
+      provided: true,
+      costRaw: "Безкоштовно",
+      details:
+        "Безкоштовний автобус з Познані (Szymanowskiego, Aleje Solidarności, AWF та ін.).",
+    },
+    employerCompensations: {
+      hasCompensations: true,
+      details: "Medicover, Multisport, групове страхування.",
+    },
+    requirements: {
+      gender: ["Чоловіки"],
+      ageMax: 99,
+      nationalities: ["Україна"],
+      standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
+      needsAdditionalDocs: false,
+      additionalDocsDetails: "",
+      experienceRequired: true,
+      hasEntranceTests: false,
+      entranceTestsDetails: "",
+      polishLanguageLevel: "Комунікативний",
+      languageDetails: "Знання польської мови.",
+      physicalLoad:
+        "Обслуговування машин, упаковка профілів, контроль якості та кількості.",
+    },
+    businessTrip: {
+      isBusinessTrip: false,
+      requiresPolishExperience: false,
+      requiredDocuments: [],
+      tripDetails: "",
+    },
+    conditions: {
+      hasSpecificConditions: false,
+      specificNuances: [],
+      specificConditionsDetails: "",
+      workwearFree: true,
+      foodType: "Власне",
+      foodDetails: "",
+    },
+    startExpenses: {
+      hasStartExpenses: false,
+      details: "",
+    },
+    earlyTerminationLiability: {
+      hasLiability: false,
+      details: "",
+    },
+    description:
+      "Упаковка згідно з інструкціями (профілі, планки). Співпраця з іншими працівниками. Візуальний огляд виготовлених профілів, контроль якості та кількості виготовленої продукції.",
+    additionalNotes: "Робота у філіалі в Наградовіце або Познані.",
+  },
+  // Вакансія №107 - Colquimica Plewiska
+  {
+    agencyName: "MANPAWER",
+    templateName: "Colquimica Plewiska",
+    vacancydescription: "Оператор виробництва промислових клеїв",
+    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    keywords: [
+      "Colquimica",
+      "Plewiska",
+      "Poznań",
+      "клеї",
+      "англійська мова",
+      "оператор",
+      "чоловіки",
+      "4 бригади",
+    ],
+    contractType: "Umowa o pracę",
+    forRecruiter: {
+      internalNotes:
+        "Працевлаштування напряму до клієнта. Обов'язкове знання англійської мови. Потрібне резюме. Не вказувати назву Colquimica в оголошенні.",
+      hideAgencyNameForCandidate: true,
+      hideEnterpriseNameForCandidate: true,
+    },
+    location: "Plewiska",
+    locationDescription: "ul. Szkolna 30, 62-064 Plewiska",
+    voivodeship: "Wielkopolskie",
+    country: "Polska",
+    checkInCity: "Poznań",
+    salary: {
+      baseNetto: "5500–5800 зл брутто / місяць",
+      studentNetto: "",
+      hoursRange: "168",
+      payoutDates: "Згідно з регламентом",
+      bonusDetails:
+        "Стартова премія 550 зл брутто; робота у вихідні +50 зл/день; поповнення карти Pluxee 350 зл/місяць.",
+      salaryNotes: "Обід за 1 зл.",
+    },
+    schedule: {
+      shiftsCount: 2,
+      hoursPerShift: "12",
+      workDaysWeek: "Система 4 бригади",
+      breakDuration: "Згідно з КЗпП",
+      canChooseShiftOnStart: false,
+      shiftChoiceDetails: "",
+      description:
+        "3 дні роботи (07:00–19:00), 3 дні вихідні, 3 дні роботи (19:00–07:00), 3 дні вихідні.",
+    },
+    accommodation: {
+      type: "Власне",
+      forCouples: false,
+      withChildren: false,
+      withPets: false,
+      costRaw: "",
+      details: "Житло не надається.",
+    },
+    transport: {
+      provided: true,
+      costRaw: "Безкоштовно",
+      details:
+        "Безкоштовний транспорт з Познані (Rondo Rataje → Poznań Główny → вул. Głogowska → Plewiska).",
+    },
+    employerCompensations: {
+      hasCompensations: true,
+      details:
+        "Medicover, Multisport, групове страхування, lunch-карта, професійні навчання.",
+    },
+    requirements: {
+      gender: ["Чоловіки"],
+      ageMax: 99,
+      nationalities: ["Україна"],
+      standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
+      needsAdditionalDocs: false,
+      additionalDocsDetails: "Потрібне резюме (CV).",
+      experienceRequired: false,
+      hasEntranceTests: false,
+      entranceTestsDetails: "",
+      polishLanguageLevel: "Не вимагається",
+      languageDetails:
+        "Обов’язкове знання англійської мови (комунікативний рівень).",
+      physicalLoad: "Можливе перенесення вантажів до 20 кг.",
+    },
+    businessTrip: {
+      isBusinessTrip: false,
+      requiresPolishExperience: false,
+      requiredDocuments: [],
+      tripDetails: "",
+    },
+    conditions: {
+      hasSpecificConditions: false,
+      specificNuances: [],
+      specificConditionsDetails:
+        "Сучасне автоматизоване виробництво. Теплі приміщення.",
+      workwearFree: true,
+      foodType: "Субсидоване",
+      foodDetails: "Обід для працівника коштує 1 зл.",
+    },
+    startExpenses: {
+      hasStartExpenses: false,
+      details: "",
+    },
+    earlyTerminationLiability: {
+      hasLiability: false,
+      details: "",
+    },
+    description:
+      "Обслуговування нескладних виробничих машин. Контроль якості готової продукції (промислові клеї). Пакування продукції, передача на склад. Робота з внутрішніми комп’ютерними системами та виробничою звітністю.",
+    additionalNotes: "Пряме працевлаштування до міжнародної компанії.",
+  },
+  // Вакансія №108 - Mueller Grudziądz
+  {
+    agencyName: "MANPAWER",
+    templateName: "Mueller Grudziądz",
+    vacancydescription: "Обслуговування машин з виробництва свічок",
+    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    keywords: [
+      "Mueller",
+      "Grudziądz",
+      "Biały Bór",
+      "свічки",
+      "фізична робота",
+      "чоловіки",
+      "50кг",
+    ],
+    contractType: "Umowa o pracę",
+    forRecruiter: {
+      internalNotes:
+        "Фізично важка робота (пакети 50 кг). Етапи: CV -> розмова з консультантом -> розмова з клієнтом + екскурсія.",
+      hideAgencyNameForCandidate: true,
+      hideEnterpriseNameForCandidate: true,
+    },
+    location: "Biały Bór",
+    locationDescription: "Biały Bór II 211, 86-302 Biały Bór (біля Grudziądz)",
+    voivodeship: "Kujawsko-pomorskie",
+    country: "Polska",
+    checkInCity: "Grudziądz",
+    salary: {
+      baseNetto: "5088 злотих брутто/місяць",
+      studentNetto: "",
+      hoursRange: "168-240",
+      payoutDates: "Згідно з регламентом",
+      bonusDetails:
+        "Премія до 10% за продуктивність (після 2 міс); надбавка за нічні зміни 25%.",
+      salaryNotes: "Максимум 60 годин на тиждень.",
+    },
+    schedule: {
+      shiftsCount: 3,
+      hoursPerShift: "8",
+      workDaysWeek: "Пн-Пт",
+      breakDuration: "Згідно з КЗпП",
+      canChooseShiftOnStart: false,
+      shiftChoiceDetails: "",
+      description: "3 зміни по 8 годин.",
+    },
+    accommodation: {
+      type: "Платне",
+      forCouples: false,
+      withChildren: false,
+      withPets: false,
+      costRaw: "400 PLN",
+      details: "Можливе проживання з доплатою працівника до 400 PLN.",
+    },
+    transport: {
+      provided: false,
+      costRaw: "",
+      details: "Доїзд не надається.",
+    },
+    employerCompensations: {
+      hasCompensations: false,
+      details: "",
+    },
+    requirements: {
+      gender: ["Чоловіки"],
+      ageMax: 99,
+      nationalities: ["Україна"],
+      standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
+      needsAdditionalDocs: false,
+      additionalDocsDetails: "",
+      experienceRequired: false,
+      hasEntranceTests: false,
+      entranceTestsDetails: "",
+      polishLanguageLevel: "Початковий (А2)",
+      languageDetails: "Польська мова на комунікативному рівні (А2).",
+      physicalLoad:
+        "Важка фізична робота: подача сировини (пакети 50 кг) до машини поштучно кілька разів на день.",
+    },
+    businessTrip: {
+      isBusinessTrip: false,
+      requiresPolishExperience: false,
+      requiredDocuments: [],
+      tripDetails: "",
+    },
+    conditions: {
+      hasSpecificConditions: true,
+      specificNuances: ["Запилення"],
+      specificConditionsDetails: "Легке запилення у відділі, тепло.",
+      workwearFree: true,
+      foodType: "Власне",
+      foodDetails: "",
+    },
+    startExpenses: {
+      hasStartExpenses: false,
+      details: "",
+    },
+    earlyTerminationLiability: {
+      hasLiability: false,
+      details: "",
+    },
+    description:
+      "Обслуговування виробничих машин. Подача сировини для виробництва свічок до машини (пакети вагою 50 кг, які закидаються поштучно). Контроль за роботою машин, підтримання порядку, виконання дрібного ремонту за потреби.",
+    additionalNotes: "Стабільне працевлаштування на основі Umowa o pracę.",
+  },
+  // Вакансія №109 - Onnera Palmiry-2
+  {
+    agencyName: "MANPAWER",
+    templateName: "Onnera Palmiry-2",
+    vacancydescription:
+      "Оператор штампувального верстату (виробництво миючих машин)",
+    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    keywords: [
+      "Onnera",
+      "Palmiry",
+      "Czosnów",
+      "Варшава",
+      "метал",
+      "штампування",
+      "оператор",
+      "чоловіки",
+    ],
+    contractType: "Umowa o pracę",
+    forRecruiter: {
+      internalNotes:
+        "Офіс: Nowy Dwór Mazowiecki, ul. Przejazd 7. Потрібна польська мова. Не вказувати назву Onnera в оголошенні.",
+      hideAgencyNameForCandidate: true,
+      hideEnterpriseNameForCandidate: true,
+    },
+    location: "Palmiry",
+    locationDescription: "Palmiry (біля Czosnów, поблизу Варшави)",
+    voivodeship: "Mazowieckie",
+    country: "Polska",
+    checkInCity: "Nowy Dwór Mazowiecki",
+    salary: {
+      baseNetto: "5200 zł брутто / місяць",
+      studentNetto: "",
+      hoursRange: "168",
+      payoutDates: "Згідно з регламентом",
+      bonusDetails:
+        "Премія від 1-го місяця — 500 zł брутто; додаткові нагороди за рішенням керівника.",
+      salaryNotes: "Надгодини: +50% у будні, +100% у вихідні.",
+    },
+    schedule: {
+      shiftsCount: 3,
+      hoursPerShift: "8",
+      workDaysWeek: "Пн-Пт",
+      breakDuration: "20-30 хв",
+      canChooseShiftOnStart: false,
+      shiftChoiceDetails: "",
+      description: "06:00–14:00, 14:00–22:00, 22:00–06:00.",
+    },
+    accommodation: {
+      type: "Платне",
+      forCouples: false,
+      withChildren: false,
+      withPets: false,
+      costRaw: "300 zł / місяць",
+      details: "Хостел, 3–4 особи в кімнаті, повністю укомплектований.",
+    },
+    transport: {
+      provided: true,
+      costRaw: "Безкоштовно",
+      details: "Безкоштовний доїзд з: Płońsk, Nowy Dwór Mazowiecki.",
+    },
+    employerCompensations: {
+      hasCompensations: true,
+      details: "Medicover, Multisport, групове страхування PZU, MyBenefit.",
+    },
+    requirements: {
+      gender: ["Чоловіки"],
+      ageMax: 99,
+      nationalities: ["Україна"],
+      standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
+      needsAdditionalDocs: false,
+      additionalDocsDetails: "",
+      experienceRequired: true,
+      hasEntranceTests: false,
+      entranceTestsDetails: "",
+      polishLanguageLevel: "Комунікативний",
+      languageDetails:
+        "Потрібне знання польської мови для налаштування програм верстату.",
+      physicalLoad:
+        "Завантаження листів металу, вирізання деталей, робота стоячи.",
+    },
+    businessTrip: {
+      isBusinessTrip: false,
+      requiresPolishExperience: false,
+      requiredDocuments: [],
+      tripDetails: "",
+    },
+    conditions: {
+      hasSpecificConditions: false,
+      specificNuances: [],
+      specificConditionsDetails: "Теплі виробничі приміщення.",
+      workwearFree: true,
+      foodType: "Власне",
+      foodDetails: "Їдальня, автомати, мікрохвильовка.",
+    },
+    startExpenses: {
+      hasStartExpenses: false,
+      details: "",
+    },
+    earlyTerminationLiability: {
+      hasLiability: false,
+      details: "",
+    },
+    description:
+      "Обслуговування штампувального верстату для листового металу. Завантаження листів металу у верстат, встановлення інструментів. Налаштування програми згідно з виробничим замовленням. Вирізання деталей та розміщення їх на піддонах.",
+    additionalNotes: "Допомога в підготовці документів на карту побиту.",
+  },
 ];
 module.exports = manpawerTemplates;

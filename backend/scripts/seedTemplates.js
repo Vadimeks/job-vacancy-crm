@@ -14,7 +14,7 @@ const seedTemplates = async () => {
     // ============================================================
     // ⚠️ БЛОК АЧЫСТКІ (ЗАКАМЕНТАВАНА)
     // Разкаментуйце, калі трэба будзе цалкам перазапісаць базу з нуля.
-    /*
+
     try {
       await Template.collection.dropIndex("agencyName_1_templateName_1");
       console.log("🗑️ Унікальны індэкс выдалены.");
@@ -23,7 +23,7 @@ const seedTemplates = async () => {
     }
     await Template.deleteMany({});
     console.log("🗑️ База ачышчана перад імпартам.");
-    */
+
     // ============================================================
 
     // 2. Пошук усіх файлаў у папцы templates
@@ -37,7 +37,7 @@ const seedTemplates = async () => {
     const files = fs
       .readdirSync(templatesDir)
       .filter(
-        (file) => file.endsWith(".js") && file !== "universal_template.js",
+        (file) => file.endsWith(".js") && file !== "universal-template.js",
       );
 
     console.log(`📂 Знойдзена файлаў у папцы: ${files.length}`);

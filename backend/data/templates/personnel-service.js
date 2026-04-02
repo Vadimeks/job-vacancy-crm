@@ -324,10 +324,10 @@ const personnelServiceTemplates = [
     additionalNotes:
       "Робота для брендів Audi, Volvo, Opel, Ford, Mercedes, VW. Одяг безкоштовно.",
   },
-  // Вакансія №4 - Lisner Poznań
+  // Вакансія №4 - Lisner Poznań-1
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "Lisner Poznań",
+    templateName: "Lisner Poznań-1",
     vacancydescription:
       "Виробництво рибних продуктів, салатів та паст для бутербродів",
     category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
@@ -849,11 +849,11 @@ const personnelServiceTemplates = [
       "Комплектація замовлень за допомогою сканера. Підготовка товарів до відправлення. Робота з поверненнями, обробка декларацій, зняття кліпс. Робота в різних відділах (AUDBAND, SKLEP, PICK, PAK).",
     additionalNotes: "Футболка надається безкоштовно. Тепла кофта — 40 зл.",
   },
-  // Вакансія №9 - Zara Stryków
+  // Вакансія №9 - Arvato (Zara) Stryków
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "Arvato Stryków",
-    vacancydescription: "Склад брендового одягу Zara (Pick, Pack, Wysyłka)",
+    templateName: "Arvato (Zara) Stryków",
+    vacancydescription: "Склад брендового одягу (Pick, Pack, Wysyłka)",
     category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
     keywords: [
       "Zara",
@@ -4123,10 +4123,10 @@ const personnelServiceTemplates = [
     additionalNotes:
       "Перші дні робота у власному одязі, потім видають форму. Ротація на лінії кожні 2 години.",
   },
-  // Вакансія №41 - Lisner Poznań
+  // Вакансія №41 - Lisner Poznań-2
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "Lisner Poznań",
+    templateName: "Lisner Poznań-2",
     vacancydescription: "Виробництво рибних продуктів, салатів та паст",
     category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
     keywords: [

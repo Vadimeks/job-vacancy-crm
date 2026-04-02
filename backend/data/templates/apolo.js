@@ -2,7 +2,7 @@
 const apoloTemplates = [
   // Вакансія №1 - VIRTU Zawiercie
   {
-    agencyName: "OTTO",
+    agencyName: "APOLO",
     templateName: "VIRTU Zawiercie - Виробництво готових обідів",
     vacancydescription:
       "Робота на виробництві готових страв та напівфабрикатів (піца, крокети, вареники, пасти): контроль якості, пакування, обслуговування машин.",
@@ -123,7 +123,7 @@ const apoloTemplates = [
   },
   // Вакансія №2 - CARFI Siedlce
   {
-    agencyName: "OTTO",
+    agencyName: "APOLO",
     templateName: "CARFI Siedlce - Виробництво пластикових деталей",
     vacancydescription:
       "Робота на виробничій лінії з монтажу, з'єднання, пакування пластикових деталей та обслуговування простих машин.",
@@ -226,7 +226,7 @@ const apoloTemplates = [
   },
   // Вакансія №3 - RENUS Swarzędz
   {
-    agencyName: "OTTO",
+    agencyName: "APOLO",
     templateName:
       "RENUS Swarzędz - Логістичний склад брендового одягу та аксесуарів",
     vacancydescription:
@@ -333,7 +333,7 @@ const apoloTemplates = [
   },
   // Вакансія №4 - RENUS Błonie
   {
-    agencyName: "OTTO",
+    agencyName: "APOLO",
     templateName: "RENUS Błonie - Склад інтернет-магазину Lidl",
     vacancydescription:
       "Робота на складі інтернет-магазину Lidl: комплектація замовлень, підготовка до відправлення, обробка повернень та сортування товару.",
@@ -437,7 +437,7 @@ const apoloTemplates = [
   },
   // Вакансія №5 - NOTINO Głuchów
   {
-    agencyName: "OTTO",
+    agencyName: "APOLO",
     templateName: "NOTINO Głuchów - Склад косметики та засобів гігієни",
     vacancydescription:
       "Робота на складі косметики та засобів гігієни NOTINO: комплектація замовлень зі сканером, прийом та пакування товару.",
@@ -541,7 +541,7 @@ const apoloTemplates = [
   },
   // Вакансія №6 - IDL Psary
   {
-    agencyName: "OTTO",
+    agencyName: "APOLO",
     templateName:
       "IDL Psary - Логістичний склад брендового одягу та аксесуарів",
     vacancydescription:
@@ -656,7 +656,7 @@ const apoloTemplates = [
   },
   // Вакансія №7 - DPD Brwinow
   {
-    agencyName: "OTTO",
+    agencyName: "APOLO",
     templateName: "DPD Brwinow - Міжнародна служба експрес-доставки",
     vacancydescription:
       "Робота на складі міжнародної служби експрес-доставки DPD: завантаження/розвантаження посилок.",
@@ -758,7 +758,7 @@ const apoloTemplates = [
   },
   // Вакансія №8 - ССС Polkowice
   {
-    agencyName: "OTTO",
+    agencyName: "APOLO",
     templateName: "CCC Polkowice - Склад взуття та аксесуарів",
     vacancydescription:
       "Робота на складі CCC та Half Price у Polkowice: пакування, розвантаження, прийом, викладення та збирання товару зі сканером.",
@@ -867,7 +867,7 @@ const apoloTemplates = [
   },
   // Вакансія №9 - IDL Rakitno
   {
-    agencyName: "OTTO",
+    agencyName: "APOLO",
     templateName: "IDL Rakitno - Товари для дому інтернет-магазину Амазон",
     vacancydescription:
       "Робота на складі ID Logistics з товарами для дому інтернет-магазину Амазон: прийом, викладка, збір та пакування замовлень.",
@@ -977,7 +977,7 @@ const apoloTemplates = [
   },
   // Вакансія №10 - Цукерки Nysa
   {
-    agencyName: "OTTO",
+    agencyName: "APOLO",
     templateName: "Цукерки Nysa - Виробництво цукерок",
     vacancydescription:
       "Робота на кондитерському заводі в Nysa: сортування, пакування та перебір солодощів, підготовка етикеток.",
@@ -1080,7 +1080,7 @@ const apoloTemplates = [
   },
   // Вакансія №11 - IDL Tarnowo Podgórne
   {
-    agencyName: "OTTO",
+    agencyName: "APOLO",
     templateName:
       "IDL Tarnowo Podgórne - Склад брендових товарів, одягу та аксесуарів",
     vacancydescription:
@@ -1185,7 +1185,7 @@ const apoloTemplates = [
   },
   // Вакансія №12 - STOKROTKA Teresin
   {
-    agencyName: "OTTO",
+    agencyName: "APOLO",
     templateName: "STOKROTKA Teresin - Склад супермаркету",
     vacancydescription:
       "Робота на складі супермаркету Stokrotka на комплектації замовлень: збирання товару зі сканером, пакування та підготовка до відправки.",
