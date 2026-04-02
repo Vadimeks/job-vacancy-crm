@@ -15,14 +15,14 @@ const seedTemplates = async () => {
     // ⚠️ БЛОК АЧЫСТКІ (ЗАКАМЕНТАВАНА)
     // Разкаментуйце, калі трэба будзе цалкам перазапісаць базу з нуля.
 
-    try {
-      await Template.collection.dropIndex("agencyName_1_templateName_1");
-      console.log("🗑️ Унікальны індэкс выдалены.");
-    } catch (e) {
-      console.log("ℹ️ Індэкс не знойдзены.");
-    }
-    await Template.deleteMany({});
-    console.log("🗑️ База ачышчана перад імпартам.");
+    // try {
+    //   await Template.collection.dropIndex("agencyName_1_templateName_1");
+    //   console.log("🗑️ Унікальны індэкс выдалены.");
+    // } catch (e) {
+    //   console.log("ℹ️ Індэкс не знойдзены.");
+    // }
+    // await Template.deleteMany({});
+    // console.log("🗑️ База ачышчана перад імпартам.");
 
     // ============================================================
 

@@ -65,7 +65,7 @@ const ottoTemplates = [
     },
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -166,7 +166,7 @@ const ottoTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -265,7 +265,7 @@ const ottoTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: true,
@@ -369,7 +369,7 @@ const ottoTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -473,7 +473,7 @@ const ottoTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -576,7 +576,7 @@ const ottoTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -677,7 +677,7 @@ const ottoTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -774,7 +774,7 @@ const ottoTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -875,7 +875,7 @@ const ottoTemplates = [
     },
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -977,7 +977,7 @@ const ottoTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: true,
@@ -1083,7 +1083,7 @@ const ottoTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -1190,7 +1190,7 @@ const ottoTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -1290,7 +1290,7 @@ const ottoTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -1388,7 +1388,7 @@ const ottoTemplates = [
     },
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -1485,7 +1485,7 @@ const ottoTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -1582,7 +1582,7 @@ const ottoTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -1684,7 +1684,7 @@ const ottoTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: true,
@@ -1788,7 +1788,7 @@ const ottoTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: true,
@@ -1894,7 +1894,7 @@ const ottoTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -1992,7 +1992,7 @@ const ottoTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -2092,7 +2092,7 @@ const ottoTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -2194,7 +2194,7 @@ const ottoTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -2295,7 +2295,7 @@ const ottoTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,

@@ -70,7 +70,7 @@ const folgaTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки", "Пари"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: true,

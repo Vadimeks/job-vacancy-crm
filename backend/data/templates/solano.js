@@ -75,7 +75,7 @@ const solanoTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Чоловіки", "Жінки", "Пари"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: true,
@@ -194,7 +194,7 @@ const solanoTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Чоловіки", "Жінки", "Пари"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: true,
@@ -314,7 +314,7 @@ const solanoTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: [
         "Карта побуту з децизією",
@@ -449,7 +449,7 @@ const solanoTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,

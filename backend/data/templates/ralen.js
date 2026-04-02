@@ -77,7 +77,7 @@ const ralenTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -197,7 +197,7 @@ const ralenTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -318,7 +318,7 @@ const ralenTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -427,7 +427,7 @@ const ralenTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -545,7 +545,7 @@ const ralenTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТИ ===
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: true,
@@ -667,7 +667,7 @@ const ralenTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТИ ===
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -788,7 +788,7 @@ const ralenTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТИ ===
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: true,
@@ -912,7 +912,7 @@ const ralenTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТИ ===
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: true,
@@ -1032,7 +1032,7 @@ const ralenTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТИ ===
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -1153,7 +1153,7 @@ const ralenTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТИ ===
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: true,
@@ -1275,7 +1275,7 @@ const ralenTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТИ ===
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: true,
@@ -1393,7 +1393,7 @@ const ralenTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТИ ===
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: true,
@@ -1515,7 +1515,7 @@ const ralenTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТИ ===
     requirements: {
       gender: ["Чоловіки", "Жінки", "Пари"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: true,
@@ -1753,7 +1753,7 @@ const ralenTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТИ ===
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -1872,7 +1872,7 @@ const ralenTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТИ ===
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -1992,7 +1992,7 @@ const ralenTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТИ ===
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -2037,6 +2037,116 @@ const ralenTemplates = [
       "Підприємство є одним з найбільших виробників шлангів для систем кондиціонування автомобілів, а також лідером у виробництві гумових шлангів. Замовниками є найбільші автомобільні компанії, в тому числі: Jaguar, Land Rover, Volvo, BMW, Volkswagen Group, Renault, Nissan, Peugeot Citroën. Умови роботи на CHEŁMEK 1 (чоловіки та жінки): робота на виробничих машинах (нескладні, повторювані робочі процеси, більшість з яких автоматизовано), монтаж металевих трубок, контроль якості готових виробів (візуальна перевірка, маркування), ведення робочої документації. Умови роботи на CHEŁMEK 2 (чоловіки, для жінок обов'язки такі ж як на CHEŁMEK 1): обслуговування машини для формування гумових трубок для автомобілів (автоклав), вкладання трубок у форму за шаблоном та поміщення в машину на 20 хв., зняття готової продукції та підготовка іншої. Робота нескладна, але вимагає швидкого руху рук та трохи зусиль.",
     additionalNotes:
       "Вимоги: бажання працювати мінімум 3 місяці, досвід фізичної роботи.",
+  },
+
+  // Вакансія №18 - Mirko Głobino
+  {
+    agencyName: "RALEN",
+    templateName: "Mirko Głobino",
+    vacancydescription: "Виробництво та обробка рибної продукції",
+    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    keywords: [
+      "Mirko",
+      "Głobino",
+      "Słupsk",
+      "риба",
+      "філетування",
+      "пакування",
+      "харчова промисловість",
+      "денні зміни",
+    ],
+    contractType: "Umowa zlecenie",
+    forRecruiter: {
+      internalNotes:
+        "Приїзди на житло 07.04.2026-08.04.2026. Допомога з санепід книжкою (200 зл із ЗП). Очікування книжки 4-5 днів. Вимоги: готовність працювати мін. 3 місяці.",
+      hideAgencyNameForCandidate: true,
+      hideEnterpriseNameForCandidate: true,
+    },
+    location: "Głobino",
+    locationDescription: "ul. Przemysłowa 12",
+    voivodeship: "Pomorskie",
+    country: "Polska",
+    checkInCity: "Słupsk",
+    salary: {
+      baseNetto: "26 PLN netto / год",
+      studentNetto: "31,40 PLN netto / год",
+      hoursRange: "200",
+      payoutDates: "з 15 по 18 число",
+      bonusDetails: "+1 zł / год доплата за власне житло",
+      salaryNotes:
+        "Виплата на банківський рахунок. Ставка для студентів діє до 26 років.",
+    },
+    schedule: {
+      shiftsCount: 1,
+      hoursPerShift: "8-12",
+      workDaysWeek: "Пн-Сб",
+      breakDuration: "згідно з нормами підприємства",
+      canChooseShiftOnStart: false,
+      shiftChoiceDetails:
+        "Зміни тільки денні, але час початку може варіюватися (06:00, 07:00, 10:00, 12:00, 14:00)",
+      description:
+        "Тільки денні зміни по 8-12 годин. Початок змін: 6:00, 6:15, 7:00, 10:00, 12:00, 14:00.",
+    },
+    accommodation: {
+      type: "Платне",
+      forCouples: false,
+      withChildren: false,
+      withPets: false,
+      costRaw: "18 zł / добу",
+      details:
+        "Оплата стягується із заробітної плати (близько 540-558 зл/міс). Потрібно мати власну постільну білизну. Ковдри та подушки надаються.",
+    },
+    transport: {
+      provided: true,
+      costRaw: "100 zł / місяць",
+      details: "Доїзд до роботи організований роботодавцем.",
+    },
+    employerCompensations: {
+      hasCompensations: false,
+      details: "",
+    },
+    requirements: {
+      gender: ["Жінки"],
+      ageMax: 60,
+      nationalities: ["Україна"],
+      standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
+      needsAdditionalDocs: true,
+      additionalDocsDetails: "Санепід книжка",
+      experienceRequired: false,
+      hasEntranceTests: false,
+      entranceTestsDetails: "",
+      polishLanguageLevel: "Не вимагається",
+      languageDetails: "",
+      physicalLoad: "Робота на ногах, процеси обробки та пакування риби.",
+    },
+    businessTrip: {
+      isBusinessTrip: false,
+      requiresPolishExperience: false,
+      requiredDocuments: [],
+      tripDetails: "",
+    },
+    conditions: {
+      hasSpecificConditions: true,
+      specificNuances: ["Температура +16°C", "Запах риби", "Воге середовище"],
+      specificConditionsDetails:
+        "Температура на виробництві становить +16°C. Робота з рибною продукцією.",
+      workwearFree: true,
+      foodType: "Власне",
+      foodDetails: "Є їдальня для споживання власної їжі.",
+    },
+    startExpenses: {
+      hasStartExpenses: true,
+      details:
+        "200 зл за оформлення санепід книжки (вираховується з першої зарплати).",
+    },
+    earlyTerminationLiability: {
+      hasLiability: false,
+      details: "",
+    },
+    description:
+      "Комплексна робота на підприємстві з переробки риби: сортування продукції за видом, розміром та якістю; зважування та розподіл по групах (філе, маринади, копчення); обробка риби, філетування та триммінг; візуальний контроль якості та перевірка за допомогою щупів або лазера; засолювання, маринування та додавання приправ; приготування розсолів, маринадів, заливок та желе; теплова обробка, копчення та стерилізація; дозування, формування порцій та перевірка ваги; упаковка готової продукції, етикетування та друк стікерів.",
+    additionalNotes:
+      "Робочий одяг надається безкоштовно. Можливість отримання доплати за власне житло (+1 зл/год). Робота в стабільній компанії, що є лідером рибної галузі.",
   },
 ];
 

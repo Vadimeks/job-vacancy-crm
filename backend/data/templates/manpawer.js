@@ -282,7 +282,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Резюме"],
       needsAdditionalDocs: true,
@@ -381,7 +381,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR"],
       needsAdditionalDocs: true,
@@ -481,7 +481,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки", "Пари"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR"],
       needsAdditionalDocs: false,
@@ -579,7 +579,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Резюме"],
       needsAdditionalDocs: false,
@@ -679,7 +679,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки", "Пари"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Резюме"],
       needsAdditionalDocs: false,
@@ -774,7 +774,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки", "Пари"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR"],
       needsAdditionalDocs: true,
@@ -957,7 +957,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки", "Пари"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR"],
       needsAdditionalDocs: false,
@@ -1064,7 +1064,7 @@ const manpawerTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Чоловіки", "Жінки", "Пари"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна", "Білорусь", "Молдова", "Грузія", "Вірменія"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -1168,7 +1168,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR"],
       needsAdditionalDocs: false,
@@ -1264,7 +1264,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна", "Білорусь", "Молдова"],
       standardDocs: ["PESEL UKR"],
       needsAdditionalDocs: true,
@@ -1361,7 +1361,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки", "Пари"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR"],
       needsAdditionalDocs: false,
@@ -1449,7 +1449,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR"],
       needsAdditionalDocs: true,
@@ -1537,7 +1537,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки", "Пари"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR"],
       needsAdditionalDocs: true,
@@ -1633,7 +1633,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR"],
       needsAdditionalDocs: true,
@@ -1728,7 +1728,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна", "Білорусь", "Молдова"],
       standardDocs: ["PESEL UKR"],
       needsAdditionalDocs: false,
@@ -1823,7 +1823,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна", "Білорусь", "Молдова"],
       standardDocs: ["PESEL UKR", "Резюме"],
       needsAdditionalDocs: false,
@@ -1910,7 +1910,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Резюме"],
       needsAdditionalDocs: false,
@@ -2016,7 +2016,7 @@ const manpawerTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR"],
       needsAdditionalDocs: false,
@@ -2118,7 +2118,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR"],
       needsAdditionalDocs: true,
@@ -2215,7 +2215,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Резюме"],
       needsAdditionalDocs: true,
@@ -2313,7 +2313,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR"],
       needsAdditionalDocs: false,
@@ -2410,7 +2410,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Резюме"],
       needsAdditionalDocs: true,
@@ -2506,7 +2506,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Резюме"],
       needsAdditionalDocs: false,
@@ -2604,7 +2604,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR"],
       needsAdditionalDocs: false,
@@ -2701,7 +2701,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Резюме"],
       needsAdditionalDocs: false,
@@ -2893,7 +2893,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR"],
       needsAdditionalDocs: false,
@@ -2998,7 +2998,7 @@ const manpawerTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Чоловіки", "Жінки", "Пари"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR"],
       needsAdditionalDocs: false,
@@ -3091,7 +3091,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки", "Пари"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR"],
       needsAdditionalDocs: false,
@@ -3283,7 +3283,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Резюме"],
       needsAdditionalDocs: false,
@@ -3374,7 +3374,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Резюме"],
       needsAdditionalDocs: false,
@@ -3460,7 +3460,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Резюме"],
       needsAdditionalDocs: false,
@@ -3553,7 +3553,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки", "Пари"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR"],
       needsAdditionalDocs: true,
@@ -3738,7 +3738,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна", "Білорусь", "Молдова"],
       standardDocs: ["PESEL UKR"],
       needsAdditionalDocs: false,
@@ -3835,7 +3835,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки", "Пари"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR"],
       needsAdditionalDocs: false,
@@ -3939,7 +3939,7 @@ const manpawerTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Чоловіки", "Жінки", "Пари"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR"],
       needsAdditionalDocs: false,
@@ -4046,7 +4046,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: true,
@@ -4145,7 +4145,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR"],
       needsAdditionalDocs: true,
@@ -4240,7 +4240,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки", "Пари"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR"],
       needsAdditionalDocs: true,
@@ -4341,7 +4341,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: true,
@@ -4449,7 +4449,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Резюме"],
       needsAdditionalDocs: false,
@@ -4552,7 +4552,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -4745,7 +4745,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -4850,7 +4850,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR"],
       needsAdditionalDocs: true,
@@ -4954,7 +4954,7 @@ const manpawerTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -5072,7 +5072,7 @@ const manpawerTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -5187,7 +5187,7 @@ const manpawerTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -5294,7 +5294,7 @@ const manpawerTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: true,
@@ -5400,7 +5400,7 @@ const manpawerTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: true,
@@ -5509,7 +5509,7 @@ const manpawerTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -5623,7 +5623,7 @@ const manpawerTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -5843,7 +5843,7 @@ const manpawerTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -5953,7 +5953,7 @@ const manpawerTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: true,
@@ -6068,7 +6068,7 @@ const manpawerTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: true,
@@ -6175,7 +6175,7 @@ const manpawerTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -6291,7 +6291,7 @@ const manpawerTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: true,
@@ -6406,7 +6406,7 @@ const manpawerTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -6520,7 +6520,7 @@ const manpawerTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Чоловіки", "Жінки", "Пари"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -6628,7 +6628,7 @@ const manpawerTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Чоловіки", "Жінки", "Пари"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -6853,7 +6853,7 @@ const manpawerTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -6959,7 +6959,7 @@ const manpawerTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Чоловіки", "Жінки", "Пари"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -7074,7 +7074,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: true,
@@ -7187,7 +7187,7 @@ const manpawerTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -7301,7 +7301,7 @@ const manpawerTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -7416,7 +7416,7 @@ const manpawerTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -7525,7 +7525,7 @@ const manpawerTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -7641,7 +7641,7 @@ const manpawerTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна", "Молдова", "Білорусь"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -7751,7 +7751,7 @@ const manpawerTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Філіппіни", "Україна", "Молдова", "Білорусь"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -7859,7 +7859,7 @@ const manpawerTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -7966,7 +7966,7 @@ const manpawerTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: true,
@@ -8075,7 +8075,7 @@ const manpawerTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: true,
@@ -8194,7 +8194,7 @@ const manpawerTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: true,
@@ -8307,7 +8307,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -8414,7 +8414,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -8520,7 +8520,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -8627,7 +8627,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -8841,7 +8841,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: true,
@@ -8951,7 +8951,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна", "Білорусь", "Молдова"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -9057,7 +9057,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -9161,7 +9161,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки", "Пари"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна", "Молдова"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -9266,7 +9266,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки", "Пари"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна", "Білорусь", "Молдова"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -9377,7 +9377,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -9484,7 +9484,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки", "Пари"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна", "Білорусь", "Молдова"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -9589,7 +9589,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -9693,7 +9693,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна", "Білорусь", "Молдова"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -9799,7 +9799,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -9903,7 +9903,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -10006,7 +10006,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки", "Пари"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -10107,7 +10107,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки", "Пари"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: true,
@@ -10212,7 +10212,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки", "Пари"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: true,
@@ -10316,7 +10316,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -10419,7 +10419,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки", "Пари"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -10521,7 +10521,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -10627,7 +10627,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: true,
@@ -10733,7 +10733,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки", "Пари"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна", "Молдова", "Білорусь", "Грузія", "Вірменія"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -10838,7 +10838,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -10942,7 +10942,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -11049,7 +11049,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -11153,7 +11153,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,
@@ -11258,7 +11258,7 @@ const manpawerTemplates = [
     },
     requirements: {
       gender: ["Чоловіки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,

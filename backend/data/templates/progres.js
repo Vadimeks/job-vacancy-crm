@@ -74,7 +74,7 @@ const progresTemplates = [
     // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
     requirements: {
       gender: ["Чоловіки", "Жінки", "Пари"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: false,

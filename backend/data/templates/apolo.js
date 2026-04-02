@@ -1042,7 +1042,7 @@ const apoloTemplates = [
     },
     requirements: {
       gender: ["Чоловіки", "Жінки"],
-      ageMax: 99,
+      ageMax: 60,
       nationalities: ["Україна"],
       standardDocs: ["PESEL UKR", "Віза", "Карта побуту"],
       needsAdditionalDocs: true,
