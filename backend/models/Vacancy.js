@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const vacancySchema = new mongoose.Schema({
   // === 1. СІСТЭМНЫЯ ПАЛІ (Групаванне і пошук) ===
   title: { type: String, required: true }, // Поўная назва: "Brembo Dąbrowa Górnicza"
-  vacancydescription: { type: String, required: true }, // Кароткі опіс суці (укр)
+  vacancydescription: { type: String, default: "" }, // Кароткі опіс суці (укр)
 
   agencyName: { type: String, default: "Manual" },
   templateId: {
@@ -11,9 +11,9 @@ const vacancySchema = new mongoose.Schema({
     ref: "Template",
     default: null,
   },
-  category: { type: String, required: true },
+  category: { type: String, default: "" },
   keywords: { type: [String], default: [] },
-  contractType: { type: String, required: true }, // "Umowa zlecenie" / "Umowa o pracę"
+  contractType: { type: String, default: "" }, // "Umowa zlecenie" / "Umowa o pracę"
 
   // 🔒 УНУТРАНЫ БЛОК ДЛЯ РЭКРУТЭРАЎ
   forRecruiter: {
@@ -23,15 +23,15 @@ const vacancySchema = new mongoose.Schema({
   },
 
   // === 2. ЛАКАЦЫІ І ГЕАГРАФІЯ ===
-  location: { type: String, required: true }, // Горад ПОЛЬСЬКАЮ
+  location: { type: String, default: "" }, // Горад ПОЛЬСЬКАЮ
   locationDescription: { type: String, default: "" },
-  voivodeship: { type: String, required: true },
+  voivodeship: { type: String, default: "" },
   country: { type: String, default: "Polska" }, // Зменена з "Польща"
   checkInCity: { type: String, default: "" },
 
   // === 3. ФІНАНСЫ ===
   salary: {
-    baseNetto: { type: String, required: true },
+    baseNetto: { type: String, default: "" },
     studentNetto: { type: String, default: "" },
     hoursRange: { type: String, default: "" },
     payoutDates: { type: String, default: "" },
@@ -41,7 +41,7 @@ const vacancySchema = new mongoose.Schema({
 
   // === 4. ГРАФІК ===
   schedule: {
-    shiftsCount: { type: Number, default: 0 },
+    shiftsCount: { type: String, default: "" },
     hoursPerShift: { type: String, default: "" },
     workDaysWeek: { type: String, default: "" },
     breakDuration: { type: String, default: "" },
@@ -52,7 +52,7 @@ const vacancySchema = new mongoose.Schema({
 
   // === 5. ПРАЖЫВАННЕ І ТРАНСПАРТ ===
   accommodation: {
-    type: { type: String, required: true }, // "Безкоштовне", "Платне", "Власне"
+    type: { type: String, default: "" }, // "Безкоштовне", "Платне", "Власне"
     forCouples: { type: Boolean, default: false },
     withChildren: { type: Boolean, default: false },
     withPets: { type: Boolean, default: false },
@@ -119,7 +119,7 @@ const vacancySchema = new mongoose.Schema({
   },
 
   // === 11. АПІСАННЕ ПРАЦЭСАЎ І НАТАТКІ ===
-  description: { type: String, required: true },
+  description: { type: String, default: "" },
   additionalNotes: { type: String, default: "" },
 
   // === 🔴 Спецыфічныя палі толькі для ВАКАНСІЙ ===
@@ -135,7 +135,7 @@ const vacancySchema = new mongoose.Schema({
     default: "active",
   },
 
-  vacancyCode: { type: String, unique: true },
+  vacancyCode: { type: String, unique: true, sparse: true }, // Унікальны код вакансіі для ідэнтыфікацыі
   createdAt: { type: Date, default: Date.now },
 });
 
