@@ -4,7 +4,10 @@ const router = express.Router();
 const Vacancy = require("../models/Vacancy");
 const Template = require("../models/Template");
 const aiService = require("../services/ai.service");
-const { sendToTelegram } = require("../services/telegram.service");
+const {
+  sendToTelegram,
+  notifyRecruiterAboutMatch,
+} = require("../services/telegram.service");
 const { matchCandidatesForVacancy } = require("../services/matching.service");
 
 // --- ГЕНЕРАЦЫЯ НУМАРА ВАКАНСІІ ---
@@ -59,53 +62,58 @@ async function processVacancyMessage(rawText) {
   const postText = await aiService.formatTelegramPost(vacancyData);
   const vacancyCode = await generateVacancyCode();
 
-  // ГЭТА МЕСЦА Я ВЫПРАВІЎ:
   const newVacancy = new Vacancy({
     vacancyCode,
     title: vacancyData.title || "Нова вакансія",
     agencyName: vacancyData.agencyName || "Manual",
+    category: vacancyData.category || "Іншае", // Новае поле для матчынгу
     location: vacancyData.location || "Не вызначана",
-    country: vacancyData.country || "Польща",
-    arrivalDate: vacancyData.arrivalDate || null,
-    count: vacancyData.count || null,
+
+    // Зарплата v2.0
     salary: {
-      base: vacancyData.salary?.base || "",
-      student: vacancyData.salary?.student || "",
-      monthly: vacancyData.salary?.monthly || "",
-      bonus: vacancyData.salary?.bonus || "",
-      notes: vacancyData.salary?.notes || "",
+      baseNetto: vacancyData.salary?.baseNetto || "",
+      studentNetto: vacancyData.salary?.studentNetto || "",
+      salaryNotes: vacancyData.salary?.salaryNotes || "",
     },
+
+    // Графік v2.0
     schedule: {
-      shifts: vacancyData.schedule?.shifts || "",
-      hours: vacancyData.schedule?.hours || "",
-      details: vacancyData.schedule?.details || "",
+      shiftsCount: vacancyData.schedule?.shiftsCount || 1,
+      hoursRange: vacancyData.schedule?.hoursRange || "",
     },
-    description: vacancyData.description || "",
+
+    // Жытло v2.0
     accommodation: {
-      available: vacancyData.accommodation?.available || false,
+      type: vacancyData.accommodation?.type || "Власне",
+      forCouples: vacancyData.accommodation?.forCouples || false,
       cost: vacancyData.accommodation?.cost || "",
-      details: vacancyData.accommodation?.details || "",
     },
-    transport: {
-      provided: vacancyData.transport?.provided || false,
-      cost: vacancyData.transport?.cost || "",
-      details: vacancyData.transport?.details || "",
-    },
+
+    // Патрабаванні v2.0 (самыя важныя для матчынгу)
     requirements: {
-      gender: vacancyData.requirements?.gender || "",
-      age: vacancyData.requirements?.age || "",
+      gender: vacancyData.requirements?.gender || [], // Масіў!
+      ageMin: vacancyData.requirements?.ageMin || 18,
+      ageMax: vacancyData.requirements?.ageMax || 60,
       nationalities: vacancyData.requirements?.nationalities || [],
-      docs: vacancyData.requirements?.docs || [],
-      physical: vacancyData.requirements?.physical || "",
+      polishLanguageLevel:
+        vacancyData.requirements?.polishLanguageLevel || "Не вимагається",
+      needsAdditionalDocs:
+        vacancyData.requirements?.needsAdditionalDocs || false,
+      additionalDocsDetails:
+        vacancyData.requirements?.additionalDocsDetails || "",
     },
+
+    // Умовы v2.0
     conditions: {
-      temperature: vacancyData.conditions?.temperature || "",
-      workwear: vacancyData.conditions?.workwear || "",
-      food: vacancyData.conditions?.food || "",
-      notes: vacancyData.conditions?.notes || "", // Тут будзе адрас для кароткіх вакансій
+      hasSpecificConditions:
+        vacancyData.conditions?.hasSpecificConditions || false,
+      notes: vacancyData.conditions?.notes || "",
     },
-    contractType: vacancyData.contractType || "",
-    additionalNotes: vacancyData.additionalNotes || "", // Нататкі рэкрутэра (ТЕРМІНОВО, Тэлефон)
+
+    businessTrip: {
+      isBusinessTrip: vacancyData.businessTrip?.isBusinessTrip || false,
+    },
+
     rawText: rawText,
     telegramPost: postText,
     status: "active",
@@ -113,7 +121,12 @@ async function processVacancyMessage(rawText) {
 
   const savedVacancy = await newVacancy.save();
   await sendToTelegram(postText);
-  await matchCandidatesForVacancy(savedVacancy);
+
+  // Запускаем матчынг і адразу апавяшчаем рэкрутэра
+  const matchedCandidates = await matchCandidatesForVacancy(savedVacancy);
+  if (matchedCandidates && matchedCandidates.length > 0) {
+    await notifyRecruiterAboutMatch(savedVacancy, matchedCandidates);
+  }
 
   return savedVacancy;
 }
@@ -174,7 +187,12 @@ router.post("/from-template/:templateId", async (req, res) => {
 
     const saved = await newVacancy.save();
     await sendToTelegram(postText);
-    await matchCandidatesForVacancy(saved);
+
+    // Дадаем апавяшчэнне тут
+    const matched = await matchCandidatesForVacancy(saved);
+    if (matched && matched.length > 0) {
+      await notifyRecruiterAboutMatch(saved, matched);
+    }
 
     res.status(201).json(saved);
   } catch (err) {
@@ -200,7 +218,12 @@ router.post("/", async (req, res) => {
     const savedVacancy = await newVacancy.save();
     const postText = await aiService.formatTelegramPost(savedVacancy);
     await sendToTelegram(postText);
-    await matchCandidatesForVacancy(savedVacancy);
+    // Дадаем апавяшчэнне тут
+    const matched = await matchCandidatesForVacancy(savedVacancy);
+    if (matched && matched.length > 0) {
+      await notifyRecruiterAboutMatch(savedVacancy, matched);
+    }
+
     res.status(201).json(savedVacancy);
   } catch (err) {
     res.status(400).json({ message: err.message });
