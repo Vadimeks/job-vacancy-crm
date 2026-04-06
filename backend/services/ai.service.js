@@ -26,14 +26,11 @@ ROLE: HR Dispatcher assistant.
 TASK: Identify which template this job vacancy message belongs to.
 
 CRITICAL RULES:
-1. The BRAND NAME in the message must EXACTLY match the brand in the template name.
-   - If message mentions "Aurora" → only match templates with "Aurora" in the name.
-   - If message mentions "Zalando" → only match templates with "Zalando" in the name.
-   - If message mentions "BREMBO" → only match templates with "BREMBO" in the name.
-2. Location alone is NOT enough to match — brand must match too.
-3. If no brand match found → return templateId: null.
-4. If you are less than 90% sure → return templateId: null.
-5. It is ALWAYS better to return null than a wrong match.
+1. Brand must match exactly.
+2. Location (city) must match.
+3. Agency name must match (agencyName field).
+4. Job PROCESS must match — same duties/description. Different role at same factory = NO MATCH.
+If any of the 4 criteria fail → return templateId: null.
 
 Return ONLY a JSON object:
 {
@@ -44,140 +41,6 @@ Return ONLY a JSON object:
 
 IMPORTANT: Return ONLY valid JSON, no markdown, no explanations.
 CRITICAL RULE: If the factory and location match, but the JOB PROCESS (duties/process field) is different, return templateId: null. We need a new template for different roles.
-`;
-
-// FIX: MERGE_PROMPT тепер використовує повну структуру v2.0 — жодне поле не губиться
-const MERGE_PROMPT = `
-ROLE: Professional HR Dispatcher for the Polish job market.
-TASK: You have a job template (JSON v2.0) and a new short message.
-Extract ONLY the information that has CHANGED or is NEW in the message.
-Keep ALL other fields from the template EXACTLY unchanged.
-
-You will receive:
-1. TEMPLATE: full job template data (JSON v2.0)
-2. MESSAGE: new short message from agency chat
-
-Rules:
-- ALWAYS keep templateName EXACTLY as in template — never modify it
-- If message contains recruiter-only info, security rules, "no phones" policy → put into forRecruiter.internalNotes
-- If message mentions new address or small workplace details → put into conditions.specificConditionsDetails
-- If message mentions count (e.g. "2 жінки", "5 чоловіків") → set count field (number only, e.g. 2)
-- If message mentions gender → update requirements.gender (Array: ["Чоловіки", "Жінки", "Пари"])
-- If message mentions arrival date (e.g. "приїзд 20.03", "набір 15.04") → update arrivalDate. Keep original format (e.g. "23.03")
-- If message mentions housing change → update accommodation fields
-- If message mentions salary change → update salary fields
-- If message mentions schedule change → update schedule fields
-- If message mentions nationalities → update requirements.nationalities
-- If field is NOT mentioned in message → keep template value EXACTLY as is
-
-Return ONLY valid JSON with the complete merged result using FULL structure v2.0:
-{
-  "agencyName": "string",
-  "templateName": "string",
-  "vacancydescription": "string",
-  "category": "string",
-  "keywords": ["string"],
-  "contractType": "string",
-  "arrivalDate": "string or null",
-  "count": "string or null",
-
-  "forRecruiter": {
-    "internalNotes": "string",
-    "hideAgencyNameForCandidate": true,
-    "hideEnterpriseNameForCandidate": true
-  },
-
-  "location": "string",
-  "locationDescription": "string",
-  "voivodeship": "string",
-  "country": "Polska",
-  "checkInCity": "string",
-
-  "salary": {
-    "baseNetto": "string",
-    "studentNetto": "string",
-    "hoursRange": "string",
-    "payoutDates": "string",
-    "bonusDetails": "string",
-    "salaryNotes": "string"
-  },
-
-  "schedule": {
-    "shiftsCount": 0,
-    "hoursPerShift": "string",
-    "workDaysWeek": "string",
-    "breakDuration": "string",
-    "canChooseShiftOnStart": false,
-    "shiftChoiceDetails": "string",
-    "description": "string"
-  },
-
-  "accommodation": {
-    "type": "Безкоштовне/Платне/Власне",
-    "forCouples": false,
-    "withChildren": false,
-    "withPets": false,
-    "costRaw": "string",
-    "details": "string"
-  },
-
-  "transport": {
-    "provided": false,
-    "costRaw": "string",
-    "details": "string"
-  },
-
-  "employerCompensations": {
-    "hasCompensations": false,
-    "details": "string"
-  },
-
-  "requirements": {
-    "gender": ["string"],
-    "ageMax": 60,
-    "nationalities": ["string"],
-    "standardDocs": ["string"],
-    "needsAdditionalDocs": false,
-    "additionalDocsDetails": "string",
-    "experienceRequired": false,
-    "hasEntranceTests": false,
-    "entranceTestsDetails": "string",
-    "polishLanguageLevel": "string",
-    "languageDetails": "string",
-    "physicalLoad": "string"
-  },
-
-  "businessTrip": {
-    "isBusinessTrip": false,
-    "requiresPolishExperience": false,
-    "requiredDocuments": [],
-    "tripDetails": "string"
-  },
-
-  "conditions": {
-    "hasSpecificConditions": false,
-    "specificNuances": [],
-    "specificConditionsDetails": "string",
-    "workwearFree": false,
-    "foodType": "string",
-    "foodDetails": "string"
-  },
-
-  "startExpenses": {
-    "hasStartExpenses": false,
-    "details": "string"
-  },
-
-  "earlyTerminationLiability": {
-    "hasLiability": false,
-    "details": "string"
-  },
-
-  "description": "string",
-  "additionalNotes": "string"
-}
-
-IMPORTANT: Return ONLY valid JSON, no markdown, no explanations.
 `;
 
 // FIX: FORMAT_PROMPT тепер використовує правильні шляхи до полів v2.0
@@ -210,9 +73,9 @@ Use this EXACT structure (skip entire blocks if ALL data inside is empty/null):
 [• [requirements.physicalLoad] — тільки якщо не пусте]
 
 🕒 *Графік роботи*
-[schedule.description]
-[schedule.workDaysWeek]
-[schedule.breakDuration — якщо не пусте]
+[schedule.description — якщо не пусте]
+[schedule.workDaysWeek — тільки якщо НЕ міститься вже у schedule.description]
+[• Перерва: [schedule.breakDuration] — тільки якщо не пусте]
 
 📄 Тип договору: [contractType]
 
@@ -250,6 +113,7 @@ Rules:
 - If entire block has no data — skip it completely
 - Return ONLY the formatted post text, no JSON, no explanations
 - If information in specificNuances and specificConditionsDetails is identical, display it only once
+- The 👥 line contains ONLY gender and arrivalDate. Never add age, documents or other requirements there.
 `;
 
 const CREATE_TEMPLATE_PROMPT = `
@@ -266,7 +130,25 @@ The template should:
 
 Return ONLY valid JSON.
 `;
+const MERGE_PROMPT = `
+ROLE: Professional HR Dispatcher for the Polish job market.
+TASK: You have a job template (JSON v2.0) and a new short message.
+Extract ONLY the information that has CHANGED or is NEW in the message.
+Keep ALL other fields from the template EXACTLY unchanged.
 
+Rules:
+- ALWAYS keep templateName EXACTLY as in template — never modify it
+- If message mentions salary change → update salary fields
+- If message mentions arrival date → update arrivalDate
+- If message mentions count → update count
+- If message mentions gender → update requirements.gender
+- If message mentions housing change → update accommodation fields
+- If message mentions schedule change → update schedule fields
+- If field is NOT mentioned in message → keep template value EXACTLY as is
+
+Return ONLY valid JSON with the complete merged result using FULL structure v2.0.
+IMPORTANT: Return ONLY valid JSON, no markdown, no explanations.
+`;
 // --- ДАПАМОЖНЫЯ ФУНКЦЫІ ---
 
 async function groqRequest(systemPrompt, userContent, jsonMode = true) {
@@ -281,6 +163,33 @@ async function groqRequest(systemPrompt, userContent, jsonMode = true) {
     ],
   });
   return response.choices[0]?.message?.content || "";
+}
+async function mergeWithTemplate(rawText, template) {
+  try {
+    console.log(
+      `🤖 Мерж шаблона "${template.templateName}" з повідомленням...`,
+    );
+
+    const content = `TEMPLATE:\n${JSON.stringify(template, null, 2)}\n\nMESSAGE:\n${rawText}`;
+    const text = await groqRequest(MERGE_PROMPT, content, true);
+
+    let cleanJson = text.trim();
+    cleanJson = cleanJson.replace(/```json\s*/g, "").replace(/```\s*/g, "");
+    const jsonMatch = cleanJson.match(/\{[\s\S]*\}/);
+    if (jsonMatch) cleanJson = jsonMatch[0];
+
+    const merged = JSON.parse(cleanJson);
+
+    // Абарона крытычных палёў
+    merged.templateName = template.templateName;
+    merged.agencyName = template.agencyName;
+    if (!merged.keywords?.length) merged.keywords = template.keywords;
+
+    return merged;
+  } catch (error) {
+    if (error.message?.includes("429")) throw new Error("RATE_LIMIT");
+    throw error;
+  }
 }
 
 async function identifyTemplate(rawText, templates) {
@@ -323,11 +232,21 @@ async function identifyTemplate(rawText, templates) {
       }
     });
 
-    if (bestMatch) {
-      console.log(
-        `✅ Шаблон знойдзены лакальна: ${bestMatch.templateName} (Score: ${maxScore})`,
-      );
-      return bestMatch;
+    if (bestMatch && maxScore >= 22) {
+      // павысілі парог з 15 да 22
+      // дадаткова правяраем лакацыю — яна АБАВЯЗКОВАЯ
+      const locationMatch =
+        bestMatch.location &&
+        lowerText.includes(bestMatch.location.toLowerCase());
+
+      if (locationMatch) {
+        console.log(
+          `✅ Шаблон знойдзены лакальна: ${bestMatch.templateName} (Score: ${maxScore})`,
+        );
+        return bestMatch;
+      } else {
+        console.log(`⚠️ Брэнд супадае але лакацыя не — адпраўляем да AI`);
+      }
     }
   }
 
@@ -357,82 +276,17 @@ async function identifyTemplate(rawText, templates) {
   return null;
 }
 
-async function mergeWithTemplate(rawText, template) {
-  try {
-    console.log(
-      `🤖 Мерж шаблона "${template.templateName}" з повідомленням...`,
-    );
-
-    // FIX: templateSlim цяпер змяшчае ВСЕ палі v2.0 — нічога не губіцца
-    const templateSlim = {
-      agencyName: template.agencyName,
-      templateName: template.templateName,
-      vacancydescription: template.vacancydescription,
-      category: template.category,
-      keywords: template.keywords,
-      contractType: template.contractType,
-      arrivalDate: template.arrivalDate,
-      count: template.count,
-      forRecruiter: template.forRecruiter,
-
-      location: template.location,
-      locationDescription: template.locationDescription,
-      voivodeship: template.voivodeship,
-      country: template.country,
-      checkInCity: template.checkInCity,
-
-      salary: template.salary,
-      schedule: template.schedule,
-
-      accommodation: template.accommodation,
-      transport: template.transport,
-      employerCompensations: template.employerCompensations,
-
-      requirements: template.requirements,
-      businessTrip: template.businessTrip,
-
-      conditions: template.conditions,
-
-      startExpenses: template.startExpenses,
-      earlyTerminationLiability: template.earlyTerminationLiability,
-
-      description: template.description,
-      additionalNotes: template.additionalNotes,
-    };
-
-    const content = `TEMPLATE:\n${JSON.stringify(templateSlim, null, 2)}\n\nMESSAGE:\n${rawText}`;
-    const text = await groqRequest(MERGE_PROMPT, content, true);
-
-    let cleanJson = text.trim();
-    cleanJson = cleanJson.replace(/```json\s*/g, "").replace(/```\s*/g, "");
-    const jsonMatch = cleanJson.match(/\{[\s\S]*\}/);
-    if (jsonMatch) cleanJson = jsonMatch[0];
-
-    const merged = JSON.parse(cleanJson);
-
-    // Захаванне крытычных палёў, калі AI раптам іх выдаліў
-    if (template.additionalNotes && !merged.additionalNotes)
-      merged.additionalNotes = template.additionalNotes;
-    if (template.forRecruiter && !merged.forRecruiter)
-      merged.forRecruiter = template.forRecruiter;
-    // Калі AI вярнуў пустыя масівы, якія дакладно былі ў шаблоне — аднаўляем іх
-    if (
-      (!merged.keywords || merged.keywords.length === 0) &&
-      template.keywords?.length > 0
-    )
-      merged.keywords = template.keywords;
-    if (
-      (!merged.requirements?.standardDocs ||
-        merged.requirements.standardDocs.length === 0) &&
-      template.requirements?.standardDocs?.length > 0
-    )
-      merged.requirements.standardDocs = template.requirements.standardDocs;
-    return merged;
-  } catch (error) {
-    if (error.message?.includes("429")) throw new Error("RATE_LIMIT");
-    if (error instanceof SyntaxError) throw new Error("INVALID_JSON_RESPONSE");
-    throw error;
-  }
+async function linkTemplateToVacancy(vacancyData, template) {
+  const ref = `📎 Шаблон: ${template.templateName} (ID: ${template._id})`;
+  const existing = vacancyData.forRecruiter?.internalNotes || "";
+  return {
+    ...vacancyData,
+    forRecruiter: {
+      ...vacancyData.forRecruiter,
+      internalNotes: existing ? `${ref}\n${existing}` : ref,
+    },
+  };
+  // Без AI-запыту — проста JS, хутка і надзейна
 }
 
 async function formatTelegramPost(vacancyData) {
@@ -456,22 +310,135 @@ async function parseVacancyWithAI(rawText) {
 
     const SYSTEM_INSTRUCTION = `
 ROLE: Professional automated job vacancy parser (Version 2.0).
-TASK: Convert job text into a JSON object based on the strict v2.0 template.
-
+TASK: Convert job vacancy text into a JSON object with EXACTLY this structure. Fill every field based on the text. Do not invent field names.
 STRICT RULES:
-1. LANGUAGE: All descriptions, duties, and notes MUST be in UKRAINIAN. 
-2. GEOGRAPHY: Fields 'location', 'voivodeship', 'checkInCity', and 'country' MUST be in POLISH only (e.g., Warszawa, Śląskie). Do not translate them!
-3. ZERO LOSS PRINCIPLE: 100% completeness. Do not ignore minor details (free drinks, microwave, jewelry ban, laundry bonuses, attendance bonuses). Everything must be in the corresponding fields.
-4. checkInCity ALGORITHM:
-   - Step 1: Check for office/registration address. If the office city differs from the work city -> put it in checkInCity.
-   - Step 2: If the header says "Arrival to [City]" and work is elsewhere -> put that city in checkInCity.
-   - Step 3: If cities match or no info -> leave empty "".
-5. NO INTERPRETATION: If no specific number is mentioned (temperature, distance), do not guess. Write as in text: "cold warehouse".
-6. CONFIDENTIALITY: Remove agency names (Manpower, OTTO). KEEP product brands (Sinsay, Samsung, Bosch).
-7. AUTONOMY: Each vacancy (No. 81, 82...) must be a standalone object. No "same as above" references.
-8. vacancydescription must be a concise job title in Ukrainian (e.g., 'Пакування цукерак'), excluding factory names.
+1. LANGUAGE: All descriptions, duties, notes — UKRAINIAN. Geography fields (location, voivodeship, checkInCity, country) — POLISH only.
+2. ZERO LOSS: Never ignore ANY detail — breaks, jewelry ban, free drinks, bonuses, smells, noise, laundry bonus, attendance bonus. Everything goes into the correct field.
+3. NO INTERPRETATION: If no specific number (temperature, distance) — write as text (e.g. "холодний склад"), NEVER guess or add approximate values.
+4. agencyName: RECRUITMENT AGENCY name ONLY (Manpower, OTTO, EWL, Personnel Service etc.), NOT the factory/brand. If no agency mentioned — use null.
+5. templateName: Factory/brand name + city IN POLISH ONLY (e.g. "Faurecia Grójec", "Hutchinson Dębica"). Never add agency name here.
+6. checkInCity: ONLY if registration/office city DIFFERS from work city. "50 km від Варшави" = NOT checkInCity. Leave empty string if same city or no info.
+7. contractType: Copy EXACTLY from text ("Umowa o pracę" or "Umowa zlecenie"). If not mentioned — null.
+8. GENDER + COUPLES: If couples mentioned → add "Пари" to gender array AND set forCouples: true.
+9. EXPENSES SPLIT: Costs BEFORE work starts (medical exam, tests) → startExpenses. Costs/penalties DURING or on early exit (clothing deduction, fines) → earlyTerminationLiability.
+10. internalNotes: ONLY recruiter-internal info — direct contacts, recruitment stages (office → medical → work), "do not say name aloud", specific warnings for recruiter.
+11. vacancydescription: Short job essence in Ukrainian WITHOUT factory or agency name (e.g. "Виробництво автомобільних сидінь", "Пакування цукерок").
+12. accommodation.details: If housing is restricted to specific categories (only men, only couples) — MUST note this in details field.
 
-OUTPUT: Return ONLY a valid JSON object.`;
+SALARY FIELD RULES:
+- baseNetto: MAIN rate as written in text (e.g. "4666 брутто/місяць", "22.50 зл/год нетто"). Copy EXACTLY. NEVER empty if salary mentioned.
+- studentNetto: rate for students under 26 ONLY. Empty if not mentioned.
+- bonusDetails: ALL bonuses in FULL — every %, every condition, every amount (night shift +20%, overtime +50%, attendance 540 zł, quality bonus 300 zł etc.). Do NOT summarize.
+- salaryNotes: advances policy ("аванси не надаються"), extra housing allowance, overtime policy, other financial notes not in bonusDetails.
+- hoursRange: expected hours per month (e.g. "168", "200-240"). Empty if not mentioned.
+- payoutDates: when salary is paid (e.g. "до 10 числа"). Empty if not mentioned.
+
+LOCATION FIELD RULES:
+- locationDescription: combine ALL — exact address (street, number, postal code) AND distance info. Example: "ul. Spółdzielcza 4, 05-600 Grójec (50 км від Варшави)". Never drop either part.
+
+DESCRIPTION FIELD RULES:
+- description: copy ALL duties in FULL detail — every workshop, every action, every machine, every step. Do NOT summarize or shorten. Preserve all sentences from original.
+
+CONDITIONS FIELD RULES:
+- specificNuances: array of short tags only (e.g. ["Запах гуми", "Шум", "Висока температура", "Холодний склад"]).
+- specificConditionsDetails: full text description of specific conditions.
+- foodType: use ONLY one of: "Власне", "Обіди", "Субсидоване".
+- foodType "Обіди": use ONLY if employer provides FREE meals. If workers buy food themselves (canteen, vending machines) — use "Власне".
+
+KEYWORDS FIELD RULES:
+- keywords: always 5-10 items — factory name, city in Ukrainian AND Polish, brand names from text (Audi, Volvo, Bosch), job process terms (зварювання, монтаж, пакування).
+{
+  "agencyName": null,
+  "templateName": "",
+  "vacancydescription": "",
+  "category": "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+  "keywords": [],
+  "contractType": null,
+  "forRecruiter": {
+    "internalNotes": "",
+    "hideAgencyNameForCandidate": true,
+    "hideEnterpriseNameForCandidate": true
+  },
+  "location": "",
+  "locationDescription": "",
+  "voivodeship": "",
+  "country": "Polska",
+  "checkInCity": "",
+  "salary": {
+    "baseNetto": "",
+    "studentNetto": "",
+    "hoursRange": "",
+    "payoutDates": "",
+    "bonusDetails": "",
+    "salaryNotes": ""
+  },
+  "schedule": {
+    "shiftsCount": 0,
+    "hoursPerShift": "",
+    "workDaysWeek": "",
+    "breakDuration": "",
+    "canChooseShiftOnStart": false,
+    "shiftChoiceDetails": "",
+    "description": ""
+  },
+  "accommodation": {
+    "type": "",
+    "forCouples": false,
+    "withChildren": false,
+    "withPets": false,
+    "costRaw": "",
+    "details": ""
+  },
+  "transport": {
+    "provided": false,
+    "costRaw": "",
+    "details": ""
+  },
+  "employerCompensations": {
+    "hasCompensations": false,
+    "details": ""
+  },
+  "requirements": {
+    "gender": [],
+    "ageMax": 60,
+    "nationalities": ["Україна"],
+    "standardDocs": ["PESEL UKR", "Віза", "Карта побуту"],
+    "needsAdditionalDocs": false,
+    "additionalDocsDetails": "",
+    "experienceRequired": false,
+    "hasEntranceTests": false,
+    "entranceTestsDetails": "",
+    "polishLanguageLevel": "Не вимагається",
+    "languageDetails": "",
+    "physicalLoad": ""
+  },
+  "businessTrip": {
+    "isBusinessTrip": false,
+    "requiresPolishExperience": false,
+    "requiredDocuments": [],
+    "tripDetails": ""
+  },
+  "conditions": {
+    "hasSpecificConditions": false,
+    "specificNuances": [],
+    "specificConditionsDetails": "",
+    "workwearFree": false,
+    "foodType": "Власне",
+    "foodDetails": ""
+  },
+  "startExpenses": {
+    "hasStartExpenses": false,
+    "details": ""
+  },
+  "earlyTerminationLiability": {
+    "hasLiability": false,
+    "details": ""
+  },
+  "description": "",
+  "additionalNotes": "",
+  "arrivalDate": "",
+  "count": ""
+}`;
 
     const text = await groqRequest(
       SYSTEM_INSTRUCTION,
@@ -480,6 +447,8 @@ OUTPUT: Return ONLY a valid JSON object.`;
     );
 
     let parsed = JSON.parse(text);
+
+    console.log("🔍 RAW AI OUTPUT:", text.substring(0, 500));
     const cleaned = cleanData(parsed);
 
     return {
@@ -537,7 +506,10 @@ OUTPUT: Return ONLY a valid JSON object.`;
 
       // === 5. ПРАЖЫВАННЕ І ТРАНСПАРТ ===
       accommodation: {
-        type: cleaned.accommodation?.type || "Платне",
+        type: cleaned.accommodation?.type
+          ? cleaned.accommodation.type.charAt(0).toUpperCase() +
+            cleaned.accommodation.type.slice(1)
+          : "Платне",
         forCouples: !!cleaned.accommodation?.forCouples,
         withChildren: !!cleaned.accommodation?.withChildren,
         withPets: !!cleaned.accommodation?.withPets,
@@ -659,8 +631,9 @@ async function testConnection() {
 module.exports = {
   parseVacancyWithAI,
   identifyTemplate,
-  mergeWithTemplate,
+  linkTemplateToVacancy,
   formatTelegramPost,
   createTemplateFromVacancy,
   testConnection,
+  mergeWithTemplate,
 };

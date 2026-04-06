@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const vacancySchema = new mongoose.Schema({
   // === 1. СІСТЭМНЫЯ ПАЛІ (Групаванне і пошук) ===
-  title: { type: String, required: true }, // Поўная назва: "Brembo Dąbrowa Górnicza"
+  templateName: { type: String, default: "" },
   vacancydescription: { type: String, default: "" }, // Кароткі опіс суці (укр)
 
   agencyName: { type: String, default: "Manual" },

@@ -18,103 +18,21 @@ async function generateVacancyCode() {
 }
 
 // --- АСНОЎНАЯ ФУНКЦЫЯ АПРАЦОЎКІ ---
+
 async function processVacancyMessage(rawText) {
-  const templates = await Template.find();
-
-  if (templates.length === 0) {
-    console.warn("⚠️ Шаблоны не знойдзены ў базе");
-  }
-
-  const template = await aiService.identifyTemplate(rawText, templates);
-
-  let vacancyData;
-
-  if (template) {
-    vacancyData = await aiService.mergeWithTemplate(rawText, template);
-    vacancyData.agencyName = template.agencyName;
-    vacancyData.templateId = template._id;
-  } else {
-    console.log("⚠️ Шаблон не знойдзены, використовуємо fallback парсинг...");
-    vacancyData = await aiService.parseVacancyWithAI(rawText);
-
-    // Автоматично створюємо шаблон для майбутнього використання
-    try {
-      const newTemplate =
-        await aiService.createTemplateFromVacancy(vacancyData);
-      if (newTemplate) {
-        // Перевіряємо чи шаблон з такою назвою вже існує
-        const existing = await Template.findOne({
-          templateName: newTemplate.templateName,
-        });
-        if (!existing) {
-          await Template.create(newTemplate);
-          console.log(`✅ Новий шаблон збережено: ${newTemplate.templateName}`);
-        } else {
-          console.log(`ℹ️ Шаблон вже існує: ${newTemplate.templateName}`);
-        }
-      }
-    } catch (err) {
-      // Помилка створення шаблону не повинна зупиняти обробку вакансії
-      console.error("⚠️ Не вдалося створити шаблон:", err.message);
-    }
-  }
+  // 1. ЗАЎСЁДЫ парсім як новую вакансію — шаблоны не ўплываюць
+  const vacancyData = await aiService.parseVacancyWithAI(rawText);
 
   const postText = await aiService.formatTelegramPost(vacancyData);
   const vacancyCode = await generateVacancyCode();
 
   const newVacancy = new Vacancy({
+    ...vacancyData,
     vacancyCode,
-    title: vacancyData.title || "Нова вакансія",
     agencyName: vacancyData.agencyName || "Manual",
-    category: vacancyData.category || "Іншае", // Новае поле для матчынгу
+    category: vacancyData.category || "Іншае",
     location: vacancyData.location || "Не вызначана",
-
-    // Зарплата v2.0
-    salary: {
-      baseNetto: vacancyData.salary?.baseNetto || "",
-      studentNetto: vacancyData.salary?.studentNetto || "",
-      salaryNotes: vacancyData.salary?.salaryNotes || "",
-    },
-
-    // Графік v2.0
-    schedule: {
-      shiftsCount: vacancyData.schedule?.shiftsCount || 1,
-      hoursRange: vacancyData.schedule?.hoursRange || "",
-    },
-
-    // Жытло v2.0
-    accommodation: {
-      type: vacancyData.accommodation?.type || "Власне",
-      forCouples: vacancyData.accommodation?.forCouples || false,
-      cost: vacancyData.accommodation?.cost || "",
-    },
-
-    // Патрабаванні v2.0 (самыя важныя для матчынгу)
-    requirements: {
-      gender: vacancyData.requirements?.gender || [], // Масіў!
-      ageMin: vacancyData.requirements?.ageMin || 18,
-      ageMax: vacancyData.requirements?.ageMax || 60,
-      nationalities: vacancyData.requirements?.nationalities || [],
-      polishLanguageLevel:
-        vacancyData.requirements?.polishLanguageLevel || "Не вимагається",
-      needsAdditionalDocs:
-        vacancyData.requirements?.needsAdditionalDocs || false,
-      additionalDocsDetails:
-        vacancyData.requirements?.additionalDocsDetails || "",
-    },
-
-    // Умовы v2.0
-    conditions: {
-      hasSpecificConditions:
-        vacancyData.conditions?.hasSpecificConditions || false,
-      notes: vacancyData.conditions?.notes || "",
-    },
-
-    businessTrip: {
-      isBusinessTrip: vacancyData.businessTrip?.isBusinessTrip || false,
-    },
-
-    rawText: rawText,
+    rawText,
     telegramPost: postText,
     status: "active",
   });
@@ -122,11 +40,49 @@ async function processVacancyMessage(rawText) {
   const savedVacancy = await newVacancy.save();
   await sendToTelegram(postText);
 
-  // Запускаем матчынг і адразу апавяшчаем рэкрутэра
+  // Матчынг кандыдатаў
   const matchedCandidates = await matchCandidatesForVacancy(savedVacancy);
   if (matchedCandidates && matchedCandidates.length > 0) {
     await notifyRecruiterAboutMatch(savedVacancy, matchedCandidates);
   }
+
+  // 2. ФОНАВЫ пошук шаблона — не блакіруе адказ
+  setImmediate(async () => {
+    try {
+      const templates = await Template.find();
+      const matched = await aiService.identifyTemplate(rawText, templates);
+
+      if (matched) {
+        // Шаблон знойдзены — толькі дадаём спасылку ў internalNotes
+        const linked = await aiService.linkTemplateToVacancy(
+          vacancyData,
+          matched,
+        );
+        await Vacancy.findByIdAndUpdate(savedVacancy._id, {
+          "forRecruiter.internalNotes": linked.forRecruiter.internalNotes,
+          templateId: matched._id,
+        });
+        console.log(`✅ Прывязаны шаблон: ${matched.templateName}`);
+      } else {
+        // Шаблон не знойдзены — ствараем новы
+        const newTemplate =
+          await aiService.createTemplateFromVacancy(vacancyData);
+        if (newTemplate) {
+          const existing = await Template.findOne({
+            templateName: newTemplate.templateName,
+          });
+          if (!existing) {
+            await Template.create(newTemplate);
+            console.log(
+              `✅ Новы шаблон збережаны: ${newTemplate.templateName}`,
+            );
+          }
+        }
+      }
+    } catch (err) {
+      console.error("⚠️ Фонавая памылка (шаблоны):", err.message);
+    }
+  });
 
   return savedVacancy;
 }
@@ -154,41 +110,31 @@ router.post("/from-template/:templateId", async (req, res) => {
     if (!rawText?.trim())
       return res.status(400).json({ message: "Тэкст пусты" });
 
-    // AI мержыць тэкст з гатовым шаблонам — без identifyTemplate
-    const merged = await aiService.mergeWithTemplate(rawText, template);
-    merged.agencyName = template.agencyName;
-    merged.templateId = template._id;
+    // 1. ЧЫСТЫ ПАРСІНГ (AI бачыць толькі тэкст паведамлення)
+    const parsedData = await aiService.parseVacancyWithAI(rawText);
 
-    const postText = await aiService.formatTelegramPost(merged);
-    const vacancyCode = await generateVacancyCode();
+    // 2. ТОЛЬКІ ПРЫВЯЗКА (дадаем internalNotes са спасылкай на шаблон)
+    // Функцыя linkTemplateToVacancy не мяняе палі вакансіі, а толькі дадае тэкст для рэкрутэра
+    const finalData = await aiService.linkTemplateToVacancy(
+      parsedData,
+      template,
+    );
 
+    // 3. ЗАХАВАННЕ (захоўваем як ёсць, з templateId для сувязі)
     const newVacancy = new Vacancy({
-      vacancyCode,
-      title: merged.title || template.title,
-      agencyName: merged.agencyName,
-      location: merged.location || template.location,
-      country: merged.country || template.country,
-      templateId: template._id,
-      arrivalDate: merged.arrivalDate || null,
-      count: merged.count || null,
-      salary: merged.salary || template.salary,
-      schedule: merged.schedule || template.schedule,
-      description: merged.description || template.description,
-      accommodation: merged.accommodation || template.accommodation,
-      transport: merged.transport || template.transport,
-      requirements: merged.requirements || template.requirements,
-      conditions: merged.conditions || template.conditions,
-      contractType: merged.contractType || template.contractType,
-      additionalNotes: merged.additionalNotes || template.additionalNotes || "",
+      ...finalData,
+      vacancyCode: await generateVacancyCode(),
+      templateId: template._id, // Проста захоўваем сувязь, не чапаючы даныя
       rawText,
-      telegramPost: postText,
       status: "active",
     });
-
+    // ТУТ ВАЖНА: Сначала генеруем тэкст паста, потым захоўваем і адпраўляем
+    const postText = await aiService.formatTelegramPost(newVacancy);
+    newVacancy.telegramPost = postText;
     const saved = await newVacancy.save();
     await sendToTelegram(postText);
 
-    // Дадаем апавяшчэнне тут
+    // Матчынг
     const matched = await matchCandidatesForVacancy(saved);
     if (matched && matched.length > 0) {
       await notifyRecruiterAboutMatch(saved, matched);
