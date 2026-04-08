@@ -7,43 +7,33 @@ const RECRUITER_CHAT_ID = process.env.RECRUITER_CHAT_ID;
 
 const sendToTelegram = async (postText, vacancyId = null) => {
   try {
-    // Дадаем кнопку (пакуль закаментавана логіка спасылкі, але структура гатовая)
-    /*
-    const keyboard = Markup.inlineKeyboard([
-      [Markup.button.url("📝 Відгукнутися", `https://t.me/твой_бот_name?start=${vacancyId}`)],
-      [Markup.button.url("👤 Звязацца з рэкрутарам", "https://t.me/твой_рэкрутар_username")]
-    ]);
-    */
     await bot.telegram.sendMessage(CHANNEL_ID, postText, {
-      parse_mode: "HTML",
+      parse_mode: "Markdown",
       disable_web_page_preview: true,
-      // reply_markup: keyboard.reply_markup // Раскаментуй гэта, калі захочаш дадаць кнопкі
     });
-    console.log("✅ Вакансія адпраўлена ў Telegram (HTML)");
+    console.log("✅ Вакансія адпраўлена ў Telegram (Markdown)");
   } catch (err) {
-    console.error("❌ Памылка HTML парсінгу:", err.message);
-    // Калі HTML зламаўся (напрыклад, незакрыты тэг), шлем як просты тэкст
+    console.error("❌ Памылка Markdown парсінгу:", err.message);
     await bot.telegram
       .sendMessage(CHANNEL_ID, postText)
       .catch((e) => console.error(e));
   }
 };
-// 2. ПАШЫРЭННЕ notifyRecruiter ДЛЯ МАТЧЫНГУ
+
 const notifyRecruiterAboutMatch = async (vacancy, candidates) => {
   if (!RECRUITER_CHAT_ID || !candidates || candidates.length === 0) return;
 
   try {
     let message = `<b>🔥 Знойдзены матчынг для вакансіі:</b>\n`;
-    message += `<code>${vacancy.vacancyCode}</code> — ${vacancy.title}\n\n`;
+    message += `<code>${vacancy.vacancyCode}</code> — ${vacancy.title || "Без назвы"}\n\n`;
     message += `<b>Топ кандыдатаў:</b>\n`;
 
-    // Фармуем спіс кандыдатаў са спасылкамі
     const candidateList = candidates
       .slice(0, 5)
       .map((can, index) => {
-        // Спасылка на кандыдата ў тваёй адмінцы (прыклад)
         const adminLink = `${process.env.FRONTEND_URL}/candidates/${can._id}`;
-        return `${index + 1}. <a href="${adminLink}">${can.name || "Безыменны"}</a> (Score: ${can.matchScore})`;
+        const candidateName = can.name || "Безыменны";
+        return `${index + 1}. <a href="${adminLink}">${candidateName}</a> (Score: ${can.matchScore})`;
       })
       .join("\n");
 
@@ -54,10 +44,52 @@ const notifyRecruiterAboutMatch = async (vacancy, candidates) => {
       parse_mode: "HTML",
       disable_web_page_preview: true,
     });
+    console.log("✅ Апавяшчэнне аб матчынгу са спасылкамі адпраўлена");
   } catch (err) {
     console.error("❌ Памылка апавяшчэння рэкрутэра:", err.message);
   }
 };
+
+const notifyRecruiterAboutShortMessage = async (rawText) => {
+  if (!RECRUITER_CHAT_ID) return;
+
+  try {
+    const isLocalhost = process.env.FRONTEND_URL?.includes("localhost");
+    const message = `<b>📩 Атрымана кароткае паведамленне:</b>\n\n<i>"${rawText}"</i>\n\nДадзеных недастаткова для аўтаматычнага стварэння. Што зрабіць?`;
+
+    if (isLocalhost) {
+      // Лакальная распрацоўка — адпраўляем без кнопак
+      await bot.telegram.sendMessage(RECRUITER_CHAT_ID, message, {
+        parse_mode: "HTML",
+      });
+    } else {
+      // Продакшн — адпраўляем з кнопкамі
+      const encodedText = encodeURIComponent(rawText);
+      const keyboard = Markup.inlineKeyboard([
+        [
+          Markup.button.url(
+            "📋 Стварыць з шаблона",
+            `${process.env.FRONTEND_URL}/templates?text=${encodedText}`,
+          ),
+        ],
+        [
+          Markup.button.url(
+            "🔄 Абнавіць існуючую",
+            `${process.env.FRONTEND_URL}/vacancies?updateText=${encodedText}`,
+          ),
+        ],
+      ]);
+
+      await bot.telegram.sendMessage(RECRUITER_CHAT_ID, message, {
+        parse_mode: "HTML",
+        reply_markup: keyboard.reply_markup,
+      });
+    }
+  } catch (err) {
+    console.error("❌ Памылка notifyRecruiterAboutShortMessage:", err.message);
+  }
+};
+
 const notifyRecruiter = async (text) => {
   if (!RECRUITER_CHAT_ID) return;
   try {
@@ -77,9 +109,9 @@ const startBot = async () => {
     console.log("✅ Бот запушчаны");
   } catch (err) {
     if (err.message?.includes("409")) {
-      console.warn("⚠️ Бот ужо запушчаны ў іншым месцы — працягваем без бота");
+      console.warn("⚠️ Бот ужо запушчаны ў іншым месцы");
     } else {
-      console.error("❌ Памылка запуску бота:", err.message);
+      console.error("❌ Памылка запуска бота:", err.message);
     }
   }
 };
@@ -89,5 +121,6 @@ module.exports = {
   sendToTelegram,
   notifyRecruiter,
   notifyRecruiterAboutMatch,
+  notifyRecruiterAboutShortMessage,
   startBot,
 };

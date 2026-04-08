@@ -48,9 +48,14 @@ const FORMAT_PROMPT = `
 ROLE: Professional HR content formatter.
 TASK: Format the job data into a beautiful Telegram post in UKRAINIAN.
 
+CRITICAL PRIVACY RULE: 
+- NEVER include the Agency Name (agencyName) in the post.
+- NEVER include internal notes or recruiter-only data.
+- Use vacancydescription as the main title (NEVER use templateName here).
+
 Use this EXACT structure (skip entire blocks if ALL data inside is empty/null):
 
-*[templateName]*
+*[vacancydescription]*
 📍 Місто: [location] 
 [• Оформлення: м. [checkInCity] — тільки якщо checkInCity не пусте]
 👥 Набір: [requirements.gender joined by ", "][, приїзд [arrivalDate] — тільки якщо arrivalDate не пусте]
@@ -89,7 +94,8 @@ Use this EXACT structure (skip entire blocks if ALL data inside is empty/null):
 
 [💸 *Витрати та відповідальність*
 [• На старті: [startExpenses.details] — якщо hasStartExpenses = true]
-[• При передчасному звільненні: [earlyTerminationLiability.details] — якщо hasLiability = true].]
+[• При передчасному звільненні: [earlyTerminationLiability.details] — якщо hasLiability = true]
+Весь блок 💸 виводити ТІЛЬКИ якщо hasStartExpenses = true АБО hasLiability = true. Якщо обидва false — пропустити блок повністю.]
 
 🌡 *Умови праці*
 • Робочий одяг: [conditions.workwearFree ? "Безкоштовно" : "За рахунок працівника"]
@@ -107,13 +113,9 @@ Use this EXACT structure (skip entire blocks if ALL data inside is empty/null):
 Rules:
 - Write in Ukrainian
 - Use ONLY • for bullet points
-- Do NOT show forRecruiter data — це тільки для рекрутера
+- Do NOT show forRecruiter data
 - Use Markdown bold (*text*) for section headers
-- Split description into logical sentences and format each as a new line starting with •
-- If entire block has no data — skip it completely
-- Return ONLY the formatted post text, no JSON, no explanations
-- If information in specificNuances and specificConditionsDetails is identical, display it only once
-- The 👥 line contains ONLY gender and arrivalDate. Never add age, documents or other requirements there.
+- Return ONLY the formatted post text
 `;
 
 const CREATE_TEMPLATE_PROMPT = `
@@ -311,42 +313,37 @@ async function parseVacancyWithAI(rawText) {
     const SYSTEM_INSTRUCTION = `
 ROLE: Professional automated job vacancy parser (Version 2.0).
 TASK: Convert job vacancy text into a JSON object with EXACTLY this structure. Fill every field based on the text. Do not invent field names.
-STRICT RULES:
-1. LANGUAGE: All descriptions, duties, notes — UKRAINIAN. Geography fields (location, voivodeship, checkInCity, country) — POLISH only.
-2. ZERO LOSS: Never ignore ANY detail — breaks, jewelry ban, free drinks, bonuses, smells, noise, laundry bonus, attendance bonus. Everything goes into the correct field.
-3. NO INTERPRETATION: If no specific number (temperature, distance) — write as text (e.g. "холодний склад"), NEVER guess or add approximate values.
-4. agencyName: RECRUITMENT AGENCY name ONLY (Manpower, OTTO, EWL, Personnel Service etc.), NOT the factory/brand. If no agency mentioned — use null.
-5. templateName: Factory/brand name + city IN POLISH ONLY (e.g. "Faurecia Grójec", "Hutchinson Dębica"). Never add agency name here.
-6. checkInCity: ONLY if registration/office city DIFFERS from work city. "50 km від Варшави" = NOT checkInCity. Leave empty string if same city or no info.
-7. contractType: Copy EXACTLY from text ("Umowa o pracę" or "Umowa zlecenie"). If not mentioned — null.
-8. GENDER + COUPLES: If couples mentioned → add "Пари" to gender array AND set forCouples: true.
-9. EXPENSES SPLIT: Costs BEFORE work starts (medical exam, tests) → startExpenses. Costs/penalties DURING or on early exit (clothing deduction, fines) → earlyTerminationLiability.
-10. internalNotes: ONLY recruiter-internal info — direct contacts, recruitment stages (office → medical → work), "do not say name aloud", specific warnings for recruiter.
-11. vacancydescription: Short job essence in Ukrainian WITHOUT factory or agency name (e.g. "Виробництво автомобільних сидінь", "Пакування цукерок").
-12. accommodation.details: If housing is restricted to specific categories (only men, only couples) — MUST note this in details field.
+
+CRITICAL PRIVACY RULES:
+1. agencyName: Extract the RECRUITMENT AGENCY name ONLY (e.g. Manpower, OTTO). If no agency mentioned — use null.
+2. templateName: Factory/brand name + city IN POLISH ONLY (e.g. "Faurecia Grójec"). THIS IS FOR INTERNAL USE.
+3. vacancydescription: THIS IS THE PUBLIC TITLE. Create a short essence in UKRAINIAN. 
+   - STRICT RULE: Do NOT include factory name, brand name, or agency name here (e.g., use "Пакування цукерок" instead of "Пакування цукерок на заводзе LOTTE").
+
+CORE PARSING RULES:
+1. LANGUAGE: All descriptions, duties, notes — UKRAINIAN. Geography (location, voivodeship, checkInCity, country) — POLISH only.
+2. ZERO LOSS: Never ignore ANY detail (breaks, jewelry ban, bonuses, smells, noise, laundry bonus). Everything goes into the correct field.
+3. NO INTERPRETATION: If no specific number (temperature, distance) — write as text, NEVER guess.
+4. checkInCity: ONLY if registration city DIFFERS from work city. Leave empty if same or no info.
+5. contractType: Copy EXACTLY ("Umowa o pracę" or "Umowa zlecenie"). If not mentioned — null.
+6. GENDER + COUPLES: If couples mentioned → add "Пари" to gender array AND set forCouples: true.
+7. EXPENSES SPLIT: Costs BEFORE work (medical) → startExpenses. Costs/penalties DURING or on early exit → earlyTerminationLiability.
 
 SALARY FIELD RULES:
-- baseNetto: MAIN rate as written in text (e.g. "4666 брутто/місяць", "22.50 зл/год нетто"). Copy EXACTLY. NEVER empty if salary mentioned.
-- studentNetto: rate for students under 26 ONLY. Empty if not mentioned.
-- bonusDetails: ALL bonuses in FULL — every %, every condition, every amount (night shift +20%, overtime +50%, attendance 540 zł, quality bonus 300 zł etc.). Do NOT summarize.
-- salaryNotes: advances policy ("аванси не надаються"), extra housing allowance, overtime policy, other financial notes not in bonusDetails.
-- hoursRange: expected hours per month (e.g. "168", "200-240"). Empty if not mentioned.
-- payoutDates: when salary is paid (e.g. "до 10 числа"). Empty if not mentioned.
+- baseNetto: MAIN rate (e.g. "22.50 зл/год нетто"). Copy EXACTLY. NEVER empty if salary mentioned.
+- bonusDetails: ALL bonuses in FULL (night shifts, overtime, attendance, quality). Do NOT summarize.
+- salaryNotes: advances policy, extra housing allowance, overtime policy.
 
-LOCATION FIELD RULES:
-- locationDescription: combine ALL — exact address (street, number, postal code) AND distance info. Example: "ul. Spółdzielcza 4, 05-600 Grójec (50 км від Варшави)". Never drop either part.
+LOCATION & DESCRIPTION:
+- locationDescription: combine address AND distance (e.g., "ul. Spółdzielcza 4, 05-600 Grójec (50 км від Варшави)").
+- description: copy ALL duties in FULL detail. Do NOT summarize. Preserve all sentences.
 
-DESCRIPTION FIELD RULES:
-- description: copy ALL duties in FULL detail — every workshop, every action, every machine, every step. Do NOT summarize or shorten. Preserve all sentences from original.
+CONDITIONS & KEYWORDS:
+- specificNuances: array of short tags (["Запах гуми", "Шум", "Холодний склад"]).
+- foodType: ONLY "Власне", "Обіди" (if FREE), or "Субсидоване".
+- keywords: 5-10 items (factory name, city in UKR/PL, brand names, job process terms).
 
-CONDITIONS FIELD RULES:
-- specificNuances: array of short tags only (e.g. ["Запах гуми", "Шум", "Висока температура", "Холодний склад"]).
-- specificConditionsDetails: full text description of specific conditions.
-- foodType: use ONLY one of: "Власне", "Обіди", "Субсидоване".
-- foodType "Обіди": use ONLY if employer provides FREE meals. If workers buy food themselves (canteen, vending machines) — use "Власне".
-
-KEYWORDS FIELD RULES:
-- keywords: always 5-10 items — factory name, city in Ukrainian AND Polish, brand names from text (Audi, Volvo, Bosch), job process terms (зварювання, монтаж, пакування).
+JSON STRUCTURE:
 {
   "agencyName": null,
   "templateName": "",
