@@ -17,6 +17,7 @@ import {
   Home,
   Bus,
   Utensils,
+  Tag,
 } from "lucide-react";
 
 export default function VacancyViewModal({
@@ -31,8 +32,10 @@ export default function VacancyViewModal({
 
   if (!vacancy) return null;
 
+  const v = vacancy;
+
   const handleCopyTelegram = () => {
-    navigator.clipboard.writeText(vacancy.telegramPost || "");
+    navigator.clipboard.writeText(v.telegramPost || "");
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -44,24 +47,30 @@ export default function VacancyViewModal({
         onClick={onClose}
       />
       <div className="relative bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto mx-4 shadow-2xl">
-        {/* Загалавак */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 sticky top-0 bg-slate-900 z-10 shadow-sm">
+        {/* ЗАГАЛОВАК */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 sticky top-0 bg-slate-900 z-10">
           <div>
-            <div className="flex items-center gap-3 mb-1">
-              {vacancy.vacancyCode && (
+            <div className="flex items-center gap-3 mb-1 flex-wrap">
+              {v.vacancyCode && (
                 <span className="text-[10px] font-mono bg-slate-800 text-slate-400 px-2 py-0.5 rounded border border-slate-700">
-                  {vacancy.vacancyCode}
+                  {v.vacancyCode}
                 </span>
               )}
-              {vacancy.agencyName && vacancy.agencyName !== "Manual" && (
+              {v.agencyName && v.agencyName !== "Manual" && (
                 <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded font-mono border border-emerald-500/20 uppercase tracking-wider font-bold">
-                  {vacancy.agencyName}
+                  {v.agencyName}
                 </span>
               )}
             </div>
             <h2 className="font-bold text-slate-100 text-lg leading-tight">
-              {vacancy.title}
+              {v.templateName || v.vacancydescription || "Без назвы"}
             </h2>
+            {v.vacancydescription &&
+              v.templateName !== v.vacancydescription && (
+                <p className="text-sm text-slate-400 mt-0.5">
+                  {v.vacancydescription}
+                </p>
+              )}
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -84,68 +93,80 @@ export default function VacancyViewModal({
           </div>
         </div>
 
-        {/* Змест */}
+        {/* ЗМЕСТ */}
         <div className="px-6 py-5 space-y-6">
-          {/* Асноўная інфа (БЕЗ поля count) */}
+          {/* Лакацыя і даты */}
           <div className="flex flex-wrap gap-2 text-sm">
-            <span className="flex items-center gap-1.5 bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-slate-700">
-              <MapPin size={14} className="text-red-400" /> {vacancy.location}
-            </span>
-            {vacancy.country && vacancy.country !== "Польща" && (
-              <span className="flex items-center gap-1.5 bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-slate-700 font-medium">
-                <Globe size={14} className="text-blue-400" /> {vacancy.country}
+            {v.location && (
+              <span className="flex items-center gap-1.5 bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-slate-700">
+                <MapPin size={14} className="text-red-400" /> {v.location}
               </span>
             )}
-            {vacancy.arrivalDate && (
+            {v.checkInCity && (
+              <span className="flex items-center gap-1.5 bg-slate-800 text-slate-400 px-3 py-1 rounded-full border border-slate-700 text-xs">
+                📋 Аформленне: {v.checkInCity}
+              </span>
+            )}
+            {v.arrivalDate && (
               <span className="flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full border border-emerald-500/20 font-bold">
-                <Calendar size={14} /> Прыезд: {vacancy.arrivalDate}
+                <Calendar size={14} /> Прыезд: {v.arrivalDate}
+              </span>
+            )}
+            {v.count && (
+              <span className="flex items-center gap-1.5 bg-slate-800 text-slate-400 px-3 py-1 rounded-full border border-slate-700 text-xs">
+                👥 {v.count}
               </span>
             )}
           </div>
 
-          {/* Аплата */}
-          {(vacancy.salary?.base ||
-            vacancy.salary?.monthly ||
-            vacancy.salary?.notes) && (
+          {/* АПЛАТА */}
+          {(v.salary?.baseNetto ||
+            v.salary?.bonusDetails ||
+            v.salary?.salaryNotes) && (
             <>
               <Divider label="💰 Аплата" />
-              <div className="space-y-1 text-sm">
-                {vacancy.salary.base && (
+              <div className="space-y-1.5 text-sm">
+                {v.salary.baseNetto && (
                   <div className="text-slate-100 font-bold text-base flex items-center gap-2">
-                    <Wallet size={16} className="text-slate-500" />{" "}
-                    {vacancy.salary.base}
+                    <Wallet size={16} className="text-slate-500 shrink-0" />
+                    {v.salary.baseNetto}
                   </div>
                 )}
-                {vacancy.salary.monthly && (
-                  <div className="text-slate-400 ml-6">
-                    {vacancy.salary.monthly}
-                  </div>
-                )}
-                {vacancy.salary.student && (
+                {v.salary.studentNetto && (
                   <div className="text-emerald-400/90 ml-6 font-medium">
-                    Студэнты: {vacancy.salary.student}
+                    Студэнты: {v.salary.studentNetto}
                   </div>
                 )}
-                {vacancy.salary.bonus && (
-                  <div className="text-emerald-400 text-xs bg-emerald-500/5 py-1 px-2 rounded inline-block mt-1 ml-6 border border-emerald-500/10">
-                    🎁 {vacancy.salary.bonus}
+                {v.salary.hoursRange && (
+                  <div className="text-slate-400 ml-6">
+                    Гадзін: {v.salary.hoursRange}
                   </div>
                 )}
-                {vacancy.salary.notes && (
+                {v.salary.payoutDates && (
+                  <div className="text-slate-400 ml-6">
+                    Выплаты: {v.salary.payoutDates}
+                  </div>
+                )}
+                {v.salary.bonusDetails && (
+                  <div className="text-emerald-400 text-xs bg-emerald-500/5 py-1.5 px-3 rounded-lg mt-1 ml-6 border border-emerald-500/10">
+                    🎁 {v.salary.bonusDetails}
+                  </div>
+                )}
+                {v.salary.salaryNotes && (
                   <div className="text-amber-400/90 text-xs mt-2 italic border-l-2 border-amber-500/30 pl-3 ml-6">
-                    {vacancy.salary.notes}
+                    {v.salary.salaryNotes}
                   </div>
                 )}
               </div>
             </>
           )}
 
-          {/* Апісанне / Абавязкі */}
-          {vacancy.description && (
+          {/* АПІСАННЕ / АБАВЯЗКІ */}
+          {v.description && (
             <>
               <Divider label="🛠 Абавязкі" />
               <ul className="space-y-2">
-                {vacancy.description.split(";").map(
+                {v.description.split(/[.;]/).map(
                   (item, i) =>
                     item.trim() && (
                       <li
@@ -163,185 +184,270 @@ export default function VacancyViewModal({
             </>
           )}
 
-          {/* Патрабаванні */}
-          {(vacancy.requirements?.gender ||
-            vacancy.requirements?.age ||
-            (vacancy.requirements?.docs &&
-              vacancy.requirements.docs.length > 0) ||
-            (vacancy.requirements?.nationalities &&
-              vacancy.requirements.nationalities.length > 0)) && (
+          {/* ПАТРАБАВАННІ */}
+          {(v.requirements?.gender?.length > 0 ||
+            v.requirements?.ageMax ||
+            v.requirements?.standardDocs?.length > 0 ||
+            v.requirements?.polishLanguageLevel ||
+            v.requirements?.physicalLoad) && (
             <>
               <Divider label="📋 Патрабаванні" />
               <div className="flex flex-wrap gap-2">
-                {vacancy.requirements.gender && (
+                {v.requirements.gender?.length > 0 && (
                   <span className="flex items-center gap-1.5 text-xs bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-slate-700">
-                    <User size={12} className="text-blue-400" />{" "}
-                    {vacancy.requirements.gender}
+                    <User size={12} className="text-blue-400" />
+                    {Array.isArray(v.requirements.gender)
+                      ? v.requirements.gender.join(", ")
+                      : v.requirements.gender}
                   </span>
                 )}
-                {vacancy.requirements.age && (
+                {v.requirements.ageMax && (
                   <span className="flex items-center gap-1.5 text-xs bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-slate-700">
-                    🎂 {vacancy.requirements.age}
+                    🎂 да {v.requirements.ageMax} гадоў
                   </span>
                 )}
-                {vacancy.requirements.docs?.map((doc) => (
+                {v.requirements.polishLanguageLevel && (
+                  <span className="flex items-center gap-1.5 text-xs bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-slate-700">
+                    🗣 {v.requirements.polishLanguageLevel}
+                  </span>
+                )}
+                {v.requirements.standardDocs?.map((doc) => (
                   <span
                     key={doc}
-                    className="flex items-center gap-1.5 text-xs bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-slate-700"
+                    className="flex items-center gap-1.5 text-xs bg-amber-500/10 text-amber-400 px-3 py-1 rounded-full border border-amber-500/20"
                   >
-                    <FileText size={12} className="text-slate-500" /> {doc}
+                    <FileText size={12} /> {doc}
                   </span>
                 ))}
-                {vacancy.requirements.nationalities?.length > 0 && (
-                  <span className="flex items-center gap-1.5 text-xs bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-slate-700">
-                    <Globe size={12} className="text-emerald-500" />{" "}
-                    {vacancy.requirements.nationalities.join(", ")}
-                  </span>
-                )}
               </div>
-              {vacancy.requirements.physical && (
+              {v.requirements.physicalLoad && (
                 <div className="text-xs text-slate-500 italic mt-2 pl-1">
-                  {vacancy.requirements.physical}
+                  {v.requirements.physicalLoad}
                 </div>
               )}
             </>
           )}
 
-          {/* Графік */}
-          {vacancy.schedule?.shifts && (
+          {/* ГРАФІК */}
+          {(v.schedule?.description ||
+            v.schedule?.workDaysWeek ||
+            v.schedule?.hoursPerShift) && (
             <>
               <Divider label="🕒 Графік" />
-              <div className="text-sm space-y-1 ml-1">
-                <div className="text-slate-300 flex items-center gap-2">
-                  <Clock size={16} className="text-slate-500" />
-                  {vacancy.schedule.shifts}
-                </div>
-                {vacancy.schedule.details && (
-                  <div className="text-slate-500 text-xs ml-6 italic">
-                    {vacancy.schedule.details}
+              <div className="text-sm space-y-1.5 ml-1">
+                {v.schedule.description && (
+                  <div className="text-slate-300 flex items-start gap-2">
+                    <Clock
+                      size={16}
+                      className="text-slate-500 shrink-0 mt-0.5"
+                    />
+                    {v.schedule.description}
                   </div>
                 )}
-                {vacancy.schedule.hours && (
+                {v.schedule.workDaysWeek && (
+                  <div className="text-slate-400 text-xs ml-6">
+                    {v.schedule.workDaysWeek}
+                  </div>
+                )}
+                {v.schedule.hoursPerShift && (
                   <div className="text-slate-400 text-xs font-mono ml-6 bg-slate-800/50 px-2 py-0.5 rounded inline-block">
-                    {vacancy.schedule.hours}
+                    {v.schedule.hoursPerShift}
+                  </div>
+                )}
+                {v.schedule.breakDuration && (
+                  <div className="text-slate-500 text-xs ml-6 italic">
+                    Перапынак: {v.schedule.breakDuration}
                   </div>
                 )}
               </div>
             </>
           )}
 
-          {/* Тып дагавора */}
-          {vacancy.contractType && (
+          {/* ТЫП ДАГАВОРА */}
+          {v.contractType && (
             <div className="text-sm text-slate-400 bg-slate-800/40 p-3 rounded-xl border border-slate-800 inline-flex items-center gap-2">
               <FileText size={16} className="text-blue-400" />
               <span>
                 Тып дагавора:{" "}
                 <span className="text-slate-200 font-medium">
-                  {vacancy.contractType}
+                  {v.contractType}
                 </span>
               </span>
             </div>
           )}
 
-          {/* Жытло */}
-          {vacancy.accommodation?.cost && (
+          {/* ЖЫТЛО */}
+          {(v.accommodation?.type || v.accommodation?.costRaw) && (
             <>
               <Divider label="🏠 Жытло" />
-              <div className="text-sm space-y-1 ml-1">
+              <div className="text-sm space-y-1.5 ml-1">
                 <div className="text-slate-300 font-medium flex items-center gap-2">
                   <Home size={16} className="text-orange-400" />
-                  {vacancy.accommodation.cost}
+                  {v.accommodation.type}
+                  {v.accommodation.forCouples && (
+                    <span className="text-xs bg-pink-500/10 text-pink-400 px-2 py-0.5 rounded border border-pink-500/20 ml-1">
+                      💑 Пары
+                    </span>
+                  )}
                 </div>
-                {vacancy.accommodation.details && (
-                  <div className="text-slate-500 text-xs leading-relaxed ml-6">
-                    {vacancy.accommodation.details}
+                {v.accommodation.costRaw && (
+                  <div className="text-slate-400 ml-6">
+                    {v.accommodation.costRaw}
                   </div>
                 )}
-                {vacancy.accommodation.deposit && (
-                  <div className="text-orange-400/80 text-[10px] uppercase tracking-wider font-bold ml-6 mt-1">
-                    💰 Кауцыя: {vacancy.accommodation.deposit}
+                {v.accommodation.details && (
+                  <div className="text-slate-500 text-xs leading-relaxed ml-6">
+                    {v.accommodation.details}
                   </div>
                 )}
               </div>
             </>
           )}
 
-          {/* Транспарт */}
-          {vacancy.transport?.cost && (
+          {/* ТРАНСПАРТ */}
+          {(v.transport?.provided ||
+            v.transport?.costRaw ||
+            v.transport?.details) && (
             <>
               <Divider label="🚌 Транспарт" />
-              <div className="text-sm text-slate-300 flex items-center gap-2 ml-1">
-                <Bus size={16} className="text-blue-400" />
-                <span>{vacancy.transport.cost}</span>
-                {vacancy.transport.details && (
-                  <span className="text-slate-500 text-xs border-l border-slate-700 pl-2">
-                    {vacancy.transport.details}
-                  </span>
-                )}
+              <div className="text-sm text-slate-300 flex items-start gap-2 ml-1">
+                <Bus size={16} className="text-blue-400 shrink-0 mt-0.5" />
+                <div>
+                  {v.transport.costRaw && <span>{v.transport.costRaw}</span>}
+                  {v.transport.details && (
+                    <div className="text-slate-500 text-xs mt-0.5">
+                      {v.transport.details}
+                    </div>
+                  )}
+                </div>
               </div>
             </>
           )}
 
-          {/* Умовы працы */}
-          {(vacancy.conditions?.temperature ||
-            vacancy.conditions?.workwear ||
-            vacancy.conditions?.food ||
-            vacancy.conditions?.notes) && (
+          {/* ВЫДАТКІ І АДКАЗНАСЦЬ */}
+          {(v.startExpenses?.hasStartExpenses ||
+            v.earlyTerminationLiability?.hasLiability) && (
+            <>
+              <Divider label="💸 Выдаткі і адказнасць" />
+              <div className="space-y-1.5 text-sm ml-1">
+                {v.startExpenses?.hasStartExpenses &&
+                  v.startExpenses.details && (
+                    <div className="text-orange-400/80 text-xs bg-orange-500/5 px-3 py-2 rounded-lg border border-orange-500/10">
+                      На старце: {v.startExpenses.details}
+                    </div>
+                  )}
+                {v.earlyTerminationLiability?.hasLiability &&
+                  v.earlyTerminationLiability.details && (
+                    <div className="text-red-400/80 text-xs bg-red-500/5 px-3 py-2 rounded-lg border border-red-500/10">
+                      Датэрміновае звальненне:{" "}
+                      {v.earlyTerminationLiability.details}
+                    </div>
+                  )}
+              </div>
+            </>
+          )}
+
+          {/* УМОВЫ ПРАЦЫ */}
+          {(v.conditions?.specificConditionsDetails ||
+            v.conditions?.specificNuances?.length > 0 ||
+            v.conditions?.foodType ||
+            v.conditions?.foodDetails) && (
             <>
               <Divider label="🌡 Умовы працы" />
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                {vacancy.conditions.temperature && (
-                  <div className="text-slate-300 flex items-center gap-2 bg-slate-800/30 p-2 rounded-lg">
-                    <Thermometer size={16} className="text-blue-400" />
-                    {vacancy.conditions.temperature}
+              <div className="space-y-2 text-sm ml-1">
+                <div className="flex flex-wrap gap-2">
+                  <span className="flex items-center gap-1.5 text-xs bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-slate-700">
+                    <Shirt size={12} className="text-orange-400" />
+                    Вопратка:{" "}
+                    {v.conditions.workwearFree
+                      ? "Бясплатна"
+                      : "За кошт работніка"}
+                  </span>
+                  {v.conditions.foodType && (
+                    <span className="flex items-center gap-1.5 text-xs bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-slate-700">
+                      <Utensils size={12} className="text-emerald-400" />
+                      {v.conditions.foodType}
+                    </span>
+                  )}
+                </div>
+                {v.conditions.specificNuances?.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 ml-1">
+                    {v.conditions.specificNuances.map((n) => (
+                      <span
+                        key={n}
+                        className="text-xs bg-slate-800 text-slate-500 px-2 py-0.5 rounded border border-slate-700/50"
+                      >
+                        {n}
+                      </span>
+                    ))}
                   </div>
                 )}
-                {vacancy.conditions.workwear && (
-                  <div className="text-slate-300 flex items-center gap-2 bg-slate-800/30 p-2 rounded-lg">
-                    <Shirt size={16} className="text-orange-400" />
-                    {vacancy.conditions.workwear}
+                {v.conditions.specificConditionsDetails && (
+                  <div className="text-slate-500 text-xs italic pl-1">
+                    {v.conditions.specificConditionsDetails}
                   </div>
                 )}
-                {vacancy.conditions.food && (
-                  <div className="text-slate-300 flex items-center gap-2 bg-slate-800/30 p-2 rounded-lg">
-                    <Utensils size={16} className="text-emerald-400" />
-                    {vacancy.conditions.food}
-                  </div>
-                )}
-                {vacancy.conditions.notes && (
-                  <div className="text-slate-500 text-xs italic bg-slate-800/30 p-2 rounded-lg col-span-full">
-                    <Info size={14} className="inline mr-1" />{" "}
-                    {vacancy.conditions.notes}
+                {v.conditions.foodDetails && (
+                  <div className="text-slate-500 text-xs italic pl-1">
+                    {v.conditions.foodDetails}
                   </div>
                 )}
               </div>
             </>
           )}
 
-          {/* Дадатковая інфармацыя */}
-          {vacancy.additionalNotes && (
-            <div className="mt-6 p-4 bg-amber-500/5 border border-amber-500/20 rounded-xl">
+          {/* КАМПЕНСАЦЫІ АД ПРАЦАДАЎЦЫ */}
+          {v.employerCompensations?.hasCompensations &&
+            v.employerCompensations.details && (
+              <>
+                <Divider label="🎁 Кампенсацыі" />
+                <div className="text-sm text-slate-300 ml-1">
+                  {v.employerCompensations.details}
+                </div>
+              </>
+            )}
+
+          {/* ДАДАТКОВАЯ ІНФАРМАЦЫЯ */}
+          {v.additionalNotes && (
+            <div className="mt-2 p-4 bg-amber-500/5 border border-amber-500/20 rounded-xl">
               <div className="text-[10px] text-amber-500 font-bold uppercase tracking-widest mb-2 flex items-center gap-2">
                 <Info size={14} /> Важна ведаць
               </div>
               <div className="text-sm text-slate-300 whitespace-pre-wrap leading-relaxed">
-                {vacancy.additionalNotes}
+                {v.additionalNotes}
               </div>
             </div>
           )}
 
-          {/* Мета-інфармацыя */}
-          <div className="text-[10px] text-slate-600 pt-6 border-t border-slate-800 flex justify-between font-mono">
+          {/* УНУТРАНЫЯ НАТАТКІ РЭКРУТЭРА */}
+          {v.forRecruiter?.internalNotes && (
+            <div className="p-3 bg-slate-800/50 border border-slate-700 rounded-xl">
+              <div className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1">
+                🔒 Нататкі рэкрутэра
+              </div>
+              <div className="text-xs text-slate-400 whitespace-pre-wrap">
+                {v.forRecruiter.internalNotes}
+              </div>
+            </div>
+          )}
+
+          {/* МЕТА */}
+          <div className="text-[10px] text-slate-600 pt-4 border-t border-slate-800 flex justify-between font-mono">
+            <span>ID: {v._id?.substring(v._id.length - 8).toUpperCase()}</span>
             <span>
-              ID: {vacancy._id.substring(vacancy._id.length - 8).toUpperCase()}
-            </span>
-            <span>
-              ДАДАНА: {new Date(vacancy.createdAt).toLocaleString("be-BY")}
+              ДАДАНА:{" "}
+              {new Date(v.createdAt).toLocaleString("uk-UA", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
             </span>
           </div>
         </div>
 
-        {/* Кнопкі дзеянняў */}
+        {/* КНОПКІ ДЗЕЯННЯЎ */}
         <div className="flex flex-wrap gap-2 px-6 py-4 border-t border-slate-800 sticky bottom-0 bg-slate-900 z-10">
           {onApply && vacancy.status === "active" && (
             <>
@@ -359,7 +465,6 @@ export default function VacancyViewModal({
               </button>
             </>
           )}
-
           {onMatch && (
             <button
               onClick={() => onMatch(vacancy)}
@@ -368,7 +473,6 @@ export default function VacancyViewModal({
               🎯 Кандыдаты
             </button>
           )}
-
           {onEdit && (
             <button
               onClick={() => onEdit(vacancy)}
@@ -377,7 +481,6 @@ export default function VacancyViewModal({
               ✏️ Рэдагаваць
             </button>
           )}
-
           {onDelete && (
             <button
               onClick={() => onDelete(vacancy._id)}
