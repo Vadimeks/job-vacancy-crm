@@ -449,7 +449,7 @@ export default function VacancyViewModal({
 
         {/* КНОПКІ ДЗЕЯННЯЎ */}
         <div className="flex flex-wrap gap-2 px-6 py-4 border-t border-slate-800 sticky bottom-0 bg-slate-900 z-10">
-          {onApply && vacancy.status === "active" && (
+          {/* {onApply && vacancy.status === "active" && (
             <>
               <button
                 onClick={() => onApply(vacancy, "want_work")}
@@ -464,7 +464,7 @@ export default function VacancyViewModal({
                 💬 Дэталі
               </button>
             </>
-          )}
+          )} */}
           {onMatch && (
             <button
               onClick={() => onMatch(vacancy)}

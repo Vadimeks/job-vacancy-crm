@@ -178,7 +178,7 @@ export default function VacancyFilters({
         <div className="flex flex-wrap">
           {[
             { value: "provided", label: "🚌 Ёсць" },
-            { value: "lviv", label: "🚌 З Львова" },
+            { value: "none", label: "❌ Няма" },
           ].map((t) => (
             <MultiBtn
               key={t.value}
@@ -216,7 +216,8 @@ export default function VacancyFilters({
           {[
             { value: "none", label: "Не патрабуецца" },
             { value: "польська", label: "🇵🇱 Польская" },
-            { value: "нідэрландская", label: "🇳🇱 Нідэрландская" },
+            { value: "нямецкая", label: "🇩🇪 Нямецкая" },
+            { value: "англійская", label: "🇬🇧 Англійская" },
           ].map((l) => (
             <MultiBtn
               key={l.value}
@@ -236,6 +237,10 @@ export default function VacancyFilters({
             { value: "Україна", label: "🇺🇦 Украіна" },
             { value: "Молдова", label: "🇲🇩 Малдова" },
             { value: "Білорусь", label: "🇧🇾 Беларусь" },
+            { value: "Грузія", label: "🇬🇪 Грузія" },
+            { value: "Казахстан", label: "🇰🇿 Казахстан" },
+            { value: "Азербайджан", label: "🇦🇿 Азербайджан" },
+            { value: "Інші", label: "🌍 Іншыя" },
           ].map((n) => (
             <MultiBtn
               key={n.value}

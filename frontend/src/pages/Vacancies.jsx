@@ -28,86 +28,98 @@ const STATUS_LABELS = {
 
 function applyFilters(vacancies, filters) {
   return vacancies.filter((v) => {
+    // ПОШУК
     if (filters.search) {
       const s = filters.search.toLowerCase();
       if (
-        !v.title?.toLowerCase().includes(s) &&
+        !v.templateName?.toLowerCase().includes(s) &&
+        !v.vacancydescription?.toLowerCase().includes(s) &&
         !v.location?.toLowerCase().includes(s) &&
         !v.agencyName?.toLowerCase().includes(s)
       )
         return false;
     }
 
+    // СТАТУС
     if (filters.status && v.status !== filters.status) return false;
 
+    // ГЕНДАР
     if (filters.gender.length > 0) {
-      const g = v.requirements?.gender?.toLowerCase() || "";
+      const genderArr = Array.isArray(v.requirements?.gender)
+        ? v.requirements.gender.map((g) => g.toLowerCase())
+        : [];
       const match = filters.gender.some((fg) =>
         fg === "female"
-          ? g.includes("жінк") || g.includes("female")
+          ? genderArr.some((g) => g.includes("жінк"))
           : fg === "male"
-            ? g.includes("чолов") || g.includes("male")
+            ? genderArr.some((g) => g.includes("чолов"))
             : false,
       );
       if (!match) return false;
     }
 
+    // СФЕРА — пакуль па category
     if (filters.sphere.length > 0) {
-      if (!filters.sphere.includes(v.sphere)) return false;
+      const cat = v.category?.toLowerCase() || "";
+      const match = filters.sphere.some((s) => cat.includes(s));
+      if (!match) return false;
     }
 
+    // ГРАФІК — па schedule.shiftsCount
     if (filters.schedule.length > 0) {
-      const shifts = v.schedule?.shifts || "";
+      const shifts = String(v.schedule?.shiftsCount || "");
       if (!filters.schedule.some((s) => shifts.includes(s))) return false;
     }
 
+    // ЖЫТЛО
     if (filters.accommodation.length > 0) {
-      const details = v.accommodation?.details?.toLowerCase() || "";
+      const accType = v.accommodation?.type?.toLowerCase() || "";
+      const forCouples = !!v.accommodation?.forCouples;
       const match = filters.accommodation.some((a) => {
-        if (a === "available") return v.accommodation?.available;
-        if (a === "none") return !v.accommodation?.available;
-        if (a === "couples") return details.includes("пар");
+        if (a === "available") return accType && accType !== "платне";
+        if (a === "none") return accType === "платне" || !accType;
+        if (a === "couples") return forCouples;
         return false;
       });
       if (!match) return false;
     }
 
+    // ТРАНСПАРТ
     if (filters.transport.length > 0) {
-      const tDetails = (v.transport?.details || "").toLowerCase();
       const match = filters.transport.some((t) => {
-        if (t === "provided") return v.transport?.provided;
-        if (t === "lviv")
-          return tDetails.includes("львів") || tDetails.includes("львов");
+        if (t === "provided") return !!v.transport?.provided;
+        if (t === "none") return !v.transport?.provided;
         return false;
       });
       if (!match) return false;
     }
 
+    // ГРУПА ПАДАРОЖЖА
     if (filters.travelGroup.length > 0) {
-      const details = v.accommodation?.details?.toLowerCase() || "";
+      const forCouples = !!v.accommodation?.forCouples;
       const match = filters.travelGroup.some((tg) => {
-        if (tg === "couple") return details.includes("пар");
+        if (tg === "couple") return forCouples;
         if (tg === "alone") return true;
         return false;
       });
       if (!match) return false;
     }
 
+    // МОВА
     if (filters.language.length > 0) {
-      const langs =
-        v.requirements?.languages?.map((l) => l.toLowerCase()) || [];
-      const level = v.requirements?.languageLevel?.toLowerCase() || "";
+      const level = v.requirements?.polishLanguageLevel?.toLowerCase() || "";
       const match = filters.language.some((l) => {
-        if (l === "none")
-          return level.includes("не патрабу") || langs.length === 0;
-        return langs.includes(l.toLowerCase());
+        if (l === "none") return level.includes("не вимаг") || level === "";
+        return level.includes(l.toLowerCase());
       });
       if (!match) return false;
     }
 
+    // НАЦЫЯНАЛЬНАСЦЬ
     if (filters.nationality.length > 0) {
-      const nats =
-        v.requirements?.nationalities?.map((n) => n.toLowerCase()) || [];
+      const nats = Array.isArray(v.requirements?.nationalities)
+        ? v.requirements.nationalities.map((n) => n.toLowerCase())
+        : [];
       if (
         nats.length > 0 &&
         !filters.nationality.some((n) => nats.includes(n.toLowerCase()))
@@ -115,8 +127,11 @@ function applyFilters(vacancies, filters) {
         return false;
     }
 
+    // ДАКУМЕНТЫ
     if (filters.docs.length > 0) {
-      const docs = v.requirements?.docs?.map((d) => d.toLowerCase()) || [];
+      const docs = Array.isArray(v.requirements?.standardDocs)
+        ? v.requirements.standardDocs.map((d) => d.toLowerCase())
+        : [];
       const match = filters.docs.some((d) => {
         if (d === "none") return docs.length === 0;
         return docs.some((doc) => doc.includes(d.toLowerCase()));
@@ -124,6 +139,7 @@ function applyFilters(vacancies, filters) {
       if (!match) return false;
     }
 
+    // АГЕНЦЫЯ
     if (filters.agencyName.length > 0) {
       if (!filters.agencyName.includes(v.agencyName)) return false;
     }
@@ -610,16 +626,23 @@ export default function Vacancies() {
                       </span>
                     </div>
                     <h3 className="font-medium text-slate-100 truncate">
-                      {v.title}
+                      {v.templateName || v.vacancydescription || "Без назвы"}
                     </h3>
                     <div className="flex flex-wrap gap-4 mt-2 text-xs text-slate-500">
                       <span>📍 {v.location}</span>
                       {v.agencyName && v.agencyName !== "Manual" && (
                         <span>🏢 {v.agencyName}</span>
                       )}
-                      {v.salary?.base && <span>💰 {v.salary.base}</span>}
-                      {v.requirements?.gender && (
-                        <span>👤 {v.requirements.gender}</span>
+                      {v.salary?.baseNetto && (
+                        <span>💰 {v.salary.baseNetto}</span>
+                      )}
+                      {v.requirements?.gender?.length > 0 && (
+                        <span>
+                          👤{" "}
+                          {Array.isArray(v.requirements.gender)
+                            ? v.requirements.gender.join(", ")
+                            : v.requirements.gender}
+                        </span>
                       )}
                       {v.arrivalDate && <span>📅 {v.arrivalDate}</span>}
                     </div>
