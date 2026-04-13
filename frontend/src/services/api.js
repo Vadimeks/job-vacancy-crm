@@ -1,8 +1,14 @@
 // frontend/src/services/api.js
 import axios from "axios";
 
+// Vite выкарыстоўвае import.meta.env для доступу да зменных асяроддзя.
+// Калі VITE_API_URL не зададзена (напрыклад, лакальна), будзе выкарыстоўвацца localhost.
+const API_URL = import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL}/api`
+  : "http://localhost:3000/api";
+
 const api = axios.create({
-  baseURL: "https://job-vacancy-crm-production.up.railway.app/api",
+  baseURL: API_URL,
 });
 
 // --- ВАКАНСІІ ---
