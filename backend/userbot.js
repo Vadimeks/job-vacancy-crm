@@ -96,4 +96,4 @@ async function startUserbot() {
   await new Promise(() => {});
 }
 
-startUserbot().catch(console.error);
+module.exports = { startUserbot };

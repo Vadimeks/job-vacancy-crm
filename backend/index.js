@@ -8,6 +8,7 @@ const swaggerJsdoc = require("swagger-jsdoc");
 
 const swaggerDefinition = require("./swaggerConfig");
 const { bot, startBot } = require("./services/telegram.service");
+const { startUserbot } = require("./userbot");
 const {
   router: vacanciesRouter,
   processVacancyMessage,
@@ -71,9 +72,15 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Сервер: http://localhost:${PORT}`);
   console.log(`📜 Swagger: http://localhost:${PORT}/api-docs`);
-});
 
-startBot();
+  // Запускаем афіцыйнага бота
+  startBot();
+
+  // Запускаем юзербота
+  startUserbot().catch((err) => {
+    console.error("❌ Памылка запуску Userbot:", err.message);
+  });
+});
 
 process.once("SIGINT", () => bot.stop("SIGINT"));
 process.once("SIGTERM", () => bot.stop("SIGTERM"));
