@@ -16,6 +16,7 @@ const {
 const candidatesRouter = require("./routes/candidates");
 const templatesRouter = require("./routes/templates");
 const applyRouter = require("./routes/apply");
+const rawMessagesRouter = require("./routes/rawMessages");
 
 const AGENCY_CHAT_IDS = process.env.AGENCY_CHAT_IDS
   ? process.env.AGENCY_CHAT_IDS.split(",").map((id) => id.trim())
@@ -34,7 +35,7 @@ app.use("/api/vacancies", vacanciesRouter);
 app.use("/api/candidates", candidatesRouter);
 app.use("/api/templates", templatesRouter);
 app.use("/api/apply", applyRouter);
-
+app.use("/api/raw-messages", rawMessagesRouter);
 app.get("/", (req, res) => {
   res.send("Бекенд працуе! Дакументацыя: <a href='/api-docs'>/api-docs</a>");
 });

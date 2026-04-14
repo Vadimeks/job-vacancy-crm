@@ -65,9 +65,22 @@ function constructVacancyDisplayName(data) {
 // --- АСНОЎНАЯ ФУНКЦЫЯ АПРАЦОЎКІ ---
 async function processVacancyMessage(rawText) {
   if (!isInformative(rawText)) {
-    console.log("⚠️ Паведамленне прызнана неінфарматыўным.");
-    await notifyRecruiterAboutShortMessage(rawText);
-    return { status: "notified_recruiter", message: "Short message handled" };
+    console.log("⚠️ Паведамленне неінфарматыўнае. Адпраўка ў пясочніцу...");
+
+    // ЗАМЕСТ проста апавяшчэння, ствараем запіс у базе
+    const rawMsg = new RawMessage({
+      text: rawText,
+      source: "Telegram", // можна дынамічна перадаваць, калі ёсць інфа
+      status: "new",
+    });
+    await rawMsg.save();
+
+    // Апавяшчэнне рэкрутэру пакідаем, але мяняем тэкст, што яно ў Пясочніцы
+    await notifyRecruiterAboutShortMessage(
+      `📥 Новае паведамленне ў пясочніцы:\n\n${rawText}`,
+    );
+
+    return { status: "saved_to_sandbox", message: "Message moved to sandbox" };
   }
 
   // 1. Парсінг праз AI

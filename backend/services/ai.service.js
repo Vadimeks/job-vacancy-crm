@@ -317,7 +317,13 @@ TASK: Convert job vacancy text into a JSON object with EXACTLY this structure. F
 CRITICAL PRIVACY RULES:
 1. agencyName: Extract the RECRUITMENT AGENCY name ONLY (e.g. Manpower, OTTO). If no agency mentioned — use null.
 2. templateName: Factory/brand name + city IN POLISH ONLY (e.g. "Faurecia Grójec"). THIS IS FOR INTERNAL USE.
-3. vacancydescription: THIS IS THE PUBLIC TITLE. Create a short essence in UKRAINIAN. 
+3. vacancydescription: Create a public title in UKRAINIAN. 
+   STRICT FORMAT: "Process Name — City" (e.g., "Пакування солодощів — Żabia Wola"). 
+   - NEVER include factory name, brand name, or agency name here.
+4. location: Extract ONLY the city name in POLISH (e.g., "Warszawa", "Gdańsk", "Żabia Wola"). 
+   - CRITICAL: NO streets, NO house numbers, NO postal codes, NO voivodeships here. ONLY the city name.
+5. locationDescription: FULL address and details (e.g., "ul. Sloneczna 5, 96-321 Żabia Wola (35 км від Варшави)").
+6. category: Identify the most relevant job category based on the text (e.g., "⚙️ Виробництво та склади", "🏗️ Будівництво", "🛋️ Готелі та ресторани"). Do NOT use a fixed category.
    - STRICT RULE: Do NOT include factory name, brand name, or agency name here (e.g., use "Пакування цукерок" instead of "Пакування цукерок на заводзе LOTTE").
 
 CORE PARSING RULES:
