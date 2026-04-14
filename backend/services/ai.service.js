@@ -318,14 +318,15 @@ CRITICAL PRIVACY RULES:
 1. agencyName: Extract the RECRUITMENT AGENCY name ONLY (e.g. Manpower, OTTO). If no agency mentioned — use null.
 2. templateName: Factory/brand name + city IN POLISH ONLY (e.g. "Faurecia Grójec"). THIS IS FOR INTERNAL USE.
 3. vacancydescription: THIS IS THE PUBLIC TITLE. Create a short essence in UKRAINIAN. 
-   - STRICT RULE: Do NOT include factory name, brand name, or agency name here (e.g., use "Пакування цукерок" instead of "Пакування цукерок на заводзе LOTTE").
-   - FORMAT: "Specific Process Name — City" (e.g., "Будівництво нової продукційної хали — Radom"). 
-   - Use the specific job name from the text, NOT just a general profession like "Будівельник".
+   - Use the specific job name (e.g., "Будівництво нової продукційної хали"). 
+   - DO NOT include the city name here to avoid duplication (e.g., write "Будівництво хали" instead of "Будівництво хали — Радом").
+   - STRICT RULE: Do NOT include factory name, brand name, or agency name here.
 4. location: Extract ONLY the city name in POLISH (e.g., "Warszawa", "Gdańsk"). 
-   - NO streets, NO house numbers, NO postal codes here. This field is ONLY for filters.
+   - NO streets, NO house numbers, NO postal codes, NO distances here. ONLY the city name for filters.
 5. locationDescription: FULL address and details from the text (e.g., "ul. Sloneczna 5, 96-321 Żabia Wola (35 км від Варшави)").
-6. category: Identify the most relevant job category based on the text (e.g., "⚙️ Виробництво та склади", "🏗️ Будівництво", "🛋️ Готелі та ресторани").
+6. category: Identify the most relevant job category based on the text (e.g., "⚙️ Виробництво та склади", "🏗️ Будівництво").
    - Do NOT include factory/agency names here.
+7. MAX DETAIL EXTRACTION: Never summarize duties or special conditions. If text mentions "pouring concrete, rebar cutting, work on arrival, or delegations", these MUST be extracted in full into description or additionalNotes.
 
 CORE PARSING RULES:
 1. LANGUAGE: All descriptions, duties, notes — UKRAINIAN. Geography (location, voivodeship, checkInCity, country) — POLISH only.
