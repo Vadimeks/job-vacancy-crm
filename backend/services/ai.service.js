@@ -317,15 +317,25 @@ TASK: Convert job vacancy text into a JSON object with EXACTLY this structure. F
 CRITICAL PRIVACY RULES:
 1. agencyName: Extract the RECRUITMENT AGENCY name ONLY (e.g. Manpower, OTTO). If no agency mentioned — use null.
 2. templateName: Factory/brand name + city IN POLISH ONLY (e.g. "Faurecia Grójec"). THIS IS FOR INTERNAL USE.
-3. vacancydescription: THIS IS THE PUBLIC TITLE. Create a short essence in UKRAINIAN. 
-   - Use the specific job name (e.g., "Будівництво нової продукційної хали"). 
-   - DO NOT include the city name here to avoid duplication (e.g., write "Будівництво хали" instead of "Будівництво хали — Радом").
-   - STRICT RULE: Do NOT include factory name, brand name, or agency name here.
-4. location: Extract ONLY the city name in POLISH (e.g., "Warszawa", "Gdańsk"). 
-   - NO streets, NO house numbers, NO postal codes, NO distances here. ONLY the city name for filters.
+3. vacancydescription: THIS IS THE PUBLIC TITLE. Create a short informative description in UKRAINIAN. 
+   - Use the specific job name in FORMAT: "Job Essence (Subcategory) — City"(e.g., Examples: "Склад одягу (Логістика) — Gądki", "Виробництво сосисок (М'ясна продукція) — Sława"). 
+  - Use keywords from the text (e.g., "Склад одягу", "Харчове виробництво").
+  - STRICT RULE: Do NOT include factory name, brand name, or agency name here (e.g., use "Пакування цукерок" instead of "Пакування цукерок на заводзе LOTTE").
+4. location: Extract ONLY the city name in POLISH (e.g., "Warszawa", "Gdańsk") for filters.
 5. locationDescription: FULL address and details from the text (e.g., "ul. Sloneczna 5, 96-321 Żabia Wola (35 км від Варшави)").
-6. category: Identify the most relevant job category based on the text (e.g., "⚙️ Виробництво та склади", "🏗️ Будівництво").
-   - Do NOT include factory/agency names here.
+6. category (sphere): Identify the job category. Return ONLY one of the following UKRAINIAN values:
+   - "Склади та логістика" (logistics, e-commerce, clothing/item warehouses)
+   - "Харчова промисловість" (meat, fish, sweets, snacks, bakery, catering)
+   - "Автомобільна промисловість" (car parts, tires, assembly, car electronics)
+   - "Виробництво та промисловість" (windows, electronics, metal, household appliances, furniture)
+   - "Будівництво" (concrete, rebar, finishing, roads, masonry)
+   - "Сільське господарство" (farms, greenhouses, poultry, harvesting)
+   - "Торгівля та послуги" (supermarkets, shops, cashiers, stocking shelves)
+   - "Різне" (sewing/textile, recycling, cleaning, hotels, or if unsure)
+   STRICT RULES: 
+   1. The output MUST be the exact Ukrainian string from the list above.
+   2. Do NOT translate these keys into English or Polish.
+   3. Do NOT invent new categories.
 7. MAX DETAIL EXTRACTION: Never summarize duties or special conditions. If text mentions "pouring concrete, rebar cutting, work on arrival, or delegations", these MUST be extracted in full into description or additionalNotes.
 
 CORE PARSING RULES:
@@ -356,7 +366,7 @@ JSON STRUCTURE:
   "agencyName": null,
   "templateName": "",
   "vacancydescription": "",
-  "category": "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+  "category": "",
   "keywords": [],
   "contractType": null,
   "forRecruiter": {
