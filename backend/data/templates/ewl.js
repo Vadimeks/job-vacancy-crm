@@ -3,10 +3,10 @@ const ewlTemplates = [
   // Вакансія №1 - Lisner Charzyno
   {
     agencyName: "EWL",
-    templateName: "Lisner Charzyno",
+    templateName: "Lisner Charzyno Виробництво готових рибних закусок та розкладання продукції в контейнери (Харчова промисловість)",
     vacancydescription:
-      "Виробництво готових рибних закусок та розкладання продукції в контейнери",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Виробництво готових рибних закусок та розкладання продукції в контейнери (Харчова промисловість) — Charzyno",
+    category: "Харчова промисловість",
     keywords: ["Lisner", "Charzyno", "риба", "пакування", "продукція", "ваги"],
     contractType: "Umowa zlecenie",
     forRecruiter: {
@@ -102,10 +102,10 @@ const ewlTemplates = [
   // Вакансія №2 - Maczfit Szymanów
   {
     agencyName: "EWL",
-    templateName: "Maczfit Szymanów",
+    templateName: "Maczfit Szymanów Виробництво дієтичного харчування: приготування страв та робота на складі (Харчова промисловість)",
     vacancydescription:
-      "Виробництво дієтичного харчування: приготування страв та робота на складі",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Виробництво дієтичного харчування: приготування страв та робота на складі (Харчова промисловість) — Szymanów",
+    category: "Харчова промисловість",
     keywords: [
       "Maczfit",
       "Szymanów",
@@ -208,10 +208,10 @@ const ewlTemplates = [
   // Вакансія №3 - Valeo Skawina
   {
     agencyName: "EWL",
-    templateName: "Valeo Skawina",
+    templateName: "Valeo Skawina Молодший оператор продукції на заводі автомобільних радіаторів (Автомобільна промисловість)",
     vacancydescription:
-      "Молодший оператор продукції на заводі автомобільних радіаторів",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Молодший оператор продукції на заводі автомобільних радіаторів (Автомобільна промисловість) — Skawina",
+    category: "Автомобільна промисловість",
     keywords: [
       "Valeo",
       "Skawina",
@@ -315,9 +315,9 @@ const ewlTemplates = [
   // Вакансія №4 - K+N Wola Bykowska
   {
     agencyName: "EWL",
-    templateName: "K+N Wola Bykowska",
-    vacancydescription: "Робота на логістичному складі",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "K+N Wola Bykowska Робота на логістичному складі (Склади та логістика)",
+    vacancydescription: "Робота на логістичному складі (Склади та логістика) — Wola Bykowska",
+    category: "Склади та логістика",
     keywords: ["K+N", "Wola Bykowska", "склад", "логістика", "Лодзь"],
     contractType: "Umowa zlecenie",
     forRecruiter: {
@@ -407,9 +407,9 @@ const ewlTemplates = [
   // Вакансія №5 - Piekarnia Gala Wojnicz
   {
     agencyName: "EWL",
-    templateName: "Piekarnia Gala Wojnicz",
-    vacancydescription: "Виробництво та пакування хлібобулочних виробів",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "Piekarnia Gala Wojnicz Виробництво та пакування хлібобулочних виробів (Харчова промисловість)",
+    vacancydescription: "Виробництво та пакування хлібобулочних виробів (Харчова промисловість) — Wojnicz",
+    category: "Харчова промисловість",
     keywords: ["Piekarnia", "Gala", "Wojnicz", "пекарня", "хліб", "заморозка"],
     contractType: "Umowa zlecenie",
     forRecruiter: {
@@ -506,10 +506,10 @@ const ewlTemplates = [
   // Вакансія №6 - Drobimex Goleniów
   {
     agencyName: "EWL",
-    templateName: "Drobimex Goleniów",
+    templateName: "Drobimex Goleniów Робота в інкубаторі або на виробництві сосисок та ковбас (М'ясна продукція)",
     vacancydescription:
-      "Робота в інкубаторі або на виробництві сосисок та ковбас",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Робота в інкубаторі або на виробництві сосисок та ковбас (М'ясна продукція) — Goleniów",
+    category: "Харчова промисловість",
     keywords: [
       "Drobimex",
       "Goleniów",
@@ -610,9 +610,9 @@ const ewlTemplates = [
   // Вакансія №7 - Lucky Food Goleniów
   {
     agencyName: "EWL",
-    templateName: "Lucky Food Goleniów",
-    vacancydescription: "Виробництво та пакування крабових паличок",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "Lucky Food Goleniów Виробництво та пакування крабових паличок (Харчова промисловість)",
+    vacancydescription: "Виробництво та пакування крабових паличок (Харчова промисловість) — Goleniów",
+    category: "Харчова промисловість",
     keywords: [
       "Lucky Food",
       "Goleniów",
@@ -715,9 +715,9 @@ const ewlTemplates = [
   // Вакансія №8 - Marinus Świnoujście-1
   {
     agencyName: "EWL",
-    templateName: "Marinus Świnoujście-1",
-    vacancydescription: "Пакування та сортування заморожених морепродуктів",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "Marinus Świnoujście Пакування та сортування заморожених морепродуктів (Харчова промисловість)",
+    vacancydescription: "Пакування та сортування заморожених морепродуктів (Харчова промисловість) — Świnoujście",
+    category: "Харчова промисловість",
     keywords: [
       "Marinus",
       "Świnoujście",
@@ -816,9 +816,9 @@ const ewlTemplates = [
   // Вакансія №9 - Drobimex Szczecin
   {
     agencyName: "EWL",
-    templateName: "Drobimex Szczecin",
-    vacancydescription: "Переробка курятини: забій, розділ, пакування",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "Drobimex Szczecin Переробка курятини: забій, розділ, пакування (М'ясна продукція)",
+    vacancydescription: "Переробка курятини: забій, розділ, пакування (М'ясна продукція) — Szczecin",
+    category: "Харчова промисловість",
     keywords: [
       "Drobimex",
       "Szczecin",
@@ -927,9 +927,9 @@ const ewlTemplates = [
   // Вакансія №10 - Valeo Chrzanów
   {
     agencyName: "EWL",
-    templateName: "Valeo Chrzanów",
-    vacancydescription: "Виробництво автомобільних фар та рефлекторів",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "Valeo Chrzanów Виробництво автомобільних фар та рефлекторів (Автомобільна промисловість)",
+    vacancydescription: "Виробництво автомобільних фар та рефлекторів (Автомобільна промисловість) — Chrzanów",
+    category: "Автомобільна промисловість",
     keywords: [
       "Valeo",
       "Chrzanów",
@@ -1035,9 +1035,9 @@ const ewlTemplates = [
   // Вакансія №11 - Lisner Poznań
   {
     agencyName: "EWL",
-    templateName: "Lisner Poznań",
-    vacancydescription: "Виробництво рибних закусок, салатів та спредів",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "Lisner Poznań Виробництво рибних закусок, салатів та спредів (Харчова промисловість)",
+    vacancydescription: "Виробництво рибних закусок, салатів та спредів (Харчова промисловість) — Poznań",
+    category: "Харчова промисловість",
     keywords: [
       "Lisner",
       "Poznań",
@@ -1143,9 +1143,9 @@ const ewlTemplates = [
   // Вакансія №12 - Balcerzak Sława
   {
     agencyName: "EWL",
-    templateName: "Balcerzak Sława",
-    vacancydescription: "Виробництво ковбасних виробів",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "Balcerzak Sława Виробництво ковбасних виробів (М'ясна продукція)",
+    vacancydescription: "Виробництво ковбасних виробів (М'ясна продукція) — Sława",
+    category: "Харчова промисловість",
     keywords: [
       "Balcerzak",
       "Sława",
@@ -1247,10 +1247,10 @@ const ewlTemplates = [
   // Вакансія №13 - Valmet Żary
   {
     agencyName: "EWL",
-    templateName: "Valmet Żary",
+    templateName: "Valmet Żary Виробництво дахів для кабріолетів (Автомобільна промисловість)",
     vacancydescription:
-      "Виробництво дахів для кабріолетів (Porsche, BMW, Mercedes)",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Виробництво дахів для кабріолетів (Автомобільна промисловість) — Żary",
+    category: "Автомобільна промисловість",
     keywords: [
       "Valmet",
       "Żary",
@@ -1351,9 +1351,9 @@ const ewlTemplates = [
   // Вакансія №14 - Jeronimo Lubin
   {
     agencyName: "EWL",
-    templateName: "Jeronimo Lubin",
-    vacancydescription: "Робота на складі дистрибуційного центру (Biedronka)",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "Jeronimo Lubin Робота на складі дистрибуційного центру (Склади та логістика)",
+    vacancydescription: "Робота на складі дистрибуційного центру (Склади та логістика) — Lubin",
+    category: "Склади та логістика",
     keywords: [
       "Jeronimo",
       "Lubin",
@@ -1452,9 +1452,9 @@ const ewlTemplates = [
   // Вакансія №15 - Final Dąbrowa Górnicza
   {
     agencyName: "EWL",
-    templateName: "Final Dąbrowa Górnicza",
-    vacancydescription: "Оператор машин на виробництві алюмінієвих профілів",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "Final Dąbrowa Górnicza Оператор машин на виробництві алюмінієвих профілів (Виробництво та промисловість)",
+    vacancydescription: "Оператор машин на виробництві алюмінієвих профілів (Виробництво та промисловість) — Dąbrowa Górnicza",
+    category: "Виробництво та промисловість",
     keywords: [
       "Final",
       "Dąbrowa Górnicza",
@@ -1555,9 +1555,9 @@ const ewlTemplates = [
   // Вакансія №16 - Akrivea Dąbrowa Górnicza
   {
     agencyName: "EWL",
-    templateName: "Akrivea Dąbrowa Górnicza",
-    vacancydescription: "Виробництво алюмінієвих вікон та дверей",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "Akrivea Dąbrowa Górnicza Виробництво алюмінієвих вікон та дверей (Виробництво та промисловість)",
+    vacancydescription: "Виробництво алюмінієвих вікон та дверей (Виробництво та промисловість) — Dąbrowa Górnicza",
+    category: "Виробництво та промисловість",
     keywords: [
       "Akrivea",
       "Dąbrowa Górnicza",
@@ -1659,9 +1659,9 @@ const ewlTemplates = [
   // Вакансія №17 - Świeżyzna Najdziszów
   {
     agencyName: "EWL",
-    templateName: "Świeżyzna Najdziszów",
-    vacancydescription: "Виробництво ковбасних виробів",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "Świeżyzna Najdziszów Виробництво ковбасних виробів (М'ясна продукція)",
+    vacancydescription: "Виробництво ковбасних виробів (М'ясна продукція) — Najdziszów",
+    category: "Харчова промисловість",
     keywords: [
       "Świeżyzna",
       "Najdziszów",
@@ -1763,10 +1763,10 @@ const ewlTemplates = [
   // Вакансія №18 - IAC Opole
   {
     agencyName: "EWL",
-    templateName: "IAC Opole",
+    templateName: "IAC Opole Виробництво компонентів салону автомобілів преміум-класу (Автомобільна промисловість)",
     vacancydescription:
-      "Виробництво компонентів салону автомобілів преміум-класу",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Виробництво компонентів салону автомобілів преміум-класу (Автомобільна промисловість) — Opole",
+    category: "Автомобільна промисловість",
     keywords: [
       "IAC",
       "Opole",
@@ -1870,10 +1870,10 @@ const ewlTemplates = [
   // Вакансія №19 - TI Automotive Bielsko-Biała
   {
     agencyName: "EWL",
-    templateName: "TI Automotive Bielsko-Biała",
+    templateName: "TI Automotive Bielsko-Biała Виробництво металевих шлангів для паливних та гальмівних систем (Автомобільна промисловість)",
     vacancydescription:
-      "Виробництво металевих шлангів для паливних та гальмівних систем",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Виробництво металевих шлангів для паливних та гальмівних систем (Автомобільна промисловість) — Bielsko-Biała",
+    category: "Автомобільна промисловість",
     keywords: [
       "TI Automotive",
       "Bielsko-Biała",
@@ -1978,9 +1978,9 @@ const ewlTemplates = [
   // Вакансія №20 - AMHIL Kartoszyno
   {
     agencyName: "EWL",
-    templateName: "AMHIL Kartoszyno",
-    vacancydescription: "Виробництво та пакування пластикових стаканчиків",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "AMHIL Kartoszyno Виробництво та пакування пластикових стаканчиків (Виробництво та промисловість)",
+    vacancydescription: "Виробництво та пакування пластикових стаканчиків (Виробництво та промисловість) — Kartoszyno",
+    category: "Виробництво та промисловість",
     keywords: [
       "AMHIL",
       "Kartoszyno",
@@ -2079,9 +2079,9 @@ const ewlTemplates = [
   // Вакансія №21 - AGROFIRMA Witkowo
   {
     agencyName: "EWL",
-    templateName: "Agrofirma Witkowo",
-    vacancydescription: "М'ясне виробництво (обвалка, нарізка, пакування)",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "Agrofirma Witkowo Witkowo Pierwsze М'ясне виробництво (обвалка, нарізка, пакування) (М'ясна продукція)",
+    vacancydescription: "М'ясне виробництво (обвалка, нарізка, пакування) (М'ясна продукція) — Witkowo Pierwsze'ясне виробництво (обвалка, нарізка, пакування)",
+    category: "Харчова промисловість",
     keywords: [
       "Agrofirma Witkowo",
       "Witkowo",
@@ -2184,9 +2184,9 @@ const ewlTemplates = [
   // Вакансія №22 - MIESZKO Racibórz
   {
     agencyName: "EWL",
-    templateName: "Mieszko Racibórz",
-    vacancydescription: "Кондитерське виробництво (шоколадні праліне)",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "Mieszko Racibórz Кондитерське виробництво (шоколадні праліне) (Харчова промисловість)",
+    vacancydescription: "Кондитерське виробництво (шоколадні праліне) (Харчова промисловість) — Racibórz",
+    category: "Харчова промисловість",
     keywords: [
       "Mieszko",
       "Racibórz",
@@ -2288,9 +2288,9 @@ const ewlTemplates = [
   // Вакансія №23 - NATURA Stoczek
   {
     agencyName: "EWL",
-    templateName: "Natura Stoczek Łukowski",
-    vacancydescription: "Виробництво готових обідів, консервів та джемів",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "Natura Stoczek Łukowski Виробництво готових обідів, консервів та джемів (Харчова промисловість)",
+    vacancydescription: "Виробництво готових обідів, консервів та джемів (Харчова промисловість) — Stoczek Łukowski",
+    category: "Харчова промисловість",
     keywords: [
       "Natura",
       "Stoczek",
@@ -2392,9 +2392,9 @@ const ewlTemplates = [
   // Вакансія №24 - MARINUS Świnoujście-2
   {
     agencyName: "EWL",
-    templateName: "Marinus Świnoujście-2",
-    vacancydescription: "Виробництво та сортування заморожених продуктів",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "Marinus Świnoujście Виробництво та сортування заморожених продуктів (Харчова промисловість)",
+    vacancydescription: "Виробництво та сортування заморожених продуктів (Харчова промисловість) — Świnoujście",
+    category: "Харчова промисловість",
     keywords: [
       "Marinus",
       "Świnoujście",
@@ -2495,9 +2495,9 @@ const ewlTemplates = [
   // Вакансія №25 - APTIV Gdańsk
   {
     agencyName: "EWL",
-    templateName: "Aptiv Gdańsk",
-    vacancydescription: "Виробництво деталей для автомобільної промисловості",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "Aptiv Gdańsk Виробництво деталей для автомобільної промисловості (Автомобільна промисловість)",
+    vacancydescription: "Виробництво деталей для автомобільної промисловості (Автомобільна промисловість) — Gdańsk",
+    category: "Автомобільна промисловість",
     keywords: [
       "Aptiv",
       "Gdańsk",
@@ -2594,10 +2594,10 @@ const ewlTemplates = [
   // Вакансія №26 - ZIELONA BUDKA Namysłów UDT
   {
     agencyName: "EWL",
-    templateName: "Zielona Budka Namysłów",
+    templateName: "Zielona Budka Namysłów Виробництво морозива та десертів (оператор навантажувача) (Харчова промисловість)",
     vacancydescription:
-      "Виробництво морозива та десертів (оператор навантажувача)",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Виробництво морозива та десертів (оператор навантажувача) (Харчова промисловість) — Namysłów",
+    category: "Харчова промисловість",
     keywords: [
       "Zielona Budka",
       "Namysłów",
@@ -2701,9 +2701,9 @@ const ewlTemplates = [
   // Вакансія №27 - JAC Gliwice
   {
     agencyName: "EWL",
-    templateName: "JAC Gliwice",
-    vacancydescription: "Виробництво алюмінієвих рейлінгів для автомобілів",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "JAC Products Gliwice Виробництво алюмінієвих рейлінгів для автомобілів (Автомобільна промисловість)",
+    vacancydescription: "Виробництво алюмінієвих рейлінгів для автомобілів (Автомобільна промисловість) — Gliwice",
+    category: "Автомобільна промисловість",
     keywords: [
       "JAC Products",
       "Gliwice",
@@ -2807,9 +2807,9 @@ const ewlTemplates = [
   // Вакансія №28 - LACROIX Kwidzyn
   {
     agencyName: "EWL",
-    templateName: "Lacroix Kwidzyn",
-    vacancydescription: "Виробництво та складання електроніки",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "Lacroix Kwidzyn Виробництво та складання електроніки (Виробництво та промисловість)",
+    vacancydescription: "Виробництво та складання електроніки (Виробництво та промисловість) — Kwidzyn",
+    category: "Виробництво та промисловість",
     keywords: [
       "Lacroix",
       "Kwidzyn",
@@ -2910,9 +2910,9 @@ const ewlTemplates = [
   // Вакансія №29 - FCA Tychy UDT
   {
     agencyName: "EWL",
-    templateName: "FCA Tychy",
-    vacancydescription: "Оператор навантажувача на заводі FIAT",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "FCA Tychy Оператор навантажувача на заводі FIAT (Автомобільна промисловість)",
+    vacancydescription: "Оператор навантажувача на заводі FIAT (Автомобільна промисловість) — Tychy",
+    category: "Автомобільна промисловість",
     keywords: [
       "FCA",
       "Tychy",
@@ -3014,9 +3014,9 @@ const ewlTemplates = [
   // Вакансія №30 - MALBOX Osiek
   {
     agencyName: "EWL",
-    templateName: "Malbox Osiek",
-    vacancydescription: "Працівник штампувального цеху (металеві вироби)",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "Malbox Osiek Працівник штампувального цеху (металеві вироби) (Виробництво та промисловість)",
+    vacancydescription: "Працівник штампувального цеху (металеві вироби) (Виробництво та промисловість) — Osiek",
+    category: "Виробництво та промисловість",
     keywords: [
       "Malbox",
       "Osiek",
@@ -3120,9 +3120,9 @@ const ewlTemplates = [
   // Вакансія №31 - OKNOPLAST Ochmanów
   {
     agencyName: "EWL",
-    templateName: "Oknoplast Ochmanów",
-    vacancydescription: "Виробництво та склад металопластикових вікон",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "Oknoplast Ochmanów Виробництво та склад металопластикових вікон (Виробництво та промисловість)",
+    vacancydescription: "Виробництво та склад металопластикових вікон (Виробництво та промисловість) — Ochmanów",
+    category: "Виробництво та промисловість",
     keywords: [
       "Oknoplast",
       "Ochmanów",
@@ -3226,10 +3226,10 @@ const ewlTemplates = [
   // Вакансія №32 - GRYCAN Majdan
   {
     agencyName: "EWL",
-    templateName: "Grycan Majdan",
+    templateName: "Grycan Majdan Виробництво морозива (пакування та підготовка інгредієнтів) (Харчова промисловість)",
     vacancydescription:
-      "Виробництво морозива (пакування та підготовка інгредієнтів)",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Виробництво морозива (пакування та підготовка інгредієнтів) (Харчова промисловість) — Majdan",
+    category: "Харчова промисловість",
     keywords: [
       "Grycan",
       "Majdan",
@@ -3326,9 +3326,9 @@ const ewlTemplates = [
   // Вакансія №33 - TRUVANT Łódź
   {
     agencyName: "EWL",
-    templateName: "Truvant Łódź",
-    vacancydescription: "Робота на логістичному складі та виробництві",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "Truvant Łódź Робота на логістичному складі та виробництві (Склади та логістика)",
+    vacancydescription: "Робота на логістичному складі та виробництві (Склади та логістика) — Łódź",
+    category: "Склади та логістика",
     keywords: [
       "Truvant",
       "Łódź",
@@ -3434,9 +3434,9 @@ const ewlTemplates = [
   // Вакансія №34 - MOWI Duninowo
   {
     agencyName: "EWL",
-    templateName: "Mowi Duninowo",
-    vacancydescription: "Виробництво суші та обробка риби",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "Mowi Duninowo Виробництво суші та обробка риби (Харчова промисловість)",
+    vacancydescription: "Виробництво суші та обробка риби (Харчова промисловість) — Duninowo",
+    category: "Харчова промисловість",
     keywords: [
       "Mowi",
       "Duninowo",
@@ -3537,9 +3537,9 @@ const ewlTemplates = [
   // Вакансія №35 - MAR-TOM Jędrzejów
   {
     agencyName: "EWL",
-    templateName: "Mar-Tom Jędrzejów",
-    vacancydescription: "Виробництво вхідних та зовнішніх дверей",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "Mar-Tom Jędrzejów Виробництво вхідних та зовнішніх дверей (Виробництво та промисловість)",
+    vacancydescription: "Виробництво вхідних та зовнішніх дверей (Виробництво та промисловість) — Jędrzejów",
+    category: "Виробництво та промисловість",
     keywords: [
       "Mar-Tom",
       "Jędrzejów",

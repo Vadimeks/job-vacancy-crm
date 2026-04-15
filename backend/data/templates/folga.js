@@ -3,10 +3,10 @@ const folgaTemplates = [
   // Вакансія №1 - MILANÓWEK Grodzisk
   {
     agencyName: "FOLGA",
-    templateName: "MILANÓWEK Grodzisk - Кондитерське виробництво",
+    templateName: "MILANÓWEK Grodzisk Mazowiecki Робота на кондитерському виробництві з фасування, пакування цукерок (Харчова промисловість)",
     vacancydescription:
-      "Робота на кондитерському виробництві з фасування, пакування цукерок, контролю якості та розміщення товару на палетах.",
-    category: "⚙️ Виробництво і промисловість / Харчова промисловість",
+      "Робота на кондитерському виробництві з фасування, пакування цукерок (Харчова промисловість) — Grodzisk Mazowiecki",
+    category: "Харчова промисловість",
     keywords: [
       "MILANÓWEK",
       "Grodzisk Mazowiecki",

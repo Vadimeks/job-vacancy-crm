@@ -3,10 +3,10 @@ const personnelServiceTemplates = [
   // Вакансія №1 - Brembo Dąbrowa Górnicza
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "Brembo Dąbrowa Górnicza",
+    templateName: "Brembo Dąbrowa Górnicza Виробництво гальмівних систем для автомобілів (Автомобільна промисловість)",
     vacancydescription:
-      "Виробництво гальмівних систем (дисків, супортів) для автомобілів",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Виробництво гальмівних систем для автомобілів (Автомобільна промисловість) — Dąbrowa Górnicza",
+    category: "Автомобільна промисловість",
     keywords: [
       "Brembo",
       "Dąbrowa Górnicza",
@@ -112,10 +112,10 @@ const personnelServiceTemplates = [
   // Вакансія №2 - Koral Kukinia
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "Koral Kukinia",
+    templateName: "Koral Kukinia Виробництво та пакування рибної продукції (Харчова промисловість)",
     vacancydescription:
-      "Виробництво та пакування рибної продукції (лосось, палтус, тунець)",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Виробництво та пакування рибної продукції (Харчова промисловість) — Kukinia",
+    category: "Харчова промисловість",
     keywords: [
       "Koral",
       "Graal",
@@ -221,9 +221,9 @@ const personnelServiceTemplates = [
   // Вакансія №3 - Faurecia Wałbrzych
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "Faurecia Wałbrzych",
-    vacancydescription: "Виробництво елементів автомобільних сидінь та панелей",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "Faurecia Wałbrzych Виробництво елементів автомобільних сидінь та панелей (Автомобільна промисловість)",
+    vacancydescription: "Виробництво елементів автомобільних сидінь та панелей (Автомобільна промисловість) — Wałbrzych",
+    category: "Автомобільна промисловість",
     keywords: [
       "Faurecia",
       "Wałbrzych",
@@ -327,10 +327,10 @@ const personnelServiceTemplates = [
   // Вакансія №4 - Lisner Poznań-1
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "Lisner Poznań-1",
+    templateName: "Lisner Poznań Виробництво рибних продуктів, салатів та паст для бутербродів (Харчова промисловість)",
     vacancydescription:
-      "Виробництво рибних продуктів, салатів та паст для бутербродів",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Виробництво рибних продуктів, салатів та паст для бутербродів (Харчова промисловість) — Poznań",
+    category: "Харчова промисловість",
     keywords: [
       "Lisner",
       "Poznań",
@@ -433,9 +433,9 @@ const personnelServiceTemplates = [
   // Вакансія №5 - Modivo Polkowice
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "Modivo Polkowice",
-    vacancydescription: "Склад інтернет-магазину одягу, взуття та аксесуарів",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "Modivo Polkowice Склад інтернет-магазину одягу, взуття та аксесуарів (Склади та логістика)",
+    vacancydescription: "Склад інтернет-магазину одягу, взуття та аксесуарів (Склади та логістика) — Polkowice",
+    category: "Склади та логістика",
     keywords: [
       "Modivo",
       "Polkowice",
@@ -538,10 +538,10 @@ const personnelServiceTemplates = [
   // Вакансія №6 - Whirlpool Radomsko
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "Whirlpool Radomsko",
+    templateName: "Whirlpool Radomsko Монтаж компонентів побутової техніки (Виробництво та промисловість)",
     vacancydescription:
-      "Монтаж компонентів побутової техніки (посудомийні та пральні машини)",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Монтаж компонентів побутової техніки (Виробництво та промисловість) — Radomsko",
+    category: "Виробництво та промисловість",
     keywords: [
       "Whirlpool",
       "Radomsko",
@@ -644,10 +644,10 @@ const personnelServiceTemplates = [
   // Вакансія №7 - Flex Tczew
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "Flex Tczew",
+    templateName: "Flex Tczew Виробництво електроніки (Виробництво та промисловість)",
     vacancydescription:
-      "Виробництво електроніки (базові станції, корпуси телефонів)",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Виробництво електроніки (Виробництво та промисловість) — Tczew",
+    category: "Виробництво та промисловість",
     keywords: [
       "Flex",
       "Tczew",
@@ -749,9 +749,9 @@ const personnelServiceTemplates = [
   // Вакансія №8 - Zara Swarzędz
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "Rhenus Swarzędz",
-    vacancydescription: "Склад брендового одягу та аксесуарів Zara",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "Zara Swarzędz Склад брендового одягу та аксесуарів (Склади та логістика)",
+    vacancydescription: "Склад брендового одягу та аксесуарів (Склади та логістика) — Swarzędz",
+    category: "Склади та логістика",
     keywords: [
       "Zara",
       "Swarzędz",
@@ -852,9 +852,9 @@ const personnelServiceTemplates = [
   // Вакансія №9 - Arvato (Zara) Stryków
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "Arvato (Zara) Stryków",
-    vacancydescription: "Склад брендового одягу (Pick, Pack, Wysyłka)",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "Arvato Stryków Склад брендового одягу (Pick, Pack, Wysyłka) (Склади та логістика)",
+    vacancydescription: "Склад брендового одягу (Pick, Pack, Wysyłka) (Склади та логістика) — Stryków",
+    category: "Склади та логістика",
     keywords: [
       "Zara",
       "Stryków",
@@ -955,10 +955,10 @@ const personnelServiceTemplates = [
   // Вакансія №10 - LG Energy Wroclaw
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "LG Energy Solution Biskupice Podgórne",
+    templateName: "LG Energy Biskupice Podgórne Виробництво акумуляторів для електромобілів (Автомобільна промисловість)",
     vacancydescription:
-      "Виробництво акумуляторів для електромобілів (Audi, BMW, Porsche)",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Виробництво акумуляторів для електромобілів (Автомобільна промисловість) — Biskupice Podgórne",
+    category: "Автомобільна промисловість",
     keywords: [
       "LG Energy",
       "Wroclaw",
@@ -1059,10 +1059,10 @@ const personnelServiceTemplates = [
   // Вакансія №11 - Hutchinson Bielsko-Biała
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "Hutchinson Bielsko-Biała",
+    templateName: "Hutchinson Bielsko-Biała Виробництво гумових шлангів для систем охолодження автомобілів (Автомобільна промисловість)",
     vacancydescription:
-      "Виробництво гумових шлангів для систем охолодження автомобілів",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Виробництво гумових шлангів для систем охолодження автомобілів (Автомобільна промисловість) — Bielsko-Biała",
+    category: "Автомобільна промисловість",
     keywords: [
       "Hutchinson",
       "Bielsko-Biała",
@@ -1162,9 +1162,9 @@ const personnelServiceTemplates = [
   // Вакансія №12 - Arvato Mszczonów
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "Arvato Mszczonów",
-    vacancydescription: "Склад косметичних засобів (логістичний центр)",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "Arvato Mszczonów Склад косметичних засобів (логістичний центр) (Склади та логістика)",
+    vacancydescription: "Склад косметичних засобів (логістичний центр) (Склади та логістика) — Mszczonów",
+    category: "Склади та логістика",
     keywords: [
       "Arvato",
       "Mszczonów",
@@ -1265,9 +1265,9 @@ const personnelServiceTemplates = [
   // Вакансія №13 - Faurecia Grójec
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "Faurecia Grójec",
-    vacancydescription: "Виробництво автомобільних сидінь для світових брендів",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "Faurecia Grójec Виробництво автомобільних сидінь для світових брендів (Автомобільна промисловість)",
+    vacancydescription: "Виробництво автомобільних сидінь для світових брендів (Автомобільна промисловість) — Grójec",
+    category: "Автомобільна промисловість",
     keywords: [
       "Faurecia",
       "Grójec",
@@ -1372,10 +1372,10 @@ const personnelServiceTemplates = [
   // Вакансія №14 - Gerresheimer Bolesławiec
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "Gerresheimer Bolesławiec",
+    templateName: "Gerresheimer Bolesławiec Оператор виробництва скляних ампул та баночок для косметики (Виробництво та промисловість)",
     vacancydescription:
-      "Оператор виробництва скляних ампул та баночок для косметики",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Оператор виробництва скляних ампул та баночок для косметики (Виробництво та промисловість) — Bolesławiec",
+    category: "Виробництво та промисловість",
     keywords: [
       "Gerresheimer",
       "Bolesławiec",
@@ -1479,9 +1479,9 @@ const personnelServiceTemplates = [
   // Вакансія №15 - Valeo Chrzanów
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "Valeo Chrzanów",
-    vacancydescription: "Оператор машин на виробництві автомобільних фар",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "Valeo Chrzanów Оператор машин на виробництві автомобільних фар (Автомобільна промисловість)",
+    vacancydescription: "Оператор машин на виробництві автомобільних фар (Автомобільна промисловість) — Chrzanów",
+    category: "Автомобільна промисловість",
     keywords: [
       "Valeo",
       "Chrzanów",
@@ -1587,10 +1587,10 @@ const personnelServiceTemplates = [
   // Вакансія №16 - Empik Sochaczew
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "Empik Sochaczew",
+    templateName: "Empik Sochaczew Лідер або Тренер на складі іграшок, канцтоварів та книг (Склади та логістика)",
     vacancydescription:
-      "Лідер або Тренер на складі іграшок, канцтоварів та книг",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Лідер або Тренер на складі іграшок, канцтоварів та книг (Склади та логістика) — Sochaczew",
+    category: "Склади та логістика",
     keywords: [
       "Empik",
       "Sochaczew",
@@ -1693,9 +1693,9 @@ const personnelServiceTemplates = [
   // Вакансія №17 - HM Gądki - 1 Poznań
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "H&M Gądki 1",
-    vacancydescription: "Пакувальник на складі брендового одягу та аксесуарів",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "H&M Gądki Пакувальник на складі брендового одягу та аксесуарів (Склади та логістика)",
+    vacancydescription: "Пакувальник на складі брендового одягу та аксесуарів (Склади та логістика) — Gądki",
+    category: "Склади та логістика",
     keywords: [
       "H&M",
       "Gądki",
@@ -1797,10 +1797,10 @@ const personnelServiceTemplates = [
   // Вакансія №18 - HM Gądki - 2 Poznań
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "H&M Gądki 2",
+    templateName: "H&M Gądki Упаковщик на складі брендового одягу (Склади та логістика)",
     vacancydescription:
-      "Упаковщик на складі брендового одягу (відділи прийому, сортування, комплектації)",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Упаковщик на складі брендового одягу (Склади та логістика) — Gądki",
+    category: "Склади та логістика",
     keywords: [
       "H&M",
       "Gądki",
@@ -1904,9 +1904,9 @@ const personnelServiceTemplates = [
   // Вакансія №19 - Arvato Stryków
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "Arvato Stryków",
-    vacancydescription: "Упаковщик/комплектувальник на складі брендового одягу",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "Arvato Stryków Упаковщик/комплектувальник на складі брендового одягу (Склади та логістика)",
+    vacancydescription: "Упаковщик/комплектувальник на складі брендового одягу (Склади та логістика) — Stryków",
+    category: "Склади та логістика",
     keywords: [
       "Arvato",
       "Stryków",
@@ -2006,10 +2006,10 @@ const personnelServiceTemplates = [
   // Вакансія №20 - Gedia Nowa Sól
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "Gedia Nowa Sól",
+    templateName: "Gedia Nowa Sól Виробництво елементів кузова автомобілів (Автомобільна промисловість)",
     vacancydescription:
-      "Виробництво елементів кузова автомобілів (Audi, BMW, Porsche)",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Виробництво елементів кузова автомобілів (Автомобільна промисловість) — Nowa Sól",
+    category: "Автомобільна промисловість",
     keywords: [
       "Gedia",
       "Nowa Sól",
@@ -2110,10 +2110,10 @@ const personnelServiceTemplates = [
   // Вакансія №21 - Animex Opole
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "Animex Opole",
+    templateName: "Animex Opole Виробництво м’ясної продукції (Харчова промисловість)",
     vacancydescription:
-      "Виробництво м’ясної продукції (курятина, сосиски, бургери)",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Виробництво м’ясної продукції (Харчова промисловість) — Opole",
+    category: "Харчова промисловість",
     keywords: [
       "Animex",
       "Opole",
@@ -2223,9 +2223,9 @@ const personnelServiceTemplates = [
   // Вакансія №22 - Animex Morliny
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "Animex Morliny",
-    vacancydescription: "Виробництво та пакування сосисок і шинки",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "Animex Morliny Виробництво та пакування сосисок і шинки (Харчова промисловість)",
+    vacancydescription: "Виробництво та пакування сосисок і шинки (Харчова промисловість) — Morliny",
+    category: "Харчова промисловість",
     keywords: [
       "Animex",
       "Morliny",
@@ -2333,9 +2333,9 @@ const personnelServiceTemplates = [
   // Вакансія №23 - Maflow Boryszew
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "Maflow Boryszew Ostaszewo",
-    vacancydescription: "Виробництво пластикових елементів салону автомобіля",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "Maflow Łysomice Виробництво пластикових елементів салону автомобіля (Автомобільна промисловість)",
+    vacancydescription: "Виробництво пластикових елементів салону автомобіля (Автомобільна промисловість) — Łysomice",
+    category: "Автомобільна промисловість",
     keywords: [
       "Maflow",
       "Ostaszewo",
@@ -2437,9 +2437,9 @@ const personnelServiceTemplates = [
   // Вакансія №24 - DIY Świebodzin
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "DIY Logistic Świebodzin",
-    vacancydescription: "Працівник логістичного складу товарів для дому (OBI)",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "OBI Świebodzin Працівник логістичного складу товарів для дому (Склади та логістика)",
+    vacancydescription: "Працівник логістичного складу товарів для дому (Склади та логістика) — Świebodzin",
+    category: "Склади та логістика",
     keywords: [
       "OBI",
       "DIY",
@@ -2540,10 +2540,10 @@ const personnelServiceTemplates = [
   // Вакансія №25 - Lear Pruszków
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "Lear Kongsberg Pruszków",
+    templateName: "Lear Pruszków Виробництво систем підігріву, вентиляції та регуляторів для преміальних авто (Автомобільна промисловість)",
     vacancydescription:
-      "Виробництво систем підігріву, вентиляції та регуляторів для преміальних авто",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Виробництво систем підігріву, вентиляції та регуляторів для преміальних авто (Автомобільна промисловість) — Pruszków",
+    category: "Автомобільна промисловість",
     keywords: [
       "Lear",
       "Pruszków",
@@ -2648,10 +2648,10 @@ const personnelServiceTemplates = [
   // Вакансія №26 - Zalando Kąty Wrocławskie
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "Zalando Kąty Wrocławskie",
+    templateName: "Zalando Kąty Wrocławskie Склад-магазин брендового одягу (Склади та логістика)",
     vacancydescription:
-      "Склад-магазин брендового одягу (прийом, сортування, пакування)",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Склад-магазин брендового одягу (Склади та логістика) — Kąty Wrocławskie",
+    category: "Склади та логістика",
     keywords: [
       "Zalando",
       "Kąty Wrocławskie",
@@ -2759,10 +2759,10 @@ const personnelServiceTemplates = [
   // Вакансія №27 - 3PL Siechnice
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "3LP Siechnice",
+    templateName: "3LP Siechnice Працівник логістичного складу (Склади та логістика)",
     vacancydescription:
-      "Працівник логістичного складу (товари від чашок до садових меблів)",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Працівник логістичного складу (Склади та логістика) — Siechnice",
+    category: "Склади та логістика",
     keywords: [
       "3LP",
       "Siechnice",
@@ -2866,9 +2866,9 @@ const personnelServiceTemplates = [
   // Вакансія №28 - Ourhome Wroclaw
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "Ourhome Biskupice Podgórne",
-    vacancydescription: "Помічник на кухні в їдальні заводу LG Energy Solution",
-    category: "🍏 Сільське господарство",
+    templateName: "Ourhome Biskupice Podgórne Помічник на кухні в їдальні заводу (Торгівля та послуги)",
+    vacancydescription: "Помічник на кухні в їдальні заводу (Торгівля та послуги) — Biskupice Podgórne",
+    category: "Торгівля та послуги",
     keywords: [
       "Ourhome",
       "кухня",
@@ -2971,9 +2971,9 @@ const personnelServiceTemplates = [
   // Вакансія №29 - IDL Zgorzelec
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "ID Logistics Zgorzelec",
-    vacancydescription: "Працівник складу (одяг, косметика, побутова хімія)",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "ID Logistics Zgorzelec Працівник складу (одяг, косметика, побутова хімія) (Склади та логістика)",
+    vacancydescription: "Працівник складу (одяг, косметика, побутова хімія) (Склади та логістика) — Zgorzelec",
+    category: "Склади та логістика",
     keywords: [
       "ID Logistics",
       "Zgorzelec",
@@ -3075,10 +3075,10 @@ const personnelServiceTemplates = [
   // Вакансія №30 - Toyota Wykroty
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "Toyota Boshoku Wykroty",
+    templateName: "Toyota Wykroty Виробництво компонентів та збірка сидінь (Автомобільна промисловість)",
     vacancydescription:
-      "Виробництво компонентів та збірка сидінь для Toyota і BMW",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Виробництво компонентів та збірка сидінь (Автомобільна промисловість) — Wykroty",
+    category: "Автомобільна промисловість",
     keywords: [
       "Toyota",
       "Wykroty",
@@ -3181,9 +3181,9 @@ const personnelServiceTemplates = [
   // Вакансія №31 - Espersen Koszalin
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "Espersen Koszalin",
-    vacancydescription: "Виробництво рибних філе та напівфабрикатів",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "Espersen Koszalin Виробництво рибних філе та напівфабрикатів (Харчова промисловість)",
+    vacancydescription: "Виробництво рибних філе та напівфабрикатів (Харчова промисловість) — Koszalin",
+    category: "Харчова промисловість",
     keywords: [
       "Espersen",
       "Koszalin",
@@ -3287,10 +3287,10 @@ const personnelServiceTemplates = [
   // Вакансія №32 - CEWE Kędzierzyn Koźle
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "CEWE Kędzierzyn Koźle",
+    templateName: "CEWE Kędzierzyn-Koźle Виробництво та пакування фотопродуктів (Виробництво та промисловість)",
     vacancydescription:
-      "Виробництво та пакування фотопродуктів (чашки, пазли, календарі)",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Виробництво та пакування фотопродуктів (Виробництво та промисловість) — Kędzierzyn-Koźle",
+    category: "Виробництво та промисловість",
     keywords: [
       "CEWE",
       "Kędzierzyn Koźle",
@@ -3392,9 +3392,9 @@ const personnelServiceTemplates = [
   // Вакансія №33 - Vandemoortele Łódź
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "Vandemoortele Bakery Łódź",
-    vacancydescription: "Виробництво заморожених хлібобулочних виробів",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "Vandemoortele Łódź Виробництво заморожених хлібобулочних виробів (Харчова промисловість)",
+    vacancydescription: "Виробництво заморожених хлібобулочних виробів (Харчова промисловість) — Łódź",
+    category: "Харчова промисловість",
     keywords: [
       "Vandemoortele",
       "Łódź",
@@ -3496,10 +3496,10 @@ const personnelServiceTemplates = [
   // Вакансія №34 - Beko Wroclaw
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "Beko Wrocław",
+    templateName: "Beko Wrocław Монтажник на лінії виробництва побутової техніки (Виробництво та промисловість)",
     vacancydescription:
-      "Монтажник на лінії виробництва побутової техніки (плити, холодильники)",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Монтажник на лінії виробництва побутової техніки (Виробництво та промисловість) — Wrocław",
+    category: "Виробництво та промисловість",
     keywords: [
       "Beko",
       "Wroclaw",
@@ -3602,10 +3602,10 @@ const personnelServiceTemplates = [
   // Вакансія №35 - Hutchinson Łódź
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "Hutchinson Łódź Lodowa",
+    templateName: "Hutchinson Łódź Виробництво гумових деталей для автомобілів (Автомобільна промисловість)",
     vacancydescription:
-      "Виробництво гумових деталей для автомобілів (формування та перевірка)",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Виробництво гумових деталей для автомобілів (Автомобільна промисловість) — Łódź",
+    category: "Автомобільна промисловість",
     keywords: [
       "Hutchinson",
       "Łódź",
@@ -3707,9 +3707,9 @@ const personnelServiceTemplates = [
   // Вакансія №37 - Borne Furniture Barlinek
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "Borne Furniture Barlinek",
-    vacancydescription: "Виробництво меблевих плит для шаф IKEA",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "Borne Furniture Barlinek Виробництво меблевих плит для шаф (Виробництво та промисловість)",
+    vacancydescription: "Виробництво меблевих плит для шаф (Виробництво та промисловість) — Barlinek",
+    category: "Виробництво та промисловість",
     keywords: [
       "Borne Furniture",
       "Barlinek",
@@ -3812,9 +3812,9 @@ const personnelServiceTemplates = [
   // Вакансія №38 - Lisner Charzyno
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "Lisner Charzyno",
-    vacancydescription: "Виробництво рибних закусок (лінія консервації)",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "Lisner Charzyno Виробництво рибних закусок (Харчова промисловість)",
+    vacancydescription: "Виробництво рибних закусок (Харчова промисловість) — Charzyno",
+    category: "Харчова промисловість",
     keywords: [
       "Lisner",
       "Charzyno",
@@ -3915,10 +3915,10 @@ const personnelServiceTemplates = [
   // Вакансія №39 - Hutchinson Żywiec
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "Hutchinson Żywiec",
+    templateName: "Hutchinson Żywiec Виробництво гумових шлангів для систем охолодження авто (Автомобільна промисловість)",
     vacancydescription:
-      "Виробництво гумових шлангів для систем охолодження авто",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Виробництво гумових шлангів для систем охолодження авто (Автомобільна промисловість) — Żywiec",
+    category: "Автомобільна промисловість",
     keywords: [
       "Hutchinson",
       "Żywiec",
@@ -4023,9 +4023,9 @@ const personnelServiceTemplates = [
   // Вакансія №40 - Wendre Kostrzyn
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "Wendre Kostrzyn nad Odrą",
-    vacancydescription: "Виробництво ковдр та подушок з гіпоалергенного пуху",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "Wendre Kostrzyn nad Odrą Виробництво ковдр та подушок з гіпоалергенного пуху (Виробництво та промисловість)",
+    vacancydescription: "Виробництво ковдр та подушок з гіпоалергенного пуху (Виробництво та промисловість) — Kostrzyn nad Odrą",
+    category: "Виробництво та промисловість",
     keywords: [
       "Wendre",
       "Kostrzyn",
@@ -4126,9 +4126,9 @@ const personnelServiceTemplates = [
   // Вакансія №41 - Lisner Poznań-2
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "Lisner Poznań-2",
-    vacancydescription: "Виробництво рибних продуктів, салатів та паст",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "Lisner Poznań Виробництво рибних продуктів, салатів та паст (Харчова промисловість)",
+    vacancydescription: "Виробництво рибних продуктів, салатів та паст (Харчова промисловість) — Poznań",
+    category: "Харчова промисловість",
     keywords: [
       "Lisner",
       "Poznań",
@@ -4232,10 +4232,10 @@ const personnelServiceTemplates = [
   // Вакансія №42 - Signify Piła
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "Signify Philips Piła",
+    templateName: "Signify Piła Виробництво світлодіодних ламп та освітлювальних приладів (Виробництво та промисловість)",
     vacancydescription:
-      "Виробництво світлодіодних ламп та освітлювальних приладів",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Виробництво світлодіодних ламп та освітлювальних приладів (Виробництво та промисловість) — Piła",
+    category: "Виробництво та промисловість",
     keywords: [
       "Signify",
       "Philips",
@@ -4338,9 +4338,9 @@ const personnelServiceTemplates = [
   // Вакансія №43 - Вікна Ochmanów
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "Oknoplast Ochmanów",
-    vacancydescription: "Виробництво пластикових вікон, ролетів та дверей",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "Oknoplast Ochmanów Виробництво пластикових вікон, ролетів та дверей (Виробництво та промисловість)",
+    vacancydescription: "Виробництво пластикових вікон, ролетів та дверей (Виробництво та промисловість) — Ochmanów",
+    category: "Виробництво та промисловість",
     keywords: [
       "Oknoplast",
       "Ochmanów",
@@ -4444,10 +4444,10 @@ const personnelServiceTemplates = [
   // Вакансія №44 - Hermes Konin Żagański
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "Hermes Konin Żagański",
+    templateName: "Hermes Konin Żagański Пакувальниця та контроль якості на складі одягу та аксесуарів (Склади та логістика)",
     vacancydescription:
-      "Пакувальниця та контроль якості на складі одягу та аксесуарів",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Пакувальниця та контроль якості на складі одягу та аксесуарів (Склади та логістика) — Konin Żagański",
+    category: "Склади та логістика",
     keywords: [
       "Hermes",
       "Konin Żagański",
@@ -4551,9 +4551,9 @@ const personnelServiceTemplates = [
   // Вакансія №45 - Pantos Worker Wroclaw
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "LX Pantos Nowa Wieś Wrocławska",
-    vacancydescription: "Працівник складу електроніки та компонентів LG",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "LX Pantos Nowa Wieś Wrocławska Працівник складу електроніки та компонентів (Склади та логістика)",
+    vacancydescription: "Працівник складу електроніки та компонентів (Склади та логістика) — Nowa Wieś Wrocławska",
+    category: "Склади та логістика",
     keywords: [
       "Pantos",
       "LG",
@@ -4655,10 +4655,10 @@ const personnelServiceTemplates = [
   // Вакансія №46 - Tristone Monter Wałbrzych
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "Tristone Wałbrzych",
+    templateName: "Tristone Wałbrzych Виробництво гумових шлангів для систем охолодження авто (Автомобільна промисловість)",
     vacancydescription:
-      "Виробництво гумових шлангів для систем охолодження авто",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Виробництво гумових шлангів для систем охолодження авто (Автомобільна промисловість) — Wałbrzych",
+    category: "Автомобільна промисловість",
     keywords: [
       "Tristone",
       "Wałbrzych",
@@ -4760,9 +4760,9 @@ const personnelServiceTemplates = [
   // Вакансія №47 - No Limit Natolin
   {
     agencyName: "PERSONNEL SERVICE",
-    templateName: "No Limit Natolin",
-    vacancydescription: "Упаковщик на логістичному складі (одяг, книги, корми)",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+    templateName: "No Limit Natolin Упаковщик на логістичному складі (одяг, книги, корми) (Склади та логістика)",
+    vacancydescription: "Упаковщик на логістичному складі (одяг, книги, корми) (Склади та логістика) — Natolin",
+    category: "Склади та логістика",
     keywords: [
       "No Limit",
       "Natolin",

@@ -3,10 +3,10 @@ const apoloTemplates = [
   // Вакансія №1 - VIRTU Zawiercie
   {
     agencyName: "APOLO",
-    templateName: "VIRTU Zawiercie - Виробництво готових обідів",
+    templateName: "VIRTU Zawiercie Виробництво готових страв (Харчова промисловість)",
     vacancydescription:
-      "Робота на виробництві готових страв та напівфабрикатів (піца, крокети, вареники, пасти): контроль якості, пакування, обслуговування машин.",
-    category: "⚙️ Виробництво і промисловість / Харчова промисловість",
+      "Виробництво готових страв (Харчова промисловість) — Zawiercie",
+    category: "Харчова промисловість",
     keywords: [
       "VIRTU",
       "Zawiercie",
@@ -124,11 +124,11 @@ const apoloTemplates = [
   // Вакансія №2 - CARFI Siedlce
   {
     agencyName: "APOLO",
-    templateName: "CARFI Siedlce - Виробництво пластикових деталей",
+    templateName: "CARFI Siedlce Виробництво пластикових деталей (Виробництво та промисловість)",
     vacancydescription:
-      "Робота на виробничій лінії з монтажу, з'єднання, пакування пластикових деталей та обслуговування простих машин.",
+      "Виробництво пластикових деталей (Виробництво та промисловість) — Siedlce'єднання, пакування пластикових деталей та обслуговування простих машин.",
     category:
-      "⚙️ Виробництво і промисловість / Виробництво гумових та пластмасових виробів",
+      "Виробництво та промисловість",
     keywords: [
       "CARFI",
       "Siedlce",
@@ -228,10 +228,10 @@ const apoloTemplates = [
   {
     agencyName: "APOLO",
     templateName:
-      "RENUS Swarzędz - Логістичний склад брендового одягу та аксесуарів",
+      "Rhenus Logistics Swarzędz Склад брендового одягу та аксесуарів (Склади та логістика)",
     vacancydescription:
-      "Робота на логістичному складі брендового одягу та аксесуарів: приймання, комплектація, сортування, пакування та підготовка до відправлення.",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Склад брендового одягу та аксесуарів (Склади та логістика) — Swarzędz",
+    category: "Склади та логістика",
     keywords: [
       "Rhenus Logistics",
       "Swarzędz",
@@ -334,10 +334,10 @@ const apoloTemplates = [
   // Вакансія №4 - RENUS Błonie
   {
     agencyName: "APOLO",
-    templateName: "RENUS Błonie - Склад інтернет-магазину Lidl",
+    templateName: "Rhenus Logistics Błonie Склад інтернет-магазину Lidl (Склади та логістика)",
     vacancydescription:
-      "Робота на складі інтернет-магазину Lidl: комплектація замовлень, підготовка до відправлення, обробка повернень та сортування товару.",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Склад інтернет-магазину Lidl (Склади та логістика) — Błonie",
+    category: "Склади та логістика",
     keywords: [
       "Rhenus Logistics",
       "Błonie",
@@ -438,10 +438,10 @@ const apoloTemplates = [
   // Вакансія №5 - NOTINO Głuchów
   {
     agencyName: "APOLO",
-    templateName: "NOTINO Głuchów - Склад косметики та засобів гігієни",
+    templateName: "NOTINO Głuchów Склад косметики та засобів гігієни (Склади та логістика)",
     vacancydescription:
-      "Робота на складі косметики та засобів гігієни NOTINO: комплектація замовлень зі сканером, прийом та пакування товару.",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Склад косметики та засобів гігієни (Склади та логістика) — Głuchów",
+    category: "Склади та логістика",
     keywords: [
       "NOTINO",
       "Głuchów",
@@ -543,10 +543,10 @@ const apoloTemplates = [
   {
     agencyName: "APOLO",
     templateName:
-      "IDL Psary - Логістичний склад брендового одягу та аксесуарів",
+      "ID Logistics Psary Склад брендового одягу та аксесуарів (Склади та логістика)",
     vacancydescription:
-      "Робота на логістичному складі брендового одягу та аксесуарів: приймання, комплектація, пакування та підготовка до відправлення.",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Склад брендового одягу та аксесуарів (Склади та логістика) — Psary",
+    category: "Склади та логістика",
     keywords: [
       "ID-LOGISTICS",
       "Psary",
@@ -657,10 +657,10 @@ const apoloTemplates = [
   // Вакансія №7 - DPD Brwinow
   {
     agencyName: "APOLO",
-    templateName: "DPD Brwinow - Міжнародна служба експрес-доставки",
+    templateName: "DPD Brwinów Склад експрес-доставки (Склади та логістика)",
     vacancydescription:
-      "Робота на складі міжнародної служби експрес-доставки DPD: завантаження/розвантаження посилок.",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Склад експрес-доставки (Склади та логістика) — Brwinów",
+    category: "Склади та логістика",
     keywords: [
       "DPD",
       "Brwinów",
@@ -759,10 +759,10 @@ const apoloTemplates = [
   // Вакансія №8 - ССС Polkowice
   {
     agencyName: "APOLO",
-    templateName: "CCC Polkowice - Склад взуття та аксесуарів",
+    templateName: "CCC Polkowice Склад взуття та аксесуарів (Склади та логістика)",
     vacancydescription:
-      "Робота на складі CCC та Half Price у Polkowice: пакування, розвантаження, прийом, викладення та збирання товару зі сканером.",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Склад взуття та аксесуарів (Склади та логістика) — Polkowice",
+    category: "Склади та логістика",
     keywords: [
       "CCC",
       "Polkowice",
@@ -868,10 +868,10 @@ const apoloTemplates = [
   // Вакансія №9 - IDL Rakitno
   {
     agencyName: "APOLO",
-    templateName: "IDL Rakitno - Товари для дому інтернет-магазину Амазон",
+    templateName: "ID Logistics Gorzów Wielkopolski Склад товарів для дому Amazon (Склади та логістика)",
     vacancydescription:
-      "Робота на складі ID Logistics з товарами для дому інтернет-магазину Амазон: прийом, викладка, збір та пакування замовлень.",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Склад товарів для дому Amazon (Склади та логістика) — Gorzów Wielkopolski",
+    category: "Склади та логістика",
     keywords: [
       "ID Logistics",
       "Rakitno",
@@ -888,7 +888,7 @@ const apoloTemplates = [
       hideAgencyNameForCandidate: true,
       hideEnterpriseNameForCandidate: true,
     },
-    location: "Rakitno",
+    location: "Gorzów Wielkopolski",
     locationDescription: "ul. Nowa Niedrzwica 58 (околиці Gorzów Wielkopolski)",
     voivodeship: "Lubuskie",
     country: "Polska",
@@ -978,10 +978,10 @@ const apoloTemplates = [
   // Вакансія №10 - Цукерки Nysa
   {
     agencyName: "APOLO",
-    templateName: "Цукерки Nysa - Виробництво цукерок",
+    templateName: "Кондитерська фабрика Nysa Виробництво кондитерських виробів (Харчова промисловість)",
     vacancydescription:
-      "Робота на кондитерському заводі в Nysa: сортування, пакування та перебір солодощів, підготовка етикеток.",
-    category: "⚙️ Виробництво і промисловість / Харчова промисловість",
+      "Виробництво кондитерських виробів (Харчова промисловість) — Nysa",
+    category: "Харчова промисловість",
     keywords: [
       "Цукерки Nysa",
       "Nysa",
@@ -1082,10 +1082,10 @@ const apoloTemplates = [
   {
     agencyName: "APOLO",
     templateName:
-      "IDL Tarnowo Podgórne - Склад брендових товарів, одягу та аксесуарів",
+      "ID Logistics Tarnowo Podgórne Склад брендових товарів та одягу (Склади та логістика)",
     vacancydescription:
-      "Робота на складі ID Logistics з брендовими товарами, одягом та аксесуарами: комплектація замовлень, пакування та розміщення товарів.",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Склад брендових товарів та одягу (Склади та логістика) — Tarnowo Podgórne",
+    category: "Склади та логістика",
     keywords: [
       "ID Logistics",
       "Tarnowo Podgórne",
@@ -1103,7 +1103,7 @@ const apoloTemplates = [
       hideAgencyNameForCandidate: true,
       hideEnterpriseNameForCandidate: true,
     },
-    location: "Tarnowo Podgórne",
+    location: "Tarnowo Podgórne",
     locationDescription: "Sowia 31, Tarnowo Podgórne",
     voivodeship: "Wielkopolskie",
     country: "Polska",
@@ -1186,10 +1186,10 @@ const apoloTemplates = [
   // Вакансія №12 - STOKROTKA Teresin
   {
     agencyName: "APOLO",
-    templateName: "STOKROTKA Teresin - Склад супермаркету",
+    templateName: "STOKROTKA Teresin Склад супермаркету (Склади та логістика)",
     vacancydescription:
-      "Робота на складі супермаркету Stokrotka на комплектації замовлень: збирання товару зі сканером, пакування та підготовка до відправки.",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Склад супермаркету (Склади та логістика) — Teresin",
+    category: "Склади та логістика",
     keywords: [
       "STOKROTKA",
       "Teresin",

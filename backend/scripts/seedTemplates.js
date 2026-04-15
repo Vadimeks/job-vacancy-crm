@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const fs = require("fs");
 const path = require("path");
 const Template = require("../models/Template");
+const Vacancy = require("../models/Vacancy");
 
 const seedTemplates = async () => {
   try {
@@ -12,18 +13,19 @@ const seedTemplates = async () => {
     console.log("✅ Падключана да MongoDB");
 
     // ============================================================
-    // ⚠️ БЛОК АЧЫСТКІ (ЗАКАМЕНТАВАНА)
-    // Разкаментуйце, калі трэба будзе цалкам перазапісаць базу з нуля.
+    // ⚠️ БЛОК ПОЎНАЙ АЧЫСТКІ
+    // ============================================================
+    try {
+      // Выдаляем старыя індэксы, якія могуць замінаць
+      await Template.collection.dropIndex("agencyName_1_templateName_1");
+      console.log("🗑️ Унікальны індэкс выдалены.");
+    } catch (e) {
+      console.log("ℹ️ Індэкс не знойдзены або ўжо выдалены.");
+    }
 
-    // try {
-    //   await Template.collection.dropIndex("agencyName_1_templateName_1");
-    //   console.log("🗑️ Унікальны індэкс выдалены.");
-    // } catch (e) {
-    //   console.log("ℹ️ Індэкс не знойдзены.");
-    // }
-    // await Template.deleteMany({});
-    // console.log("🗑️ База ачышчана перад імпартам.");
-
+    await Template.deleteMany({}); // Ачыстка шаблонаў
+    await Vacancy.deleteMany({}); // Ачыстка тых самых 150 старых вакансій
+    console.log("🗑️ База цалкам стэрылізавана (Templates + Vacancies).");
     // ============================================================
 
     // 2. Пошук усіх файлаў у папцы templates
@@ -65,40 +67,24 @@ const seedTemplates = async () => {
     console.log(`---`);
     console.log(`📦 Агулам сабрана шаблонаў у файлах: ${allTemplates.length}`);
 
-    // Фільтрацыя па назве (абавязковае поле для запісу)
+    // Фільтрацыя па назве
     const validTemplates = allTemplates.filter((temp) => {
       if (!temp.templateName) {
         console.log(
-          `⚠️ Знойдзены аб'ект без templateName у агенцыі: ${temp.agencyName || "невядома"}`,
+          `⚠️ Аб'ект без templateName у агенцыі: ${temp.agencyName || "невядома"}`,
         );
         return false;
       }
       return true;
     });
 
-    // 4. Загрузка ў базу
-    // Цяпер мы выкарыстоўваем findOneAndUpdate (upsert), каб не ствараць дублікатаў
-    // пры паўторных запусках, калі файлы не змяняліся.
-    let successCount = 0;
-
-    for (const temp of validTemplates) {
-      // Мы шукаем па трох палях, каб дакладна ідэнтыфікаваць унікальны шаблон,
-      // нават калі дазволены аднолькавыя назвы
-      await Template.findOneAndUpdate(
-        {
-          agencyName: temp.agencyName,
-          templateName: temp.templateName,
-          vacancydescription: temp.vacancydescription, // дадатковы фільтр для ўнікальнасці
-        },
-        temp,
-        { upsert: true, new: true, setDefaultsOnInsert: true },
-      );
-      successCount++;
+    // 4. Загрузка ў базу (Чысты імпарт праз insertMany)
+    if (validTemplates.length > 0) {
+      await Template.insertMany(validTemplates);
+      console.log(`✅ УСПЕХ: Запісана ${validTemplates.length} шаблонаў у БД!`);
     }
 
-    console.log(`✅ УСПЕХ: Апрацавана ${successCount} шаблонаў!`);
-    console.log("🚀 Працэдура завершана.");
-
+    console.log("🚀 Працэдура завершана паспяхова.");
     process.exit(0);
   } catch (err) {
     console.error("❌ Памылка сіда:", err);

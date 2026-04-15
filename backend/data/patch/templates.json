@@ -1,0 +1,2576 @@
+[
+  [
+    {
+      "originalIndex": 1,
+      "originalFile": "vekos.js",
+      "updates": {
+        "templateName": "HELIO Sochaczew Пакування готової продукції (Харчова промисловість)",
+        "vacancydescription": "Пакування готової продукції (Харчова промисловість) — Sochaczew",
+        "category": "Харчова промисловість",
+        "location": "Sochaczew"
+      }
+    }
+  ],
+  [
+    {
+      "originalIndex": 1,
+      "originalFile": "apolo.js",
+      "updates": {
+        "templateName": "VIRTU Zawiercie Виробництво готових страв (Харчова промисловість)",
+        "vacancydescription": "Виробництво готових страв (Харчова промисловість) — Zawiercie",
+        "category": "Харчова промисловість",
+        "location": "Zawiercie"
+      }
+    },
+    {
+      "originalIndex": 2,
+      "originalFile": "apolo.js",
+      "updates": {
+        "templateName": "CARFI Siedlce Виробництво пластикових деталей (Виробництво та промисловість)",
+        "vacancydescription": "Виробництво пластикових деталей (Виробництво та промисловість) — Siedlce",
+        "category": "Виробництво та промисловість",
+        "location": "Siedlce"
+      }
+    },
+    {
+      "originalIndex": 3,
+      "originalFile": "apolo.js",
+      "updates": {
+        "templateName": "Rhenus Logistics Swarzędz Склад брендового одягу та аксесуарів (Склади та логістика)",
+        "vacancydescription": "Склад брендового одягу та аксесуарів (Склади та логістика) — Swarzędz",
+        "category": "Склади та логістика",
+        "location": "Swarzędz"
+      }
+    },
+    {
+      "originalIndex": 4,
+      "originalFile": "apolo.js",
+      "updates": {
+        "templateName": "Rhenus Logistics Błonie Склад інтернет-магазину Lidl (Склади та логістика)",
+        "vacancydescription": "Склад інтернет-магазину Lidl (Склади та логістика) — Błonie",
+        "category": "Склади та логістика",
+        "location": "Błonie"
+      }
+    },
+    {
+      "originalIndex": 5,
+      "originalFile": "apolo.js",
+      "updates": {
+        "templateName": "NOTINO Głuchów Склад косметики та засобів гігієни (Склади та логістика)",
+        "vacancydescription": "Склад косметики та засобів гігієни (Склади та логістика) — Głuchów",
+        "category": "Склади та логістика",
+        "location": "Głuchów"
+      }
+    },
+    {
+      "originalIndex": 6,
+      "originalFile": "apolo.js",
+      "updates": {
+        "templateName": "ID Logistics Psary Склад брендового одягу та аксесуарів (Склади та логістика)",
+        "vacancydescription": "Склад брендового одягу та аксесуарів (Склади та логістика) — Psary",
+        "category": "Склади та логістика",
+        "location": "Psary"
+      }
+    },
+    {
+      "originalIndex": 7,
+      "originalFile": "apolo.js",
+      "updates": {
+        "templateName": "DPD Brwinów Склад експрес-доставки (Склади та логістика)",
+        "vacancydescription": "Склад експрес-доставки (Склади та логістика) — Brwinów",
+        "category": "Склади та логістика",
+        "location": "Brwinów"
+      }
+    },
+    {
+      "originalIndex": 8,
+      "originalFile": "apolo.js",
+      "updates": {
+        "templateName": "CCC Polkowice Склад взуття та аксесуарів (Склади та логістика)",
+        "vacancydescription": "Склад взуття та аксесуарів (Склади та логістика) — Polkowice",
+        "category": "Склади та логістика",
+        "location": "Polkowice"
+      }
+    },
+    {
+      "originalIndex": 9,
+      "originalFile": "apolo.js",
+      "updates": {
+        "templateName": "ID Logistics Gorzów Wielkopolski Склад товарів для дому Amazon (Склади та логістика)",
+        "vacancydescription": "Склад товарів для дому Amazon (Склади та логістика) — Gorzów Wielkopolski",
+        "category": "Склади та логістика",
+        "location": "Gorzów Wielkopolski"
+      }
+    },
+    {
+      "originalIndex": 10,
+      "originalFile": "apolo.js",
+      "updates": {
+        "templateName": "Кондитерська фабрика Nysa Виробництво кондитерських виробів (Харчова промисловість)",
+        "vacancydescription": "Виробництво кондитерських виробів (Харчова промисловість) — Nysa",
+        "category": "Харчова промисловість",
+        "location": "Nysa"
+      }
+    },
+    {
+      "originalIndex": 11,
+      "originalFile": "apolo.js",
+      "updates": {
+        "templateName": "ID Logistics Tarnowo Podgórne Склад брендових товарів та одягу (Склади та логістика)",
+        "vacancydescription": "Склад брендових товарів та одягу (Склади та логістика) — Tarnowo Podgórne",
+        "category": "Склади та логістика",
+        "location": "Tarnowo Podgórne"
+      }
+    },
+    {
+      "originalIndex": 12,
+      "originalFile": "apolo.js",
+      "updates": {
+        "templateName": "STOKROTKA Teresin Склад супермаркету (Склади та логістика)",
+        "vacancydescription": "Склад супермаркету (Склади та логістика) — Teresin",
+        "category": "Склади та логістика",
+        "location": "Teresin"
+      }
+    }
+  ],
+  [
+    {
+      "originalIndex": 1,
+      "originalFile": "ewl.js",
+      "updates": {
+        "templateName": "Lisner Charzyno Виробництво готових рибних закусок та розкладання продукції в контейнери (Харчова промисловість)",
+        "vacancydescription": "Виробництво готових рибних закусок та розкладання продукції в контейнери (Харчова промисловість) — Charzyno",
+        "category": "Харчова промисловість",
+        "location": "Charzyno"
+      }
+    },
+    {
+      "originalIndex": 2,
+      "originalFile": "ewl.js",
+      "updates": {
+        "templateName": "Maczfit Szymanów Виробництво дієтичного харчування: приготування страв та робота на складі (Харчова промисловість)",
+        "vacancydescription": "Виробництво дієтичного харчування: приготування страв та робота на складі (Харчова промисловість) — Szymanów",
+        "category": "Харчова промисловість",
+        "location": "Szymanów"
+      }
+    },
+    {
+      "originalIndex": 3,
+      "originalFile": "ewl.js",
+      "updates": {
+        "templateName": "Valeo Skawina Молодший оператор продукції на заводі автомобільних радіаторів (Автомобільна промисловість)",
+        "vacancydescription": "Молодший оператор продукції на заводі автомобільних радіаторів (Автомобільна промисловість) — Skawina",
+        "category": "Автомобільна промисловість",
+        "location": "Skawina"
+      }
+    },
+    {
+      "originalIndex": 4,
+      "originalFile": "ewl.js",
+      "updates": {
+        "templateName": "K+N Wola Bykowska Робота на логістичному складі (Склади та логістика)",
+        "vacancydescription": "Робота на логістичному складі (Склади та логістика) — Wola Bykowska",
+        "category": "Склади та логістика",
+        "location": "Wola Bykowska"
+      }
+    },
+    {
+      "originalIndex": 5,
+      "originalFile": "ewl.js",
+      "updates": {
+        "templateName": "Piekarnia Gala Wojnicz Виробництво та пакування хлібобулочних виробів (Харчова промисловість)",
+        "vacancydescription": "Виробництво та пакування хлібобулочних виробів (Харчова промисловість) — Wojnicz",
+        "category": "Харчова промисловість",
+        "location": "Wojnicz"
+      }
+    },
+    {
+      "originalIndex": 6,
+      "originalFile": "ewl.js",
+      "updates": {
+        "templateName": "Drobimex Goleniów Робота в інкубаторі або на виробництві сосисок та ковбас (М'ясна продукція)",
+        "vacancydescription": "Робота в інкубаторі або на виробництві сосисок та ковбас (М'ясна продукція) — Goleniów",
+        "category": "Харчова промисловість",
+        "location": "Goleniów"
+      }
+    },
+    {
+      "originalIndex": 7,
+      "originalFile": "ewl.js",
+      "updates": {
+        "templateName": "Lucky Food Goleniów Виробництво та пакування крабових паличок (Харчова промисловість)",
+        "vacancydescription": "Виробництво та пакування крабових паличок (Харчова промисловість) — Goleniów",
+        "category": "Харчова промисловість",
+        "location": "Goleniów"
+      }
+    },
+    {
+      "originalIndex": 8,
+      "originalFile": "ewl.js",
+      "updates": {
+        "templateName": "Marinus Świnoujście Пакування та сортування заморожених морепродуктів (Харчова промисловість)",
+        "vacancydescription": "Пакування та сортування заморожених морепродуктів (Харчова промисловість) — Świnoujście",
+        "category": "Харчова промисловість",
+        "location": "Świnoujście"
+      }
+    },
+    {
+      "originalIndex": 9,
+      "originalFile": "ewl.js",
+      "updates": {
+        "templateName": "Drobimex Szczecin Переробка курятини: забій, розділ, пакування (М'ясна продукція)",
+        "vacancydescription": "Переробка курятини: забій, розділ, пакування (М'ясна продукція) — Szczecin",
+        "category": "Харчова промисловість",
+        "location": "Szczecin"
+      }
+    },
+    {
+      "originalIndex": 10,
+      "originalFile": "ewl.js",
+      "updates": {
+        "templateName": "Valeo Chrzanów Виробництво автомобільних фар та рефлекторів (Автомобільна промисловість)",
+        "vacancydescription": "Виробництво автомобільних фар та рефлекторів (Автомобільна промисловість) — Chrzanów",
+        "category": "Автомобільна промисловість",
+        "location": "Chrzanów"
+      }
+    },
+    {
+      "originalIndex": 11,
+      "originalFile": "ewl.js",
+      "updates": {
+        "templateName": "Lisner Poznań Виробництво рибних закусок, салатів та спредів (Харчова промисловість)",
+        "vacancydescription": "Виробництво рибних закусок, салатів та спредів (Харчова промисловість) — Poznań",
+        "category": "Харчова промисловість",
+        "location": "Poznań"
+      }
+    },
+    {
+      "originalIndex": 12,
+      "originalFile": "ewl.js",
+      "updates": {
+        "templateName": "Balcerzak Sława Виробництво ковбасних виробів (М'ясна продукція)",
+        "vacancydescription": "Виробництво ковбасних виробів (М'ясна продукція) — Sława",
+        "category": "Харчова промисловість",
+        "location": "Sława"
+      }
+    },
+    {
+      "originalIndex": 13,
+      "originalFile": "ewl.js",
+      "updates": {
+        "templateName": "Valmet Żary Виробництво дахів для кабріолетів (Автомобільна промисловість)",
+        "vacancydescription": "Виробництво дахів для кабріолетів (Автомобільна промисловість) — Żary",
+        "category": "Автомобільна промисловість",
+        "location": "Żary"
+      }
+    },
+    {
+      "originalIndex": 14,
+      "originalFile": "ewl.js",
+      "updates": {
+        "templateName": "Jeronimo Lubin Робота на складі дистрибуційного центру (Склади та логістика)",
+        "vacancydescription": "Робота на складі дистрибуційного центру (Склади та логістика) — Lubin",
+        "category": "Склади та логістика",
+        "location": "Lubin"
+      }
+    },
+    {
+      "originalIndex": 15,
+      "originalFile": "ewl.js",
+      "updates": {
+        "templateName": "Final Dąbrowa Górnicza Оператор машин на виробництві алюмінієвих профілів (Виробництво та промисловість)",
+        "vacancydescription": "Оператор машин на виробництві алюмінієвих профілів (Виробництво та промисловість) — Dąbrowa Górnicza",
+        "category": "Виробництво та промисловість",
+        "location": "Dąbrowa Górnicza"
+      }
+    },
+    {
+      "originalIndex": 16,
+      "originalFile": "ewl.js",
+      "updates": {
+        "templateName": "Akrivea Dąbrowa Górnicza Виробництво алюмінієвих вікон та дверей (Виробництво та промисловість)",
+        "vacancydescription": "Виробництво алюмінієвих вікон та дверей (Виробництво та промисловість) — Dąbrowa Górnicza",
+        "category": "Виробництво та промисловість",
+        "location": "Dąbrowa Górnicza"
+      }
+    },
+    {
+      "originalIndex": 17,
+      "originalFile": "ewl.js",
+      "updates": {
+        "templateName": "Świeżyzna Najdziszów Виробництво ковбасних виробів (М'ясна продукція)",
+        "vacancydescription": "Виробництво ковбасних виробів (М'ясна продукція) — Najdziszów",
+        "category": "Харчова промисловість",
+        "location": "Najdziszów"
+      }
+    },
+    {
+      "originalIndex": 18,
+      "originalFile": "ewl.js",
+      "updates": {
+        "templateName": "IAC Opole Виробництво компонентів салону автомобілів преміум-класу (Автомобільна промисловість)",
+        "vacancydescription": "Виробництво компонентів салону автомобілів преміум-класу (Автомобільна промисловість) — Opole",
+        "category": "Автомобільна промисловість",
+        "location": "Opole"
+      }
+    },
+    {
+      "originalIndex": 19,
+      "originalFile": "ewl.js",
+      "updates": {
+        "templateName": "TI Automotive Bielsko-Biała Виробництво металевих шлангів для паливних та гальмівних систем (Автомобільна промисловість)",
+        "vacancydescription": "Виробництво металевих шлангів для паливних та гальмівних систем (Автомобільна промисловість) — Bielsko-Biała",
+        "category": "Автомобільна промисловість",
+        "location": "Bielsko-Biała"
+      }
+    },
+    {
+      "originalIndex": 20,
+      "originalFile": "ewl.js",
+      "updates": {
+        "templateName": "AMHIL Kartoszyno Виробництво та пакування пластикових стаканчиків (Виробництво та промисловість)",
+        "vacancydescription": "Виробництво та пакування пластикових стаканчиків (Виробництво та промисловість) — Kartoszyno",
+        "category": "Виробництво та промисловість",
+        "location": "Kartoszyno"
+      }
+    },
+    {
+      "originalIndex": 21,
+      "originalFile": "ewl.js",
+      "updates": {
+        "templateName": "Agrofirma Witkowo Witkowo Pierwsze М'ясне виробництво (обвалка, нарізка, пакування) (М'ясна продукція)",
+        "vacancydescription": "М'ясне виробництво (обвалка, нарізка, пакування) (М'ясна продукція) — Witkowo Pierwsze",
+        "category": "Харчова промисловість",
+        "location": "Witkowo Pierwsze"
+      }
+    },
+    {
+      "originalIndex": 22,
+      "originalFile": "ewl.js",
+      "updates": {
+        "templateName": "Mieszko Racibórz Кондитерське виробництво (шоколадні праліне) (Харчова промисловість)",
+        "vacancydescription": "Кондитерське виробництво (шоколадні праліне) (Харчова промисловість) — Racibórz",
+        "category": "Харчова промисловість",
+        "location": "Racibórz"
+      }
+    },
+    {
+      "originalIndex": 23,
+      "originalFile": "ewl.js",
+      "updates": {
+        "templateName": "Natura Stoczek Łukowski Виробництво готових обідів, консервів та джемів (Харчова промисловість)",
+        "vacancydescription": "Виробництво готових обідів, консервів та джемів (Харчова промисловість) — Stoczek Łukowski",
+        "category": "Харчова промисловість",
+        "location": "Stoczek Łukowski"
+      }
+    },
+    {
+      "originalIndex": 24,
+      "originalFile": "ewl.js",
+      "updates": {
+        "templateName": "Marinus Świnoujście Виробництво та сортування заморожених продуктів (Харчова промисловість)",
+        "vacancydescription": "Виробництво та сортування заморожених продуктів (Харчова промисловість) — Świnoujście",
+        "category": "Харчова промисловість",
+        "location": "Świnoujście"
+      }
+    },
+    {
+      "originalIndex": 25,
+      "originalFile": "ewl.js",
+      "updates": {
+        "templateName": "Aptiv Gdańsk Виробництво деталей для автомобільної промисловості (Автомобільна промисловість)",
+        "vacancydescription": "Виробництво деталей для автомобільної промисловості (Автомобільна промисловість) — Gdańsk",
+        "category": "Автомобільна промисловість",
+        "location": "Gdańsk"
+      }
+    },
+    {
+      "originalIndex": 26,
+      "originalFile": "ewl.js",
+      "updates": {
+        "templateName": "Zielona Budka Namysłów Виробництво морозива та десертів (оператор навантажувача) (Харчова промисловість)",
+        "vacancydescription": "Виробництво морозива та десертів (оператор навантажувача) (Харчова промисловість) — Namysłów",
+        "category": "Харчова промисловість",
+        "location": "Namysłów"
+      }
+    },
+    {
+      "originalIndex": 27,
+      "originalFile": "ewl.js",
+      "updates": {
+        "templateName": "JAC Products Gliwice Виробництво алюмінієвих рейлінгів для автомобілів (Автомобільна промисловість)",
+        "vacancydescription": "Виробництво алюмінієвих рейлінгів для автомобілів (Автомобільна промисловість) — Gliwice",
+        "category": "Автомобільна промисловість",
+        "location": "Gliwice"
+      }
+    },
+    {
+      "originalIndex": 28,
+      "originalFile": "ewl.js",
+      "updates": {
+        "templateName": "Lacroix Kwidzyn Виробництво та складання електроніки (Виробництво та промисловість)",
+        "vacancydescription": "Виробництво та складання електроніки (Виробництво та промисловість) — Kwidzyn",
+        "category": "Виробництво та промисловість",
+        "location": "Kwidzyn"
+      }
+    },
+    {
+      "originalIndex": 29,
+      "originalFile": "ewl.js",
+      "updates": {
+        "templateName": "FCA Tychy Оператор навантажувача на заводі FIAT (Автомобільна промисловість)",
+        "vacancydescription": "Оператор навантажувача на заводі FIAT (Автомобільна промисловість) — Tychy",
+        "category": "Автомобільна промисловість",
+        "location": "Tychy"
+      }
+    },
+    {
+      "originalIndex": 30,
+      "originalFile": "ewl.js",
+      "updates": {
+        "templateName": "Malbox Osiek Працівник штампувального цеху (металеві вироби) (Виробництво та промисловість)",
+        "vacancydescription": "Працівник штампувального цеху (металеві вироби) (Виробництво та промисловість) — Osiek",
+        "category": "Виробництво та промисловість",
+        "location": "Osiek"
+      }
+    },
+    {
+      "originalIndex": 31,
+      "originalFile": "ewl.js",
+      "updates": {
+        "templateName": "Oknoplast Ochmanów Виробництво та склад металопластикових вікон (Виробництво та промисловість)",
+        "vacancydescription": "Виробництво та склад металопластикових вікон (Виробництво та промисловість) — Ochmanów",
+        "category": "Виробництво та промисловість",
+        "location": "Ochmanów"
+      }
+    },
+    {
+      "originalIndex": 32,
+      "originalFile": "ewl.js",
+      "updates": {
+        "templateName": "Grycan Majdan Виробництво морозива (пакування та підготовка інгредієнтів) (Харчова промисловість)",
+        "vacancydescription": "Виробництво морозива (пакування та підготовка інгредієнтів) (Харчова промисловість) — Majdan",
+        "category": "Харчова промисловість",
+        "location": "Majdan"
+      }
+    },
+    {
+      "originalIndex": 33,
+      "originalFile": "ewl.js",
+      "updates": {
+        "templateName": "Truvant Łódź Робота на логістичному складі та виробництві (Склади та логістика)",
+        "vacancydescription": "Робота на логістичному складі та виробництві (Склади та логістика) — Łódź",
+        "category": "Склади та логістика",
+        "location": "Łódź"
+      }
+    },
+    {
+      "originalIndex": 34,
+      "originalFile": "ewl.js",
+      "updates": {
+        "templateName": "Mowi Duninowo Виробництво суші та обробка риби (Харчова промисловість)",
+        "vacancydescription": "Виробництво суші та обробка риби (Харчова промисловість) — Duninowo",
+        "category": "Харчова промисловість",
+        "location": "Duninowo"
+      }
+    },
+    {
+      "originalIndex": 35,
+      "originalFile": "ewl.js",
+      "updates": {
+        "templateName": "Mar-Tom Jędrzejów Виробництво вхідних та зовнішніх дверей (Виробництво та промисловість)",
+        "vacancydescription": "Виробництво вхідних та зовнішніх дверей (Виробництво та промисловість) — Jędrzejów",
+        "category": "Виробництво та промисловість",
+        "location": "Jędrzejów"
+      }
+    }
+  ],
+  [
+    {
+      "originalIndex": 1,
+      "originalFile": "folga.js",
+      "updates": {
+        "templateName": "MILANÓWEK Grodzisk Mazowiecki Робота на кондитерському виробництві з фасування, пакування цукерок (Харчова промисловість)",
+        "vacancydescription": "Робота на кондитерському виробництві з фасування, пакування цукерок (Харчова промисловість) — Grodzisk Mazowiecki",
+        "category": "Харчова промисловість",
+        "location": "Grodzisk Mazowiecki"
+      }
+    }
+  ],
+  [
+    {
+      "originalIndex": 1,
+      "originalFile": "kreon.js",
+      "updates": {
+        "templateName": "STADLER Siedlce Виробництво вагонів метро, трамваїв та поїздів: монтажні роботи (механічний, електронний), клеяж, підготовка поверхонь (Виробництво та промисловість)",
+        "vacancydescription": "Виробництво вагонів метро, трамваїв та поїздів: монтажні роботи (механічний, електронний), клеяж, підготовка поверхонь (Виробництво та промисловість) — Siedlce",
+        "category": "Виробництво та промисловість",
+        "location": "Siedlce"
+      }
+    }
+  ],
+  [
+    {
+      "originalIndex": 1,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Hutchinson Bielsko-Biała Виробництво гумових шлангів для автомобільних систем охолодження та кондиціонування (Автомобільна промисловість)",
+        "vacancydescription": "Виробництво гумових шлангів для автомобільних систем охолодження та кондиціонування (Автомобільна промисловість) — Bielsko-Biała",
+        "category": "Автомобільна промисловість",
+        "location": "Bielsko-Biała"
+      }
+    },
+    {
+      "originalIndex": 2,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Hutchinson Żywiec Виробництво гумових та пластикових шлангів для автомобільної промисловості (Автомобільна промисловість)",
+        "vacancydescription": "Виробництво гумових та пластикових шлангів для автомобільної промисловості (Автомобільна промисловість) — Żywiec",
+        "category": "Автомобільна промисловість",
+        "location": "Żywiec"
+      }
+    },
+    {
+      "originalIndex": 3,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "McCormick Stefanowo Виробництво та пакування спецій та приправ (Харчова промисловість)",
+        "vacancydescription": "Виробництво та пакування спецій та приправ (Харчова промисловість) — Stefanowo",
+        "category": "Харчова промисловість",
+        "location": "Stefanowo"
+      }
+    },
+    {
+      "originalIndex": 4,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Mondelez Płońsk Виробництво та фасування печива (Харчова промисловість)",
+        "vacancydescription": "Виробництво та фасування печива (Харчова промисловість) — Płońsk",
+        "category": "Харчова промисловість",
+        "location": "Płońsk"
+      }
+    },
+    {
+      "originalIndex": 5,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Allegro Adamów Склад інтернет-магазину: комплектація та пакування товарів (Склади та логістика)",
+        "vacancydescription": "Склад інтернет-магазину: комплектація та пакування товарів (Склади та логістика) — Adamów",
+        "category": "Склади та логістика",
+        "location": "Adamów"
+      }
+    },
+    {
+      "originalIndex": 6,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Media Expert Łódź Склад побутової техніки та електроніки: комплектація та відвантаження (Склади та логістика)",
+        "vacancydescription": "Склад побутової техніки та електроніки: комплектація та відвантаження (Склади та логістика) — Łódź",
+        "category": "Склади та логістика",
+        "location": "Łódź"
+      }
+    },
+    {
+      "originalIndex": 7,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Brembo Częstochowa Виробництво компонентів гальмівних систем для автомобілів (Автомобільна промисловість)",
+        "vacancydescription": "Виробництво компонентів гальмівних систем для автомобілів (Автомобільна промисловість) — Częstochowa",
+        "category": "Автомобільна промисловість",
+        "location": "Częstochowa"
+      }
+    },
+    {
+      "originalIndex": 8,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Lantmannen Stanisławów Pierwszy Харчове виробництво: пакування хлібобулочних виробів (Харчова промисловість)",
+        "vacancydescription": "Харчове виробництво: пакування хлібобулочних виробів (Харчова промисловість) — Stanisławów Pierwszy",
+        "category": "Харчова промисловість",
+        "location": "Stanisławów Pierwszy"
+      }
+    },
+    {
+      "originalIndex": 9,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Hutchinson Bielsko-Biała Обслуговування прес-формувальних машин для автопрому (Автомобільна промисловість)",
+        "vacancydescription": "Обслуговування прес-формувальних машин для автопрому (Автомобільна промисловість) — Bielsko-Biała",
+        "category": "Автомобільна промисловість",
+        "location": "Bielsko-Biała"
+      }
+    },
+    {
+      "originalIndex": 10,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Hutchinson Zawada Виробництво силіконових ущільнювачів для авто та авіації (Автомобільна промисловість)",
+        "vacancydescription": "Виробництво силіконових ущільнювачів для авто та авіації (Автомобільна промисловість) — Zawada",
+        "category": "Автомобільна промисловість",
+        "location": "Zawada"
+      }
+    },
+    {
+      "originalIndex": 11,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Mahle Krotoszyn Оператор машин на заводі з виготовлення автомобільних деталей (Автомобільна промисловість)",
+        "vacancydescription": "Оператор машин на заводі з виготовлення автомобільних деталей (Автомобільна промисловість) — Krotoszyn",
+        "category": "Автомобільна промисловість",
+        "location": "Krotoszyn"
+      }
+    },
+    {
+      "originalIndex": 12,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Hutchinson Żywiec Виготовлення паливних систем та трубок для автомобільних кондиціонерів (Автомобільна промисловість)",
+        "vacancydescription": "Виготовлення паливних систем та трубок для автомобільних кондиціонерів (Автомобільна промисловість) — Żywiec",
+        "category": "Автомобільна промисловість",
+        "location": "Żywiec"
+      }
+    },
+    {
+      "originalIndex": 13,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Mondelez Cieszyn Легка робота на виробництві вафельних батончиків: фасування та пакування (Харчова промисловість)",
+        "vacancydescription": "Легка робота на виробництві вафельних батончиків: фасування та пакування (Харчова промисловість) — Cieszyn",
+        "category": "Харчова промисловість",
+        "location": "Cieszyn"
+      }
+    },
+    {
+      "originalIndex": 14,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Eurocomfort Leszno Виробництво матраців, подушок та ковдр (Виробництво та промисловість)",
+        "vacancydescription": "Виробництво матраців, подушок та ковдр (Виробництво та промисловість) — Leszno",
+        "category": "Виробництво та промисловість",
+        "location": "Leszno"
+      }
+    },
+    {
+      "originalIndex": 15,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Mondelez Płońsk Виробництво кондитерської продукції (печиво): збір з лінії та пакування (Харчова промисловість)",
+        "vacancydescription": "Виробництво кондитерської продукції (печиво): збір з лінії та пакування (Харчова промисловість) — Płońsk",
+        "category": "Харчова промисловість",
+        "location": "Płońsk"
+      }
+    },
+    {
+      "originalIndex": 16,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Bosch Łódź Обслуговування навантажувача та логістика на заводі побутової техніки (Склади та логістика)",
+        "vacancydescription": "Обслуговування навантажувача та логістика на заводі побутової техніки (Склади та логістика) — Łódź",
+        "category": "Склади та логістика",
+        "location": "Łódź"
+      }
+    },
+    {
+      "originalIndex": 17,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Gestamp Wrocław Оператор навантажувача (UDT) та Milk-run на заводі автомобільних компонентів (Склади та логістика)",
+        "vacancydescription": "Оператор навантажувача (UDT) та Milk-run на заводі автомобільних компонентів (Склади та логістика) — Wrocław",
+        "category": "Склади та логістика",
+        "location": "Wrocław"
+      }
+    },
+    {
+      "originalIndex": 18,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "SFC Częstochowa Виготовлення гумових автозапчастин: обслуговування автоклавів та монтаж (Автомобільна промисловість)",
+        "vacancydescription": "Виготовлення гумових автозапчастин: обслуговування автоклавів та монтаж (Автомобільна промисловість) — Częstochowa",
+        "category": "Автомобільна промисловість",
+        "location": "Częstochowa"
+      }
+    },
+    {
+      "originalIndex": 19,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Brembo Dąbrowa Górnicza Працівник виробничої лінії на заводі гальмівних дисків (Автомобільна промисловість)",
+        "vacancydescription": "Працівник виробничої лінії на заводі гальмівних дисків (Автомобільна промисловість) — Dąbrowa Górnicza",
+        "category": "Автомобільна промисловість",
+        "location": "Dąbrowa Górnicza"
+      }
+    },
+    {
+      "originalIndex": 20,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "BSH Wrocław Ручна збірка та контроль якості побутової техніки (Виробництво та промисловість)",
+        "vacancydescription": "Ручна збірка та контроль якості побутової техніки (Виробництво та промисловість) — Wrocław",
+        "category": "Виробництво та промисловість",
+        "location": "Wrocław"
+      }
+    },
+    {
+      "originalIndex": 21,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Gestamp Wrocław Робота на автоматизованій лінії виробництва автомобільних компонентів: пакування та контроль якості (Автомобільна промисловість)",
+        "vacancydescription": "Робота на автоматизованій лінії виробництва автомобільних компонентів: пакування та контроль якості (Автомобільна промисловість) — Wrocław",
+        "category": "Автомобільна промисловість",
+        "location": "Wrocław"
+      }
+    },
+    {
+      "originalIndex": 22,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Gestamp Chocicza Mała Виробництво автомобільних компонентів: контроль якості або робота на навантажувачі UDT (Автомобільна промисловість)",
+        "vacancydescription": "Виробництво автомобільних компонентів: контроль якості або робота на навантажувачі UDT (Автомобільна промисловість) — Chocicza Mała",
+        "category": "Автомобільна промисловість",
+        "location": "Chocicza Mała"
+      }
+    },
+    {
+      "originalIndex": 23,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Kerry Oleśnica Виробництво харчових добавок та ароматизаторів: підготовка сировини та пакування (Харчова промисловість)",
+        "vacancydescription": "Виробництво харчових добавок та ароматизаторів: підготовка сировини та пакування (Харчова промисловість) — Oleśnica",
+        "category": "Харчова промисловість",
+        "location": "Oleśnica"
+      }
+    },
+    {
+      "originalIndex": 24,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Faurecia Grójec Виготовлення каркасів та напрямних для автомобільних сидінь: обслуговування машин (Автомобільна промисловість)",
+        "vacancydescription": "Виготовлення каркасів та напрямних для автомобільних сидінь: обслуговування машин (Автомобільна промисловість) — Grójec",
+        "category": "Автомобільна промисловість",
+        "location": "Grójec"
+      }
+    },
+    {
+      "originalIndex": 25,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "McCormick Stefanowo Оператор машин та навантажувачів на виробництві приправ: подача сировини та контроль якості (Харчова промисловість)",
+        "vacancydescription": "Оператор машин та навантажувачів на виробництві приправ: подача сировини та контроль якості (Харчова промисловість) — Stefanowo",
+        "category": "Харчова промисловість",
+        "location": "Stefanowo"
+      }
+    },
+    {
+      "originalIndex": 26,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Hitachi Łódź Оператор машин на виробництві ізоляційних матеріалів для трансформаторів (Виробництво та промисловість)",
+        "vacancydescription": "Оператор машин на виробництві ізоляційних матеріалів для трансформаторів (Виробництво та промисловість) — Łódź",
+        "category": "Виробництво та промисловість",
+        "location": "Łódź"
+      }
+    },
+    {
+      "originalIndex": 27,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Brembo Dąbrowa Górnicza Візуальний контроль якості та обслуговування CNC машин на заводі гальмівних дисків (Автомобільна промисловість)",
+        "vacancydescription": "Візуальний контроль якості та обслуговування CNC машин на заводі гальмівних дисків (Автомобільна промисловість) — Dąbrowa Górnicza",
+        "category": "Автомобільна промисловість",
+        "location": "Dąbrowa Górnicza"
+      }
+    },
+    {
+      "originalIndex": 28,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Unirubber Zielonka Фізично важка робота на виробництві гумового грануляту (Виробництво та промисловість)",
+        "vacancydescription": "Фізично важка робота на виробництві гумового грануляту (Виробництво та промисловість) — Zielonka",
+        "category": "Виробництво та промисловість",
+        "location": "Zielonka"
+      }
+    },
+    {
+      "originalIndex": 29,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Hutchinson Bielsko-Biała Обслуговування машин для виготовлення автомобільних трубок: монтаж та зварювання (Автомобільна промисловість)",
+        "vacancydescription": "Обслуговування машин для виготовлення автомобільних трубок: монтаж та зварювання (Автомобільна промисловість) — Bielsko-Biała",
+        "category": "Автомобільна промисловість",
+        "location": "Bielsko-Biała"
+      }
+    },
+    {
+      "originalIndex": 30,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Onnera Palmiry Збірка та монтаж промислових холодильних установок та миючих машин (Виробництво та промисловість)",
+        "vacancydescription": "Збірка та монтаж промислових холодильних установок та миючих машин (Виробництво та промисловість) — Palmiry",
+        "category": "Виробництво та промисловість",
+        "location": "Palmiry"
+      }
+    },
+    {
+      "originalIndex": 31,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Valeo Chrzanów Виробництво автомобільних ліхтарів та освітлювальних приладів: обслуговування пресів та контроль якості (Автомобільна промисловість)",
+        "vacancydescription": "Виробництво автомобільних ліхтарів та освітлювальних приладів: обслуговування пресів та контроль якості (Автомобільна промисловість) — Chrzanów",
+        "category": "Автомобільна промисловість",
+        "location": "Chrzanów"
+      }
+    },
+    {
+      "originalIndex": 32,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Hutchinson Żywiec Виробництво металевих трубок та гумових елементів для авто: обслуговування автоклавів та печей (Автомобільна промисловість)",
+        "vacancydescription": "Виробництво металевих трубок та гумових елементів для авто: обслуговування автоклавів та печей (Автомобільна промисловість) — Żywiec",
+        "category": "Автомобільна промисловість",
+        "location": "Żywiec"
+      }
+    },
+    {
+      "originalIndex": 33,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Mondelez Tomaszów Mazowiecki Виробництво круасанів відомого бренду 7DAYS: формування, пакування та контроль якості (Харчова промисловість)",
+        "vacancydescription": "Виробництво круасанів відомого бренду 7DAYS: формування, пакування та контроль якості (Харчова промисловість) — Tomaszów Mazowiecki",
+        "category": "Харчова промисловість",
+        "location": "Tomaszów Mazowiecki"
+      }
+    },
+    {
+      "originalIndex": 34,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Lear Legnica Виробництво металевих конструкцій для автомобільних сидінь: монтаж та обслуговування пресів (Автомобільна промисловість)",
+        "vacancydescription": "Виробництво металевих конструкцій для автомобільних сидінь: монтаж та обслуговування пресів (Автомобільна промисловість) — Legnica",
+        "category": "Автомобільна промисловість",
+        "location": "Legnica"
+      }
+    },
+    {
+      "originalIndex": 35,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "GKN Oleśnica Виробництво приводних валів та компонентів трансмісії для автомобілів (Автомобільна промисловість)",
+        "vacancydescription": "Виробництво приводних валів та компонентів трансмісії для автомобілів (Автомобільна промисловість) — Oleśnica",
+        "category": "Автомобільна промисловість",
+        "location": "Oleśnica"
+      }
+    },
+    {
+      "originalIndex": 36,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Gates Legnica Виробництво високотехнологічних гумових ременів та шлангів для промисловості (Виробництво та промисловість)",
+        "vacancydescription": "Виробництво високотехнологічних гумових ременів та шлангів для промисловості (Виробництво та промисловість) — Legnica",
+        "category": "Виробництво та промисловість",
+        "location": "Legnica"
+      }
+    },
+    {
+      "originalIndex": 37,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Lisner Poznań Пакування та сортування готової рибної продукції (Харчова промисловість)",
+        "vacancydescription": "Пакування та сортування готової рибної продукції (Харчова промисловість) — Poznań",
+        "category": "Харчова промисловість",
+        "location": "Poznań"
+      }
+    },
+    {
+      "originalIndex": 38,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Chromavis Ciechanów Виробництво декоративної косметики: пакування та обслуговування лінії (Виробництво та промисловість)",
+        "vacancydescription": "Виробництво декоративної косметики: пакування та обслуговування лінії (Виробництво та промисловість) — Ciechanów",
+        "category": "Виробництво та промисловість",
+        "location": "Ciechanów"
+      }
+    },
+    {
+      "originalIndex": 39,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "WND Rąbień Виробництво сучасних віконних систем: комплектація та збірка конструкцій (Виробництво та промисловість)",
+        "vacancydescription": "Виробництво сучасних віконних систем: комплектація та збірка конструкцій (Виробництво та промисловість) — Rąbień",
+        "category": "Виробництво та промисловість",
+        "location": "Rąbień"
+      }
+    },
+    {
+      "originalIndex": 40,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Corning Stryków Виготовлення оптичного кабельного з’єднання: обрізка, спаювання та контроль якості (Виробництво та промисловість)",
+        "vacancydescription": "Виготовлення оптичного кабельного з’єднання: обрізка, спаювання та контроль якості (Виробництво та промисловість) — Stryków",
+        "category": "Виробництво та промисловість",
+        "location": "Stryków"
+      }
+    },
+    {
+      "originalIndex": 41,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Gillette Łódź Обслуговування машин з виробництва станків для гоління, комплектація та пакування готової продукції (Виробництво та промисловість)",
+        "vacancydescription": "Обслуговування машин з виробництва станків для гоління, комплектація та пакування готової продукції (Виробництво та промисловість) — Łódź",
+        "category": "Виробництво та промисловість",
+        "location": "Łódź"
+      }
+    },
+    {
+      "originalIndex": 42,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Lisner Poznań Фасування та пакування готової рибної продукції та салатів (Харчова промисловість)",
+        "vacancydescription": "Фасування та пакування готової рибної продукції та салатів (Харчова промисловість) — Poznań",
+        "category": "Харчова промисловість",
+        "location": "Poznań"
+      }
+    },
+    {
+      "originalIndex": 43,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Fiege Mszczonów Логістичний склад: навантаження та розвантаження товарів за допомогою вилочного навантажувача (Склади та логістика)",
+        "vacancydescription": "Логістичний склад: навантаження та розвантаження товарів за допомогою вилочного навантажувача (Склади та логістика) — Mszczonów",
+        "category": "Склади та логістика",
+        "location": "Mszczonów"
+      }
+    },
+    {
+      "originalIndex": 44,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Lisner Poznań Виробництво та приготування рибних салатів та паст за рецептами (Харчова промисловість)",
+        "vacancydescription": "Виробництво та приготування рибних салатів та паст за рецептами (Харчова промисловість) — Poznań",
+        "category": "Харчова промисловість",
+        "location": "Poznań"
+      }
+    },
+    {
+      "originalIndex": 45,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Lisner Poznań Працівник виробництва у відділ конфекції (рибна продукція) (Харчова промисловість)",
+        "vacancydescription": "Працівник виробництва у відділ конфекції (рибна продукція) (Харчова промисловість) — Poznań",
+        "category": "Харчова промисловість",
+        "location": "Poznań"
+      }
+    },
+    {
+      "originalIndex": 46,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "MAN Trucks Niepołomice Збірка вантажних автомобілів відомого бренду на сучасному конвеєрі (Автомобільна промисловість)",
+        "vacancydescription": "Збірка вантажних автомобілів відомого бренду на сучасному конвеєрі (Автомобільна промисловість) — Niepołomice",
+        "category": "Автомобільна промисловість",
+        "location": "Niepołomice"
+      }
+    },
+    {
+      "originalIndex": 47,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Media Expert Łódź Склад електронної техніки: комплектація, розвантаження та обслуговування сканера (Склади та логістика)",
+        "vacancydescription": "Склад електронної техніки: комплектація, розвантаження та обслуговування сканера (Склади та логістика) — Łódź",
+        "category": "Склади та логістика",
+        "location": "Łódź"
+      }
+    },
+    {
+      "originalIndex": 48,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Pro Cars Tychy Робота на пресах: формування металевих деталей для автомобільної промисловості (Автомобільна промисловість)",
+        "vacancydescription": "Робота на пресах: формування металевих деталей для автомобільної промисловості (Автомобільна промисловість) — Tychy",
+        "category": "Автомобільна промисловість",
+        "location": "Tychy"
+      }
+    },
+    {
+      "originalIndex": 49,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Nexteer Tychy Оператор машин на виробництві автомобільних рульових систем (Автомобільна промисловість)",
+        "vacancydescription": "Оператор машин на виробництві автомобільних рульових систем (Автомобільна промисловість) — Tychy",
+        "category": "Автомобільна промисловість",
+        "location": "Tychy"
+      }
+    },
+    {
+      "originalIndex": 50,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Gestamp Chocicza Mała Обслуговування кран-балки (сувниці) з рівня підлоги на сучасному автомобільному заводі (Автомобільна промисловість)",
+        "vacancydescription": "Обслуговування кран-балки (сувниці) з рівня підлоги на сучасному автомобільному заводі (Автомобільна промисловість) — Chocicza Mała",
+        "category": "Автомобільна промисловість",
+        "location": "Chocicza Mała"
+      }
+    },
+    {
+      "originalIndex": 51,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "U Form Bieruń Робота на пресах та обслуговування машин на заводі автодеталей (Автомобільна промисловість)",
+        "vacancydescription": "Робота на пресах та обслуговування машин на заводі автодеталей (Автомобільна промисловість) — Bieruń",
+        "category": "Автомобільна промисловість",
+        "location": "Bieruń"
+      }
+    },
+    {
+      "originalIndex": 52,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Hitachi Łódź Оператор машин на виробництві ізоляції для трансформаторів (Виробництво та промисловість)",
+        "vacancydescription": "Оператор машин на виробництві ізоляції для трансформаторів (Виробництво та промисловість) — Łódź",
+        "category": "Виробництво та промисловість",
+        "location": "Łódź"
+      }
+    },
+    {
+      "originalIndex": 53,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Hilding Murowana Goślina Виробництво та монтаж матраців (мануальна робота) (Виробництво та промисловість)",
+        "vacancydescription": "Виробництво та монтаж матраців (мануальна робота) (Виробництво та промисловість) — Murowana Goślina",
+        "category": "Виробництво та промисловість",
+        "location": "Murowana Goślina"
+      }
+    },
+    {
+      "originalIndex": 54,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Hilding Murowana Goślina Комірник з посвідченням UDT на склад матраців (Склади та логістика)",
+        "vacancydescription": "Комірник з посвідченням UDT на склад матраців (Склади та логістика) — Murowana Goślina",
+        "category": "Склади та логістика",
+        "location": "Murowana Goślina"
+      }
+    },
+    {
+      "originalIndex": 55,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "ID LOGISTICS Krajków Складська логістика: формування замовлень та робота з UDT (Склади та логістика)",
+        "vacancydescription": "Складська логістика: формування замовлень та робота з UDT (Склади та логістика) — Krajków",
+        "category": "Склади та логістика",
+        "location": "Krajków"
+      }
+    },
+    {
+      "originalIndex": 56,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Aluplast Nagradowice Працівник складу віконних систем (робота з довгими профілями) (Склади та логістика)",
+        "vacancydescription": "Працівник складу віконних систем (робота з довгими профілями) (Склади та логістика) — Nagradowice",
+        "category": "Склади та логістика",
+        "location": "Nagradowice"
+      }
+    },
+    {
+      "originalIndex": 57,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Aluplast Nagradowice Молодший оператор машин (пакування та контроль якості профілів) (Виробництво та промисловість)",
+        "vacancydescription": "Молодший оператор машин (пакування та контроль якості профілів) (Виробництво та промисловість) — Nagradowice",
+        "category": "Виробництво та промисловість",
+        "location": "Nagradowice"
+      }
+    },
+    {
+      "originalIndex": 58,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Wkręt-Met Częstochowa Пакування кріпильної продукції (гвинти, болти) та обслуговування машин (Виробництво та промисловість)",
+        "vacancydescription": "Пакування кріпильної продукції (гвинти, болти) та обслуговування машин (Виробництво та промисловість) — Częstochowa",
+        "category": "Виробництво та промисловість",
+        "location": "Częstochowa"
+      }
+    },
+    {
+      "originalIndex": 59,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Corning Stryków Оператор машин на виробництві оптичних кабелів (Виробництво та промисловість)",
+        "vacancydescription": "Оператор машин на виробництві оптичних кабелів (Виробництво та промисловість) — Stryków",
+        "category": "Виробництво та промисловість",
+        "location": "Stryków"
+      }
+    },
+    {
+      "originalIndex": 60,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Hutchinson Łódź Водій навантажувача (UDT) на виробництво силіконових виробів (Склади та логістика)",
+        "vacancydescription": "Водій навантажувача (UDT) на виробництво силіконових виробів (Склади та логістика) — Łódź",
+        "category": "Склади та логістика",
+        "location": "Łódź"
+      }
+    },
+    {
+      "originalIndex": 61,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Pesa Bydgoszcz Зварювальник MAG або слюсар на виробництво потягів та трамваїв (Виробництво та промисловість)",
+        "vacancydescription": "Зварювальник MAG або слюсар на виробництво потягів та трамваїв (Виробництво та промисловість) — Bydgoszcz",
+        "category": "Виробництво та промисловість",
+        "location": "Bydgoszcz"
+      }
+    },
+    {
+      "originalIndex": 62,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Faurecia Legnica Оператор виробництва автомобільних крісел (Автомобільна промисловість)",
+        "vacancydescription": "Оператор виробництва автомобільних крісел (Автомобільна промисловість) — Legnica",
+        "category": "Автомобільна промисловість",
+        "location": "Legnica"
+      }
+    },
+    {
+      "originalIndex": 63,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "McCormick Stefanowo Пакування та контроль якості на виробництві приправ (Харчова промисловість)",
+        "vacancydescription": "Пакування та контроль якості на виробництві приправ (Харчова промисловість) — Stefanowo",
+        "category": "Харчова промисловість",
+        "location": "Stefanowo"
+      }
+    },
+    {
+      "originalIndex": 64,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "BCUBE Niepołomice Комірник на логістичний склад (з UDT або без) (Склади та логістика)",
+        "vacancydescription": "Комірник на логістичний склад (з UDT або без) (Склади та логістика) — Niepołomice",
+        "category": "Склади та логістика",
+        "location": "Niepołomice"
+      }
+    },
+    {
+      "originalIndex": 65,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Lear Pruszków Збирання дрібних деталей інтер’єру авто (сидіння) (Автомобільна промисловість)",
+        "vacancydescription": "Збирання дрібних деталей інтер’єру авто (сидіння) (Автомобільна промисловість) — Pruszków",
+        "category": "Автомобільна промисловість",
+        "location": "Pruszków"
+      }
+    },
+    {
+      "originalIndex": 66,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Lear Pruszków Монтажник елементів салону авто (сидіння) (Автомобільна промисловість)",
+        "vacancydescription": "Монтажник елементів салону авто (сидіння) (Автомобільна промисловість) — Pruszków",
+        "category": "Автомобільна промисловість",
+        "location": "Pruszków"
+      }
+    },
+    {
+      "originalIndex": 67,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Mondelez Tomaszów Mazowiecki Виробництво та пакування круасанів 7DAYS (Харчова промисловість)",
+        "vacancydescription": "Виробництво та пакування круасанів 7DAYS (Харчова промисловість) — Tomaszów Mazowiecki",
+        "category": "Харчова промисловість",
+        "location": "Tomaszów Mazowiecki"
+      }
+    },
+    {
+      "originalIndex": 68,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Corning Stryków Оператор машин на виробництві оптичних кабелів (Виробництво та промисловість)",
+        "vacancydescription": "Оператор машин на виробництві оптичних кабелів (Виробництво та промисловість) — Stryków",
+        "category": "Виробництво та промисловість",
+        "location": "Stryków"
+      }
+    },
+    {
+      "originalIndex": 69,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Faurecia Legnica Оператор виробництва автомобільних крісел (з житлом) (Автомобільна промисловість)",
+        "vacancydescription": "Оператор виробництва автомобільних крісел (з житлом) (Автомобільна промисловість) — Legnica",
+        "category": "Автомобільна промисловість",
+        "location": "Legnica"
+      }
+    },
+    {
+      "originalIndex": 70,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Pesa Bydgoszcz Виробництво потягів та трамваїв: зварювальні та слюсарні роботи (Виробництво та промисловість)",
+        "vacancydescription": "Виробництво потягів та трамваїв: зварювальні та слюсарні роботи (Виробництво та промисловість) — Bydgoszcz",
+        "category": "Виробництво та промисловість",
+        "location": "Bydgoszcz"
+      }
+    },
+    {
+      "originalIndex": 71,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Hitachi Energy Łódź Монтаж складових частин промислових трансформаторів (Виробництво та промисловість)",
+        "vacancydescription": "Монтаж складових частин промислових трансформаторів (Виробництво та промисловість) — Łódź",
+        "category": "Виробництво та промисловість",
+        "location": "Łódź"
+      }
+    },
+    {
+      "originalIndex": 72,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Hitachi Łódź Оператор машин на виробництві ізоляції для трансформаторів (Виробництво та промисловість)",
+        "vacancydescription": "Оператор машин на виробництві ізоляції для трансформаторів (Виробництво та промисловість) — Łódź",
+        "category": "Виробництво та промисловість",
+        "location": "Łódź"
+      }
+    },
+    {
+      "originalIndex": 73,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "MAN Trucks Niepołomice Збірка вантажних автомобілів на конвеєрі (Автомобільна промисловість)",
+        "vacancydescription": "Збірка вантажних автомобілів на конвеєрі (Автомобільна промисловість) — Niepołomice",
+        "category": "Автомобільна промисловість",
+        "location": "Niepołomice"
+      }
+    },
+    {
+      "originalIndex": 74,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Gates Legnica Оператор виробництва гумових ременів та шлангів (Виробництво та промисловість)",
+        "vacancydescription": "Оператор виробництва гумових ременів та шлангів (Виробництво та промисловість) — Legnica",
+        "category": "Виробництво та промисловість",
+        "location": "Legnica"
+      }
+    },
+    {
+      "originalIndex": 75,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Brembo Dąbrowa Górnicza Виготовлення гальмівних дисків для світових автобрендів (Автомобільна промисловість)",
+        "vacancydescription": "Виготовлення гальмівних дисків для світових автобрендів (Автомобільна промисловість) — Dąbrowa Górnicza",
+        "category": "Автомобільна промисловість",
+        "location": "Dąbrowa Górnicza"
+      }
+    },
+    {
+      "originalIndex": 76,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "BSH Łódź Монтаж та збірка пральних і сушильних машин Bosch (Виробництво та промисловість)",
+        "vacancydescription": "Монтаж та збірка пральних і сушильних машин Bosch (Виробництво та промисловість) — Łódź",
+        "category": "Виробництво та промисловість",
+        "location": "Łódź"
+      }
+    },
+    {
+      "originalIndex": 77,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Hutchinson Łódź Виготовлення силіконових ущільнювачів для авто та авіації (Автомобільна промисловість)",
+        "vacancydescription": "Виготовлення силіконових ущільнювачів для авто та авіації (Автомобільна промисловість) — Łódź",
+        "category": "Автомобільна промисловість",
+        "location": "Łódź"
+      }
+    },
+    {
+      "originalIndex": 78,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Kerry Oleśnica Фасовка спецій та харчових добавок у мішки (Харчова промисловість)",
+        "vacancydescription": "Фасовка спецій та харчових добавок у мішки (Харчова промисловість) — Oleśnica",
+        "category": "Харчова промисловість",
+        "location": "Oleśnica"
+      }
+    },
+    {
+      "originalIndex": 79,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Lisner Poznań Водій навантажувача (UDT) на склад сировини та упаковки (Склади та логістика)",
+        "vacancydescription": "Водій навантажувача (UDT) на склад сировини та упаковки (Склади та логістика) — Poznań",
+        "category": "Склади та логістика",
+        "location": "Poznań"
+      }
+    },
+    {
+      "originalIndex": 80,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Lisner Poznań Водій навантажувача (UDT) на склад сировини та упаковки харчового підприємства (Склади та логістика)",
+        "vacancydescription": "Водій навантажувача (UDT) на склад сировини та упаковки харчового підприємства (Склади та логістика) — Poznań",
+        "category": "Склади та логістика",
+        "location": "Poznań"
+      }
+    },
+    {
+      "originalIndex": 81,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Hutchinson Zawada Виробництво автомобільних та авіаційних ущільнювачів (Автомобільна промисловість)",
+        "vacancydescription": "Виробництво автомобільних та авіаційних ущільнювачів (Автомобільна промисловість) — Zawada",
+        "category": "Автомобільна промисловість",
+        "location": "Zawada"
+      }
+    },
+    {
+      "originalIndex": 82,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Hutchinson Zawada Виробництво автомобільних та авіаційних ущільнювачів (Автомобільна промисловість)",
+        "vacancydescription": "Виробництво автомобільних та авіаційних ущільнювачів (Автомобільна промисловість) — Zawada",
+        "category": "Автомобільна промисловість",
+        "location": "Zawada"
+      }
+    },
+    {
+      "originalIndex": 83,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Aluplast Nagradowice Працівник складу у відділ пакування віконних профілів (Склади та логістика)",
+        "vacancydescription": "Працівник складу у відділ пакування віконних профілів (Склади та логістика) — Nagradowice",
+        "category": "Склади та логістика",
+        "location": "Nagradowice"
+      }
+    },
+    {
+      "originalIndex": 84,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Aluplast Nagradowice Працівник складу (відділ пакування віконних систем) (Склади та логістика)",
+        "vacancydescription": "Працівник складу (відділ пакування віконних систем) (Склади та логістика) — Nagradowice",
+        "category": "Склади та логістика",
+        "location": "Nagradowice"
+      }
+    },
+    {
+      "originalIndex": 85,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Pilkington Skierniewice Оператор машини для обробки скла (виробництво склопакетів) (Виробництво та промисловість)",
+        "vacancydescription": "Оператор машини для обробки скла (виробництво склопакетів) (Виробництво та промисловість) — Skierniewice",
+        "category": "Виробництво та промисловість",
+        "location": "Skierniewice"
+      }
+    },
+    {
+      "originalIndex": 86,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Lisner Poznań Пакувальник готової рибної продукції (Харчова промисловість)",
+        "vacancydescription": "Пакувальник готової рибної продукції (Харчова промисловість) — Poznań",
+        "category": "Харчова промисловість",
+        "location": "Poznań"
+      }
+    },
+    {
+      "originalIndex": 87,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Weber Zabrze Виробництво та монтаж газових, електричних та вугільних грилів (Виробництво та промисловість)",
+        "vacancydescription": "Виробництво та монтаж газових, електричних та вугільних грилів (Виробництво та промисловість) — Zabrze",
+        "category": "Виробництво та промисловість",
+        "location": "Zabrze"
+      }
+    },
+    {
+      "originalIndex": 88,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "ASG Poland Pruszków Ручне виготовлення та пакування брендової упаковки (Виробництво та промисловість)",
+        "vacancydescription": "Ручне виготовлення та пакування брендової упаковки (Виробництво та промисловість) — Pruszków",
+        "category": "Виробництво та промисловість",
+        "location": "Pruszków"
+      }
+    },
+    {
+      "originalIndex": 89,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Wkręt-Met Częstochowa Пакування та контроль якості кріпильної техніки (Виробництво та промисловість)",
+        "vacancydescription": "Пакування та контроль якості кріпильної техніки (Виробництво та промисловість) — Częstochowa",
+        "category": "Виробництво та промисловість",
+        "location": "Częstochowa"
+      }
+    },
+    {
+      "originalIndex": 90,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Hutchinson Łódź Виробництво гумових ущільнювачів для автомобілів (Автомобільна промисловість)",
+        "vacancydescription": "Виробництво гумових ущільнювачів для автомобілів (Автомобільна промисловість) — Łódź",
+        "category": "Автомобільна промисловість",
+        "location": "Łódź"
+      }
+    },
+    {
+      "originalIndex": 91,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Huber+Suhner Nawojowa Góra Виробництво оптичних перемикачів в електротехнічній галузі (Виробництво та промисловість)",
+        "vacancydescription": "Виробництво оптичних перемикачів в електротехнічній галузі (Виробництво та промисловість) — Nawojowa Góra",
+        "category": "Виробництво та промисловість",
+        "location": "Nawojowa Góra"
+      }
+    },
+    {
+      "originalIndex": 92,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Hutchinson Łódź Виробництво гумових ущільнювачів для автомобілів (Автомобільна промисловість)",
+        "vacancydescription": "Виробництво гумових ущільнювачів для автомобілів (Автомобільна промисловість) — Łódź",
+        "category": "Автомобільна промисловість",
+        "location": "Łódź"
+      }
+    },
+    {
+      "originalIndex": 93,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Allegro Adamów Складська робота: збирання та упаковка замовлень (Склади та логістика)",
+        "vacancydescription": "Складська робота: збирання та упаковка замовлень (Склади та логістика) — Adamów",
+        "category": "Склади та логістика",
+        "location": "Adamów"
+      }
+    },
+    {
+      "originalIndex": 94,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Weber Zabrze Виробництво та монтаж газових, електричних та вугільних грилів (Виробництво та промисловість)",
+        "vacancydescription": "Виробництво та монтаж газових, електричних та вугільних грилів (Виробництво та промисловість) — Zabrze",
+        "category": "Виробництво та промисловість",
+        "location": "Zabrze"
+      }
+    },
+    {
+      "originalIndex": 95,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Media Expert Łódź Склад електроніки: комплектація та розвантаження (Склади та логістика)",
+        "vacancydescription": "Склад електроніки: комплектація та розвантаження (Склади та логістика) — Łódź",
+        "category": "Склади та логістика",
+        "location": "Łódź"
+      }
+    },
+    {
+      "originalIndex": 96,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Faurecia Wałbrzych Монтаж каркасів автомобільних сидінь (Автомобільна промисловість)",
+        "vacancydescription": "Монтаж каркасів автомобільних сидінь (Автомобільна промисловість) — Wałbrzych",
+        "category": "Автомобільна промисловість",
+        "location": "Wałbrzych"
+      }
+    },
+    {
+      "originalIndex": 97,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Faurecia Wałbrzych Монтаж механізмів регулювання автомобільних сидінь (Автомобільна промисловість)",
+        "vacancydescription": "Монтаж механізмів регулювання автомобільних сидінь (Автомобільна промисловість) — Wałbrzych",
+        "category": "Автомобільна промисловість",
+        "location": "Wałbrzych"
+      }
+    },
+    {
+      "originalIndex": 98,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Prospekta Nysa Виробництво та пакування желейних цукерок (Харчова промисловість)",
+        "vacancydescription": "Виробництво та пакування желейних цукерок (Харчова промисловість) — Nysa",
+        "category": "Харчова промисловість",
+        "location": "Nysa"
+      }
+    },
+    {
+      "originalIndex": 99,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Prospekta Nysa Виробництво та пакування желейних цукерок (Харчова промисловість)",
+        "vacancydescription": "Виробництво та пакування желейних цукерок (Харчова промисловість) — Nysa",
+        "category": "Харчова промисловість",
+        "location": "Nysa"
+      }
+    },
+    {
+      "originalIndex": 100,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Faurecia Wałbrzych Монтаж каркасів автомобільних сидінь (Автомобільна промисловість)",
+        "vacancydescription": "Монтаж каркасів автомобільних сидінь (Автомобільна промисловість) — Wałbrzych",
+        "category": "Автомобільна промисловість",
+        "location": "Wałbrzych"
+      }
+    },
+    {
+      "originalIndex": 101,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Faurecia Wałbrzych Монтаж механізмів регулювання автомобільних сидінь (Автомобільна промисловість)",
+        "vacancydescription": "Монтаж механізмів регулювання автомобільних сидінь (Автомобільна промисловість) — Wałbrzych",
+        "category": "Автомобільна промисловість",
+        "location": "Wałbrzych"
+      }
+    },
+    {
+      "originalIndex": 102,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "ID Logistic Psary Склад одягу: упаковка та сортування (Склади та логістика)",
+        "vacancydescription": "Склад одягу: упаковка та сортування (Склади та логістика) — Psary",
+        "category": "Склади та логістика",
+        "location": "Psary"
+      }
+    },
+    {
+      "originalIndex": 103,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Gillette Łódź Водій навантажувача (вузковий) на виробництво станків для гоління (Склади та логістика)",
+        "vacancydescription": "Водій навантажувача (вузковий) на виробництво станків для гоління (Склади та логістика) — Łódź",
+        "category": "Склади та логістика",
+        "location": "Łódź"
+      }
+    },
+    {
+      "originalIndex": 104,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Mahle Krotoszyn Оператор машин з виготовлення автомобільних деталей (Автомобільна промисловість)",
+        "vacancydescription": "Оператор машин з виготовлення автомобільних деталей (Автомобільна промисловість) — Krotoszyn",
+        "category": "Автомобільна промисловість",
+        "location": "Krotoszyn"
+      }
+    },
+    {
+      "originalIndex": 105,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Aluplast Nagradowice Працівник виробництва віконних систем ПВХ (Виробництво та промисловість)",
+        "vacancydescription": "Працівник виробництва віконних систем ПВХ (Виробництво та промисловість) — Nagradowice",
+        "category": "Виробництво та промисловість",
+        "location": "Nagradowice"
+      }
+    },
+    {
+      "originalIndex": 106,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Aluplast Nagradowice Молодший оператор машин (виробництво віконних систем) (Виробництво та промисловість)",
+        "vacancydescription": "Молодший оператор машин (виробництво віконних систем) (Виробництво та промисловість) — Nagradowice",
+        "category": "Виробництво та промисловість",
+        "location": "Nagradowice"
+      }
+    },
+    {
+      "originalIndex": 107,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Colquimica Plewiska Оператор виробництва промислових клеїв (Виробництво та промисловість)",
+        "vacancydescription": "Оператор виробництва промислових клеїв (Виробництво та промисловість) — Plewiska",
+        "category": "Виробництво та промисловість",
+        "location": "Plewiska"
+      }
+    },
+    {
+      "originalIndex": 108,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Mueller Biały Bór Обслуговування машин з виробництва свічок (Виробництво та промисловість)",
+        "vacancydescription": "Обслуговування машин з виробництва свічок (Виробництво та промисловість) — Biały Bór",
+        "category": "Виробництво та промисловість",
+        "location": "Biały Bór"
+      }
+    },
+    {
+      "originalIndex": 109,
+      "originalFile": "manpawer.js",
+      "updates": {
+        "templateName": "Onnera Palmiry Оператор штампувального верстату (виробництво миючих машин) (Виробництво та промисловість)",
+        "vacancydescription": "Оператор штампувального верстату (виробництво миючих машин) (Виробництво та промисловість) — Palmiry",
+        "category": "Виробництво та промисловість",
+        "location": "Palmiry"
+      }
+    }
+  ],
+  [
+    {
+      "originalIndex": 1,
+      "originalFile": "mrowki.js",
+      "updates": {
+        "templateName": "AMI Mikstat Робота з переробки птиці, що включає забій, обробку та миття (М'ясна продукція)",
+        "vacancydescription": "Робота з переробки птиці, що включає забій, обробку та миття (М'ясна продукція) — Mikstat",
+        "category": "Харчова промисловість",
+        "location": "Mikstat"
+      }
+    },
+    {
+      "originalIndex": 2,
+      "originalFile": "mrowki.js",
+      "updates": {
+        "templateName": "Монтаж меблів Sława Робота монтажником меблів на виробництві та у відрядженнях (Виробництво меблів)",
+        "vacancydescription": "Робота монтажником меблів на виробництві та у відрядженнях (Виробництво меблів) — Sława",
+        "category": "Виробництво та промисловість",
+        "location": "Sława"
+      }
+    },
+    {
+      "originalIndex": 3,
+      "originalFile": "mrowki.js",
+      "updates": {
+        "templateName": "Поліграфічне підприємство Gostyń Робота оператором офсетних машин з виготовлення упакування (Поліграфія)",
+        "vacancydescription": "Робота оператором офсетних машин з виготовлення упакування (Поліграфія) — Gostyń",
+        "category": "Виробництво та промисловість",
+        "location": "Gostyń"
+      }
+    },
+    {
+      "originalIndex": 4,
+      "originalFile": "mrowki.js",
+      "updates": {
+        "templateName": "Кейтеринг Wysogotowo Робота на виробництві готових страв (Кейтеринг)",
+        "vacancydescription": "Робота на виробництві готових страв (Кейтеринг) — Wysogotowo",
+        "category": "Харчова промисловість",
+        "location": "Wysogotowo"
+      }
+    }
+  ],
+  [
+    {
+      "originalIndex": 1,
+      "originalFile": "otto.js",
+      "updates": {
+        "templateName": "HUTCHINSON Żywiec Робота оператором машин на виробництві паливних систем та кабелів для автомобілів (Автомобільна промисловість)",
+        "vacancydescription": "Робота оператором машин на виробництві паливних систем та кабелів для автомобілів (Автомобільна промисловість) — Żywiec",
+        "category": "Автомобільна промисловість",
+        "location": "Żywiec"
+      }
+    },
+    {
+      "originalIndex": 2,
+      "originalFile": "otto.js",
+      "updates": {
+        "templateName": "GASA Głuchowo Робота на невеликому складі інтернет-магазину: сортування, завантаження та розвантаження товару (Склади та логістика)",
+        "vacancydescription": "Робота на невеликому складі інтернет-магазину: сортування, завантаження та розвантаження товару (Склади та логістика) — Głuchowo",
+        "category": "Склади та логістика",
+        "location": "Głuchowo"
+      }
+    },
+    {
+      "originalIndex": 3,
+      "originalFile": "otto.js",
+      "updates": {
+        "templateName": "IL COSMETICS Ciechanów Допоміжні роботи на виробничій лінії, пакування косметики та ручні роботи (Виробництво та промисловість)",
+        "vacancydescription": "Допоміжні роботи на виробничій лінії, пакування косметики та ручні роботи (Виробництво та промисловість) — Ciechanów",
+        "category": "Виробництво та промисловість",
+        "location": "Ciechanów"
+      }
+    },
+    {
+      "originalIndex": 4,
+      "originalFile": "otto.js",
+      "updates": {
+        "templateName": "KABAT Budzyń Робота на виробничій лінії з обслуговування машин, обладнання та контролю якості гумових виробів (Виробництво та промисловість)",
+        "vacancydescription": "Робота на виробничій лінії з обслуговування машин, обладнання та контролю якості гумових виробів (Виробництво та промисловість) — Budzyń",
+        "category": "Виробництво та промисловість",
+        "location": "Budzyń"
+      }
+    },
+    {
+      "originalIndex": 5,
+      "originalFile": "otto.js",
+      "updates": {
+        "templateName": "ZARA Swarzędz Робота на складі брендового одягу: збір замовлень зі сканером, пакування та підготовка до відправки (Склади та логістика)",
+        "vacancydescription": "Робота на складі брендового одягу: збір замовлень зі сканером, пакування та підготовка до відправки (Склади та логістика) — Swarzędz",
+        "category": "Склади та логістика",
+        "location": "Swarzędz"
+      }
+    },
+    {
+      "originalIndex": 6,
+      "originalFile": "otto.js",
+      "updates": {
+        "templateName": "ZALANDO Świebodzin Робота на складі одягу та взуття: пакування, сортування, перевірка якості та сканування (Склади та логістика)",
+        "vacancydescription": "Робота на складі одягу та взуття: пакування, сортування, перевірка якості та сканування (Склади та логістика) — Świebodzin",
+        "category": "Склади та логістика",
+        "location": "Świebodzin"
+      }
+    },
+    {
+      "originalIndex": 7,
+      "originalFile": "otto.js",
+      "updates": {
+        "templateName": "DHL Warszawa Фізична робота на складі: сортування, завантаження/розвантаження посилок, робота зі сканером (Склади та логістика)",
+        "vacancydescription": "Фізична робота на складі: сортування, завантаження/розвантаження посилок, робота зі сканером (Склади та логістика) — Warszawa",
+        "category": "Склади та логістика",
+        "location": "Warszawa"
+      }
+    },
+    {
+      "originalIndex": 8,
+      "originalFile": "otto.js",
+      "updates": {
+        "templateName": "DHL Głuchowo Фізична робота на складі: комплектація замовлень, розвантаження та завантаження кур'єрських відправлень (Склади та логістика)",
+        "vacancydescription": "Фізична робота на складі: комплектація замовлень, розвантаження та завантаження кур'єрських відправлень (Склади та логістика) — Głuchowo",
+        "category": "Склади та логістика",
+        "location": "Głuchowo"
+      }
+    },
+    {
+      "originalIndex": 9,
+      "originalFile": "otto.js",
+      "updates": {
+        "templateName": "HUTCHINSON Łódź Робота на виробничій лінії з виготовлення трансмісійних ременів (Автомобільна промисловість)",
+        "vacancydescription": "Робота на виробничій лінії з виготовлення трансмісійних ременів (Автомобільна промисловість) — Łódź",
+        "category": "Автомобільна промисловість",
+        "location": "Łódź"
+      }
+    },
+    {
+      "originalIndex": 10,
+      "originalFile": "otto.js",
+      "updates": {
+        "templateName": "LUMBERG Świebodzin Ручна збірка електронних компонентів для побутової техніки та автомобілів (Виробництво та промисловість)",
+        "vacancydescription": "Ручна збірка електронних компонентів для побутової техніки та автомобілів (Виробництво та промисловість) — Świebodzin",
+        "category": "Виробництво та промисловість",
+        "location": "Świebodzin"
+      }
+    },
+    {
+      "originalIndex": 11,
+      "originalFile": "otto.js",
+      "updates": {
+        "templateName": "ITR Mysłowice Робота на виробництві гідравлічних компонентів (Виробництво та промисловість)",
+        "vacancydescription": "Робота на виробництві гідравлічних компонентів (Виробництво та промисловість) — Mysłowice",
+        "category": "Виробництво та промисловість",
+        "location": "Mysłowice"
+      }
+    },
+    {
+      "originalIndex": 12,
+      "originalFile": "otto.js",
+      "updates": {
+        "templateName": "JYSK Radomsko Робота на складі товарів для дому: прийом, комплектування та завантаження товару (Склади та логістика)",
+        "vacancydescription": "Робота на складі товарів для дому: прийом, комплектування та завантаження товару (Склади та логістика) — Radomsko",
+        "category": "Склади та логістика",
+        "location": "Radomsko"
+      }
+    },
+    {
+      "originalIndex": 13,
+      "originalFile": "otto.js",
+      "updates": {
+        "templateName": "SAINT GOBAIN Jaroszowiec Робота на виробничій лінії з підготовки, різання та обробки скляних виробів для авто (Автомобільна промисловість)",
+        "vacancydescription": "Робота на виробничій лінії з підготовки, різання та обробки скляних виробів для авто (Автомобільна промисловість) — Jaroszowiec",
+        "category": "Автомобільна промисловість",
+        "location": "Jaroszowiec"
+      }
+    },
+    {
+      "originalIndex": 14,
+      "originalFile": "otto.js",
+      "updates": {
+        "templateName": "TIFS Żywiec Робота оператором машин на виробництві паливних систем та кабелів для автомобілів (Автомобільна промисловість)",
+        "vacancydescription": "Робота оператором машин на виробництві паливних систем та кабелів для автомобілів (Автомобільна промисловість) — Żywiec",
+        "category": "Автомобільна промисловість",
+        "location": "Żywiec"
+      }
+    },
+    {
+      "originalIndex": 15,
+      "originalFile": "otto.js",
+      "updates": {
+        "templateName": "DPD Kowale Робота на логістичному складі: комплектування замовлень, сортування та завантаження посилок (Склади та логістика)",
+        "vacancydescription": "Робота на логістичному складі: комплектування замовлень, сортування та завантаження посилок (Склади та логістика) — Kowale",
+        "category": "Склади та логістика",
+        "location": "Kowale"
+      }
+    },
+    {
+      "originalIndex": 16,
+      "originalFile": "otto.js",
+      "updates": {
+        "templateName": "DPD Przecław Фізична робота на складі кур’єрських відправлень: сортування та завантаження товарів (Склади та логістика)",
+        "vacancydescription": "Фізична робота на складі кур’єрських відправлень: сортування та завантаження товарів (Склади та логістика) — Przecław",
+        "category": "Склади та логістика",
+        "location": "Przecław"
+      }
+    },
+    {
+      "originalIndex": 17,
+      "originalFile": "otto.js",
+      "updates": {
+        "templateName": "FRONERI Mielec Робота на виробництві та складі морозива і заморожених продуктів (Харчова промисловість)",
+        "vacancydescription": "Робота на виробництві та складі морозива і заморожених продуктів (Харчова промисловість) — Mielec",
+        "category": "Харчова промисловість",
+        "location": "Mielec"
+      }
+    },
+    {
+      "originalIndex": 18,
+      "originalFile": "otto.js",
+      "updates": {
+        "templateName": "MAKRO Brwinów Робота в центрі дистрибуції: завантаження, сортування, комплектація та пакування (Склади та логістика)",
+        "vacancydescription": "Робота в центрі дистрибуції: завантаження, сортування, комплектація та пакування (Склади та логістика) — Brwinów",
+        "category": "Склади та логістика",
+        "location": "Brwinów"
+      }
+    },
+    {
+      "originalIndex": 19,
+      "originalFile": "otto.js",
+      "updates": {
+        "templateName": "DHL Emilianów Фізична робота на кур'єрсько-логістичному складі: завантаження та комплектування замовлень (Склади та логістика)",
+        "vacancydescription": "Фізична робота на кур'єрсько-логістичному складі: завантаження та комплектування замовлень (Склади та логістика) — Emilianów",
+        "category": "Склади та логістика",
+        "location": "Emilianów"
+      }
+    },
+    {
+      "originalIndex": 20,
+      "originalFile": "otto.js",
+      "updates": {
+        "templateName": "TATRA Garwolin Робота оператором лінії пакування косметики: наклеювання етикеток та пакування (Виробництво та промисловість)",
+        "vacancydescription": "Робота оператором лінії пакування косметики: наклеювання етикеток та пакування (Виробництво та промисловість) — Garwolin",
+        "category": "Виробництво та промисловість",
+        "location": "Garwolin"
+      }
+    },
+    {
+      "originalIndex": 21,
+      "originalFile": "otto.js",
+      "updates": {
+        "templateName": "CTDI Sękocin Stary Робота в сервісі з ремонту електрообладнання: заміна компонентів та діагностика (Торгівля та послуги)",
+        "vacancydescription": "Робота в сервісі з ремонту електрообладнання: заміна компонентів та діагностика (Торгівля та послуги) — Sękocin Stary",
+        "category": "Торгівля та послуги",
+        "location": "Sękocin Stary"
+      }
+    },
+    {
+      "originalIndex": 22,
+      "originalFile": "otto.js",
+      "updates": {
+        "templateName": "DHL Moszna Parcela Фізична робота на логістичному складі: сортування, завантаження посилок та робота са сканером (Склади та логістика)",
+        "vacancydescription": "Фізична робота на логістичному складі: сортування, завантаження посилок та робота са сканером (Склади та логістика) — Moszna Parcela",
+        "category": "Склади та логістика",
+        "location": "Moszna Parcela"
+      }
+    },
+    {
+      "originalIndex": 23,
+      "originalFile": "otto.js",
+      "updates": {
+        "templateName": "TREND GLASS Radom Робота на виробництві скляного посуду та тари: пакування та контроль якості (Виробництво та промисловість)",
+        "vacancydescription": "Робота на виробництві скляного посуду та тари: пакування та контроль якості (Виробництво та промисловість) — Radom",
+        "category": "Виробництво та промисловість",
+        "location": "Radom"
+      }
+    }
+  ],
+  [
+    {
+      "originalIndex": 1,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "Brembo Dąbrowa Górnicza Виробництво гальмівних систем для автомобілів (Автомобільна промисловість)",
+        "vacancydescription": "Виробництво гальмівних систем для автомобілів (Автомобільна промисловість) — Dąbrowa Górnicza",
+        "category": "Автомобільна промисловість",
+        "location": "Dąbrowa Górnicza"
+      }
+    },
+    {
+      "originalIndex": 2,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "Koral Kukinia Виробництво та пакування рибної продукції (Харчова промисловість)",
+        "vacancydescription": "Виробництво та пакування рибної продукції (Харчова промисловість) — Kukinia",
+        "category": "Харчова промисловість",
+        "location": "Kukinia"
+      }
+    },
+    {
+      "originalIndex": 3,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "Faurecia Wałbrzych Виробництво елементів автомобільних сидінь та панелей (Автомобільна промисловість)",
+        "vacancydescription": "Виробництво елементів автомобільних сидінь та панелей (Автомобільна промисловість) — Wałbrzych",
+        "category": "Автомобільна промисловість",
+        "location": "Wałbrzych"
+      }
+    },
+    {
+      "originalIndex": 4,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "Lisner Poznań Виробництво рибних продуктів, салатів та паст для бутербродів (Харчова промисловість)",
+        "vacancydescription": "Виробництво рибних продуктів, салатів та паст для бутербродів (Харчова промисловість) — Poznań",
+        "category": "Харчова промисловість",
+        "location": "Poznań"
+      }
+    },
+    {
+      "originalIndex": 5,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "Modivo Polkowice Склад інтернет-магазину одягу, взуття та аксесуарів (Склади та логістика)",
+        "vacancydescription": "Склад інтернет-магазину одягу, взуття та аксесуарів (Склади та логістика) — Polkowice",
+        "category": "Склади та логістика",
+        "location": "Polkowice"
+      }
+    },
+    {
+      "originalIndex": 6,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "Whirlpool Radomsko Монтаж компонентів побутової техніки (Виробництво та промисловість)",
+        "vacancydescription": "Монтаж компонентів побутової техніки (Виробництво та промисловість) — Radomsko",
+        "category": "Виробництво та промисловість",
+        "location": "Radomsko"
+      }
+    },
+    {
+      "originalIndex": 7,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "Flex Tczew Виробництво електроніки (Виробництво та промисловість)",
+        "vacancydescription": "Виробництво електроніки (Виробництво та промисловість) — Tczew",
+        "category": "Виробництво та промисловість",
+        "location": "Tczew"
+      }
+    },
+    {
+      "originalIndex": 8,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "Zara Swarzędz Склад брендового одягу та аксесуарів (Склади та логістика)",
+        "vacancydescription": "Склад брендового одягу та аксесуарів (Склади та логістика) — Swarzędz",
+        "category": "Склади та логістика",
+        "location": "Swarzędz"
+      }
+    },
+    {
+      "originalIndex": 9,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "Arvato Stryków Склад брендового одягу (Pick, Pack, Wysyłka) (Склади та логістика)",
+        "vacancydescription": "Склад брендового одягу (Pick, Pack, Wysyłka) (Склади та логістика) — Stryków",
+        "category": "Склади та логістика",
+        "location": "Stryków"
+      }
+    },
+    {
+      "originalIndex": 10,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "LG Energy Biskupice Podgórne Виробництво акумуляторів для електромобілів (Автомобільна промисловість)",
+        "vacancydescription": "Виробництво акумуляторів для електромобілів (Автомобільна промисловість) — Biskupice Podgórne",
+        "category": "Автомобільна промисловість",
+        "location": "Biskupice Podgórne"
+      }
+    },
+    {
+      "originalIndex": 11,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "Hutchinson Bielsko-Biała Виробництво гумових шлангів для систем охолодження автомобілів (Автомобільна промисловість)",
+        "vacancydescription": "Виробництво гумових шлангів для систем охолодження автомобілів (Автомобільна промисловість) — Bielsko-Biała",
+        "category": "Автомобільна промисловість",
+        "location": "Bielsko-Biała"
+      }
+    },
+    {
+      "originalIndex": 12,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "Arvato Mszczonów Склад косметичних засобів (логістичний центр) (Склади та логістика)",
+        "vacancydescription": "Склад косметичних засобів (логістичний центр) (Склади та логістика) — Mszczonów",
+        "category": "Склади та логістика",
+        "location": "Mszczonów"
+      }
+    },
+    {
+      "originalIndex": 13,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "Faurecia Grójec Виробництво автомобільних сидінь для світових брендів (Автомобільна промисловість)",
+        "vacancydescription": "Виробництво автомобільних сидінь для світових брендів (Автомобільна промисловість) — Grójec",
+        "category": "Автомобільна промисловість",
+        "location": "Grójec"
+      }
+    },
+    {
+      "originalIndex": 14,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "Gerresheimer Bolesławiec Оператор виробництва скляних ампул та баночок для косметики (Виробництво та промисловість)",
+        "vacancydescription": "Оператор виробництва скляних ампул та баночок для косметики (Виробництво та промисловість) — Bolesławiec",
+        "category": "Виробництво та промисловість",
+        "location": "Bolesławiec"
+      }
+    },
+    {
+      "originalIndex": 15,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "Valeo Chrzanów Оператор машин на виробництві автомобільних фар (Автомобільна промисловість)",
+        "vacancydescription": "Оператор машин на виробництві автомобільних фар (Автомобільна промисловість) — Chrzanów",
+        "category": "Автомобільна промисловість",
+        "location": "Chrzanów"
+      }
+    },
+    {
+      "originalIndex": 16,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "Empik Sochaczew Лідер або Тренер на складі іграшок, канцтоварів та книг (Склади та логістика)",
+        "vacancydescription": "Лідер або Тренер на складі іграшок, канцтоварів та книг (Склади та логістика) — Sochaczew",
+        "category": "Склади та логістика",
+        "location": "Sochaczew"
+      }
+    },
+    {
+      "originalIndex": 17,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "H&M Gądki Пакувальник на складі брендового одягу та аксесуарів (Склади та логістика)",
+        "vacancydescription": "Пакувальник на складі брендового одягу та аксесуарів (Склади та логістика) — Gądki",
+        "category": "Склади та логістика",
+        "location": "Gądki"
+      }
+    },
+    {
+      "originalIndex": 18,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "H&M Gądki Упаковщик на складі брендового одягу (Склади та логістика)",
+        "vacancydescription": "Упаковщик на складі брендового одягу (Склади та логістика) — Gądki",
+        "category": "Склади та логістика",
+        "location": "Gądki"
+      }
+    },
+    {
+      "originalIndex": 19,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "Arvato Stryków Упаковщик/комплектувальник на складі брендового одягу (Склади та логістика)",
+        "vacancydescription": "Упаковщик/комплектувальник на складі брендового одягу (Склади та логістика) — Stryków",
+        "category": "Склади та логістика",
+        "location": "Stryków"
+      }
+    },
+    {
+      "originalIndex": 20,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "Gedia Nowa Sól Виробництво елементів кузова автомобілів (Автомобільна промисловість)",
+        "vacancydescription": "Виробництво елементів кузова автомобілів (Автомобільна промисловість) — Nowa Sól",
+        "category": "Автомобільна промисловість",
+        "location": "Nowa Sól"
+      }
+    },
+    {
+      "originalIndex": 21,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "Animex Opole Виробництво м’ясної продукції (Харчова промисловість)",
+        "vacancydescription": "Виробництво м’ясної продукції (Харчова промисловість) — Opole",
+        "category": "Харчова промисловість",
+        "location": "Opole"
+      }
+    },
+    {
+      "originalIndex": 22,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "Animex Morliny Виробництво та пакування сосисок і шинки (Харчова промисловість)",
+        "vacancydescription": "Виробництво та пакування сосисок і шинки (Харчова промисловість) — Morliny",
+        "category": "Харчова промисловість",
+        "location": "Morliny"
+      }
+    },
+    {
+      "originalIndex": 23,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "Maflow Łysomice Виробництво пластикових елементів салону автомобіля (Автомобільна промисловість)",
+        "vacancydescription": "Виробництво пластикових елементів салону автомобіля (Автомобільна промисловість) — Łysomice",
+        "category": "Автомобільна промисловість",
+        "location": "Łysomice"
+      }
+    },
+    {
+      "originalIndex": 24,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "OBI Świebodzin Працівник логістичного складу товарів для дому (Склади та логістика)",
+        "vacancydescription": "Працівник логістичного складу товарів для дому (Склади та логістика) — Świebodzin",
+        "category": "Склади та логістика",
+        "location": "Świebodzin"
+      }
+    },
+    {
+      "originalIndex": 25,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "Lear Pruszków Виробництво систем підігріву, вентиляції та регуляторів для преміальних авто (Автомобільна промисловість)",
+        "vacancydescription": "Виробництво систем підігріву, вентиляції та регуляторів для преміальних авто (Автомобільна промисловість) — Pruszków",
+        "category": "Автомобільна промисловість",
+        "location": "Pruszków"
+      }
+    },
+    {
+      "originalIndex": 26,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "Zalando Kąty Wrocławskie Склад-магазин брендового одягу (Склади та логістика)",
+        "vacancydescription": "Склад-магазин брендового одягу (Склади та логістика) — Kąty Wrocławskie",
+        "category": "Склади та логістика",
+        "location": "Kąty Wrocławskie"
+      }
+    },
+    {
+      "originalIndex": 27,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "3LP Siechnice Працівник логістичного складу (Склади та логістика)",
+        "vacancydescription": "Працівник логістичного складу (Склади та логістика) — Siechnice",
+        "category": "Склади та логістика",
+        "location": "Siechnice"
+      }
+    },
+    {
+      "originalIndex": 28,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "Ourhome Biskupice Podgórne Помічник на кухні в їдальні заводу (Торгівля та послуги)",
+        "vacancydescription": "Помічник на кухні в їдальні заводу (Торгівля та послуги) — Biskupice Podgórne",
+        "category": "Торгівля та послуги",
+        "location": "Biskupice Podgórne"
+      }
+    },
+    {
+      "originalIndex": 29,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "ID Logistics Zgorzelec Працівник складу (одяг, косметика, побутова хімія) (Склади та логістика)",
+        "vacancydescription": "Працівник складу (одяг, косметика, побутова хімія) (Склади та логістика) — Zgorzelec",
+        "category": "Склади та логістика",
+        "location": "Zgorzelec"
+      }
+    },
+    {
+      "originalIndex": 30,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "Toyota Wykroty Виробництво компонентів та збірка сидінь (Автомобільна промисловість)",
+        "vacancydescription": "Виробництво компонентів та збірка сидінь (Автомобільна промисловість) — Wykroty",
+        "category": "Автомобільна промисловість",
+        "location": "Wykroty"
+      }
+    },
+    {
+      "originalIndex": 31,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "Espersen Koszalin Виробництво рибних філе та напівфабрикатів (Харчова промисловість)",
+        "vacancydescription": "Виробництво рибних філе та напівфабрикатів (Харчова промисловість) — Koszalin",
+        "category": "Харчова промисловість",
+        "location": "Koszalin"
+      }
+    },
+    {
+      "originalIndex": 32,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "CEWE Kędzierzyn-Koźle Виробництво та пакування фотопродуктів (Виробництво та промисловість)",
+        "vacancydescription": "Виробництво та пакування фотопродуктів (Виробництво та промисловість) — Kędzierzyn-Koźle",
+        "category": "Виробництво та промисловість",
+        "location": "Kędzierzyn-Koźle"
+      }
+    },
+    {
+      "originalIndex": 33,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "Vandemoortele Łódź Виробництво заморожених хлібобулочних виробів (Харчова промисловість)",
+        "vacancydescription": "Виробництво заморожених хлібобулочних виробів (Харчова промисловість) — Łódź",
+        "category": "Харчова промисловість",
+        "location": "Łódź"
+      }
+    },
+    {
+      "originalIndex": 34,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "Beko Wrocław Монтажник на лінії виробництва побутової техніки (Виробництво та промисловість)",
+        "vacancydescription": "Монтажник на лінії виробництва побутової техніки (Виробництво та промисловість) — Wrocław",
+        "category": "Виробництво та промисловість",
+        "location": "Wrocław"
+      }
+    },
+    {
+      "originalIndex": 35,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "Hutchinson Łódź Виробництво гумових деталей для автомобілів (Автомобільна промисловість)",
+        "vacancydescription": "Виробництво гумових деталей для автомобілів (Автомобільна промисловість) — Łódź",
+        "category": "Автомобільна промисловість",
+        "location": "Łódź"
+      }
+    },
+    {
+      "originalIndex": 37,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "Borne Furniture Barlinek Виробництво меблевих плит для шаф (Виробництво та промисловість)",
+        "vacancydescription": "Виробництво меблевих плит для шаф (Виробництво та промисловість) — Barlinek",
+        "category": "Виробництво та промисловість",
+        "location": "Barlinek"
+      }
+    },
+    {
+      "originalIndex": 38,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "Lisner Charzyno Виробництво рибних закусок (Харчова промисловість)",
+        "vacancydescription": "Виробництво рибних закусок (Харчова промисловість) — Charzyno",
+        "category": "Харчова промисловість",
+        "location": "Charzyno"
+      }
+    },
+    {
+      "originalIndex": 39,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "Hutchinson Żywiec Виробництво гумових шлангів для систем охолодження авто (Автомобільна промисловість)",
+        "vacancydescription": "Виробництво гумових шлангів для систем охолодження авто (Автомобільна промисловість) — Żywiec",
+        "category": "Автомобільна промисловість",
+        "location": "Żywiec"
+      }
+    },
+    {
+      "originalIndex": 40,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "Wendre Kostrzyn nad Odrą Виробництво ковдр та подушок з гіпоалергенного пуху (Виробництво та промисловість)",
+        "vacancydescription": "Виробництво ковдр та подушок з гіпоалергенного пуху (Виробництво та промисловість) — Kostrzyn nad Odrą",
+        "category": "Виробництво та промисловість",
+        "location": "Kostrzyn nad Odrą"
+      }
+    },
+    {
+      "originalIndex": 41,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "Lisner Poznań Виробництво рибних продуктів, салатів та паст (Харчова промисловість)",
+        "vacancydescription": "Виробництво рибних продуктів, салатів та паст (Харчова промисловість) — Poznań",
+        "category": "Харчова промисловість",
+        "location": "Poznań"
+      }
+    },
+    {
+      "originalIndex": 42,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "Signify Piła Виробництво світлодіодних ламп та освітлювальних приладів (Виробництво та промисловість)",
+        "vacancydescription": "Виробництво світлодіодних ламп та освітлювальних приладів (Виробництво та промисловість) — Piła",
+        "category": "Виробництво та промисловість",
+        "location": "Piła"
+      }
+    },
+    {
+      "originalIndex": 43,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "Oknoplast Ochmanów Виробництво пластикових вікон, ролетів та дверей (Виробництво та промисловість)",
+        "vacancydescription": "Виробництво пластикових вікон, ролетів та дверей (Виробництво та промисловість) — Ochmanów",
+        "category": "Виробництво та промисловість",
+        "location": "Ochmanów"
+      }
+    },
+    {
+      "originalIndex": 44,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "Hermes Konin Żagański Пакувальниця та контроль якості на складі одягу та аксесуарів (Склади та логістика)",
+        "vacancydescription": "Пакувальниця та контроль якості на складі одягу та аксесуарів (Склади та логістика) — Konin Żagański",
+        "category": "Склади та логістика",
+        "location": "Konin Żagański"
+      }
+    },
+    {
+      "originalIndex": 45,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "LX Pantos Nowa Wieś Wrocławska Працівник складу електроніки та компонентів (Склади та логістика)",
+        "vacancydescription": "Працівник складу електроніки та компонентів (Склади та логістика) — Nowa Wieś Wrocławska",
+        "category": "Склади та логістика",
+        "location": "Nowa Wieś Wrocławska"
+      }
+    },
+    {
+      "originalIndex": 46,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "Tristone Wałbrzych Виробництво гумових шлангів для систем охолодження авто (Автомобільна промисловість)",
+        "vacancydescription": "Виробництво гумових шлангів для систем охолодження авто (Автомобільна промисловість) — Wałbrzych",
+        "category": "Автомобільна промисловість",
+        "location": "Wałbrzych"
+      }
+    },
+    {
+      "originalIndex": 47,
+      "originalFile": "personnel-service.js",
+      "updates": {
+        "templateName": "No Limit Natolin Упаковщик на логістичному складі (одяг, книги, корми) (Склади та логістика)",
+        "vacancydescription": "Упаковщик на логістичному складі (одяг, книги, корми) (Склади та логістика) — Natolin",
+        "category": "Склади та логістика",
+        "location": "Natolin"
+      }
+    }
+  ],
+  [
+    {
+      "originalIndex": 1,
+      "originalFile": "progres.js",
+      "updates": {
+        "templateName": "LPP Pruszcz Gdański Склад нового одягу: зняття кліпсів, комплектація та пакування інтернет-замовлень (Склади та логістика)",
+        "vacancydescription": "Склад нового одягу: зняття кліпсів, комплектація та пакування інтернет-замовлень (Склади та логістика) — Pruszcz Gdański",
+        "category": "Склади та логістика",
+        "location": "Pruszcz Gdański"
+      }
+    }
+  ],
+  [
+    {
+      "originalIndex": 1,
+      "originalFile": "ralen.js",
+      "updates": {
+        "templateName": "PORTA KMI Ełk Виробництво металевих та дерев'яних дверей та дверних рам: зварювання, шліфування, складання, пакування (Виробництво дверей)",
+        "vacancydescription": "Виробництво металевих та дерев'яних дверей та дверних рам: зварювання, шліфування, складання, пакування (Виробництво дверей) — Ełk",
+        "category": "Виробництво та промисловість",
+        "location": "Ełk"
+      }
+    },
+    {
+      "originalIndex": 2,
+      "originalFile": "ralen.js",
+      "updates": {
+        "templateName": "ADLER Mysłowice Управління листозгинальними верстатами CNC, налаштування, оптимізація процесів, контроль якості (Металообробка)",
+        "vacancydescription": "Управління листозгинальними верстатами CNC, налаштування, оптимізація процесів, контроль якості (Металообробка) — Mysłowice",
+        "category": "Виробництво та промисловість",
+        "location": "Mysłowice"
+      }
+    },
+    {
+      "originalIndex": 3,
+      "originalFile": "ralen.js",
+      "updates": {
+        "templateName": "SCANFIL Mysłowice Управління листозгинальними верстатами CNC, налаштування, оптимізація процесів, контроль якості (Металообробка)",
+        "vacancydescription": "Управління листозгинальними верстатами CNC, налаштування, оптимізація процесів, контроль якості (Металообробка) — Mysłowice",
+        "category": "Виробництво та промисловість",
+        "location": "Mysłowice"
+      }
+    },
+    {
+      "originalIndex": 4,
+      "originalFile": "ralen.js",
+      "updates": {
+        "templateName": "Швейна фабрика Ełk Пошив окремих елементів одягу: рукавів, блискавок, кишень, ґудзиків, етикеток (Легка промисловість)",
+        "vacancydescription": "Пошив окремих елементів одягу: рукавів, блискавок, кишень, ґудзиків, етикеток (Легка промисловість) — Ełk",
+        "category": "Виробництво та промисловість",
+        "location": "Ełk"
+      }
+    },
+    {
+      "originalIndex": 5,
+      "originalFile": "ralen.js",
+      "updates": {
+        "templateName": "М'ясокомбінат Łuków Робота на м'ясокомбінаті: зважування тварин, робота на складі живого скота, підготовка продукції (М'ясна продукція)",
+        "vacancydescription": "Робота на м'ясокомбінаті: зважування тварин, робота на складі живого скота, підготовка продукції (М'ясна продукція) — Łuków",
+        "category": "Харчова промисловість",
+        "location": "Łuków"
+      }
+    },
+    {
+      "originalIndex": 6,
+      "originalFile": "ralen.js",
+      "updates": {
+        "templateName": "Арматурний завод Radom Обробка арматурних прутків (різка, гнуття, випрямлення), зварювання/складання каркасів (Металообробка)",
+        "vacancydescription": "Обробка арматурних прутків (різка, гнуття, випрямлення), зварювання/складання каркасів (Металообробка) — Radom",
+        "category": "Виробництво та промисловість",
+        "location": "Radom"
+      }
+    },
+    {
+      "originalIndex": 7,
+      "originalFile": "ralen.js",
+      "updates": {
+        "templateName": "Логістичний склад Wyszków Збір замовлень за допомогою сканера в режимі аудіозв'язку, завантаження товарів на палети (Склади та логістика)",
+        "vacancydescription": "Збір замовлень за допомогою сканера в режимі аудіозв'язку, завантаження товарів на палети (Склади та логістика) — Wyszków",
+        "category": "Склади та логістика",
+        "location": "Wyszków"
+      }
+    },
+    {
+      "originalIndex": 8,
+      "originalFile": "ralen.js",
+      "updates": {
+        "templateName": "Логістичний склад Nowy Dwór Mazowiecki Збір замовлень за допомогою сканера в режимі аудіозв'язку, робота з системою Voice (Склади та логістика)",
+        "vacancydescription": "Збір замовлень за допомогою сканера в режимі аудіозв'язку, робота з системою Voice (Склади та логістика) — Nowy Dwór Mazowiecki",
+        "category": "Склади та логістика",
+        "location": "Nowy Dwór Mazowiecki"
+      }
+    },
+    {
+      "originalIndex": 9,
+      "originalFile": "ralen.js",
+      "updates": {
+        "templateName": "Бетонний завод Łódź Виробництво бетонних противаг для побутової техніки: заливка бетону у форми (Будівельна промисловість)",
+        "vacancydescription": "Виробництво бетонних противаг для побутової техніки: заливка бетону у форми (Будівельна промисловість) — Łódź",
+        "category": "Будівництво",
+        "location": "Łódź"
+      }
+    },
+    {
+      "originalIndex": 10,
+      "originalFile": "ralen.js",
+      "updates": {
+        "templateName": "JAN BIELIESZ Cieszyn Виробництво ковбасної продукції: прийняття м'яса, подача компонентів, пакування (М'ясна продукція)",
+        "vacancydescription": "Виробництво ковбасної продукції: прийняття м'яса, подача компонентів, пакування (М'ясна продукція) — Cieszyn",
+        "category": "Харчова промисловість",
+        "location": "Cieszyn"
+      }
+    },
+    {
+      "originalIndex": 11,
+      "originalFile": "ralen.js",
+      "updates": {
+        "templateName": "JAN BIELIESZ Goleszów Виробництво вареників, пельменів, локшини: завантаження машин, накладання начинки (Харчова промисловість)",
+        "vacancydescription": "Виробництво вареників, пельменів, локшини: завантаження машин, накладання начинки (Харчова промисловість) — Goleszów",
+        "category": "Харчова промисловість",
+        "location": "Goleszów"
+      }
+    },
+    {
+      "originalIndex": 12,
+      "originalFile": "ralen.js",
+      "updates": {
+        "templateName": "Цех готових обідів Gądki Розвантаження поставок, підготовка страв, робота на мийці, падтрыманне парадку (Харчова промисловість)",
+        "vacancydescription": "Розвантаження поставок, підготовка страв, робота на мийці, падтрыманне парадку (Харчова промисловість) — Gądki",
+        "category": "Харчова промисловість",
+        "location": "Gądki"
+      }
+    },
+    {
+      "originalIndex": 13,
+      "originalFile": "ralen.js",
+      "updates": {
+        "templateName": "ANIMEX Kutno Підготовка та запуск машин, робота на друкарських та пакувальних машинах (М'ясна продукція)",
+        "vacancydescription": "Підготовка та запуск машин, робота на друкарських та пакувальних машинах (М'ясна продукція) — Kutno",
+        "category": "Харчова промисловість",
+        "location": "Kutno"
+      }
+    },
+    {
+      "originalIndex": 14,
+      "originalFile": "ralen.js",
+      "updates": {
+        "templateName": "MIELEWCZYK Dzierżążno Виробництво курячого м'яса: вивантаження палет, контроль ліній, сортування, пакування (М'ясна продукція)",
+        "vacancydescription": "Виробництво курячого м'яса: вивантаження палет, контроль ліній, сортування, пакування (М'ясна продукція) — Dzierżążno",
+        "category": "Харчова промисловість",
+        "location": "Dzierżążno"
+      }
+    },
+    {
+      "originalIndex": 15,
+      "originalFile": "ralen.js",
+      "updates": {
+        "templateName": "FIEGE Łozienica Робота на складі німецького інтернет-магазину: розвантаження, сортування, пакування (Склади та логістика)",
+        "vacancydescription": "Робота на складі німецького інтернет-магазину: розвантаження, сортування, пакування (Склади та логістика) — Łozienica",
+        "category": "Склади та логістика",
+        "location": "Łozienica"
+      }
+    },
+    {
+      "originalIndex": 16,
+      "originalFile": "ralen.js",
+      "updates": {
+        "templateName": "ORZEŁ Poniatowa Екологічна переробка використаних шин: управління та обслуговування виробничої лінії (Виробництво та промисловість)",
+        "vacancydescription": "Екологічна переробка використаних шин: управління та обслуговування виробничої лінії (Виробництво та промисловість) — Poniatowa",
+        "category": "Виробництво та промисловість",
+        "location": "Poniatowa"
+      }
+    },
+    {
+      "originalIndex": 17,
+      "originalFile": "ralen.js",
+      "updates": {
+        "templateName": "MAFLOW Chełmek Виробництво шлангів для систем кондиціонування автомобілів: робота на машинах, монтаж (Автомобільна промисловість)",
+        "vacancydescription": "Виробництво шлангів для систем кондиціонування автомобілів: робота на машинах, монтаж (Автомобільна промисловість) — Chełmek",
+        "category": "Автомобільна промисловість",
+        "location": "Chełmek"
+      }
+    },
+    {
+      "originalIndex": 18,
+      "originalFile": "ralen.js",
+      "updates": {
+        "templateName": "Mirko Głobino Виробництво та обробка рибної продукції (Харчова промисловість)",
+        "vacancydescription": "Виробництво та обробка рибної продукції (Харчова промисловість) — Głobino",
+        "category": "Харчова промисловість",
+        "location": "Głobino"
+      }
+    }
+  ],
+  [
+    {
+      "originalIndex": 1,
+      "originalFile": "solano.js",
+      "updates": {
+        "templateName": "DROBIMEX Karczew Робота на куриному мясокомбінаті, що включає обробку, розділення та пакування курячого філе (М'ясна продукція)",
+        "vacancydescription": "Робота на куриному мясокомбінаті, що включає обробку, розділення та пакування курячого філе (М'ясна продукція) — Karczew",
+        "category": "Харчова промисловість",
+        "location": "Karczew"
+      }
+    },
+    {
+      "originalIndex": 2,
+      "originalFile": "solano.js",
+      "updates": {
+        "templateName": "DROBIMEX Lublin Робота на куриному мясокомбінаті, що включає обробку, розділення та пакування курячого філе (М'ясна продукція)",
+        "vacancydescription": "Робота на куриному мясокомбінаті, що включає обробку, розділення та пакування курячого філе (М'ясна продукція) — Lublin",
+        "category": "Харчова промисловість",
+        "location": "Lublin"
+      }
+    },
+    {
+      "originalIndex": 3,
+      "originalFile": "solano.js",
+      "updates": {
+        "templateName": "STORTEBOOM Zeewolde Робота на підприємстві з виробництва курячої продукції (М'ясна продукція)",
+        "vacancydescription": "Робота на підприємстві з виробництва курячої продукції (М'ясна продукція) — Zeewolde",
+        "category": "Харчова промисловість",
+        "location": "Zeewolde"
+      }
+    },
+    {
+      "originalIndex": 4,
+      "originalFile": "solano.js",
+      "updates": {
+        "templateName": "STADLER Siedlce Робота на сучасному заводі з виробництва вагонів метро, трамваїв та поїздів (Виробництво та промисловість)",
+        "vacancydescription": "Робота на сучасному заводі з виробництва вагонів метро, трамваїв та поїздів (Виробництво та промисловість) — Siedlce",
+        "category": "Виробництво та промисловість",
+        "location": "Siedlce"
+      }
+    }
+  ]
+]

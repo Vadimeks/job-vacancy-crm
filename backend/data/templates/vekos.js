@@ -4,10 +4,10 @@ const vekosTemplates = [
   {
     // === 1. СИСТЕМНІ ПОЛЯ (Групування та пошук) ===
     agencyName: "VEKOS",
-    templateName: "HELIO Sochaczew",
+    templateName: "HELIO Sochaczew Пакування готової продукції (Харчова промисловість)",
     vacancydescription:
-      "Пакування готової продукції (горішки, сухофрукти) на виробництві.",
-    category: "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
+      "Пакування готової продукції (Харчова промисловість) — Sochaczew",
+    category: "Харчова промисловість",
     keywords: [
       "HELIO",
       "Sochaczew",
