@@ -4,7 +4,7 @@ const vacancySchema = new mongoose.Schema({
   // === 1. СІСТЭМНЫЯ ПАЛІ (Групаванне і пошук) ===
   templateName: { type: String, default: "" },
   vacancydescription: { type: String, default: "" }, // Кароткі опіс суці (укр)
-
+  brand: { type: String, default: "" }, // Назва прадпрыемства/завода (напр. LG, Amazon)
   agencyName: { type: String, default: "Manual" },
   templateId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -32,7 +32,7 @@ const vacancySchema = new mongoose.Schema({
   location: { type: String, default: "" }, // Горад ПОЛЬСЬКАЮ
   locationDescription: { type: String, default: "" },
   voivodeship: { type: String, default: "" },
-  country: { type: String, default: "Polska" }, // Зменена з "Польща"
+  country: { type: String, default: "Polska" },
   checkInCity: { type: String, default: "" },
 
   // === 3. ФІНАНСЫ ===
@@ -94,7 +94,7 @@ const vacancySchema = new mongoose.Schema({
     experienceRequired: { type: Boolean, default: false },
     hasEntranceTests: { type: Boolean, default: false },
     entranceTestsDetails: { type: String, default: "" },
-    polishLanguageLevel: { type: String, default: "Не вимагається" }, // Зменена для сінхранізацыі
+    polishLanguageLevel: { type: String, default: "Не вимагається" },
     languageDetails: { type: String, default: "" },
     physicalLoad: { type: String, default: "" },
   },
@@ -144,7 +144,7 @@ const vacancySchema = new mongoose.Schema({
     default: "active",
   },
 
-  vacancyCode: { type: String, unique: true, sparse: true }, // Унікальны код вакансіі для ідэнтыфікацыі
+  vacancyCode: { type: String, unique: true, sparse: true },
   createdAt: { type: Date, default: Date.now },
 });
 

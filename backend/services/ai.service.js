@@ -3,6 +3,25 @@ const Groq = require("groq-sdk");
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const MODEL = "llama-3.3-70b-versatile";
 
+const POLISH_VOIVODESHIPS = [
+  "Dolnośląskie",
+  "Kujawsko-pomorskie",
+  "Lubelskie",
+  "Lubuskie",
+  "Łódzkie",
+  "Małopolskie",
+  "Mazowieckie",
+  "Opolskie",
+  "Podkarpackie",
+  "Podlaskie",
+  "Pomorskie",
+  "Śląskie",
+  "Świętokrzyskie",
+  "Warmińsko-mazurskie",
+  "Wielkopolskie",
+  "Zachodniopomorskie",
+];
+
 function cleanData(obj) {
   if (Array.isArray(obj)) {
     return obj.map(cleanData);
@@ -43,7 +62,6 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanations.
 CRITICAL RULE: If the factory and location match, but the JOB PROCESS (duties/process field) is different, return templateId: null. We need a new template for different roles.
 `;
 
-// FIX: FORMAT_PROMPT тепер використовує правильні шляхи до полів v2.0
 const FORMAT_PROMPT = `
 ROLE: Professional HR content formatter.
 TASK: Format the job data into a beautiful Telegram post in UKRAINIAN.
@@ -132,6 +150,7 @@ The template should:
 
 Return ONLY valid JSON.
 `;
+
 const MERGE_PROMPT = `
 ROLE: Professional HR Dispatcher for the Polish job market.
 TASK: You have a job template (JSON v2.0) and a new short message.
@@ -151,6 +170,7 @@ Rules:
 Return ONLY valid JSON with the complete merged result using FULL structure v2.0.
 IMPORTANT: Return ONLY valid JSON, no markdown, no explanations.
 `;
+
 // --- ДАПАМОЖНЫЯ ФУНКЦЫІ ---
 
 async function groqRequest(systemPrompt, userContent, jsonMode = true) {
@@ -166,6 +186,7 @@ async function groqRequest(systemPrompt, userContent, jsonMode = true) {
   });
   return response.choices[0]?.message?.content || "";
 }
+
 async function mergeWithTemplate(rawText, template) {
   try {
     console.log(
@@ -235,8 +256,6 @@ async function identifyTemplate(rawText, templates) {
     });
 
     if (bestMatch && maxScore >= 22) {
-      // павысілі парог з 15 да 22
-      // дадаткова правяраем лакацыю — яна АБАВЯЗКОВАЯ
       const locationMatch =
         bestMatch.location &&
         lowerText.includes(bestMatch.location.toLowerCase());
@@ -258,7 +277,6 @@ async function identifyTemplate(rawText, templates) {
       templateName: t.templateName,
       location: t.location || "",
       brand: t.templateName.split(" ")[0],
-      // ДАДАЕМ ПОЛЕ PROCESS (бярэм з апісання працы)
       process: t.description?.substring(0, 150),
     }));
 
@@ -288,7 +306,6 @@ async function linkTemplateToVacancy(vacancyData, template) {
       internalNotes: existing ? `${ref}\n${existing}` : ref,
     },
   };
-  // Без AI-запыту — проста JS, хутка і надзейна
 }
 
 async function formatTelegramPost(vacancyData) {
@@ -308,39 +325,49 @@ async function formatTelegramPost(vacancyData) {
 
 async function parseVacancyWithAI(rawText) {
   try {
-    console.log(`🤖 Парсинг v2.0 з поўнай структурай палёў...`);
+    console.log(`🤖 Парсинг v2.0 з повною структурою полів та уніфікацією...`);
 
     const SYSTEM_INSTRUCTION = `
 ROLE: Professional automated job vacancy parser (Version 2.0).
 TASK: Convert job vacancy text into a JSON object with EXACTLY this structure. Fill every field based on the text. Do not invent field names.
 
-CRITICAL PRIVACY RULES:
+CRITICAL GEOGRAPHY RULES:
+1. location: Extract ONLY the city name in POLISH. 
+   - If the text says "Варшава", you MUST write "Warszawa".
+   - If the text says "Краків", you MUST write "Kraków".
+   - ALWAYS use Polish spelling for city names. This is mandatory for database filters.
+2. voivodeship: Select EXACTLY one from this list: ${POLISH_VOIVODESHIPS.join(", ")}. If the text doesn't mention it, determine it by the city.
+
+CRITICAL PRIVACY & FORMATTING RULES:
 1. agencyName: Extract the RECRUITMENT AGENCY name ONLY (e.g. Manpower, OTTO). If no agency mentioned — use null.
-2. templateName: Factory/brand name + city IN POLISH ONLY (e.g. "Faurecia Grójec"). THIS IS FOR INTERNAL USE.
-3. vacancydescription: THIS IS THE PUBLIC TITLE. Create a short informative description in UKRAINIAN. 
-   - Use the specific job name in FORMAT: "Job Essence (Subcategory) — City"(e.g., Examples: "Склад одягу (Логістика) — Gądki", "Виробництво сосисок (М'ясна продукція) — Sława"). 
-  - Use keywords from the text (e.g., "Склад одягу", "Харчове виробництво").
-  - STRICT RULE: Do NOT include factory name, brand name, or agency name here (e.g., use "Пакування цукерок" instead of "Пакування цукерок на заводзе LOTTE").
-4. location: Extract ONLY the city name in POLISH (e.g., "Warszawa", "Gdańsk") for filters.
-5. locationDescription: FULL address and details from the text (e.g., "ul. Sloneczna 5, 96-321 Żabia Wola (35 км від Варшави)").
-6. category (sphere): Identify the job category. Return ONLY one of the following UKRAINIAN values:
-   - "Склади та логістика" (logistics, e-commerce, clothing/item warehouses)
-   - "Харчова промисловість" (meat, fish, sweets, snacks, bakery, catering)
-   - "Автомобільна промисловість" (car parts, tires, assembly, car electronics)
-   - "Виробництво та промисловість" (windows, electronics, metal, household appliances, furniture)
-   - "Будівництво" (concrete, rebar, finishing, roads, masonry)
-   - "Сільське господарство" (farms, greenhouses, poultry, harvesting)
-   - "Торгівля та послуги" (supermarkets, shops, cashiers, stocking shelves)
-   - "Різне" (sewing/textile, recycling, cleaning, hotels, or if unsure)
+2. brand: Extract the specific factory or brand name (e.g., "LG", "Amazon", "Faurecia", "LPP"). This is the name of the workplace.
+3. templateName: Factory/brand name + city IN POLISH ONLY (e.g. "Faurecia Grójec"). THIS IS FOR INTERNAL USE.
+4. vacancydescription: THIS IS THE PUBLIC TITLE. Create a short informative description in UKRAINIAN. 
+   - Use the specific job name in FORMAT: "Job Essence (Subcategory)". 
+   - Examples: "Склад одягу (Логістика)", "Виробництво сосисок (М'ясна продукція)", "Пакування косметики (Виробництво)".
+   - STRICT RULE: Do NOT include city name, factory name, brand name, or agency name here. The city will be added automatically later.
+5. category (sphere): Identify the job category. Return ONLY one of the following UKRAINIAN values:
+   - "Склади та логістика"
+   - "Харчова промисловість"
+   - "Автомобільна промисловість"
+   - "Виробництво та промисловість"
+   - "Будівництво"
+   - "Сільське господарство"
+   - "Торгівля та послуги"
+   - "Різне"
    STRICT RULES: 
    1. The output MUST be the exact Ukrainian string from the list above.
    2. Do NOT translate these keys into English or Polish.
    3. Do NOT invent new categories.
-7. MAX DETAIL EXTRACTION: Never summarize duties or special conditions. If text mentions "pouring concrete, rebar cutting, work on arrival, or delegations", these MUST be extracted in full into description or additionalNotes.
+6. MAX DETAIL EXTRACTION: Never summarize or skip ANY details. 
+   - If the text mentions client brands (e.g., BMW, Tesla, Audi), include them in the "description" or "keywords".
+   - If the text mentions recruitment steps (interview/співбесіда, BHP, medical check), include them in "additionalNotes".
+   - If the text mentions minimum hours (e.g., 168h/month), include this in "salary.salaryNotes" or "schedule.description".
 
 CORE PARSING RULES:
 1. LANGUAGE: All descriptions, duties, notes — UKRAINIAN. Geography (location, voivodeship, checkInCity, country) — POLISH only.
-2. ZERO LOSS: Never ignore ANY detail (breaks, jewelry ban, bonuses, smells, noise, laundry bonus). Everything goes into the correct field.
+2. ZERO LOSS & NO SUMMARIZATION: Never summarize duties. 
+   - IMPORTANT: Use a SEMICOLON (;) to separate every single duty or task in the "description" field. This is critical for correct bullet-point formatting on the frontend.
 3. NO INTERPRETATION: If no specific number (temperature, distance) — write as text, NEVER guess.
 4. checkInCity: ONLY if registration city DIFFERS from work city. Leave empty if same or no info.
 5. contractType: Copy EXACTLY ("Umowa o pracę" or "Umowa zlecenie"). If not mentioned — null.
@@ -351,6 +378,9 @@ SALARY FIELD RULES:
 - baseNetto: MAIN rate (e.g. "22.50 зл/год нетто"). Copy EXACTLY. NEVER empty if salary mentioned.
 - bonusDetails: ALL bonuses in FULL (night shifts, overtime, attendance, quality). Do NOT summarize.
 - salaryNotes: advances policy, extra housing allowance, overtime policy.
+
+REQUIREMENTS RULES:
+- polishLanguageLevel: Use ONLY these values: "Не вимагається", "A1", "A2", "B1", "B2", "C1". Map descriptive terms (e.g., "комунікативна", "середня") to these codes.
 
 LOCATION & DESCRIPTION:
 - locationDescription: combine address AND distance (e.g., "ul. Spółdzielcza 4, 05-600 Grójec (50 км від Варшави)").
@@ -364,6 +394,7 @@ CONDITIONS & KEYWORDS:
 JSON STRUCTURE:
 {
   "agencyName": null,
+  "brand": "",
   "templateName": "",
   "vacancydescription": "",
   "category": "",
@@ -462,25 +493,27 @@ JSON STRUCTURE:
     );
 
     let parsed = JSON.parse(text);
-
-    console.log("🔍 RAW AI OUTPUT:", text.substring(0, 500));
     const cleaned = cleanData(parsed);
+
+    const baseTitle =
+      cleaned.vacancydescription &&
+      cleaned.vacancydescription !== "Нова вакансія"
+        ? cleaned.vacancydescription
+        : cleaned.description?.split(/[.;]/)[0].substring(0, 100).trim() ||
+          "Опис вакансії";
+
+    const finalTitle = cleaned.location
+      ? `${baseTitle} — ${cleaned.location}`
+      : baseTitle;
 
     return {
       // === 1. СИСТЕМНІ ПОЛЯ ===
       agencyName: cleaned.agencyName?.toUpperCase() || null,
+      brand: cleaned.brand || "",
       templateName: cleaned.templateName || "",
-      //  Назва: Калі няма канкрэтнай назвы, бярэм першы сказ з апісання працэсу
-      vacancydescription:
-        cleaned.vacancydescription &&
-        cleaned.vacancydescription !== "Нова вакансія"
-          ? cleaned.vacancydescription
-          : cleaned.description?.split(/[.;]/)[0].substring(0, 100).trim() ||
-            "Опис вакансії",
-      //  Катэгорыя: Бярэм ТОЛЬКІ тое, што знайшоў AI. Калі не знайшоў — null (каб потым узяць з шаблона)
+      vacancydescription: finalTitle,
       category: cleaned.category || null,
       keywords: Array.isArray(cleaned.keywords) ? cleaned.keywords : [],
-      //  Тып кантракта: Ніякіх "Umowa zlecenie" па дэфолце. Толькі тое, што ў тэксце.
       contractType: cleaned.contractType || null,
       arrivalDate: cleaned.arrivalDate || null,
       count: cleaned.count || null,
@@ -521,10 +554,7 @@ JSON STRUCTURE:
 
       // === 5. ПРАЖЫВАННЕ І ТРАНСПАРТ ===
       accommodation: {
-        type: cleaned.accommodation?.type
-          ? cleaned.accommodation.type.charAt(0).toUpperCase() +
-            cleaned.accommodation.type.slice(1)
-          : "Платне",
+        type: cleaned.accommodation?.type || "Платне",
         forCouples: !!cleaned.accommodation?.forCouples,
         withChildren: !!cleaned.accommodation?.withChildren,
         withPets: !!cleaned.accommodation?.withPets,
@@ -606,6 +636,7 @@ JSON STRUCTURE:
       // === 11. АПІСАННЕ ПРАЦЭСАЎ ===
       description: cleaned.description || "",
       additionalNotes: cleaned.additionalNotes || "",
+      rawText: rawText,
     };
   } catch (error) {
     console.error("❌ Fatal Parsing Error:", error.message);
