@@ -11,6 +11,12 @@ const vacancySchema = new mongoose.Schema({
     ref: "Template",
     default: null,
   },
+  relatedTemplates: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Template",
+    },
+  ],
   category: { type: String, default: "" },
   keywords: { type: [String], default: [] },
   contractType: { type: String, default: "" }, // "Umowa zlecenie" / "Umowa o pracę"
@@ -74,7 +80,10 @@ const vacancySchema = new mongoose.Schema({
   // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
   requirements: {
     gender: { type: [String], default: ["Чоловіки", "Жінки"] },
-    ageMax: { type: Number, default: 99 },
+    ageMax: {
+      type: Number,
+      default: 99, // 99 азначае "Без обмежень" або "Інформація відсутня"
+    },
     nationalities: { type: [String], default: ["Україна"] },
     standardDocs: {
       type: [String],

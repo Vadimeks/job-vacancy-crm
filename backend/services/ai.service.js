@@ -11,7 +11,7 @@ function cleanData(obj) {
       Object.entries(obj).map(([key, value]) => {
         if (value === "string" || value === "undefined") return [key, ""];
         if (key === "ageMax" && (value === null || value === 0 || value === ""))
-          return [key, 60];
+          return [key, 99];
         return [key, cleanData(value)];
       }),
     );
@@ -415,7 +415,7 @@ JSON STRUCTURE:
   },
   "requirements": {
     "gender": [],
-    "ageMax": 60,
+    "ageMax": 99,
     "nationalities": ["Україна"],
     "standardDocs": ["PESEL UKR", "Віза", "Карта побуту"],
     "needsAdditionalDocs": false,
@@ -548,7 +548,7 @@ JSON STRUCTURE:
         gender: Array.isArray(cleaned.requirements?.gender)
           ? cleaned.requirements.gender
           : ["Чоловіки", "Жінки"],
-        ageMax: cleaned.requirements?.ageMax || 60,
+        ageMax: cleaned.requirements?.ageMax || 99,
         nationalities: Array.isArray(cleaned.requirements?.nationalities)
           ? cleaned.requirements.nationalities
           : ["Україна"],

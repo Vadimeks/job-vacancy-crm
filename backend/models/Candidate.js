@@ -2,12 +2,14 @@ const mongoose = require("mongoose");
 
 // Сінхранізуем сферы з катэгорыямі з шаблона вакансіі
 const SPHERES = [
-  "⚙️ Виробництво і промисловість / Логістика, склади та пакування",
-  "🏗️ Будівництво та ремонт",
+  "📦 Склад / Логістика",
+  "🍖 Харчова промисловість",
+  "⚙️ Виробництво та Автопром",
+  "🏗️ Будівництво та Ремонт",
+  "👕 Текстильна промисловість",
   "🍏 Сільське господарство",
-  "🚕 Транспорт і логістика",
-  "🏨 Готельно-ресторанний бізнес",
-  "other",
+  "🛋️ Меблева промисловість",
+  "🛠️ Інші роботи / Послуги",
 ];
 
 const candidateSchema = new mongoose.Schema(
@@ -33,7 +35,18 @@ const candidateSchema = new mongoose.Schema(
         level: { type: String, default: "Не вимагається" }, // "Не вимагається", "A2", "B1" і г.д.
       },
     ],
-
+    // Дадаць перад jobPreferences:
+    qualifications: {
+      manualSkills: { type: Boolean, default: false }, // Ці гатовы да тэстаў на спрыт
+      physicalEndurance: { type: Boolean, default: false }, // Ці гатовы да 15-20 км/змену
+      healthRestrictions: {
+        eyeSight: { type: String, default: "Normal" }, // Зрок (напр. "Окуляри - OK")
+        allergies: [String], // Алергіі на пахі, спецыі і г.д.
+        temperatureTolerance: [String], // "Холод", "Спека"
+      },
+      hasDrivingLicense: { type: Boolean, default: false },
+      udtCategories: [String], // Катэгорыі навантажувачаў (напр. "WJO II")
+    },
     jobPreferences: {
       location: String,
       locationFlexible: { type: Boolean, default: false },
@@ -54,15 +67,23 @@ const candidateSchema = new mongoose.Schema(
     },
 
     documents: {
-      // Сінхранізуем са standardDocs з шаблона
+      // 1. Зручныя Boolean палі для хуткіх "галачак" у форме
       hasPeselUkr: { type: Boolean, default: false },
       hasVisa: { type: Boolean, default: false },
       hasKartaPobytu: { type: Boolean, default: false },
-      visaExpiry: Date,
-      hasSanepid: { type: Boolean, default: false }, // Адпавядае additionalDocsDetails
-      hasUDT: { type: Boolean, default: false }, // Адпавядае additionalDocsDetails
-      other: [String],
-      files: [String], // Спасылкі на фота дакументаў/CV
+      hasSanepid: { type: Boolean, default: false },
+      hasUDT: { type: Boolean, default: false },
+      residencyCertificate: { type: Boolean, default: false }, // Даведка рэзідэнта
+
+      // 2. Масіў тэгаў для СІНКХРАНІЗАЦЫІ з Vacancy.requirements.standardDocs
+      // Сюды аўтаматычна (праз middleware) або ўручную будуць дублявацца назвы:
+      // ["PESEL UKR", "Віза", "Книжка санепід", "UDT"]
+      activeDocs: { type: [String], default: [] },
+
+      // 3. Тэрміны і файлы
+      visaExpiry: { type: Date },
+      other: [String], // Любыя іншыя заўвагі па дакументах
+      files: [String], // Спасылкі на фота/сканы
     },
 
     status: {
