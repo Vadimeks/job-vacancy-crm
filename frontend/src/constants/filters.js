@@ -1,9 +1,12 @@
 // frontend/src/constants/filters.js
+
 export const EMPTY_FILTERS = {
   search: "",
-  status: "active",
+  status: [], // Зменена на масіў
+  voivodeship: [],
+  location: [],
+  category: [],
   gender: [],
-  sphere: [],
   schedule: [],
   accommodation: [],
   transport: [],
@@ -12,18 +15,23 @@ export const EMPTY_FILTERS = {
   nationality: [],
   docs: [],
   agencyName: [],
+  brand: [],
+  nuances: [], // Новае поле для чэк-ліста
 };
 
 export const EMPTY_CANDIDATE_FILTERS = {
   search: "",
-  status: "",
-  gender: [],
-  nationality: [],
-  sphere: [],
+  status: [],
+  voivodeship: [],
   location: [],
-  accommodation: [],
-  travelGroup: [],
+  category: [],
+  gender: [],
   schedule: [],
+  accommodation: [],
+  transport: [],
+  travelGroup: [],
+  language: [],
+  nationality: [],
   docs: [],
   source: [],
 };
