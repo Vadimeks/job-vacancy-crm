@@ -23,7 +23,7 @@ async function startUserbot() {
     connectionRetries: 5,
   });
 
-  // Аўтарызацыя
+  // 1. Аўтарызацыя
   await client.start({
     phoneNumber: async () => await input.text("📱 Увядзіце нумар тэлефона: "),
     password: async () => await input.text("🔑 Увядзіце пароль (2FA): "),
@@ -32,10 +32,21 @@ async function startUserbot() {
   });
 
   console.log("✅ Userbot аўтарызаваны!");
-  // const savedSession = client.session.save();
-  // console.log("SESSION:", savedSession);
 
-  // Паказваем усе чаты (для атрымання ID)
+  // 2. Heartbeat (трымае злучэнне жывым кожныя 10 хвілін)
+  setInterval(
+    async () => {
+      try {
+        await client.getMe();
+        console.log("🕒 Heartbeat: Злучэнне з Telegram актыўнае.");
+      } catch (err) {
+        console.error("⚠️ Heartbeat: Памылка злучэння...", err.message);
+      }
+    },
+    10 * 60 * 1000,
+  );
+
+  // 3. Паказваем усе чаты (для атрымання ID)
   if (AGENCY_CHAT_IDS.length === 0) {
     console.log("📋 Вашы чаты (скапіруйце патрэбныя ID у AGENCY_CHAT_IDS):");
     const dialogs = await client.getDialogs({ limit: 200 });
@@ -45,7 +56,7 @@ async function startUserbot() {
     console.log("\n");
   }
 
-  // Слухаем новыя паведамленні
+  // 4. Слухаем новыя паведамленні
   client.addEventHandler(async (event) => {
     try {
       const message = event.message;
