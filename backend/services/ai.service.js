@@ -375,7 +375,9 @@ CORE PARSING RULES:
 7. EXPENSES SPLIT: Costs BEFORE work (medical) → startExpenses. Costs/penalties DURING or on early exit → earlyTerminationLiability.
 
 SALARY FIELD RULES:
-- baseNetto: MAIN rate (e.g. "22.50 зл/год нетто"). Copy EXACTLY. NEVER empty if salary mentioned.
+- baseNetto: MAIN rate from the text. Copy EXACTLY (e.g., "22.50 зл/год нетто" OR "31.40 zł/год brutto"). 
+  CRITICAL: NEVER leave this field empty if any salary/rate is mentioned in the text. 
+  If the text says "brutto", write it as "brutto" here.
 - bonusDetails: ALL bonuses in FULL (night shifts, overtime, attendance, quality). Do NOT summarize.
 - salaryNotes: advances policy, extra housing allowance, overtime policy.
 
@@ -502,12 +504,29 @@ JSON STRUCTURE:
         : cleaned.description?.split(/[.;]/)[0].substring(0, 100).trim() ||
           "Опис вакансії";
 
-    const finalTitle = cleaned.location
-      ? `${baseTitle} — ${cleaned.location}`
-      : baseTitle;
-
+    // Дадаем горад толькі калі яго яшчэ няма ў загалоўку
+    const finalTitle =
+      cleaned.location &&
+      !baseTitle.toLowerCase().includes(cleaned.location.toLowerCase())
+        ? `${baseTitle} — ${cleaned.location}`
+        : baseTitle;
+    // --- СТРАХОЎКА ЗАРПЛАТЫ ---
+    // Калі AI запісаў стаўку ў salaryNotes замест baseNetto, пераносім яе
+    let finalBaseNetto = cleaned.salary?.baseNetto;
+    if (
+      (!finalBaseNetto || finalBaseNetto === "не вказано") &&
+      cleaned.salary?.salaryNotes
+    ) {
+      if (
+        cleaned.salary.salaryNotes.toLowerCase().includes("brutto") ||
+        cleaned.salary.salaryNotes.includes("zł")
+      ) {
+        finalBaseNetto = cleaned.salary.salaryNotes;
+      }
+    }
     return {
       // === 1. СИСТЕМНІ ПОЛЯ ===
+      ...cleaned, // Захоўваем УСЕ палі, якія распарсіў AI
       agencyName: cleaned.agencyName?.toUpperCase() || null,
       brand: cleaned.brand || "",
       templateName: cleaned.templateName || "",
@@ -533,7 +552,8 @@ JSON STRUCTURE:
 
       // === 3. ФІНАНСЫ ===
       salary: {
-        baseNetto: cleaned.salary?.baseNetto || "не вказано",
+        ...(cleaned.salary || {}), // захоўваем астатнія палі (studentNetto, hoursRange і г.д.)
+        baseNetto: finalBaseNetto || "не вказано", // ВЫПРАЎЛЕНА: выкарыстоўваем пераменную, а не cleaned.salary.finalBaseNetto
         studentNetto: cleaned.salary?.studentNetto || "",
         hoursRange: cleaned.salary?.hoursRange || "",
         payoutDates: cleaned.salary?.payoutDates || "",
@@ -543,6 +563,7 @@ JSON STRUCTURE:
 
       // === 4. ГРАФІК ===
       schedule: {
+        ...(cleaned.schedule || {}),
         shiftsCount: Number(cleaned.schedule?.shiftsCount) || 0,
         hoursPerShift: cleaned.schedule?.hoursPerShift || "",
         workDaysWeek: cleaned.schedule?.workDaysWeek || "",
@@ -554,6 +575,7 @@ JSON STRUCTURE:
 
       // === 5. ПРАЖЫВАННЕ І ТРАНСПАРТ ===
       accommodation: {
+        ...(cleaned.accommodation || {}),
         type: cleaned.accommodation?.type || "Платне",
         forCouples: !!cleaned.accommodation?.forCouples,
         withChildren: !!cleaned.accommodation?.withChildren,
@@ -562,6 +584,7 @@ JSON STRUCTURE:
         details: cleaned.accommodation?.details || "",
       },
       transport: {
+        ...(cleaned.transport || {}),
         provided: !!cleaned.transport?.provided,
         costRaw: cleaned.transport?.costRaw || "",
         details: cleaned.transport?.details || "",
