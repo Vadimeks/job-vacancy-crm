@@ -83,8 +83,8 @@ Use this EXACT structure (skip entire blocks if ALL data inside is empty/null):
 [• Студенти: [salary.studentNetto] — тільки якщо не пусте]
 [• Годин на місяць: [salary.hoursRange] — тільки якщо не пусте]
 [• Виплати: [salary.payoutDates] — тільки якщо не пусте]
-[salary.bonusDetails — якщо не пусте, вивести окремим рядком]
-[salary.salaryNotes — якщо не пусте, вивести окремим рядком]
+[• Бонуси: [salary.bonusDetails] — тільки якщо не пусте]
+[• Нотатки: [salary.salaryNotes] — тільки якщо не пусте]
 
 🛠 *Характер роботи*
 [кожен пункт з description, розбитий по крапці з комою, на новому рядку з •]
@@ -100,15 +100,15 @@ Use this EXACT structure (skip entire blocks if ALL data inside is empty/null):
 [schedule.workDaysWeek — тільки якщо НЕ міститься вже у schedule.description]
 [• Перерва: [schedule.breakDuration] — тільки якщо не пусте]
 
-📄 Тип договору: [contractType]
+[📄 Тип договору: [contractType] — виводити тільки якщо не пусте]
 
 🏠 *Проживання*
 Тип: [accommodation.type]
-[accommodation.costRaw — якщо не пусте]
-[accommodation.details — якщо не пусте]
+[• Вартість: [accommodation.costRaw] — якщо не пусте]
+[• Деталі: [accommodation.details] — якщо не пусте]
 
 🚌 *Транспорт*
-[transport.costRaw — якщо не пусте][, transport.details — якщо не пусте]
+[• [transport.costRaw] — якщо не пусте][, [transport.details] — якщо не пусте]
 
 [💸 *Витрати та відповідальність*
 [• На старті: [startExpenses.details] — якщо hasStartExpenses = true]
@@ -347,8 +347,8 @@ CRITICAL PRIVACY & FORMATTING RULES:
 3. templateName: Factory/brand name + city IN POLISH ONLY (e.g. "Faurecia Grójec"). THIS IS FOR INTERNAL USE.
 4. vacancydescription: THIS IS THE PUBLIC TITLE. Create a short informative description in UKRAINIAN. 
        - Use the specific job name in FORMAT: "Job Essence (Subcategory)". 
-       - Examples: "Склад одягу (Логістика)", "Виробництво сосисок (М'ясна продукція)".
-       - STRICT RULE: If the specific type of goods (clothing, food, etc.) is NOT explicitly mentioned in the text — use a generic title like "Склад (Логістика)". 
+       - Examples: "Склад товарів (Логістика)", "Виробництво деталей (Автопром)".
+       - STRICT RULE: If the specific type of goods (clothing, food, etc.) is NOT explicitly mentioned in the text — use a generic title like "Склад (Логістика)". Do NOT invent "Clothing" or "Shoes".
        - CRITICAL: DO NOT use brand names or company knowledge to guess the product type. If the text says "CCC" but doesn't mention "shoes", do NOT write "Склад взуття". Write "Склад (Логістика)".
        - STRICT RULE: Do NOT include city name, factory name, brand name, or agency name here.
 5. category (sphere): Identify the job category. Return ONLY one of the following UKRAINIAN values:
@@ -383,7 +383,7 @@ CORE PARSING RULES:
    - "description": job duties and work process ONLY. Use SEMICOLONS (;) to separate each duty.
    - "additionalNotes": ALL other information that does not fit any specific structured field — recruitment stages, bus schedules, video links, contract details, extra notes, client brand names (BMW, Tesla).
    - ZERO LOSS RULE: Any piece of information from the source text that cannot be placed in a specific structured field MUST be written into "additionalNotes". Nothing is ever lost.
-   - Do NOT repeat in "description" or "additionalNotes" what is already captured in salary, accommodation, transport, or other dedicated fields.
+   - STRICT NO-DUPLICATION: If information is ALREADY captured in specific fields (salary, accommodation, transport, conditions.workwearFree, conditions.foodType), you MUST NOT repeat it in "description" or "additionalNotes".
 
 SALARY FIELD RULES:
 - baseNetto: MAIN rate from the text. Copy EXACTLY (e.g., "22.50 зл/год нетто" OR "31.40 zł/год brutto"). 
