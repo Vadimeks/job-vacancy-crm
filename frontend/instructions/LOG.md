@@ -461,3 +461,126 @@ isInformative() / isSimpleMessage()
 - **Памылка 406 AUTH_KEY_DUPLICATED (GramJS):**
   - **Прычына:** Спроба адначасовага выкарыстання адной Telegram-сесіі ў розных месцах (Local vs Railway) або дубляванне працэсаў Node.js.
   - **Рашэнне:** Поўнае спыненне ўсіх працэсаў `node`, ачыстка файлаў сесіі і пры неабходнасці перавыпуск `STRING_SESSION`. Усталяваны прыярытэт: адна сесія — адзін актыўны IP.
+
+# 📝 Справаздача: Аптымізацыя Telegram Userbot
+
+**Дата:** 18 красавіка 2026 г.  
+**Лог №:** 001
+
+## 1. Выкананыя задачы (Changelog)
+
+| Катэгорыя        | Дзеянне                                                                                      | Статус |
+| :--------------- | :------------------------------------------------------------------------------------------- | :----- |
+| **Аўтарызацыя**  | Вырашана памылка `406: AUTH_KEY_DUPLICATED` шляхам генерацыі новай сесіі.                    | ✅     |
+| **Канфігурацыя** | Перанесены ўсе зменныя (`API_ID`, `API_HASH`) у `.env`.                                      | ✅     |
+| **Стабільнасць** | Імплементаваны `Heartbeat` (кожныя 10 хв) праз `client.getMe()`.                             | ✅     |
+| **Код**          | Выдалены дублікаты і выпраўлены парадак выканання (ініцыялізацыя -> аўтарызацыя -> сэрвісы). | ✅     |
+| **Дэплой**       | Паспяховы рэдэплой на Render. Бот актыўны і падключаны да MongoDB.                           | ✅     |
+
+---
+
+## 2. Паточная архітэктура
+
+- **Сэрвіс:** Node.js (Express) + GramJS.
+- **Статус:** Анлайн (Render Free Tier).
+- **Абарона ад сну:**
+  1.  **Cron-job (Знешні):** HTTP-пінг кожныя 10 хвілін (забяспечвае актыўнасць працэсу).
+  2.  **Heartbeat (Унутраны):** `setInterval` кожныя 10 хвілін (забяспечвае актыўнасць TCP-злучэння Telegram).
+
+---
+
+## 3. Інструкцыя па абслугоўванні (Troubleshooting)
+
+Калі бот перастаў адказваць:
+
+1.  **Крок 1 (Праверка):** Праверце логі на Render.
+    - Калі бачыце `Deploying` — бот проста перазагружаецца, пачакайце.
+    - Калі `429 Too Many Requests` — пачакайце, не чапайце код.
+2.  **Крок 2 (Рэстарт):** Націсніце `Manual Deploy -> Clear Build Cache & Deploy` у Render Dashboard.
+3.  **Крок 3 (Аўтарызацыя - крайняя мера):** Калі ў логах `Unauthorized` або `AUTH_KEY...` — запусціце `node generate_session.js` на сваім кампутары, атрымайце новы радок і абнавіце зменную `TELEGRAM_SESSION` у Render.
+
+---
+
+# Changelog
+
+## [0.2.0] - 2026-04-18
+
+### Fixed
+
+- **Parser:** Resolved `baseNetto` assignment bug in `parseVacancyWithAI` where salary data was being lost or incorrectly mapped to a non-existent property.
+- **Parser:** Fixed data loss issues by restoring full response structure using the spread operator (`...cleaned`) instead of rigid field mapping, ensuring all AI-generated fields are preserved.
+- **Schema:** Added safe access checks (fallbacks like `|| {}`) for nested objects (`salary`, `schedule`, `accommodation`, etc.) to prevent crashes when the AI omits specific blocks.
+
+### Refactored
+
+- **Parser Logic:** Streamlined the `parseVacancyWithAI` function. Simplified the return structure to prioritize AI-provided data integrity while maintaining essential validation and formatting logic.
+- **Salary Logic:** Implemented a robust fallback mechanism for `baseNetto` that automatically attempts to extract the rate from `salaryNotes` if the primary field is missing or marked as "не вказано".
+
+## [0.2.1] - 2026-04-19
+
+### Changed
+
+- **Parser/Schema:** Enforced strict validation for the `requirements.polishLanguageLevel` field. The AI is now restricted to specific standardized codes ("Не вимагається", "A1", "A2", "B1", "B2", "C1").
+- **Data Consistency:** Updated system prompt instructions to eliminate descriptive language (e.g., "рівень розуміння") in favor of fixed codes. This ensures that the data is ready for frontend filtering while maintaining a clear format for Telegram posts.
+
+# 📝 Project Activity Log — Session: AI Parser & Formatter Refinement
+
+> **Дата:** 19 красавіка 2026 г.
+> **Аб'ект:** `backend/services/ai.service.js`
+> **Вынік:** Пераход на стандарт парсінгу v2.0 (Update: Anti-Hallucination) і паляпшэнне Telegram-фарматавальніка.
+
+---
+
+## 🎯 Мэта сесіі
+
+Выправіць памылкі інтэрпрэтацыі дадзеных AI-агентам (галюцынацыі), палепшыць геаграфічную дакладнасць і стварыць прафесійнае фарматаванне для Telegram-постаў.
+
+---
+
+## ✅ Тэхнічныя змены
+
+### 1. AI Parser (`parseVacancyWithAI`)
+
+- **Геаграфія (Strict Latin Rule):**
+  - Уведзена жорсткае патрабаванне выкарыстоўваць толькі лацінскія сімвалы (A-Z) для польскіх гарадоў.
+  - Забаронена дадаваць назву краіны "Polska" або "Poland" у поле `location`.
+  - Дададзена кодавая страхоўка: `parsed.location.replace(/Polska,?\s*/gi, "")`.
+- **Анты-галюцынацыя (Brand & Role Guard):**
+  - Забаронена "прыдумляць" тып тавару (адзенне/абутак), калі гэтага няма ў тэксце. Пры адсутнасці дадзеных выкарыстоўваецца нейтральны загаловак: `Склад товарів (Логістика)`.
+  - Забаронена ствараць вакансію "Водій", калі ў тэксце прысутнічае толькі расклад аўтобусаў.
+- **Дагавор (Contract Integrity):**
+  - Вернута логіка `contractType: null`, калі тып дагавора не згаданы ў арыгінале (AI больш не гадае).
+- **Дубляванне (Data Hygiene):**
+  - Уведзена правіла `STRICT NO-DUPLICATION` — інфармацыя, якая ўжо ёсць у структурных палях (зарплата, жыллё, давоз, адзенне), больш не трапляе ў `description` або `additionalNotes`.
+- **Паўнавартаснасць:**
+  - Удакладнена правіла для `additionalNotes`: сюды ідзе ўсё, што не ўлезла ў структуру (відэа, маршруты, этапы рэкрутацыі).
+
+### 2. Telegram Formatter (`FORMAT_PROMPT`)
+
+- **Выпраўленне структуры:** Выдалены інструкцыі па парсінгу, якія памылкова трапілі ў блок адлюстравання.
+- **Блок зарплаты:** Дададзены асобныя пункты `• Бонуси` і `• Нотатки` для лепшай чытэльнасці.
+- **Блок пражывання:** Уведзены падзел на `• Вартість` і `• Деталі`.
+- **Умовы працы:** Палепшана адлюстраванне нюансаў харчавання і рабочага адзення.
+
+---
+
+## 📊 Вынікі тэстаў (Кейс Polkowice / CCC)
+
+| Параметр         | VAC-0023 (Да выпраўленняў)             | VAC-0024 (Пасля выпраўленняў)            |
+| :--------------- | :------------------------------------- | :--------------------------------------- |
+| **Загаловак**    | Склад одягу (Логістика) — галюцынацыя  | **Склад товарів (Логістика)** — дакладна |
+| **Лакацыя**      | Pольковіце (памылка транслітарацыі)    | **Polkowice** (чыстая лацінка)           |
+| **Дагавор**      | Umowa zlecenie (прыдумана)             | **null** (адпавядае тэксту)              |
+| **Фарматаванне** | Суцэльны тэкст у блоках                | **Структураваны спіс з булітамі**        |
+| **Дублі**        | Паўторы пра давоз і адзенне ў нататках | **Чысты блок дадатковай інфармацыі**     |
+
+---
+
+## 🛠 Наступныя крокі
+
+1.  **Message Stitching:** Распрацоўка механізму затрымкі (2-3 сек) для аб'яднання разбітых Telegram-паведамленняў у адзін кантэкст перад адпраўкай у AI.
+2.  **Frontend Sync:** Праверка адлюстравання поля `contractType` у мадалках, калі яно прыходзіць як `null`.
+
+---
+
+**Log end.**
