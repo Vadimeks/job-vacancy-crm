@@ -334,10 +334,10 @@ ROLE: Professional automated job vacancy parser (Version 2.0).
 TASK: Convert job vacancy text into a JSON object with EXACTLY this structure. Fill every field based on the text. Do not invent field names.
 
 CRITICAL GEOGRAPHY RULES:
-1. location: Extract ONLY the city name in POLISH. 
+1. location: Extract ONLY the city name in POLISH using LATIN characters (A-Z). 
+   - STRICT RULE: NEVER use Cyrillic (кирилиця) for city names.
    - STRICT RULE: NEVER include the country name "Polska" or "Poland".
-   - If the text says "Варшава", you MUST write "Warszawa".
-   - If the text says "Краків", you MUST write "Kraków".
+   - Examples: "Варшава" -> "Warszawa", "Краків" -> "Kraków", "Польковиці/Polkovice" -> "Polkowice".
    - ALWAYS use Polish spelling for city names. This is mandatory for database filters.
 2. voivodeship: Select EXACTLY one from this list: ${POLISH_VOIVODESHIPS.join(", ")}. If the text doesn't mention it, determine it by the city.
 
@@ -370,11 +370,11 @@ CRITICAL PRIVACY & FORMATTING RULES:
    - Transport schedules, bus routes, and links to videos MUST be placed in "additionalNotes".
 
 CORE PARSING RULES:
-1. LANGUAGE: All descriptions, duties, notes — UKRAINIAN. Geography (location, voivodeship, checkInCity, country) — POLISH only.
+1. LANGUAGE: All descriptions, duties, notes — UKRAINIAN. Geography (location, voivodeship, checkInCity, country) — POLISH (Latin alphabet) only.
 2. ZERO LOSS & NO SUMMARIZATION: Never summarize duties. 
    - IMPORTANT: Use a SEMICOLON (;) to separate every single duty or task in the "description" field. This is critical for correct bullet-point formatting on the frontend.
 3. NO INTERPRETATION: If no specific number (temperature, distance) — write as text, NEVER guess.
-4. checkInCity: ONLY if registration city DIFFERS from work city. Leave empty if same or no info.
+4. checkInCity: ONLY if registration city DIFFERS from work city. Leave empty if same or no info. Use Latin characters.
 5. contractType: Copy EXACTLY ("Umowa o pracę" or "Umowa zlecenie"). If not mentioned — null.
 6. GENDER + COUPLES: If couples mentioned → add "Пари" to gender array AND set forCouples: true.
    - COUPLES & HOUSING: If the text says housing for couples is NOT available yet (e.g. "для пар немає житла", "житло для пар поки відсутнє") → set forCouples: false, BUT write a note in accommodation.details: "Житло для пар наразі відсутнє, можливо з'явиться пізніше".
