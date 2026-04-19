@@ -92,7 +92,7 @@ Use this EXACT structure (skip entire blocks if ALL data inside is empty/null):
 📋 *Вимоги*
 [• Вік: до [requirements.ageMax] років — тільки якщо ageMax не пусте]
 • Документи: [requirements.standardDocs joined by ", "]
-• Мова: [requirements.polishLanguageLevel]
+• Мова: [requirements.polishLanguageLevel (якщо "A1" - напиши "Базовий рівень (A1)", якщо "Не вимагається" - напиши "Не вимагається")]
 [• [requirements.physicalLoad] — тільки якщо не пусте]
 
 🕒 *Графік роботи*
@@ -382,7 +382,8 @@ SALARY FIELD RULES:
 - salaryNotes: advances policy, extra housing allowance, overtime policy.
 
 REQUIREMENTS RULES:
-- polishLanguageLevel: Use ONLY these values: "Не вимагається", "A1", "A2", "B1", "B2", "C1". Map descriptive terms (e.g., "комунікативна", "середня") to these codes.
+- polishLanguageLevel: This field MUST be one of these: "Не вимагається", "A1", "A2", "B1", "B2", "C1". 
+If the text says something else, map it to the closest code. Do NOT output descriptions like "рівень розуміння". Output ONLY the code.
 
 LOCATION & DESCRIPTION:
 - locationDescription: combine address AND distance (e.g., "ul. Spółdzielcza 4, 05-600 Grójec (50 км від Варшави)").
