@@ -325,7 +325,9 @@ async function formatTelegramPost(vacancyData) {
 
 async function parseVacancyWithAI(rawText) {
   try {
-    console.log(`🤖 Парсинг v2.0 з повною структурою полів та уніфікацією...`);
+    console.log(
+      `🤖 Парсинг v2.0 з повною структурою полів та уніфікацією (Update: Anti-Hallucination)...`,
+    );
 
     const SYSTEM_INSTRUCTION = `
 ROLE: Professional automated job vacancy parser (Version 2.0).
@@ -333,10 +335,19 @@ TASK: Convert job vacancy text into a JSON object with EXACTLY this structure. F
 
 CRITICAL GEOGRAPHY RULES:
 1. location: Extract ONLY the city name in POLISH. 
+   - STRICT RULE: NEVER include the country name "Polska" or "Poland".
    - If the text says "Варшава", you MUST write "Warszawa".
    - If the text says "Краків", you MUST write "Kraków".
    - ALWAYS use Polish spelling for city names. This is mandatory for database filters.
 2. voivodeship: Select EXACTLY one from this list: ${POLISH_VOIVODESHIPS.join(", ")}. If the text doesn't mention it, determine it by the city.
+
+CRITICAL ANTI-HALLUCINATION & BRAND RULES:
+1. TRANSPORT VS JOB: If the text is just a bus schedule (stops, times, "Лінія №"), do NOT invent a "Driver" (Водій) role. 
+   - Set vacancydescription to "Інформація про довіз" and category to "Різне".
+2. BRAND-BASED CATEGORY: 
+   - CCC = "Склад взуття (Логістика)". Do NOT write "Склад одягу".
+   - Amazon/LPP = "Склад товарів (Логістика)".
+   - Use the brand name to accurately set the vacancydescription.
 
 CRITICAL PRIVACY & FORMATTING RULES:
 1. agencyName: Extract the RECRUITMENT AGENCY name ONLY (e.g. Manpower, OTTO). If no agency mentioned — use null.
@@ -370,9 +381,10 @@ CORE PARSING RULES:
    - IMPORTANT: Use a SEMICOLON (;) to separate every single duty or task in the "description" field. This is critical for correct bullet-point formatting on the frontend.
 3. NO INTERPRETATION: If no specific number (temperature, distance) — write as text, NEVER guess.
 4. checkInCity: ONLY if registration city DIFFERS from work city. Leave empty if same or no info.
-5. contractType: Copy EXACTLY ("Umowa o pracę" or "Umowa zlecenie"). If not mentioned — null.
+5. contractType: Copy EXACTLY ("Umowa o pracę" or "Umowa zlecenie"). If not mentioned, default to "Umowa zlecenie".
 6. GENDER + COUPLES: If couples mentioned → add "Пари" to gender array AND set forCouples: true.
 7. EXPENSES SPLIT: Costs BEFORE work (medical) → startExpenses. Costs/penalties DURING or on early exit → earlyTerminationLiability.
+8. NO DUPLICATION: If information about food, transport, or workwear is placed in their specific fields, do not repeat it in the main "description".
 
 SALARY FIELD RULES:
 - baseNetto: MAIN rate from the text. Copy EXACTLY (e.g., "22.50 зл/год нетто" OR "31.40 zł/год brutto"). 
@@ -402,7 +414,7 @@ JSON STRUCTURE:
   "vacancydescription": "",
   "category": "",
   "keywords": [],
-  "contractType": null,
+  "contractType": "Umowa zlecenie",
   "forRecruiter": {
     "internalNotes": "",
     "hideAgencyNameForCandidate": true,
@@ -496,23 +508,39 @@ JSON STRUCTURE:
     );
 
     let parsed = JSON.parse(text);
+
+    // --- ПОСТ-АПРАЦОЎКА (Страхоўка) ---
+    // 1. Выдаляем "Polska" калі AI ўсё ж такі яго дадаў у поле горада
+    if (parsed.location) {
+      parsed.location = parsed.location.replace(/Polska,?\s*/gi, "").trim();
+    }
+
     const cleaned = cleanData(parsed);
 
-    const baseTitle =
+    // 2. Лагічны загаловак (Анты-кіроўца)
+    let baseTitle =
       cleaned.vacancydescription &&
       cleaned.vacancydescription !== "Нова вакансія"
         ? cleaned.vacancydescription
         : cleaned.description?.split(/[.;]/)[0].substring(0, 100).trim() ||
           "Опис вакансії";
 
-    // Дадаем горад толькі калі яго яшчэ няма ў загалоўку
+    // Калі гэта толькі транспартная інфармацыя (без апісання працы)
+    const isTransportOnly =
+      (rawText.toLowerCase().includes("транспорт") ||
+        rawText.toLowerCase().includes("лінія №")) &&
+      !cleaned.description;
+    if (isTransportOnly) {
+      baseTitle = "Інформація про довіз";
+    }
+
     const finalTitle =
       cleaned.location &&
       !baseTitle.toLowerCase().includes(cleaned.location.toLowerCase())
         ? `${baseTitle} — ${cleaned.location}`
         : baseTitle;
+
     // --- СТРАХОЎКА ЗАРПЛАТЫ ---
-    // Калі AI запісаў стаўку ў salaryNotes замест baseNetto, пераносім яе
     let finalBaseNetto = cleaned.salary?.baseNetto;
     if (
       (!finalBaseNetto || finalBaseNetto === "не вказано") &&
@@ -525,16 +553,17 @@ JSON STRUCTURE:
         finalBaseNetto = cleaned.salary.salaryNotes;
       }
     }
+
     return {
       // === 1. СИСТЕМНІ ПОЛЯ ===
-      ...cleaned, // Захоўваем УСЕ палі, якія распарсіў AI
+      ...cleaned,
       agencyName: cleaned.agencyName?.toUpperCase() || null,
       brand: cleaned.brand || "",
       templateName: cleaned.templateName || "",
       vacancydescription: finalTitle,
       category: cleaned.category || null,
       keywords: Array.isArray(cleaned.keywords) ? cleaned.keywords : [],
-      contractType: cleaned.contractType || null,
+      contractType: cleaned.contractType || "Umowa zlecenie",
       arrivalDate: cleaned.arrivalDate || null,
       count: cleaned.count || null,
 
@@ -553,8 +582,8 @@ JSON STRUCTURE:
 
       // === 3. ФІНАНСЫ ===
       salary: {
-        ...(cleaned.salary || {}), // захоўваем астатнія палі (studentNetto, hoursRange і г.д.)
-        baseNetto: finalBaseNetto || "не вказано", // ВЫПРАЎЛЕНА: выкарыстоўваем пераменную, а не cleaned.salary.finalBaseNetto
+        ...(cleaned.salary || {}),
+        baseNetto: finalBaseNetto || "не вказано",
         studentNetto: cleaned.salary?.studentNetto || "",
         hoursRange: cleaned.salary?.hoursRange || "",
         payoutDates: cleaned.salary?.payoutDates || "",
