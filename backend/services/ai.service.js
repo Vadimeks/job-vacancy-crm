@@ -326,7 +326,7 @@ async function formatTelegramPost(vacancyData) {
 async function parseVacancyWithAI(rawText) {
   try {
     console.log(
-      `🤖 Парсинг v2.0 з повною структурою полів та уніфікацією (Update: Anti-Hallucination)...`,
+      `🤖 Парсинг v2.0 з повною структурою полів та уніфікацією (Версія з выпраўленнямі)...`,
     );
 
     const SYSTEM_INSTRUCTION = `
@@ -341,14 +341,6 @@ CRITICAL GEOGRAPHY RULES:
    - ALWAYS use Polish spelling for city names. This is mandatory for database filters.
 2. voivodeship: Select EXACTLY one from this list: ${POLISH_VOIVODESHIPS.join(", ")}. If the text doesn't mention it, determine it by the city.
 
-CRITICAL ANTI-HALLUCINATION & BRAND RULES:
-1. TRANSPORT VS JOB: If the text is just a bus schedule (stops, times, "Лінія №"), do NOT invent a "Driver" (Водій) role. 
-   - Set vacancydescription to "Інформація про довіз" and category to "Різне".
-2. BRAND-BASED CATEGORY: 
-   - CCC = "Склад взуття (Логістика)". Do NOT write "Склад одягу".
-   - Amazon/LPP = "Склад товарів (Логістика)".
-   - Use the brand name to accurately set the vacancydescription.
-
 CRITICAL PRIVACY & FORMATTING RULES:
 1. agencyName: Extract the RECRUITMENT AGENCY name ONLY (e.g. Manpower, OTTO). If no agency mentioned — use null.
 2. brand: Extract the specific factory or brand name (e.g., "LG", "Amazon", "Faurecia", "LPP"). This is the name of the workplace.
@@ -356,6 +348,7 @@ CRITICAL PRIVACY & FORMATTING RULES:
 4. vacancydescription: THIS IS THE PUBLIC TITLE. Create a short informative description in UKRAINIAN. 
    - Use the specific job name in FORMAT: "Job Essence (Subcategory)". 
    - Examples: "Склад одягу (Логістика)", "Виробництво сосисок (М'ясна продукція)", "Пакування косметики (Виробництво)".
+   - STRICT RULE: If the specific type of goods (clothing, food, etc.) is NOT explicitly mentioned in the text — use a generic title like "Склад (Логістика)". Do NOT invent "Clothing" or "Shoes".
    - STRICT RULE: Do NOT include city name, factory name, brand name, or agency name here. The city will be added automatically later.
 5. category (sphere): Identify the job category. Return ONLY one of the following UKRAINIAN values:
    - "Склади та логістика"
@@ -371,9 +364,9 @@ CRITICAL PRIVACY & FORMATTING RULES:
    2. Do NOT translate these keys into English or Polish.
    3. Do NOT invent new categories.
 6. MAX DETAIL EXTRACTION: Never summarize or skip ANY details. 
-   - If the text mentions client brands (e.g., BMW, Tesla, Audi), include them in the "description" or "keywords".
    - If the text mentions recruitment steps (interview/співбесіда, BHP, medical check), include them in "additionalNotes".
    - If the text mentions minimum hours (e.g., 168h/month), include this in "salary.salaryNotes" or "schedule.description".
+   - Transport schedules, bus routes, and links to videos MUST be placed in "additionalNotes".
 
 CORE PARSING RULES:
 1. LANGUAGE: All descriptions, duties, notes — UKRAINIAN. Geography (location, voivodeship, checkInCity, country) — POLISH only.
@@ -381,15 +374,18 @@ CORE PARSING RULES:
    - IMPORTANT: Use a SEMICOLON (;) to separate every single duty or task in the "description" field. This is critical for correct bullet-point formatting on the frontend.
 3. NO INTERPRETATION: If no specific number (temperature, distance) — write as text, NEVER guess.
 4. checkInCity: ONLY if registration city DIFFERS from work city. Leave empty if same or no info.
-5. contractType: Copy EXACTLY ("Umowa o pracę" or "Umowa zlecenie"). If not mentioned, default to "Umowa zlecenie".
+5. contractType: Copy EXACTLY ("Umowa o pracę" or "Umowa zlecenie"). If not mentioned — null.
 6. GENDER + COUPLES: If couples mentioned → add "Пари" to gender array AND set forCouples: true.
 7. EXPENSES SPLIT: Costs BEFORE work (medical) → startExpenses. Costs/penalties DURING or on early exit → earlyTerminationLiability.
-8. NO DUPLICATION: If information about food, transport, or workwear is placed in their specific fields, do not repeat it in the main "description".
+8. FIELD DISTRIBUTION — description vs additionalNotes:
+   - "description": job duties and work process ONLY. Use SEMICOLONS (;) to separate each duty.
+   - "additionalNotes": ALL other information that does not fit any specific structured field — recruitment stages, bus schedules, video links, contract details, extra notes, client brand names (BMW, Tesla).
+   - ZERO LOSS RULE: Any piece of information from the source text that cannot be placed in a specific structured field MUST be written into "additionalNotes". Nothing is ever lost.
+   - Do NOT repeat in "description" or "additionalNotes" what is already captured in salary, accommodation, transport, or other dedicated fields.
 
 SALARY FIELD RULES:
 - baseNetto: MAIN rate from the text. Copy EXACTLY (e.g., "22.50 зл/год нетто" OR "31.40 zł/год brutto"). 
   CRITICAL: NEVER leave this field empty if any salary/rate is mentioned in the text. 
-  If the text says "brutto", write it as "brutto" here.
 - bonusDetails: ALL bonuses in FULL (night shifts, overtime, attendance, quality). Do NOT summarize.
 - salaryNotes: advances policy, extra housing allowance, overtime policy.
 
@@ -414,7 +410,7 @@ JSON STRUCTURE:
   "vacancydescription": "",
   "category": "",
   "keywords": [],
-  "contractType": "Umowa zlecenie",
+  "contractType": null,
   "forRecruiter": {
     "internalNotes": "",
     "hideAgencyNameForCandidate": true,
@@ -517,23 +513,15 @@ JSON STRUCTURE:
 
     const cleaned = cleanData(parsed);
 
-    // 2. Лагічны загаловак (Анты-кіроўца)
-    let baseTitle =
+    // 2. Лагічны загаловак
+    const baseTitle =
       cleaned.vacancydescription &&
       cleaned.vacancydescription !== "Нова вакансія"
         ? cleaned.vacancydescription
         : cleaned.description?.split(/[.;]/)[0].substring(0, 100).trim() ||
           "Опис вакансії";
 
-    // Калі гэта толькі транспартная інфармацыя (без апісання працы)
-    const isTransportOnly =
-      (rawText.toLowerCase().includes("транспорт") ||
-        rawText.toLowerCase().includes("лінія №")) &&
-      !cleaned.description;
-    if (isTransportOnly) {
-      baseTitle = "Інформація про довіз";
-    }
-
+    // Дадаем горад толькі калі яго яшчэ няма ў загалоўку
     const finalTitle =
       cleaned.location &&
       !baseTitle.toLowerCase().includes(cleaned.location.toLowerCase())
@@ -541,6 +529,7 @@ JSON STRUCTURE:
         : baseTitle;
 
     // --- СТРАХОЎКА ЗАРПЛАТЫ ---
+    // Калі AI запісаў стаўку ў salaryNotes замест baseNetto, пераносім яе
     let finalBaseNetto = cleaned.salary?.baseNetto;
     if (
       (!finalBaseNetto || finalBaseNetto === "не вказано") &&
@@ -563,7 +552,7 @@ JSON STRUCTURE:
       vacancydescription: finalTitle,
       category: cleaned.category || null,
       keywords: Array.isArray(cleaned.keywords) ? cleaned.keywords : [],
-      contractType: cleaned.contractType || "Umowa zlecenie",
+      contractType: cleaned.contractType || null,
       arrivalDate: cleaned.arrivalDate || null,
       count: cleaned.count || null,
 
