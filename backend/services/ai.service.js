@@ -346,10 +346,11 @@ CRITICAL PRIVACY & FORMATTING RULES:
 2. brand: Extract the specific factory or brand name (e.g., "LG", "Amazon", "Faurecia", "LPP"). This is the name of the workplace.
 3. templateName: Factory/brand name + city IN POLISH ONLY (e.g. "Faurecia Grójec"). THIS IS FOR INTERNAL USE.
 4. vacancydescription: THIS IS THE PUBLIC TITLE. Create a short informative description in UKRAINIAN. 
-   - Use the specific job name in FORMAT: "Job Essence (Subcategory)". 
-   - Examples: "Склад одягу (Логістика)", "Виробництво сосисок (М'ясна продукція)", "Пакування косметики (Виробництво)".
-   - STRICT RULE: If the specific type of goods (clothing, food, etc.) is NOT explicitly mentioned in the text — use a generic title like "Склад (Логістика)". Do NOT invent "Clothing" or "Shoes".
-   - STRICT RULE: Do NOT include city name, factory name, brand name, or agency name here. The city will be added automatically later.
+       - Use the specific job name in FORMAT: "Job Essence (Subcategory)". 
+       - Examples: "Склад одягу (Логістика)", "Виробництво сосисок (М'ясна продукція)".
+       - STRICT RULE: If the specific type of goods (clothing, food, etc.) is NOT explicitly mentioned in the text — use a generic title like "Склад (Логістика)". 
+       - CRITICAL: DO NOT use brand names or company knowledge to guess the product type. If the text says "CCC" but doesn't mention "shoes", do NOT write "Склад взуття". Write "Склад (Логістика)".
+       - STRICT RULE: Do NOT include city name, factory name, brand name, or agency name here.
 5. category (sphere): Identify the job category. Return ONLY one of the following UKRAINIAN values:
    - "Склади та логістика"
    - "Харчова промисловість"
@@ -376,6 +377,7 @@ CORE PARSING RULES:
 4. checkInCity: ONLY if registration city DIFFERS from work city. Leave empty if same or no info.
 5. contractType: Copy EXACTLY ("Umowa o pracę" or "Umowa zlecenie"). If not mentioned — null.
 6. GENDER + COUPLES: If couples mentioned → add "Пари" to gender array AND set forCouples: true.
+   - COUPLES & HOUSING: If the text says housing for couples is NOT available yet (e.g. "для пар немає житла", "житло для пар поки відсутнє") → set forCouples: false, BUT write a note in accommodation.details: "Житло для пар наразі відсутнє, можливо з'явиться пізніше".
 7. EXPENSES SPLIT: Costs BEFORE work (medical) → startExpenses. Costs/penalties DURING or on early exit → earlyTerminationLiability.
 8. FIELD DISTRIBUTION — description vs additionalNotes:
    - "description": job duties and work process ONLY. Use SEMICOLONS (;) to separate each duty.
@@ -396,6 +398,7 @@ If the text says something else, map it to the closest code. Do NOT output descr
 LOCATION & DESCRIPTION:
 - locationDescription: combine address AND distance (e.g., "ul. Spółdzielcza 4, 05-600 Grójec (50 км від Варшави)").
 - description: copy ALL duties in FULL detail. Do NOT summarize. Preserve all sentences.
+- schedule.description: MUST contain the FULL shift schedule with exact times. Example: "І зміна: пн–пт 12 год (06:00–18:00) + сб 8 год (06:00–14:00); ІІ зміна: пн–пт 12 год (14:00–02:00); ІІІ зміна: нд–чт 12 год (22:00–10:00) + пт 8 год (22:00–06:00)". NEVER summarize or omit shift times if they are present in the text.
 
 CONDITIONS & KEYWORDS:
 - specificNuances: array of short tags (["Запах гуми", "Шум", "Холодний склад"]).
