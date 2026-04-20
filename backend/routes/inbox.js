@@ -5,8 +5,33 @@ const UnprocessedMessage = require("../models/UnprocessedMessage");
 // 1. Прыём паведамленняў (ужо ёсць)
 router.post("/push", async (req, res) => {
   try {
-    const { sender, text, source } = req.body;
+    // Калі req.body адсутнічае, выкарыстоўваем пусты аб'ект, каб не было памылкі
+    const { sender, text, source } = req.body || {};
+    if (!text || text.includes("[notification_text]")) {
+      console.log(
+        "⚠️ Атрымана пустое паведамленне або няправільныя зменныя, ігнаруем.",
+      );
+      return res.status(200).json({ status: "ignored" });
+    }
+    // Далей твая логіка (класіфікацыя і захаванне)...
+    let category = "chat";
+    const t = text.toLowerCase();
+    if (
+      t.includes("вакансія") ||
+      t.includes("zł/h") ||
+      t.includes("netto") ||
+      t.includes("шукаем")
+    ) {
+      category = "vacancy";
+    } else if (
+      t.includes("стоп") ||
+      t.includes("актуальна") ||
+      t.includes("дабор")
+    ) {
+      category = "update";
+    }
     const newMessage = new UnprocessedMessage({ sender, text, source });
+
     await newMessage.save();
     console.log(`📥 [Inbox] Атрымана паведамленне з ${source}: ${sender}`);
     res.status(200).json({ status: "success" });

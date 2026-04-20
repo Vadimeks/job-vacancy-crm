@@ -26,7 +26,7 @@ const AGENCY_CHAT_IDS = process.env.AGENCY_CHAT_IDS
 const app = express();
 app.use(cors());
 app.use(express.json());
-
+app.use(express.urlencoded({ extended: true }));
 // --- SWAGGER ---
 const specs = swaggerJsdoc({ swaggerDefinition, apis: [] });
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
