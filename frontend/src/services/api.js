@@ -42,5 +42,7 @@ export const matchVacanciesForCandidate = (id) =>
 export const submitApplication = (data) => api.post("/apply", data);
 export const matchCandidatesForVacancy = (id) =>
   api.get(`/vacancies/${id}/match-candidates`);
-
+// --- УВАХОДНЫЯ (Viber/Telegram) ---
+export const getInboxMessages = () => api.get("/inbox");
+export const deleteInboxMessage = (id) => api.delete(`/inbox/${id}`);
 export default api;

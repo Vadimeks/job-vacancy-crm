@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   { to: "/candidates", label: "Кандыдаты" },
   { to: "/templates", label: "Шаблоны" },
   { to: "/agencies", label: "Агенцыі" },
+  { to: "/inbox", label: "Уваходныя" }, // Дадалі сюды
 ];
 
 export default function Layout({ children }) {

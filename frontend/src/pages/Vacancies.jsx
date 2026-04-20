@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import { useLocation } from "react-router-dom"; // Дадалі гэты радок
 import {
   getVacancies,
   getTemplates,
@@ -133,6 +134,7 @@ function applyFilters(vacancies, filters) {
 }
 
 export default function Vacancies() {
+  const location = useLocation(); // Дадалі
   const [vacancies, setVacancies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [autoText, setAutoText] = useState("");
@@ -165,7 +167,17 @@ export default function Vacancies() {
       setLoading(false);
     }
   };
+  // Дадай гэты useEffect пасля fetchVacancies
+  useEffect(() => {
+    if (location.state && location.state.initialText) {
+      setShowAutoForm(true);
+      setFormMode("auto");
+      setAutoText(location.state.initialText);
 
+      // Чысцім state, каб пры перазагрузцы форма не адкрывалася зноў
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
   useEffect(() => {
     fetchVacancies();
   }, []);
