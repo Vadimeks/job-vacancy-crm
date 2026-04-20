@@ -3,24 +3,35 @@ const router = express.Router();
 const UnprocessedMessage = require("../models/UnprocessedMessage");
 
 router.post("/push", async (req, res) => {
-  // Гэты лог пакажа нам у Render, што РЭАЛЬНА прыйшло
   console.log("--- НОВЫ ЗАПЫТ ---");
   console.log("Body:", req.body);
 
   try {
     const body = req.body || {};
+    let sender = body.sender || body.not_title;
+    let text = body.text || body.notification || body.not_text_big;
+    let source = body.source || "viber";
 
-    // Бярэм тэкст з любога магчымага поля (на выпадак памылак у MacroDroid)
-    const text = body.text || body.notification || body.not_text || "";
-    const sender = body.sender || body.not_title || "Невядомы";
-    const source = body.source || "viber";
-
-    if (!text || text.length < 2) {
-      console.log("⚠️ Тэкст занадта кароткі або адсутнічае, ігнаруем.");
-      return res.status(200).json({ status: "ignored_empty" });
+    // ХІТРАСЦЬ: Калі тэкст пусты, але ёсць дзіўныя ключы (як у тваім логу)
+    if (!text) {
+      const keys = Object.keys(body);
+      // Шукаем ключ, які не з'яўляецца сістэмным і вельмі доўгі
+      const messageKey = keys.find(
+        (k) => k !== "sender" && k !== "source" && k.length > 5,
+      );
+      if (messageKey) {
+        text = messageKey; // Гэта і ёсць наша паведамленне
+      }
     }
 
-    // Класіфікацыя
+    // Калі імя адпраўніка прыйшло ў дужках urlencode - чысцім
+    if (sender && sender.includes("urlencode:")) sender = "Viber User";
+
+    if (!text || text.length < 2 || text.includes("urlencode:")) {
+      console.log("⚠️ Паведамленне не распазнана або пустое.");
+      return res.status(200).json({ status: "ignored" });
+    }
+
     let category = "chat";
     const t = text.toLowerCase();
     if (
@@ -39,19 +50,18 @@ router.post("/push", async (req, res) => {
     }
 
     const newMessage = new UnprocessedMessage({
-      sender,
+      sender: sender || "Невядомы",
       text,
       source,
       category,
-      isRead: false,
     });
 
     await newMessage.save();
-    console.log(`✅ Захавана: ${sender} -> ${category}`);
+    console.log(`✅ Захавана ад ${sender}: ${category}`);
     res.status(200).json({ status: "success" });
   } catch (error) {
     console.error("❌ Памылка:", error);
-    res.status(500).json({ status: "error", message: error.message });
+    res.status(500).json({ status: "error" });
   }
 });
 
