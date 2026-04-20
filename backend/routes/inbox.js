@@ -4,16 +4,18 @@ const UnprocessedMessage = require("../models/UnprocessedMessage");
 
 // 1. Прыём паведамленняў (ужо ёсць)
 router.post("/push", async (req, res) => {
+  // Гэты лог дапаможа ўбачыць, што прыслаў тэлефон
+  console.log("📥 [Inbox] Raw body:", req.body);
+
   try {
-    // Калі req.body адсутнічае, выкарыстоўваем пусты аб'ект, каб не было памылкі
     const { sender, text, source } = req.body || {};
-    if (!text || text.includes("[notification_text]")) {
-      console.log(
-        "⚠️ Атрымана пустое паведамленне або няправільныя зменныя, ігнаруем.",
-      );
-      return res.status(200).json({ status: "ignored" });
+
+    if (!text) {
+      console.log("⚠️ Тэкст паведамлення адсутнічае.");
+      return res.status(200).json({ status: "ignored_no_text" });
     }
-    // Далей твая логіка (класіфікацыя і захаванне)...
+
+    // Вызначаем катэгорыю
     let category = "chat";
     const t = text.toLowerCase();
     if (
@@ -30,10 +32,17 @@ router.post("/push", async (req, res) => {
     ) {
       category = "update";
     }
-    const newMessage = new UnprocessedMessage({ sender, text, source });
+
+    // ЗАПІСВАЕМ У БАЗУ (дадаем category)
+    const newMessage = new UnprocessedMessage({
+      sender: sender || "Невядомы",
+      text,
+      source: source || "viber",
+      category, // <--- ВАЖНА: дадалі запіс катэгорыі
+    });
 
     await newMessage.save();
-    console.log(`📥 [Inbox] Атрымана паведамленне з ${source}: ${sender}`);
+    console.log(`✅ [Inbox] Захавана ад ${sender}: ${category}`);
     res.status(200).json({ status: "success" });
   } catch (error) {
     console.error("❌ [Inbox] Памылка:", error);
