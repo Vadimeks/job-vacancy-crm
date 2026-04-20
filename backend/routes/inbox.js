@@ -8,37 +8,43 @@ router.post("/push", async (req, res) => {
 
   try {
     const body = req.body || {};
-    let sender = body.sender || body.not_title;
-    let text = body.text || body.notification || body.not_text_big;
-    let source = body.source || "viber";
+    const sender = body.sender || body.not_title || "Невядомы";
 
-    // ХІТРАСЦЬ: Калі тэкст пусты, але ёсць дзіўныя ключы (як у тваім логу)
-    if (!text) {
-      const keys = Object.keys(body);
-      // Шукаем ключ, які не з'яўляецца сістэмным і вельмі доўгі
-      const messageKey = keys.find(
-        (k) => k !== "sender" && k !== "source" && k.length > 5,
-      );
-      if (messageKey) {
-        text = messageKey; // Гэта і ёсць наша паведамленне
+    // ВЫБАР ТЭКСТУ: Бярэм самае доўгае з даступных палёў
+    let text = "";
+    const candidates = [body.bigText, body.text, body.notification];
+
+    // Шукаем самы доўгі тэкст сярод кандыдатаў
+    candidates.forEach((c) => {
+      if (c && c.length > text.length && !c.includes("urlencode:")) {
+        text = c;
       }
+    });
+
+    // ХІТРАСЦЬ: Калі ўсё яшчэ пуста, шукаем у ключах (для разламаных запытаў)
+    if (!text || text.length < 2) {
+      const keys = Object.keys(body);
+      const messageKey = keys.find(
+        (k) =>
+          k !== "sender" && k !== "source" && k !== "text" && k.length > 10,
+      );
+      if (messageKey) text = messageKey;
     }
 
-    // Калі імя адпраўніка прыйшло ў дужках urlencode - чысцім
-    if (sender && sender.includes("urlencode:")) sender = "Viber User";
-
-    if (!text || text.length < 2 || text.includes("urlencode:")) {
-      console.log("⚠️ Паведамленне не распазнана або пустое.");
+    if (!text || text.length < 2) {
+      console.log("⚠️ Паведамленне занадта кароткае або не распазнана.");
       return res.status(200).json({ status: "ignored" });
     }
 
+    // Класіфікацыя
     let category = "chat";
     const t = text.toLowerCase();
     if (
       t.includes("вакансія") ||
       t.includes("zł") ||
       t.includes("netto") ||
-      t.includes("шукаем")
+      t.includes("шукаем") ||
+      t.includes("заезд")
     ) {
       category = "vacancy";
     } else if (
@@ -50,14 +56,16 @@ router.post("/push", async (req, res) => {
     }
 
     const newMessage = new UnprocessedMessage({
-      sender: sender || "Невядомы",
+      sender,
       text,
-      source,
+      source: body.source || "viber",
       category,
     });
 
     await newMessage.save();
-    console.log(`✅ Захавана ад ${sender}: ${category}`);
+    console.log(
+      `✅ Захавана ад ${sender}: ${category} (${text.substring(0, 30)}...)`,
+    );
     res.status(200).json({ status: "success" });
   } catch (error) {
     console.error("❌ Памылка:", error);
