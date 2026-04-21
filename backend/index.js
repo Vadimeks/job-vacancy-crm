@@ -52,23 +52,21 @@ mongoose
 // --- БОТ: СЛУХАННЕ ЧАТАЎ АГЕНЦЫЙ ---
 bot.on("message", async (ctx) => {
   const chatId = ctx.chat.id.toString();
+  const chatTitle = ctx.chat.title || "Telegram Chat"; // <--- ДАДАЦЬ ГЭТА
   const text = ctx.message.text;
 
   if (!AGENCY_CHAT_IDS.includes(chatId)) return;
   if (!text || text.length < 10) return;
 
   console.log(
-    `📨 Новае паведамленне з чата агенцыі [${chatId}]: ${text.substring(0, 50)}...`,
+    `📨 Новае паведамленне з [${chatTitle}]: ${text.substring(0, 50)}...`,
   );
 
   try {
-    await processVacancyMessage(text);
+    // Перадаем chatTitle як другі аргумент
+    await processVacancyMessage(text, chatTitle);
   } catch (err) {
-    if (err.message === "RATE_LIMIT") {
-      console.error("⏱️ Rate limit. Паўтарыце пазней.");
-    } else {
-      console.error("❌ Памылка апрацоўкі паведамлення:", err.message);
-    }
+    console.error("❌ Памылка апрацоўкі паведамлення:", err.message);
   }
 });
 

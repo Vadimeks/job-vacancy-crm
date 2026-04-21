@@ -3,6 +3,7 @@ const express = require("express");
 const router = express.Router();
 const Vacancy = require("../models/Vacancy");
 const Template = require("../models/Template");
+const UnprocessedMessage = require("../models/UnprocessedMessage");
 const aiService = require("../services/ai.service");
 const {
   sendToTelegram,
@@ -63,24 +64,25 @@ function constructVacancyDisplayName(data) {
   return parts.join(" — ");
 }
 // --- АСНОЎНАЯ ФУНКЦЫЯ АПРАЦОЎКІ ---
-async function processVacancyMessage(rawText) {
+async function processVacancyMessage(rawText, senderInfo = "Telegram Bot") {
   if (!isInformative(rawText)) {
     console.log("⚠️ Паведамленне неінфарматыўнае. Адпраўка ў пясочніцу...");
 
-    // ЗАМЕСТ проста апавяшчэння, ствараем запіс у базе
-    const rawMsg = new RawMessage({
+    // ВЫПРАЎЛЕНА: выкарыстоўваем UnprocessedMessage
+    const rawMsg = new UnprocessedMessage({
+      sender: senderInfo,
       text: rawText,
-      source: "Telegram", // можна дынамічна перадаваць, калі ёсць інфа
-      status: "new",
+      source: "telegram",
+      category: "chat",
+      processed: false,
     });
     await rawMsg.save();
 
-    // Апавяшчэнне рэкрутэру пакідаем, але мяняем тэкст, што яно ў Пясочніцы
     await notifyRecruiterAboutShortMessage(
-      `📥 Новае паведамленне ў пясочніцы:\n\n${rawText}`,
+      `📥 Новае паведамленне ў пясочніцы (Telegram):\n\n${rawText}`,
     );
 
-    return { status: "saved_to_sandbox", message: "Message moved to sandbox" };
+    return { status: "saved_to_sandbox", message: "Message moved to inbox" };
   }
 
   // 1. Парсінг праз AI

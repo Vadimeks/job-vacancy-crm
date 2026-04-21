@@ -9,25 +9,23 @@ const UnprocessedMessage = require("../models/UnprocessedMessage");
 // =====================================================================
 const CHAT_AGENCY_MAP = [
   { key: "посередники apolo", agency: "APOLO" },
-  { key: "biedronka - ppg partner", agency: "Global" }, // "Biedronka - PPG Partner (SistemPL)"
+  { key: "biedronka - ppg partner", agency: "Global" },
   { key: "партнери jobsi", agency: "BISAR" },
   { key: "est polska", agency: "EST" },
-  { key: "ewl", agency: "EWL" }, // "Вакансіі EWL (Рекрутація)"
+  { key: "вакансіі ewl", agency: "EWL" },
   { key: "fws rekrutacja", agency: "FWS" },
-  { key: "partner/intraservis", agency: "Intraservice" }, // "Partner/intraservis" і "Partner / intraservis"
+  { key: "partner/intraservis", agency: "Intraservice" },
   { key: "partner / intraservis", agency: "Intraservice" },
-  { key: "kono", agency: "KONO" }, // "KONO | Partners Hub"
-  { key: "manpower freelance", agency: "MANPOWER" }, // "Manpower Freelance _2025" / "Manpower Freelance_2025"
-  { key: "mrówki group partners", agency: "MRÓWKI" }, // "🤝 Mrówki GROUP Partners 🤝"
-  { key: "mrówki group", agency: "MRÓWKI" },
+  { key: "kono | partners hub", agency: "KONO" },
+  { key: "manpower freelance", agency: "MANPOWER" },
+  { key: "mrówki group partners", agency: "MRÓWKI" },
   { key: "вакансии для партнеров", agency: "NIDEN" },
-  { key: "otto  - робота", agency: "OTTO" }, // "OTTO  - робота в Польщі" (два прабелы)
-  { key: "otto - робота", agency: "OTTO" }, // на выпадак аднаго прабела
+  { key: "otto  - робота", agency: "OTTO" },
+  { key: "otto - робота", agency: "OTTO" },
   { key: "otto для партнерів", agency: "OTTO" },
   { key: "rekrutacja ps", agency: "PERSONEL SERVICE" },
   { key: "grupa progres", agency: "PROGRES" },
-  { key: "works4you", agency: "RALEN" }, // "Works4you Вакансии в Польше"
-  { key: "Exx", agency: "UNKNOWN" }, // "test"
+  { key: "works4you", agency: "RALEN" },
 ];
 
 function resolveAgency(senderRaw) {
