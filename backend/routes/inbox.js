@@ -9,20 +9,21 @@ const { processVacancyMessage } = require("./vacancies");
 // Парадак важны — больш дакладныя запісы вышэй.
 // =====================================================================
 const CHAT_AGENCY_MAP = [
-  { key: "apolo", agency: "APOLO" },
-  { key: "ppg partner", agency: "Global" }, // Спрацуе нават з лішнімі прабеламі вакол
-  { key: "jobsi", agency: "BISAR" },
+  { key: "посередники apolo", agency: "APOLO" },
+  { key: "biedronka - ppg partner", agency: "Global" },
+  { key: "партнери jobsi", agency: "BISAR" },
   { key: "est polska", agency: "EST" },
   { key: "ewl", agency: "EWL" },
   { key: "fws rekrutacja", agency: "FWS" },
-  { key: "intraservis", agency: "Intraservice" },
+  { key: "partner/intraservis", agency: "Intraservice" },
+  { key: "partner / intraservis", agency: "Intraservice" },
   { key: "kono", agency: "KONO" },
-  { key: "manpower", agency: "MANPOWER" },
-  { key: "mrówki", agency: "MRÓWKI" },
+  { key: "manpower freelance", agency: "MANPOWER" },
+  { key: "mrówki group", agency: "MRÓWKI" },
   { key: "вакансии для партнеров", agency: "NIDEN" },
-  { key: "otto", agency: "OTTO" },
+  { key: "otto - робота", agency: "OTTO" },
   { key: "rekrutacja ps", agency: "PERSONEL SERVICE" },
-  { key: "progres", agency: "PROGRES" },
+  { key: "grupa progres", agency: "PROGRES" },
   { key: "works4you", agency: "RALEN" },
   { key: "Exx", agency: "UNKNOWN" },
 ];
