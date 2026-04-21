@@ -1,12 +1,13 @@
+// backend/routes/inbox.js
 const express = require("express");
 const router = express.Router();
 const UnprocessedMessage = require("../models/UnprocessedMessage");
 const { classifyMessage } = require("../services/classifier.service");
 const { processVacancyMessage } = require("./vacancies");
+const { shouldIgnoreMessage } = require("../utils/messageFilters"); // Новы імпарт
+
 // =====================================================================
 // МАППІНГ: ключавая частка назвы чата → агенцыя
-// Параўнанне case-insensitive, частковае (includes).
-// Парадак важны — больш дакладныя запісы вышэй.
 // =====================================================================
 const CHAT_AGENCY_MAP = [
   { key: "посередники apolo", agency: "APOLO" },
@@ -25,56 +26,11 @@ const CHAT_AGENCY_MAP = [
   { key: "rekrutacja ps informacje", agency: "PERSONEL SERVICE" },
   { key: "grupa progres", agency: "PROGRES" },
   { key: "works4you вакансии в Польше", agency: "RALEN" },
-  { key: "Exx", agency: "UNKNOWN" },
+  { key: "тест", agency: "Manual" },
 ];
 
-function resolveAgency(senderRaw) {
-  const lower = senderRaw.toLowerCase();
-  for (const entry of CHAT_AGENCY_MAP) {
-    if (lower.includes(entry.key)) {
-      return {
-        agency: entry.agency,
-        chatLabel: `${senderRaw} (${entry.agency})`,
-      };
-    }
-  }
-  return null;
-}
-
 // =====================================================================
-// ШАБЛОНЫ СМЕЦЦЯ
-// =====================================================================
-const NOISE_PATTERNS = [
-  /^ви маєте нові повідомлення в:/i,
-  /^новий коментар до вашого повідомлення/i,
-  /^дивіться топ-повідомлення від/i,
-  /реагує .* на "/i,
-  /відповідає:/i,
-  /вхідний виклик/i,
-  /пропущений виклик/i,
-  /^you have new messages in:/i,
-  /приєднався до /i,
-  /приєдналась до /i,
-  /покинув групу/i,
-  /покинула групу/i,
-  /додав .* до групи/i,
-  /можу подати/i,
-  /можна подати/i,
-  /не отвечает на звонки/i,
-  /не відповідає на дзвінки/i,
-  /не відповідає мені/i,
-  /^доброго дня[,.]?\s*$/i,
-  /^добрий день[,.]?\s*$/i,
-  /^дякую[.!]?\s*$/i,
-];
-
-function isNoise(text) {
-  if (!text || text.trim().length < 5) return true;
-  return NOISE_PATTERNS.some((p) => p.test(text.trim()));
-}
-
-// =====================================================================
-// КЛАСІФІКАЦЫЯ
+// КЛАСІФІКАЦЫЯ (Лакальная, для Cleanup)
 // =====================================================================
 function classify(text) {
   if (!text) return "chat";
@@ -83,33 +39,12 @@ function classify(text) {
   if (
     t.includes("zł") ||
     t.includes("netto") ||
-    t.includes("brutto") ||
-    t.includes("шукаем") ||
-    t.includes("шукаємо") ||
-    t.includes("umowa") ||
-    t.includes("praca") ||
-    t.includes("zatrudni") ||
     t.includes("вакансія") ||
-    t.includes("вакансії") ||
-    t.includes("заезд") ||
-    t.includes("rekrutacj") ||
-    (t.includes("netto") && t.match(/\d{3,}/))
+    t.includes("praca")
   )
     return "vacancy";
 
-  if (
-    t.includes("стоп") ||
-    t.includes("актуально") ||
-    t.includes("актуальна") ||
-    t.includes("актуальні") ||
-    t.includes("закрито") ||
-    t.includes("закрыто") ||
-    t.includes("добор") ||
-    t.includes("дабор") ||
-    t.includes("набір") ||
-    (t.includes("всі вакансії") &&
-      (t.includes("актуальн") || t.includes("вчора")))
-  )
+  if (t.includes("актуально") || t.includes("набір") || t.includes("добор"))
     return "update";
 
   return "chat";
@@ -122,79 +57,55 @@ router.post("/push", async (req, res) => {
   try {
     const body = req.body || {};
     const senderRaw = (body.sender || body.not_title || "").trim();
-    if (!senderRaw) return res.status(200).json({ status: "ignored" });
-
-    // 1. Выбар тэксту
     let text = body.bigText || body.text || body.notification || "";
-    if (!text || text.length < 2)
-      return res.status(200).json({ status: "ignored" });
 
-    // 2. AI Класіфікацыя
+    const agency = getWhitelistedAgency(senderRaw);
+    if (!agency)
+      return res.status(200).json({ status: "ignored_not_whitelisted" });
+
+    if (shouldIgnoreMessage(text))
+      return res.status(200).json({ status: "ignored_noise" });
+
+    console.log(`✅ Whitelisted Viber: ${agency} [${senderRaw}]`);
+
     const classification = await classifyMessage(text, senderRaw);
+    const finalAgency =
+      classification.agency === "UNKNOWN" ? agency : classification.agency;
 
-    // Калі гэта відавочнае смецце — ігнаруем
-    if (
-      classification.category === "NOISE" &&
-      classification.confidence > 0.7
-    ) {
-      console.log(`🗑 Ігнаравана як NOISE (${classification.reasoning})`);
-      return res.status(200).json({ status: "ignored" });
-    }
-
-    // 3. Дэдуплікацыя (10 хвілін)
-    const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
-    const duplicate = await UnprocessedMessage.findOne({
-      sender: senderRaw,
-      text,
-      createdAt: { $gte: tenMinutesAgo },
-    });
-    if (duplicate) return res.status(200).json({ status: "duplicate" });
-
-    // 4. ЛОГІКА РАЗМЕРКАВАННЯ
     if (
       classification.category === "FULL_VACANCY" &&
       classification.confidence > 0.7
     ) {
-      console.log(`🚀 Auto-processing vacancy from ${classification.agency}`);
-      // Адпраўляем адразу ў парсер вакансій
-      const result = await processVacancyMessage(
-        text,
-        senderRaw,
-        classification.agency,
-      );
+      const result = await processVacancyMessage(text, senderRaw, finalAgency);
       return res
         .status(200)
         .json({ status: "auto_processed", vacancyId: result._id });
     } else {
-      // Захоўваем у Пясочніцу (Inbox)
+      // ЗАЎСЁДЫ захоўваем у Inbox для вайтліста
       const categoryMap = {
         UPDATE: "update",
         FULL_VACANCY: "vacancy",
+        RECRUITER_INFO: "info",
         NOISE: "chat",
       };
 
       await new UnprocessedMessage({
         sender: senderRaw,
-        agencyName: classification.agency,
-        text,
+        agencyName: finalAgency,
+        text: classification.translatedText || text,
         source: body.source || "viber",
         category: categoryMap[classification.category] || "chat",
       }).save();
 
-      console.log(
-        `📥 Saved to Inbox [${classification.category}] from ${classification.agency}`,
-      );
-      res
-        .status(200)
-        .json({ status: "success", category: classification.category });
+      res.status(200).json({ status: "success" });
     }
   } catch (error) {
-    console.error("❌ inbox/push error:", error);
+    console.error("❌ Inbox Push Error:", error);
     res.status(500).json({ status: "error" });
   }
 });
 
-// GET /api/inbox/stats  ← ПЕРАД /:id
+// GET /api/inbox/stats
 router.get("/stats", async (req, res) => {
   try {
     const [total, vacancy, update, chat] = await Promise.all([
@@ -215,7 +126,7 @@ router.get("/stats", async (req, res) => {
   }
 });
 
-// POST /api/inbox/cleanup — ачыстка і перакласіфікацыя базы
+// POST /api/inbox/cleanup
 router.post("/cleanup", async (req, res) => {
   try {
     const all = await UnprocessedMessage.find({ processed: false });
@@ -223,7 +134,7 @@ router.post("/cleanup", async (req, res) => {
     let reclassified = 0;
 
     for (const msg of all) {
-      if (isNoise(msg.text)) {
+      if (shouldIgnoreMessage(msg.text)) {
         await msg.deleteOne();
         deleted++;
         continue;
@@ -235,22 +146,17 @@ router.post("/cleanup", async (req, res) => {
         reclassified++;
       }
     }
-
-    console.log(
-      `🧹 Cleanup: выдалена ${deleted}, перакласіфікавана ${reclassified}`,
-    );
     res.json({ deleted, reclassified });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-// DELETE /api/inbox/bulk  ← ПЕРАД /:id
+// DELETE /api/inbox/bulk
 router.delete("/bulk", async (req, res) => {
   try {
     const { ids, category, all } = req.body || {};
     let result;
-
     if (all) {
       result = await UnprocessedMessage.deleteMany({ processed: false });
     } else if (category) {
@@ -263,10 +169,8 @@ router.delete("/bulk", async (req, res) => {
     } else {
       return res.status(400).json({ message: "Нічога не пазначана" });
     }
-
     res.json({ deleted: result.deletedCount });
   } catch (error) {
-    console.error("❌ bulk delete:", error);
     res.status(500).json({ message: error.message });
   }
 });

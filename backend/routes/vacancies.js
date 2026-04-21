@@ -62,13 +62,14 @@ async function processVacancyMessage(
   senderInfo = "Manual",
   preDefinedAgency = null,
 ) {
-  console.log(`\n--- 📥 НОВАЕ ПАВЕДАМЛЕННЕ ---`);
-  console.log(`Крыніца: ${senderInfo}`);
-  console.log(`Тэкст: ${rawText.substring(0, 200)}...`);
+  console.log(`\n--- 🚀 ПАЧАТАК АПРАЦОЎКІ ВАКАНСІІ ---`);
+  console.log(
+    `[1/4] Крыніца: ${senderInfo}, Агенцыя (AI): ${preDefinedAgency || "няма"}`,
+  );
 
   // 1. ПРАВЕРКА НА ІНФАРМАТЫЎНАСЦЬ
   if (!isInformative(rawText)) {
-    console.log(`[!] Паведамленне занадта кароткае. Захоўваем у Пясочніцу.`);
+    console.log(`[!] Паведамленне кароткае. Захоўваем у Пясочніцу.`);
     const rawMsg = new UnprocessedMessage({
       sender: senderInfo,
       agencyName: preDefinedAgency || "Manual",
@@ -82,15 +83,13 @@ async function processVacancyMessage(
   }
 
   // 2. ПАРСІНГ ПРАЗ AI
-  console.log(`[AI] Запуск парсера v2.0...`);
+  console.log(`[2/4] Запуск AI-парсера v2.0...`);
   const vacancyData = await aiService.parseVacancyWithAI(rawText);
 
   let finalAgency = preDefinedAgency || vacancyData.agencyName || "Manual";
-  console.log(
-    `[AI] Вынік парсінгу: ${vacancyData.vacancydescription || "Без назвы"} (${finalAgency})`,
-  );
+  console.log(`[AI] Вынік: ${vacancyData.vacancydescription} (${finalAgency})`);
 
-  // 3. ЗАХАВАННЕ Ў БАЗУ
+  // 3. ПАДРЫХТОЎКА І ЗАХАВАННЕ
   const displayName = constructVacancyDisplayName({
     ...vacancyData,
     agencyName: finalAgency,
@@ -112,7 +111,7 @@ async function processVacancyMessage(
   });
 
   const savedVacancy = await newVacancy.save();
-  console.log(`✅ ВАКАНСІЯ СТВОРАНА: ${vacancyCode}`);
+  console.log(`[3/4] Вакансія захавана: ${vacancyCode}`);
 
   // 4. АДПРАЎКА Ў ТЭЛЕГРАМ
   try {
