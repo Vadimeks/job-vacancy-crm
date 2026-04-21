@@ -1,8 +1,6 @@
 // frontend/src/services/api.js
 import axios from "axios";
 
-// Vite выкарыстоўвае import.meta.env для доступу да зменных асяроддзя.
-// Калі VITE_API_URL не зададзена (напрыклад, лакальна), будзе выкарыстоўвацца localhost.
 const API_URL = import.meta.env.VITE_API_URL
   ? `${import.meta.env.VITE_API_URL}/api`
   : "http://localhost:3000/api";
@@ -42,7 +40,12 @@ export const matchVacanciesForCandidate = (id) =>
 export const submitApplication = (data) => api.post("/apply", data);
 export const matchCandidatesForVacancy = (id) =>
   api.get(`/vacancies/${id}/match-candidates`);
+
 // --- УВАХОДНЫЯ (Viber/Telegram) ---
-export const getInboxMessages = () => api.get("/inbox");
+export const getInboxMessages = (params) => api.get("/inbox", { params });
+export const getInboxStats = () => api.get("/inbox/stats");
 export const deleteInboxMessage = (id) => api.delete(`/inbox/${id}`);
+export const bulkDeleteInbox = (data) => api.delete("/inbox/bulk", { data });
+export const markInboxProcessed = (id) => api.patch(`/inbox/${id}/process`);
+
 export default api;
