@@ -23,6 +23,7 @@ const CHAT_AGENCY_MAP = {
   "rekrutacja ps informacje": "PERSONEL SERVICE",
   "grupa progres/актуальні вакансії": "PROGRES",
   "works4you вакансии в польше": "RALEN",
+  Exx: "UNKNOWN",
 };
 
 /**
