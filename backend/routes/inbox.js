@@ -3,43 +3,49 @@ const router = express.Router();
 const UnprocessedMessage = require("../models/UnprocessedMessage");
 
 // =====================================================================
-// ДАКЛАДНЫ МАППІНГ: назва чата → агенцыя
-// Параўнанне case-insensitive, поўнае супадзенне
+// МАППІНГ: ключавая частка назвы чата → агенцыя
+// Параўнанне case-insensitive, частковае (includes).
+// Парадак важны — больш дакладныя запісы вышэй.
 // =====================================================================
-const CHAT_AGENCY_MAP = {
-  "посередники apolo": "APOLO",
-  "biedronka - ppg partner (sistempl)": "Global",
-  "партнери jobsi": "BISAR",
-  "est polska": "EST",
-  "вакансіі ewl (рекрутація)": "EWL",
-  "fws rekrutacja": "FWS",
-  "partner/intraservis": "Intraservice",
-  "kono | partners hub": "KONO",
-  "manpower freelance_2025": "MANPAWER",
-  "mrówki group partners": "MRÓWKI",
-  "вакансии для партнеров": "NIDEN",
-  "otto  - робота в польщі": "OTTO",
-  "otto для партнерів": "OTTO",
-  "rekrutacja ps informacje": "PERSONEL SERVICE",
-  "grupa progres/актуальні вакансії": "PROGRES",
-  "works4you вакансии в польше": "RALEN",
-  Exx: "UNKNOWN",
-};
+const CHAT_AGENCY_MAP = [
+  { key: "посередники apolo", agency: "APOLO" },
+  { key: "biedronka - ppg partner", agency: "Global" }, // "Biedronka - PPG Partner (SistemPL)"
+  { key: "партнери jobsi", agency: "BISAR" },
+  { key: "est polska", agency: "EST" },
+  { key: "ewl", agency: "EWL" }, // "Вакансіі EWL (Рекрутація)"
+  { key: "fws rekrutacja", agency: "FWS" },
+  { key: "partner/intraservis", agency: "Intraservice" }, // "Partner/intraservis" і "Partner / intraservis"
+  { key: "partner / intraservis", agency: "Intraservice" },
+  { key: "kono", agency: "KONO" }, // "KONO | Partners Hub"
+  { key: "manpower freelance", agency: "MANPOWER" }, // "Manpower Freelance _2025" / "Manpower Freelance_2025"
+  { key: "mrówki group partners", agency: "MRÓWKI" }, // "🤝 Mrówki GROUP Partners 🤝"
+  { key: "mrówki group", agency: "MRÓWKI" },
+  { key: "вакансии для партнеров", agency: "NIDEN" },
+  { key: "otto  - робота", agency: "OTTO" }, // "OTTO  - робота в Польщі" (два прабелы)
+  { key: "otto - робота", agency: "OTTO" }, // на выпадак аднаго прабела
+  { key: "otto для партнерів", agency: "OTTO" },
+  { key: "rekrutacja ps", agency: "PERSONEL SERVICE" },
+  { key: "grupa progres", agency: "PROGRES" },
+  { key: "works4you", agency: "RALEN" }, // "Works4you Вакансии в Польше"
+  { key: "Exx", agency: "UNKNOWN" }, // "test"
+];
 
-/**
- * Вяртае { agency, chatLabel } або null калі чат не ў спісе
- */
 function resolveAgency(senderRaw) {
-  const lower = senderRaw.toLowerCase().trim();
-  const agency = CHAT_AGENCY_MAP[lower];
-  if (!agency) return null;
-  return {
-    agency,
-    chatLabel: `${senderRaw} (${agency})`,
-  };
+  const lower = senderRaw.toLowerCase();
+  for (const entry of CHAT_AGENCY_MAP) {
+    if (lower.includes(entry.key)) {
+      return {
+        agency: entry.agency,
+        chatLabel: `${senderRaw} (${entry.agency})`,
+      };
+    }
+  }
+  return null;
 }
 
-// --- ШАБЛОНЫ СМЕЦЦЯ ---
+// =====================================================================
+// ШАБЛОНЫ СМЕЦЦЯ
+// =====================================================================
 const NOISE_PATTERNS = [
   /^ви маєте нові повідомлення в:/i,
   /^новий коментар до вашого повідомлення/i,
@@ -49,6 +55,19 @@ const NOISE_PATTERNS = [
   /вхідний виклик/i,
   /пропущений виклик/i,
   /^you have new messages in:/i,
+  /приєднався до /i,
+  /приєдналась до /i,
+  /покинув групу/i,
+  /покинула групу/i,
+  /додав .* до групи/i,
+  /можу подати/i,
+  /можна подати/i,
+  /не отвечает на звонки/i,
+  /не відповідає на дзвінки/i,
+  /не відповідає мені/i,
+  /^доброго дня[,.]?\s*$/i,
+  /^добрий день[,.]?\s*$/i,
+  /^дякую[.!]?\s*$/i,
 ];
 
 function isNoise(text) {
@@ -56,37 +75,45 @@ function isNoise(text) {
   return NOISE_PATTERNS.some((p) => p.test(text.trim()));
 }
 
-// --- КЛАСІФІКАЦЫЯ ---
+// =====================================================================
+// КЛАСІФІКАЦЫЯ
+// =====================================================================
 function classify(text) {
   if (!text) return "chat";
   const t = text.toLowerCase();
+
   if (
-    t.includes("вакансія") ||
-    t.includes("вакансії") ||
     t.includes("zł") ||
     t.includes("netto") ||
     t.includes("brutto") ||
     t.includes("шукаем") ||
     t.includes("шукаємо") ||
-    t.includes("заезд") ||
-    t.includes("оплата") ||
     t.includes("umowa") ||
     t.includes("praca") ||
-    (t.includes("місто") && t.includes("zł"))
-  ) {
+    t.includes("zatrudni") ||
+    t.includes("вакансія") ||
+    t.includes("вакансії") ||
+    t.includes("заезд") ||
+    t.includes("rekrutacj") ||
+    (t.includes("netto") && t.match(/\d{3,}/))
+  )
     return "vacancy";
-  }
+
   if (
     t.includes("стоп") ||
     t.includes("актуально") ||
     t.includes("актуальна") ||
+    t.includes("актуальні") ||
+    t.includes("закрито") ||
+    t.includes("закрыто") ||
     t.includes("добор") ||
     t.includes("дабор") ||
-    t.includes("закрито") ||
-    t.includes("набір")
-  ) {
+    t.includes("набір") ||
+    (t.includes("всі вакансії") &&
+      (t.includes("актуальн") || t.includes("вчора")))
+  )
     return "update";
-  }
+
   return "chat";
 }
 
@@ -98,11 +125,8 @@ router.post("/push", async (req, res) => {
     const body = req.body || {};
     const senderRaw = (body.sender || body.not_title || "").trim();
 
-    if (!senderRaw) {
-      return res.status(200).json({ status: "ignored", reason: "no_sender" });
-    }
+    if (!senderRaw) return res.status(200).json({ status: "ignored" });
 
-    // WHITELIST: толькі вядомыя чаты
     const resolved = resolveAgency(senderRaw);
     if (!resolved) {
       console.log(`⏭ Невядомы чат: ${senderRaw}`);
@@ -111,7 +135,7 @@ router.post("/push", async (req, res) => {
 
     const { agency, chatLabel } = resolved;
 
-    // ВЫБАР ТЭКСТУ
+    // Выбар тэксту
     let text = "";
     [body.bigText, body.bigtext, body.text, body.notification].forEach((c) => {
       if (
@@ -123,7 +147,6 @@ router.post("/push", async (req, res) => {
         text = c;
       }
     });
-
     if (!text || text.length < 2) {
       const longKey = Object.keys(body).find(
         (k) => !["sender", "source", "text"].includes(k) && k.length > 10,
@@ -131,12 +154,11 @@ router.post("/push", async (req, res) => {
       if (longKey) text = longKey;
     }
 
-    // ФІЛЬТР СМЕЦЦЯ
     if (isNoise(text)) {
       return res.status(200).json({ status: "ignored" });
     }
 
-    // ДЭДУПЛІКАЦЫЯ (10 хвілін)
+    // Дэдуплікацыя (10 хвілін)
     const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
     const duplicate = await UnprocessedMessage.findOne({
       sender: chatLabel,
@@ -150,8 +172,8 @@ router.post("/push", async (req, res) => {
     const category = classify(text);
 
     await new UnprocessedMessage({
-      sender: chatLabel, // "OTTO для Партнерів (OTTO)"
-      agencyName: agency, // "OTTO"
+      sender: chatLabel,
+      agencyName: agency,
       text,
       source: body.source || "viber",
       category,
@@ -183,6 +205,36 @@ router.get("/stats", async (req, res) => {
     res.json({ total, vacancy, update, chat });
   } catch {
     res.json({ total: 0, vacancy: 0, update: 0, chat: 0 });
+  }
+});
+
+// POST /api/inbox/cleanup — ачыстка і перакласіфікацыя базы
+router.post("/cleanup", async (req, res) => {
+  try {
+    const all = await UnprocessedMessage.find({ processed: false });
+    let deleted = 0;
+    let reclassified = 0;
+
+    for (const msg of all) {
+      if (isNoise(msg.text)) {
+        await msg.deleteOne();
+        deleted++;
+        continue;
+      }
+      const newCategory = classify(msg.text);
+      if (newCategory !== msg.category) {
+        msg.category = newCategory;
+        await msg.save();
+        reclassified++;
+      }
+    }
+
+    console.log(
+      `🧹 Cleanup: выдалена ${deleted}, перакласіфікавана ${reclassified}`,
+    );
+    res.json({ deleted, reclassified });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 });
 
