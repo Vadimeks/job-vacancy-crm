@@ -26,6 +26,7 @@ const CHAT_AGENCY_MAP = [
   { key: "rekrutacja ps", agency: "PERSONEL SERVICE" },
   { key: "grupa progres", agency: "PROGRES" },
   { key: "works4you", agency: "RALEN" },
+  { key: "Exx", agency: "UNKNOWN" },
 ];
 
 function resolveAgency(senderRaw) {
