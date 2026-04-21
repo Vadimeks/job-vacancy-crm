@@ -10,21 +10,21 @@ const { processVacancyMessage } = require("./vacancies");
 // =====================================================================
 const CHAT_AGENCY_MAP = [
   { key: "посередники apolo", agency: "APOLO" },
-  { key: "biedronka - ppg partner", agency: "Global" },
+  { key: "ppg partner (SistemPL)", agency: "Global" },
   { key: "партнери jobsi", agency: "BISAR" },
-  { key: "est polska", agency: "EST" },
-  { key: "ewl", agency: "EWL" },
+  { key: "est-polska", agency: "EST" },
+  { key: "вакансіі ewl (рекрутація)", agency: "EWL" },
   { key: "fws rekrutacja", agency: "FWS" },
   { key: "partner/intraservis", agency: "Intraservice" },
-  { key: "partner / intraservis", agency: "Intraservice" },
   { key: "kono", agency: "KONO" },
-  { key: "manpower freelance", agency: "MANPOWER" },
-  { key: "mrówki group", agency: "MRÓWKI" },
+  { key: "manpower freelance_2025", agency: "MANPOWER" },
+  { key: "mrówki group partners", agency: "MRÓWKI" },
   { key: "вакансии для партнеров", agency: "NIDEN" },
-  { key: "otto - робота", agency: "OTTO" },
-  { key: "rekrutacja ps", agency: "PERSONEL SERVICE" },
+  { key: "otto - робота в Польщі", agency: "OTTO" },
+  { key: "otto для партнерів", agency: "OTTO" },
+  { key: "rekrutacja ps informacje", agency: "PERSONEL SERVICE" },
   { key: "grupa progres", agency: "PROGRES" },
-  { key: "works4you", agency: "RALEN" },
+  { key: "works4you вакансии в Польше", agency: "RALEN" },
   { key: "Exx", agency: "UNKNOWN" },
 ];
 
@@ -135,12 +135,10 @@ router.post("/push", async (req, res) => {
     // Калі гэта відавочнае смецце — ігнаруем
     if (
       classification.category === "NOISE" &&
-      classification.confidence > 0.8
+      classification.confidence > 0.7
     ) {
-      console.log(`🗑 Noise ignored: ${senderRaw}`);
-      return res
-        .status(200)
-        .json({ status: "ignored", reason: classification.reasoning });
+      console.log(`🗑 Ігнаравана як NOISE (${classification.reasoning})`);
+      return res.status(200).json({ status: "ignored" });
     }
 
     // 3. Дэдуплікацыя (10 хвілін)

@@ -55,40 +55,42 @@ function constructVacancyDisplayName(data) {
 
 // --- АСНОЎНАЯ ЛОГІКА АПРАЦОЎКІ (Unified Flow) ---
 
+// backend/routes/vacancies.js
+
 async function processVacancyMessage(
   rawText,
   senderInfo = "Manual",
   preDefinedAgency = null,
 ) {
-  // 1. Вызначаем агенцыю (прыярытэт у таго, што знайшоў Classifier)
-  let finalAgency = preDefinedAgency || "Manual";
+  console.log(`\n--- 📥 НОВАЕ ПАВЕДАМЛЕННЕ ---`);
+  console.log(`Крыніца: ${senderInfo}`);
+  console.log(`Тэкст: ${rawText.substring(0, 200)}...`);
 
-  // 2. Калі тэкст занадта кароткі — у Пясочніцу
+  // 1. ПРАВЕРКА НА ІНФАРМАТЫЎНАСЦЬ
   if (!isInformative(rawText)) {
+    console.log(`[!] Паведамленне занадта кароткае. Захоўваем у Пясочніцу.`);
     const rawMsg = new UnprocessedMessage({
       sender: senderInfo,
-      agencyName: finalAgency,
+      agencyName: preDefinedAgency || "Manual",
       text: rawText,
       source: senderInfo.toLowerCase().includes("viber") ? "viber" : "telegram",
       category: "chat",
       processed: false,
     });
     await rawMsg.save();
-    await notifyRecruiterAboutShortMessage(
-      `📥 Нефармат у Пясочніцы:\n\n${rawText}`,
-    );
     return { status: "saved_to_sandbox" };
   }
 
-  // 3. Парсінг праз AI v2.0
+  // 2. ПАРСІНГ ПРАЗ AI
+  console.log(`[AI] Запуск парсера v2.0...`);
   const vacancyData = await aiService.parseVacancyWithAI(rawText);
 
-  // Калі Classifier не ведаў агенцыю, а парсер знайшоў яе ў тэксце — бярэм яе
-  if (finalAgency === "Manual" && vacancyData.agencyName) {
-    finalAgency = vacancyData.agencyName;
-  }
+  let finalAgency = preDefinedAgency || vacancyData.agencyName || "Manual";
+  console.log(
+    `[AI] Вынік парсінгу: ${vacancyData.vacancydescription || "Без назвы"} (${finalAgency})`,
+  );
 
-  // 4. Фарміраванне аб'екта вакансіі
+  // 3. ЗАХАВАННЕ Ў БАЗУ
   const displayName = constructVacancyDisplayName({
     ...vacancyData,
     agencyName: finalAgency,
@@ -110,40 +112,17 @@ async function processVacancyMessage(
   });
 
   const savedVacancy = await newVacancy.save();
+  console.log(`✅ ВАКАНСІЯ СТВОРАНА: ${vacancyCode}`);
 
-  // 5. Адпраўка ў Тэлеграм канал
-  await sendToTelegram(postText);
-
-  // 6. Аўта-матчынг кандыдатаў
-  const matched = await matchCandidatesForVacancy(savedVacancy);
-  if (matched?.length > 0) {
-    await notifyRecruiterAboutMatch(savedVacancy, matched);
+  // 4. АДПРАЎКА Ў ТЭЛЕГРАМ
+  try {
+    await sendToTelegram(postText);
+    console.log(`✈️ Пост адпраўлены ў Telegram.`);
+  } catch (e) {
+    console.error(`❌ Памылка адпраўкі ў ТГ:`, e.message);
   }
 
-  // 7. Фонавая праца з шаблонамі
-  setImmediate(async () => {
-    try {
-      const templates = await Template.find();
-      const matchedTpl = await aiService.identifyTemplate(rawText, templates);
-      if (matchedTpl) {
-        const linked = await aiService.linkTemplateToVacancy(
-          vacancyData,
-          matchedTpl,
-        );
-        await Vacancy.findByIdAndUpdate(savedVacancy._id, {
-          "forRecruiter.internalNotes":
-            linked.forRecruiter?.internalNotes || "",
-          templateId: matchedTpl._id,
-        });
-      } else {
-        const newTpl = await aiService.createTemplateFromVacancy(vacancyData);
-        if (newTpl) await Template.create(newTpl);
-      }
-    } catch (err) {
-      console.error("Template background error:", err.message);
-    }
-  });
-
+  console.log(`--- 🏁 АПРАЦОЎКА ЗАВЕРШАНА ---\n`);
   return savedVacancy;
 }
 
