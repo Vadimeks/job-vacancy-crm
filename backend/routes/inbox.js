@@ -1,30 +1,28 @@
 const express = require("express");
 const router = express.Router();
 const UnprocessedMessage = require("../models/UnprocessedMessage");
-
+const { classifyMessage } = require("../services/classifier.service");
+const { processVacancyMessage } = require("./vacancies");
 // =====================================================================
 // МАППІНГ: ключавая частка назвы чата → агенцыя
 // Параўнанне case-insensitive, частковае (includes).
 // Парадак важны — больш дакладныя запісы вышэй.
 // =====================================================================
 const CHAT_AGENCY_MAP = [
-  { key: "посередники apolo", agency: "APOLO" },
-  { key: "biedronka - ppg partner", agency: "Global" },
-  { key: "партнери jobsi", agency: "BISAR" },
+  { key: "apolo", agency: "APOLO" },
+  { key: "ppg partner", agency: "Global" }, // Спрацуе нават з лішнімі прабеламі вакол
+  { key: "jobsi", agency: "BISAR" },
   { key: "est polska", agency: "EST" },
-  { key: "вакансіі ewl", agency: "EWL" },
+  { key: "ewl", agency: "EWL" },
   { key: "fws rekrutacja", agency: "FWS" },
-  { key: "partner/intraservis", agency: "Intraservice" },
-  { key: "partner / intraservis", agency: "Intraservice" },
-  { key: "kono | partners hub", agency: "KONO" },
-  { key: "manpower freelance", agency: "MANPOWER" },
-  { key: "mrówki group partners", agency: "MRÓWKI" },
+  { key: "intraservis", agency: "Intraservice" },
+  { key: "kono", agency: "KONO" },
+  { key: "manpower", agency: "MANPOWER" },
+  { key: "mrówki", agency: "MRÓWKI" },
   { key: "вакансии для партнеров", agency: "NIDEN" },
-  { key: "otto  - робота", agency: "OTTO" },
-  { key: "otto - робота", agency: "OTTO" },
-  { key: "otto для партнерів", agency: "OTTO" },
+  { key: "otto", agency: "OTTO" },
   { key: "rekrutacja ps", agency: "PERSONEL SERVICE" },
-  { key: "grupa progres", agency: "PROGRES" },
+  { key: "progres", agency: "PROGRES" },
   { key: "works4you", agency: "RALEN" },
   { key: "Exx", agency: "UNKNOWN" },
 ];
@@ -117,71 +115,82 @@ function classify(text) {
 }
 
 // =====================================================================
-// POST /api/inbox/push
+// POST /api/inbox/push (Viber Gateway)
 // =====================================================================
 router.post("/push", async (req, res) => {
   try {
     const body = req.body || {};
     const senderRaw = (body.sender || body.not_title || "").trim();
-
     if (!senderRaw) return res.status(200).json({ status: "ignored" });
 
-    const resolved = resolveAgency(senderRaw);
-    if (!resolved) {
-      console.log(`⏭ Невядомы чат: ${senderRaw}`);
-      return res.status(200).json({ status: "not_whitelisted" });
-    }
-
-    const { agency, chatLabel } = resolved;
-
-    // Выбар тэксту
-    let text = "";
-    [body.bigText, body.bigtext, body.text, body.notification].forEach((c) => {
-      if (
-        c &&
-        typeof c === "string" &&
-        c.length > text.length &&
-        !c.includes("urlencode:")
-      ) {
-        text = c;
-      }
-    });
-    if (!text || text.length < 2) {
-      const longKey = Object.keys(body).find(
-        (k) => !["sender", "source", "text"].includes(k) && k.length > 10,
-      );
-      if (longKey) text = longKey;
-    }
-
-    if (isNoise(text)) {
+    // 1. Выбар тэксту
+    let text = body.bigText || body.text || body.notification || "";
+    if (!text || text.length < 2)
       return res.status(200).json({ status: "ignored" });
+
+    // 2. AI Класіфікацыя
+    const classification = await classifyMessage(text, senderRaw);
+
+    // Калі гэта відавочнае смецце — ігнаруем
+    if (
+      classification.category === "NOISE" &&
+      classification.confidence > 0.8
+    ) {
+      console.log(`🗑 Noise ignored: ${senderRaw}`);
+      return res
+        .status(200)
+        .json({ status: "ignored", reason: classification.reasoning });
     }
 
-    // Дэдуплікацыя (10 хвілін)
+    // 3. Дэдуплікацыя (10 хвілін)
     const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
     const duplicate = await UnprocessedMessage.findOne({
-      sender: chatLabel,
+      sender: senderRaw,
       text,
       createdAt: { $gte: tenMinutesAgo },
     });
-    if (duplicate) {
-      return res.status(200).json({ status: "duplicate" });
+    if (duplicate) return res.status(200).json({ status: "duplicate" });
+
+    // 4. ЛОГІКА РАЗМЕРКАВАННЯ
+    if (
+      classification.category === "FULL_VACANCY" &&
+      classification.confidence > 0.7
+    ) {
+      console.log(`🚀 Auto-processing vacancy from ${classification.agency}`);
+      // Адпраўляем адразу ў парсер вакансій
+      const result = await processVacancyMessage(
+        text,
+        senderRaw,
+        classification.agency,
+      );
+      return res
+        .status(200)
+        .json({ status: "auto_processed", vacancyId: result._id });
+    } else {
+      // Захоўваем у Пясочніцу (Inbox)
+      const categoryMap = {
+        UPDATE: "update",
+        FULL_VACANCY: "vacancy",
+        NOISE: "chat",
+      };
+
+      await new UnprocessedMessage({
+        sender: senderRaw,
+        agencyName: classification.agency,
+        text,
+        source: body.source || "viber",
+        category: categoryMap[classification.category] || "chat",
+      }).save();
+
+      console.log(
+        `📥 Saved to Inbox [${classification.category}] from ${classification.agency}`,
+      );
+      res
+        .status(200)
+        .json({ status: "success", category: classification.category });
     }
-
-    const category = classify(text);
-
-    await new UnprocessedMessage({
-      sender: chatLabel,
-      agencyName: agency,
-      text,
-      source: body.source || "viber",
-      category,
-    }).save();
-
-    console.log(`✅ [${category}] ${chatLabel}: ${text.substring(0, 60)}`);
-    res.status(200).json({ status: "success", category, agency });
   } catch (error) {
-    console.error("❌ inbox/push:", error);
+    console.error("❌ inbox/push error:", error);
     res.status(500).json({ status: "error" });
   }
 });

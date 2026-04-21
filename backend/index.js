@@ -18,6 +18,8 @@ const templatesRouter = require("./routes/templates");
 const applyRouter = require("./routes/apply");
 const rawMessagesRouter = require("./routes/rawMessages");
 const inboxRouter = require("./routes/inbox");
+const { classifyMessage } = require("./services/classifier.service");
+const UnprocessedMessage = require("./models/UnprocessedMessage");
 
 const AGENCY_CHAT_IDS = process.env.AGENCY_CHAT_IDS
   ? process.env.AGENCY_CHAT_IDS.split(",").map((id) => id.trim())
@@ -52,21 +54,45 @@ mongoose
 // --- БОТ: СЛУХАННЕ ЧАТАЎ АГЕНЦЫЙ ---
 bot.on("message", async (ctx) => {
   const chatId = ctx.chat.id.toString();
-  const chatTitle = ctx.chat.title || "Telegram Chat"; // <--- ДАДАЦЬ ГЭТА
+  const chatTitle = ctx.chat.title || "Telegram Chat";
   const text = ctx.message.text;
 
   if (!AGENCY_CHAT_IDS.includes(chatId)) return;
   if (!text || text.length < 10) return;
 
-  console.log(
-    `📨 Новае паведамленне з [${chatTitle}]: ${text.substring(0, 50)}...`,
-  );
+  console.log(`📨 New TG message from [${chatTitle}]`);
 
   try {
-    // Перадаем chatTitle як другі аргумент
-    await processVacancyMessage(text, chatTitle);
+    // 1. AI Класіфікацыя
+    const classification = await classifyMessage(text, chatTitle);
+
+    if (
+      classification.category === "FULL_VACANCY" &&
+      classification.confidence > 0.7
+    ) {
+      // Аўтаматычны парсінг
+      await processVacancyMessage(text, chatTitle, classification.agency);
+    } else if (
+      classification.category !== "NOISE" ||
+      classification.confidence < 0.8
+    ) {
+      // Усё астатняе (акрамя відавочнага спаму) — у Пясочніцу
+      const categoryMap = {
+        UPDATE: "update",
+        FULL_VACANCY: "vacancy",
+        NOISE: "chat",
+      };
+      await new UnprocessedMessage({
+        sender: chatTitle,
+        agencyName: classification.agency,
+        text,
+        source: "telegram",
+        category: categoryMap[classification.category] || "chat",
+      }).save();
+      console.log(`📥 TG message moved to Inbox [${classification.category}]`);
+    }
   } catch (err) {
-    console.error("❌ Памылка апрацоўкі паведамлення:", err.message);
+    console.error("❌ TG processing error:", err.message);
   }
 });
 
