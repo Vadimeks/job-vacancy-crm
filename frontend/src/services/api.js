@@ -19,6 +19,10 @@ export const createVacancyFromTemplate = (templateId, rawText) =>
 export const updateVacancy = (id, data) => api.put(`/vacancies/${id}`, data);
 export const deleteVacancy = (id) => api.delete(`/vacancies/${id}`);
 
+// НОВАЕ: Інтэлектуальнае абнаўленне праз AI
+export const aiUpdateVacancy = (id, rawText) =>
+  api.patch(`/vacancies/${id}/ai-update`, { rawText });
+
 // --- ШАБЛОНЫ ---
 export const getTemplates = () => api.get("/templates");
 export const createTemplate = (data) => api.post("/templates", data);
