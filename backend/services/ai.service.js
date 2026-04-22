@@ -718,6 +718,44 @@ async function testConnection() {
     return false;
   }
 }
+const UPDATE_VACANCY_PROMPT = `
+ROLE: Professional HR Dispatcher.
+TASK: Update an EXISTING job vacancy (JSON v2.0) with information from a NEW message.
+
+Rules:
+1. If the message says "STOP", "closed", "зібрана", "не актуально", "набір закрито" -> set status to "closed".
+2. If the message mentions a new salary/rate -> update salary.baseNetto and other salary fields.
+3. If the message mentions a new arrival date -> update arrivalDate.
+4. If the message mentions a change in requirements (gender, age) -> update requirements.
+5. If the message contains new details -> append them to additionalNotes or update specific fields.
+6. KEEP all other fields from the original JSON exactly as they are.
+7. Do NOT change vacancyCode, _id, or agencyName.
+
+Return ONLY valid JSON with the full updated structure v2.0.
+`;
+
+async function updateVacancyWithAI(existingVacancy, newText) {
+  try {
+    console.log(
+      `🤖 Інтэлектуальнае абнаўленне вакансіі ${existingVacancy.vacancyCode}...`,
+    );
+    const content = `CURRENT_VACANCY_JSON:\n${JSON.stringify(existingVacancy, null, 2)}\n\nNEW_MESSAGE_TEXT:\n${newText}`;
+    const responseText = await groqRequest(
+      UPDATE_VACANCY_PROMPT,
+      content,
+      true,
+    );
+
+    let cleanJson = responseText
+      .trim()
+      .replace(/```json\s*/g, "")
+      .replace(/```\s*/g, "");
+    return JSON.parse(cleanJson);
+  } catch (error) {
+    console.error("❌ AI Update Error:", error.message);
+    throw error;
+  }
+}
 
 module.exports = {
   parseVacancyWithAI,
@@ -726,5 +764,6 @@ module.exports = {
   formatTelegramPost,
   createTemplateFromVacancy,
   testConnection,
+  updateVacancyWithAI,
   mergeWithTemplate,
 };

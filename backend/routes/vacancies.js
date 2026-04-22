@@ -5,10 +5,10 @@ const Vacancy = require("../models/Vacancy");
 const Template = require("../models/Template");
 const UnprocessedMessage = require("../models/UnprocessedMessage");
 const aiService = require("../services/ai.service");
+const { getWhitelistedAgency } = require("../utils/messageFilters"); // Дадалі імпарт
 const {
   sendToTelegram,
   notifyRecruiterAboutMatch,
-  notifyRecruiterAboutShortMessage,
 } = require("../services/telegram.service");
 const { matchCandidatesForVacancy } = require("../services/matching.service");
 
@@ -31,7 +31,6 @@ function isInformative(text) {
     "brutto",
     "міста",
     "miasto",
-    "горад",
     "вакансія",
     "умова",
     "umowa",
@@ -53,9 +52,7 @@ function constructVacancyDisplayName(data) {
   return parts.join(" — ");
 }
 
-// --- АСНОЎНАЯ ЛОГІКА АПРАЦОЎКІ (Unified Flow) ---
-
-// backend/routes/vacancies.js
+// --- АСНОЎНАЯ ЛОГІКА АПРАЦОЎКІ ---
 
 async function processVacancyMessage(
   rawText,
@@ -63,76 +60,104 @@ async function processVacancyMessage(
   preDefinedAgency = null,
 ) {
   console.log(`\n--- 🚀 ПАЧАТАК АПРАЦОЎКІ ВАКАНСІІ ---`);
-  console.log(
-    `[1/4] Крыніца: ${senderInfo}, Агенцыя (AI): ${preDefinedAgency || "няма"}`,
-  );
 
-  // 1. ПРАВЕРКА НА ІНФАРМАТЫЎНАСЦЬ
-  if (!isInformative(rawText)) {
-    console.log(`[!] Паведамленне кароткае. Захоўваем у Пясочніцу.`);
-    const rawMsg = new UnprocessedMessage({
+  let finalAgency =
+    preDefinedAgency || getWhitelistedAgency(senderInfo) || "Manual";
+
+  try {
+    // 1. Спроба парсінгу праз Groq
+    console.log(`[1/3] Запуск Groq-парсера...`);
+    const vacancyData = await aiService.parseVacancyWithAI(rawText);
+
+    // 2. Падрыхтоўка і захаванне
+    const displayName = constructVacancyDisplayName({
+      ...vacancyData,
+      agencyName: finalAgency,
+    });
+    const postText = await aiService.formatTelegramPost({
+      ...vacancyData,
+      agencyName: finalAgency,
+    });
+    const vacancyCode = await generateVacancyCode();
+
+    const newVacancy = new Vacancy({
+      ...vacancyData,
+      agencyName: finalAgency,
+      templateName: displayName,
+      vacancyCode,
+      rawText,
+      telegramPost: postText,
+      status: "active",
+    });
+
+    const savedVacancy = await newVacancy.save();
+    await sendToTelegram(postText);
+
+    console.log(`✅ Вакансія створана: ${vacancyCode}`);
+    return savedVacancy;
+  } catch (err) {
+    console.error(`❌ Памылка Groq: ${err.message}. Перанос у Інбокс.`);
+
+    // FALLBACK: Калі Groq упаў, захоўваем у Інбокс як вакансію для ручной апрацоўкі
+    const fallbackMsg = new UnprocessedMessage({
       sender: senderInfo,
-      agencyName: preDefinedAgency || "Manual",
+      agencyName: finalAgency,
       text: rawText,
-      source: senderInfo.toLowerCase().includes("viber") ? "viber" : "telegram",
-      category: "chat",
+      source: "error_fallback",
+      category: "vacancy", // Пазначаем як вакансію, каб рэкрутэр бачыў яе ў патрэбным спісе
       processed: false,
     });
-    await rawMsg.save();
-    return { status: "saved_to_sandbox" };
+    await fallbackMsg.save();
+    return { status: "saved_to_inbox_due_to_error", error: err.message };
   }
-
-  // 2. ПАРСІНГ ПРАЗ AI
-  console.log(`[2/4] Запуск AI-парсера v2.0...`);
-  const vacancyData = await aiService.parseVacancyWithAI(rawText);
-
-  let finalAgency = preDefinedAgency || vacancyData.agencyName || "Manual";
-  console.log(`[AI] Вынік: ${vacancyData.vacancydescription} (${finalAgency})`);
-
-  // 3. ПАДРЫХТОЎКА І ЗАХАВАННЕ
-  const displayName = constructVacancyDisplayName({
-    ...vacancyData,
-    agencyName: finalAgency,
-  });
-  const postText = await aiService.formatTelegramPost({
-    ...vacancyData,
-    agencyName: finalAgency,
-  });
-  const vacancyCode = await generateVacancyCode();
-
-  const newVacancy = new Vacancy({
-    ...vacancyData,
-    agencyName: finalAgency,
-    templateName: displayName,
-    vacancyCode,
-    rawText,
-    telegramPost: postText,
-    status: "active",
-  });
-
-  const savedVacancy = await newVacancy.save();
-  console.log(`[3/4] Вакансія захавана: ${vacancyCode}`);
-
-  // 4. АДПРАЎКА Ў ТЭЛЕГРАМ
-  try {
-    await sendToTelegram(postText);
-    console.log(`✈️ Пост адпраўлены ў Telegram.`);
-  } catch (e) {
-    console.error(`❌ Памылка адпраўкі ў ТГ:`, e.message);
-  }
-
-  console.log(`--- 🏁 АПРАЦОЎКА ЗАВЕРШАНА ---\n`);
-  return savedVacancy;
 }
+
+// НОВЫ РОЎТ: Інтэлектуальнае абнаўленне існуючай вакансіі
+router.patch("/:id/ai-update", async (req, res) => {
+  try {
+    const { rawText } = req.body;
+    const existingVacancy = await Vacancy.findById(req.params.id);
+
+    if (!existingVacancy)
+      return res.status(404).json({ message: "Вакансія не знойдзена" });
+
+    // Выклікаем AI для разумнага мерджу
+    const updatedData = await aiService.updateVacancyWithAI(
+      existingVacancy.toObject(),
+      rawText,
+    );
+
+    // Абнаўляем пост для Telegram (калі трэба)
+    const newPostText = await aiService.formatTelegramPost(updatedData);
+    // Дадаем пазнаку аб абнаўленні для Telegram
+    const telegramUpdateNote = `🔄 **ОНОВЛЕНО** (Код: ${existingVacancy.vacancyCode})\n\n${newPostText}`;
+
+    updatedData.telegramPost = newPostText;
+    updatedData.rawText = `${existingVacancy.rawText}\n\n--- UPDATE ---\n${rawText}`;
+
+    const saved = await Vacancy.findByIdAndUpdate(req.params.id, updatedData, {
+      new: true,
+    });
+    // АДПРАЎЛЯЕМ У ТЭЛЕГРАМ
+    await sendToTelegram(telegramUpdateNote);
+    res.json(saved);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 // --- МАРШРУТЫ API ---
 
-// Аўта-стварэнне (з фронту)
+// Аўта-стварэнне (з юзербота або фронта)
 router.post("/auto", async (req, res) => {
   try {
-    const result = await processVacancyMessage(req.body.rawText);
+    const { rawText, senderInfo } = req.body;
+    if (!rawText) return res.status(400).json({ message: "Тэкст пусты" });
+
+    const result = await processVacancyMessage(rawText, senderInfo || "Manual");
     res.status(201).json(result);
   } catch (err) {
+    console.error("❌ Auto Route Error:", err.message);
     res.status(500).json({ message: err.message });
   }
 });
@@ -145,7 +170,10 @@ router.post("/from-template/:templateId", async (req, res) => {
       return res.status(404).json({ message: "Шаблон не знойдзены" });
 
     const parsedData = await aiService.parseVacancyWithAI(req.body.rawText);
-    const displayName = constructVacancyDisplayName(parsedData);
+    const displayName = constructVacancyDisplayName({
+      ...parsedData,
+      agencyName: template.agencyName,
+    });
     const finalData = await aiService.linkTemplateToVacancy(
       parsedData,
       template,
@@ -153,6 +181,7 @@ router.post("/from-template/:templateId", async (req, res) => {
 
     const newVacancy = new Vacancy({
       ...finalData,
+      agencyName: template.agencyName,
       templateName: displayName,
       vacancyCode: await generateVacancyCode(),
       templateId: template._id,
@@ -181,7 +210,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Ручное стварэнне (з формы)
+// Ручное стварэнне
 router.post("/", async (req, res) => {
   try {
     const vacancyCode = await generateVacancyCode();
@@ -212,18 +241,6 @@ router.delete("/:id", async (req, res) => {
   try {
     await Vacancy.findByIdAndDelete(req.params.id);
     res.json({ message: "✅ Вакансія выдалена" });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// Матчынг для канкрэтнай вакансіі
-router.get("/:id/match-candidates", async (req, res) => {
-  try {
-    const vacancy = await Vacancy.findById(req.params.id);
-    if (!vacancy) return res.status(404).json({ message: "Не знойдзена" });
-    const matched = await matchCandidatesForVacancy(vacancy);
-    res.json(matched);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

@@ -16,7 +16,7 @@ const {
   shouldIgnoreMessage,
   getWhitelistedAgency,
 } = require("./utils/messageFilters");
-
+const { classifyWithGemini } = require("./services/gemini.service");
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -36,41 +36,31 @@ bot.on("message", async (ctx) => {
 
     const agency = getWhitelistedAgency(chatTitle);
     if (!agency) return;
-
     if (shouldIgnoreMessage(text)) return;
 
-    console.log(`✅ Whitelisted TG: ${agency} [${chatTitle}]`);
+    console.log(`🔍 Gemini аналізуе паведамленне з TG: ${chatTitle}`);
 
-    const classification = await classifyMessage(text, chatTitle);
-    const finalAgency =
-      classification.agency === "UNKNOWN" ? agency : classification.agency;
+    // ВЫКАРЫСТОЎВАЕМ GEMINI ЗАМЕСТ GROQ ДЛЯ КЛАСІФІКАЦЫІ
+    const classification = await classifyWithGemini(text);
 
-    if (
-      classification.category === "FULL_VACANCY" &&
-      classification.confidence > 0.7
-    ) {
-      await processVacancyMessage(text, chatTitle, finalAgency);
+    if (classification.category === "NOISE") return;
+
+    if (classification.category === "FULL_VACANCY") {
+      // Калі гэта вакансія — запускаем асноўны працэс (Groq унутры)
+      await processVacancyMessage(text, chatTitle, agency);
     } else {
-      // ЗАЎСЁДЫ захоўваем у Inbox, калі чат у вайтлісце, нават калі AI кажа NOISE
-      const categoryMap = {
-        UPDATE: "update",
-        FULL_VACANCY: "vacancy",
-        RECRUITER_INFO: "info",
-        NOISE: "chat",
-      };
-
+      // Усё астатняе (UPDATE, INFO) — у Інбокс
+      const categoryMap = { UPDATE: "update", RECRUITER_INFO: "info" };
       await new UnprocessedMessage({
         sender: chatTitle,
-        agencyName: finalAgency,
+        agencyName: agency,
         text: classification.translatedText || text,
         source: "telegram",
         category: categoryMap[classification.category] || "chat",
       }).save();
-
-      console.log(`📥 Saved to Inbox from whitelisted chat: ${chatTitle}`);
     }
   } catch (err) {
-    console.error("❌ TG Error:", err.message);
+    console.error("❌ TG Pipeline Error:", err.message);
   }
 });
 

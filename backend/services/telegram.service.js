@@ -7,13 +7,19 @@ const RECRUITER_CHAT_ID = process.env.RECRUITER_CHAT_ID;
 
 const sendToTelegram = async (postText, vacancyId = null) => {
   try {
+    // Невялікая ачыстка, каб не ламаць Markdown
+    const safeText = postText.replace(/([_`[\]()])/g, "\\$1");
+    // Але мы не чапаем *, бо яны патрэбны для тлустага шрыфту.
+    // Калі AI памыліцца з колькасцю *, пост можа не адправіцца.
     await bot.telegram.sendMessage(CHANNEL_ID, postText, {
       parse_mode: "Markdown",
       disable_web_page_preview: true,
     });
     console.log("✅ Вакансія адпраўлена ў Telegram (Markdown)");
   } catch (err) {
-    console.error("❌ Памылка Markdown парсінгу:", err.message);
+    console.error(
+      "❌ Памылка Markdown. Спрабуем адправіць як звычайны тэкст...",
+    );
     await bot.telegram
       .sendMessage(CHANNEL_ID, postText)
       .catch((e) => console.error(e));

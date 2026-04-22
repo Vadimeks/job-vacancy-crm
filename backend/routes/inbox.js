@@ -2,6 +2,7 @@
 const express = require("express");
 const router = express.Router();
 const UnprocessedMessage = require("../models/UnprocessedMessage");
+const { classifyWithGemini } = require("../services/gemini.service");
 const { classifyMessage } = require("../services/classifier.service");
 const { processVacancyMessage } = require("./vacancies");
 const {
@@ -36,72 +37,114 @@ function classify(text) {
 router.post("/push", async (req, res) => {
   try {
     const body = req.body || {};
-    // MacroDroid можа дасылаць назву чата ў розных палях
     const senderRaw = (body.sender || body.not_title || "").trim();
     let text = body.bigText || body.text || body.notification || "";
 
-    // 1. Праверка на вайтліст (ці гэта чат агенцыі?)
+    if (!text || text.length < 15)
+      return res.status(200).json({ status: "ignored_too_short" });
+
+    // 1. ДЭДУПЛІКАЦЫЯ (Каб не плаціць за адно і тое ж паведамленне двойчы)
+    const tenMinsAgo = new Date(Date.now() - 10 * 60 * 1000);
+    const duplicate = await UnprocessedMessage.findOne({
+      text: text,
+      createdAt: { $gte: tenMinsAgo },
+    });
+
+    if (duplicate) {
+      console.log("🚫 Дубль ігнаруецца");
+      return res.status(200).json({ status: "ignored_duplicate" });
+    }
+
+    // 2. ВАЙТЛІСТ (Ці наш гэта чат?)
     const agency = getWhitelistedAgency(senderRaw);
-    if (!agency) {
+    if (!agency)
       return res.status(200).json({ status: "ignored_not_whitelisted" });
+
+    // 3. ЖОРСТКІ ФІЛЬТР (Regex)
+    if (shouldIgnoreMessage(text))
+      return res.status(200).json({ status: "ignored_noise_regex" });
+
+    console.log(`🔍 Gemini аналізуе паведамленне ад ${agency}...`);
+
+    // 4. КЛАСІФІКАЦЫЯ GEMINI
+    const classification = await classifyWithGemini(text);
+
+    if (classification.category === "NOISE") {
+      console.log("🗑️ Gemini вызначыў як шум");
+      return res.status(200).json({ status: "ignored_noise_ai" });
     }
 
-    // 2. Жорсткі фільтр шуму (Regex)
-    if (shouldIgnoreMessage(text)) {
-      console.log(
-        `🗑️ Шум адфільтраваны: [${agency}] ${text.substring(0, 40)}...`,
-      );
-      return res.status(200).json({ status: "ignored_noise" });
-    }
-
-    console.log(`✅ Паведамленне прайшло фільтр: ${agency} [${senderRaw}]`);
-
-    // 3. Класіфікацыя праз AI
-    const classification = await classifyMessage(text, senderRaw);
-    const finalAgency =
-      classification.agency === "UNKNOWN" || !classification.agency
-        ? agency
-        : classification.agency;
-
-    // 4. Калі гэта поўная вакансія з высокім даверам — аўта-працэсінг
-    if (
-      classification.category === "FULL_VACANCY" &&
-      classification.confidence > 0.7
-    ) {
-      const result = await processVacancyMessage(text, senderRaw, finalAgency);
-      return res.status(200).json({
-        status: "auto_processed",
-        vacancyId: result._id,
-      });
+    // 5. РАЗМЕРКАВАННЕ
+    if (classification.category === "FULL_VACANCY") {
+      console.log("🚀 Гэта вакансія! Запуск Groq-парсера...");
+      // Перадаем у Groq толькі тое, што Gemini палічыў вакансіяй
+      const result = await processVacancyMessage(text, senderRaw, agency);
+      return res
+        .status(200)
+        .json({ status: "auto_processed", vacancyId: result._id });
     } else {
-      // 5. Ва ўсіх астатніх выпадках — у Пясочніцу (Inbox)
-      const categoryMap = {
-        UPDATE: "update",
-        FULL_VACANCY: "vacancy",
-        RECRUITER_INFO: "info", // Цяпер дазволена ў мадэлі
-        NOISE: "chat",
-      };
+      // UPDATE або RECRUITER_INFO — у Пясочніцу
+      const categoryMap = { UPDATE: "update", RECRUITER_INFO: "info" };
 
-      await new UnprocessedMessage({
+      const newMsg = new UnprocessedMessage({
         sender: senderRaw,
-        agencyName: finalAgency,
+        agencyName: agency,
         text: classification.translatedText || text,
-        source: body.source || "viber",
+        source: "viber",
         category: categoryMap[classification.category] || "chat",
         processed: false,
-      }).save();
+      });
 
-      res
-        .status(200)
-        .json({ status: "success", category: classification.category });
+      await newMsg.save();
+      console.log(`📥 Захавана ў Пясочніцу: ${classification.category}`);
+      res.status(200).json({ status: "saved_to_inbox" });
     }
   } catch (error) {
     console.error("❌ Inbox Push Error:", error);
-    // Вяртаем 200, каб MacroDroid не зацыкліваў спробы пры памылцы
-    res.status(200).json({ status: "error", message: error.message });
+    res.status(200).json({ status: "error" });
   }
 });
+// POST /api/inbox/push-userbot
+router.post("/push-userbot", async (req, res) => {
+  try {
+    const { rawText, senderInfo } = req.body;
 
+    if (!rawText || rawText.length < 15) return res.sendStatus(200);
+
+    // 1. Жорсткі фільтр
+    if (shouldIgnoreMessage(rawText)) return res.sendStatus(200);
+
+    // 2. Класіфікацыя Gemini
+    const classification = await classifyWithGemini(rawText);
+
+    if (classification.category === "NOISE") return res.sendStatus(200);
+
+    if (classification.category === "FULL_VACANCY") {
+      // Калі гэта вакансія — запускаем Groq
+      const result = await processVacancyMessage(
+        rawText,
+        senderInfo,
+        classification.agency,
+      );
+      return res.json({ status: "auto_processed", id: result._id });
+    } else {
+      // Калі UPDATE або INFO — у Пясочніцу
+      const categoryMap = { UPDATE: "update", RECRUITER_INFO: "info" };
+      const newMsg = new UnprocessedMessage({
+        sender: senderInfo,
+        agencyName: classification.agency || "UNKNOWN",
+        text: classification.translatedText || rawText,
+        source: "telegram_userbot",
+        category: categoryMap[classification.category] || "chat",
+      });
+      await newMsg.save();
+      return res.json({ status: "saved_to_inbox" });
+    }
+  } catch (error) {
+    console.error("❌ Userbot Push Error:", error);
+    res.sendStatus(500);
+  }
+});
 // GET /api/inbox/stats - Статыстыка для фронтэнда
 router.get("/stats", async (req, res) => {
   try {

@@ -46,10 +46,10 @@ async function startUserbot() {
     10 * 60 * 1000,
   );
 
-  // 3. Паказваем усе чаты (для атрымання ID)
+  // 3. Паказваем усе чаты (для атрымання ID), калі спіс пусты
   if (AGENCY_CHAT_IDS.length === 0) {
     console.log("📋 Вашы чаты (скапіруйце патрэбныя ID у AGENCY_CHAT_IDS):");
-    const dialogs = await client.getDialogs({ limit: 200 });
+    const dialogs = await client.getDialogs({ limit: 100 });
     for (const dialog of dialogs) {
       console.log(`  ${dialog.id} — ${dialog.title || dialog.name}`);
     }
@@ -60,42 +60,53 @@ async function startUserbot() {
   client.addEventHandler(async (event) => {
     try {
       const message = event.message;
+      if (!message || !message.text) return;
+
       const chatId = message.chatId?.toString();
 
-      // Фільтруем толькі пазначаныя чаты
+      // Атрымліваем назву чата для лепшай ідэнтыфікацыі агенцыі
+      const chat = await message.getChat();
+      const chatTitle = chat.title || "Unknown Chat";
+
+      // Фільтруем толькі пазначаныя чаты (калі спіс не пусты)
       if (AGENCY_CHAT_IDS.length > 0 && !AGENCY_CHAT_IDS.includes(chatId)) {
         return;
       }
 
       const text = message.text;
 
-      // Ігнаруем кароткія паведамленні і медыя без тэксту
-      if (!text || text.length < 15) return;
+      // Ігнаруем занадта кароткія паведамленні
+      if (text.length < 15) return;
 
       console.log(
-        `📨 Новае паведамленне з чата [${chatId}]: ${text.substring(0, 60)}...`,
+        `📨 [${chatTitle}] Новае паведамленне: ${text.substring(0, 50)}...`,
       );
 
-      // Паўза каб не перагружаць Gemini API
-      await new Promise((resolve) => setTimeout(resolve, 3000));
+      // Невялікая паўза, каб не спамаваць API
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
-      // Адпраўляем на апрацоўку ў бэкенд
+      // АДПРАЎКА НА БЭКЕНД (на новы разумны эндпоінт)
       try {
-        const res = await axios.post(`${BACKEND_URL}/api/vacancies/auto`, {
+        const res = await axios.post(`${BACKEND_URL}/api/inbox/push-userbot`, {
           rawText: text,
+          senderInfo: chatTitle, // Перадаем назву чата для мапінгу агенцыі
         });
-        console.log(
-          `✅ Вакансія апрацавана: ${res.data.title} (${res.data.vacancyCode})`,
-        );
-      } catch (err) {
-        if (err.response?.status === 429) {
-          console.error("⏱️ Rate limit. Паўтарыце пазней.");
+
+        if (res.data.status === "auto_processed") {
+          console.log(`🚀 Вакансія створана аўтаматычна (ID: ${res.data.id})`);
+        } else if (res.data.status === "saved_to_inbox") {
+          console.log(`📥 Захавана ў Пясочніцу (Update/Info)`);
         } else {
-          console.error("❌ Памылка адпраўкі на бэкенд:", err.message);
+          console.log(`ℹ️ Статус апрацоўкі: ${res.data.status}`);
         }
+      } catch (err) {
+        console.error("❌ Памылка адпраўкі на бэкенд:", err.message);
       }
     } catch (err) {
-      console.error("❌ Памылка апрацоўкі паведамлення:", err.message);
+      console.error(
+        "❌ Памылка апрацоўкі паведамлення юзерботам:",
+        err.message,
+      );
     }
   }, new NewMessage({}));
 
