@@ -4,33 +4,13 @@ const router = express.Router();
 const UnprocessedMessage = require("../models/UnprocessedMessage");
 const { classifyMessage } = require("../services/classifier.service");
 const { processVacancyMessage } = require("./vacancies");
-const { shouldIgnoreMessage } = require("../utils/messageFilters"); // Новы імпарт
+const {
+  shouldIgnoreMessage,
+  getWhitelistedAgency,
+} = require("../utils/messageFilters");
 
 // =====================================================================
-// МАППІНГ: ключавая частка назвы чата → агенцыя
-// =====================================================================
-const CHAT_AGENCY_MAP = [
-  { key: "посередники apolo", agency: "APOLO" },
-  { key: "ppg partner (SistemPL)", agency: "Global" },
-  { key: "партнери jobsi", agency: "BISAR" },
-  { key: "est-polska", agency: "EST" },
-  { key: "вакансіі ewl (рекрутація)", agency: "EWL" },
-  { key: "fws rekrutacja", agency: "FWS" },
-  { key: "partner/intraservis", agency: "Intraservice" },
-  { key: "kono", agency: "KONO" },
-  { key: "manpower freelance_2025", agency: "MANPOWER" },
-  { key: "mrówki group partners", agency: "MRÓWKI" },
-  { key: "вакансии для партнеров", agency: "NIDEN" },
-  { key: "otto - робота в Польщі", agency: "OTTO" },
-  { key: "otto для партнерів", agency: "OTTO" },
-  { key: "rekrutacja ps informacje", agency: "PERSONEL SERVICE" },
-  { key: "grupa progres", agency: "PROGRES" },
-  { key: "works4you вакансии в Польше", agency: "RALEN" },
-  { key: "тест", agency: "Manual" },
-];
-
-// =====================================================================
-// КЛАСІФІКАЦЫЯ (Лакальная, для Cleanup)
+// КЛАСІФІКАЦЫЯ (Лакальная дапаможная функцыя для ручнога Cleanup)
 // =====================================================================
 function classify(text) {
   if (!text) return "chat";
@@ -51,41 +31,54 @@ function classify(text) {
 }
 
 // =====================================================================
-// POST /api/inbox/push (Viber Gateway)
+// POST /api/inbox/push (Viber Gateway / Android Bridge)
 // =====================================================================
 router.post("/push", async (req, res) => {
   try {
     const body = req.body || {};
+    // MacroDroid можа дасылаць назву чата ў розных палях
     const senderRaw = (body.sender || body.not_title || "").trim();
     let text = body.bigText || body.text || body.notification || "";
 
+    // 1. Праверка на вайтліст (ці гэта чат агенцыі?)
     const agency = getWhitelistedAgency(senderRaw);
-    if (!agency)
+    if (!agency) {
       return res.status(200).json({ status: "ignored_not_whitelisted" });
+    }
 
-    if (shouldIgnoreMessage(text))
+    // 2. Жорсткі фільтр шуму (Regex)
+    if (shouldIgnoreMessage(text)) {
+      console.log(
+        `🗑️ Шум адфільтраваны: [${agency}] ${text.substring(0, 40)}...`,
+      );
       return res.status(200).json({ status: "ignored_noise" });
+    }
 
-    console.log(`✅ Whitelisted Viber: ${agency} [${senderRaw}]`);
+    console.log(`✅ Паведамленне прайшло фільтр: ${agency} [${senderRaw}]`);
 
+    // 3. Класіфікацыя праз AI
     const classification = await classifyMessage(text, senderRaw);
     const finalAgency =
-      classification.agency === "UNKNOWN" ? agency : classification.agency;
+      classification.agency === "UNKNOWN" || !classification.agency
+        ? agency
+        : classification.agency;
 
+    // 4. Калі гэта поўная вакансія з высокім даверам — аўта-працэсінг
     if (
       classification.category === "FULL_VACANCY" &&
       classification.confidence > 0.7
     ) {
       const result = await processVacancyMessage(text, senderRaw, finalAgency);
-      return res
-        .status(200)
-        .json({ status: "auto_processed", vacancyId: result._id });
+      return res.status(200).json({
+        status: "auto_processed",
+        vacancyId: result._id,
+      });
     } else {
-      // ЗАЎСЁДЫ захоўваем у Inbox для вайтліста
+      // 5. Ва ўсіх астатніх выпадках — у Пясочніцу (Inbox)
       const categoryMap = {
         UPDATE: "update",
         FULL_VACANCY: "vacancy",
-        RECRUITER_INFO: "info",
+        RECRUITER_INFO: "info", // Цяпер дазволена ў мадэлі
         NOISE: "chat",
       };
 
@@ -95,20 +88,24 @@ router.post("/push", async (req, res) => {
         text: classification.translatedText || text,
         source: body.source || "viber",
         category: categoryMap[classification.category] || "chat",
+        processed: false,
       }).save();
 
-      res.status(200).json({ status: "success" });
+      res
+        .status(200)
+        .json({ status: "success", category: classification.category });
     }
   } catch (error) {
     console.error("❌ Inbox Push Error:", error);
-    res.status(500).json({ status: "error" });
+    // Вяртаем 200, каб MacroDroid не зацыкліваў спробы пры памылцы
+    res.status(200).json({ status: "error", message: error.message });
   }
 });
 
-// GET /api/inbox/stats
+// GET /api/inbox/stats - Статыстыка для фронтэнда
 router.get("/stats", async (req, res) => {
   try {
-    const [total, vacancy, update, chat] = await Promise.all([
+    const [total, vacancy, update, info, chat] = await Promise.all([
       UnprocessedMessage.countDocuments({ processed: false }),
       UnprocessedMessage.countDocuments({
         processed: false,
@@ -118,15 +115,16 @@ router.get("/stats", async (req, res) => {
         processed: false,
         category: "update",
       }),
+      UnprocessedMessage.countDocuments({ processed: false, category: "info" }),
       UnprocessedMessage.countDocuments({ processed: false, category: "chat" }),
     ]);
-    res.json({ total, vacancy, update, chat });
+    res.json({ total, vacancy, update, info, chat });
   } catch {
-    res.json({ total: 0, vacancy: 0, update: 0, chat: 0 });
+    res.json({ total: 0, vacancy: 0, update: 0, info: 0, chat: 0 });
   }
 });
 
-// POST /api/inbox/cleanup
+// POST /api/inbox/cleanup - Ачыстка ад шуму і перакласіфікацыя
 router.post("/cleanup", async (req, res) => {
   try {
     const all = await UnprocessedMessage.find({ processed: false });
@@ -152,7 +150,7 @@ router.post("/cleanup", async (req, res) => {
   }
 });
 
-// DELETE /api/inbox/bulk
+// DELETE /api/inbox/bulk - Масавае выдаленне
 router.delete("/bulk", async (req, res) => {
   try {
     const { ids, category, all } = req.body || {};
@@ -175,7 +173,7 @@ router.delete("/bulk", async (req, res) => {
   }
 });
 
-// GET /api/inbox
+// GET /api/inbox - Спіс паведамленняў
 router.get("/", async (req, res) => {
   try {
     const { category, limit = 200 } = req.query;
