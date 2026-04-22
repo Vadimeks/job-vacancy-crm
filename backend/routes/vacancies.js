@@ -139,9 +139,15 @@ router.patch("/:id/ai-update", async (req, res) => {
       new: true,
     });
     // АДПРАЎЛЯЕМ У ТЭЛЕГРАМ
-    await sendToTelegram(telegramUpdateNote);
+    try {
+      await sendToTelegram(telegramUpdateNote);
+    } catch (tgErr) {
+      console.error("⚠️ Telegram failed, but DB is updated:", tgErr.message);
+    }
+
     res.json(saved);
   } catch (err) {
+    console.error("❌ AI Update Route Error:", err);
     res.status(500).json({ message: err.message });
   }
 });

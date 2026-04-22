@@ -12,7 +12,8 @@ const UnprocessedMessageSchema = new mongoose.Schema({
     default: "chat",
   },
   processed: { type: Boolean, default: false },
-  createdAt: { type: Date, default: Date.now },
+  textHash: { type: String, index: true }, // Нармалізаваны тэкст для параўнання
+  createdAt: { type: Date, default: Date.now, expires: "48h" }, // Аўтавыдаленне праз 2 сутак
 });
 
 // Індэкс для хуткага пошуку непрацэсаваных + дэдуплікацыі

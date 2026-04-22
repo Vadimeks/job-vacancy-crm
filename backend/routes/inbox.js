@@ -3,7 +3,6 @@ const express = require("express");
 const router = express.Router();
 const UnprocessedMessage = require("../models/UnprocessedMessage");
 const { classifyWithGemini } = require("../services/gemini.service");
-const { classifyMessage } = require("../services/classifier.service");
 const { processVacancyMessage } = require("./vacancies");
 const {
   shouldIgnoreMessage,
@@ -11,12 +10,29 @@ const {
 } = require("../utils/messageFilters");
 
 // =====================================================================
-// КЛАСІФІКАЦЫЯ (Лакальная дапаможная функцыя для ручнога Cleanup)
+// ДАПАМОЖНЫЯ ФУНКЦЫІ
 // =====================================================================
+
+/**
+ * Нармалізацыя тэксту для параўнання: выдаляем эмодзі, сімвалы, прабелы і пунктуацыю.
+ * Гэта дазваляе адсякаць дублікаты, нават калі ў іх розныя эмодзі.
+ */
+function normalizeText(text) {
+  if (!text) return "";
+  return text
+    .replace(
+      /[\p{Emoji}\p{Emoji_Presentation}\p{Symbol}\s\p{Punctuation}]/gu,
+      "",
+    )
+    .toLowerCase();
+}
+
+/**
+ * Лакальная класіфікацыя для ручнога Cleanup
+ */
 function classify(text) {
   if (!text) return "chat";
   const t = text.toLowerCase();
-
   if (
     t.includes("zł") ||
     t.includes("netto") ||
@@ -24,10 +40,8 @@ function classify(text) {
     t.includes("praca")
   )
     return "vacancy";
-
   if (t.includes("актуально") || t.includes("набір") || t.includes("добор"))
     return "update";
-
   return "chat";
 }
 
@@ -43,15 +57,17 @@ router.post("/push", async (req, res) => {
     if (!text || text.length < 15)
       return res.status(200).json({ status: "ignored_too_short" });
 
-    // 1. ДЭДУПЛІКАЦЫЯ (Каб не плаціць за адно і тое ж паведамленне двойчы)
-    const tenMinsAgo = new Date(Date.now() - 10 * 60 * 1000);
+    // 1. РАЗУМНАЯ ДЭДУПЛІКАЦЫЯ
+    const textHash = normalizeText(text);
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+
     const duplicate = await UnprocessedMessage.findOne({
-      text: text,
-      createdAt: { $gte: tenMinsAgo },
+      textHash,
+      createdAt: { $gte: oneHourAgo },
     });
 
     if (duplicate) {
-      console.log("🚫 Дубль ігнаруецца");
+      console.log("🚫 Дубль адсечаны (Viber)");
       return res.status(200).json({ status: "ignored_duplicate" });
     }
 
@@ -77,24 +93,21 @@ router.post("/push", async (req, res) => {
     // 5. РАЗМЕРКАВАННЕ
     if (classification.category === "FULL_VACANCY") {
       console.log("🚀 Гэта вакансія! Запуск Groq-парсера...");
-      // Перадаем у Groq толькі тое, што Gemini палічыў вакансіяй
       const result = await processVacancyMessage(text, senderRaw, agency);
       return res
         .status(200)
         .json({ status: "auto_processed", vacancyId: result._id });
     } else {
-      // UPDATE або RECRUITER_INFO — у Пясочніцу
       const categoryMap = { UPDATE: "update", RECRUITER_INFO: "info" };
-
       const newMsg = new UnprocessedMessage({
         sender: senderRaw,
         agencyName: agency,
         text: classification.translatedText || text,
+        textHash: textHash, // ЗАХОЎВАЕМ ХЭШ
         source: "viber",
         category: categoryMap[classification.category] || "chat",
         processed: false,
       });
-
       await newMsg.save();
       console.log(`📥 Захавана ў Пясочніцу: ${classification.category}`);
       res.status(200).json({ status: "saved_to_inbox" });
@@ -104,23 +117,40 @@ router.post("/push", async (req, res) => {
     res.status(200).json({ status: "error" });
   }
 });
-// POST /api/inbox/push-userbot
+
+// =====================================================================
+// POST /api/inbox/push-userbot (Telegram Userbot)
+// =====================================================================
 router.post("/push-userbot", async (req, res) => {
   try {
     const { rawText, senderInfo } = req.body;
 
     if (!rawText || rawText.length < 15) return res.sendStatus(200);
 
-    // 1. Жорсткі фільтр
+    // 1. РАЗУМНАЯ ДЭДУПЛІКАЦЫЯ
+    const textHash = normalizeText(rawText);
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+
+    const duplicate = await UnprocessedMessage.findOne({
+      textHash,
+      createdAt: { $gte: oneHourAgo },
+    });
+
+    if (duplicate) {
+      console.log("🚫 Дубль адсечаны (Userbot)");
+      return res.status(200).json({ status: "ignored_duplicate" });
+    }
+
+    // 2. ЖОРСТКІ ФІЛЬТР (Regex)
     if (shouldIgnoreMessage(rawText)) return res.sendStatus(200);
 
-    // 2. Класіфікацыя Gemini
+    // 3. КЛАСІФІКАЦЫЯ GEMINI
     const classification = await classifyWithGemini(rawText);
 
     if (classification.category === "NOISE") return res.sendStatus(200);
 
     if (classification.category === "FULL_VACANCY") {
-      // Калі гэта вакансія — запускаем Groq
+      console.log("🚀 Гэта вакансія з Юзербота! Запуск Groq...");
       const result = await processVacancyMessage(
         rawText,
         senderInfo,
@@ -128,12 +158,12 @@ router.post("/push-userbot", async (req, res) => {
       );
       return res.json({ status: "auto_processed", id: result._id });
     } else {
-      // Калі UPDATE або INFO — у Пясочніцу
       const categoryMap = { UPDATE: "update", RECRUITER_INFO: "info" };
       const newMsg = new UnprocessedMessage({
         sender: senderInfo,
         agencyName: classification.agency || "UNKNOWN",
         text: classification.translatedText || rawText,
+        textHash: textHash, // ЗАХОЎВАЕМ ХЭШ
         source: "telegram_userbot",
         category: categoryMap[classification.category] || "chat",
       });
@@ -145,7 +175,11 @@ router.post("/push-userbot", async (req, res) => {
     res.sendStatus(500);
   }
 });
-// GET /api/inbox/stats - Статыстыка для фронтэнда
+
+// =====================================================================
+// АСТАТНІЯ МАРШРУТЫ
+// =====================================================================
+
 router.get("/stats", async (req, res) => {
   try {
     const [total, vacancy, update, info, chat] = await Promise.all([
@@ -167,13 +201,11 @@ router.get("/stats", async (req, res) => {
   }
 });
 
-// POST /api/inbox/cleanup - Ачыстка ад шуму і перакласіфікацыя
 router.post("/cleanup", async (req, res) => {
   try {
     const all = await UnprocessedMessage.find({ processed: false });
     let deleted = 0;
     let reclassified = 0;
-
     for (const msg of all) {
       if (shouldIgnoreMessage(msg.text)) {
         await msg.deleteOne();
@@ -193,7 +225,6 @@ router.post("/cleanup", async (req, res) => {
   }
 });
 
-// DELETE /api/inbox/bulk - Масавае выдаленне
 router.delete("/bulk", async (req, res) => {
   try {
     const { ids, category, all } = req.body || {};
@@ -216,7 +247,6 @@ router.delete("/bulk", async (req, res) => {
   }
 });
 
-// GET /api/inbox - Спіс паведамленняў
 router.get("/", async (req, res) => {
   try {
     const { category, limit = 200 } = req.query;
@@ -231,7 +261,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-// DELETE /api/inbox/:id
 router.delete("/:id", async (req, res) => {
   try {
     await UnprocessedMessage.findByIdAndDelete(req.params.id);
@@ -241,7 +270,6 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-// PATCH /api/inbox/:id/process
 router.patch("/:id/process", async (req, res) => {
   try {
     await UnprocessedMessage.findByIdAndUpdate(req.params.id, {

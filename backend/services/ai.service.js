@@ -21,7 +21,12 @@ const POLISH_VOIVODESHIPS = [
   "Wielkopolskie",
   "Zachodniopomorskie",
 ];
-
+const LANGUAGE_GUARD = `
+!!! STRICT LANGUAGE RULE !!!
+- ALL output text MUST be in UKRAINIAN.
+- All descriptions, duties, notes — UKRAINIAN. Geography (location, voivodeship, checkInCity, country) — POLISH (Latin alphabet) only.
+- If the input is in Russian — TRANSLATE it to Ukrainian. Never use Russian words (e.g., use "Приїзд" instead of "Приезд", "Житло" instead of "Жилье").
+`;
 function cleanData(obj) {
   if (Array.isArray(obj)) {
     return obj.map(cleanData);
@@ -43,7 +48,7 @@ function cleanData(obj) {
 const IDENTIFY_PROMPT = `
 ROLE: HR Dispatcher assistant.
 TASK: Identify which template this job vacancy message belongs to.
-
+${LANGUAGE_GUARD}
 CRITICAL RULES:
 1. Brand must match exactly.
 2. Location (city) must match.
@@ -139,7 +144,7 @@ Rules:
 const CREATE_TEMPLATE_PROMPT = `
 ROLE: Professional HR Dispatcher for the Polish job market.
 TASK: Create a reusable job template from a parsed vacancy JSON.
-
+${LANGUAGE_GUARD}
 The template should:
 1. Extract the BRAND/COMPANY name from templateName or description
 2. Generate a short descriptive templateName: "[Brand] [City] - [Short job description]"
@@ -154,6 +159,7 @@ Return ONLY valid JSON.
 const MERGE_PROMPT = `
 ROLE: Professional HR Dispatcher for the Polish job market.
 TASK: You have a job template (JSON v2.0) and a new short message.
+${LANGUAGE_GUARD}
 Extract ONLY the information that has CHANGED or is NEW in the message.
 Keep ALL other fields from the template EXACTLY unchanged.
 
@@ -332,7 +338,7 @@ async function parseVacancyWithAI(rawText) {
     const SYSTEM_INSTRUCTION = `
 ROLE: Professional automated job vacancy parser (Version 2.0).
 TASK: Convert job vacancy text into a JSON object with EXACTLY this structure. Fill every field based on the text. Do not invent field names.
-
+${LANGUAGE_GUARD} 
 CRITICAL GEOGRAPHY RULES:
 1. location: Extract ONLY the city name in POLISH using LATIN characters (A-Z). 
    - STRICT RULE: NEVER use Cyrillic (кирилиця) for city names.
@@ -721,7 +727,7 @@ async function testConnection() {
 const UPDATE_VACANCY_PROMPT = `
 ROLE: Professional HR Dispatcher.
 TASK: Update an EXISTING job vacancy (JSON v2.0) with information from a NEW message.
-
+${LANGUAGE_GUARD}
 Rules:
 1. If the message says "STOP", "closed", "зібрана", "не актуально", "набір закрито" -> set status to "closed".
 2. If the message mentions a new salary/rate -> update salary.baseNetto and other salary fields.
