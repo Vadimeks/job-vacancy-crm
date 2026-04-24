@@ -39,6 +39,7 @@ function classify(text) {
 
 // АДЗІНЫ РОЎТ ДЛЯ ЎСІХ ПАВЕДАМЛЕННЯЎ (MacroDroid)
 router.post("/push", async (req, res) => {
+  console.log("📥 Incoming MacroDroid request:", req.body); // ГЭТА ДАДАЦЬ
   try {
     // Прымаем дадзеныя (падтрымка Raw Text ад MacroDroid)
     const senderRaw = (
