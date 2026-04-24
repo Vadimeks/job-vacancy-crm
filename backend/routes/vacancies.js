@@ -154,13 +154,21 @@ router.patch("/:id/ai-update", async (req, res) => {
 
 // --- МАРШРУТЫ API ---
 
-// Аўта-стварэнне (з юзербота або фронта)
+// Аўта-стварэнне
 router.post("/auto", async (req, res) => {
   try {
-    const { rawText, senderInfo } = req.body;
+    const { rawText, senderInfo, messageId } = req.body; // Дадалі messageId
     if (!rawText) return res.status(400).json({ message: "Тэкст пусты" });
 
     const result = await processVacancyMessage(rawText, senderInfo || "Manual");
+
+    // КАЛІ ПРЫЙШОЎ messageId — пазначаем паведамленне як апрацаванае
+    if (messageId) {
+      await UnprocessedMessage.findByIdAndUpdate(messageId, {
+        processed: true,
+      });
+    }
+
     res.status(201).json(result);
   } catch (err) {
     console.error("❌ Auto Route Error:", err.message);
@@ -171,11 +179,12 @@ router.post("/auto", async (req, res) => {
 // Стварэнне з шаблона
 router.post("/from-template/:templateId", async (req, res) => {
   try {
+    const { rawText, messageId } = req.body; // Дадалі messageId
     const template = await Template.findById(req.params.templateId);
     if (!template)
       return res.status(404).json({ message: "Шаблон не знойдзены" });
 
-    const parsedData = await aiService.parseVacancyWithAI(req.body.rawText);
+    const parsedData = await aiService.parseVacancyWithAI(rawText);
     const displayName = constructVacancyDisplayName({
       ...parsedData,
       agencyName: template.agencyName,
@@ -191,7 +200,7 @@ router.post("/from-template/:templateId", async (req, res) => {
       templateName: displayName,
       vacancyCode: await generateVacancyCode(),
       templateId: template._id,
-      rawText: req.body.rawText,
+      rawText: rawText,
       status: "active",
     });
 
@@ -199,6 +208,13 @@ router.post("/from-template/:templateId", async (req, res) => {
     newVacancy.telegramPost = postText;
     const saved = await newVacancy.save();
     await sendToTelegram(postText);
+
+    // ПАЗНАЧАЕМ ЯК АПРАЦАВАНАЕ
+    if (messageId) {
+      await UnprocessedMessage.findByIdAndUpdate(messageId, {
+        processed: true,
+      });
+    }
 
     res.status(201).json(saved);
   } catch (err) {
