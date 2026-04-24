@@ -26,11 +26,11 @@ const STATUS_LABELS = {
   archived: "Архіў",
 };
 
+// --- ВЫПРАЎЛЕНАЯ ФУНКЦЫЯ applyFilters ---
 function applyFilters(vacancies, filters) {
   if (!vacancies) return [];
 
   return vacancies.filter((v) => {
-    // 1. ПОШУК
     if (filters.search) {
       const s = filters.search.toLowerCase();
       const matchSearch =
@@ -43,15 +43,10 @@ function applyFilters(vacancies, filters) {
       if (!matchSearch) return false;
     }
 
-    // 2. СТАТУС
     if (filters.status?.length > 0 && !filters.status.includes(v.status))
       return false;
-
-    // 3. КАТЭГОРЫЯ
     if (filters.category?.length > 0 && !filters.category.includes(v.category))
       return false;
-
-    // 4. ЛАКАЦЫЯ І ВАЯВОДСТВА
     if (
       filters.voivodeship?.length > 0 &&
       !filters.voivodeship.includes(v.voivodeship)
@@ -60,7 +55,6 @@ function applyFilters(vacancies, filters) {
     if (filters.location?.length > 0 && !filters.location.includes(v.location))
       return false;
 
-    // 5. ЖЫТЛО
     if (filters.accommodation?.length > 0) {
       const accType = v.accommodation?.type || "";
       const isCouples = !!v.accommodation?.forCouples;
@@ -77,7 +71,6 @@ function applyFilters(vacancies, filters) {
       if (!match) return false;
     }
 
-    // 6. ТРАНСПАРТ (Давоз)
     if (filters.transport?.length > 0) {
       const isProvided = !!v.transport?.provided;
       const match = filters.transport.some((ft) =>
@@ -86,7 +79,6 @@ function applyFilters(vacancies, filters) {
       if (!match) return false;
     }
 
-    // 7. ХТО ЕДЗЕ
     if (filters.travelGroup?.length > 0) {
       const vGenders = Array.isArray(v.requirements?.gender)
         ? v.requirements.gender
@@ -105,40 +97,38 @@ function applyFilters(vacancies, filters) {
       if (!match) return false;
     }
 
-    // 8. МОВА
     if (filters.language?.length > 0) {
       const vLang = v.requirements?.polishLanguageLevel || "Не вимагається";
       if (!filters.language.includes(vLang)) return false;
     }
 
-    // 9. ДАКУМЕНТЫ
     if (filters.docs?.length > 0) {
       const vDocs = v.requirements?.standardDocs || [];
       if (!filters.docs.some((fd) => vDocs.includes(fd))) return false;
     }
 
-    // 10. НЮАНСЫ
     if (filters.nuances?.length > 0) {
       const vNuances = v.conditions?.specificNuances || [];
       if (!filters.nuances.some((fn) => vNuances.includes(fn))) return false;
     }
 
-    // 11. НАЦЫЯНАЛЬНАСЦЬ
+    // ВЫПРАЎЛЕНАЯ НАЦЫЯНАЛЬНАСЦЬ
     if (filters.nationality?.length > 0) {
       const vNats = Array.isArray(v.requirements?.nationalities)
         ? v.requirements.nationalities
         : [v.requirements?.nationalities].filter(Boolean);
-      if (!filters.nationality.some((fn) => vNats.includes(fn))) return false;
+
+      const hasMatch = filters.nationality.some((fn) =>
+        vNats.some((vn) => vn.trim().toLowerCase() === fn.trim().toLowerCase()),
+      );
+      if (!hasMatch) return false;
     }
 
-    // 12. АГЕНЦЫЯ
     if (
       filters.agencyName?.length > 0 &&
       !filters.agencyName.includes(v.agencyName)
     )
       return false;
-
-    // 13. БРЭНД
     if (filters.brand?.length > 0 && !filters.brand.includes(v.brand))
       return false;
 
@@ -191,17 +181,7 @@ export default function Vacancies() {
       setLoading(false);
     }
   };
-  // Дадай гэты useEffect пасля fetchVacancies
-  useEffect(() => {
-    if (location.state && location.state.initialText) {
-      setShowAutoForm(true);
-      setFormMode("auto");
-      setAutoText(location.state.initialText);
 
-      // Чысцім state, каб пры перазагрузцы форма не адкрывалася зноў
-      window.history.replaceState({}, document.title);
-    }
-  }, [location.state]);
   useEffect(() => {
     fetchVacancies();
   }, []);
