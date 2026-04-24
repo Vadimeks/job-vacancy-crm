@@ -1,3 +1,4 @@
+// frontend/src/pages/Inbox.jsx
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -5,9 +6,9 @@ import {
   getInboxStats,
   deleteInboxMessage,
   bulkDeleteInbox,
-  getVacancies, // Дадалі
-  aiUpdateVacancy, // Дадалі
-  markInboxProcessed, // Дадалі
+  getVacancies,
+  aiUpdateVacancy,
+  markInboxProcessed,
 } from "../services/api";
 
 const CATEGORY_LABELS = {
@@ -23,49 +24,45 @@ const CATEGORY_LABELS = {
     label: "Інфа",
     color: "text-blue-400 bg-blue-500/10 border-blue-500/20",
   },
-  chat: {
-    label: "Чат",
-    color: "text-slate-400 bg-slate-500/10 border-slate-500/20",
-  },
 };
 
 const SOURCE_ICON = {
   viber: "💜",
   telegram: "✈️",
-  telegram_userbot: "🤖", // Дадалі для юзербота
-  error_fallback: "⚠️", // Дадалі для памылак AI
+  macrodroid_raw: "📱",
+  telegram_userbot: "🤖",
+  error_fallback: "⚠️",
 };
 
 export default function Inbox() {
   const navigate = useNavigate();
   const [messages, setMessages] = useState([]);
-  const [vacancies, setVacancies] = useState([]); // Спіс для выбару
+  const [vacancies, setVacancies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     total: 0,
     vacancy: 0,
     update: 0,
-    chat: 0,
     info: 0,
   });
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [selected, setSelected] = useState(new Set());
   const [expandedId, setExpandedId] = useState(null);
-  const [showUpdatePicker, setShowUpdatePicker] = useState(null); // ID паведамлення, якое абнаўляем
-  const [processingId, setProcessingId] = useState(null); // Для лоадэра AI
+  const [showUpdatePicker, setShowUpdatePicker] = useState(null);
+  const [processingId, setProcessingId] = useState(null);
 
   const fetchAll = useCallback(async () => {
     try {
       const [msgsRes, statsRes, vacRes] = await Promise.all([
         getInboxMessages(),
         getInboxStats(),
-        getVacancies(), // Загружаем вакансіі для выбару
+        getVacancies(),
       ]);
       setMessages(msgsRes.data);
       setStats(statsRes.data);
-      setVacancies(vacRes.data.filter((v) => v.status === "active")); // Толькі актыўныя
-    } catch {
-      console.error("Памылка загрузкі");
+      setVacancies(vacRes.data.filter((v) => v.status === "active"));
+    } catch (err) {
+      console.error("Памылка загрузкі:", err);
     } finally {
       setLoading(false);
     }
@@ -81,24 +78,46 @@ export default function Inbox() {
 
   const handleDelete = async (id) => {
     if (!window.confirm("Выдаліць паведамленне?")) return;
-    await deleteInboxMessage(id);
-    setMessages((prev) => prev.filter((m) => m._id !== id));
+    try {
+      await deleteInboxMessage(id);
+      setMessages((prev) => prev.filter((m) => m._id !== id));
+      setSelected((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    } catch (err) {
+      alert("Памылка выдалення");
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    const ids = Array.from(selected);
+    if (!ids.length || !window.confirm(`Выдаліць ${ids.length} паведамленняў?`))
+      return;
+    try {
+      await bulkDeleteInbox({ ids });
+      setMessages((prev) => prev.filter((m) => !selected.has(m._id)));
+      setSelected(new Set());
+      getInboxStats().then((res) => setStats(res.data));
+    } catch (err) {
+      alert("Памылка масавага выдалення");
+    }
   };
 
   const handleCreateVacancy = (msg) => {
     navigate("/vacancies", { state: { initialText: msg.text } });
   };
 
-  // --- НОВАЯ ЛОГІКА: AI UPDATE ---
   const handleAiUpdate = async (msg, vacancyId) => {
     setProcessingId(msg._id);
     try {
       await aiUpdateVacancy(vacancyId, msg.text);
-      await markInboxProcessed(msg._id); // Пазначаем як апрацаванае
-      alert("✅ Вакансія паспяхова абноўлена праз AI!");
-      fetchAll(); // Перазагружаем спіс
+      await markInboxProcessed(msg._id);
+      alert("✅ Вакансія абноўлена!");
+      fetchAll();
     } catch (err) {
-      alert("❌ Памылка AI-абнаўлення: " + err.message);
+      alert("❌ Памылка: " + err.message);
     } finally {
       setProcessingId(null);
       setShowUpdatePicker(null);
@@ -122,8 +141,7 @@ export default function Inbox() {
   };
 
   const formatTime = (date) => {
-    const d = new Date(date);
-    return d.toLocaleString("be-BY", {
+    return new Date(date).toLocaleString("be-BY", {
       day: "2-digit",
       month: "2-digit",
       hour: "2-digit",
@@ -133,14 +151,13 @@ export default function Inbox() {
 
   if (loading)
     return (
-      <div className="max-w-6xl mx-auto px-4 py-8 text-slate-500">
+      <div className="max-w-6xl mx-auto px-4 py-8 text-slate-500 text-center">
         Загрузка...
       </div>
     );
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
-      {/* HEADER */}
       <div className="flex items-start justify-between mb-6 flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-semibold text-slate-100">
@@ -153,23 +170,23 @@ export default function Inbox() {
         <div className="flex gap-2">
           {selected.size > 0 && (
             <button
-              onClick={() => {}}
-              className="px-3 py-1.5 text-xs bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg"
+              onClick={handleBulkDelete}
+              className="px-3 py-1.5 text-xs bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500/20 transition-colors"
             >
               Выдаліць выбраныя ({selected.size})
             </button>
           )}
           <button
             onClick={fetchAll}
-            className="px-3 py-1.5 text-xs bg-slate-800 text-slate-300 rounded-lg"
+            className="px-3 py-1.5 text-xs bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 transition-colors"
           >
             Абнавіць спіс
           </button>
         </div>
       </div>
 
-      {/* STATS */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
+      {/* STATS GRID - Прыбралі Чат */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
         {[
           {
             key: "all",
@@ -195,12 +212,6 @@ export default function Inbox() {
             count: stats.info || 0,
             color: "text-blue-400",
           },
-          {
-            key: "chat",
-            label: "Чат",
-            count: stats.chat,
-            color: "text-slate-500",
-          },
         ].map(({ key, label, count, color }) => (
           <button
             key={key}
@@ -222,7 +233,7 @@ export default function Inbox() {
         <div className="grid grid-cols-[40px_1fr_150px_100px_80px] gap-3 px-4 py-2 text-[10px] uppercase tracking-wider text-slate-500 border-b border-slate-800 bg-slate-950">
           <input
             type="checkbox"
-            checked={selected.size === filtered.length}
+            checked={selected.size > 0 && selected.size === filtered.length}
             onChange={toggleSelectAll}
             className="accent-emerald-500"
           />
@@ -237,7 +248,7 @@ export default function Inbox() {
             const isExpanded = expandedId === msg._id;
             const isPicking = showUpdatePicker === msg._id;
             const isProcessing = processingId === msg._id;
-            const cat = CATEGORY_LABELS[msg.category] || CATEGORY_LABELS.chat;
+            const cat = CATEGORY_LABELS[msg.category] || CATEGORY_LABELS.info;
 
             return (
               <div
@@ -251,7 +262,6 @@ export default function Inbox() {
                     onChange={() => toggleSelect(msg._id)}
                     className="accent-emerald-500"
                   />
-
                   <div
                     className="min-w-0 cursor-pointer"
                     onClick={() => setExpandedId(isExpanded ? null : msg._id)}
@@ -274,19 +284,16 @@ export default function Inbox() {
                       {msg.text}
                     </p>
                   </div>
-
                   <div className="text-[11px] text-slate-500 truncate">
                     {SOURCE_ICON[msg.source] || "📩"} {msg.sender}
                   </div>
-
                   <div className="text-[11px] text-slate-600">
                     {formatTime(msg.createdAt)}
                   </div>
-
                   <div className="flex justify-end gap-1">
                     <button
                       onClick={() => handleCreateVacancy(msg)}
-                      title="Стварыць новую"
+                      title="Стварыць"
                       className="p-1.5 hover:bg-emerald-500/20 text-emerald-500 rounded-md"
                     >
                       🤖
@@ -305,7 +312,6 @@ export default function Inbox() {
                     <div className="bg-slate-950 border border-slate-800 rounded-lg p-4 text-sm text-slate-300 whitespace-pre-wrap leading-relaxed">
                       {msg.text}
                     </div>
-
                     {!isPicking ? (
                       <div className="mt-3 flex gap-2">
                         <button
@@ -325,7 +331,7 @@ export default function Inbox() {
                       <div className="mt-4 p-4 bg-slate-800 rounded-lg border border-amber-500/30">
                         <div className="flex justify-between items-center mb-3">
                           <h4 className="text-xs font-bold text-amber-400 uppercase tracking-wider">
-                            Выберыце вакансію для абнаўлення:
+                            Выберыце вакансію:
                           </h4>
                           <button
                             onClick={() => setShowUpdatePicker(null)}
@@ -334,36 +340,29 @@ export default function Inbox() {
                             Скасаваць
                           </button>
                         </div>
-
                         {isProcessing ? (
                           <div className="py-4 text-center text-amber-400 text-xs animate-pulse">
-                            AI апрацоўвае абнаўленне...
+                            AI апрацоўвае...
                           </div>
                         ) : (
                           <div className="max-h-60 overflow-y-auto space-y-1 pr-2 custom-scrollbar">
-                            {vacancies.length > 0 ? (
-                              vacancies.map((v) => (
-                                <button
-                                  key={v._id}
-                                  onClick={() => handleAiUpdate(msg, v._id)}
-                                  className="w-full text-left p-2.5 text-xs hover:bg-slate-700 rounded border border-slate-700 text-slate-300 flex justify-between items-center group"
-                                >
-                                  <span>
-                                    <b className="text-emerald-500 mr-2">
-                                      {v.vacancyCode}
-                                    </b>
-                                    {v.templateName || v.vacancydescription}
-                                  </span>
-                                  <span className="opacity-0 group-hover:opacity-100 text-[10px] bg-emerald-500 text-white px-1.5 py-0.5 rounded">
-                                    Выбраць
-                                  </span>
-                                </button>
-                              ))
-                            ) : (
-                              <div className="text-slate-500 text-xs py-2">
-                                Няма актыўных вакансій
-                              </div>
-                            )}
+                            {vacancies.map((v) => (
+                              <button
+                                key={v._id}
+                                onClick={() => handleAiUpdate(msg, v._id)}
+                                className="w-full text-left p-2.5 text-xs hover:bg-slate-700 rounded border border-slate-700 text-slate-300 flex justify-between items-center group"
+                              >
+                                <span>
+                                  <b className="text-emerald-500 mr-2">
+                                    {v.vacancyCode}
+                                  </b>
+                                  {v.templateName || v.vacancydescription}
+                                </span>
+                                <span className="opacity-0 group-hover:opacity-100 text-[10px] bg-emerald-500 text-white px-1.5 py-0.5 rounded">
+                                  Выбраць
+                                </span>
+                              </button>
+                            ))}
                           </div>
                         )}
                       </div>

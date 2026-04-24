@@ -31,7 +31,7 @@ function applyFilters(vacancies, filters) {
   if (!vacancies) return [];
 
   return vacancies.filter((v) => {
-    // 1. ПОШУК (па назве, брэндзе, горадзе, агенцыі)
+    // 1. ПОШУК (пашыраны)
     if (filters.search) {
       const s = filters.search.toLowerCase();
       const matchSearch =
@@ -39,7 +39,8 @@ function applyFilters(vacancies, filters) {
         v.vacancydescription?.toLowerCase().includes(s) ||
         v.location?.toLowerCase().includes(s) ||
         v.agencyName?.toLowerCase().includes(s) ||
-        v.brand?.toLowerCase().includes(s);
+        v.brand?.toLowerCase().includes(s) ||
+        v.vacancyCode?.toLowerCase().includes(s);
       if (!matchSearch) return false;
     }
 
@@ -47,87 +48,82 @@ function applyFilters(vacancies, filters) {
     if (filters.status?.length > 0 && !filters.status.includes(v.status))
       return false;
 
-    // 3. ГЕНДАР (Строгае супадзенне масіваў)
-    if (filters.gender?.length > 0) {
-      const vGenders = Array.isArray(v.requirements?.gender)
-        ? v.requirements.gender
-        : [];
-      if (!filters.gender.some((fg) => vGenders.includes(fg))) return false;
-    }
-
-    // 4. КАТЭГОРЫЯ
+    // 3. КАТЭГОРЫЯ
     if (filters.category?.length > 0 && !filters.category.includes(v.category))
       return false;
 
-    // 5. ВАЯВОДСТВА
+    // 4. ЛАКАЦЫЯ І ВАЯВОДСТВА
     if (
       filters.voivodeship?.length > 0 &&
       !filters.voivodeship.includes(v.voivodeship)
     )
       return false;
-
-    // 6. ЛАКАЦЫЯ (Горад)
     if (filters.location?.length > 0 && !filters.location.includes(v.location))
       return false;
 
-    // 7. ЖЫТЛО
+    // 5. ЖЫТЛО (v2.0)
     if (filters.accommodation?.length > 0) {
       const accType = v.accommodation?.type || "";
       const isCouples = !!v.accommodation?.forCouples;
       const match = filters.accommodation.some((fa) => {
         if (fa === "provided")
-          return accType === "Безкоштовне" || accType === "Надається";
+          return (
+            accType.includes("Безкоштовн") || accType.includes("Надається")
+          );
         if (fa === "couples") return isCouples;
-        if (fa === "none") return accType === "Власне" || accType === "Платне";
+        if (fa === "none")
+          return accType.includes("Власн") || accType.includes("Платн");
         return false;
       });
       if (!match) return false;
     }
 
-    // 8. ТРАНСПАРТ
+    // 6. ТРАНСПАРТ (Давоз)
     if (filters.transport?.length > 0) {
       const isProvided = !!v.transport?.provided;
-      if (
-        !filters.transport.some((ft) =>
-          ft === "provided" ? isProvided : !isProvided,
-        )
-      )
+      const match = filters.transport.some((ft) =>
+        ft === "provided" ? isProvided : !isProvided,
+      );
+      if (!match) return false;
+    }
+
+    // 7. ХТО ЕДЗЕ (Разумны фільтр)
+    if (filters.travelGroup?.length > 0) {
+      const vGenders = Array.isArray(v.requirements?.gender)
+        ? v.requirements.gender
+        : [];
+      const isCouples =
+        !!v.accommodation?.forCouples || vGenders.includes("Пари");
+      const isFamily = !!v.accommodation?.withChildren;
+      const isAlone =
+        vGenders.includes("Чоловіки") || vGenders.includes("Жінки");
+
+      const match = filters.travelGroup.some((fg) => {
+        if (fg === "alone") return isAlone;
+        if (fg === "couple") return isCouples;
+        if (fg === "family") return isFamily;
         return false;
+      });
+      if (!match) return false;
     }
 
-    // 9. МОВА (Строгае супадзенне кодаў A1, A2...)
-    if (
-      filters.language?.length > 0 &&
-      !filters.language.includes(v.requirements?.polishLanguageLevel)
-    )
-      return false;
-
-    // 10. НАЦЫЯНАЛЬНАСЦЬ
-    if (filters.nationality?.length > 0) {
-      const vNats = v.requirements?.nationalities || [];
-      if (!filters.nationality.some((fn) => vNats.includes(fn))) return false;
+    // 8. МОВА (з фолбэкам)
+    if (filters.language?.length > 0) {
+      const vLang = v.requirements?.polishLanguageLevel || "Не вимагається";
+      if (!filters.language.includes(vLang)) return false;
     }
 
-    // 11. ДАКУМЕНТЫ
+    // 9. ДАКУМЕНТЫ (праверка масіва)
     if (filters.docs?.length > 0) {
       const vDocs = v.requirements?.standardDocs || [];
       if (!filters.docs.some((fd) => vDocs.includes(fd))) return false;
     }
 
-    // 12. НЮАНСЫ (ЧЭК-ЛІСТ)
+    // 10. НЮАНСЫ (Чэк-ліст)
     if (filters.nuances?.length > 0) {
       const vNuances = v.conditions?.specificNuances || [];
       if (!filters.nuances.some((fn) => vNuances.includes(fn))) return false;
     }
-
-    // 13. АГЕНЦЫЯ І БРЭНД
-    if (
-      filters.agencyName?.length > 0 &&
-      !filters.agencyName.includes(v.agencyName)
-    )
-      return false;
-    if (filters.brand?.length > 0 && !filters.brand.includes(v.brand))
-      return false;
 
     return true;
   });

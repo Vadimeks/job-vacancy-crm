@@ -325,7 +325,20 @@ export default function VacancyViewModal({
               </p>
             </div>
           )}
-
+          {/* КРЫНІЦА (СЫРЫ ТЭКСТ) */}
+          <section className="mt-8 pt-6 border-t border-slate-800">
+            <details className="group">
+              <summary className="text-[10px] font-bold text-slate-500 uppercase tracking-widest cursor-pointer hover:text-slate-300 transition-colors list-none flex items-center gap-2">
+                <span className="group-open:rotate-90 transition-transform">
+                  ▶
+                </span>
+                Арыгінальны тэкст паведамлення
+              </summary>
+              <div className="mt-4 p-4 bg-black/40 rounded-xl border border-slate-800 text-[12px] text-slate-400 font-mono leading-relaxed whitespace-pre-wrap">
+                {v.rawText || "Тэкст адсутнічае"}
+              </div>
+            </details>
+          </section>
           {/* МЕТА-ДАНЫ */}
           <div className="pt-6 border-t border-slate-800 flex justify-between items-center text-[10px] font-mono text-slate-600">
             <span>ID: {v._id?.toUpperCase()}</span>

@@ -44,10 +44,15 @@ export const ACCOMMODATION_OPTIONS = [
   { value: "none", label: "❌ Без житла" },
 ];
 
+export const TRANSPORT_OPTIONS = [
+  { value: "provided", label: "🚌 Ёсць давоз" },
+  { value: "none", label: "❌ Няма давозу" },
+];
+
 export const TRAVEL_GROUPS = [
-  { value: "alone", label: "👤 Один/на" },
-  { value: "couple", label: "👫 Пара" },
-  { value: "family", label: "👨‍👩‍👧 Сім'я" },
+  { value: "alone", label: "👤 Адзін / Адна" },
+  { value: "couple", label: "👫 Пары" },
+  { value: "family", label: "👨‍👩‍👧 Сям'я" },
 ];
 
 export const NATIONALITIES = [
