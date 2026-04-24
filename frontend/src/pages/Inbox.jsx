@@ -106,7 +106,10 @@ export default function Inbox() {
   };
 
   const handleCreateVacancy = (msg) => {
-    navigate("/vacancies", { state: { initialText: msg.text } });
+    // Перадаем і тэкст, і ID паведамлення
+    navigate("/vacancies", {
+      state: { initialText: msg.text, messageId: msg._id },
+    });
   };
 
   const handleAiUpdate = async (msg, vacancyId) => {

@@ -26,12 +26,11 @@ const STATUS_LABELS = {
   archived: "Архіў",
 };
 
-// Гэтая функцыя цяпер працуе са строгімі значэннямі v2.0
 function applyFilters(vacancies, filters) {
   if (!vacancies) return [];
 
   return vacancies.filter((v) => {
-    // 1. ПОШУК (пашыраны)
+    // 1. ПОШУК
     if (filters.search) {
       const s = filters.search.toLowerCase();
       const matchSearch =
@@ -61,7 +60,7 @@ function applyFilters(vacancies, filters) {
     if (filters.location?.length > 0 && !filters.location.includes(v.location))
       return false;
 
-    // 5. ЖЫТЛО (v2.0)
+    // 5. ЖЫТЛО
     if (filters.accommodation?.length > 0) {
       const accType = v.accommodation?.type || "";
       const isCouples = !!v.accommodation?.forCouples;
@@ -87,7 +86,7 @@ function applyFilters(vacancies, filters) {
       if (!match) return false;
     }
 
-    // 7. ХТО ЕДЗЕ (Разумны фільтр)
+    // 7. ХТО ЕДЗЕ
     if (filters.travelGroup?.length > 0) {
       const vGenders = Array.isArray(v.requirements?.gender)
         ? v.requirements.gender
@@ -97,7 +96,6 @@ function applyFilters(vacancies, filters) {
       const isFamily = !!v.accommodation?.withChildren;
       const isAlone =
         vGenders.includes("Чоловіки") || vGenders.includes("Жінки");
-
       const match = filters.travelGroup.some((fg) => {
         if (fg === "alone") return isAlone;
         if (fg === "couple") return isCouples;
@@ -107,23 +105,42 @@ function applyFilters(vacancies, filters) {
       if (!match) return false;
     }
 
-    // 8. МОВА (з фолбэкам)
+    // 8. МОВА
     if (filters.language?.length > 0) {
       const vLang = v.requirements?.polishLanguageLevel || "Не вимагається";
       if (!filters.language.includes(vLang)) return false;
     }
 
-    // 9. ДАКУМЕНТЫ (праверка масіва)
+    // 9. ДАКУМЕНТЫ
     if (filters.docs?.length > 0) {
       const vDocs = v.requirements?.standardDocs || [];
       if (!filters.docs.some((fd) => vDocs.includes(fd))) return false;
     }
 
-    // 10. НЮАНСЫ (Чэк-ліст)
+    // 10. НЮАНСЫ
     if (filters.nuances?.length > 0) {
       const vNuances = v.conditions?.specificNuances || [];
       if (!filters.nuances.some((fn) => vNuances.includes(fn))) return false;
     }
+
+    // 11. НАЦЫЯНАЛЬНАСЦЬ
+    if (filters.nationality?.length > 0) {
+      const vNats = Array.isArray(v.requirements?.nationalities)
+        ? v.requirements.nationalities
+        : [v.requirements?.nationalities].filter(Boolean);
+      if (!filters.nationality.some((fn) => vNats.includes(fn))) return false;
+    }
+
+    // 12. АГЕНЦЫЯ
+    if (
+      filters.agencyName?.length > 0 &&
+      !filters.agencyName.includes(v.agencyName)
+    )
+      return false;
+
+    // 13. БРЭНД
+    if (filters.brand?.length > 0 && !filters.brand.includes(v.brand))
+      return false;
 
     return true;
   });
@@ -152,6 +169,17 @@ export default function Vacancies() {
   const [draft, setDraft] = useState(EMPTY_FILTERS);
   const [applied, setApplied] = useState(EMPTY_FILTERS);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sourceMessageId, setSourceMessageId] = useState(null);
+
+  useEffect(() => {
+    if (location.state && location.state.initialText) {
+      setShowAutoForm(true);
+      setFormMode("auto");
+      setAutoText(location.state.initialText);
+      setSourceMessageId(location.state.messageId); // Захоўваем ID
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   const fetchVacancies = async () => {
     try {
@@ -251,12 +279,11 @@ export default function Vacancies() {
     if (!autoText.trim()) return;
     setAutoLoading(true);
     try {
-      await createVacancyAuto(autoText);
-      setAutoText("");
-      setShowAutoForm(false);
+      await createVacancyAuto(autoText, sourceMessageId); // Перадаем ID
+      handleCloseForm();
       await fetchVacancies();
     } catch {
-      alert("Памылка стварэння вакансіі");
+      alert("Памылка стварэння");
     } finally {
       setAutoLoading(false);
     }
@@ -267,8 +294,13 @@ export default function Vacancies() {
       return alert("Запоўніце ўсе палі");
     setAutoLoading(true);
     try {
-      await createVacancyFromTemplate(selectedTemplate._id, autoText);
+      await createVacancyFromTemplate(
+        selectedTemplate._id,
+        autoText,
+        sourceMessageId,
+      );
       handleCloseForm();
+      setSourceMessageId(null);
       await fetchVacancies();
     } catch {
       alert("Памылка стварэння");
