@@ -1,7 +1,9 @@
 const Groq = require("groq-sdk");
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-const MODEL = "llama-3.3-70b-versatile";
+// Дзве мадэлі для надзейнасці
+const MODEL_SMART = "llama-3.3-70b-versatile"; // Асноўная (разумная)
+const MODEL_FAST = "llama-3.1-8b-instant"; // Запасная (хуткая)
 
 const POLISH_VOIVODESHIPS = [
   "Dolnośląskie",
@@ -179,18 +181,38 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanations.
 
 // --- ДАПАМОЖНЫЯ ФУНКЦЫІ ---
 
+// Універсальная функцыя запыту з FALLBACK логікай
 async function groqRequest(systemPrompt, userContent, jsonMode = true) {
-  await new Promise((resolve) => setTimeout(resolve, 2000));
-  const response = await groq.chat.completions.create({
-    model: MODEL,
-    temperature: 0.2,
-    response_format: jsonMode ? { type: "json_object" } : undefined,
-    messages: [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: userContent },
-    ],
-  });
-  return response.choices[0]?.message?.content || "";
+  try {
+    // Спроба 1: Разумная мадэль
+    console.log(`🤖 Groq: Спроба праз ${MODEL_SMART}...`);
+    const response = await groq.chat.completions.create({
+      model: MODEL_SMART,
+      temperature: 0.2,
+      response_format: jsonMode ? { type: "json_object" } : undefined,
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userContent },
+      ],
+    });
+    return response.choices[0]?.message?.content || "";
+  } catch (error) {
+    // Калі ліміт (429) — спрабуем хуткую мадэль
+    if (error.message?.includes("429")) {
+      console.warn(`⚠️ Ліміт 70b дасягнуты. Пераключаюся на ${MODEL_FAST}...`);
+      const fallbackResponse = await groq.chat.completions.create({
+        model: MODEL_FAST,
+        temperature: 0.2,
+        response_format: jsonMode ? { type: "json_object" } : undefined,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userContent },
+        ],
+      });
+      return fallbackResponse.choices[0]?.message?.content || "";
+    }
+    throw error; // Калі іншая памылка — пракідваем далей
+  }
 }
 
 async function mergeWithTemplate(rawText, template) {

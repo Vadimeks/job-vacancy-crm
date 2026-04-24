@@ -9,14 +9,9 @@ const {
   getWhitelistedAgency,
 } = require("../utils/messageFilters");
 
-// =====================================================================
-// ДАПАМОЖНЫЯ ФУНКЦЫІ
-// =====================================================================
+// РЭЖЫМ АДЛАДКІ: false = усё ідзе ў Інбокс. true = вакансіі адразу ідуць у Groq.
+const AUTO_PROCESS_VACANCIES = false;
 
-/**
- * Нармалізацыя тэксту для параўнання: выдаляем эмодзі, сімвалы, прабелы і пунктуацыю.
- * Гэта дазваляе адсякаць дублікаты, нават калі ў іх розныя эмодзі.
- */
 function normalizeText(text) {
   if (!text) return "";
   return text
@@ -27,11 +22,8 @@ function normalizeText(text) {
     .toLowerCase();
 }
 
-/**
- * Лакальная класіфікацыя для ручнога Cleanup
- */
 function classify(text) {
-  if (!text) return "chat";
+  if (!text) return "info";
   const t = text.toLowerCase();
   if (
     t.includes("zł") ||
@@ -42,148 +34,118 @@ function classify(text) {
     return "vacancy";
   if (t.includes("актуально") || t.includes("набір") || t.includes("добор"))
     return "update";
-  return "chat";
+  return "info";
 }
 
-// =====================================================================
-// POST /api/inbox/push (Viber Gateway / Android Bridge)
-// =====================================================================
+// АДЗІНЫ РОЎТ ДЛЯ ЎСІХ ПАВЕДАМЛЕННЯЎ (MacroDroid)
 router.post("/push", async (req, res) => {
   try {
-    const body = req.body || {};
-    const senderRaw = (body.sender || body.not_title || "").trim();
-    let text = body.bigText || body.text || body.notification || "";
+    // Прымаем дадзеныя (падтрымка Raw Text ад MacroDroid)
+    const senderRaw = (
+      req.body.sender ||
+      req.body.not_title ||
+      "Unknown"
+    ).trim();
+    const text = (
+      req.body.text ||
+      req.body.bigText ||
+      req.body.notification ||
+      ""
+    ).trim();
+    const source = req.body.source || "viber"; // MacroDroid павінен дасылаць source=viber або source=telegram
 
     if (!text || text.length < 15)
       return res.status(200).json({ status: "ignored_too_short" });
 
-    // 1. РАЗУМНАЯ ДЭДУПЛІКАЦЫЯ
+    // 1. ДЭДУПЛІКАЦЫЯ (ПА ХЭШЫ)
     const textHash = normalizeText(text);
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
-
     const duplicate = await UnprocessedMessage.findOne({
       textHash,
       createdAt: { $gte: oneHourAgo },
     });
 
     if (duplicate) {
-      console.log("🚫 Дубль адсечаны (Viber)");
+      console.log(`🚫 Дубль адсечаны (${source})`);
       return res.status(200).json({ status: "ignored_duplicate" });
     }
 
-    // 2. ВАЙТЛІСТ (Ці наш гэта чат?)
-    const agency = getWhitelistedAgency(senderRaw);
-    if (!agency)
+    // 2. ВАЙТЛІСТ (толькі для Viber)
+    let agency = getWhitelistedAgency(senderRaw);
+    if (!agency && source === "viber") {
       return res.status(200).json({ status: "ignored_not_whitelisted" });
+    }
+    if (!agency) agency = "UNKNOWN";
 
     // 3. ЖОРСТКІ ФІЛЬТР (Regex)
     if (shouldIgnoreMessage(text))
       return res.status(200).json({ status: "ignored_noise_regex" });
 
-    console.log(`🔍 Gemini аналізуе паведамленне ад ${agency}...`);
-
-    // 4. КЛАСІФІКАЦЫЯ GEMINI
+    // 4. GEMINI КЛАСІФІКАЦЫЯ
+    console.log(`🔍 Gemini аналізуе паведамленне ад ${agency} (${source})...`);
     const classification = await classifyWithGemini(text);
 
     if (classification.category === "NOISE") {
-      console.log("🗑️ Gemini вызначыў як шум");
       return res.status(200).json({ status: "ignored_noise_ai" });
     }
 
-    // 5. РАЗМЕРКАВАННЕ
-    if (classification.category === "FULL_VACANCY") {
-      console.log("🚀 Гэта вакансія! Запуск Groq-парсера...");
+    // 5. АЎТАМАТЫЗАЦЫЯ (КАЛІ ЎКЛЮЧАНА)
+    if (classification.category === "FULL_VACANCY" && AUTO_PROCESS_VACANCIES) {
+      console.log("🚀 Аўта-парсінг вакансіі ўключаны! Запуск Groq...");
       const result = await processVacancyMessage(text, senderRaw, agency);
       return res
         .status(200)
         .json({ status: "auto_processed", vacancyId: result._id });
-    } else {
-      const categoryMap = { UPDATE: "update", RECRUITER_INFO: "info" };
-      const newMsg = new UnprocessedMessage({
-        sender: senderRaw,
-        agencyName: agency,
-        text: classification.translatedText || text,
-        textHash: textHash, // ЗАХОЎВАЕМ ХЭШ
-        source: "viber",
-        category: categoryMap[classification.category] || "chat",
-        processed: false,
-      });
-      await newMsg.save();
-      console.log(`📥 Захавана ў Пясочніцу: ${classification.category}`);
-      res.status(200).json({ status: "saved_to_inbox" });
     }
-  } catch (error) {
-    console.error("❌ Inbox Push Error:", error);
-    res.status(200).json({ status: "error" });
-  }
-});
 
-// =====================================================================
-// POST /api/inbox/push-userbot (Telegram Userbot)
-// =====================================================================
-router.post("/push-userbot", async (req, res) => {
-  try {
-    const { rawText, senderInfo } = req.body;
-
-    if (!rawText || rawText.length < 15) return res.sendStatus(200);
-
-    // 1. РАЗУМНАЯ ДЭДУПЛІКАЦЫЯ
-    const textHash = normalizeText(rawText);
-    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
-
-    const duplicate = await UnprocessedMessage.findOne({
-      textHash,
-      createdAt: { $gte: oneHourAgo },
+    // 6. ЗАХАВАННЕ Ў ПЯСОЧНІЦУ
+    const categoryMap = {
+      UPDATE: "update",
+      RECRUITER_INFO: "info",
+      FULL_VACANCY: "vacancy",
+    };
+    const newMsg = new UnprocessedMessage({
+      sender: senderRaw,
+      agencyName: agency,
+      text: classification.translatedText || text,
+      textHash: textHash,
+      source: source,
+      category: categoryMap[classification.category] || "info",
+      processed: false,
     });
 
-    if (duplicate) {
-      console.log("🚫 Дубль адсечаны (Userbot)");
-      return res.status(200).json({ status: "ignored_duplicate" });
-    }
-
-    // 2. ЖОРСТКІ ФІЛЬТР (Regex)
-    if (shouldIgnoreMessage(rawText)) return res.sendStatus(200);
-
-    // 3. КЛАСІФІКАЦЫЯ GEMINI
-    const classification = await classifyWithGemini(rawText);
-
-    if (classification.category === "NOISE") return res.sendStatus(200);
-
-    if (classification.category === "FULL_VACANCY") {
-      console.log("🚀 Гэта вакансія з Юзербота! Запуск Groq...");
-      const result = await processVacancyMessage(
-        rawText,
-        senderInfo,
-        classification.agency,
-      );
-      return res.json({ status: "auto_processed", id: result._id });
-    } else {
-      const categoryMap = { UPDATE: "update", RECRUITER_INFO: "info" };
-      const newMsg = new UnprocessedMessage({
-        sender: senderInfo,
-        agencyName: classification.agency || "UNKNOWN",
-        text: classification.translatedText || rawText,
-        textHash: textHash, // ЗАХОЎВАЕМ ХЭШ
-        source: "telegram_userbot",
-        category: categoryMap[classification.category] || "chat",
-      });
-      await newMsg.save();
-      return res.json({ status: "saved_to_inbox" });
-    }
+    await newMsg.save();
+    console.log(`📥 Захавана ў Пясочніцу: ${newMsg.category}`);
+    res.status(200).json({ status: "saved_to_inbox" });
   } catch (error) {
-    console.error("❌ Userbot Push Error:", error);
-    res.sendStatus(500);
+    console.error("❌ Inbox Push Error:", error);
+    res.status(200).json({ status: "error_logged" });
   }
 });
 
-// =====================================================================
-// АСТАТНІЯ МАРШРУТЫ
-// =====================================================================
+// GET /api/inbox - Выдача для фронта (без Chat)
+router.get("/", async (req, res) => {
+  try {
+    const { category, limit = 200 } = req.query;
+    const filter = { processed: false, category: { $ne: "chat" } };
+    if (category && category !== "all") filter.category = category;
+    const messages = await UnprocessedMessage.find(filter)
+      .sort({ createdAt: -1 })
+      .limit(Number(limit));
+    res.json(messages);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
+// Астатнія метады (stats, cleanup, bulk, delete) застаюцца як былі...
 router.get("/stats", async (req, res) => {
   try {
-    const [total, vacancy, update, info, chat] = await Promise.all([
-      UnprocessedMessage.countDocuments({ processed: false }),
+    const [total, vacancy, update, info] = await Promise.all([
+      UnprocessedMessage.countDocuments({
+        processed: false,
+        category: { $ne: "chat" },
+      }),
       UnprocessedMessage.countDocuments({
         processed: false,
         category: "vacancy",
@@ -193,9 +155,8 @@ router.get("/stats", async (req, res) => {
         category: "update",
       }),
       UnprocessedMessage.countDocuments({ processed: false, category: "info" }),
-      UnprocessedMessage.countDocuments({ processed: false, category: "chat" }),
     ]);
-    res.json({ total, vacancy, update, info, chat });
+    res.json({ total, vacancy, update, info, chat: 0 });
   } catch {
     res.json({ total: 0, vacancy: 0, update: 0, info: 0, chat: 0 });
   }
@@ -207,13 +168,13 @@ router.post("/cleanup", async (req, res) => {
     let deleted = 0;
     let reclassified = 0;
     for (const msg of all) {
-      if (shouldIgnoreMessage(msg.text)) {
+      if (shouldIgnoreMessage(msg.text) || msg.category === "chat") {
         await msg.deleteOne();
         deleted++;
         continue;
       }
       const newCategory = classify(msg.text);
-      if (newCategory !== msg.category) {
+      if (newCategory !== msg.category && newCategory !== "chat") {
         msg.category = newCategory;
         await msg.save();
         reclassified++;
@@ -242,20 +203,6 @@ router.delete("/bulk", async (req, res) => {
       return res.status(400).json({ message: "Нічога не пазначана" });
     }
     res.json({ deleted: result.deletedCount });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-router.get("/", async (req, res) => {
-  try {
-    const { category, limit = 200 } = req.query;
-    const filter = { processed: false };
-    if (category && category !== "all") filter.category = category;
-    const messages = await UnprocessedMessage.find(filter)
-      .sort({ createdAt: -1 })
-      .limit(Number(limit));
-    res.json(messages);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
