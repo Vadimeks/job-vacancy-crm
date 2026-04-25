@@ -1,4 +1,3 @@
-// frontend/src/pages/Inbox.jsx
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -51,6 +50,11 @@ export default function Inbox() {
   const [showUpdatePicker, setShowUpdatePicker] = useState(null);
   const [processingId, setProcessingId] = useState(null);
 
+  // Функцыя для апавяшчэння лічыльніка ў меню
+  const notifyUpdate = () => {
+    window.dispatchEvent(new CustomEvent("inboxUpdated"));
+  };
+
   const fetchAll = useCallback(async () => {
     try {
       const [msgsRes, statsRes, vacRes] = await Promise.all([
@@ -61,6 +65,7 @@ export default function Inbox() {
       setMessages(msgsRes.data);
       setStats(statsRes.data);
       setVacancies(vacRes.data.filter((v) => v.status === "active"));
+      notifyUpdate(); // Абнаўляем лічыльнік пры кожнай загрузцы
     } catch (err) {
       console.error("Памылка загрузкі:", err);
     } finally {
@@ -72,20 +77,12 @@ export default function Inbox() {
     fetchAll();
   }, [fetchAll]);
 
-  const filtered = messages.filter(
-    (m) => categoryFilter === "all" || m.category === categoryFilter,
-  );
-
   const handleDelete = async (id) => {
     if (!window.confirm("Выдаліць паведамленне?")) return;
     try {
       await deleteInboxMessage(id);
       setMessages((prev) => prev.filter((m) => m._id !== id));
-      setSelected((prev) => {
-        const next = new Set(prev);
-        next.delete(id);
-        return next;
-      });
+      notifyUpdate();
     } catch (err) {
       alert("Памылка выдалення");
     }
@@ -99,14 +96,15 @@ export default function Inbox() {
       await bulkDeleteInbox({ ids });
       setMessages((prev) => prev.filter((m) => !selected.has(m._id)));
       setSelected(new Set());
-      getInboxStats().then((res) => setStats(res.data));
+      notifyUpdate();
+      const res = await getInboxStats();
+      setStats(res.data);
     } catch (err) {
       alert("Памылка масавага выдалення");
     }
   };
 
   const handleCreateVacancy = (msg) => {
-    // Перадаем і тэкст, і ID паведамлення
     navigate("/vacancies", {
       state: { initialText: msg.text, messageId: msg._id },
     });
@@ -117,6 +115,7 @@ export default function Inbox() {
     try {
       await aiUpdateVacancy(vacancyId, msg.text);
       await markInboxProcessed(msg._id);
+      notifyUpdate();
       alert("✅ Вакансія абноўлена!");
       fetchAll();
     } catch (err) {
@@ -143,14 +142,9 @@ export default function Inbox() {
     }
   };
 
-  const formatTime = (date) => {
-    return new Date(date).toLocaleString("be-BY", {
-      day: "2-digit",
-      month: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
+  const filtered = messages.filter(
+    (m) => categoryFilter === "all" || m.category === categoryFilter,
+  );
 
   if (loading)
     return (
@@ -188,7 +182,6 @@ export default function Inbox() {
         </div>
       </div>
 
-      {/* STATS GRID - Прыбралі Чат */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
         {[
           {
@@ -219,11 +212,7 @@ export default function Inbox() {
           <button
             key={key}
             onClick={() => setCategoryFilter(key)}
-            className={`bg-slate-900 border rounded-xl p-3 text-left transition-all ${
-              categoryFilter === key
-                ? "border-emerald-500/40 bg-emerald-500/5"
-                : "border-slate-800"
-            }`}
+            className={`bg-slate-900 border rounded-xl p-3 text-left transition-all ${categoryFilter === key ? "border-emerald-500/40 bg-emerald-500/5" : "border-slate-800"}`}
           >
             <div className={`text-2xl font-bold ${color}`}>{count}</div>
             <div className="text-xs text-slate-500">{label}</div>
@@ -231,7 +220,6 @@ export default function Inbox() {
         ))}
       </div>
 
-      {/* LIST */}
       <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
         <div className="grid grid-cols-[40px_1fr_150px_100px_80px] gap-3 px-4 py-2 text-[10px] uppercase tracking-wider text-slate-500 border-b border-slate-800 bg-slate-950">
           <input
@@ -291,7 +279,12 @@ export default function Inbox() {
                     {SOURCE_ICON[msg.source] || "📩"} {msg.sender}
                   </div>
                   <div className="text-[11px] text-slate-600">
-                    {formatTime(msg.createdAt)}
+                    {new Date(msg.createdAt).toLocaleString("be-BY", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
                   </div>
                   <div className="flex justify-end gap-1">
                     <button

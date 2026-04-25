@@ -160,7 +160,9 @@ export default function Vacancies() {
   const [applied, setApplied] = useState(EMPTY_FILTERS);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sourceMessageId, setSourceMessageId] = useState(null);
-
+  const notifyUpdate = () => {
+    window.dispatchEvent(new CustomEvent("inboxUpdated"));
+  };
   useEffect(() => {
     if (location.state && location.state.initialText) {
       setShowAutoForm(true);
@@ -259,7 +261,8 @@ export default function Vacancies() {
     if (!autoText.trim()) return;
     setAutoLoading(true);
     try {
-      await createVacancyAuto(autoText, sourceMessageId); // Перадаем ID
+      await createVacancyAuto(autoText, sourceMessageId);
+      notifyUpdate(); // <--- ДАДАЛІ
       handleCloseForm();
       await fetchVacancies();
     } catch {
@@ -279,6 +282,7 @@ export default function Vacancies() {
         autoText,
         sourceMessageId,
       );
+      notifyUpdate(); // <--- ДАДАЛІ
       handleCloseForm();
       setSourceMessageId(null);
       await fetchVacancies();
