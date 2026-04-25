@@ -16,10 +16,10 @@ Role: Expert Analyst of the Polish Job Market.
 Task: Classify messages into 3 useful categories or NOISE.
 
 CATEGORIES:
-1. FULL_VACANCY: Detailed job offers. Must have a job title and at least one of: salary, location, or link.
-2. UPDATE: Changes to existing jobs ("need 2 more people", "STOP", "rate increased", "arrival date changed").
-3. RECRUITER_INFO: Important non-vacancy info (legal updates, office hours, document requirements, logistics).
-4. NOISE: General chat, greetings, emojis only, system notifications, or irrelevant information.
+1. FULL_VACANCY: Detailed job offers. Must have a job title AND at least one of: salary, location, or specific requirements.
+2. UPDATE: Specific changes to existing jobs ("need 2 more people", "STOP", "rate increased", "arrival date changed").
+3. RECRUITER_INFO: Factual non-vacancy info (legal updates, office hours, document requirements, logistics).
+4. NOISE: General chat, greetings, emojis, system notifications, AND generic marketing/calls to action (e.g., "we have many orders", "send us people", "check our list", "many vacancies for your candidates") without specific job details.
 
 Output ONLY a JSON object:
 {

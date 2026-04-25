@@ -16,10 +16,11 @@ const CHAT_AGENCY_MAP = [
   { key: "kono", agency: "KONO" },
   { key: "manpower freelance_2025", agency: "MANPOWER" },
   { key: "mrówki group partners", agency: "MRÓWKI" },
-  { key: "mrowki group partners", agency: "MRÓWKI" }, // fallback без дыякрытыкі
+  { key: "mrowki group partners", agency: "MRÓWKI" },
   { key: "вакансии для партнеров", agency: "NIDEN" },
   { key: "otto - робота в польщі", agency: "OTTO" },
   { key: "otto для партнерів", agency: "OTTO" },
+  { key: "отто для партнерів", agency: "OTTO" },
   { key: "rekrutacja ps informacje", agency: "PERSONEL SERVICE" },
   { key: "grupa progres", agency: "PROGRES" },
   { key: "works4you вакансии в польше", agency: "RALEN" },
