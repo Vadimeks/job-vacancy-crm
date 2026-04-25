@@ -14,12 +14,8 @@ const AUTO_PROCESS_VACANCIES = false;
 
 function normalizeText(text) {
   if (!text) return "";
-  return text
-    .replace(
-      /[\p{Emoji}\p{Emoji_Presentation}\p{Symbol}\s\p{Punctuation}]/gu,
-      "",
-    )
-    .toLowerCase();
+  // Выдаляем УСЁ акрамя літар і лічбаў (прыбіраем прабелы, эмодзі, пунктуацыю)
+  return text.toLowerCase().replace(/[^a-zа-яёіў0-9]/gi, "");
 }
 
 function classify(text) {
@@ -39,9 +35,8 @@ function classify(text) {
 
 // АДЗІНЫ РОЎТ ДЛЯ ЎСІХ ПАВЕДАМЛЕННЯЎ (MacroDroid)
 router.post("/push", async (req, res) => {
-  console.log("📥 Incoming MacroDroid request:", req.body); // ГЭТА ДАДАЦЬ
+  console.log("📥 Incoming MacroDroid request:", req.body);
   try {
-    // Прымаем дадзеныя (падтрымка Raw Text ад MacroDroid)
     const senderRaw = (
       req.body.sender ||
       req.body.not_title ||
@@ -53,30 +48,36 @@ router.post("/push", async (req, res) => {
       req.body.notification ||
       ""
     ).trim();
-    const source = req.body.source || "viber"; // MacroDroid павінен дасылаць source=viber або source=telegram
+    const source = req.body.source || "viber";
 
     if (!text || text.length < 15)
       return res.status(200).json({ status: "ignored_too_short" });
 
-    // 1. ДЭДУПЛІКАЦЫЯ (ПА ХЭШЫ)
+    // 1. ВАЙТЛІСТ І LOOP PROTECTION
+    const agency = getWhitelistedAgency(senderRaw);
+
+    if (agency === "IGNORE_SELF") {
+      console.log(`🚫 Loop Protection: Ігнаруем паведамленне з уласнага чата`);
+      return res.status(200).json({ status: "ignored_self_loop" });
+    }
+
+    if (!agency) {
+      console.log(`🚫 Чат не ў вайтлісце: ${senderRaw} (${source})`);
+      return res.status(200).json({ status: "ignored_not_whitelisted" });
+    }
+
+    // 2. ДЭДУПЛІКАЦЫЯ (24 ГАДЗІНЫ)
     const textHash = normalizeText(text);
-    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const duplicate = await UnprocessedMessage.findOne({
       textHash,
-      createdAt: { $gte: oneHourAgo },
+      createdAt: { $gte: twentyFourHoursAgo },
     });
 
     if (duplicate) {
-      console.log(`🚫 Дубль адсечаны (${source})`);
+      console.log(`🚫 Дубль адсечаны (${source}) за апошнія 24г`);
       return res.status(200).json({ status: "ignored_duplicate" });
     }
-
-    // 2. ВАЙТЛІСТ (толькі для Viber)
-    let agency = getWhitelistedAgency(senderRaw);
-    if (!agency && source === "viber") {
-      return res.status(200).json({ status: "ignored_not_whitelisted" });
-    }
-    if (!agency) agency = "UNKNOWN";
 
     // 3. ЖОРСТКІ ФІЛЬТР (Regex)
     if (shouldIgnoreMessage(text))
@@ -93,10 +94,15 @@ router.post("/push", async (req, res) => {
     // 5. АЎТАМАТЫЗАЦЫЯ (КАЛІ ЎКЛЮЧАНА)
     if (classification.category === "FULL_VACANCY" && AUTO_PROCESS_VACANCIES) {
       console.log("🚀 Аўта-парсінг вакансіі ўключаны! Запуск Groq...");
-      const result = await processVacancyMessage(text, senderRaw, agency);
-      return res
-        .status(200)
-        .json({ status: "auto_processed", vacancyId: result._id });
+      try {
+        const result = await processVacancyMessage(text, senderRaw, agency);
+        return res
+          .status(200)
+          .json({ status: "auto_processed", vacancyId: result._id });
+      } catch (err) {
+        console.error("❌ Auto-process error, saving to inbox instead:", err);
+        // Калі Groq памыліўся, захаваем у інбокс, каб не страціць
+      }
     }
 
     // 6. ЗАХАВАННЕ Ў ПЯСОЧНІЦУ
@@ -105,6 +111,7 @@ router.post("/push", async (req, res) => {
       RECRUITER_INFO: "info",
       FULL_VACANCY: "vacancy",
     };
+
     const newMsg = new UnprocessedMessage({
       sender: senderRaw,
       agencyName: agency,
@@ -116,7 +123,7 @@ router.post("/push", async (req, res) => {
     });
 
     await newMsg.save();
-    console.log(`📥 Захавана ў Пясочніцу: ${newMsg.category}`);
+    console.log(`📥 Захавана ў Пясочніцу: ${newMsg.category} ад ${agency}`);
     res.status(200).json({ status: "saved_to_inbox" });
   } catch (error) {
     console.error("❌ Inbox Push Error:", error);

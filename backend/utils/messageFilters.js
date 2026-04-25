@@ -1,6 +1,11 @@
 // backend/utils/messageFilters.js
 
 const CHAT_AGENCY_MAP = [
+  // --- Telegram Whitelist ---
+  { key: "актуальні вакансіі на сіогодні", agency: "SG" },
+  { key: "staff power брижук", agency: "STAFF POWER" },
+  { key: "актуальные вакансии", agency: "Solano" },
+  // --- Viber Whitelist ---
   { key: "посередники apolo", agency: "APOLO" },
   { key: "ppg partner (sistempl)", agency: "Global" },
   { key: "партнери jobsi", agency: "BISAR" },
@@ -19,6 +24,9 @@ const CHAT_AGENCY_MAP = [
   { key: "grupa progres", agency: "PROGRES" },
   { key: "works4you вакансии в польше", agency: "RALEN" },
   { key: "тест", agency: "MANUAL" },
+
+  // --- Ignore List (Каб пазбегнуць пятлі) ---
+  { key: "nova work agency", agency: "IGNORE_SELF" },
 ];
 
 // ─── LAYER 0: Сістэмны шум (Viber / Telegram) ────────────────────────────────
@@ -112,9 +120,7 @@ function getWhitelistedAgency(chatTitle) {
 function shouldIgnoreMessage(text) {
   if (!text) return true;
   const trimmed = text.trim();
-  // Калі паведамленне занадта кароткае або складаецца толькі з эмодзі
   if (trimmed.length < 15 || EMOJI_ONLY_RE.test(trimmed)) return true;
-  // Праверка па ўсіх Regex-патэрнах шуму
   return NOISE_PATTERNS.some((p) => p.test(trimmed));
 }
 
