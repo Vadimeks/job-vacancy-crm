@@ -12,16 +12,21 @@ const api = axios.create({
 // --- ВАКАНСІІ ---
 export const getVacancies = () => api.get("/vacancies");
 export const createVacancy = (data) => api.post("/vacancies", data);
-export const createVacancyAuto = (rawText) =>
-  api.post("/vacancies/auto", { rawText });
-export const createVacancyFromTemplate = (templateId, rawText) =>
-  api.post(`/vacancies/from-template/${templateId}`, { rawText });
+
+// Дадалі messageId для аўтаматычнай ачысткі інбокса
+export const createVacancyAuto = (rawText, messageId) =>
+  api.post("/vacancies/auto", { rawText, messageId });
+
+// Дадалі messageId для аўтаматычнай ачысткі інбокса
+export const createVacancyFromTemplate = (templateId, rawText, messageId) =>
+  api.post(`/vacancies/from-template/${templateId}`, { rawText, messageId });
+
 export const updateVacancy = (id, data) => api.put(`/vacancies/${id}`, data);
 export const deleteVacancy = (id) => api.delete(`/vacancies/${id}`);
 
-// НОВАЕ: Інтэлектуальнае абнаўленне праз AI
-export const aiUpdateVacancy = (id, rawText) =>
-  api.patch(`/vacancies/${id}/ai-update`, { rawText });
+// Дадалі messageId для аўтаматычнай ачысткі інбокса пры абнаўленні
+export const aiUpdateVacancy = (id, rawText, messageId) =>
+  api.patch(`/vacancies/${id}/ai-update`, { rawText, messageId });
 
 // --- ШАБЛОНЫ ---
 export const getTemplates = () => api.get("/templates");

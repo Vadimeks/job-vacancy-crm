@@ -748,3 +748,138 @@ isInformative() / isSimpleMessage()
 ### Logic
 
 - **Manual Mode:** Уведзена глабальная канстанта `AUTO_PROCESS_VACANCIES = false`. Аўтаматычны парсінг адключаны; вакансіі збіраюцца ў Пясочніцы для ручнога кантролю.
+
+## [0.2.7] - 2026-04-24
+
+### Added
+
+- **MacroDroid Integration:** Поўны пераход на фармат `application/x-www-form-urlencoded` для стабільнай перадачы тэксту без памылак JSON.
+- **Groq Fallback:** Рэалізавана аўтаматычнае пераключэнне на мадэль `llama-3.1-8b` пры памылцы 429 (ліміт `70b`).
+- **UI Enhancements:** У `VacancyViewModal` дададзены блок прагляду арыгінальнага тэксту паведамлення (Raw Text).
+- **Debug:** Дададзены дэталёвыя логі для ўваходных MacroDroid запытаў.
+
+### Fixed
+
+- **Backend Architecture:** Поўнае выдаленне `GramJS` (юзербота), пераход на незалежную ад сесіі архітэктуру.
+- **Stability:** Укаранёны `SyntaxError` мідлвар для прадухілення падзення сервера пры некарэктных сімвалах.
+- **Inbox:** Створаны адзіны эндпоінт `/api/inbox/push` для ўніфікацыі ўсіх крыніц (Viber/Telegram).
+- **Frontend:**
+  - Выпраўлены канфлікт `useEffect` у `Vacancies.jsx`, які ламаў перадачу даных.
+  - Абноўлена логіка фільтраў ("Давоз", "Хто едзе", "Агенцыя", "Брэнд").
+  - Ачышчаны інтэрфейс: выдалена катэгорыя "Чат", пачынена кнопка масавага выдалення паведамленняў.
+
+### Next Session (TODO)
+
+- [ ] **Pending Messages:** Выпраўленне "вісячых" паведамленняў (перадача `messageId` для абнаўлення статусу `processed: true`).
+- [ ] **Filters:** Фікс фільтра "Нацыянальнасць" (апрацоўка пустых масіваў/ключавых слоў).
+- [ ] **Whitelist:** Наладка вайтліста для тэставых чатаў (напр. "Мур Іра").
+- [ ] **Maintenance:** Чыстка MongoDB ад старых дублікатаў вакансій.
+
+## [Snapshot] - Project File Structure (2026-04-25)
+
+Актуальная структура праекта для хуткай навігацыі і кантролю файлавай сістэмы.
+
+```text
+.
+./backend
+./backend/analyze.md
+./backend/chats.md
+./backend/CLAUDE.md
+./backend/data
+./backend/data/patch
+./backend/data/templates
+./backend/generate_session.js
+./backend/import-archive.js
+./backend/index.js
+./backend/models
+./backend/models/Candidate.js
+./backend/models/Template.js
+./backend/models/UnprocessedMessage.js
+./backend/models/Vacancy.js
+./backend/package-lock.json
+./backend/package.json
+./backend/patchTemplates.js
+./backend/result.json
+./backend/routes
+./backend/routes/apply.js
+./backend/routes/candidates.js
+./backend/routes/inbox.js
+./backend/routes/templates.js
+./backend/routes/vacancies.js
+./backend/scripts
+./backend/scripts/seedTemplates.js
+./backend/services
+./backend/services/ai.service.js
+./backend/services/classifier.service.js
+./backend/services/gemini.service.js
+./backend/services/matching.service.js
+./backend/services/telegram.service.js
+./backend/swaggerConfig.js
+./backend/userbot.js
+./backend/utils
+./backend/utils/messageFilters.js
+./frontend
+./frontend/CLAUDE.md
+./frontend/diagnose_crm.py
+./frontend/eslint.config.js
+./frontend/index.html
+./frontend/instructions
+./frontend/instructions/job_categories_and_locations.md
+./frontend/instructions/LOG.md
+./frontend/instructions/PLAN.md
+./frontend/instructions/PRD.md
+./frontend/instructions/scripts
+./frontend/instructions/SYSTEM_INSTRUCTIONS.md
+./frontend/instructions/vac-descr.md
+./frontend/instructions/vacancy_parser_v2.md
+./frontend/package-lock.json
+./frontend/package.json
+./frontend/postcss.config.js
+./frontend/public
+./frontend/public/favicon.svg
+./frontend/public/icons.svg
+./frontend/README.md
+./frontend/src
+./frontend/src/App.css
+./frontend/src/App.jsx
+./frontend/src/assets
+./frontend/src/components
+./frontend/src/constants
+./frontend/src/index.css
+./frontend/src/main.jsx
+./frontend/src/pages
+./frontend/src/services
+./frontend/tailwind.config.js
+./frontend/vercel.json
+./frontend/vite.config.js
+./skills_tools
+```
+
+- **Structure-command**: find . -maxdepth 3 -not -path '/.' -not -path 'node_modules' -not -path 'dist' -not -path 'build'
+
+## [0.2.8] - 2026-04-25
+
+### Added
+
+- **Whitelist (Layer 1 Filtering):** Імплементавана жорсткая фільтрацыя па давераных чатах (SG, STAFF POWER, Solano, OTTO і інш.) для адсеку 90% спаму.
+- **Loop Protection:** Дададзена ігнараванне чата "NOVA WORK AGENCY" для прадухілення бясконцых цыклаў рэкурсіўнага парсінгу.
+- **Gemini Fallback:** Наладжаны аўтаматычны ланцужок пераключэння мадэляў (Flash -> Flash-lite -> 2.0 -> 1.5). Сістэма захоўвае жывучасць пры памылках 503.
+
+### Improved / Refactored
+
+- **Architecture:** Поўны пераход на `MacroDroid` (адмова ад `GramJS`), што забяспечвае стабільнасць прыёму паведамленняў.
+- **Deduplication:** Павялічана акно праверкі дублікатаў з 1 да 24 гадзін. `normalizeText` цяпер цалкам ачышчае тэкст ад эмодзі і сімвалаў, пакідаючы толькі літары і лічбы.
+- **Inbox:** Уніфікацыя эндпоінта для Viber і Telegram (адзіны роўт для апрацоўкі), што спрасціла логіку падтрымкі.
+
+### System Status
+
+- **Backend:** Працуе на Render. `AUTO_PROCESS_VACANCIES = false` (рэжым "Пясочніца" для назірання за фільтрамі).
+- **Filtering:** Працуе трохузроўневая абарона (Whitelist -> Regex -> AI-класіфікацыя).
+
+### Next Steps (Roadmap)
+
+- [ ] **Field Testing:** Маніторынг логаў Render і праверка траплянняў у вайтліст.
+- [ ] **Data Cleanup:** Выпраўленне статусу `processed: true` пасля стварэння вакансіі (каб паведамленні знікалі з Пясочніцы).
+- [ ] **UI/UX:** Аптымізацыя формы стварэння вакансіі (auto-fill з `translatedText` ад Gemini).
+- [ ] **Auto-pilot:** Уключэнне `AUTO_PROCESS_VACANCIES = true` пасля паспяховага тэставання.
+- [ ] **Frontend:** Даданне дынамічных фільтраў па агенцыях/брэндах.
