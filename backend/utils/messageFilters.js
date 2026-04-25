@@ -6,6 +6,7 @@ const CHAT_AGENCY_MAP = [
   { key: "recruter freelancer", agency: "SG" },
   { key: "staff power брижук", agency: "STAFF POWER" },
   { key: "актуальные вакансии", agency: "SOLANO" },
+  { key: "Vacancies-app-test-group", agency: "MANUAL" },
   // --- Viber Whitelist ---
   { key: "посередники apolo", agency: "APOLO" },
   { key: "ppg partner (sistempl)", agency: "GLOBAL" },
