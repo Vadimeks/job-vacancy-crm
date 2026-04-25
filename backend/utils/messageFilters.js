@@ -2,7 +2,8 @@
 
 const CHAT_AGENCY_MAP = [
   // --- Telegram Whitelist ---
-  { key: "актуальні вакансіі на сіогодні", agency: "SG" },
+  { key: "актуальні вакансії на сьогодні", agency: "SG" },
+  { key: "recruter freelancer", agency: "SG" },
   { key: "staff power брижук", agency: "STAFF POWER" },
   { key: "актуальные вакансии", agency: "Solano" },
   // --- Viber Whitelist ---
