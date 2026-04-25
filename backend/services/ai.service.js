@@ -73,7 +73,10 @@ const FORMAT_PROMPT = `
 ROLE: Professional HR content formatter.
 TASK: Format the job data into a beautiful Telegram post in UKRAINIAN.
 
-CRITICAL PRIVACY RULE: 
+!!! CRITICAL COMPACTNESS RULE !!!: 
+If a field value is empty, null, "не вказано", or an empty array, you MUST NOT include the label or the line in the final post. The post must be as compact as possible. Do not show empty sections.
+
+CRITICAL PRIVACY RULE:
 - NEVER include the Agency Name (agencyName) in the post.
 - NEVER include internal notes or recruiter-only data.
 - Use vacancydescription as the main title (NEVER use templateName here).
@@ -82,40 +85,42 @@ Use this EXACT structure (skip entire blocks if ALL data inside is empty/null):
 
 *[vacancydescription]*
 📍 Місто: [location] 
-[• Оформлення: м. [checkInCity] — тільки якщо checkInCity не пусте]
-👥 Набір: [requirements.gender joined by ", "][, приїзд [arrivalDate] — тільки якщо arrivalDate не пусте]
+• Оформлення: м. [checkInCity] (only if not empty)
+👥 Набір: [requirements.gender joined by ", "] (only if not empty)
+• Приїзд: [arrivalDate] (only if not empty)
 
 💰 *Оплата праці*
 • Ставка: [salary.baseNetto]
-[• Студенти: [salary.studentNetto] — тільки якщо не пусте]
-[• Годин на місяць: [salary.hoursRange] — тільки якщо не пусте]
-[• Виплати: [salary.payoutDates] — тільки якщо не пусте]
-[• Бонуси: [salary.bonusDetails] — тільки якщо не пусте]
-[• Нотатки: [salary.salaryNotes] — тільки якщо не пусте]
+• Студенти: [salary.studentNetto]
+• Годин на місяць: [salary.hoursRange]
+• Виплати: [salary.payoutDates]
+• Бонуси: [salary.bonusDetails]
+• Нотатки: [salary.salaryNotes]
 
 🛠 *Характер роботи*
 [кожен пункт з description, розбитий по крапці з комою, на новому рядку з •]
 
 📋 *Вимоги*
-[• Вік: до [requirements.ageMax] років — тільки якщо ageMax не пусте]
+[• Вік: до [requirements.ageMax] років — only if ageMax not empty ]
 • Документи: [requirements.standardDocs joined by ", "]
 • Мова: [requirements.polishLanguageLevel (якщо "A1" - напиши "Базовий рівень (A1)", якщо "Не вимагається" - напиши "Не вимагається")]
-[• [requirements.physicalLoad] — тільки якщо не пусте]
+[• [requirements.physicalLoad] — only if not empty]
 
 🕒 *Графік роботи*
-[schedule.description — якщо не пусте]
+[schedule.description — only if not empty]
 [schedule.workDaysWeek — тільки якщо НЕ міститься вже у schedule.description]
-[• Перерва: [schedule.breakDuration] — тільки якщо не пусте]
+[• Перерва: [schedule.breakDuration] — only if not empty]
 
-[📄 Тип договору: [contractType] — виводити тільки якщо не пусте]
+[📄 Тип договору: [contractType] — only if not empty]
 
 🏠 *Проживання*
 Тип: [accommodation.type]
-[• Вартість: [accommodation.costRaw] — якщо не пусте]
-[• Деталі: [accommodation.details] — якщо не пусте]
+• Вартість: [accommodation.costRaw]
+• Деталі: [accommodation.details]
 
 🚌 *Транспорт*
-[• [transport.costRaw] — якщо не пусте][, [transport.details] — якщо не пусте]
+• [transport.costRaw]
+• [transport.details]
 
 [💸 *Витрати та відповідальність*
 [• На старті: [startExpenses.details] — якщо hasStartExpenses = true]
@@ -125,15 +130,15 @@ Use this EXACT structure (skip entire blocks if ALL data inside is empty/null):
 🌡 *Умови праці*
 • Робочий одяг: [conditions.workwearFree ? "Безкоштовно" : "За рахунок працівника"]
 • Харчування: [conditions.foodType]
-[• Нюанси: [conditions.specificNuances joined by ", "] — якщо не пусте]
-[conditions.foodDetails — якщо не пусте]
-[conditions.specificConditionsDetails — якщо не пусте]
+[• Нюанси: [conditions.specificNuances joined by ", "] — only if not empty]
+[conditions.foodDetails — only if not empty]
+[conditions.specificConditionsDetails — only if not empty]
 
 [🎁 *Компенсації від роботодавця*
-[employerCompensations.details] — весь блок тільки якщо employerCompensations.hasCompensations = true]
+[employerCompensations.details] — only if employerCompensations.hasCompensations = true]
 
-[📝 *Додаткова інформація*
-[additionalNotes] — весь блок тільки якщо additionalNotes не пусте]
+📝 *Додаткова інформація* (Only if additionalNotes not empty)
+[additionalNotes]
 
 Rules:
 - Write in Ukrainian
