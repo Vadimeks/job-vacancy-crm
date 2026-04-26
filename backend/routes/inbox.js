@@ -10,7 +10,7 @@ const {
 } = require("../utils/messageFilters");
 
 // РЭЖЫМ АДЛАДКІ: false = усё ідзе ў Інбокс. true = вакансіі адразу ідуць у Groq.
-const AUTO_PROCESS_VACANCIES = false;
+const AUTO_PROCESS_VACANCIES = true; //false калі трэба каб ішло ўсё ў пясочніцу
 
 function normalizeText(text) {
   if (!text) return "";
