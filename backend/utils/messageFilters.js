@@ -26,7 +26,7 @@ const CHAT_AGENCY_MAP = [
   { key: "rekrutacja ps informacje", agency: "PERSONEL SERVICE" },
   { key: "grupa progres", agency: "PROGRES" },
   { key: "works4you вакансии в польше", agency: "RALEN" },
-  { key: "тест", agency: "MANUAL" },
+  { key: "test-group", agency: "MANUAL" },
 
   // --- Ignore List (Каб пазбегнуць пятлі) ---
   { key: "nova work agency", agency: "IGNORE_SELF" },
