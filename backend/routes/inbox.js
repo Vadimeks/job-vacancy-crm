@@ -2,7 +2,7 @@
 const express = require("express");
 const router = express.Router();
 const UnprocessedMessage = require("../models/UnprocessedMessage");
-const { classifyWithGemini } = require("../services/gemini.service");
+const { analyzeAndCompareWithGemini } = require("../services/gemini.service");
 const { processVacancyMessage } = require("./vacancies");
 const {
   shouldIgnoreMessage,
