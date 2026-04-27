@@ -40,15 +40,11 @@ router.post("/push", async (req, res) => {
   const text = (req.body.text || req.body.notification || "").trim();
   const textHash = normalizeText(text);
 
-  // 1. Абарона ад адначасовых дубляў (пакуль Gemini яшчэ думае)
-  if (processingCache.has(textHash)) {
-    console.log("⏳ Дубль ужо апрацоўваецца, ігнаруем...");
+  if (processingCache.has(textHash))
     return res.status(200).json({ status: "ignored_concurrent" });
-  }
 
   try {
-    processingCache.add(textHash); // Дадаем у кэш
-
+    processingCache.add(textHash);
     const senderRaw = (
       req.body.sender ||
       req.body.not_title ||
@@ -56,11 +52,9 @@ router.post("/push", async (req, res) => {
     ).trim();
     const source = req.body.source || "viber";
 
-    if (!text || text.length < 15) {
+    if (!text || text.length < 15)
       return res.status(200).json({ status: "ignored_too_short" });
-    }
 
-    // 2. Вайтліст
     const agency = getWhitelistedAgency(senderRaw);
     if (agency === "IGNORE_SELF")
       return res.status(200).json({ status: "ignored_self_loop" });
@@ -69,59 +63,85 @@ router.post("/push", async (req, res) => {
       return res.status(200).json({ status: "ignored_not_whitelisted" });
     }
 
-    // 3. Дэдуплікацыя (24 гадзіны)
+    // 1. Праверка на поўны дубль (хэш) - 24 гадзіны
     const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    const duplicate = await UnprocessedMessage.findOne({
+    const exactDuplicate = await UnprocessedMessage.findOne({
       textHash,
       createdAt: { $gte: twentyFourHoursAgo },
     });
+    if (exactDuplicate)
+      return res.status(200).json({ status: "ignored_exact_duplicate" });
 
-    if (duplicate) {
-      console.log(`🚫 Дубль знойдзены ў базе (${source})`);
-      return res.status(200).json({ status: "ignored_duplicate" });
+    // 2. Апрацоўка частковых дубляў (Telegram updates) - павялічана да 60 хвілін
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+    const partialDuplicate = await UnprocessedMessage.findOne({
+      sender: senderRaw,
+      createdAt: { $gte: oneHourAgo },
+      text: {
+        $regex: new RegExp(
+          "^" + text.substring(0, 100).replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+        ),
+      },
+    });
+
+    if (partialDuplicate && text.length > partialDuplicate.text.length) {
+      console.log("🔄 Абнаўленне кароткага паведамлення да поўнага...");
+      partialDuplicate.text = text;
+      partialDuplicate.textHash = textHash;
+      await partialDuplicate.save();
+      // Далей не ідзем, бо паведамленне проста абнавілася ў базе
+      return res.status(200).json({ status: "partial_updated" });
     }
 
-    // 4. Жорсткі фільтр (Regex)
-    if (shouldIgnoreMessage(text)) {
+    if (shouldIgnoreMessage(text))
       return res.status(200).json({ status: "ignored_noise_regex" });
-    }
 
-    // 5. Аналіз Gemini
-    console.log(`🔍 Gemini аналізуе ад ${agency}...`);
-    const classification = await classifyWithGemini(text);
+    // 3. Сэмантычны аналіз Gemini (Кантэкст за 12 гадзін)
+    const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
+    const recentMessages = await UnprocessedMessage.find({
+      agencyName: agency,
+      createdAt: { $gte: twelveHoursAgo },
+    })
+      .select("text category createdAt")
+      .limit(10);
 
-    if (classification.category === "NOISE") {
-      return res.status(200).json({ status: "ignored_noise_ai" });
-    }
+    const analysis = await analyzeAndCompareWithGemini(text, recentMessages);
 
-    // 6. Праверка на абрэзку (Truncation)
-    const truncated = isTruncated(text);
-    if (truncated) {
-      console.log("⚠️ Тэкст абрэзаны, аўта-парсінг адменены.");
-    }
-
-    // 7. Аўта-парсінг (толькі калі НЕ абрэзана і катэгорыя FULL_VACANCY)
     if (
-      classification.category === "FULL_VACANCY" &&
+      analysis.category === "NOISE" ||
+      analysis.comparison.verdict === "DUPLICATE"
+    ) {
+      console.log(`🚫 Gemini адхіліў: ${analysis.comparison.reason}`);
+      return res.status(200).json({ status: "ignored_semantic_duplicate" });
+    }
+
+    const truncated = isTruncated(text);
+
+    // 4. Аўта-парсінг (Толькі для NEW FULL_VACANCY)
+    if (
+      analysis.category === "FULL_VACANCY" &&
+      analysis.comparison.verdict === "NEW" &&
       AUTO_PROCESS_VACANCIES &&
       !truncated
     ) {
-      console.log("🚀 Запуск Groq для поўнай вакансіі...");
+      console.log("🚀 Запуск Groq для НОВАЙ вакансіі...");
       try {
         const result = await processVacancyMessage(
-          classification.translatedText,
+          analysis.translatedText,
           senderRaw,
           agency,
+          text,
+          truncated,
         );
         return res
           .status(200)
           .json({ status: "auto_processed", vacancyId: result._id });
       } catch (err) {
-        console.error("❌ Памылка Groq, захоўваем у інбокс.");
+        console.error("❌ Groq Error, saving to inbox.");
       }
     }
 
-    // 8. Захаванне ў Пясочніцу
+    // 5. Захаванне ў Пясочніцу (для UPDATE або NEW)
     const categoryMap = {
       UPDATE: "update",
       RECRUITER_INFO: "info",
@@ -131,23 +151,29 @@ router.post("/push", async (req, res) => {
     const newMsg = new UnprocessedMessage({
       sender: senderRaw,
       agencyName: agency,
-      text: text, // Арыгінал
-      rawText: classification.translatedText || text, // Пераклад для рэкрутэра
+      text: text,
+      rawText: analysis.translatedText || text,
       textHash: textHash,
       source: source,
-      category: categoryMap[classification.category] || "info",
+      // Калі Gemini сказаў UPDATE — ставім катэгорыю update
+      category:
+        analysis.comparison.verdict === "UPDATE"
+          ? "update"
+          : categoryMap[analysis.category] || "info",
       isTruncated: truncated,
       processed: false,
     });
 
     await newMsg.save();
-    console.log(`📥 Захавана ў Пясочніцу: ${newMsg.category} ад ${agency}`);
+    console.log(
+      `📥 Захавана ў Пясочніцу (${analysis.comparison.verdict}): ${newMsg.category} ад ${agency}`,
+    );
     res.status(200).json({ status: "saved_to_inbox" });
   } catch (error) {
     console.error("❌ Inbox Push Error:", error);
     res.status(200).json({ status: "error_logged" });
   } finally {
-    processingCache.delete(textHash); // Абавязкова чысцім кэш
+    processingCache.delete(textHash);
   }
 });
 

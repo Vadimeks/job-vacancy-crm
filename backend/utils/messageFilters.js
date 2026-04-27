@@ -2,32 +2,30 @@
 
 const CHAT_AGENCY_MAP = [
   // --- Telegram Whitelist ---
-  { key: "актуальні вакансії на сьогодні", agency: "SG" },
-  { key: "rekruter freelancer", agency: "SG" }, // ВЫПРАЎЛЕНА: k замест c
-  { key: "staff power брижук", agency: "STAFF POWER" },
-  { key: "актуальные вакансии", agency: "SOLANO" },
-  { key: "vacancies-app-test-group", agency: "MANUAL" },
-
+  { key: "Актуальні вакансії на сьогодні", agency: "SG" },
+  { key: "Rekruter freelancer", agency: "SG" },
+  { key: "Staff power брижук", agency: "STAFF POWER" },
+  { key: "Актуальные вакансии", agency: "SOLANO" },
+  { key: "Vacancies-app-test-group", agency: "MANUAL" },
+  { key: "посередники apolo", agency: "APOLO" },
   // --- Viber Whitelist ---
   { key: "посередники apolo", agency: "APOLO" },
-  { key: "ppg partner (sistempl)", agency: "GLOBAL" },
+  { key: "Biedronka - PPG Partner (sistemPL)", agency: "GLOBAL" },
   { key: "партнери jobsi", agency: "BISAR" },
   { key: "est-polska", agency: "EST" },
-  { key: "вакансіі ewl (рекрутація)", agency: "EWL" },
+  { key: "вакансіі ewl ( рекрутація)", agency: "EWL" },
   { key: "fws rekrutacja", agency: "FWS" },
   { key: "partner/intraservis", agency: "INTRASERVICE" },
-  { key: "Partner / intraservis", agency: "INTRASERVICE" },
   { key: "kono", agency: "KONO" },
   { key: "manpower freelance_2025", agency: "MANPOWER" },
   { key: "mrówki group partners", agency: "MRÓWKI" },
-  { key: "mrowki group partners", agency: "MRÓWKI" },
   { key: "вакансии для партнеров", agency: "NIDEN" },
   { key: "otto - робота в польщі", agency: "OTTO" },
   { key: "otto для партнерів", agency: "OTTO" },
   { key: "отто для партнерів", agency: "OTTO" },
   { key: "rekrutacja ps informacje", agency: "PERSONEL SERVICE" },
   { key: "grupa progres", agency: "PROGRES" },
-  { key: "works4you вакансии в польше", agency: "RALEN" },
+  { key: "Works4you", agency: "RALEN" },
   { key: "test-group", agency: "MANUAL" },
 
   // --- Ignore List ---
@@ -50,17 +48,16 @@ const SYSTEM_NOISE = [
   /^голосове повідомлення\s*\(.*\)$/i,
   /^файлове повідомлення$/i,
   /^стікер$/i,
-  /^отримання останніх повідомлень/i, // Шум Viber
-  /^повернутися у viber/i, // Шум Viber
-  /^службу відключено/i, // Шум Viber
-  /^завантаження мультимедійного контенту/i, // Шум Viber
-  /^з'єднання зі службою/i, // Шум Viber
+  /^отримання останніх повідомлень/i,
+  /^повернутися у viber/i,
+  /^службу адключана/i,
+  /^завантаження мультимедійного контенту/i,
+  /^з'єднання зі службою/i,
 ];
 
 const RECRUITER_CHAT_NOISE = [
   /чия кандидатка\??/i,
   /хто подав цих людей\??/i,
-  /могли б написати мені в личні/i,
   /напишіть мені в особист/i,
   /не можу знайти ваш номер/i,
   /скинула вам (більше|вже)/i,
@@ -75,7 +72,6 @@ const SOCIAL_NOISE = [
   /з наступаючою пасхою/i,
   /з великоднем/i,
   /доброго дня п.?ятниці/i,
-  /нехай сьогоднішній день буде/i,
   /вітаю (всіх|колег|партнерів)/i,
   /дякую (всім|за|вам)/i,
   /^дякую[\s!.]*$/i,
@@ -83,7 +79,7 @@ const SOCIAL_NOISE = [
   /^доброго дня[\s!.]*$/i,
   /^добрий день[\s!.]*$/i,
   /^доброго ранку[\s!.]*$/i,
-  /^зрозуміло[\s!.]*$/i, // Шум з логаў
+  /^зрозуміло[\s!.]*$/i,
 ];
 
 const NOISE_PATTERNS = [
@@ -94,48 +90,49 @@ const NOISE_PATTERNS = [
 
 const EMOJI_ONLY_RE = /^[\p{Emoji}\p{Emoji_Presentation}\s]+$/u;
 
-function normalizeTitle(str) {
+/**
+ * Агрэсіўная нармалізацыя: толькі літары і лічбы.
+ */
+function superNormalize(str) {
   if (!str) return "";
   return str
-    .replace(/[\p{Emoji}\p{Emoji_Presentation}]/gu, "")
-    .replace(/ó/g, "o")
-    .replace(/ę/g, "e")
-    .replace(/ą/g, "a")
-    .replace(/ś/g, "s")
-    .replace(/ł/g, "l")
-    .replace(/ź/g, "z")
-    .replace(/ż/g, "z")
-    .replace(/ć/g, "c")
-    .replace(/ń/g, "n")
-    .replace(/\s+/g, " ")
-    .trim()
-    .toLowerCase();
+    .toLowerCase()
+    .replace(/[ó]/g, "o")
+    .replace(/[ę]/g, "e")
+    .replace(/[ą]/g, "a")
+    .replace(/[ś]/g, "s")
+    .replace(/[ł]/g, "l")
+    .replace(/[źż]/g, "z")
+    .replace(/[ć]/g, "c")
+    .replace(/[ń]/g, "n")
+    .replace(/[^a-zа-яёіў0-9]/gi, "");
 }
 
-/**
- * Пярэвірка на абрэзанасць (MacroDroid/Android limit)
- */
 function isTruncated(text) {
   if (!text) return false;
   const trimmed = text.trim();
-  // Калі тэкст доўгі і заканчваецца не на знак прыпынку або эмодзі
-  // Звычайна апавяшчэнні абразаюцца на ~240 або ~500 сімвалах
   return trimmed.length > 200 && !/[.!?)]\s*$/.test(trimmed);
 }
 
 function getWhitelistedAgency(chatTitle) {
   if (!chatTitle) return null;
-  const normalized = normalizeTitle(chatTitle);
-  const match = CHAT_AGENCY_MAP.find((entry) =>
-    normalized.includes(entry.key.toLowerCase()),
-  );
+  const normalizedChat = superNormalize(chatTitle);
+  if (!normalizedChat) return null;
+
+  const match = CHAT_AGENCY_MAP.find((entry) => {
+    const normalizedKey = superNormalize(entry.key);
+    return (
+      normalizedChat.includes(normalizedKey) ||
+      normalizedKey.includes(normalizedChat)
+    );
+  });
+
   return match ? match.agency : null;
 }
 
 function shouldIgnoreMessage(text) {
   if (!text) return true;
   const trimmed = text.trim();
-  // Захоўваем твой ліміт у 15 сімвалаў
   if (trimmed.length < 15 || EMOJI_ONLY_RE.test(trimmed)) return true;
   return NOISE_PATTERNS.some((p) => p.test(trimmed));
 }

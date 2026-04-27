@@ -3,85 +3,99 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// Спіс мадэляў у парадку прыярытэту (ад лепшай да самай стабільнай)
 const MODELS_PRIORITY = [
-  "gemini-2.5-flash", // Асноўная мадэль 2026 года
-  "gemini-2.5-flash-lite", // Хуткая палегчаная версія
-  "gemini-2.0-flash", // Папярэдняе пакаленне
-  "gemini-1.5-flash", // Самая стабільная "рабочая каня"
+  "gemini-2.5-flash",
+  "gemini-2.5-flash-lite",
+  "gemini-2.0-flash",
+  "gemini-1.5-flash",
 ];
 
 const SYSTEM_PROMPT = `
 Role: Expert Analyst of the Polish Job Market.
-Task: Classify messages into 3 useful categories or NOISE.
+Task: Classify a NEW_MESSAGE and compare it with RECENT_MESSAGES from the same agency.
 
 CATEGORIES:
-1. FULL_VACANCY: A single, detailed job offer. Must contain: Job title AND (Salary OR Location) AND specific duties/requirements. 
-   - IMPORTANT: If it's a list of multiple different jobs, it is NOT a FULL_VACANCY, it's an UPDATE.
+1. FULL_VACANCY: A single, detailed job offer (Title + Salary/Location + Duties).
+2. UPDATE: Lists of jobs, short requests ("Need 2 men"), or status changes ("STOP", "Rate up").
+3. RECRUITER_INFO: Legal updates, office hours, logistics.
+4. NOISE: Greetings, emojis, system notifications.
 
-2. UPDATE: 
-   - Lists of multiple vacancies (e.g., "Current vacancies: Warehouse, Driver, Packer").
-   - Short requests for people (e.g., "Need 2 men for tomorrow", "3 spots left").
-   - Status changes ("STOP", "Arrival date changed", "Rate increased").
-   - Updates for existing projects.
-
-3. RECRUITER_INFO: Factual non-vacancy info (legal updates, office hours, document requirements, logistics, BHP info).
-
-4. NOISE: Greetings ("Good morning"), emojis only, system notifications, or generic marketing ("We have many jobs, contact us") without any specific job details.
+COMPARISON RULES (Semantic Deduplication):
+Compare the NEW_MESSAGE with the provided list of RECENT_MESSAGES.
+Verdicts:
+- "DUPLICATE": The NEW_MESSAGE describes the EXACT SAME job as one of the RECENT_MESSAGES. Same Brand, Same City, Same Job Essence, Same Salary. Minor text/emoji changes don't matter.
+- "UPDATE": It's the same job/factory/city, but something IMPORTANT changed (Salary increased, new arrival date, or it's a list that includes a previously seen job).
+- "NEW": This is a completely different job, different city, or different brand.
 
 Output ONLY a JSON object:
 {
   "category": "FULL_VACANCY" | "UPDATE" | "RECRUITER_INFO" | "NOISE",
-  "reasoning": "short explanation in Ukrainian",
-  "translatedText": "Clean Ukrainian translation of the message (only for non-NOISE categories)"
+  "comparison": {
+    "verdict": "NEW" | "DUPLICATE" | "UPDATE",
+    "relatedMessageId": "ID of the matched message from RECENT_MESSAGES or null",
+    "reason": "short explanation in Ukrainian"
+  },
+  "translatedText": "Clean Ukrainian translation of the NEW_MESSAGE"
 }
 `;
 
-async function classifyWithGemini(text) {
+async function analyzeAndCompareWithGemini(text, recentMessages = []) {
   let lastError = null;
 
-  // Перабор мадэляў са спісу
+  // Падрыхтоўка кантэксту для параўнання
+  const context = recentMessages.map((m) => ({
+    id: m._id,
+    text: m.text.substring(0, 500), // бярэм пачатак для эканоміі токенаў
+    category: m.category,
+    date: m.createdAt,
+  }));
+
   for (const modelName of MODELS_PRIORITY) {
     try {
-      console.log(`🔍 Спроба аналізу мадэллю: ${modelName}`);
+      console.log(`🔍 Gemini (${modelName}): Аналіз і параўнанне...`);
       const model = genAI.getGenerativeModel({ model: modelName });
+
+      const userContent = `
+RECENT_MESSAGES_FROM_THIS_AGENCY:
+${JSON.stringify(context, null, 2)}
+
+NEW_MESSAGE_TO_ANALYZE:
+${text}
+      `;
+
       const result = await model.generateContent([
         { text: SYSTEM_PROMPT },
-        { text: `Message to analyze: ${text}` },
+        { text: userContent },
       ]);
 
       const response = await result.response;
-      let jsonText = response.text();
-
-      // Ачыстка ад магчымых маркдаун-тэгаў
-      jsonText = jsonText
+      let jsonText = response
+        .text()
         .replace(/```json/g, "")
         .replace(/```/g, "")
         .trim();
 
-      const parsedResult = JSON.parse(jsonText);
-      console.log(`✅ Паспяхова апрацавана мадэллю ${modelName}`);
-      return parsedResult;
+      const parsed = JSON.parse(jsonText);
+      console.log(
+        `✅ Gemini Verdict: ${parsed.comparison.verdict} (${parsed.category})`,
+      );
+      return parsed;
     } catch (error) {
       lastError = error;
-      console.warn(
-        `⚠️ Мадэль ${modelName} не змагла апрацаваць запыт: ${error.message}`,
-      );
-
-      // Калі памылка 429 (ліміт запытаў) ці 503 (перагрузка), пераходзім да наступнай мадэлі
+      console.warn(`⚠️ Model ${modelName} failed: ${error.message}`);
       continue;
     }
   }
 
-  // Калі ніводная мадэль не спрацавала
-  console.error("❌ Усе мадэлі Gemini адмовілі:", lastError.message);
-
-  // Фоллбэк: вяртаем як RECRUITER_INFO, каб паведамленне не знікла
   return {
     category: "RECRUITER_INFO",
-    reasoning: "Gemini error, saved as fallback",
+    comparison: {
+      verdict: "NEW",
+      relatedMessageId: null,
+      reason: "Gemini error fallback",
+    },
     translatedText: text,
   };
 }
 
-module.exports = { classifyWithGemini };
+module.exports = { analyzeAndCompareWithGemini };
