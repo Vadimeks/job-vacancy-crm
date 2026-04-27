@@ -16,6 +16,7 @@ const CHAT_AGENCY_MAP = [
   { key: "вакансіі ewl (рекрутація)", agency: "EWL" },
   { key: "fws rekrutacja", agency: "FWS" },
   { key: "partner/intraservis", agency: "INTRASERVICE" },
+  { key: "Partner / intraservis", agency: "INTRASERVICE" },
   { key: "kono", agency: "KONO" },
   { key: "manpower freelance_2025", agency: "MANPOWER" },
   { key: "mrówki group partners", agency: "MRÓWKI" },
