@@ -110,8 +110,24 @@ function superNormalize(str) {
 
 function isTruncated(text) {
   if (!text) return false;
-  const trimmed = text.trim();
-  return trimmed.length > 200 && !/[.!?)]\s*$/.test(trimmed);
+  const t = text.trim();
+
+  // 1. Калі заканчваецца на шматкроп'е — дакладна абрэзана
+  if (t.endsWith("...") || t.endsWith("…")) return true;
+
+  // 2. Калі тэкст вельмі доўгі (> 600 сімвалаў), значыць BigText спрацаваў, лічым поўным
+  if (t.length > 600) return false;
+
+  // 3. Калі тэкст кароткі — не абрэзана
+  if (t.length < 200) return false;
+
+  // 4. "Бяспечныя" заканчэнні: знакі прыпынку, эмодзі, закрываючыя дужкі або зоркі
+  const safeEndings = /[.!?*)\p{Emoji}\p{Emoji_Presentation}]$/u;
+  if (safeEndings.test(t)) return false;
+
+  // 5. Калі заканчваецца проста на літару і тэкст сярэдняй даўжыні —
+  // ёсць рызыка абрэзкі, але мы дазволім гэта, калі тэкст даволі вялікі
+  return t.length < 300;
 }
 
 function getWhitelistedAgency(chatTitle) {
