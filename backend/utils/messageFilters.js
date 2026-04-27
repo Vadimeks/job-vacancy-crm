@@ -3,10 +3,11 @@
 const CHAT_AGENCY_MAP = [
   // --- Telegram Whitelist ---
   { key: "актуальні вакансії на сьогодні", agency: "SG" },
-  { key: "recruter freelancer", agency: "SG" },
+  { key: "rekruter freelancer", agency: "SG" }, // ВЫПРАЎЛЕНА: k замест c
   { key: "staff power брижук", agency: "STAFF POWER" },
   { key: "актуальные вакансии", agency: "SOLANO" },
   { key: "vacancies-app-test-group", agency: "MANUAL" },
+
   // --- Viber Whitelist ---
   { key: "посередники apolo", agency: "APOLO" },
   { key: "ppg partner (sistempl)", agency: "GLOBAL" },
@@ -28,18 +29,17 @@ const CHAT_AGENCY_MAP = [
   { key: "works4you вакансии в польше", agency: "RALEN" },
   { key: "test-group", agency: "MANUAL" },
 
-  // --- Ignore List (Каб пазбегнуць пятлі) ---
+  // --- Ignore List ---
   { key: "nova work agency", agency: "IGNORE_SELF" },
 ];
 
-// ─── LAYER 0: Сістэмны шум (Viber / Telegram) ────────────────────────────────
 const SYSTEM_NOISE = [
   /^новий коментар до вашого повідомлення/i,
   /^ви маєте нові повідомлення в:/i,
   /^дивіться топ-повідомлення від/i,
   /^пропущений виклик/i,
   /^вхідний виклик/i,
-  /відповідає:/i, // цытата-адказ у чаце
+  /відповідає:/i,
   /приєднався до спільноти/i,
   /приєдналась до спільноти/i,
   /pinned a message/i,
@@ -49,9 +49,13 @@ const SYSTEM_NOISE = [
   /^голосове повідомлення\s*\(.*\)$/i,
   /^файлове повідомлення$/i,
   /^стікер$/i,
+  /^отримання останніх повідомлень/i, // Шум Viber
+  /^повернутися у viber/i, // Шум Viber
+  /^службу відключено/i, // Шум Viber
+  /^завантаження мультимедійного контенту/i, // Шум Viber
+  /^з'єднання зі службою/i, // Шум Viber
 ];
 
-// ─── LAYER 1: Рэкруцёрскі чат (пытанні без вакансій) ──────────────────
 const RECRUITER_CHAT_NOISE = [
   /чия кандидатка\??/i,
   /хто подав цих людей\??/i,
@@ -64,7 +68,6 @@ const RECRUITER_CHAT_NOISE = [
   /є (вільний\s+)?чоловік на/i,
 ];
 
-// ─── LAYER 2: Святочны / сацыяльны шум ───────────────────────────────────────
 const SOCIAL_NOISE = [
   /христос воскрес/i,
   /воістину воскрес/i,
@@ -79,6 +82,7 @@ const SOCIAL_NOISE = [
   /^доброго дня[\s!.]*$/i,
   /^добрий день[\s!.]*$/i,
   /^доброго ранку[\s!.]*$/i,
+  /^зрозуміло[\s!.]*$/i, // Шум з логаў
 ];
 
 const NOISE_PATTERNS = [
@@ -87,12 +91,8 @@ const NOISE_PATTERNS = [
   ...SOCIAL_NOISE,
 ];
 
-// Праверка на паведамленне, якое складаецца толькі з эмодзі
 const EMOJI_ONLY_RE = /^[\p{Emoji}\p{Emoji_Presentation}\s]+$/u;
 
-/**
- * Нармалізацыя назвы чата: выдаленне эмодзі і замена польскіх літар на лацінку.
- */
 function normalizeTitle(str) {
   if (!str) return "";
   return str
@@ -111,6 +111,17 @@ function normalizeTitle(str) {
     .toLowerCase();
 }
 
+/**
+ * Пярэвірка на абрэзанасць (MacroDroid/Android limit)
+ */
+function isTruncated(text) {
+  if (!text) return false;
+  const trimmed = text.trim();
+  // Калі тэкст доўгі і заканчваецца не на знак прыпынку або эмодзі
+  // Звычайна апавяшчэнні абразаюцца на ~240 або ~500 сімвалах
+  return trimmed.length > 200 && !/[.!?)]\s*$/.test(trimmed);
+}
+
 function getWhitelistedAgency(chatTitle) {
   if (!chatTitle) return null;
   const normalized = normalizeTitle(chatTitle);
@@ -123,8 +134,9 @@ function getWhitelistedAgency(chatTitle) {
 function shouldIgnoreMessage(text) {
   if (!text) return true;
   const trimmed = text.trim();
+  // Захоўваем твой ліміт у 15 сімвалаў
   if (trimmed.length < 15 || EMOJI_ONLY_RE.test(trimmed)) return true;
   return NOISE_PATTERNS.some((p) => p.test(trimmed));
 }
 
-module.exports = { shouldIgnoreMessage, getWhitelistedAgency };
+module.exports = { shouldIgnoreMessage, getWhitelistedAgency, isTruncated };

@@ -2,21 +2,22 @@
 const mongoose = require("mongoose");
 
 const UnprocessedMessageSchema = new mongoose.Schema({
-  sender: { type: String, required: true }, // Напрыклад: "OTTO для Партнерів (OTTO)"
-  agencyName: { type: String, default: "" }, // "OTTO" — для фільтрацыі і парсера
-  text: { type: String, required: true },
-  source: { type: String, default: "viber" }, // 'viber' або 'telegram'
+  sender: { type: String, required: true },
+  agencyName: { type: String, default: "" },
+  text: { type: String, required: true }, // Арыгінал (любая мова)
+  rawText: { type: String, default: "" }, // Пераклад ад Gemini (украінская)
+  isTruncated: { type: Boolean, default: false }, // Ці абрэзана паведамленне
+  source: { type: String, default: "viber" },
   category: {
     type: String,
-    enum: ["vacancy", "update", "info", "chat"], // Дадалі "info"
+    enum: ["vacancy", "update", "info", "chat"],
     default: "chat",
   },
   processed: { type: Boolean, default: false },
-  textHash: { type: String, index: true }, // Нармалізаваны тэкст для параўнання
-  createdAt: { type: Date, default: Date.now, expires: "48h" }, // Аўтавыдаленне праз 2 сутак
+  textHash: { type: String, index: true },
+  createdAt: { type: Date, default: Date.now, expires: "48h" },
 });
 
-// Індэкс для хуткага пошуку непрацэсаваных + дэдуплікацыі
 UnprocessedMessageSchema.index({ processed: 1, createdAt: -1 });
 UnprocessedMessageSchema.index({ sender: 1, text: 1, createdAt: 1 });
 

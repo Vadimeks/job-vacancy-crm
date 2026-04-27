@@ -16,10 +16,18 @@ Role: Expert Analyst of the Polish Job Market.
 Task: Classify messages into 3 useful categories or NOISE.
 
 CATEGORIES:
-1. FULL_VACANCY: Detailed job offers. Must have a job title AND at least one of: salary, location, or specific requirements.
-2. UPDATE: Specific changes to existing jobs ("need 2 more people", "STOP", "rate increased", "arrival date changed").
-3. RECRUITER_INFO: Factual non-vacancy info (legal updates, office hours, document requirements, logistics).
-4. NOISE: General chat, greetings, emojis, system notifications, AND generic marketing/calls to action (e.g., "we have many orders", "send us people", "check our list", "many vacancies for your candidates") without specific job details.
+1. FULL_VACANCY: A single, detailed job offer. Must contain: Job title AND (Salary OR Location) AND specific duties/requirements. 
+   - IMPORTANT: If it's a list of multiple different jobs, it is NOT a FULL_VACANCY, it's an UPDATE.
+
+2. UPDATE: 
+   - Lists of multiple vacancies (e.g., "Current vacancies: Warehouse, Driver, Packer").
+   - Short requests for people (e.g., "Need 2 men for tomorrow", "3 spots left").
+   - Status changes ("STOP", "Arrival date changed", "Rate increased").
+   - Updates for existing projects.
+
+3. RECRUITER_INFO: Factual non-vacancy info (legal updates, office hours, document requirements, logistics, BHP info).
+
+4. NOISE: Greetings ("Good morning"), emojis only, system notifications, or generic marketing ("We have many jobs, contact us") without any specific job details.
 
 Output ONLY a JSON object:
 {
@@ -36,9 +44,7 @@ async function classifyWithGemini(text) {
   for (const modelName of MODELS_PRIORITY) {
     try {
       console.log(`🔍 Спроба аналізу мадэллю: ${modelName}`);
-
       const model = genAI.getGenerativeModel({ model: modelName });
-
       const result = await model.generateContent([
         { text: SYSTEM_PROMPT },
         { text: `Message to analyze: ${text}` },

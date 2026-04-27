@@ -7,11 +7,13 @@ const { processVacancyMessage } = require("./vacancies");
 const {
   shouldIgnoreMessage,
   getWhitelistedAgency,
+  isTruncated, // Імпартуем функцыю праверкі абрэзкі
 } = require("../utils/messageFilters");
 
 // РЭЖЫМ АДЛАДКІ: false = усё ідзе ў Інбокс. true = вакансіі адразу ідуць у Groq.
 const AUTO_PROCESS_VACANCIES = true; //false калі трэба каб ішло ўсё ў пясочніцу
-
+// Кэш для абароны ад адначасовых запытаў (Race Condition)
+const processingCache = new Set();
 function normalizeText(text) {
   if (!text) return "";
   // Выдаляем УСЁ акрамя літар і лічбаў (прыбіраем прабелы, эмодзі, пунктуацыю)
@@ -35,39 +37,39 @@ function classify(text) {
 
 // АДЗІНЫ РОЎТ ДЛЯ ЎСІХ ПАВЕДАМЛЕННЯЎ (MacroDroid)
 router.post("/push", async (req, res) => {
-  console.log("📥 Incoming MacroDroid request:", req.body);
+  const text = (req.body.text || req.body.notification || "").trim();
+  const textHash = normalizeText(text);
+
+  // 1. Абарона ад адначасовых дубляў (пакуль Gemini яшчэ думае)
+  if (processingCache.has(textHash)) {
+    console.log("⏳ Дубль ужо апрацоўваецца, ігнаруем...");
+    return res.status(200).json({ status: "ignored_concurrent" });
+  }
+
   try {
+    processingCache.add(textHash); // Дадаем у кэш
+
     const senderRaw = (
       req.body.sender ||
       req.body.not_title ||
       "Unknown"
     ).trim();
-    const text = (
-      req.body.text ||
-      req.body.bigText ||
-      req.body.notification ||
-      ""
-    ).trim();
     const source = req.body.source || "viber";
 
-    if (!text || text.length < 15)
+    if (!text || text.length < 15) {
       return res.status(200).json({ status: "ignored_too_short" });
-
-    // 1. ВАЙТЛІСТ І LOOP PROTECTION
-    const agency = getWhitelistedAgency(senderRaw);
-
-    if (agency === "IGNORE_SELF") {
-      console.log(`🚫 Loop Protection: Ігнаруем паведамленне з уласнага чата`);
-      return res.status(200).json({ status: "ignored_self_loop" });
     }
 
+    // 2. Вайтліст
+    const agency = getWhitelistedAgency(senderRaw);
+    if (agency === "IGNORE_SELF")
+      return res.status(200).json({ status: "ignored_self_loop" });
     if (!agency) {
-      console.log(`🚫 Чат не ў вайтлісце: ${senderRaw} (${source})`);
+      console.log(`🚫 Чат не ў вайтлісце: ${senderRaw}`);
       return res.status(200).json({ status: "ignored_not_whitelisted" });
     }
 
-    // 2. ДЭДУПЛІКАЦЫЯ (24 ГАДЗІНЫ)
-    const textHash = normalizeText(text);
+    // 3. Дэдуплікацыя (24 гадзіны)
     const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const duplicate = await UnprocessedMessage.findOne({
       textHash,
@@ -75,37 +77,51 @@ router.post("/push", async (req, res) => {
     });
 
     if (duplicate) {
-      console.log(`🚫 Дубль адсечаны (${source}) за апошнія 24г`);
+      console.log(`🚫 Дубль знойдзены ў базе (${source})`);
       return res.status(200).json({ status: "ignored_duplicate" });
     }
 
-    // 3. ЖОРСТКІ ФІЛЬТР (Regex)
-    if (shouldIgnoreMessage(text))
+    // 4. Жорсткі фільтр (Regex)
+    if (shouldIgnoreMessage(text)) {
       return res.status(200).json({ status: "ignored_noise_regex" });
+    }
 
-    // 4. GEMINI КЛАСІФІКАЦЫЯ
-    console.log(`🔍 Gemini аналізуе паведамленне ад ${agency} (${source})...`);
+    // 5. Аналіз Gemini
+    console.log(`🔍 Gemini аналізуе ад ${agency}...`);
     const classification = await classifyWithGemini(text);
 
     if (classification.category === "NOISE") {
       return res.status(200).json({ status: "ignored_noise_ai" });
     }
 
-    // 5. АЎТАМАТЫЗАЦЫЯ (КАЛІ ЎКЛЮЧАНА)
-    if (classification.category === "FULL_VACANCY" && AUTO_PROCESS_VACANCIES) {
-      console.log("🚀 Аўта-парсінг вакансіі ўключаны! Запуск Groq...");
+    // 6. Праверка на абрэзку (Truncation)
+    const truncated = isTruncated(text);
+    if (truncated) {
+      console.log("⚠️ Тэкст абрэзаны, аўта-парсінг адменены.");
+    }
+
+    // 7. Аўта-парсінг (толькі калі НЕ абрэзана і катэгорыя FULL_VACANCY)
+    if (
+      classification.category === "FULL_VACANCY" &&
+      AUTO_PROCESS_VACANCIES &&
+      !truncated
+    ) {
+      console.log("🚀 Запуск Groq для поўнай вакансіі...");
       try {
-        const result = await processVacancyMessage(text, senderRaw, agency);
+        const result = await processVacancyMessage(
+          classification.translatedText,
+          senderRaw,
+          agency,
+        );
         return res
           .status(200)
           .json({ status: "auto_processed", vacancyId: result._id });
       } catch (err) {
-        console.error("❌ Auto-process error, saving to inbox instead:", err);
-        // Калі Groq памыліўся, захаваем у інбокс, каб не страціць
+        console.error("❌ Памылка Groq, захоўваем у інбокс.");
       }
     }
 
-    // 6. ЗАХАВАННЕ Ў ПЯСОЧНІЦУ
+    // 8. Захаванне ў Пясочніцу
     const categoryMap = {
       UPDATE: "update",
       RECRUITER_INFO: "info",
@@ -115,10 +131,12 @@ router.post("/push", async (req, res) => {
     const newMsg = new UnprocessedMessage({
       sender: senderRaw,
       agencyName: agency,
-      text: classification.translatedText || text,
+      text: text, // Арыгінал
+      rawText: classification.translatedText || text, // Пераклад для рэкрутэра
       textHash: textHash,
       source: source,
       category: categoryMap[classification.category] || "info",
+      isTruncated: truncated,
       processed: false,
     });
 
@@ -128,6 +146,8 @@ router.post("/push", async (req, res) => {
   } catch (error) {
     console.error("❌ Inbox Push Error:", error);
     res.status(200).json({ status: "error_logged" });
+  } finally {
+    processingCache.delete(textHash); // Абавязкова чысцім кэш
   }
 });
 
