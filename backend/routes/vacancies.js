@@ -15,9 +15,22 @@ const { matchCandidatesForVacancy } = require("../services/matching.service");
 // --- ДАПАМОЖНЫЯ ФУНКЦЫІ ---
 
 async function generateVacancyCode() {
-  const count = await Vacancy.countDocuments();
-  const num = String(count + 1).padStart(4, "0");
-  return `VAC-${num}`;
+  // Шукаем апошнюю вакансію з самым вялікім кодам
+  const lastVacancy = await Vacancy.findOne({}, { vacancyCode: 1 }).sort({
+    vacancyCode: -1,
+  });
+
+  let nextNum = 1;
+
+  if (lastVacancy && lastVacancy.vacancyCode) {
+    // Выцягваем лічбы з "VAC-0019"
+    const lastNum = parseInt(lastVacancy.vacancyCode.replace("VAC-", ""), 10);
+    if (!isNaN(lastNum)) {
+      nextNum = lastNum + 1;
+    }
+  }
+
+  return `VAC-${String(nextNum).padStart(4, "0")}`;
 }
 
 /**

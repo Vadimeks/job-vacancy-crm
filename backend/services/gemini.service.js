@@ -1,99 +1,96 @@
 // backend/services/gemini.service.js
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const MODELS_PRIORITY = [
-  "gemini-2.5-flash",
-  "gemini-2.5-flash-lite",
-  "gemini-2.0-flash",
   "gemini-1.5-flash",
+  "gemini-2.0-flash",
+  "gemini-2.5-flash-lite",
 ];
 
 const SYSTEM_PROMPT = `
 Role: Expert Analyst of the Polish Job Market.
-Task: Classify a NEW_MESSAGE and compare it with RECENT_MESSAGES from the same agency.
+Task: Classify a NEW_MESSAGE and compare it with RECENT_MESSAGES and RECENT_VACANCIES.
 
 CATEGORIES:
-1. FULL_VACANCY: A single, detailed job offer (Title + Salary/Location + Duties).
-2. UPDATE: Lists of jobs, short requests ("Need 2 men"), or status changes ("STOP", "Rate up").
-3. RECRUITER_INFO: Legal updates, office hours, logistics.
-4. NOISE: Greetings, emojis, system notifications.
+1. FULL_VACANCY: Detailed job offer.
+2. UPDATE: Lists, short requests, status changes.
+3. RECRUITER_INFO: Legal, logistics, office info.
+4. NOISE: Greetings, system notifications.
 
-COMPARISON RULES (Semantic Deduplication):
-Compare the NEW_MESSAGE with the provided list of RECENT_MESSAGES.
+COMPARISON RULES (Semantic Match):
+Compare NEW_MESSAGE with RECENT_MESSAGES and RECENT_VACANCIES.
 Verdicts:
-- "DUPLICATE": The NEW_MESSAGE describes the EXACT SAME job as one of the RECENT_MESSAGES. Same Brand, Same City, Same Job Essence, Same Salary. Minor text/emoji changes don't matter.
-- "UPDATE": It's the same job/factory/city, but something IMPORTANT changed (Salary increased, new arrival date, or it's a list that includes a previously seen job).
-- "NEW": This is a completely different job, different city, or different brand.
+- "DUPLICATE": The job is the SAME. 
+  * CRITICAL: Use semantic matching. "пакування кабаносів" and "виробництво ковбасних виробів" in the SAME CITY are DUPLICATES.
+  * Minor changes in emojis, word order, or formatting do NOT make it a new job.
+- "UPDATE": Same job/city, but IMPORTANT changes (Salary, arrival date).
+- "NEW": Completely different job, city, or brand.
 
-Output ONLY a JSON object:
+Output ONLY JSON:
 {
   "category": "FULL_VACANCY" | "UPDATE" | "RECRUITER_INFO" | "NOISE",
   "comparison": {
     "verdict": "NEW" | "DUPLICATE" | "UPDATE",
-    "relatedMessageId": "ID of the matched message from RECENT_MESSAGES or null",
     "reason": "short explanation in Ukrainian"
   },
-  "translatedText": "Clean Ukrainian translation of the NEW_MESSAGE"
+  "translatedText": "Clean Ukrainian translation"
 }
 `;
 
-async function analyzeAndCompareWithGemini(text, recentMessages = []) {
+async function analyzeAndCompareWithGemini(
+  text,
+  recentMessages = [],
+  recentVacancies = [],
+) {
   let lastError = null;
 
-  // Падрыхтоўка кантэксту для параўнання
-  const context = recentMessages.map((m) => ({
-    id: m._id,
-    text: m.text.substring(0, 500), // бярэм пачатак для эканоміі токенаў
+  const contextMessages = recentMessages.map((m) => ({
+    text: m.text.substring(0, 1000),
     category: m.category,
     date: m.createdAt,
   }));
 
+  const contextVacancies = recentVacancies.map((v) => ({
+    title: v.vacancydescription,
+    location: v.location,
+    salary: v.salary?.baseNetto,
+    date: v.createdAt,
+  }));
+
   for (const modelName of MODELS_PRIORITY) {
     try {
-      console.log(`🔍 Gemini (${modelName}): Аналіз і параўнанне...`);
+      console.log(`🔍 Gemini (${modelName}): Аналіз...`);
       const model = genAI.getGenerativeModel({ model: modelName });
 
       const userContent = `
-RECENT_MESSAGES_FROM_THIS_AGENCY:
-${JSON.stringify(context, null, 2)}
-
-NEW_MESSAGE_TO_ANALYZE:
-${text}
+RECENT_MESSAGES: ${JSON.stringify(contextMessages)}
+RECENT_VACANCIES: ${JSON.stringify(contextVacancies)}
+NEW_MESSAGE: ${text}
       `;
 
       const result = await model.generateContent([
         { text: SYSTEM_PROMPT },
         { text: userContent },
       ]);
-
       const response = await result.response;
       let jsonText = response
         .text()
         .replace(/```json/g, "")
         .replace(/```/g, "")
         .trim();
-
       const parsed = JSON.parse(jsonText);
-      console.log(
-        `✅ Gemini Verdict: ${parsed.comparison.verdict} (${parsed.category})`,
-      );
+      console.log(`✅ Gemini Verdict: ${parsed.comparison.verdict}`);
       return parsed;
     } catch (error) {
       lastError = error;
-      console.warn(`⚠️ Model ${modelName} failed: ${error.message}`);
+      console.warn(`⚠️ Gemini ${modelName} failed: ${error.message}`);
       continue;
     }
   }
-
   return {
     category: "RECRUITER_INFO",
-    comparison: {
-      verdict: "NEW",
-      relatedMessageId: null,
-      reason: "Gemini error fallback",
-    },
+    comparison: { verdict: "NEW" },
     translatedText: text,
   };
 }

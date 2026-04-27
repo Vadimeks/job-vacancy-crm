@@ -8,6 +8,7 @@ const CHAT_AGENCY_MAP = [
   { key: "Актуальные вакансии", agency: "SOLANO" },
   { key: "Vacancies-app-test-group", agency: "MANUAL" },
   { key: "посередники apolo", agency: "APOLO" },
+
   // --- Viber Whitelist ---
   { key: "посередники apolo", agency: "APOLO" },
   { key: "Biedronka - PPG Partner (sistemPL)", agency: "GLOBAL" },
@@ -26,9 +27,8 @@ const CHAT_AGENCY_MAP = [
   { key: "rekrutacja ps informacje", agency: "PERSONEL SERVICE" },
   { key: "grupa progres", agency: "PROGRES" },
   { key: "Works4you", agency: "RALEN" },
+  { key: "BestWork", agency: "BESTWORK" },
   { key: "test-group", agency: "MANUAL" },
-
-  // --- Ignore List ---
   { key: "nova work agency", agency: "IGNORE_SELF" },
 ];
 
@@ -40,7 +40,7 @@ const SYSTEM_NOISE = [
   /^вхідний виклик/i,
   /відповідає:/i,
   /приєднався до спільноти/i,
-  /приєдналась до спільноти/i,
+  /приєдналась да спільноти/i,
   /pinned a message/i,
   /joined the group/i,
   /left the group/i,
@@ -48,11 +48,6 @@ const SYSTEM_NOISE = [
   /^голосове повідомлення\s*\(.*\)$/i,
   /^файлове повідомлення$/i,
   /^стікер$/i,
-  /^отримання останніх повідомлень/i,
-  /^повернутися у viber/i,
-  /^службу адключана/i,
-  /^завантаження мультимедійного контенту/i,
-  /^з'єднання зі службою/i,
 ];
 
 const RECRUITER_CHAT_NOISE = [
@@ -90,9 +85,6 @@ const NOISE_PATTERNS = [
 
 const EMOJI_ONLY_RE = /^[\p{Emoji}\p{Emoji_Presentation}\s]+$/u;
 
-/**
- * Агрэсіўная нармалізацыя: толькі літары і лічбы.
- */
 function superNormalize(str) {
   if (!str) return "";
   return str
@@ -111,22 +103,15 @@ function superNormalize(str) {
 function isTruncated(text) {
   if (!text) return false;
   const t = text.trim();
-
-  // 1. Калі заканчваецца на шматкроп'е — дакладна абрэзана
   if (t.endsWith("...") || t.endsWith("…")) return true;
-
-  // 2. Калі тэкст вельмі доўгі (> 600 сімвалаў), значыць BigText спрацаваў, лічым поўным
-  if (t.length > 600) return false;
-
-  // 3. Калі тэкст кароткі — не абрэзана
+  if (t.length > 600) return false; // BigText спрацаваў
   if (t.length < 200) return false;
 
-  // 4. "Бяспечныя" заканчэнні: знакі прыпынку, эмодзі, закрываючыя дужкі або зоркі
+  // Дазваляем заканчэнне на эмодзі, зорку, дужку або знак прыпынку
   const safeEndings = /[.!?*)\p{Emoji}\p{Emoji_Presentation}]$/u;
   if (safeEndings.test(t)) return false;
 
-  // 5. Калі заканчваецца проста на літару і тэкст сярэдняй даўжыні —
-  // ёсць рызыка абрэзкі, але мы дазволім гэта, калі тэкст даволі вялікі
+  // Калі тэкст > 300 сімвалаў, лічым яго дастатковым для парсінгу
   return t.length < 300;
 }
 
