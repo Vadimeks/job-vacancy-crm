@@ -50,7 +50,6 @@ export default function Inbox() {
   const [showUpdatePicker, setShowUpdatePicker] = useState(null);
   const [processingId, setProcessingId] = useState(null);
 
-  // Функцыя для апавяшчэння лічыльніка ў меню
   const notifyUpdate = () => {
     window.dispatchEvent(new CustomEvent("inboxUpdated"));
   };
@@ -65,7 +64,7 @@ export default function Inbox() {
       setMessages(msgsRes.data);
       setStats(statsRes.data);
       setVacancies(vacRes.data.filter((v) => v.status === "active"));
-      notifyUpdate(); // Абнаўляем лічыльнік пры кожнай загрузцы
+      notifyUpdate();
     } catch (err) {
       console.error("Памылка загрузкі:", err);
     } finally {
@@ -106,14 +105,14 @@ export default function Inbox() {
 
   const handleCreateVacancy = (msg) => {
     navigate("/vacancies", {
-      state: { initialText: msg.text, messageId: msg._id },
+      state: { initialText: msg.rawText || msg.text, messageId: msg._id },
     });
   };
 
   const handleAiUpdate = async (msg, vacancyId) => {
     setProcessingId(msg._id);
     try {
-      await aiUpdateVacancy(vacancyId, msg.text);
+      await aiUpdateVacancy(vacancyId, msg.rawText || msg.text);
       await markInboxProcessed(msg._id);
       notifyUpdate();
       alert("✅ Вакансія абноўлена!");
@@ -268,11 +267,16 @@ export default function Inbox() {
                           {msg.agencyName}
                         </span>
                       )}
+                      {msg.isTruncated && (
+                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/30 font-bold animate-pulse">
+                          ⚠️ АБРЭЗАНА
+                        </span>
+                      )}
                     </div>
                     <p
                       className={`text-sm ${isExpanded ? "text-slate-100" : "text-slate-400 truncate"}`}
                     >
-                      {msg.text}
+                      {msg.rawText || msg.text}
                     </p>
                   </div>
                   <div className="text-[11px] text-slate-500 truncate">
@@ -305,8 +309,8 @@ export default function Inbox() {
 
                 {isExpanded && (
                   <div className="px-14 pb-4 animate-in fade-in slide-in-from-top-1">
-                    <div className="bg-slate-950 border border-slate-800 rounded-lg p-4 text-sm text-slate-300 whitespace-pre-wrap leading-relaxed">
-                      {msg.text}
+                    <div className="bg-slate-950 border border-slate-800 rounded-lg p-4 text-sm text-slate-100 whitespace-pre-wrap leading-relaxed">
+                      {msg.rawText || msg.text}
                     </div>
                     {!isPicking ? (
                       <div className="mt-3 flex gap-2">

@@ -162,10 +162,12 @@ export default function VacancyViewModal({
               📋 Вимоги
             </h3>
             <div className="space-y-1.5 text-slate-200">
-              <p>
-                • <span className="font-semibold">Вік:</span> до{" "}
-                {v.requirements?.ageMax} років
-              </p>
+              {v.requirements?.ageMax && v.requirements.ageMax < 65 && (
+                <p>
+                  • <span className="font-semibold">Вік:</span> до{" "}
+                  {v.requirements.ageMax} років
+                </p>
+              )}
               <p>
                 • <span className="font-semibold">Документи:</span>{" "}
                 {v.requirements?.standardDocs?.join(", ")}
@@ -325,14 +327,19 @@ export default function VacancyViewModal({
               </p>
             </div>
           )}
-          {/* КРЫНІЦА (СЫРЫ ТЭКСТ) */}
-          <section className="mt-8 pt-6 border-t border-slate-800">
+          {/* КРЫНІЦА (РАБОЧЫ ТЭКСТ) */}
+          <section className="mt-8 pt-6 border-t border-slate-800 space-y-4">
+            {v.isTruncated && (
+              <div className="bg-red-500/10 border border-red-500/20 p-3 rounded-xl text-red-400 text-xs font-bold flex items-center gap-2">
+                ⚠️ Увага: Гэтая вакансія створана з абрэзанага паведамлення.
+              </div>
+            )}
             <details className="group">
               <summary className="text-[10px] font-bold text-slate-500 uppercase tracking-widest cursor-pointer hover:text-slate-300 transition-colors list-none flex items-center gap-2">
                 <span className="group-open:rotate-90 transition-transform">
                   ▶
                 </span>
-                Арыгінальны тэкст паведамлення
+                Тэкст паведамлення (Пераклад)
               </summary>
               <div className="mt-4 p-4 bg-black/40 rounded-xl border border-slate-800 text-[12px] text-slate-400 font-mono leading-relaxed whitespace-pre-wrap">
                 {v.rawText || "Тэкст адсутнічае"}

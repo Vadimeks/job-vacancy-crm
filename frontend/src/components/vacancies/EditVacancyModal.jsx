@@ -1,4 +1,3 @@
-// frontend/src/components/vacancies/EditVacancyModal.jsx
 import { useState } from "react";
 import { updateVacancy } from "../../services/api";
 import Field from "../shared/Field";
@@ -6,7 +5,6 @@ import Divider from "../shared/Divider";
 import * as MD from "../../constants/masterData";
 
 export default function EditVacancyModal({ vacancy, onClose, onSave }) {
-  // Ініцыялізуем форму, захоўваючы ўсю структуру арыгінала
   const [form, setForm] = useState({
     ...vacancy,
     brand: vacancy.brand || "",
@@ -38,7 +36,6 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
 
   const [saving, setSaving] = useState(false);
 
-  // Глыбокае абнаўленне палёў (да 3 узроўняў: напр. "salary.baseNetto")
   const setField = (path, value) => {
     const parts = path.split(".");
     setForm((prev) => {
@@ -57,7 +54,6 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
     });
   };
 
-  // Хэндлер для мульці-кнопак (дадаць/выдаліць з масіва)
   const toggleArrayItem = (path, value) => {
     const parts = path.split(".");
     setForm((prev) => {
@@ -84,7 +80,6 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
   const handleSave = async () => {
     setSaving(true);
     try {
-      // Падрыхтоўка даных (канвертуем тое, што павінна быць масівам)
       const data = {
         ...form,
         keywords:
@@ -116,7 +111,6 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
     }
   };
 
-  // Дапаможны кампанент для адмалёўкі груп кнопак
   const MultiBtnGroup = ({ label, options, selectedValues, onToggle }) => (
     <div className="mb-4">
       <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">
@@ -153,7 +147,6 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
         onClick={onClose}
       />
       <div className="relative bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto mx-4 custom-scrollbar">
-        {/* ЗАГАЛОВАК */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 sticky top-0 bg-slate-900 z-10">
           <div>
             <h2 className="font-semibold text-slate-100">
@@ -175,7 +168,6 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
         </div>
 
         <div className="px-6 py-5 space-y-8">
-          {/* СТАТУС (кнопкі замест селекта) */}
           <MultiBtnGroup
             label="Статус"
             options={MD.STATUSES}
@@ -235,8 +227,8 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
           <MultiBtnGroup
             label="Катэгорыя"
             options={MD.CATEGORIES}
-            selectedValues={[form.category]} // Перадаем як масіў для падсветкі кнопкі
-            onToggle={(v) => setField("category", v)} // Запісваем як адзіночнае значэнне (String)
+            selectedValues={[form.category]}
+            onToggle={(v) => setField("category", v)}
           />
 
           <Divider label="📍 Лакацыя" />
@@ -374,8 +366,11 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
             />
             <Field
               label="Макс. узрост"
-              value={form.requirements?.ageMax}
-              onChange={(v) => setField("requirements.ageMax", v)}
+              value={form.requirements?.ageMax || ""}
+              onChange={(v) =>
+                setField("requirements.ageMax", v === "" ? null : Number(v))
+              }
+              type="number"
             />
             <Field
               label="Узровень польскай"
@@ -631,7 +626,6 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
           />
         </div>
 
-        {/* КНОПКІ */}
         <div className="flex gap-3 px-6 py-4 border-t border-slate-800 sticky bottom-0 bg-slate-900 z-10">
           <button
             onClick={handleSave}
