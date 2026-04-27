@@ -82,7 +82,7 @@ const vacancySchema = new mongoose.Schema({
     gender: { type: [String], default: ["Чоловіки", "Жінки"] },
     ageMax: {
       type: Number,
-      default: 99, // 99 азначае "Без обмежень" або "Інформація відсутня"
+      default: null,
     },
     nationalities: { type: [String], default: ["Україна"] },
     standardDocs: {
@@ -135,7 +135,9 @@ const vacancySchema = new mongoose.Schema({
   arrivalDate: { type: String, default: "" },
   count: { type: String, default: "" },
 
-  rawText: { type: String, default: "" },
+  originalText: { type: String, default: "" }, // Арыгінал з MacroDroid (любая мова)
+  rawText: { type: String, default: "" }, // Пераклад (украінская), з якім працуе парсер
+  isTruncated: { type: Boolean, default: false }, // Ці было зыходнае паведамленне абрэзаным
   telegramPost: { type: String, default: "" },
 
   status: {

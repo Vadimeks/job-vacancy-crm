@@ -101,7 +101,7 @@ Use this EXACT structure (skip entire blocks if ALL data inside is empty/null):
 [кожен пункт з description, розбитий по крапці з комою, на новому рядку з •]
 
 📋 *Вимоги*
-[• Вік: до [requirements.ageMax] років — only if ageMax not empty ]
+[• Вік: до [requirements.ageMax] років — only if ageMax not empty and less than 65]
 • Документи: [requirements.standardDocs joined by ", "]
 • Мова: [requirements.polishLanguageLevel (якщо "A1" - напиши "Базовий рівень (A1)", якщо "Не вимагається" - напиши "Не вимагається")]
 [• [requirements.physicalLoad] — only if not empty]

@@ -63,6 +63,8 @@ async function processVacancyMessage(
   rawText,
   senderInfo = "Manual",
   preDefinedAgency = null,
+  originalText = "", // Дадалі
+  isTruncated = false, // Дадалі
 ) {
   console.log(`\n--- 🚀 ПАЧАТАК АПРАЦОЎКІ ВАКАНСІІ ---`);
 
@@ -88,7 +90,9 @@ async function processVacancyMessage(
       agencyName: finalAgency,
       templateName: displayName,
       vacancyCode,
-      rawText,
+      originalText: originalText || rawText,
+      rawText: rawText,
+      isTruncated: isTruncated,
       telegramPost: postText,
       status: "active",
     });
@@ -118,18 +122,18 @@ async function processVacancyMessage(
 // Аўта-стварэнне (з Інбокса праз робата)
 router.post("/auto", async (req, res) => {
   try {
-    const { rawText, senderInfo, messageId } = req.body;
-    if (!rawText) return res.status(400).json({ message: "Тэкст пусты" });
-
-    const result = await processVacancyMessage(rawText, senderInfo || "Manual");
-
-    if (messageId) {
-      await markInboxMessageAsProcessed(messageId);
-    }
-
+    const { rawText, senderInfo, messageId, originalText, isTruncated } =
+      req.body;
+    const result = await processVacancyMessage(
+      rawText,
+      senderInfo || "Manual",
+      null,
+      originalText,
+      isTruncated,
+    );
+    if (messageId) await markInboxMessageAsProcessed(messageId);
     res.status(201).json(result);
   } catch (err) {
-    console.error("❌ Auto Route Error:", err.message);
     res.status(500).json({ message: err.message });
   }
 });
