@@ -43,7 +43,10 @@ router.post("/push", async (req, res) => {
 
   // 1. ІМГНЕННЫ ФІЛЬТР ШУМУ (Крок 1: адсякаем сістэмныя паведамленні адразу)
   if (shouldIgnoreMessage(text)) {
-    console.log("🗑️ Паведамленне адхілена фільтрам шуму (Regex)");
+    // Выводзім першыя 60 сімвалаў, каб разумець, што менавіта адфільтравалася
+    console.log(
+      `🗑️ Адхілена (Regex): "${text.substring(0, 60).replace(/\n/g, " ")}..."`,
+    );
     return res.status(200).json({ status: "ignored_noise" });
   }
 

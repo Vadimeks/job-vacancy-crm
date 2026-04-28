@@ -37,9 +37,15 @@ function cleanData(obj) {
       Object.entries(obj).map(([key, value]) => {
         if (value === "string" || value === "undefined") return [key, ""];
         // ВЫДАЛЕНА ЗАМЕНА НА 99
-        if (key === "ageMax" && (value === null || value === 0 || value === ""))
+        if (
+          value === null ||
+          value === 0 ||
+          value === "" ||
+          value === 99 ||
+          value === "99"
+        ) {
           return [key, null];
-        return [key, cleanData(value)];
+        }
       }),
     );
   }
@@ -99,7 +105,7 @@ Use this EXACT structure (skip entire blocks if ALL data inside is empty/null):
 • Нотатки: [salary.salaryNotes]
 
 🛠 *Характер роботи*
-[кожен пункт з description, розбитий по крапці з комою, на новому рядку з •]
+[кожен пункт з description, розбитий по крапці з комою, на новому рядку з •. ВАЖЛИВО: не ставте порожніх рядків між пунктами]
 
 📋 *Вимоги*
 [• Вік: до [requirements.ageMax] років — only if ageMax is NOT null and less than 65]
@@ -494,7 +500,7 @@ JSON STRUCTURE:
   },
   "requirements": {
     "gender": [],
-    "ageMax": 99,
+    "ageMax": null,
     "nationalities": ["Україна"],
     "standardDocs": ["PESEL UKR", "Віза", "Карта побуту"],
     "needsAdditionalDocs": false,

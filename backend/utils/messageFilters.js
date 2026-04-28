@@ -109,12 +109,17 @@ function isTruncated(text) {
   if (!text) return false;
   const t = text.trim();
 
+  // 1. Калі ёсць шматкроп'е — дакладна абрэзана
   if (t.endsWith("...") || t.endsWith("…")) return true;
-  if (t.length > 600) return false;
 
-  // Фікс для MacroDroid: калі тэкст < 400 сімвалаў і няма кропкі/эмодзі ў канцы — лічым абрэзаным
+  // 2. Калі тэкст заканчваецца на прыназоўнік або літару (без знака прыпынку/эмодзі)
+  // і яго даўжыня падазроная для лімітаў Android (~200, ~400, ~600 сімвалаў)
   const safeEndings = /[.!?*)\p{Emoji}\p{Emoji_Presentation}]$/u;
-  if (t.length < 400 && !safeEndings.test(t)) return true;
+  if (!safeEndings.test(t)) {
+    // Калі няма бяспечнага заканчэння — хутчэй за ўсё абрэзана,
+    // незалежна ад таго, 200 там сімвалаў ці 700.
+    return true;
+  }
 
   return false;
 }
