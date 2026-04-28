@@ -11,7 +11,7 @@ const {
   isTruncated,
 } = require("../utils/messageFilters");
 
-// РЭЖЫМ АДЛАДКІ
+// РЭЖЫМ АЎТАПІЛОТА
 const AUTO_PROCESS_VACANCIES = true;
 const processingCache = new Set();
 
@@ -40,10 +40,19 @@ function classify(text) {
 // --- ГАЛОЎНЫ РОЎТ ПРЫЁМУ (MacroDroid) ---
 router.post("/push", async (req, res) => {
   const text = (req.body.text || req.body.notification || "").trim();
+
+  // 1. ІМГНЕННЫ ФІЛЬТР ШУМУ (Крок 1: адсякаем сістэмныя паведамленні адразу)
+  if (shouldIgnoreMessage(text)) {
+    console.log("🗑️ Паведамленне адхілена фільтрам шуму (Regex)");
+    return res.status(200).json({ status: "ignored_noise" });
+  }
+
   const textHash = normalizeText(text);
 
-  if (processingCache.has(textHash))
+  // Абарона ад адначасовых запытаў
+  if (processingCache.has(textHash)) {
     return res.status(200).json({ status: "ignored_concurrent" });
+  }
 
   try {
     processingCache.add(textHash);
@@ -54,25 +63,27 @@ router.post("/push", async (req, res) => {
     ).trim();
     const source = req.body.source || "viber";
 
-    if (!text || text.length < 15)
-      return res.status(200).json({ status: "ignored_too_short" });
-
+    // 2. ПРАВЕРКА ВАЙТЛІСТА
     const agency = getWhitelistedAgency(senderRaw);
-    if (agency === "IGNORE_SELF")
+    if (agency === "IGNORE_SELF") {
       return res.status(200).json({ status: "ignored_self_loop" });
-    if (!agency)
+    }
+    if (!agency) {
+      console.log(`⚠️ Чат не ў вайтлісце: ${senderRaw}`);
       return res.status(200).json({ status: "ignored_not_whitelisted" });
+    }
 
-    // 1. Хэш-дэдуплікацыя (24г)
+    // 3. ХЭШ-ДЭДУПЛІКАЦЫЯ (24 гадзіны)
     const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const exactDuplicate = await UnprocessedMessage.findOne({
       textHash,
       createdAt: { $gte: twentyFourHoursAgo },
     });
-    if (exactDuplicate)
+    if (exactDuplicate) {
       return res.status(200).json({ status: "ignored_exact_duplicate" });
+    }
 
-    // 2. Збор кантэксту (12г)
+    // 4. ЗБОР КАНТЭКСТУ ДЛЯ GEMINI (12 гадзін)
     const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
     const recentMessages = await UnprocessedMessage.find({
       agencyName: agency,
@@ -83,31 +94,39 @@ router.post("/push", async (req, res) => {
       createdAt: { $gte: twelveHoursAgo },
     }).limit(5);
 
-    // 3. Аналіз Gemini
+    // 5. АНАЛІЗ GEMINI (Сэмантычная праверка)
     const analysis = await analyzeAndCompareWithGemini(
       text,
       recentMessages,
       recentVacancies,
     );
 
-    // Калі Gemini адхіліў як дубль
+    // Калі Gemini адхіліў як дубль або шум
     if (
       !analysis.error &&
       (analysis.category === "NOISE" ||
         analysis.comparison.verdict === "DUPLICATE")
     ) {
-      console.log(`🚫 Gemini адхіліў дубль: ${analysis.comparison.reason}`);
+      console.log(`🚫 Gemini адхіліў: ${analysis.comparison.reason}`);
       return res.status(200).json({ status: "ignored_semantic_duplicate" });
     }
 
+    // 6. ПРАВЕРКА НА АБРЭЗКУ (isTruncated)
     const truncated = isTruncated(text);
 
-    // 4. ЗАХАВАЦЬ АДРАЗУ (Абарона ад Race Condition)
+    // 7. ЗАХАВАННЕ Ў ПЯСОЧНІЦУ (Save-First Strategy)
     const categoryMap = {
       UPDATE: "update",
       RECRUITER_INFO: "info",
       FULL_VACANCY: "vacancy",
     };
+
+    // Вызначаем катэгорыю: калі абрэзана — заўсёды vacancy
+    let finalCategory = categoryMap[analysis.category] || "info";
+    if (truncated) finalCategory = "vacancy";
+    if (analysis.comparison.verdict === "UPDATE") finalCategory = "update";
+    if (analysis.error) finalCategory = "info";
+
     const newMsg = new UnprocessedMessage({
       sender: senderRaw,
       agencyName: agency,
@@ -115,26 +134,23 @@ router.post("/push", async (req, res) => {
       rawText: analysis.translatedText || text,
       textHash: textHash,
       source: source,
-      category:
-        analysis.comparison.verdict === "UPDATE"
-          ? "update"
-          : categoryMap[analysis.category] || "info",
+      category: finalCategory,
       isTruncated: truncated,
       processed: false,
     });
 
     await newMsg.save();
-    console.log(`📥 Захавана ў Пясочніцу: ${newMsg.category}`);
+    console.log(`📥 Захавана ў Пясочніцу (${newMsg.category}): ${senderRaw}`);
 
-    // 5. Аўта-парсінг (Толькі калі NEW і няма памылак AI)
+    // 8. АЎТА-ПАРСІНГ (Толькі для поўных новых вакансій)
     if (
       !analysis.error &&
       analysis.category === "FULL_VACANCY" &&
       analysis.comparison.verdict === "NEW" &&
-      AUTO_PROCESS_VACANCIES &&
-      !truncated
+      !truncated &&
+      AUTO_PROCESS_VACANCIES
     ) {
-      console.log("🚀 Запуск Groq...");
+      console.log("🚀 Запуск Groq-парсера...");
       try {
         const result = await processVacancyMessage(
           analysis.translatedText,
@@ -164,7 +180,7 @@ router.post("/push", async (req, res) => {
   }
 });
 
-// --- РОЎТЫ ДЛЯ ФРОНТЭНДА ---
+// --- РОЎТЫ КІРАВАННЯ (Фронтэнд) ---
 
 router.get("/", async (req, res) => {
   try {
@@ -209,13 +225,13 @@ router.post("/cleanup", async (req, res) => {
     let deleted = 0;
     let reclassified = 0;
     for (const msg of all) {
-      if (shouldIgnoreMessage(msg.text) || msg.category === "chat") {
+      if (shouldIgnoreMessage(msg.text)) {
         await msg.deleteOne();
         deleted++;
         continue;
       }
       const newCategory = classify(msg.text);
-      if (newCategory !== msg.category && newCategory !== "chat") {
+      if (newCategory !== msg.category) {
         msg.category = newCategory;
         await msg.save();
         reclassified++;

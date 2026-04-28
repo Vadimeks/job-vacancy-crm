@@ -4,7 +4,15 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 // Ініцыялізацыя з v1 Stable
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-const MODELS_PRIORITY = ["gemini-1.5-flash", "gemini-2.0-flash"];
+const MODELS_CONFIG = [
+  { name: "gemini-2.5-flash-lite", apiVersion: "v1beta" },
+  { name: "gemini-2.5-flash", apiVersion: "v1beta" },
+  { name: "gemini-2.0-flash", apiVersion: "v1beta" },
+  { name: "gemini-2.0-flash-lite-preview-02-05", apiVersion: "v1beta" },
+];
+// Кэш для эканоміі токенаў
+const geminiCache = new Map();
+const CACHE_TTL = 5 * 60 * 1000;
 
 const SYSTEM_PROMPT = `
 Role: Expert Analyst of the Polish Job Market.
@@ -41,33 +49,25 @@ async function analyzeAndCompareWithGemini(
   recentMessages = [],
   recentVacancies = [],
 ) {
-  let lastError = null;
+  // Праверка кэша
+  const cacheKey = text.substring(0, 200);
+  if (geminiCache.has(cacheKey)) {
+    const cached = geminiCache.get(cacheKey);
+    if (Date.now() - cached.timestamp < CACHE_TTL) return cached.data;
+  }
 
-  const contextMessages = recentMessages.map((m) => ({
-    text: m.text.substring(0, 1000),
-    category: m.category,
-    date: m.createdAt,
-  }));
-
-  const contextVacancies = recentVacancies.map((v) => ({
-    title: v.vacancydescription,
-    location: v.location,
-    salary: v.salary?.baseNetto,
-    date: v.createdAt,
-  }));
-
-  for (const modelName of MODELS_PRIORITY) {
+  let lastError;
+  for (const modelCfg of MODELS_CONFIG) {
     try {
-      console.log(`🔍 Gemini (${modelName}): Аналіз...`);
-      // ПРЫМУСОВЫ ПЕРАХОД НА v1 ТУТ:
+      console.log(`🔍 Gemini (${modelCfg.name}): Аналіз...`);
       const model = genAI.getGenerativeModel(
-        { model: modelName },
-        { apiVersion: "v1" },
+        { model: modelCfg.name },
+        { apiVersion: modelCfg.apiVersion },
       );
 
       const userContent = `
-RECENT_MESSAGES: ${JSON.stringify(contextMessages)}
-RECENT_VACANCIES: ${JSON.stringify(contextVacancies)}
+RECENT_MESSAGES: ${JSON.stringify(recentMessages.slice(0, 5))}
+RECENT_VACANCIES: ${JSON.stringify(recentVacancies.slice(0, 3))}
 NEW_MESSAGE: ${text}
       `;
 
@@ -76,28 +76,23 @@ NEW_MESSAGE: ${text}
         { text: userContent },
       ]);
       const response = await result.response;
-      let jsonText = response
-        .text()
-        .replace(/```json/g, "")
-        .replace(/```/g, "")
-        .trim();
+      const parsed = JSON.parse(
+        response
+          .text()
+          .replace(/```json|```/g, "")
+          .trim(),
+      );
 
-      const parsed = JSON.parse(jsonText);
-      console.log(`✅ Gemini Verdict: ${parsed.comparison.verdict}`);
+      // Запіс у кэш
+      geminiCache.set(cacheKey, { data: parsed, timestamp: Date.now() });
       return parsed;
     } catch (error) {
       lastError = error;
-      console.warn(`⚠️ Gemini ${modelName} failed: ${error.message}`);
-
-      // Калі квота вычарпана (429), няма сэнсу спрабаваць іншыя мадэлі
-      if (error.message.includes("429")) {
-        break;
-      }
-      continue;
+      console.warn(`⚠️ Gemini ${modelCfg.name} failed: ${error.message}`);
+      if (error.message.includes("429")) break;
     }
   }
 
-  // Калі ўсе мадэлі далі збой або квота скончылася
   return {
     error: true,
     category: "RECRUITER_INFO",
