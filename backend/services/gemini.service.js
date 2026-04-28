@@ -2,9 +2,7 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 // Ініцыялізацыя з v1 Stable
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY, {
-  apiVersion: "v1",
-});
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const MODELS_PRIORITY = ["gemini-1.5-flash", "gemini-2.0-flash"];
 
@@ -61,7 +59,11 @@ async function analyzeAndCompareWithGemini(
   for (const modelName of MODELS_PRIORITY) {
     try {
       console.log(`🔍 Gemini (${modelName}): Аналіз...`);
-      const model = genAI.getGenerativeModel({ model: modelName });
+      // ПРЫМУСОВЫ ПЕРАХОД НА v1 ТУТ:
+      const model = genAI.getGenerativeModel(
+        { model: modelName },
+        { apiVersion: "v1" },
+      );
 
       const userContent = `
 RECENT_MESSAGES: ${JSON.stringify(contextMessages)}
