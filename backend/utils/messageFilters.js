@@ -7,7 +7,6 @@ const CHAT_AGENCY_MAP = [
   { key: "Staff power брижук", agency: "STAFF POWER" },
   { key: "Актуальные вакансии", agency: "SOLANO" },
   { key: "Vacancies-app-test-group", agency: "MANUAL" },
-  { key: "посередники apolo", agency: "APOLO" },
 
   // --- Viber Whitelist ---
   { key: "посередники apolo", agency: "APOLO" },
@@ -27,8 +26,9 @@ const CHAT_AGENCY_MAP = [
   { key: "rekrutacja ps informacje", agency: "PERSONEL SERVICE" },
   { key: "grupa progres", agency: "PROGRES" },
   { key: "Works4you", agency: "RALEN" },
-  { key: "BestWork", agency: "BESTWORK" },
   { key: "test-group", agency: "MANUAL" },
+
+  // --- Ignore List ---
   { key: "nova work agency", agency: "IGNORE_SELF" },
 ];
 
@@ -48,6 +48,8 @@ const SYSTEM_NOISE = [
   /^голосове повідомлення\s*\(.*\)$/i,
   /^файлове повідомлення$/i,
   /^стікер$/i,
+  /закріплює повідомлення/i,
+  /закріплює:?\s*$/i,
 ];
 
 const RECRUITER_CHAT_NOISE = [
@@ -103,15 +105,22 @@ function superNormalize(str) {
 function isTruncated(text) {
   if (!text) return false;
   const t = text.trim();
+
+  // 1. Калі заканчваецца на шматкроп'е — дакладна абрэзана
   if (t.endsWith("...") || t.endsWith("…")) return true;
-  if (t.length > 600) return false; // BigText спрацаваў
+
+  // 2. Калі тэкст вельмі доўгі (> 600 сімвалаў), значыць BigText спрацаваў, лічым поўным
+  if (t.length > 600) return false;
+
+  // 3. Калі тэкст кароткі (< 200) — не абрэзана
   if (t.length < 200) return false;
 
-  // Дазваляем заканчэнне на эмодзі, зорку, дужку або знак прыпынку
+  // 4. "Бяспечныя" заканчэнні: знакі прыпынку, эмодзі, закрываючыя дужкі або зоркі
   const safeEndings = /[.!?*)\p{Emoji}\p{Emoji_Presentation}]$/u;
   if (safeEndings.test(t)) return false;
 
-  // Калі тэкст > 300 сімвалаў, лічым яго дастатковым для парсінгу
+  // 5. Калі тэкст ад 200 да 600 сімвалаў і заканчваецца проста на літару —
+  // лічым абрэзаным, бо Android мог не даслаць канец.
   return t.length < 300;
 }
 

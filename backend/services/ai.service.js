@@ -36,8 +36,9 @@ function cleanData(obj) {
     return Object.fromEntries(
       Object.entries(obj).map(([key, value]) => {
         if (value === "string" || value === "undefined") return [key, ""];
+        // ВЫДАЛЕНА ЗАМЕНА НА 99
         if (key === "ageMax" && (value === null || value === 0 || value === ""))
-          return [key, 99];
+          return [key, null];
         return [key, cleanData(value)];
       }),
     );
@@ -101,7 +102,7 @@ Use this EXACT structure (skip entire blocks if ALL data inside is empty/null):
 [кожен пункт з description, розбитий по крапці з комою, на новому рядку з •]
 
 📋 *Вимоги*
-[• Вік: до [requirements.ageMax] років — only if ageMax not empty and less than 65]
+[• Вік: до [requirements.ageMax] років — only if ageMax is NOT null and less than 65]
 • Документи: [requirements.standardDocs joined by ", "]
 • Мова: [requirements.polishLanguageLevel (якщо "A1" - напиши "Базовий рівень (A1)", якщо "Не вимагається" - напиши "Не вимагається")]
 [• [requirements.physicalLoad] — only if not empty]
@@ -653,10 +654,11 @@ JSON STRUCTURE:
 
       // === 7. ПАТРАБАВАННІ ===
       requirements: {
+        ...cleaned.requirements,
         gender: Array.isArray(cleaned.requirements?.gender)
           ? cleaned.requirements.gender
           : ["Чоловіки", "Жінки"],
-        ageMax: cleaned.requirements?.ageMax || 99,
+        ageMax: cleaned.requirements?.ageMax || null,
         nationalities: Array.isArray(cleaned.requirements?.nationalities)
           ? cleaned.requirements.nationalities
           : ["Україна"],

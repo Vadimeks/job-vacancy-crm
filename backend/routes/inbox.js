@@ -42,10 +42,8 @@ router.post("/push", async (req, res) => {
   const text = (req.body.text || req.body.notification || "").trim();
   const textHash = normalizeText(text);
 
-  if (processingCache.has(textHash)) {
-    console.log("⏳ Дубль ужо апрацоўваецца...");
+  if (processingCache.has(textHash))
     return res.status(200).json({ status: "ignored_concurrent" });
-  }
 
   try {
     processingCache.add(textHash);
@@ -92,9 +90,11 @@ router.post("/push", async (req, res) => {
       recentVacancies,
     );
 
+    // Калі Gemini адхіліў як дубль
     if (
-      analysis.category === "NOISE" ||
-      analysis.comparison.verdict === "DUPLICATE"
+      !analysis.error &&
+      (analysis.category === "NOISE" ||
+        analysis.comparison.verdict === "DUPLICATE")
     ) {
       console.log(`🚫 Gemini адхіліў дубль: ${analysis.comparison.reason}`);
       return res.status(200).json({ status: "ignored_semantic_duplicate" });
@@ -126,8 +126,9 @@ router.post("/push", async (req, res) => {
     await newMsg.save();
     console.log(`📥 Захавана ў Пясочніцу: ${newMsg.category}`);
 
-    // 5. Аўта-парсінг (Толькі калі NEW)
+    // 5. Аўта-парсінг (Толькі калі NEW і няма памылак AI)
     if (
+      !analysis.error &&
       analysis.category === "FULL_VACANCY" &&
       analysis.comparison.verdict === "NEW" &&
       AUTO_PROCESS_VACANCIES &&

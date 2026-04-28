@@ -1,12 +1,12 @@
 // backend/services/gemini.service.js
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-const MODELS_PRIORITY = [
-  "gemini-1.5-flash",
-  "gemini-2.0-flash",
-  "gemini-2.5-flash-lite",
-];
+// Ініцыялізацыя з v1 Stable
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY, {
+  apiVersion: "v1",
+});
+
+const MODELS_PRIORITY = ["gemini-1.5-flash", "gemini-2.0-flash"];
 
 const SYSTEM_PROMPT = `
 Role: Expert Analyst of the Polish Job Market.
@@ -79,16 +79,25 @@ NEW_MESSAGE: ${text}
         .replace(/```json/g, "")
         .replace(/```/g, "")
         .trim();
+
       const parsed = JSON.parse(jsonText);
       console.log(`✅ Gemini Verdict: ${parsed.comparison.verdict}`);
       return parsed;
     } catch (error) {
       lastError = error;
       console.warn(`⚠️ Gemini ${modelName} failed: ${error.message}`);
+
+      // Калі квота вычарпана (429), няма сэнсу спрабаваць іншыя мадэлі
+      if (error.message.includes("429")) {
+        break;
+      }
       continue;
     }
   }
+
+  // Калі ўсе мадэлі далі збой або квота скончылася
   return {
+    error: true,
     category: "RECRUITER_INFO",
     comparison: { verdict: "NEW" },
     translatedText: text,
