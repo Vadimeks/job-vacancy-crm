@@ -41,9 +41,8 @@ function classify(text) {
 router.post("/push", async (req, res) => {
   const text = (req.body.text || req.body.notification || "").trim();
 
-  // 1. ІМГНЕННЫ ФІЛЬТР ШУМУ (Крок 1: адсякаем сістэмныя паведамленні адразу)
+  // 1. ІМГНЕННЫ ФІЛЬТР ШУМУ
   if (shouldIgnoreMessage(text)) {
-    // Выводзім першыя 60 сімвалаў, каб разумець, што менавіта адфільтравалася
     console.log(
       `🗑️ Адхілена (Regex): "${text.substring(0, 60).replace(/\n/g, " ")}..."`,
     );
@@ -76,6 +75,9 @@ router.post("/push", async (req, res) => {
       return res.status(200).json({ status: "ignored_not_whitelisted" });
     }
 
+    // ЛОГ ПАМЕРУ ПАВЕДАМЛЕННЯ (пасля вайтліста)
+    console.log(`📥 Прынята: ${text.length} сімв. ад "${senderRaw}"`);
+
     // 3. ХЭШ-ДЭДУПЛІКАЦЫЯ (24 гадзіны)
     const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const exactDuplicate = await UnprocessedMessage.findOne({
@@ -97,14 +99,13 @@ router.post("/push", async (req, res) => {
       createdAt: { $gte: twelveHoursAgo },
     }).limit(5);
 
-    // 5. АНАЛІЗ GEMINI (Сэмантычная праверка)
+    // 5. АНАЛІЗ GEMINI
     const analysis = await analyzeAndCompareWithGemini(
       text,
       recentMessages,
       recentVacancies,
     );
 
-    // Калі Gemini адхіліў як дубль або шум
     if (
       !analysis.error &&
       (analysis.category === "NOISE" ||
@@ -114,21 +115,36 @@ router.post("/push", async (req, res) => {
       return res.status(200).json({ status: "ignored_semantic_duplicate" });
     }
 
-    // 6. ПРАВЕРКА НА АБРЭЗКУ (isTruncated)
+    // 6. ПРАВЕРКА НА АБРЭЗКУ
     const truncated = isTruncated(text);
 
-    // 7. ЗАХАВАННЕ Ў ПЯСОЧНІЦУ (Save-First Strategy)
+    // 7. ВЫЗНАЧЭННЕ КАТЭГОРЫІ (З выпраўленымі прыярытэтамі)
     const categoryMap = {
       UPDATE: "update",
       RECRUITER_INFO: "info",
       FULL_VACANCY: "vacancy",
     };
 
-    // Вызначаем катэгорыю: калі абрэзана — заўсёды vacancy
-    let finalCategory = categoryMap[analysis.category] || "info";
-    if (truncated) finalCategory = "vacancy";
-    if (analysis.comparison.verdict === "UPDATE") finalCategory = "update";
-    if (analysis.error) finalCategory = "info";
+    let finalCategory = "info"; // Дэфолт
+
+    if (!analysis.error) {
+      finalCategory = categoryMap[analysis.category] || "info";
+      if (analysis.comparison.verdict === "UPDATE") finalCategory = "update";
+    } else {
+      // Разумны фолбэк: калі AI ўпаў, але тэкст падобны на вакансію
+      const lowerText = text.toLowerCase();
+      const hasJobKeywords = /zł|netto|вакансія|praca|робота|зарплата/i.test(
+        lowerText,
+      );
+      if (hasJobKeywords && text.length > 300) {
+        finalCategory = "vacancy";
+      }
+    }
+
+    // НАЙВЫШЭЙШЫ ПРЫЯРЫТЭТ: Калі абрэзана — гэта заўсёды vacancy
+    if (truncated) {
+      finalCategory = "vacancy";
+    }
 
     const newMsg = new UnprocessedMessage({
       sender: senderRaw,

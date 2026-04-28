@@ -89,7 +89,12 @@ NEW_MESSAGE: ${text}
     } catch (error) {
       lastError = error;
       console.warn(`⚠️ Gemini ${modelCfg.name} failed: ${error.message}`);
-      if (error.message.includes("429")) break;
+      if (error.message.includes("429")) {
+        console.warn(
+          `⏳ Квота RPM для ${modelCfg.name} вычарпана. Спрабуем наступную мадэль...`,
+        );
+        continue; // Пераходзім да наступнай мадэлі ў спісе
+      }
     }
   }
 

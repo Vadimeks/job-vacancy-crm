@@ -109,19 +109,15 @@ function isTruncated(text) {
   if (!text) return false;
   const t = text.trim();
 
-  // 1. Калі ёсць шматкроп'е — дакладна абрэзана
   if (t.endsWith("...") || t.endsWith("…")) return true;
 
-  // 2. Калі тэкст заканчваецца на прыназоўнік або літару (без знака прыпынку/эмодзі)
-  // і яго даўжыня падазроная для лімітаў Android (~200, ~400, ~600 сімвалаў)
-  const safeEndings = /[.!?*)\p{Emoji}\p{Emoji_Presentation}]$/u;
-  if (!safeEndings.test(t)) {
-    // Калі няма бяспечнага заканчэння — хутчэй за ўсё абрэзана,
-    // незалежна ад таго, 200 там сімвалаў ці 700.
-    return true;
-  }
+  // Telegram абразае каля 800-900 сімвалаў.
+  // Калі тэкст менш за 1200 і няма кропкі/эмодзі — лічым абрэзаным.
+  if (t.length > 1200) return false;
+  if (t.length < 80) return false;
 
-  return false;
+  const safeEndings = /[.!?*)\p{Emoji}\p{Emoji_Presentation}]$/u;
+  return !safeEndings.test(t);
 }
 
 function getWhitelistedAgency(chatTitle) {
