@@ -11,37 +11,19 @@ const {
   isTruncated,
 } = require("../utils/messageFilters");
 
-// РЭЖЫМ АЎТАПІЛОТА
 const AUTO_PROCESS_VACANCIES = true;
-const processingCache = new Set();
+let isProcessing = false; // Сцяг, каб пазбегнуць накладання працэсаў
 
-// Хэлпер для нармалізацыі тэксту (дэдуплікацыя)
+// Хэлпер для нармалізацыі тэксту
 function normalizeText(text) {
   if (!text) return "";
   return text.toLowerCase().replace(/[^a-zа-яёіў0-9]/gi, "");
 }
 
-// Хэлпер для хуткай класіфікацыі (выкарыстоўваецца ў cleanup)
-function classify(text) {
-  if (!text) return "info";
-  const t = text.toLowerCase();
-  if (
-    t.includes("zł") ||
-    t.includes("netto") ||
-    t.includes("вакансія") ||
-    t.includes("praca")
-  )
-    return "vacancy";
-  if (t.includes("актуально") || t.includes("набір") || t.includes("добор"))
-    return "update";
-  return "info";
-}
-
-// --- ГАЛОЎНЫ РОЎТ ПРЫЁМУ (MacroDroid) ---
+// --- 1. ПРЫЁМ ПАВЕДАМЛЕННЯ (БУФЕР) ---
 router.post("/push", async (req, res) => {
   const text = (req.body.text || req.body.notification || "").trim();
 
-  // 1. ІМГНЕННЫ ФІЛЬТР ШУМУ
   if (shouldIgnoreMessage(text)) {
     console.log(
       `🗑️ Адхілена (Regex): "${text.substring(0, 60).replace(/\n/g, " ")}..."`,
@@ -49,155 +31,171 @@ router.post("/push", async (req, res) => {
     return res.status(200).json({ status: "ignored_noise" });
   }
 
-  const textHash = normalizeText(text);
-
-  // Абарона ад адначасовых запытаў
-  if (processingCache.has(textHash)) {
-    return res.status(200).json({ status: "ignored_concurrent" });
-  }
-
   try {
-    processingCache.add(textHash);
     const senderRaw = (
       req.body.sender ||
       req.body.not_title ||
       "Unknown"
     ).trim();
-    const source = req.body.source || "viber";
-
-    // 2. ПРАВЕРКА ВАЙТЛІСТА
     const agency = getWhitelistedAgency(senderRaw);
-    if (agency === "IGNORE_SELF") {
-      return res.status(200).json({ status: "ignored_self_loop" });
-    }
-    if (!agency) {
-      console.log(`⚠️ Чат не ў вайтлісце: ${senderRaw}`);
-      return res.status(200).json({ status: "ignored_not_whitelisted" });
-    }
 
-    // ЛОГ ПАМЕРУ ПАВЕДАМЛЕННЯ (пасля вайтліста)
+    if (!agency)
+      return res.status(200).json({ status: "ignored_not_whitelisted" });
+    if (agency === "IGNORE_SELF")
+      return res.status(200).json({ status: "ignored_self_loop" });
+
     console.log(`📥 Прынята: ${text.length} сімв. ад "${senderRaw}"`);
 
-    // 3. ХЭШ-ДЭДУПЛІКАЦЫЯ (24 гадзіны)
-    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    const exactDuplicate = await UnprocessedMessage.findOne({
-      textHash,
-      createdAt: { $gte: twentyFourHoursAgo },
+    // ПРАВЕРКА НА АБНАЎЛЕННЕ (Stitching)
+    // Шукаем неапрацаванае паведамленне ад гэтай жа агенцыі за апошнія 5 хвілін
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+    const existingMsg = await UnprocessedMessage.findOne({
+      agencyName: agency,
+      processed: false,
+      createdAt: { $gte: fiveMinutesAgo },
     });
-    if (exactDuplicate) {
-      return res.status(200).json({ status: "ignored_exact_duplicate" });
-    }
 
-    // 4. ЗБОР КАНТЭКСТУ ДЛЯ GEMINI (12 гадзін)
-    const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
-    const recentMessages = await UnprocessedMessage.find({
-      agencyName: agency,
-      createdAt: { $gte: twelveHoursAgo },
-    }).limit(10);
-    const recentVacancies = await Vacancy.find({
-      agencyName: agency,
-      createdAt: { $gte: twelveHoursAgo },
-    }).limit(5);
-
-    // 5. АНАЛІЗ GEMINI
-    const analysis = await analyzeAndCompareWithGemini(
-      text,
-      recentMessages,
-      recentVacancies,
-    );
-
-    if (
-      !analysis.error &&
-      (analysis.category === "NOISE" ||
-        analysis.comparison.verdict === "DUPLICATE")
-    ) {
-      console.log(`🚫 Gemini адхіліў: ${analysis.comparison.reason}`);
-      return res.status(200).json({ status: "ignored_semantic_duplicate" });
-    }
-
-    // 6. ПРАВЕРКА НА АБРЭЗКУ
-    const truncated = isTruncated(text);
-
-    // 7. ВЫЗНАЧЭННЕ КАТЭГОРЫІ (З выпраўленымі прыярытэтамі)
-    const categoryMap = {
-      UPDATE: "update",
-      RECRUITER_INFO: "info",
-      FULL_VACANCY: "vacancy",
-    };
-
-    let finalCategory = "info"; // Дэфолт
-
-    if (!analysis.error) {
-      finalCategory = categoryMap[analysis.category] || "info";
-      if (analysis.comparison.verdict === "UPDATE") finalCategory = "update";
-    } else {
-      // Разумны фолбэк: калі AI ўпаў, але тэкст падобны на вакансію
-      const lowerText = text.toLowerCase();
-      const hasJobKeywords = /zł|netto|вакансія|praca|робота|зарплата/i.test(
-        lowerText,
-      );
-      if (hasJobKeywords && text.length > 300) {
-        finalCategory = "vacancy";
+    if (existingMsg) {
+      // Калі новы тэкст даўжэйшы — абнаўляем існуючы запіс
+      if (text.length > existingMsg.text.length) {
+        console.log(
+          `🔄 Абнаўленне тэксту для ${agency} (${existingMsg.text.length} -> ${text.length})`,
+        );
+        existingMsg.text = text;
+        existingMsg.textHash = normalizeText(text);
+        existingMsg.isTruncated = isTruncated(text);
+        await existingMsg.save();
+        return res.status(200).json({ status: "updated_in_buffer" });
+      } else {
+        return res.status(200).json({ status: "ignored_shorter_update" });
       }
     }
 
-    // НАЙВЫШЭЙШЫ ПРЫЯРЫТЭТ: Калі абрэзана — гэта заўсёды vacancy
-    if (truncated) {
-      finalCategory = "vacancy";
-    }
-
+    // Калі паведамленне новае — проста захоўваем яго
     const newMsg = new UnprocessedMessage({
       sender: senderRaw,
       agencyName: agency,
       text: text,
-      rawText: analysis.translatedText || text,
-      textHash: textHash,
-      source: source,
-      category: finalCategory,
-      isTruncated: truncated,
+      textHash: normalizeText(text),
+      source: req.body.source || "viber",
+      category: "info", // Часовая катэгорыя да апрацоўкі AI
       processed: false,
+      isTruncated: isTruncated(text),
     });
 
     await newMsg.save();
-    console.log(`📥 Захавана ў Пясочніцу (${newMsg.category}): ${senderRaw}`);
-
-    // 8. АЎТА-ПАРСІНГ (Толькі для поўных новых вакансій)
-    if (
-      !analysis.error &&
-      analysis.category === "FULL_VACANCY" &&
-      analysis.comparison.verdict === "NEW" &&
-      !truncated &&
-      AUTO_PROCESS_VACANCIES
-    ) {
-      console.log("🚀 Запуск Groq-парсера...");
-      try {
-        const result = await processVacancyMessage(
-          analysis.translatedText,
-          senderRaw,
-          agency,
-          text,
-          truncated,
-        );
-        if (result && result._id) {
-          newMsg.processed = true;
-          await newMsg.save();
-          return res
-            .status(200)
-            .json({ status: "auto_processed", vacancyId: result._id });
-        }
-      } catch (err) {
-        console.error("❌ Groq Error:", err.message);
-      }
-    }
-
-    res.status(200).json({ status: "saved_to_inbox" });
+    res.status(200).json({ status: "saved_to_buffer" });
   } catch (error) {
-    console.error("❌ Inbox Push Error:", error);
-    res.status(200).json({ status: "error_logged" });
-  } finally {
-    processingCache.delete(textHash);
+    console.error("❌ Push Error:", error);
+    res.status(200).json({ status: "error" });
   }
 });
+
+// --- 2. ФОНАВАЯ АПРАЦОЎКА БУФЕРА ---
+async function processPendingMessages() {
+  if (isProcessing) return;
+  isProcessing = true;
+
+  try {
+    const pending = await UnprocessedMessage.find({ processed: false }).limit(
+      10,
+    );
+    if (pending.length === 0) {
+      isProcessing = false;
+      return;
+    }
+
+    console.log(`⚙️ Апрацоўка буфера: ${pending.length} паведамленняў...`);
+
+    for (const msg of pending) {
+      try {
+        // Збор кантэксту
+        const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
+        const recentMessages = await UnprocessedMessage.find({
+          agencyName: msg.agencyName,
+          processed: true,
+          createdAt: { $gte: twelveHoursAgo },
+        }).limit(5);
+        const recentVacancies = await Vacancy.find({
+          agencyName: msg.agencyName,
+          createdAt: { $gte: twelveHoursAgo },
+        }).limit(3);
+
+        // AI Аналіз (Gemini -> Groq Fallback)
+        const analysis = await analyzeAndCompareWithGemini(
+          msg.text,
+          recentMessages,
+          recentVacancies,
+        );
+
+        if (
+          !analysis.error &&
+          (analysis.category === "NOISE" ||
+            analysis.comparison.verdict === "DUPLICATE")
+        ) {
+          console.log(`🗑️ Выдаленне дубліката/шуму пасля AI аналізу`);
+          await msg.deleteOne();
+          continue;
+        }
+
+        // Вызначэнне катэгорыі
+        const categoryMap = {
+          UPDATE: "update",
+          RECRUITER_INFO: "info",
+          FULL_VACANCY: "vacancy",
+        };
+        let finalCategory = analysis.error
+          ? "info"
+          : categoryMap[analysis.category] || "info";
+        if (analysis.comparison.verdict === "UPDATE") finalCategory = "update";
+
+        // Прыярытэт абрэзкі
+        if (msg.isTruncated) finalCategory = "vacancy";
+
+        // Пераклад (калі Gemini ўпаў)
+        let translatedText = analysis.translatedText || msg.text;
+        if (analysis.error && msg.text.length > 300) {
+          translatedText = await aiService.simpleTranslate(msg.text);
+        }
+
+        // Абнаўляем паведамленне вынікамі AI
+        msg.rawText = translatedText;
+        msg.category = finalCategory;
+        msg.processed = true;
+        await msg.save();
+
+        // Аўта-парсінг Groq
+        if (
+          !analysis.error &&
+          analysis.category === "FULL_VACANCY" &&
+          !msg.isTruncated &&
+          AUTO_PROCESS_VACANCIES
+        ) {
+          console.log(`🚀 Аўта-парсінг вакансіі: ${msg.agencyName}`);
+          await processVacancyMessage(
+            translatedText,
+            msg.sender,
+            msg.agencyName,
+            msg.text,
+            msg.isTruncated,
+          );
+        }
+      } catch (err) {
+        console.error(
+          `❌ Памылка апрацоўкі паведамлення ${msg._id}:`,
+          err.message,
+        );
+      }
+    }
+  } catch (globalErr) {
+    console.error("❌ Global Buffer Processor Error:", globalErr);
+  } finally {
+    isProcessing = false;
+  }
+}
+
+// Запуск працэсара кожныя 2 хвіліны
+setInterval(processPendingMessages, 120000);
 
 // --- РОЎТЫ КІРАВАННЯ (Фронтэнд) ---
 

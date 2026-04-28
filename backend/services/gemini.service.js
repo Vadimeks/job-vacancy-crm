@@ -1,6 +1,6 @@
 // backend/services/gemini.service.js
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-
+const aiService = require("./ai.service");
 // Ініцыялізацыя з v1 Stable
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
@@ -8,7 +8,7 @@ const MODELS_CONFIG = [
   { name: "gemini-2.5-flash-lite", apiVersion: "v1beta" },
   { name: "gemini-2.5-flash", apiVersion: "v1beta" },
   { name: "gemini-2.0-flash", apiVersion: "v1beta" },
-  { name: "gemini-2.0-flash-lite-preview-02-05", apiVersion: "v1beta" },
+  { name: "gemini-1.5-latest", apiVersion: "v1beta" },
 ];
 // Кэш для эканоміі токенаў
 const geminiCache = new Map();
@@ -98,6 +98,21 @@ NEW_MESSAGE: ${text}
     }
   }
 
+  // --- ФІНАЛЬНЫ ФОЛБЭК НА GROQ ---
+  console.log(
+    "🛡️ Усе мадэлі Gemini недаступныя. Пераход на Groq (Llama 3.3)...",
+  );
+  const groqResult = await aiService.analyzeWithGroq(
+    text,
+    recentMessages,
+    recentVacancies,
+  );
+
+  if (groqResult) {
+    return groqResult;
+  }
+
+  // Калі нават Groq не справіўся (error: true)
   return {
     error: true,
     category: "RECRUITER_INFO",

@@ -797,7 +797,78 @@ async function updateVacancyWithAI(existingVacancy, newText) {
     throw error;
   }
 }
+/**
+ * Класіфікацыя паведамлення праз Groq (Llama 3.3 70b)
+ * Выкарыстоўваецца як надзейны фолбэк для Gemini
+ */
+async function analyzeWithGroq(
+  text,
+  recentMessages = [],
+  recentVacancies = [],
+) {
+  try {
+    console.log(`🔍 Groq (${MODEL_SMART}): Фолбэк-аналіз...`);
 
+    const systemPrompt = `
+Role: Expert Analyst of the Polish Job Market.
+Task: Classify a NEW_MESSAGE and compare it with RECENT_MESSAGES and RECENT_VACANCIES.
+Return ONLY valid JSON.
+    `;
+
+    const userContent = `
+RECENT_MESSAGES: ${JSON.stringify(recentMessages.slice(0, 3))}
+RECENT_VACANCIES: ${JSON.stringify(recentVacancies.slice(0, 2))}
+NEW_MESSAGE: ${text}
+
+CATEGORIES: FULL_VACANCY, UPDATE, RECRUITER_INFO, NOISE.
+VERDICTS: NEW, DUPLICATE, UPDATE.
+
+Output JSON structure:
+{
+  "category": "FULL_VACANCY" | "UPDATE" | "RECRUITER_INFO" | "NOISE",
+  "comparison": { "verdict": "NEW" | "DUPLICATE" | "UPDATE", "reason": "string" },
+  "translatedText": "Clean Ukrainian translation"
+}
+    `;
+
+    const response = await groq.chat.completions.create({
+      model: MODEL_SMART,
+      temperature: 0.1,
+      response_format: { type: "json_object" },
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userContent },
+      ],
+    });
+
+    return JSON.parse(response.choices[0]?.message?.content);
+  } catch (err) {
+    console.error("❌ Groq fallback analysis failed:", err.message);
+    return null;
+  }
+}
+
+/**
+ * Хуткі пераклад тэксту (фолбэк)
+ */
+async function simpleTranslate(text) {
+  try {
+    const response = await groq.chat.completions.create({
+      model: MODEL_FAST,
+      messages: [
+        {
+          role: "system",
+          content:
+            "Translate the following text to Ukrainian. Return ONLY the translation.",
+        },
+        { role: "user", content: text },
+      ],
+    });
+    return response.choices[0]?.message?.content || text;
+  } catch (err) {
+    return text;
+  }
+}
 module.exports = {
   parseVacancyWithAI,
   identifyTemplate,
@@ -807,4 +878,6 @@ module.exports = {
   testConnection,
   updateVacancyWithAI,
   mergeWithTemplate,
+  analyzeWithGroq,
+  simpleTranslate,
 };
