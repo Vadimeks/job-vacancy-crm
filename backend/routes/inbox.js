@@ -10,6 +10,8 @@ const {
   getWhitelistedAgency,
   isTruncated,
 } = require("../utils/messageFilters");
+// 🔧 FIX 1: Дадаць імпарт aiService (быў адсутны → "aiService is not defined")
+const aiService = require("../services/ai.service");
 
 const AUTO_PROCESS_VACANCIES = true;
 let isProcessing = false; // Сцяг, каб пазбегнуць накладання працэсаў
@@ -47,12 +49,14 @@ router.post("/push", async (req, res) => {
     console.log(`📥 Прынята: ${text.length} сімв. ад "${senderRaw}"`);
 
     // ПРАВЕРКА НА АБНАЎЛЕННЕ (Stitching)
-    // Шукаем неапрацаванае паведамленне ад гэтай жа агенцыі за апошнія 5 хвілін
-    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+    // 🔧 FIX 2: Акно павялічана з 5 да 60 хвілін (паводле LOG.md v0.3.0)
+    // Telegram спачатку шле кароткае апавяшчэнне (~200 сімв.),
+    // а поўны тэкст прыходзіць праз 5-30+ хвілін — таму 5 хвілін было мала.
+    const sixtyMinutesAgo = new Date(Date.now() - 60 * 60 * 1000);
     const existingMsg = await UnprocessedMessage.findOne({
       agencyName: agency,
       processed: false,
-      createdAt: { $gte: fiveMinutesAgo },
+      createdAt: { $gte: sixtyMinutesAgo },
     });
 
     if (existingMsg) {
@@ -152,7 +156,7 @@ async function processPendingMessages() {
         // Прыярытэт абрэзкі
         if (msg.isTruncated) finalCategory = "vacancy";
 
-        // Пераклад (калі Gemini ўпаў)
+        // Пераклад (калі Gemini ўпаў) — 🔧 FIX 1 дазваляе гэты код зараз працаваць
         let translatedText = analysis.translatedText || msg.text;
         if (analysis.error && msg.text.length > 300) {
           translatedText = await aiService.simpleTranslate(msg.text);

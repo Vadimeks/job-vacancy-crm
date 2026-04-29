@@ -4,11 +4,14 @@ const aiService = require("./ai.service");
 // Ініцыялізацыя з v1 Stable
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
+// 🔧 FIX 3: Замена "gemini-1.5-latest" на "gemini-1.5-flash"
+// "gemini-1.5-latest" вяртае 404 у v1beta — мадэль не існуе пад такой назвай.
+// "gemini-1.5-flash" — рабочая і мае найбольшы бясплатны ліміт (1500 RPD).
 const MODELS_CONFIG = [
   { name: "gemini-2.5-flash-lite", apiVersion: "v1beta" },
   { name: "gemini-2.5-flash", apiVersion: "v1beta" },
   { name: "gemini-2.0-flash", apiVersion: "v1beta" },
-  { name: "gemini-1.5-latest", apiVersion: "v1beta" },
+  { name: "gemini-1.5-flash", apiVersion: "v1beta" }, // ← выпраўлена з "gemini-1.5-latest"
 ];
 // Кэш для эканоміі токенаў
 const geminiCache = new Map();
@@ -89,12 +92,13 @@ NEW_MESSAGE: ${text}
     } catch (error) {
       lastError = error;
       console.warn(`⚠️ Gemini ${modelCfg.name} failed: ${error.message}`);
+      // Працягваем да наступнай мадэлі пры любой памылцы (429, 404, і інш.)
       if (error.message.includes("429")) {
         console.warn(
           `⏳ Квота RPM для ${modelCfg.name} вычарпана. Спрабуем наступную мадэль...`,
         );
-        continue; // Пераходзім да наступнай мадэлі ў спісе
       }
+      continue;
     }
   }
 
