@@ -22,31 +22,37 @@ function normalizeText(text) {
   return text.toLowerCase().replace(/[^a-zа-яёіў0-9]/gi, "");
 }
 
+function logPreview(text) {
+  return text.replace(/\n/g, " ").replace(/\s+/g, " ").trim().substring(0, 80);
+}
+
 // --- 1. ПРЫЁМ ПАВЕДАМЛЕННЯ (БУФЕР) ---
 router.post("/push", async (req, res) => {
   const text = (req.body.text || req.body.notification || "").trim();
+  const senderRaw = (req.body.sender || req.body.not_title || "Unknown").trim();
 
   if (shouldIgnoreMessage(text)) {
-    console.log(`🗑️ Адхілена (Regex): "${text.substring(0, 60)}..."`);
+    console.log(`🗑️ Адхілена (Regex): "${logPreview(text)}..."`);
     return res.status(200).json({ status: "ignored_noise" });
   }
 
   try {
-    const senderRaw = (
-      req.body.sender ||
-      req.body.not_title ||
-      "Unknown"
-    ).trim();
     const agency = getWhitelistedAgency(senderRaw);
 
-    if (!agency)
+    if (!agency) {
+      console.log(`🚫 Адхілена (Whitelist): ад "${senderRaw}"`);
       return res.status(200).json({ status: "ignored_not_whitelisted" });
-    if (agency === "IGNORE_SELF")
+    }
+
+    if (agency === "IGNORE_SELF") {
+      console.log(`🔄 Ігнараванне (Self-Loop): "${senderRaw}"`);
       return res.status(200).json({ status: "ignored_self_loop" });
+    }
 
-    console.log(`📥 Прынята: ${text.length} сімв. ад "${senderRaw}"`);
+    console.log(
+      `📥 Прынята: ${text.length} сімв. ад "${senderRaw}" (${agency})`,
+    );
 
-    // ПРАВЕРКА НА АБНАЎЛЕННЕ (Stitching) - глядзім за апошнюю гадзіну
     const sixtyMinutesAgo = new Date(Date.now() - 60 * 60 * 1000);
     const existingMsg = await UnprocessedMessage.findOne({
       agencyName: agency,
@@ -56,16 +62,17 @@ router.post("/push", async (req, res) => {
     if (existingMsg) {
       if (text.length > existingMsg.text.length) {
         console.log(
-          `🔄 Абнаўленне тэксту для ${agency} (${existingMsg.text.length} -> ${text.length})`,
+          `🔄 Абнаўленне: ${agency} (${existingMsg.text.length} -> ${text.length} сімв.)`,
         );
         existingMsg.text = text;
         existingMsg.textHash = normalizeText(text);
         existingMsg.isTruncated = isTruncated(text);
-        existingMsg.processed = false; // Скідваем, каб AI перачытаў поўную версію
+        existingMsg.processed = false;
         await existingMsg.save();
         return res.status(200).json({ status: "updated_in_buffer" });
       } else {
-        return res.status(200).json({ status: "ignored_duplicate_or_shorter" });
+        console.log(`🔁 Ігнараваны дубль ад ${agency}`);
+        return res.status(200).json({ status: "ignored_duplicate" });
       }
     }
 
@@ -81,7 +88,8 @@ router.post("/push", async (req, res) => {
     });
 
     await newMsg.save();
-    res.status(200).json({ status: "saved_to_buffer" });
+    console.log(`💾 Захавана ў буфер: ${agency} (ID: ${newMsg._id})`);
+    res.status(200).json({ status: "saved_to_buffer", id: newMsg._id });
   } catch (error) {
     console.error("❌ Push Error:", error);
     res.status(200).json({ status: "error" });
@@ -97,22 +105,28 @@ async function processPendingMessages() {
     const pending = await UnprocessedMessage.find({ processed: false }).limit(
       10,
     );
+
     if (pending.length === 0) {
+      // Ціхі лог, каб бачыць, што робат жывы
+      // console.log("💤 Буфер пусты, чакаю паведамленняў...");
       isProcessing = false;
       return;
     }
 
-    // Вызначаем пачатак сённяшняга дня для кантэксту
+    console.log(
+      `⚙️ ПАЧАТАК АПРАЦОЎКІ: ${pending.length} паведамленняў у чарзе...`,
+    );
+
     const startOfToday = new Date();
     startOfToday.setHours(0, 0, 0, 0);
 
-    console.log(`⚙️ Апрацоўка буфера: ${pending.length} паведамленняў...`);
-
     for (const msg of pending) {
       try {
-        await sleep(2000); // Тротлінг
+        console.log(
+          `📝 Аналіз [${msg.agencyName}]: "${logPreview(msg.text)}..."`,
+        );
+        await sleep(2000);
 
-        // Збор кантэксту "СЁННЯ"
         const todayMessages = await UnprocessedMessage.find({
           agencyName: msg.agencyName,
           processed: true,
@@ -130,17 +144,20 @@ async function processPendingMessages() {
           todayVacancies,
         );
 
-        // 🛡️ СТРАХОЎКА: Калі AI памыліўся або ліміты — пакідаем у Пясочніцы як info
         if (!analysis || analysis.error) {
           console.log(
-            `⏳ AI памылка для ${msg.agencyName}, пакідаем у Пясочніцы як ёсць`,
+            `⏳ AI памылка (ліміты) для ${msg.agencyName}. Пакідаю ў Пясочніцы.`,
           );
+          // Мы НЕ ставім processed: true, таму паведамленне застанецца бачным на фронце
           continue;
         }
 
-        // 🛡️ ДЭДУПЛІКАЦЫЯ: Калі гэта поўны дубль — хаваем з фронту, але не выдаляем
+        console.log(
+          `🤖 AI Вердыкт: ${analysis.category} | ${analysis.comparison.verdict}`,
+        );
+
         if (analysis.comparison.verdict === "DUPLICATE") {
-          console.log(`📎 Сэмантычны дубль адхілены для ${msg.agencyName}`);
+          console.log(`📎 Сэмантычны дубль. Хаваю.`);
           msg.category = "chat";
           msg.processed = true;
           await msg.save();
@@ -161,14 +178,16 @@ async function processPendingMessages() {
         msg.category = finalCategory;
         msg.processed = true;
         await msg.save();
+        console.log(
+          `✅ Апрацавана: ${msg.agencyName} -> Катэгорыя: ${finalCategory}`,
+        );
 
-        // Аўта-парсінг Groq толькі для новых поўных вакансій
         if (
           analysis.category === "FULL_VACANCY" &&
           !msg.isTruncated &&
           AUTO_PROCESS_VACANCIES
         ) {
-          console.log(`🚀 Аўта-парсінг вакансіі: ${msg.agencyName}`);
+          console.log(`🔥 Запуск Groq-парсінгу для ${msg.agencyName}...`);
           await processVacancyMessage(
             msg.rawText,
             msg.sender,
@@ -178,12 +197,10 @@ async function processPendingMessages() {
           );
         }
       } catch (err) {
-        console.error(
-          `❌ Памылка апрацоўкі паведамлення ${msg._id}:`,
-          err.message,
-        );
+        console.error(`❌ Памылка ітэрацыі (${msg.agencyName}):`, err.message);
       }
     }
+    console.log(`🏁 АПРАЦОЎКА ЗАВЕРШАНА`);
   } catch (globalErr) {
     console.error("❌ Global Buffer Processor Error:", globalErr);
   } finally {
@@ -191,13 +208,15 @@ async function processPendingMessages() {
   }
 }
 
-setInterval(processPendingMessages, 120000);
+// Запуск кожную хвіліну (60000 мс)
+setInterval(processPendingMessages, 60000);
 
 // --- РОЎТЫ КІРАВАННЯ ---
 router.get("/", async (req, res) => {
   try {
     const { category, limit = 200 } = req.query;
-    // Паказваем толькі неапрацаваныя паведамленні, акрамя катэгорыі chat (дублікаты)
+    // Паказваем усё, што яшчэ не апрацавана AI (processed: false)
+    // АБО тое, што AI пазначыў як карыснае (update/vacancy/info), але яшчэ не архівавана
     const filter = { processed: false, category: { $ne: "chat" } };
     if (category && category !== "all") filter.category = category;
     const messages = await UnprocessedMessage.find(filter)
