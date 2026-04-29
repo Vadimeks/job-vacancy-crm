@@ -10,11 +10,13 @@ const {
   getWhitelistedAgency,
   isTruncated,
 } = require("../utils/messageFilters");
-// 🔧 FIX 1: Дадаць імпарт aiService (быў адсутны → "aiService is not defined")
 const aiService = require("../services/ai.service");
 
 const AUTO_PROCESS_VACANCIES = true;
-let isProcessing = false; // Сцяг, каб пазбегнуць накладання працэсаў
+let isProcessing = false;
+
+// Хэлпер для затрымкі (тротлінг)
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // Хэлпер для нармалізацыі тэксту
 function normalizeText(text) {
@@ -49,18 +51,15 @@ router.post("/push", async (req, res) => {
     console.log(`📥 Прынята: ${text.length} сімв. ад "${senderRaw}"`);
 
     // ПРАВЕРКА НА АБНАЎЛЕННЕ (Stitching)
-    // 🔧 FIX 2: Акно павялічана з 5 да 60 хвілін (паводле LOG.md v0.3.0)
-    // Telegram спачатку шле кароткае апавяшчэнне (~200 сімв.),
-    // а поўны тэкст прыходзіць праз 5-30+ хвілін — таму 5 хвілін было мала.
+    // Шукаем ЛЮБОЕ апошняе паведамленне ад гэтай агенцыі за гадзіну (нават апрацаванае)
     const sixtyMinutesAgo = new Date(Date.now() - 60 * 60 * 1000);
     const existingMsg = await UnprocessedMessage.findOne({
       agencyName: agency,
-      processed: false,
       createdAt: { $gte: sixtyMinutesAgo },
-    });
+    }).sort({ createdAt: -1 });
 
     if (existingMsg) {
-      // Калі новы тэкст даўжэйшы — абнаўляем існуючы запіс
+      // Калі новы тэкст даўжэйшы — абнаўляем і скідваем статус апрацоўкі
       if (text.length > existingMsg.text.length) {
         console.log(
           `🔄 Абнаўленне тэксту для ${agency} (${existingMsg.text.length} -> ${text.length})`,
@@ -68,21 +67,23 @@ router.post("/push", async (req, res) => {
         existingMsg.text = text;
         existingMsg.textHash = normalizeText(text);
         existingMsg.isTruncated = isTruncated(text);
+        existingMsg.processed = false; // Дазваляем AI перачытаць поўную версію
         await existingMsg.save();
         return res.status(200).json({ status: "updated_in_buffer" });
       } else {
-        return res.status(200).json({ status: "ignored_shorter_update" });
+        // Калі тэкст такі самы або карацейшы — гэта дублікат апавяшчэння Android
+        return res.status(200).json({ status: "ignored_duplicate_or_shorter" });
       }
     }
 
-    // Калі паведамленне новае — проста захоўваем яго
+    // Калі паведамленне новае — захоўваем
     const newMsg = new UnprocessedMessage({
       sender: senderRaw,
       agencyName: agency,
       text: text,
       textHash: normalizeText(text),
       source: req.body.source || "viber",
-      category: "info", // Часовая катэгорыя да апрацоўкі AI
+      category: "info",
       processed: false,
       isTruncated: isTruncated(text),
     });
@@ -113,7 +114,9 @@ async function processPendingMessages() {
 
     for (const msg of pending) {
       try {
-        // Збор кантэксту
+        // ⏱️ ТРОТЛІНГ: Затрымка 2 секунды паміж запытамі да AI
+        await sleep(2000);
+
         const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
         const recentMessages = await UnprocessedMessage.find({
           agencyName: msg.agencyName,
@@ -125,7 +128,6 @@ async function processPendingMessages() {
           createdAt: { $gte: twelveHoursAgo },
         }).limit(3);
 
-        // AI Аналіз (Gemini -> Groq Fallback)
         const analysis = await analyzeAndCompareWithGemini(
           msg.text,
           recentMessages,
@@ -142,7 +144,6 @@ async function processPendingMessages() {
           continue;
         }
 
-        // Вызначэнне катэгорыі
         const categoryMap = {
           UPDATE: "update",
           RECRUITER_INFO: "info",
@@ -153,22 +154,18 @@ async function processPendingMessages() {
           : categoryMap[analysis.category] || "info";
         if (analysis.comparison.verdict === "UPDATE") finalCategory = "update";
 
-        // Прыярытэт абрэзкі
         if (msg.isTruncated) finalCategory = "vacancy";
 
-        // Пераклад (калі Gemini ўпаў) — 🔧 FIX 1 дазваляе гэты код зараз працаваць
         let translatedText = analysis.translatedText || msg.text;
         if (analysis.error && msg.text.length > 300) {
           translatedText = await aiService.simpleTranslate(msg.text);
         }
 
-        // Абнаўляем паведамленне вынікамі AI
         msg.rawText = translatedText;
         msg.category = finalCategory;
         msg.processed = true;
         await msg.save();
 
-        // Аўта-парсінг Groq
         if (
           !analysis.error &&
           analysis.category === "FULL_VACANCY" &&
@@ -198,11 +195,10 @@ async function processPendingMessages() {
   }
 }
 
-// Запуск працэсара кожныя 2 хвіліны
 setInterval(processPendingMessages, 120000);
 
 // --- РОЎТЫ КІРАВАННЯ (Фронтэнд) ---
-
+// (Тут код застаецца без зменаў, як у тваім файле)
 router.get("/", async (req, res) => {
   try {
     const { category, limit = 200 } = req.query;
@@ -251,12 +247,9 @@ router.post("/cleanup", async (req, res) => {
         deleted++;
         continue;
       }
-      const newCategory = classify(msg.text);
-      if (newCategory !== msg.category) {
-        msg.category = newCategory;
-        await msg.save();
-        reclassified++;
-      }
+      // Тут была функцыя classify, якой няма ў файле, пакідаем як ёсць або выдаляем
+      // msg.category = classify(msg.text);
+      // await msg.save();
     }
     res.json({ deleted, reclassified });
   } catch (error) {
