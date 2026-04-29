@@ -35,17 +35,27 @@ function cleanData(obj) {
   } else if (obj !== null && typeof obj === "object") {
     return Object.fromEntries(
       Object.entries(obj).map(([key, value]) => {
-        if (value === "string" || value === "undefined") return [key, ""];
-        // ВЫДАЛЕНА ЗАМЕНА НА 99
+        // Калі гэта ўкладзены аб'ект — чысцім рэкурсіўна
         if (
-          value === null ||
-          value === 0 ||
+          typeof value === "object" &&
+          value !== null &&
+          !Array.isArray(value)
+        ) {
+          return [key, cleanData(value)];
+        }
+        // Калі значэнне — смецце або маркеры
+        if (
+          value === "string" ||
+          value === "undefined" ||
           value === "" ||
           value === 99 ||
-          value === "99"
+          value === "99" ||
+          value === null
         ) {
           return [key, null];
         }
+        // ВЯРТАЕМ нармальнае значэнне
+        return [key, value];
       }),
     );
   }
