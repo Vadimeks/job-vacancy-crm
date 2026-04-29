@@ -34,9 +34,9 @@ const CHAT_AGENCY_MAP = [
 
 const SYSTEM_NOISE = [
   /новий коментар до вашого повідомлення/i,
-  /ви маєте нові повідомлення в:/i, // прыбраў ^
-  /ви маєте нові повідомлення/i, // дадаў агульны варыянт
-  /дивіться топ-повідомлення від/i, // прыбраў ^
+  /ви маєте нові повідомлення в:/i,
+  /ви маєте нові повідомлення/i,
+  /дивіться топ-повідомлення від/i,
   /пропущений виклик/i,
   /вхідний виклик/i,
   /відповідає:/i,
@@ -46,14 +46,14 @@ const SYSTEM_NOISE = [
   /pinned a message/i,
   /joined the group/i,
   /left the group/i,
-  /фотоповідомлення/i, // прыбраў ^ і $
+  /фотоповідомлення/i,
   /голосове повідомлення/i,
   /файлове повідомлення/i,
   /стікер/i,
   /закріплює повідомлення/i,
   /закріплює:?\s*$/i,
-  /ніден:\s*закріплює/i, // дадаў з логаў
-  /menu\s*$/i, // дадаў з логаў
+  /ніден:\s*закріплює/i,
+  /menu\s*$/i,
 ];
 
 const RECRUITER_CHAT_NOISE = [
@@ -106,15 +106,34 @@ function superNormalize(str) {
     .replace(/[^a-zа-яёіў0-9]/gi, "");
 }
 
+// Функцыя для праверкі старых дат у тэксце
+function isOldMessage(text) {
+  if (!text) return false;
+  const dateMatch = text.match(/(\d{1,2})[./](\d{1,2})/);
+  if (!dateMatch) return false;
+
+  const day = parseInt(dateMatch[1], 10);
+  const month = parseInt(dateMatch[2], 10) - 1; // JS months 0-11
+  const year = new Date().getFullYear();
+
+  const msgDate = new Date(year, month, day);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const diffTime = today - msgDate;
+  const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
+  return diffDays > 2; // Ігнаруем, калі старэйшае за 2 дні
+}
+
 function isTruncated(text) {
   if (!text) return false;
   const t = text.trim();
 
   if (t.endsWith("...") || t.endsWith("…")) return true;
 
-  // Telegram абразае каля 800-900 сімвалаў.
-  // Калі тэкст менш за 1200 і няма кропкі/эмодзі — лічым абрэзаным.
-  if (t.length > 1200) return false;
+  // 🔧 Парог зніжаны да 800 сімвалаў
+  if (t.length > 800) return false;
   if (t.length < 80) return false;
 
   const safeEndings = /[.!?*)\p{Emoji}\p{Emoji_Presentation}]$/u;
@@ -141,6 +160,7 @@ function shouldIgnoreMessage(text) {
   if (!text) return true;
   const trimmed = text.trim();
   if (trimmed.length < 15 || EMOJI_ONLY_RE.test(trimmed)) return true;
+  if (isOldMessage(trimmed)) return true; // Фільтр па даце
   return NOISE_PATTERNS.some((p) => p.test(trimmed));
 }
 

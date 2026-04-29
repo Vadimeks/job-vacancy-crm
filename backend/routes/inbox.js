@@ -23,6 +23,7 @@ function normalizeText(text) {
 }
 
 function logPreview(text) {
+  if (!text) return "";
   return text.replace(/\n/g, " ").replace(/\s+/g, " ").trim().substring(0, 80);
 }
 
@@ -32,7 +33,9 @@ router.post("/push", async (req, res) => {
   const senderRaw = (req.body.sender || req.body.not_title || "Unknown").trim();
 
   if (shouldIgnoreMessage(text)) {
-    console.log(`🗑️ Адхілена (Regex): "${logPreview(text)}..."`);
+    console.log(
+      `🗑️ Адхілена (Regex/OldDate) ад "${senderRaw}": "${logPreview(text)}..."`,
+    );
     return res.status(200).json({ status: "ignored_noise" });
   }
 
@@ -107,8 +110,6 @@ async function processPendingMessages() {
     );
 
     if (pending.length === 0) {
-      // Ціхі лог, каб бачыць, што робат жывы
-      // console.log("💤 Буфер пусты, чакаю паведамленняў...");
       isProcessing = false;
       return;
     }
@@ -148,7 +149,6 @@ async function processPendingMessages() {
           console.log(
             `⏳ AI памылка (ліміты) для ${msg.agencyName}. Пакідаю ў Пясочніцы.`,
           );
-          // Мы НЕ ставім processed: true, таму паведамленне застанецца бачным на фронце
           continue;
         }
 
@@ -208,16 +208,15 @@ async function processPendingMessages() {
   }
 }
 
-// Запуск кожную хвіліну (60000 мс)
 setInterval(processPendingMessages, 60000);
 
-// --- РОЎТЫ КІРАВАННЯ ---
+// --- 3. РОЎТЫ КІРАВАННЯ (ФРОНТЭНД) ---
+
 router.get("/", async (req, res) => {
   try {
     const { category, limit = 200 } = req.query;
-    // Паказваем усё, што яшчэ не апрацавана AI (processed: false)
-    // АБО тое, што AI пазначыў як карыснае (update/vacancy/info), але яшчэ не архівавана
-    const filter = { processed: false, category: { $ne: "chat" } };
+    // 🔧 FIX: Прыбралі processed: false. Цяпер паказваем усё, акрамя дублікатаў (chat).
+    const filter = { category: { $ne: "chat" } };
     if (category && category !== "all") filter.category = category;
     const messages = await UnprocessedMessage.find(filter)
       .sort({ createdAt: -1 })
@@ -231,23 +230,30 @@ router.get("/", async (req, res) => {
 router.get("/stats", async (req, res) => {
   try {
     const [total, vacancy, update, info] = await Promise.all([
-      UnprocessedMessage.countDocuments({
-        processed: false,
-        category: { $ne: "chat" },
-      }),
-      UnprocessedMessage.countDocuments({
-        processed: false,
-        category: "vacancy",
-      }),
-      UnprocessedMessage.countDocuments({
-        processed: false,
-        category: "update",
-      }),
-      UnprocessedMessage.countDocuments({ processed: false, category: "info" }),
+      UnprocessedMessage.countDocuments({ category: { $ne: "chat" } }),
+      UnprocessedMessage.countDocuments({ category: "vacancy" }),
+      UnprocessedMessage.countDocuments({ category: "update" }),
+      UnprocessedMessage.countDocuments({ category: "info" }),
     ]);
     res.json({ total, vacancy, update, info, chat: 0 });
   } catch {
     res.json({ total: 0, vacancy: 0, update: 0, info: 0, chat: 0 });
+  }
+});
+
+router.post("/cleanup", async (req, res) => {
+  try {
+    const all = await UnprocessedMessage.find({ processed: false });
+    let deleted = 0;
+    for (const msg of all) {
+      if (shouldIgnoreMessage(msg.text)) {
+        await msg.deleteOne();
+        deleted++;
+      }
+    }
+    res.json({ deleted });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 });
 
@@ -256,12 +262,9 @@ router.delete("/bulk", async (req, res) => {
     const { ids, category, all } = req.body || {};
     let result;
     if (all) {
-      result = await UnprocessedMessage.deleteMany({ processed: false });
+      result = await UnprocessedMessage.deleteMany({});
     } else if (category) {
-      result = await UnprocessedMessage.deleteMany({
-        processed: false,
-        category,
-      });
+      result = await UnprocessedMessage.deleteMany({ category });
     } else if (Array.isArray(ids) && ids.length > 0) {
       result = await UnprocessedMessage.deleteMany({ _id: { $in: ids } });
     } else {
