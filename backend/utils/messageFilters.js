@@ -54,6 +54,7 @@ const SYSTEM_NOISE = [
   /закріплює:?\s*$/i,
   /ніден:\s*закріплює/i,
   /menu\s*$/i,
+  /joins the .* group/i,
 ];
 
 const RECRUITER_CHAT_NOISE = [

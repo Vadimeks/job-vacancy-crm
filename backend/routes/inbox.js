@@ -32,7 +32,6 @@ router.post("/push", async (req, res) => {
   const text = (req.body.text || req.body.notification || "").trim();
   const senderRaw = (req.body.sender || req.body.not_title || "Unknown").trim();
 
-  // 1. Праверка на Шум (Regex) - Дадалі імя адпраўшчыка ў лог
   if (shouldIgnoreMessage(text)) {
     console.log(
       `🗑️ Адхілена (Regex/OldDate) ад "${senderRaw}": "${logPreview(text)}..."`,
@@ -153,7 +152,6 @@ async function processPendingMessages() {
           continue;
         }
 
-        // Дадалі reason у лог для кантролю дубляў
         console.log(
           `🤖 AI Вердыкт для ${msg.agencyName}: ${analysis.category} | ${analysis.comparison.verdict} (Прычына: ${analysis.comparison.reason})`,
         );
