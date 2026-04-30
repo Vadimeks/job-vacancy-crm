@@ -26,11 +26,11 @@ const STATUS_LABELS = {
   archived: "Архіў",
 };
 
-// --- ВЫПРАЎЛЕНАЯ ФУНКЦЫЯ applyFilters ---
 function applyFilters(vacancies, filters) {
   if (!vacancies) return [];
 
   return vacancies.filter((v) => {
+    // 1. Пошук (пакідаем як ёсць, працуе добра)
     if (filters.search) {
       const s = filters.search.toLowerCase();
       const matchSearch =
@@ -43,42 +43,39 @@ function applyFilters(vacancies, filters) {
       if (!matchSearch) return false;
     }
 
+    // 2. Статус і Катэгорыя
     if (filters.status?.length > 0 && !filters.status.includes(v.status))
       return false;
     if (filters.category?.length > 0 && !filters.category.includes(v.category))
       return false;
-    if (
-      filters.voivodeship?.length > 0 &&
-      !filters.voivodeship.includes(v.voivodeship)
-    )
-      return false;
-    if (filters.location?.length > 0 && !filters.location.includes(v.location))
-      return false;
 
+    // 3. Лакацыя (ФІКС: улічваем краіну для Еўропы)
+    if (filters.location?.length > 0) {
+      const vLoc =
+        v.country && v.country !== "Polska"
+          ? `${v.location} (${v.country})`
+          : v.location;
+      if (!filters.location.includes(vLoc)) return false;
+    }
+
+    // 4. Жытло
     if (filters.accommodation?.length > 0) {
-      const accType = v.accommodation?.type || "";
+      const accType = (v.accommodation?.type || "").toLowerCase();
       const isCouples = !!v.accommodation?.forCouples;
       const match = filters.accommodation.some((fa) => {
         if (fa === "provided")
           return (
-            accType.includes("Безкоштовн") || accType.includes("Надається")
+            accType.includes("безкоштовн") || accType.includes("надається")
           );
         if (fa === "couples") return isCouples;
         if (fa === "none")
-          return accType.includes("Власн") || accType.includes("Платн");
+          return accType.includes("власн") || accType.includes("платн");
         return false;
       });
       if (!match) return false;
     }
 
-    if (filters.transport?.length > 0) {
-      const isProvided = !!v.transport?.provided;
-      const match = filters.transport.some((ft) =>
-        ft === "provided" ? isProvided : !isProvided,
-      );
-      if (!match) return false;
-    }
-
+    // 5. Хто едзе (ФІКС: калі няма дадзеных — гэта "Адзін")
     if (filters.travelGroup?.length > 0) {
       const vGenders = Array.isArray(v.requirements?.gender)
         ? v.requirements.gender
@@ -86,8 +83,12 @@ function applyFilters(vacancies, filters) {
       const isCouples =
         !!v.accommodation?.forCouples || vGenders.includes("Пари");
       const isFamily = !!v.accommodation?.withChildren;
+      // Калі масіў пусты або ёсць М/Ж — гэта "Адзін"
       const isAlone =
-        vGenders.includes("Чоловіки") || vGenders.includes("Жінки");
+        vGenders.length === 0 ||
+        vGenders.includes("Чоловіки") ||
+        vGenders.includes("Жінки");
+
       const match = filters.travelGroup.some((fg) => {
         if (fg === "alone") return isAlone;
         if (fg === "couple") return isCouples;
@@ -97,26 +98,13 @@ function applyFilters(vacancies, filters) {
       if (!match) return false;
     }
 
-    if (filters.language?.length > 0) {
-      const vLang = v.requirements?.polishLanguageLevel || "Не вимагається";
-      if (!filters.language.includes(vLang)) return false;
-    }
-
-    if (filters.docs?.length > 0) {
-      const vDocs = v.requirements?.standardDocs || [];
-      if (!filters.docs.some((fd) => vDocs.includes(fd))) return false;
-    }
-
-    if (filters.nuances?.length > 0) {
-      const vNuances = v.conditions?.specificNuances || [];
-      if (!filters.nuances.some((fn) => vNuances.includes(fn))) return false;
-    }
-
-    // ВЫПРАЎЛЕНАЯ НАЦЫЯНАЛЬНАСЦЬ
+    // 6. Нацыянальнасць (ФІКС: па змаўчанні Україна)
     if (filters.nationality?.length > 0) {
-      const vNats = Array.isArray(v.requirements?.nationalities)
-        ? v.requirements.nationalities
-        : [v.requirements?.nationalities].filter(Boolean);
+      const vNats =
+        Array.isArray(v.requirements?.nationalities) &&
+        v.requirements.nationalities.length > 0
+          ? v.requirements.nationalities
+          : ["Україна"];
 
       const hasMatch = filters.nationality.some((fn) =>
         vNats.some((vn) => vn.trim().toLowerCase() === fn.trim().toLowerCase()),
@@ -124,13 +112,10 @@ function applyFilters(vacancies, filters) {
       if (!hasMatch) return false;
     }
 
-    if (
-      filters.agencyName?.length > 0 &&
-      !filters.agencyName.includes(v.agencyName)
-    )
-      return false;
-    if (filters.brand?.length > 0 && !filters.brand.includes(v.brand))
-      return false;
+    if (filters.language?.length > 0) {
+      const vLang = v.requirements?.polishLanguageLevel || "Не вимагається";
+      if (!filters.language.includes(vLang)) return false;
+    }
 
     return true;
   });
@@ -183,7 +168,13 @@ export default function Vacancies() {
       setLoading(false);
     }
   };
-
+  // Дадай гэта пасля fetchVacancies
+  useEffect(() => {
+    // Калі ўсе фільтры пустыя (скінуты), аўтаматычна прымяняем іх
+    if (JSON.stringify(draft) === JSON.stringify(EMPTY_FILTERS)) {
+      setApplied(EMPTY_FILTERS);
+    }
+  }, [draft]);
   useEffect(() => {
     fetchVacancies();
   }, []);
@@ -198,25 +189,29 @@ export default function Vacancies() {
     }
   }, [showAutoForm, formMode, templates.length]);
 
-  // ДЫНАМІЧНЫЯ СПІСЫ ДЛЯ ФІЛЬТРАЎ
+  // Абноўлены dynamicData
   const dynamicData = useMemo(() => {
     const agencies = new Set();
     const brands = new Set();
     const locations = new Set();
-    const voivodeships = new Set();
 
     vacancies.forEach((v) => {
       if (v.agencyName) agencies.add(v.agencyName);
       if (v.brand) brands.add(v.brand);
-      if (v.location) locations.add(v.location);
-      if (v.voivodeship) voivodeships.add(v.voivodeship);
+      if (v.location) {
+        // Калі не Польшча — дадаем краіну ў дужках
+        const locName =
+          v.country && v.country !== "Polska"
+            ? `${v.location} (${v.country})`
+            : v.location;
+        locations.add(locName);
+      }
     });
 
     return {
       agencies: Array.from(agencies).sort(),
       brands: Array.from(brands).sort(),
       locations: Array.from(locations).sort(),
-      voivodeships: Array.from(voivodeships).sort(),
     };
   }, [vacancies]);
 
@@ -490,6 +485,9 @@ export default function Vacancies() {
                     </span>
                     <span className="flex items-center gap-1">
                       🏢 {v.agencyName}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      🏠 {v.accommodation?.type || "Не вказано"}
                     </span>
                     <span className="text-slate-300 font-medium">
                       💰 {v.salary?.baseNetto}
