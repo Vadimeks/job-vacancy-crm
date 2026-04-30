@@ -44,7 +44,7 @@ router.post("/push", async (req, res) => {
 
     if (!agency) {
       console.log(
-        `🚫 Адхілена (Whitelist): ад "${senderRaw}" | Тэкст: "${logPreview(text)}"`,
+        `🚫 Адхілена (Whitelist): ад "${senderRaw}" | "${logPreview(text)}"`,
       );
       return res.status(200).json({ status: "ignored_not_whitelisted" });
     }
@@ -76,7 +76,7 @@ router.post("/push", async (req, res) => {
         await existingMsg.save();
         return res.status(200).json({ status: "updated_in_buffer" });
       } else {
-        console.log(`🔁 Ігнараваны дубль ад ${agency}`);
+        console.log(`🔁 Ігнараваны дубль ад ${agency}: "${logPreview(text)}"`);
         return res.status(200).json({ status: "ignored_duplicate" });
       }
     }
@@ -159,7 +159,9 @@ async function processPendingMessages() {
         );
 
         if (analysis.comparison.verdict === "DUPLICATE") {
-          console.log(`📎 Сэмантычны дубль. Хаваю.`);
+          console.log(
+            `📎 Сэмантычны дубль для ${msg.agencyName}: "${logPreview(msg.text)}". Хаваю.`,
+          );
           msg.category = "chat";
           msg.processed = true;
           await msg.save();
@@ -184,14 +186,9 @@ async function processPendingMessages() {
           `✅ Апрацавана: ${msg.agencyName} -> Катэгорыя: ${finalCategory}`,
         );
 
-        // 🔧 Мінімальная даўжыня 400 сімв.: кароткія паведамленні (абнаўленні тыпу
-        // "трэба 5 людзей, выхад 5.05") не павінны аўта-парсіцца як поўныя вакансіі.
-        const isLongEnough = msg.text.length >= 400;
-
         if (
           analysis.category === "FULL_VACANCY" &&
           !msg.isTruncated &&
-          isLongEnough &&
           AUTO_PROCESS_VACANCIES
         ) {
           console.log(`🔥 Запуск Groq-парсінгу для ${msg.agencyName}...`);
