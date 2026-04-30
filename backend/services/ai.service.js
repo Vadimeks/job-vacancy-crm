@@ -30,22 +30,33 @@ const LANGUAGE_GUARD = `
 - If the input is in Russian — TRANSLATE it to Ukrainian. Never use Russian words (e.g., use "Приїзд" instead of "Приезд", "Житло" instead of "Жилье").
 `;
 function cleanData(obj) {
+  // 🔧 Поўная перапіска: папярэдняя версія не мела return [key, value]
+  // для нармальных значэнняў → Object.fromEntries атрымліваў undefined → краш
+  if (obj === undefined || obj === null) return null;
   if (Array.isArray(obj)) {
     return obj.map(cleanData);
-  } else if (obj !== null && typeof obj === "object") {
+  } else if (typeof obj === "object") {
     return Object.fromEntries(
       Object.entries(obj).map(([key, value]) => {
-        if (value === "string" || value === "undefined") return [key, ""];
-        // ВЫДАЛЕНА ЗАМЕНА НА 99
+        if (value === undefined) return [key, null];
         if (
-          value === null ||
-          value === 0 ||
+          typeof value === "object" &&
+          value !== null &&
+          !Array.isArray(value)
+        ) {
+          return [key, cleanData(value)];
+        }
+        if (
+          value === "string" ||
+          value === "undefined" ||
           value === "" ||
           value === 99 ||
-          value === "99"
+          value === "99" ||
+          value === null
         ) {
           return [key, null];
         }
+        return [key, value];
       }),
     );
   }
@@ -801,17 +812,13 @@ async function updateVacancyWithAI(existingVacancy, newText) {
  * Класіфікацыя паведамлення праз Groq (Llama 3.3 70b)
  * Выкарыстоўваецца як надзейны фолбэк для Gemini
  */
-// 🔧 Дадаць параметр model: калі выклікаецца з gemini.service.js пры поўным
-// вычарпанні Gemini — выкарыстоўваем 8b-instant (асобны пул, 500k TPD).
-// Па змаўчанні застаецца 70b для выпадкаў прамога выкліку.
 async function analyzeWithGroq(
   text,
   recentMessages = [],
   recentVacancies = [],
-  model = MODEL_SMART,
 ) {
   try {
-    console.log(`🔍 Groq (${model}): Фолбэк-аналіз...`);
+    console.log(`🔍 Groq (${MODEL_SMART}): Фолбэк-аналіз...`);
 
     const systemPrompt = `
 Role: Expert Analyst of the Polish Job Market.
@@ -836,7 +843,7 @@ Output JSON structure:
     `;
 
     const response = await groq.chat.completions.create({
-      model: model,
+      model: MODEL_SMART,
       temperature: 0.1,
       response_format: { type: "json_object" },
       messages: [
