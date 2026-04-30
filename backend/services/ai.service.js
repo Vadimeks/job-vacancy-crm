@@ -46,14 +46,18 @@ function cleanData(obj) {
         ) {
           return [key, cleanData(value)];
         }
-        if (
-          value === "string" ||
-          value === "undefined" ||
-          value === "" ||
-          value === 99 ||
-          value === "99" ||
-          value === null
-        ) {
+        // Выдаляем смеццевыя значэнні, якія AI галюцынуе або ставіць па змаўчанні
+        const garbage = [
+          "string",
+          "undefined",
+          "не вказано",
+          "",
+          "99",
+          99,
+          null,
+          undefined,
+        ];
+        if (garbage.includes(value)) {
           return [key, null];
         }
         return [key, value];
@@ -92,7 +96,10 @@ ROLE: Professional HR content formatter.
 TASK: Format the job data into a beautiful Telegram post in UKRAINIAN.
 
 !!! CRITICAL COMPACTNESS RULE !!!: 
-If a field value is empty, null, "не вказано", or an empty array, you MUST NOT include the label or the line in the final post. The post must be as compact as possible. Do not show empty sections.
+1. If a field value is empty, null, "не вказано", or an empty array, you MUST NOT include the label or the line in the final post.
+2. If "requirements.gender" is empty or null, DO NOT show the "👥 Набір" line.
+3. If "contractType" is null, DO NOT show the "📄 Тип договору" line.
+4. The post must be as compact as possible. Do not show empty sections or labels with no data.
 
 CRITICAL PRIVACY RULE:
 - NEVER include the Agency Name (agencyName) in the post.

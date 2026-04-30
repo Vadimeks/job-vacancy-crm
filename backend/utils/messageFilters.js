@@ -34,18 +34,18 @@ const CHAT_AGENCY_MAP = [
 
 const SYSTEM_NOISE = [
   /новий коментар до вашого повідомлення/i,
-  /ви маєте нові повідомлення в:/i,
   /ви маєте нові повідомлення/i,
-  /дивіться топ-повідомлення від/i,
+  /дивіться топ-повідомлення/i,
   /пропущений виклик/i,
   /вхідний виклик/i,
   /відповідає:/i,
   /приєднався до спільноти/i,
   /приєдналась д[ао] спільноти/i,
-  /приєднується да групи/i, // ← апечатка "да" замест "до", пакідаем для сумяшчальнасці
-  /приєднується до групи/i, // 🔧 правільны варыянт
-  /приєднався до .+/i, // 🔧 "Користувач MILA приєднався до Partner / intraservis"
-  /приєдналась до .+/i, // 🔧 жаночы варыянт
+  /приєднується [доа] групи/i,
+  /приєднався до .+/i, // 🆕 Фікс для "Mila прыєдналася"
+  /приєдналась до .+/i, // 🆕 Жаночы варыянт
+  /Користувач .* приєднався/i, // 🆕 Яшчэ адзін варыянт Viber
+  /joins the .* group/i,
   /pinned a message/i,
   /joined the group/i,
   /left the group/i,
@@ -56,8 +56,7 @@ const SYSTEM_NOISE = [
   /закріплює повідомлення/i,
   /закріплює:?\s*$/i,
   /ніден:\s*закріплює/i,
-  /joins the .* group/i, // для Telegram
-  /menu\s*$/i, // сістэмнае Viber
+  /menu\s*$/i,
 ];
 
 const RECRUITER_CHAT_NOISE = [
@@ -127,7 +126,7 @@ function isOldMessage(text) {
   const diffTime = today - msgDate;
   const diffDays = diffTime / (1000 * 60 * 60 * 24);
 
-  return diffDays > 2; // Ігнаруем, калі старэйшае за 2 дні
+  return diffDays > 3; // Ігнаруем, калі старэйшае за 3 дні
 }
 
 function isTruncated(text) {
@@ -138,7 +137,7 @@ function isTruncated(text) {
 
   // 🔧 Парог зніжаны да 800 сімвалаў
   if (t.length > 800) return false;
-  if (t.length < 80) return false;
+  if (t.length < 50) return false;
 
   const safeEndings = /[.!?*)\p{Emoji}\p{Emoji_Presentation}]$/u;
   return !safeEndings.test(t);
