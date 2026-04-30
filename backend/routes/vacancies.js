@@ -129,6 +129,7 @@ async function processVacancyMessage(
     });
 
     if (!existing) {
+      // Ствараем толькі калі такога яшчэ няма
       const fallbackMsg = new UnprocessedMessage({
         sender: senderInfo,
         agencyName: finalAgency,

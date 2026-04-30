@@ -58,10 +58,10 @@ router.post("/push", async (req, res) => {
       `📥 Прынята: ${text.length} сімв. ад "${senderRaw}" (${agency})`,
     );
 
-    const sixtyMinutesAgo = new Date(Date.now() - 60 * 60 * 1000);
+    const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
     const existingMsg = await UnprocessedMessage.findOne({
       agencyName: agency,
-      createdAt: { $gte: sixtyMinutesAgo },
+      createdAt: { $gte: twelveHoursAgo },
     }).sort({ createdAt: -1 });
 
     if (existingMsg) {
@@ -187,19 +187,21 @@ async function processPendingMessages() {
           `✅ Апрацавана: ${msg.agencyName} -> Катэгорыя: ${finalCategory}`,
         );
 
-        if (
-          analysis.category === "FULL_VACANCY" &&
-          !msg.isTruncated &&
-          AUTO_PROCESS_VACANCIES
-        ) {
-          console.log(`🔥 Запуск Groq-парсінгу для ${msg.agencyName}...`);
-          await processVacancyMessage(
-            msg.rawText,
-            msg.sender,
-            msg.agencyName,
-            msg.text,
-            msg.isTruncated,
-          );
+        if (analysis.category === "FULL_VACANCY" && AUTO_PROCESS_VACANCIES) {
+          if (msg.isTruncated) {
+            console.log(
+              `⏭️ Пропуск Groq для ${msg.agencyName}: паведамленне абразанае (⚠️ Truncated)`,
+            );
+          } else {
+            console.log(`🔥 Запуск Groq-парсінгу для ${msg.agencyName}...`);
+            await processVacancyMessage(
+              msg.rawText,
+              msg.sender,
+              msg.agencyName,
+              msg.text,
+              msg.isTruncated,
+            );
+          }
         }
       } catch (err) {
         console.error(`❌ Памылка ітэрацыі (${msg.agencyName}):`, err.message);
