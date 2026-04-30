@@ -43,7 +43,9 @@ router.post("/push", async (req, res) => {
     const agency = getWhitelistedAgency(senderRaw);
 
     if (!agency) {
-      console.log(`🚫 Адхілена (Whitelist): ад "${senderRaw}"`);
+      console.log(
+        `🚫 Адхілена (Whitelist): ад "${senderRaw}" | Тэкст: "${logPreview(text)}"`,
+      );
       return res.status(200).json({ status: "ignored_not_whitelisted" });
     }
 
