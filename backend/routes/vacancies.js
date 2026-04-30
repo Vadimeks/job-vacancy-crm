@@ -117,15 +117,33 @@ async function processVacancyMessage(
     return savedVacancy;
   } catch (err) {
     console.error(`❌ Памылка Groq: ${err.message}. Перанос у Інбокс.`);
-    const fallbackMsg = new UnprocessedMessage({
-      sender: senderInfo,
+
+    // 🔧 Не ствараць дублікат калі такі тэкст ужо ёсць у буферы.
+    // Без гэтага кожны краш стварае новы запіс → паведамленне зацыклівалася:
+    // бралася зноў на апрацоўку → крашыла → новы fallback → і г.д. бясконца.
+    const textHash = rawText.toLowerCase().replace(/[^a-zа-яёіў0-9]/gi, "");
+    const existing = await UnprocessedMessage.findOne({
       agencyName: finalAgency,
-      text: rawText,
-      source: "error_fallback",
-      category: "vacancy",
+      textHash,
       processed: false,
     });
-    await fallbackMsg.save();
+
+    if (!existing) {
+      const fallbackMsg = new UnprocessedMessage({
+        sender: senderInfo,
+        agencyName: finalAgency,
+        text: rawText,
+        textHash,
+        source: "error_fallback",
+        category: "vacancy",
+        processed: false,
+      });
+      await fallbackMsg.save();
+      console.log(`📥 Захавана ў Інбокс (error_fallback): ${finalAgency}`);
+    } else {
+      console.log(`⏭️ Fallback прапушчаны — запіс ужо ёсць: ${finalAgency}`);
+    }
+
     return { status: "saved_to_inbox_due_to_error", error: err.message };
   }
 }

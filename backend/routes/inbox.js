@@ -176,7 +176,8 @@ async function processPendingMessages() {
 
         let finalCategory = categoryMap[analysis.category] || "info";
         if (analysis.comparison.verdict === "UPDATE") finalCategory = "update";
-        if (msg.isTruncated) finalCategory = "vacancy";
+        if (msg.isTruncated && analysis.category === "FULL_VACANCY")
+          finalCategory = "vacancy";
 
         msg.rawText = analysis.translatedText || msg.text;
         msg.category = finalCategory;
