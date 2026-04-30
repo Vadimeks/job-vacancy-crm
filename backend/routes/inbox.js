@@ -182,9 +182,14 @@ async function processPendingMessages() {
           `✅ Апрацавана: ${msg.agencyName} -> Катэгорыя: ${finalCategory}`,
         );
 
+        // 🔧 Мінімальная даўжыня 400 сімв.: кароткія паведамленні (абнаўленні тыпу
+        // "трэба 5 людзей, выхад 5.05") не павінны аўта-парсіцца як поўныя вакансіі.
+        const isLongEnough = msg.text.length >= 400;
+
         if (
           analysis.category === "FULL_VACANCY" &&
           !msg.isTruncated &&
+          isLongEnough &&
           AUTO_PROCESS_VACANCIES
         ) {
           console.log(`🔥 Запуск Groq-парсінгу для ${msg.agencyName}...`);

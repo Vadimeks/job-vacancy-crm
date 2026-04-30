@@ -85,10 +85,17 @@ NEW_MESSAGE: ${text}
   }
 
   // Калі ўсе Gemini выдалі памылку (ліміты), выкарыстоўваем Groq як апошні шанец
+  // 🔧 llama-3.1-8b-instant: асобны пул лімітаў (500k TPD), хутчэй і танней за 70b.
+  // Для класіфікацыі + перакладу хапае цалкам.
   console.log(
-    "🛡️ Усе мадэлі Gemini недаступныя. Пераход на Groq (Llama 3.3)...",
+    "🛡️ Усе мадэлі Gemini недаступныя. Пераход на Groq (llama-3.1-8b-instant)...",
   );
-  return await aiService.analyzeWithGroq(text, recentMessages, recentVacancies);
+  return await aiService.analyzeWithGroq(
+    text,
+    recentMessages,
+    recentVacancies,
+    "llama-3.1-8b-instant",
+  );
 }
 
 module.exports = { analyzeAndCompareWithGemini };

@@ -35,27 +35,17 @@ function cleanData(obj) {
   } else if (obj !== null && typeof obj === "object") {
     return Object.fromEntries(
       Object.entries(obj).map(([key, value]) => {
-        // Калі гэта ўкладзены аб'ект — чысцім рэкурсіўна
+        if (value === "string" || value === "undefined") return [key, ""];
+        // ВЫДАЛЕНА ЗАМЕНА НА 99
         if (
-          typeof value === "object" &&
-          value !== null &&
-          !Array.isArray(value)
-        ) {
-          return [key, cleanData(value)];
-        }
-        // Калі значэнне — смецце або маркеры
-        if (
-          value === "string" ||
-          value === "undefined" ||
+          value === null ||
+          value === 0 ||
           value === "" ||
           value === 99 ||
-          value === "99" ||
-          value === null
+          value === "99"
         ) {
           return [key, null];
         }
-        // ВЯРТАЕМ нармальнае значэнне
-        return [key, value];
       }),
     );
   }
@@ -811,13 +801,17 @@ async function updateVacancyWithAI(existingVacancy, newText) {
  * Класіфікацыя паведамлення праз Groq (Llama 3.3 70b)
  * Выкарыстоўваецца як надзейны фолбэк для Gemini
  */
+// 🔧 Дадаць параметр model: калі выклікаецца з gemini.service.js пры поўным
+// вычарпанні Gemini — выкарыстоўваем 8b-instant (асобны пул, 500k TPD).
+// Па змаўчанні застаецца 70b для выпадкаў прамога выкліку.
 async function analyzeWithGroq(
   text,
   recentMessages = [],
   recentVacancies = [],
+  model = MODEL_SMART,
 ) {
   try {
-    console.log(`🔍 Groq (${MODEL_SMART}): Фолбэк-аналіз...`);
+    console.log(`🔍 Groq (${model}): Фолбэк-аналіз...`);
 
     const systemPrompt = `
 Role: Expert Analyst of the Polish Job Market.
@@ -842,7 +836,7 @@ Output JSON structure:
     `;
 
     const response = await groq.chat.completions.create({
-      model: MODEL_SMART,
+      model: model,
       temperature: 0.1,
       response_format: { type: "json_object" },
       messages: [
