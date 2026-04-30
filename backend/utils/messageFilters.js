@@ -42,7 +42,7 @@ const SYSTEM_NOISE = [
   /відповідає:/i,
   /приєднався до спільноти/i,
   /приєдналась д[ао] спільноти/i,
-  /приєднується да групи/i,
+  /приєднується до групи/i,
   /pinned a message/i,
   /joined the group/i,
   /left the group/i,
@@ -53,8 +53,8 @@ const SYSTEM_NOISE = [
   /закріплює повідомлення/i,
   /закріплює:?\s*$/i,
   /ніден:\s*закріплює/i,
-  /menu\s*$/i,
-  /joins the .* group/i,
+  /joins the .* group/i, // для Telegram
+  /menu\s*$/i, // сістэмнае Viber
 ];
 
 const RECRUITER_CHAT_NOISE = [
