@@ -148,9 +148,10 @@ Use this EXACT structure (skip entire blocks if ALL data inside is empty/null):
 • [transport.details]
 
 [💸 *Витрати та відповідальність*
-[• На старті: [startExpenses.details] — якщо hasStartExpenses = true]
-[• При передчасному звільненні: [earlyTerminationLiability.details] — якщо hasLiability = true]
-Весь блок 💸 виводити ТІЛЬКИ якщо hasStartExpenses = true АБО hasLiability = true. Якщо обидва false — пропустити блок повністю.]
+• На старті: [startExpenses.details] (ONLY if hasStartExpenses is true)
+• При передчасному звільненні: [earlyTerminationLiability.details] (ONLY if hasLiability is true)
+]
+(CRITICAL: If BOTH hasStartExpenses and hasLiability are false, DO NOT show the 💸 header and DO NOT show this section at all. NEVER write "немає інформації" here.)
 
 🌡 *Умови праці*
 • Робочий одяг: [conditions.workwearFree ? "Безкоштовно" : "За рахунок працівника"]
