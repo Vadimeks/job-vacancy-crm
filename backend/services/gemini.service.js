@@ -14,6 +14,22 @@ const MODELS_CONFIG = [
 const geminiCache = new Map();
 const CACHE_TTL = 5 * 60 * 1000;
 
+// Мапа для замарожаных мадэляў
+const modelCooldowns = new Map();
+
+/**
+ * Вылічвае колькасць мілісекунд да 07:00 раніцы наступнага дня
+ */
+function getMsUntilSevenAM() {
+  const now = new Date();
+  const tomorrowSeven = new Date();
+
+  tomorrowSeven.setDate(now.getDate() + 1);
+  tomorrowSeven.setHours(7, 0, 0, 0);
+
+  return tomorrowSeven.getTime() - now.getTime();
+}
+
 const SYSTEM_PROMPT = `
 Role: Expert Analyst of the Polish Job Market.
 Task: Compare NEW_MESSAGE with TODAY_MESSAGES and TODAY_VACANCIES.
@@ -50,7 +66,19 @@ async function analyzeAndCompareWithGemini(
     if (Date.now() - cached.timestamp < CACHE_TTL) return cached.data;
   }
 
+  const now = Date.now();
+
   for (const modelCfg of MODELS_CONFIG) {
+    // ПРАВЕРКА: Ці не замарожана мадэль?
+    if (modelCooldowns.has(modelCfg.name)) {
+      const cooldownUntil = modelCooldowns.get(modelCfg.name);
+      if (now < cooldownUntil) {
+        continue; // Пропускаем, мадэль яшчэ адпачывае
+      } else {
+        modelCooldowns.delete(modelCfg.name); // Час адпачынку прайшоў
+      }
+    }
+
     try {
       console.log(`🔍 Gemini (${modelCfg.name}): Аналіз...`);
       const model = genAI.getGenerativeModel(
@@ -95,16 +123,30 @@ Output JSON structure:
       geminiCache.set(cacheKey, { data: parsed, timestamp: Date.now() });
       return parsed;
     } catch (error) {
-      console.warn(`⚠️ Gemini ${modelCfg.name} failed: ${error.message}`);
+      const errorMsg = error.message || "";
+      const isQuotaError =
+        errorMsg.includes("429") ||
+        errorMsg.includes("Quota") ||
+        errorMsg.includes("limit");
+
+      if (isQuotaError) {
+        const cooldownMs = getMsUntilSevenAM();
+        modelCooldowns.set(modelCfg.name, now + cooldownMs);
+        console.warn(
+          `🚫 Gemini ${modelCfg.name}: Ліміт дасягнуты. Замарозка да 07:00 раніцы.`,
+        );
+      } else {
+        console.warn(
+          `⚠️ Gemini ${modelCfg.name} памылка: ${errorMsg.substring(0, 100)}`,
+        );
+      }
       continue;
     }
   }
 
-  // Калі ўсе Gemini выдалі памылку (ліміты), выкарыстоўваем Groq як апошні шанец
-  // 🔧 llama-3.1-8b-instant: асобны пул лімітаў (500k TPD), хутчэй і танней за 70b.
-  // Для класіфікацыі + перакладу хапае цалкам.
+  // Калі ўсе Gemini недаступныя — выкарыстоўваем Groq
   console.log(
-    "🛡️ Усе мадэлі Gemini недаступныя. Пераход на Groq (llama-3.1-8b-instant)...",
+    "🛡️ Усе мадэлі Gemini на паўзе. Пераход на Groq (llama-3.1-8b-instant)...",
   );
   return await aiService.analyzeWithGroq(
     text,

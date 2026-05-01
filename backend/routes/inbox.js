@@ -243,7 +243,7 @@ async function processPendingMessages() {
   }
 }
 
-setInterval(processPendingMessages, 60000);
+setInterval(processPendingMessages, 300000);
 
 // --- 3. РОЎТЫ КІРАВАННЯ (ФРОНТЭНД) ---
 
