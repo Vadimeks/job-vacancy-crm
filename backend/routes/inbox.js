@@ -9,6 +9,7 @@ const {
   shouldIgnoreMessage,
   getWhitelistedAgency,
   isTruncated,
+  getPrefixHash,
 } = require("../utils/messageFilters");
 const aiService = require("../services/ai.service");
 
@@ -111,6 +112,7 @@ async function processPendingMessages() {
   isProcessing = true;
 
   try {
+    // Бярэм толькі неапрацаваныя паведамленні
     const pending = await UnprocessedMessage.find({ processed: false }).limit(
       10,
     );
@@ -132,7 +134,7 @@ async function processPendingMessages() {
         console.log(
           `📝 Аналіз [${msg.agencyName}]: "${logPreview(msg.text)}..."`,
         );
-        await sleep(2000);
+        await sleep(2000); // Затрымка для лімітаў RPM
 
         const todayMessages = await UnprocessedMessage.find({
           agencyName: msg.agencyName,
@@ -162,11 +164,15 @@ async function processPendingMessages() {
           `🤖 AI Вердыкт для ${msg.agencyName}: ${analysis.category} | ${analysis.comparison.verdict} (Прычына: ${analysis.comparison.reason})`,
         );
 
-        if (analysis.comparison.verdict === "DUPLICATE") {
+        // 1. Калі гэта дублікат або смецце — закрываем адразу (знікне з Пясочніцы)
+        if (
+          analysis.comparison.verdict === "DUPLICATE" ||
+          analysis.category === "NOISE"
+        ) {
           console.log(
-            `📎 Сэмантычны дубль для ${msg.agencyName}: "${logPreview(msg.text)}". Хаваю.`,
+            `📎 Дубль або смецце для ${msg.agencyName}. Выдаляю з Пясочніцы.`,
           );
-          msg.category = "chat";
+          msg.category = analysis.category === "NOISE" ? "chat" : msg.category;
           msg.processed = true;
           await msg.save();
           continue;
@@ -179,36 +185,49 @@ async function processPendingMessages() {
         };
 
         let finalCategory = categoryMap[analysis.category] || "info";
-        if (analysis.comparison.verdict === "UPDATE") finalCategory = "update";
-        if (msg.isTruncated && analysis.category === "FULL_VACANCY")
-          finalCategory = "vacancy";
 
-        msg.rawText = analysis.translatedText || msg.text;
-        msg.category = finalCategory;
-        msg.processed = true;
-        await msg.save();
-        console.log(
-          `✅ Апрацавана: ${msg.agencyName} -> Катэгорыя: ${finalCategory}`,
-        );
+        // 2. Прымусовы ліміт: калі тэкст < 300 сімвалаў — гэта заўсёды UPDATE
+        if (finalCategory === "vacancy" && msg.text.length < 300) {
+          finalCategory = "update";
+          console.log(
+            `📏 Тэкст кароткі (${msg.text.length} сімв.) -> Зніжаю да UPDATE`,
+          );
+        }
 
-        if (analysis.category === "FULL_VACANCY" && AUTO_PROCESS_VACANCIES) {
-          if (msg.isTruncated) {
-            console.log(
-              `⏭️ Пропуск Groq для ${msg.agencyName}: паведамленне абразанае (⚠️ Truncated)`,
-            );
-          } else {
-            console.log(`🔥 Запуск Groq-парсінгу для ${msg.agencyName}...`);
-            await processVacancyMessage(
-              msg.rawText,
-              msg.sender,
-              msg.agencyName,
-              msg.text,
-              msg.isTruncated,
-            );
+        let isAutoDone = false;
+
+        // 3. Аўта-парсінг толькі для поўных вакансій > 300 сімвалаў і не абразаных
+        if (
+          finalCategory === "vacancy" &&
+          AUTO_PROCESS_VACANCIES &&
+          !msg.isTruncated
+        ) {
+          console.log(`🔥 Запуск Groq-парсінгу для ${msg.agencyName}...`);
+          const result = await processVacancyMessage(
+            analysis.translatedText || msg.text,
+            msg.sender,
+            msg.agencyName,
+            msg.text,
+            msg.isTruncated,
+          );
+
+          // Калі робат паспяхова стварыў вакансію — пазначаем як апрацаванае (знікне з Пясочніцы)
+          if (result && !result.error) {
+            isAutoDone = true;
           }
         }
+
+        // Захоўваем вынік
+        msg.rawText = analysis.translatedText || msg.text;
+        msg.category = finalCategory;
+        msg.processed = isAutoDone; // true — знікне, false — застанецца для ручной працы
+        await msg.save();
+
+        console.log(
+          `✅ Апрацавана: ${msg.agencyName} -> Катэгорыя: ${finalCategory} | Аўта-выкананне: ${isAutoDone}`,
+        );
       } catch (err) {
-        console.error(`❌ Памылка ітэрацыі (${msg.agencyName}):`, err.message);
+        console.error(`❌ Памылка ітэрації (${msg.agencyName}):`, err.message);
       }
     }
     console.log(`🏁 АПРАЦОЎКА ЗАВЕРШАНА`);
@@ -226,8 +245,8 @@ setInterval(processPendingMessages, 60000);
 router.get("/", async (req, res) => {
   try {
     const { category, limit = 200 } = req.query;
-    // 🔧 ВЫПРАЎЛЕННЕ: Прыбралі processed: false, каб паведамленні не знікалі пасля AI
-    const filter = { category: { $ne: "chat" } };
+    // 🔧 Паказваем толькі неапрацаваныя (processed: false)
+    const filter = { category: { $ne: "chat" }, processed: false };
     if (category && category !== "all") filter.category = category;
     const messages = await UnprocessedMessage.find(filter)
       .sort({ createdAt: -1 })
@@ -241,10 +260,19 @@ router.get("/", async (req, res) => {
 router.get("/stats", async (req, res) => {
   try {
     const [total, vacancy, update, info] = await Promise.all([
-      UnprocessedMessage.countDocuments({ category: { $ne: "chat" } }),
-      UnprocessedMessage.countDocuments({ category: "vacancy" }),
-      UnprocessedMessage.countDocuments({ category: "update" }),
-      UnprocessedMessage.countDocuments({ category: "info" }),
+      UnprocessedMessage.countDocuments({
+        category: { $ne: "chat" },
+        processed: false,
+      }),
+      UnprocessedMessage.countDocuments({
+        category: "vacancy",
+        processed: false,
+      }),
+      UnprocessedMessage.countDocuments({
+        category: "update",
+        processed: false,
+      }),
+      UnprocessedMessage.countDocuments({ category: "info", processed: false }),
     ]);
     res.json({ total, vacancy, update, info, chat: 0 });
   } catch {

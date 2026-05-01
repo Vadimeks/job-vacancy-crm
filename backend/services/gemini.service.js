@@ -59,10 +59,26 @@ async function analyzeAndCompareWithGemini(
       );
 
       const userContent = `
-TODAY_MESSAGES: ${JSON.stringify(recentMessages.slice(0, 10))}
-TODAY_VACANCIES: ${JSON.stringify(recentVacancies.slice(0, 5))}
+RECENT_MESSAGES: ${JSON.stringify(recentMessages.slice(0, 10))}
+RECENT_VACANCIES: ${JSON.stringify(recentVacancies.slice(0, 5))}
 NEW_MESSAGE: ${text}
-      `;
+
+CATEGORIES: 
+- FULL_VACANCY: Detailed job offer. MUST contain: Position name, Location, AND at least one of: Salary details or Job Duties. 
+  CRITICAL: If the message is shorter than 300 characters, classify as UPDATE.
+- UPDATE: Short info, changes to existing jobs, lists of vacancies without full details, or "STOP/Closed" messages.
+- RECRUITER_INFO: Legal updates (PESEL, UKR status), office info, or general recruitment rules.
+- NOISE: Greetings, social talk, system notifications.
+
+VERDICTS: NEW, DUPLICATE, UPDATE.
+
+Output JSON structure:
+{
+  "category": "FULL_VACANCY" | "UPDATE" | "RECRUITER_INFO" | "NOISE",
+  "comparison": { "verdict": "NEW" | "DUPLICATE" | "UPDATE", "reason": "short explanation in Ukrainian" },
+  "translatedText": "Clean Ukrainian translation"
+}
+`;
 
       const result = await model.generateContent([
         { text: SYSTEM_PROMPT },

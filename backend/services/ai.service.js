@@ -824,7 +824,13 @@ RECENT_MESSAGES: ${JSON.stringify(recentMessages.slice(0, 3))}
 RECENT_VACANCIES: ${JSON.stringify(recentVacancies.slice(0, 2))}
 NEW_MESSAGE: ${text}
 
-CATEGORIES: FULL_VACANCY, UPDATE, RECRUITER_INFO, NOISE.
+CATEGORIES: 
+- FULL_VACANCY: Detailed job offer. MUST contain: Position, Location, AND (Salary OR Job Duties). 
+  CRITICAL: If the message is shorter than 300 characters, classify as UPDATE.
+- UPDATE: Short info, changes, or lists without full details.
+- RECRUITER_INFO: Legal/office info.
+- NOISE: Social talk, greetings.
+
 VERDICTS: NEW, DUPLICATE, UPDATE.
 
 Output JSON structure:
