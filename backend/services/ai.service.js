@@ -853,15 +853,24 @@ Output JSON structure:
 
     return JSON.parse(response.choices[0]?.message?.content);
   } catch (err) {
-    // 🔧 ВЫПРАЎЛЕННЕ: Калі ў Groq таксама ліміты — проста пішам у лог і вяртаем null
-    if (err.message?.includes("429") || err.message?.includes("limit")) {
+    // 🔧 ПАЛЕПШАНАЕ ВЫПРАЎЛЕННЕ: больш надзейнае дэтэктаванне лімітаў
+    const errStr = err.message || "";
+    const isLimit =
+      errStr.includes("429") ||
+      errStr.includes("limit") ||
+      errStr.includes("rate_limit");
+
+    if (isLimit) {
       console.warn(
-        `🚫 Groq: Ліміты дасягнуты. Паведамленне застаецца ў чарзе.`,
+        `🚫 Groq: Ліміты дасягнуты (TPD/RPM). Паведамленне чакае ў чарзе.`,
       );
     } else {
-      console.error("❌ Groq fallback analysis failed:", err.message);
+      console.error(
+        "❌ Groq fallback analysis failed:",
+        errStr.substring(0, 150),
+      );
     }
-    return null; // Гэта прымусіць inbox.js пакінуць паведамленне ў спакоі
+    return null;
   }
 }
 
