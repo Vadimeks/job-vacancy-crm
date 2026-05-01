@@ -1,12 +1,4 @@
 // backend/userbot.js
-// ============================================================
-// Запускаецца на Render як асобны сэрвіс.
-// Патрабуе зменных асяроддзя:
-//   TELEGRAM_API_ID, TELEGRAM_API_HASH, TELEGRAM_SESSION (з generate-session.js)
-//   BACKEND_URL (https://job-vacancy-crm-backend.onrender.com)
-//   AGENCY_CHAT_IDS (праз коску: -1001234,-1005678) — неабавязкова,
-//     калі пуста — слухае ўсе чаты (фільтрацыя адбудзецца на бэкендзе)
-// ============================================================
 require("dotenv").config();
 const { TelegramClient } = require("telegram");
 const { StringSession } = require("telegram/sessions");
@@ -19,8 +11,6 @@ const SESSION_STRING = process.env.TELEGRAM_SESSION || "";
 const BACKEND_URL =
   process.env.BACKEND_URL || "https://job-vacancy-crm-backend.onrender.com";
 
-// Спіс ID чатаў для прэдфільтрацыі (неабавязкова).
-// Калі пуста — усе паведамленні ідуць на бэкенд, там ужо ёсць вайтліст.
 const AGENCY_CHAT_IDS = process.env.AGENCY_CHAT_IDS
   ? process.env.AGENCY_CHAT_IDS.split(",").map((id) => id.trim())
   : [];
@@ -36,10 +26,6 @@ const session = new StringSession(SESSION_STRING);
 
 async function startUserbot() {
   console.log("🤖 Запуск Telegram userbot...");
-  console.log(`📡 Бэкенд: ${BACKEND_URL}`);
-  console.log(
-    `🎯 Чаты: ${AGENCY_CHAT_IDS.length > 0 ? AGENCY_CHAT_IDS.join(", ") : "усе (фільтрацыя на бэкендзе)"}`,
-  );
 
   const client = new TelegramClient(session, API_ID, API_HASH, {
     connectionRetries: 10,
@@ -47,13 +33,26 @@ async function startUserbot() {
     autoReconnect: true,
   });
 
-  // Запуск без інтэрактыўнага ўводу — сесія ўжо ёсць
   await client.connect();
-
   const me = await client.getMe();
   console.log(`✅ Userbot аўтарызаваны як: @${me.username || me.firstName}`);
 
-  // Heartbeat кожныя 5 хвілін — трымае злучэнне жывым на Render
+  // --- 🆕 БЛОК ID DISCOVERY (ДАДАДЗЕНА) ---
+  try {
+    console.log("--------------------------------------------------");
+    console.log("🔍 СПІС УСІХ ЧАТАЎ (Скапіруй ID для вайтліста):");
+    const dialogs = await client.getDialogs({});
+    for (const dialog of dialogs) {
+      console.log(
+        `ID: ${dialog.id.toString()} | Назва: ${dialog.title || "Прыватны чат"}`,
+      );
+    }
+    console.log("--------------------------------------------------");
+  } catch (err) {
+    console.error("⚠️ Не ўдалося атрымаць спіс дыялогаў:", err.message);
+  }
+
+  // Heartbeat (захавана)
   setInterval(
     async () => {
       try {
@@ -66,46 +65,40 @@ async function startUserbot() {
     5 * 60 * 1000,
   );
 
-  // Слухаем новыя паведамленні
+  // Слухаем новыя паведамленні (захавана)
   client.addEventHandler(async (event) => {
     try {
       const message = event.message;
-
-      // Ігнаруем паведамленні без тэксту (фота, стыкеры і г.д.)
       if (!message?.text) return;
 
       const text = message.text.trim();
       if (text.length < 15) return;
 
-      // Атрымліваем назву чата
       const chat = await message.getChat();
       const chatTitle = chat?.title || chat?.firstName || "Unknown";
       const chatId = message.chatId?.toString();
 
-      // Прэдфільтрацыя па ID (калі AGENCY_CHAT_IDS зададзены)
       if (AGENCY_CHAT_IDS.length > 0 && !AGENCY_CHAT_IDS.includes(chatId)) {
         return;
       }
 
       console.log(
-        `📨 [${chatTitle}] ${text.length} сімв.: "${text.substring(0, 60).replace(/\n/g, " ")}..."`,
+        `📨 [${chatTitle}] (ID: ${chatId}) ${text.length} сімв.: "${text.substring(0, 60).replace(/\n/g, " ")}..."`,
       );
 
-      // Невялікая паўза каб не спамаваць бэкенд пры хуткім патоку
+      // Затрымка (захавана)
       await new Promise((resolve) => setTimeout(resolve, 500));
 
-      // Адпраўка на бэкенд — той жа /push эндпоінт, які выкарыстоўвае MacroDroid
-      const res = await axios.post(
+      await axios.post(
         `${BACKEND_URL}/api/inbox/push`,
         {
           text: text,
-          sender: chatTitle, // getWhitelistedAgency() апрацуе назву чата
+          sender: chatTitle,
+          chatId: chatId, // 🆕 Дададзена перадача ID
           source: "telegram_userbot",
         },
         { timeout: 10000 },
       );
-
-      console.log(`  └─ Бэкенд: ${res.data.status}`);
     } catch (err) {
       if (err.code === "ECONNREFUSED" || err.code === "ETIMEDOUT") {
         console.error(`❌ Бэкенд недаступны: ${err.message}`);
@@ -116,8 +109,6 @@ async function startUserbot() {
   }, new NewMessage({}));
 
   console.log("🎧 Userbot слухае паведамленні...");
-
-  // Трымаем працэс актыўным
   await new Promise(() => {});
 }
 

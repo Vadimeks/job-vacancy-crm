@@ -32,7 +32,8 @@ function logPreview(text) {
 router.post("/push", async (req, res) => {
   const text = (req.body.text || req.body.notification || "").trim();
   const senderRaw = (req.body.sender || req.body.not_title || "Unknown").trim();
-  const source = req.body.source || "viber"; // 🆕 Крыніца
+  const source = req.body.source || "viber";
+  const chatId = req.body.chatId || null; // 🆕 Прымаем ID ад юзербота
 
   if (shouldIgnoreMessage(text)) {
     console.log(
@@ -42,10 +43,12 @@ router.post("/push", async (req, res) => {
   }
 
   try {
-    const agency = getWhitelistedAgency(senderRaw);
+    // 🆕 Перадаём і назву, і ID
+    const agency = getWhitelistedAgency(senderRaw, chatId);
+
     if (!agency) {
       console.log(
-        `🚫 Адхілена (Whitelist): ад "${senderRaw}" | "${logPreview(text)}"`,
+        `🚫 Адхілена (Whitelist): ад "${senderRaw}" (ID: ${chatId}) | "${logPreview(text)}"`,
       );
       return res.status(200).json({ status: "ignored_not_whitelisted" });
     }
@@ -57,7 +60,6 @@ router.post("/push", async (req, res) => {
       `📥 Прынята: ${text.length} сімв. ад "${senderRaw}" (${agency}) [${source}]`,
     );
 
-    // 🆕 Разумная дэдуплікацыя па prefixHash
     const incomingPrefixHash = getPrefixHash(text);
     const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
 
@@ -107,7 +109,6 @@ router.post("/push", async (req, res) => {
     res.status(200).json({ status: "error" });
   }
 });
-
 // --- 2. ФОНАВАЯ АПРАЦОЎКА БУФЕРА ---
 async function processPendingMessages() {
   if (isProcessing) return;

@@ -1,14 +1,16 @@
 // backend/utils/messageFilters.js
 
 const CHAT_AGENCY_MAP = [
-  // --- Telegram Whitelist ---
+  // Сюды будзем дадаваць ID пасля Discovery, напрыклад:
+  // { id: "-100123456789", agency: "OTTO" },
   { key: "Актуальні вакансії на сьогодні", agency: "SG" },
   { key: "Rekruter freelancer", agency: "SG" },
   { key: "Staff power брижук", agency: "STAFF POWER" },
   { key: "Актуальные вакансии", agency: "SOLANO" },
   { key: "Vacancies-app-test-group", agency: "MANUAL" },
+  { key: "Вадим Польскi", agency: "MANUAL" },
 
-  // --- Viber Whitelist ---
+  // Viber Whitelist
   { key: "посередники apolo", agency: "APOLO" },
   { key: "Biedronka - PPG Partner (sistemPL)", agency: "GLOBAL" },
   { key: "партнери jobsi", agency: "BISAR" },
@@ -28,10 +30,8 @@ const CHAT_AGENCY_MAP = [
   { key: "Works4you", agency: "RALEN" },
   { key: "test-group", agency: "MANUAL" },
 
-  // --- Ignore List ---
   { key: "nova work agency", agency: "IGNORE_SELF" },
 ];
-
 const SYSTEM_NOISE = [
   /новий коментар до вашого повідомлення/i,
   /ви маєте нові повідомлення/i,
@@ -165,12 +165,23 @@ function getPrefixHash(text) {
     .substring(0, 150);
 }
 
-function getWhitelistedAgency(chatTitle) {
-  if (!chatTitle) return null;
-  const normalizedChat = superNormalize(chatTitle);
-  if (!normalizedChat) return null;
+/**
+ * 🆕 Абноўленая функцыя: прыярытэт па ID, фолбэк на назву
+ */
+function getWhitelistedAgency(chatTitle, chatId = null) {
+  if (!chatTitle && !chatId) return null;
 
-  const match = CHAT_AGENCY_MAP.find((entry) => {
+  // 1. Прыярытэт: Пошук па ID
+  if (chatId) {
+    const matchById = CHAT_AGENCY_MAP.find(
+      (entry) => entry.id === chatId.toString(),
+    );
+    if (matchById) return matchById.agency;
+  }
+
+  // 2. Фолбэк: Пошук па назве (для Viber і невядомых TG чатаў)
+  const normalizedChat = superNormalize(chatTitle);
+  const matchByTitle = CHAT_AGENCY_MAP.find((entry) => {
     const normalizedKey = superNormalize(entry.key);
     return (
       normalizedChat.includes(normalizedKey) ||
@@ -178,7 +189,7 @@ function getWhitelistedAgency(chatTitle) {
     );
   });
 
-  return match ? match.agency : null;
+  return matchByTitle ? matchByTitle.agency : null;
 }
 
 function shouldIgnoreMessage(text) {
