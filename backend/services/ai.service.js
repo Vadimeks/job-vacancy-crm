@@ -807,7 +807,7 @@ async function analyzeWithGroq(
   text,
   recentMessages = [],
   recentVacancies = [],
-  modelOverride = null, // 🆕 Дадалі параметр
+  modelOverride = null,
 ) {
   try {
     const targetModel = modelOverride || MODEL_SMART;
@@ -842,7 +842,7 @@ Output JSON structure:
     `;
 
     const response = await groq.chat.completions.create({
-      model: targetModel, // 🆕 Выкарыстоўваем абраную мадэль
+      model: targetModel,
       temperature: 0.1,
       response_format: { type: "json_object" },
       messages: [
@@ -853,8 +853,15 @@ Output JSON structure:
 
     return JSON.parse(response.choices[0]?.message?.content);
   } catch (err) {
-    console.error("❌ Groq fallback analysis failed:", err.message);
-    return null;
+    // 🔧 ВЫПРАЎЛЕННЕ: Калі ў Groq таксама ліміты — проста пішам у лог і вяртаем null
+    if (err.message?.includes("429") || err.message?.includes("limit")) {
+      console.warn(
+        `🚫 Groq: Ліміты дасягнуты. Паведамленне застаецца ў чарзе.`,
+      );
+    } else {
+      console.error("❌ Groq fallback analysis failed:", err.message);
+    }
+    return null; // Гэта прымусіць inbox.js пакінуць паведамленне ў спакоі
   }
 }
 
