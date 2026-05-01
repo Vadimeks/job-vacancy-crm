@@ -129,18 +129,40 @@ function isOldMessage(text) {
   return diffDays > 3; // Ігнаруем, калі старэйшае за 3 дні
 }
 
-function isTruncated(text) {
+/**
+ * Правярае, ці з'яўляецца тэкст абрэзаным.
+ */
+function isTruncated(text, source = "viber") {
   if (!text) return false;
+
+  // 🆕 Юзербот заўсёды забірае 100% тэксту
+  if (source === "telegram_userbot") return false;
+
   const t = text.trim();
 
+  // 1. Яўная абрэзка
   if (t.endsWith("...") || t.endsWith("…")) return true;
 
-  // 🔧 Парог зніжаны да 800 сімвалаў
+  // 2. Доўгі тэкст амаль заўсёды поўны
   if (t.length > 800) return false;
   if (t.length < 50) return false;
 
-  const safeEndings = /[.!?*)\p{Emoji}\p{Emoji_Presentation}]$/u;
+  // 3. Бяспечныя заканчэнні (дадалі літары і лічбы для спасылак/тэл)
+  const safeEndings =
+    /[\p{Emoji}\p{Emoji_Presentation}.!?*)\]/|\\a-zA-Zа-яёіўА-ЯЁІЎ0-9]$/u;
   return !safeEndings.test(t);
+}
+
+/**
+ * Стварае адбітак пачатку паведамлення (150 сімвалаў)
+ */
+function getPrefixHash(text) {
+  if (!text) return "";
+  return text
+    .toLowerCase()
+    .replace(/\s+/g, "")
+    .replace(/[^a-zа-яёіў0-9]/gi, "")
+    .substring(0, 150);
 }
 
 function getWhitelistedAgency(chatTitle) {
@@ -167,4 +189,9 @@ function shouldIgnoreMessage(text) {
   return NOISE_PATTERNS.some((p) => p.test(trimmed));
 }
 
-module.exports = { shouldIgnoreMessage, getWhitelistedAgency, isTruncated };
+module.exports = {
+  shouldIgnoreMessage,
+  getWhitelistedAgency,
+  isTruncated,
+  getPrefixHash,
+};

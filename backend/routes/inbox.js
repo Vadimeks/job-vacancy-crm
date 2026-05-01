@@ -31,6 +31,7 @@ function logPreview(text) {
 router.post("/push", async (req, res) => {
   const text = (req.body.text || req.body.notification || "").trim();
   const senderRaw = (req.body.sender || req.body.not_title || "Unknown").trim();
+  const source = req.body.source || "viber"; // 🆕 Крыніца
 
   if (shouldIgnoreMessage(text)) {
     console.log(
@@ -41,7 +42,6 @@ router.post("/push", async (req, res) => {
 
   try {
     const agency = getWhitelistedAgency(senderRaw);
-
     if (!agency) {
       console.log(
         `🚫 Адхілена (Whitelist): ад "${senderRaw}" | "${logPreview(text)}"`,
@@ -49,29 +49,32 @@ router.post("/push", async (req, res) => {
       return res.status(200).json({ status: "ignored_not_whitelisted" });
     }
 
-    if (agency === "IGNORE_SELF") {
-      console.log(`🔄 Ігнараванне (Self-Loop): "${senderRaw}"`);
+    if (agency === "IGNORE_SELF")
       return res.status(200).json({ status: "ignored_self_loop" });
-    }
 
     console.log(
-      `📥 Прынята: ${text.length} сімв. ад "${senderRaw}" (${agency})`,
+      `📥 Прынята: ${text.length} сімв. ад "${senderRaw}" (${agency}) [${source}]`,
     );
 
+    // 🆕 Разумная дэдуплікацыя па prefixHash
+    const incomingPrefixHash = getPrefixHash(text);
     const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
+
     const existingMsg = await UnprocessedMessage.findOne({
       agencyName: agency,
+      prefixHash: incomingPrefixHash,
       createdAt: { $gte: twelveHoursAgo },
-    }).sort({ createdAt: -1 });
+    });
 
     if (existingMsg) {
       if (text.length > existingMsg.text.length) {
         console.log(
-          `🔄 Абнаўленне: ${agency} (${existingMsg.text.length} -> ${text.length} сімв.)`,
+          `🔄 Абнаўленне (stitching): ${agency} (${existingMsg.text.length} -> ${text.length} сімв.)`,
         );
         existingMsg.text = text;
         existingMsg.textHash = normalizeText(text);
-        existingMsg.isTruncated = isTruncated(text);
+        existingMsg.prefixHash = incomingPrefixHash;
+        existingMsg.isTruncated = isTruncated(text, source);
         existingMsg.processed = false;
         await existingMsg.save();
         return res.status(200).json({ status: "updated_in_buffer" });
@@ -86,10 +89,11 @@ router.post("/push", async (req, res) => {
       agencyName: agency,
       text: text,
       textHash: normalizeText(text),
-      source: req.body.source || "viber",
+      prefixHash: incomingPrefixHash,
+      source: source,
       category: "info",
       processed: false,
-      isTruncated: isTruncated(text),
+      isTruncated: isTruncated(text, source),
     });
 
     await newMsg.save();

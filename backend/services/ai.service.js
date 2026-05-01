@@ -30,40 +30,23 @@ const LANGUAGE_GUARD = `
 - If the input is in Russian — TRANSLATE it to Ukrainian. Never use Russian words (e.g., use "Приїзд" instead of "Приезд", "Житло" instead of "Жилье").
 `;
 function cleanData(obj) {
-  // 🔧 Поўная перапіска: папярэдняя версія не мела return [key, value]
-  // для нармальных значэнняў → Object.fromEntries атрымліваў undefined → краш
   if (obj === undefined || obj === null) return null;
+
   if (Array.isArray(obj)) {
-    return obj.map(cleanData);
-  } else if (typeof obj === "object") {
-    return Object.fromEntries(
-      Object.entries(obj).map(([key, value]) => {
-        if (value === undefined) return [key, null];
-        if (
-          typeof value === "object" &&
-          value !== null &&
-          !Array.isArray(value)
-        ) {
-          return [key, cleanData(value)];
-        }
-        // Выдаляем смеццевыя значэнні, якія AI галюцынуе або ставіць па змаўчанні
-        const garbage = [
-          "string",
-          "undefined",
-          "не вказано",
-          "",
-          "99",
-          99,
-          null,
-          undefined,
-        ];
-        if (garbage.includes(value)) {
-          return [key, null];
-        }
-        return [key, value];
-      }),
-    );
+    return obj.map((item) => cleanData(item));
   }
+
+  if (typeof obj === "object") {
+    const cleanedEntries = Object.entries(obj).map(([key, value]) => {
+      const garbage = ["string", "undefined", "не вказано", "", "99", 99];
+      if (value === undefined || value === null || garbage.includes(value)) {
+        return [key, null];
+      }
+      return [key, cleanData(value)];
+    });
+    return Object.fromEntries(cleanedEntries);
+  }
+
   return obj;
 }
 
@@ -817,16 +800,18 @@ async function updateVacancyWithAI(existingVacancy, newText) {
   }
 }
 /**
- * Класіфікацыя паведамлення праз Groq (Llama 3.3 70b)
+ * Класіфікацыя паведамлення праз Groq
  * Выкарыстоўваецца як надзейны фолбэк для Gemini
  */
 async function analyzeWithGroq(
   text,
   recentMessages = [],
   recentVacancies = [],
+  modelOverride = null, // 🆕 Дадалі параметр
 ) {
   try {
-    console.log(`🔍 Groq (${MODEL_SMART}): Фолбэк-аналіз...`);
+    const targetModel = modelOverride || MODEL_SMART;
+    console.log(`🔍 Groq (${targetModel}): Фолбэк-аналіз...`);
 
     const systemPrompt = `
 Role: Expert Analyst of the Polish Job Market.
@@ -851,7 +836,7 @@ Output JSON structure:
     `;
 
     const response = await groq.chat.completions.create({
-      model: MODEL_SMART,
+      model: targetModel, // 🆕 Выкарыстоўваем абраную мадэль
       temperature: 0.1,
       response_format: { type: "json_object" },
       messages: [
