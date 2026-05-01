@@ -166,22 +166,24 @@ function getPrefixHash(text) {
 }
 
 /**
- * 🆕 Абноўленая функцыя: прыярытэт па ID, фолбэк на назву
+ * Разумны вайтліст: прыярытэт па ID, фолбэк на назву
  */
 function getWhitelistedAgency(chatTitle, chatId = null) {
   if (!chatTitle && !chatId) return null;
 
   // 1. Прыярытэт: Пошук па ID
   if (chatId) {
+    const incomingId = chatId.toString().trim();
     const matchById = CHAT_AGENCY_MAP.find(
-      (entry) => entry.id === chatId.toString(),
+      (entry) => entry.id && entry.id.toString().trim() === incomingId,
     );
     if (matchById) return matchById.agency;
   }
 
-  // 2. Фолбэк: Пошук па назве (для Viber і невядомых TG чатаў)
+  // 2. Фолбэк: Пошук па назве
   const normalizedChat = superNormalize(chatTitle);
   const matchByTitle = CHAT_AGENCY_MAP.find((entry) => {
+    if (!entry.key) return false;
     const normalizedKey = superNormalize(entry.key);
     return (
       normalizedChat.includes(normalizedKey) ||
@@ -196,7 +198,7 @@ function shouldIgnoreMessage(text) {
   if (!text) return true;
   const trimmed = text.trim();
   if (trimmed.length < 15 || EMOJI_ONLY_RE.test(trimmed)) return true;
-  if (isOldMessage(trimmed)) return true; // Фільтр па даце
+  if (isOldMessage(trimmed)) return true;
   return NOISE_PATTERNS.some((p) => p.test(trimmed));
 }
 

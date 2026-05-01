@@ -33,22 +33,24 @@ router.post("/push", async (req, res) => {
   const text = (req.body.text || req.body.notification || "").trim();
   const senderRaw = (req.body.sender || req.body.not_title || "Unknown").trim();
   const source = req.body.source || "viber";
-  const chatId = req.body.chatId || null; // 🆕 Прымаем ID ад юзербота
+  const chatId = req.body.chatId || null;
 
+  // 1. Жорсткі фільтр шуму (да базы)
   if (shouldIgnoreMessage(text)) {
     console.log(
-      `🗑️ Адхілена (Regex/OldDate) ад "${senderRaw}": "${logPreview(text)}..."`,
+      `🗑️ Адхілена (Noise/Regex) ад "${senderRaw}": "${logPreview(text)}..."`,
     );
     return res.status(200).json({ status: "ignored_noise" });
   }
 
   try {
-    // 🆕 Перадаём і назву, і ID
+    // 2. Вайтліст (да базы)
     const agency = getWhitelistedAgency(senderRaw, chatId);
 
     if (!agency) {
+      // Лог для дыягностыкі ID
       console.log(
-        `🚫 Адхілена (Whitelist): ад "${senderRaw}" (ID: ${chatId}) | "${logPreview(text)}"`,
+        `🚫 Адхілена (Whitelist): ад "${senderRaw}" (ID: ${chatId}) | Тэкст: "${logPreview(text)}"`,
       );
       return res.status(200).json({ status: "ignored_not_whitelisted" });
     }
@@ -63,6 +65,7 @@ router.post("/push", async (req, res) => {
     const incomingPrefixHash = getPrefixHash(text);
     const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
 
+    // 3. Дэдуплікацыя (да базы)
     const existingMsg = await UnprocessedMessage.findOne({
       agencyName: agency,
       prefixHash: incomingPrefixHash,
@@ -89,6 +92,7 @@ router.post("/push", async (req, res) => {
       }
     }
 
+    // 4. Захаванне (толькі калі прайшло ўсе фільтры)
     const newMsg = new UnprocessedMessage({
       sender: senderRaw,
       agencyName: agency,
@@ -96,7 +100,7 @@ router.post("/push", async (req, res) => {
       textHash: normalizeText(text),
       prefixHash: incomingPrefixHash,
       source: source,
-      category: "info",
+      category: "info", // Пакідаем info па тваім жаданні
       processed: false,
       isTruncated: isTruncated(text, source),
     });
