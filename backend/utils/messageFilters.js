@@ -1,14 +1,14 @@
 // backend/utils/messageFilters.js
 
 const CHAT_AGENCY_MAP = [
-  // Сюды будзем дадаваць ID пасля Discovery, напрыклад:
-  // { id: "-100123456789", agency: "OTTO" },
-  { key: "Актуальні вакансії на сьогодні", agency: "SG" },
-  { key: "Rekruter freelancer", agency: "SG" },
-  { key: "Staff power брижук", agency: "STAFF POWER" },
-  { key: "Актуальные вакансии", agency: "SOLANO" },
-  { key: "Vacancies-app-test-group", agency: "MANUAL" },
-  { key: "Вадим Польскi", agency: "MANUAL" },
+  // --- Telegram Whitelist (па ID — самы надзейны спосаб) ---
+  { id: "-1002197502834", agency: "SG" }, // REKRUTER FREELANCER
+  { id: "-1003470548853", agency: "STAFF POWER" }, // STAFF POWER БРИЖУК
+  { id: "-1003038801216", agency: "SOLANO" }, // SOLANO БРИЖУК
+  { id: "-1002597324535", agency: "INTRASERVICE" }, // ІНТРАСЕРВІС БРИЖУК
+  { id: "-1003863670200", agency: "APOLO" }, // Посередники APOLO
+  { id: "-5247965234", agency: "MANUAL" }, // Vacancies-app-test-group
+  { id: "-1003720434755", agency: "SOLANO" }, // АКТУАЛЬНЫЕ ВАКАНСИИ
 
   // Viber Whitelist
   { key: "посередники apolo", agency: "APOLO" },

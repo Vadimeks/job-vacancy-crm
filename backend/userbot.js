@@ -37,22 +37,22 @@ async function startUserbot() {
   const me = await client.getMe();
   console.log(`✅ Userbot аўтарызаваны як: @${me.username || me.firstName}`);
 
-  // --- 🆕 БЛОК ID DISCOVERY (ДАДАДЗЕНА) ---
+  // --- 🔍 БЛОК ID DISCOVERY (ЗАКАМЕНТАВАНА) ---
+  /*
   try {
     console.log("--------------------------------------------------");
     console.log("🔍 СПІС УСІХ ЧАТАЎ (Скапіруй ID для вайтліста):");
     const dialogs = await client.getDialogs({});
     for (const dialog of dialogs) {
-      console.log(
-        `ID: ${dialog.id.toString()} | Назва: ${dialog.title || "Прыватны чат"}`,
-      );
+      console.log(`ID: ${dialog.id.toString()} | Назва: ${dialog.title || "Прыватны чат"}`);
     }
     console.log("--------------------------------------------------");
   } catch (err) {
     console.error("⚠️ Не ўдалося атрымаць спіс дыялогаў:", err.message);
   }
+  */
 
-  // Heartbeat (захавана)
+  // Heartbeat
   setInterval(
     async () => {
       try {
@@ -65,7 +65,7 @@ async function startUserbot() {
     5 * 60 * 1000,
   );
 
-  // Слухаем новыя паведамленні (захавана)
+  // Слухаем новыя паведамленні
   client.addEventHandler(async (event) => {
     try {
       const message = event.message;
@@ -86,7 +86,6 @@ async function startUserbot() {
         `📨 [${chatTitle}] (ID: ${chatId}) ${text.length} сімв.: "${text.substring(0, 60).replace(/\n/g, " ")}..."`,
       );
 
-      // Затрымка (захавана)
       await new Promise((resolve) => setTimeout(resolve, 500));
 
       await axios.post(
@@ -94,7 +93,7 @@ async function startUserbot() {
         {
           text: text,
           sender: chatTitle,
-          chatId: chatId, // 🆕 Дададзена перадача ID
+          chatId: chatId,
           source: "telegram_userbot",
         },
         { timeout: 10000 },
