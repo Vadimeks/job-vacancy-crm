@@ -80,7 +80,9 @@ router.post("/push", async (req, res) => {
         await existingMsg.save();
         return res.status(200).json({ status: "updated_in_buffer" });
       } else {
-        console.log(`🔁 Ігнараваны дубль ад ${agency}: "${logPreview(text)}"`);
+        console.log(
+          `🔁 Ігнараваны дубль (prefixHash) ад ${agency}: "${logPreview(text)}"`,
+        );
         return res.status(200).json({ status: "ignored_duplicate" });
       }
     }
@@ -164,19 +166,17 @@ async function processPendingMessages() {
           `🤖 AI Вердыкт для ${msg.agencyName}: ${analysis.category} | ${analysis.comparison.verdict} (Прычына: ${analysis.comparison.reason})`,
         );
 
-        // 1. Калі гэта дублікат або смецце — закрываем адразу (знікне з Пясочніцы)
-        if (
-          analysis.comparison.verdict === "DUPLICATE" ||
-          analysis.category === "NOISE"
-        ) {
-          console.log(
-            `📎 Дубль або смецце для ${msg.agencyName}. Выдаляю з Пясочніцы.`,
-          );
-          msg.category = analysis.category === "NOISE" ? "chat" : msg.category;
+        // 1. Калі гэта смецце (NOISE) — закрываем адразу, каб не замінаць
+        if (analysis.category === "NOISE") {
+          console.log(`📎 Смецце (NOISE) для ${msg.agencyName}. Хаваю.`);
+          msg.category = "chat";
           msg.processed = true;
           await msg.save();
           continue;
         }
+
+        // Заўвага: Калі AI кажа DUPLICATE, мы больш НЕ ставім processed: true аўтаматычна.
+        // Мы дазваляем табе самому ўбачыць гэта ў Пясочніцы і вырашыць, што рабіць.
 
         const categoryMap = {
           UPDATE: "update",
@@ -211,13 +211,13 @@ async function processPendingMessages() {
             msg.isTruncated,
           );
 
-          // Калі робат паспяхова стварыў вакансію — пазначаем як апрацаванае (знікне з Пясочніцы)
+          // ТОЛЬКІ калі робат паспяхова стварыў вакансію — пазначаем як апрацаванае (знікне з Пясочніцы)
           if (result && !result.error) {
             isAutoDone = true;
           }
         }
 
-        // Захоўваем вынік
+        // Захоўваем вынік апрацоўкі
         msg.rawText = analysis.translatedText || msg.text;
         msg.category = finalCategory;
         msg.processed = isAutoDone; // true — знікне, false — застанецца для ручной працы
@@ -227,7 +227,7 @@ async function processPendingMessages() {
           `✅ Апрацавана: ${msg.agencyName} -> Катэгорыя: ${finalCategory} | Аўта-выкананне: ${isAutoDone}`,
         );
       } catch (err) {
-        console.error(`❌ Памылка ітэрації (${msg.agencyName}):`, err.message);
+        console.error(`❌ Памылка ітэрацыі (${msg.agencyName}):`, err.message);
       }
     }
     console.log(`🏁 АПРАЦОЎКА ЗАВЕРШАНА`);
