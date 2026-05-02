@@ -29,6 +29,7 @@ const LANGUAGE_GUARD = `
 - All descriptions, duties, notes — UKRAINIAN. Geography (location, voivodeship, checkInCity, country) — POLISH (Latin alphabet) only.
 - If the input is in Russian — TRANSLATE it to Ukrainian. Never use Russian words (e.g., use "Приїзд" instead of "Приезд", "Житло" instead of "Жилье").
 `;
+// 1. Абноўленая функцыя cleanData
 function cleanData(obj) {
   if (obj === undefined || obj === null) return null;
 
@@ -38,8 +39,20 @@ function cleanData(obj) {
 
   if (typeof obj === "object") {
     const cleanedEntries = Object.entries(obj).map(([key, value]) => {
-      const garbage = ["string", "undefined", "не вказано", "", "99", 99];
-      if (value === undefined || value === null || garbage.includes(value)) {
+      const garbage = [
+        "undefined",
+        "не вказано",
+        "null",
+        "",
+        "99",
+        99,
+        "none",
+        "n/a",
+        "unknown",
+      ];
+      const valStr = String(value).toLowerCase().trim();
+
+      if (value === undefined || value === null || garbage.includes(valStr)) {
         return [key, null];
       }
       return [key, cleanData(value)];
@@ -74,87 +87,90 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanations.
 CRITICAL RULE: If the factory and location match, but the JOB PROCESS (duties/process field) is different, return templateId: null. We need a new template for different roles.
 `;
 
+// 2. Абноўлены FORMAT_PROMPT
 const FORMAT_PROMPT = `
 ROLE: Professional HR content formatter.
 TASK: Format the job data into a beautiful Telegram post in UKRAINIAN.
 
 !!! CRITICAL COMPACTNESS RULE !!!: 
-1. If a field value is empty, null, "не вказано", or an empty array, you MUST NOT include the label or the line in the final post.
-2. If "requirements.gender" is empty or null, DO NOT show the "👥 Набір" line.
-3. If "contractType" is null, DO NOT show the "📄 Тип договору" line.
-4. The post must be as compact as possible. Do not show empty sections or labels with no data.
+1. If a field value is null, "не вказано", or an empty array, you MUST NOT include the label or the line.
+2. If an ENTIRE SECTION (like Accommodation, Transport, or Expenses) has no data inside, DO NOT show the section header (e.g., do not show "🏠 Проживання" if there are no details).
+3. NEVER use placeholders like "немає інформації". Just skip the line.
+4. The post must be as compact as possible, looking like a natural text post, not a form.
 
 CRITICAL PRIVACY RULE:
 - NEVER include the Agency Name (agencyName) in the post.
 - NEVER include internal notes or recruiter-only data.
-- Use vacancydescription as the main title (NEVER use templateName here).
+- Use vacancydescription as the main title.
 
-Use this EXACT structure (skip entire blocks if ALL data inside is empty/null):
+Use this structure (SKIP lines/sections if data is null):
 
 *[vacancydescription]*
 📍 Місто: [location] 
-• Оформлення: м. [checkInCity] (only if not empty)
-👥 Набір: [requirements.gender joined by ", "] (only if not empty)
-• Приїзд: [arrivalDate] (only if not empty)
+[• Оформлення: м. [checkInCity]]
+[👥 Набір: [requirements.gender joined by ", "]]
+[• Приїзд: [arrivalDate]]
 
-💰 *Оплата праці*
-• Ставка: [salary.baseNetto]
-• Студенти: [salary.studentNetto]
-• Годин на місяць: [salary.hoursRange]
-• Виплати: [salary.payoutDates]
-• Бонуси: [salary.bonusDetails]
-• Нотатки: [salary.salaryNotes]
+[💰 *Оплата праці*
+[• Ставка: [salary.baseNetto]]
+[• Студенти: [salary.studentNetto]]
+[• Годин на місяць: [salary.hoursRange]]
+[• Виплати: [salary.payoutDates]]
+[• Бонуси: [salary.bonusDetails]]
+[• Нотатки: [salary.salaryNotes]]
+]
 
-🛠 *Характер роботи*
-[кожен пункт з description, розбитий по крапці з комою, на новому рядку з •. ВАЖЛИВО: не ставте порожніх рядків між пунктами]
+[🛠 *Характер роботи*
+[пункти з description через •]]
 
-📋 *Вимоги*
-[• Вік: до [requirements.ageMax] років — only if ageMax is NOT null and less than 65]
-• Документи: [requirements.standardDocs joined by ", "]
-• Мова: [requirements.polishLanguageLevel (якщо "A1" - напиши "Базовий рівень (A1)", якщо "Не вимагається" - напиши "Не вимагається")]
-[• [requirements.physicalLoad] — only if not empty]
+[📋 *Вимоги*
+[• Вік: до [requirements.ageMax] років (only if < 65)]
+[• Документи: [requirements.standardDocs]]
+[• Мова: [requirements.polishLanguageLevel]]
+[• [requirements.physicalLoad]]
+]
 
-🕒 *Графік роботи*
-[schedule.description — only if not empty]
-[schedule.workDaysWeek — тільки якщо НЕ міститься вже у schedule.description]
-[• Перерва: [schedule.breakDuration] — only if not empty]
+[🕒 *Графік роботи*
+[schedule.description]
+[• Перерва: [schedule.breakDuration]]
+]
 
-[📄 Тип договору: [contractType] — only if not empty]
+[📄 Тип договору: [contractType]]
 
-🏠 *Проживання*
-Тип: [accommodation.type]
-• Вартість: [accommodation.costRaw]
-• Деталі: [accommodation.details]
+[🏠 *Проживання*
+[Тип: [accommodation.type]]
+[• Вартість: [accommodation.costRaw]]
+[• Деталі: [accommodation.details]]
+]
 
-🚌 *Транспорт*
-• [transport.costRaw]
-• [transport.details]
+[🚌 *Транспорт*
+[• [transport.costRaw]]
+[• [transport.details]]
+]
 
 [💸 *Витрати та відповідальність*
-• На старті: [startExpenses.details] (ONLY if hasStartExpenses is true)
-• При передчасному звільненні: [earlyTerminationLiability.details] (ONLY if hasLiability is true)
+[• На старті: [startExpenses.details] (only if hasStartExpenses is true)]
+[• При передчасному звільненні: [earlyTerminationLiability.details] (only if hasLiability is true)]
 ]
-(CRITICAL: If BOTH hasStartExpenses and hasLiability are false, DO NOT show the 💸 header and DO NOT show this section at all. NEVER write "немає інформації" here.)
 
-🌡 *Умови праці*
-• Робочий одяг: [conditions.workwearFree ? "Безкоштовно" : "За рахунок працівника"]
-• Харчування: [conditions.foodType]
-[• Нюанси: [conditions.specificNuances joined by ", "] — only if not empty]
-[conditions.foodDetails — only if not empty]
-[conditions.specificConditionsDetails — only if not empty]
+[🌡 *Умови праці*
+[• Робочий одяг: [conditions.workwearFree ? "Безкоштовно" : "За рахунок працівника"]]
+[• Харчування: [conditions.foodType]]
+[• Нюанси: [conditions.specificNuances]]
+[• [conditions.foodDetails]]
+[• [conditions.specificConditionsDetails]]
+]
 
 [🎁 *Компенсації від роботодавця*
-[employerCompensations.details] — only if employerCompensations.hasCompensations = true]
+[employerCompensations.details]]
 
-📝 *Додаткова інформація* (Only if additionalNotes not empty)
-[additionalNotes]
+[📝 *Додаткова інформація*
+[additionalNotes]]
 
 Rules:
-- Write in Ukrainian
-- Use ONLY • for bullet points
-- Do NOT show forRecruiter data
-- Use Markdown bold (*text*) for section headers
-- Return ONLY the formatted post text
+- Write in Ukrainian.
+- Use ONLY • for bullet points.
+- Return ONLY the formatted post text.
 `;
 
 const CREATE_TEMPLATE_PROMPT = `
@@ -617,7 +633,7 @@ JSON STRUCTURE:
       // === 3. ФІНАНСЫ ===
       salary: {
         ...(cleaned.salary || {}),
-        baseNetto: finalBaseNetto || "не вказано",
+        baseNetto: finalBaseNetto || null,
         studentNetto: cleaned.salary?.studentNetto || "",
         hoursRange: cleaned.salary?.hoursRange || "",
         payoutDates: cleaned.salary?.payoutDates || "",

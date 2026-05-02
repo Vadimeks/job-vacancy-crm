@@ -116,18 +116,18 @@ router.post("/push", async (req, res) => {
 // --- 2. ФОНАВАЯ АПРАЦОЎКА БУФЕРА ---
 async function processPendingMessages() {
   if (isProcessing) return;
-  isProcessing = true;
 
   try {
-    // Бярэм толькі неапрацаваныя паведамленні
+    // 1. Ціхая праверка: калі няма чаго апрацоўваць — проста выходзім
+    const count = await UnprocessedMessage.countDocuments({ processed: false });
+    if (count === 0) return;
+
+    isProcessing = true;
+
+    // 2. Бярэм паведамленні
     const pending = await UnprocessedMessage.find({ processed: false }).limit(
       10,
     );
-
-    if (pending.length === 0) {
-      isProcessing = false;
-      return;
-    }
 
     console.log(
       `⚙️ ПАЧАТАК АПРАЦОЎКІ: ${pending.length} паведамленняў у чарзе...`,
@@ -171,7 +171,6 @@ async function processPendingMessages() {
           `🤖 AI Вердыкт для ${msg.agencyName}: ${analysis.category} | ${analysis.comparison.verdict} (Прычына: ${analysis.comparison.reason})`,
         );
 
-        // 1. Калі гэта смецце (NOISE) — закрываем адразу, каб не замінаць
         if (analysis.category === "NOISE") {
           console.log(`📎 Смецце (NOISE) для ${msg.agencyName}. Хаваю.`);
           msg.category = "chat";
@@ -179,9 +178,6 @@ async function processPendingMessages() {
           await msg.save();
           continue;
         }
-
-        // Заўвага: Калі AI кажа DUPLICATE, мы больш НЕ ставім processed: true аўтаматычна.
-        // Мы дазваляем табе самому ўбачыць гэта ў Пясочніцы і вырашыць, што рабіць.
 
         const categoryMap = {
           UPDATE: "update",
@@ -191,7 +187,6 @@ async function processPendingMessages() {
 
         let finalCategory = categoryMap[analysis.category] || "info";
 
-        // 2. Прымусовы ліміт: калі тэкст < 300 сімвалаў — гэта заўсёды UPDATE
         if (finalCategory === "vacancy" && msg.text.length < 300) {
           finalCategory = "update";
           console.log(
@@ -201,7 +196,6 @@ async function processPendingMessages() {
 
         let isAutoDone = false;
 
-        // 3. Аўта-парсінг толькі для поўных вакансій > 300 сімвалаў і не абразаных
         if (
           finalCategory === "vacancy" &&
           AUTO_PROCESS_VACANCIES &&
@@ -216,16 +210,14 @@ async function processPendingMessages() {
             msg.isTruncated,
           );
 
-          // ТОЛЬКІ калі робат паспяхова стварыў вакансію — пазначаем як апрацаванае (знікне з Пясочніцы)
           if (result && !result.error) {
             isAutoDone = true;
           }
         }
 
-        // Захоўваем вынік апрацоўкі
         msg.rawText = analysis.translatedText || msg.text;
         msg.category = finalCategory;
-        msg.processed = isAutoDone; // true — знікне, false — застанецца для ручной працы
+        msg.processed = isAutoDone;
         await msg.save();
 
         console.log(
