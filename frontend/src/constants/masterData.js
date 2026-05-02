@@ -56,18 +56,18 @@ export const TRAVEL_GROUPS = [
 ];
 
 export const NATIONALITIES = [
-  { value: "UA", label: "🇺🇦 Україна" },
-  { value: "MD", label: "🇲🇩 Молдова" },
-  { value: "BY", label: "🇧🇾 Білорусь" },
-  { value: "GE", label: "🇬🇪 Грузія" },
-  { value: "KZ", label: "🇰🇿 Казахстан" },
-  { value: "AZ", label: "🇦🇿 Азербайджан" },
+  { value: "Україна", label: "🇺🇦 Україна" },
+  { value: "Молдова", label: "🇲🇩 Молдова" },
+  { value: "Білорусь", label: "🇧🇾 Білорусь" },
+  { value: "Грузія", label: "🇬🇪 Грузія" },
+  { value: "Казахстан", label: "🇰🇿 Казахстан" },
+  { value: "Азербайджан", label: "🇦🇿 Азербайджан" },
 ];
 
 export const DOCS = [
   { value: "PESEL UKR", label: "PESEL UKR" },
   { value: "Віза", label: "Віза" },
-  { value: "Карта побыту", label: "Карта побыту" },
+  { value: "Карта побуту", label: "Карта побуту" }, // Выпраўлена 'у'
   { value: "Книжка санепід", label: "Санепід" },
   { value: "UDT", label: "UDT" },
   { value: "Довідка резидента", label: "Довідка резидента" },

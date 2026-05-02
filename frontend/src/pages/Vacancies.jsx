@@ -50,12 +50,14 @@ function applyFilters(vacancies, filters) {
     if (filters.category?.length > 0 && !filters.category.includes(v.category))
       return false;
 
-    // --- 3. Ваяводства ---
+    // --- 3. Ваяводства / Рэгіён (ФІКС для Еўропы) ---
     if (filters.voivodeship?.length > 0) {
-      const vVoiv = v.voivodeship;
-      const hasMatch = Array.isArray(vVoiv)
-        ? filters.voivodeship.some((fv) => vVoiv.includes(fv))
-        : filters.voivodeship.includes(vVoiv);
+      const isEurope = v.country && v.country !== "Polska";
+      const vRegion = isEurope ? "Європа (інші країни)" : v.voivodeship;
+
+      const hasMatch = Array.isArray(vRegion)
+        ? filters.voivodeship.some((fv) => vRegion.includes(fv))
+        : filters.voivodeship.includes(vRegion);
       if (!hasMatch) return false;
     }
 
@@ -68,27 +70,30 @@ function applyFilters(vacancies, filters) {
       if (!filters.location.includes(vLoc)) return false;
     }
 
-    // --- 5. Жыллё ---
+    // --- 5. Жыллё (ФІКС логікі) ---
     if (filters.accommodation?.length > 0) {
       const accType = (v.accommodation?.type || "").toLowerCase();
       const isCouples = !!v.accommodation?.forCouples;
       const match = filters.accommodation.some((fa) => {
-        if (fa === "provided") return accType && !accType.includes("власн");
+        if (fa === "provided")
+          return (
+            accType.includes("платн") ||
+            accType.includes("безкошт") ||
+            accType.includes("надає")
+          );
         if (fa === "couples") return isCouples;
-        if (fa === "none") return accType.includes("власн") || !accType;
+        if (fa === "none") return accType.includes("власн");
         return false;
       });
       if (!match) return false;
     }
 
-    // --- 6. Транспарт (НОВАЕ) ---
+    // --- 6. Транспарт ---
     if (filters.transport?.length > 0) {
       const hasTransport = !!v.transport?.provided;
-      const match = filters.transport.some((ft) => {
-        if (ft === "provided") return hasTransport;
-        if (ft === "none") return !hasTransport;
-        return false;
-      });
+      const match = filters.transport.some((ft) =>
+        ft === "provided" ? hasTransport : !hasTransport,
+      );
       if (!match) return false;
     }
 
@@ -120,32 +125,29 @@ function applyFilters(vacancies, filters) {
       if (!filters.language.includes(vLang)) return false;
     }
 
-    // --- 9. Нацыянальнасць ---
+    // --- 9. Нацыянальнасць (ФІКС: поўнае супадзенне назваў) ---
     if (filters.nationality?.length > 0) {
       const vNats =
         Array.isArray(v.requirements?.nationalities) &&
         v.requirements.nationalities.length > 0
           ? v.requirements.nationalities
           : ["Україна"];
-      const hasMatch = filters.nationality.some((fn) =>
-        vNats.some((vn) => vn.trim().toLowerCase() === fn.trim().toLowerCase()),
-      );
-      if (!hasMatch) return false;
+      if (!filters.nationality.some((fn) => vNats.includes(fn))) return false;
     }
 
-    // --- 10. Дакументы (НОВАЕ) ---
+    // --- 10. Дакументы ---
     if (filters.docs?.length > 0) {
       const vDocs = v.requirements?.standardDocs || [];
       if (!filters.docs.some((d) => vDocs.includes(d))) return false;
     }
 
-    // --- 11. Асаблівасці / Нюансы (НОВАЕ) ---
+    // --- 11. Асаблівасці (Чэк-ліст) ---
     if (filters.nuances?.length > 0) {
       const vNuances = v.conditions?.specificNuances || [];
       if (!filters.nuances.some((n) => vNuances.includes(n))) return false;
     }
 
-    // --- 12. Агенцыя і Брэнд (НОВАЕ) ---
+    // --- 12. Агенцыя і Брэнд ---
     if (
       filters.agencyName?.length > 0 &&
       !filters.agencyName.includes(v.agencyName)
@@ -232,21 +234,28 @@ export default function Vacancies() {
     const brands = new Set();
     const locations = new Set();
     const voivodeships = new Set();
+    const nuances = new Set();
 
     vacancies.forEach((v) => {
       if (v.agencyName) agencies.add(v.agencyName);
       if (v.brand) brands.add(v.brand);
-      if (v.voivodeship) {
-        if (Array.isArray(v.voivodeship))
-          v.voivodeship.forEach((vv) => voivodeships.add(vv));
-        else voivodeships.add(v.voivodeship);
+
+      // Геаграфія
+      if (v.country && v.country !== "Polska") {
+        voivodeships.add("Європа (інші країни)");
+        locations.add(`${v.location} (${v.country})`);
+      } else {
+        if (v.voivodeship) {
+          if (Array.isArray(v.voivodeship))
+            v.voivodeship.forEach((vv) => voivodeships.add(vv));
+          else voivodeships.add(v.voivodeship);
+        }
+        if (v.location) locations.add(v.location);
       }
-      if (v.location) {
-        const locName =
-          v.country && v.country !== "Polska"
-            ? `${v.location} (${v.country})`
-            : v.location;
-        locations.add(locName);
+
+      // Нюансы (Чэк-ліст)
+      if (v.conditions?.specificNuances) {
+        v.conditions.specificNuances.forEach((n) => nuances.add(n));
       }
     });
 
@@ -255,6 +264,7 @@ export default function Vacancies() {
       brands: Array.from(brands).sort(),
       locations: Array.from(locations).sort(),
       voivodeships: Array.from(voivodeships).sort(),
+      nuances: Array.from(nuances).sort(),
     };
   }, [vacancies]);
 
@@ -355,6 +365,7 @@ export default function Vacancies() {
           brands={dynamicData.brands}
           locations={dynamicData.locations}
           voivodeships={dynamicData.voivodeships}
+          nuances={dynamicData.nuances}
         />
       </aside>
 
@@ -374,6 +385,7 @@ export default function Vacancies() {
                 brands={dynamicData.brands}
                 locations={dynamicData.locations}
                 voivodeships={dynamicData.voivodeships}
+                nuances={dynamicData.nuances} // ДАДАЦЬ ГЭТА
               />
             </div>
             <div className="p-4 border-t border-slate-800">

@@ -12,8 +12,9 @@ export default function VacancyFilters({
   setFilters,
   agencies = [],
   brands = [],
-  locations = [], // Дадаем новыя пропсы для дынамікі
+  locations = [],
   voivodeships = [],
+  nuances = [],
 }) {
   const draft = filters || EMPTY_FILTERS;
 
@@ -172,7 +173,7 @@ export default function VacancyFilters({
       <Section>
         <MultiSelect
           label="Асаблівасці (Чэк-ліст)"
-          options={MD.CHECKLIST_ITEMS}
+          options={nuances} // 2. ВЫКАРЫСТАЦЬ НАПРАМУ ЗАМЕСТ dynamicData.nuances
           selected={draft.nuances}
           onChange={(v) => updateField("nuances", v)}
           placeholder="Выбраць нюансы..."
