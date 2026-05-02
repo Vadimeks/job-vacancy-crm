@@ -397,8 +397,10 @@ CRITICAL GEOGRAPHY RULES:
    - STRICT RULE: NEVER include the country name "Polska" or "Poland".
    - Examples: "Варшава" -> "Warszawa", "Краків" -> "Kraków", "Польковиці/Polkovice" -> "Polkowice".
    - ALWAYS use Polish spelling for city names. This is mandatory for database filters.
-2. voivodeship: Select EXACTLY one from this list: ${POLISH_VOIVODESHIPS.join(", ")}. If the text doesn't mention it, determine it by the city.
-
+2. country: Identify the country. If it's NOT Poland (e.g., Germany, Netherlands, Lithuania), write the English name of the country.
+3. voivodeship: 
+   - If country is "Polska": Select exactly one from the list: ${POLISH_VOIVODESHIPS.join(", ")}. If the text doesn't mention it, determine it by the city.
+   - If country is NOT "Polska": ALWAYS set voivodeship to "Європа (інші країни)".
 CRITICAL PRIVACY & FORMATTING RULES:
 1. agencyName: Extract the RECRUITMENT AGENCY name ONLY (e.g. Manpower, OTTO). If no agency mentioned — use null.
 2. brand: Extract the specific factory or brand name (e.g., "LG", "Amazon", "Faurecia", "LPP"). This is the name of the workplace.
@@ -442,7 +444,10 @@ CORE PARSING RULES:
    - "additionalNotes": ALL other information that does not fit any specific structured field — recruitment stages, bus schedules, video links, contract details, extra notes, client brand names (BMW, Tesla).
    - ZERO LOSS RULE: Any piece of information from the source text that cannot be placed in a specific structured field MUST be written into "additionalNotes". Nothing is ever lost.
    - STRICT NO-DUPLICATION: If information is ALREADY captured in specific fields (salary, accommodation, transport, conditions.workwearFree, conditions.foodType), you MUST NOT repeat it in "description" or "additionalNotes".
-
+   - specificNuances: array of strings. Categorize each nuance using this format: "Category (detail)".
+  Categories to use: "Температурний режим", "Запахи", "Фізичне навантаження", "Характер праці", "Санітарні обмеження", "Інше".
+  Example: ["Запахи (запах гуми)", "Температурний режим (+10°C)", "Санітарні обмеження (без манікюру)"]
+  
 SALARY FIELD RULES:
 - baseNetto: MAIN rate from the text. Copy EXACTLY (e.g., "22.50 зл/год нетто" OR "31.40 zł/год brutto"). 
   CRITICAL: NEVER leave this field empty if any salary/rate is mentioned in the text. 
