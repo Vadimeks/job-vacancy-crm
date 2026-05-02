@@ -26,11 +26,12 @@ const STATUS_LABELS = {
   archived: "Архіў",
 };
 
+// 1. Поўная і карэктная функцыя фільтрацыі
 function applyFilters(vacancies, filters) {
   if (!vacancies) return [];
 
   return vacancies.filter((v) => {
-    // 1. Пошук (пакідаем як ёсць, працуе добра)
+    // --- 1. Пошук ---
     if (filters.search) {
       const s = filters.search.toLowerCase();
       const matchSearch =
@@ -43,13 +44,22 @@ function applyFilters(vacancies, filters) {
       if (!matchSearch) return false;
     }
 
-    // 2. Статус і Катэгорыя
+    // --- 2. Статус і Катэгорыя ---
     if (filters.status?.length > 0 && !filters.status.includes(v.status))
       return false;
     if (filters.category?.length > 0 && !filters.category.includes(v.category))
       return false;
 
-    // 3. Лакацыя (ФІКС: улічваем краіну для Еўропы)
+    // --- 3. Ваяводства ---
+    if (filters.voivodeship?.length > 0) {
+      const vVoiv = v.voivodeship;
+      const hasMatch = Array.isArray(vVoiv)
+        ? filters.voivodeship.some((fv) => vVoiv.includes(fv))
+        : filters.voivodeship.includes(vVoiv);
+      if (!hasMatch) return false;
+    }
+
+    // --- 4. Лакацыя ---
     if (filters.location?.length > 0) {
       const vLoc =
         v.country && v.country !== "Polska"
@@ -58,24 +68,31 @@ function applyFilters(vacancies, filters) {
       if (!filters.location.includes(vLoc)) return false;
     }
 
-    // 4. Жытло
+    // --- 5. Жыллё ---
     if (filters.accommodation?.length > 0) {
       const accType = (v.accommodation?.type || "").toLowerCase();
       const isCouples = !!v.accommodation?.forCouples;
       const match = filters.accommodation.some((fa) => {
-        if (fa === "provided")
-          return (
-            accType.includes("безкоштовн") || accType.includes("надається")
-          );
+        if (fa === "provided") return accType && !accType.includes("власн");
         if (fa === "couples") return isCouples;
-        if (fa === "none")
-          return accType.includes("власн") || accType.includes("платн");
+        if (fa === "none") return accType.includes("власн") || !accType;
         return false;
       });
       if (!match) return false;
     }
 
-    // 5. Хто едзе (ФІКС: калі няма дадзеных — гэта "Адзін")
+    // --- 6. Транспарт (НОВАЕ) ---
+    if (filters.transport?.length > 0) {
+      const hasTransport = !!v.transport?.provided;
+      const match = filters.transport.some((ft) => {
+        if (ft === "provided") return hasTransport;
+        if (ft === "none") return !hasTransport;
+        return false;
+      });
+      if (!match) return false;
+    }
+
+    // --- 7. Хто едзе ---
     if (filters.travelGroup?.length > 0) {
       const vGenders = Array.isArray(v.requirements?.gender)
         ? v.requirements.gender
@@ -83,11 +100,10 @@ function applyFilters(vacancies, filters) {
       const isCouples =
         !!v.accommodation?.forCouples || vGenders.includes("Пари");
       const isFamily = !!v.accommodation?.withChildren;
-      // Калі масіў пусты або ёсць М/Ж — гэта "Адзін"
       const isAlone =
-        vGenders.length === 0 ||
         vGenders.includes("Чоловіки") ||
-        vGenders.includes("Жінки");
+        vGenders.includes("Жінки") ||
+        vGenders.length === 0;
 
       const match = filters.travelGroup.some((fg) => {
         if (fg === "alone") return isAlone;
@@ -98,24 +114,45 @@ function applyFilters(vacancies, filters) {
       if (!match) return false;
     }
 
-    // 6. Нацыянальнасць (ФІКС: па змаўчанні Україна)
+    // --- 8. Мова ---
+    if (filters.language?.length > 0) {
+      const vLang = v.requirements?.polishLanguageLevel || "Не вимагається";
+      if (!filters.language.includes(vLang)) return false;
+    }
+
+    // --- 9. Нацыянальнасць ---
     if (filters.nationality?.length > 0) {
       const vNats =
         Array.isArray(v.requirements?.nationalities) &&
         v.requirements.nationalities.length > 0
           ? v.requirements.nationalities
           : ["Україна"];
-
       const hasMatch = filters.nationality.some((fn) =>
         vNats.some((vn) => vn.trim().toLowerCase() === fn.trim().toLowerCase()),
       );
       if (!hasMatch) return false;
     }
 
-    if (filters.language?.length > 0) {
-      const vLang = v.requirements?.polishLanguageLevel || "Не вимагається";
-      if (!filters.language.includes(vLang)) return false;
+    // --- 10. Дакументы (НОВАЕ) ---
+    if (filters.docs?.length > 0) {
+      const vDocs = v.requirements?.standardDocs || [];
+      if (!filters.docs.some((d) => vDocs.includes(d))) return false;
     }
+
+    // --- 11. Асаблівасці / Нюансы (НОВАЕ) ---
+    if (filters.nuances?.length > 0) {
+      const vNuances = v.conditions?.specificNuances || [];
+      if (!filters.nuances.some((n) => vNuances.includes(n))) return false;
+    }
+
+    // --- 12. Агенцыя і Брэнд (НОВАЕ) ---
+    if (
+      filters.agencyName?.length > 0 &&
+      !filters.agencyName.includes(v.agencyName)
+    )
+      return false;
+    if (filters.brand?.length > 0 && !filters.brand.includes(v.brand))
+      return false;
 
     return true;
   });
@@ -194,12 +231,17 @@ export default function Vacancies() {
     const agencies = new Set();
     const brands = new Set();
     const locations = new Set();
+    const voivodeships = new Set();
 
     vacancies.forEach((v) => {
       if (v.agencyName) agencies.add(v.agencyName);
       if (v.brand) brands.add(v.brand);
+      if (v.voivodeship) {
+        if (Array.isArray(v.voivodeship))
+          v.voivodeship.forEach((vv) => voivodeships.add(vv));
+        else voivodeships.add(v.voivodeship);
+      }
       if (v.location) {
-        // Калі не Польшча — дадаем краіну ў дужках
         const locName =
           v.country && v.country !== "Polska"
             ? `${v.location} (${v.country})`
@@ -212,6 +254,7 @@ export default function Vacancies() {
       agencies: Array.from(agencies).sort(),
       brands: Array.from(brands).sort(),
       locations: Array.from(locations).sort(),
+      voivodeships: Array.from(voivodeships).sort(),
     };
   }, [vacancies]);
 

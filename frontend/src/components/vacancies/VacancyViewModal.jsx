@@ -1,3 +1,4 @@
+//VacancyViewModal.jsx
 import React, { useState } from "react";
 import Divider from "../shared/Divider";
 import { Copy, Check, X, Factory, Tag } from "lucide-react";
