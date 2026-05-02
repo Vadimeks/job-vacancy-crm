@@ -50,15 +50,15 @@ function applyFilters(vacancies, filters) {
     if (filters.category?.length > 0 && !filters.category.includes(v.category))
       return false;
 
-    // --- 3. Ваяводства / Рэгіён (ФІКС для Еўропы) ---
+    // --- 3. Ваяводства / Рэгіён (ФІКС: Еўропа) ---
     if (filters.voivodeship?.length > 0) {
-      const isEurope = v.country && v.country !== "Polska";
-      const vRegion = isEurope ? "Європа (інші країни)" : v.voivodeship;
+      const vVoiv = v.voivodeship;
+      const isEurope =
+        (v.country && v.country !== "Polska") ||
+        vVoiv === "Європа (інші країни)";
+      const currentRegion = isEurope ? "Європа (інші країни)" : vVoiv;
 
-      const hasMatch = Array.isArray(vRegion)
-        ? filters.voivodeship.some((fv) => vRegion.includes(fv))
-        : filters.voivodeship.includes(vRegion);
-      if (!hasMatch) return false;
+      if (!filters.voivodeship.includes(currentRegion)) return false;
     }
 
     // --- 4. Лакацыя ---
@@ -70,19 +70,14 @@ function applyFilters(vacancies, filters) {
       if (!filters.location.includes(vLoc)) return false;
     }
 
-    // --- 5. Жыллё (ФІКС логікі) ---
+    // --- 5. Жыллё ---
     if (filters.accommodation?.length > 0) {
       const accType = (v.accommodation?.type || "").toLowerCase();
       const isCouples = !!v.accommodation?.forCouples;
       const match = filters.accommodation.some((fa) => {
-        if (fa === "provided")
-          return (
-            accType.includes("платн") ||
-            accType.includes("безкошт") ||
-            accType.includes("надає")
-          );
+        if (fa === "provided") return accType && !accType.includes("власн");
         if (fa === "couples") return isCouples;
-        if (fa === "none") return accType.includes("власн");
+        if (fa === "none") return accType.includes("власн") || !accType;
         return false;
       });
       if (!match) return false;
@@ -125,7 +120,7 @@ function applyFilters(vacancies, filters) {
       if (!filters.language.includes(vLang)) return false;
     }
 
-    // --- 9. Нацыянальнасць (ФІКС: поўнае супадзенне назваў) ---
+    // --- 9. Нацыянальнасць ---
     if (filters.nationality?.length > 0) {
       const vNats =
         Array.isArray(v.requirements?.nationalities) &&
@@ -141,10 +136,13 @@ function applyFilters(vacancies, filters) {
       if (!filters.docs.some((d) => vDocs.includes(d))) return false;
     }
 
-    // --- 11. Асаблівасці (Чэк-ліст) ---
+    // --- 11. Асаблівасці (ФІКС: па катэгорыях) ---
     if (filters.nuances?.length > 0) {
       const vNuances = v.conditions?.specificNuances || [];
-      if (!filters.nuances.some((n) => vNuances.includes(n))) return false;
+      const hasMatch = filters.nuances.some((fn) =>
+        vNuances.some((vn) => vn.startsWith(fn)),
+      );
+      if (!hasMatch) return false;
     }
 
     // --- 12. Агенцыя і Брэнд ---
@@ -240,22 +238,29 @@ export default function Vacancies() {
       if (v.agencyName) agencies.add(v.agencyName);
       if (v.brand) brands.add(v.brand);
 
-      // Геаграфія
-      if (v.country && v.country !== "Polska") {
+      // Геаграфія (Разумны збор)
+      const isEurope =
+        (v.country && v.country !== "Polska") ||
+        v.voivodeship === "Європа (інші країни)";
+
+      if (isEurope) {
         voivodeships.add("Європа (інші країни)");
-        locations.add(`${v.location} (${v.country})`);
+        const locName =
+          v.country && v.country !== "Polska"
+            ? `${v.location} (${v.country})`
+            : v.location;
+        locations.add(locName);
       } else {
-        if (v.voivodeship) {
-          if (Array.isArray(v.voivodeship))
-            v.voivodeship.forEach((vv) => voivodeships.add(vv));
-          else voivodeships.add(v.voivodeship);
-        }
+        if (v.voivodeship) voivodeships.add(v.voivodeship);
         if (v.location) locations.add(v.location);
       }
 
-      // Нюансы (Чэк-ліст)
+      // Нюансы (Збіраем толькі катэгорыі для фільтра)
       if (v.conditions?.specificNuances) {
-        v.conditions.specificNuances.forEach((n) => nuances.add(n));
+        v.conditions.specificNuances.forEach((n) => {
+          const category = n.includes(" (") ? n.split(" (")[0] : n;
+          nuances.add(category);
+        });
       }
     });
 

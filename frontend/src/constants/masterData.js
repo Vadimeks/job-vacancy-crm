@@ -104,4 +104,5 @@ export const VOIVODESHIPS = [
   "Warmińsko-mazurskie",
   "Wielkopolskie",
   "Zachodniopomorskie",
+  "Європа (інші країни)",
 ];
