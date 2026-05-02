@@ -1,4 +1,3 @@
-//EditVacancyModal.jsx
 import { useState } from "react";
 import { updateVacancy } from "../../services/api";
 import Field from "../shared/Field";
@@ -9,22 +8,23 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
   const [form, setForm] = useState({
     ...vacancy,
     brand: vacancy.brand || "",
-    voivodeship: Array.isArray(vacancy.voivodeship) ? vacancy.voivodeship : [],
-    category: Array.isArray(vacancy.category) ? vacancy.category : [],
+    // ВАЖНА: voivodeship і category — гэта радкі (String) у базе!
+    voivodeship: vacancy.voivodeship || "",
+    category: vacancy.category || "",
     keywords: Array.isArray(vacancy.keywords)
       ? vacancy.keywords.join(", ")
       : vacancy.keywords || "",
     requirements: {
       ...vacancy.requirements,
-      gender: vacancy.requirements?.gender || "",
+      // gender — гэта масіў [String] у базе!
+      gender: Array.isArray(vacancy.requirements?.gender)
+        ? vacancy.requirements.gender
+        : [],
       standardDocs: Array.isArray(vacancy.requirements?.standardDocs)
         ? vacancy.requirements.standardDocs
         : [],
       nationalities: Array.isArray(vacancy.requirements?.nationalities)
         ? vacancy.requirements.nationalities
-        : [],
-      languages: Array.isArray(vacancy.requirements?.languages)
-        ? vacancy.requirements.languages
         : [],
     },
     conditions: {
@@ -105,12 +105,45 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
       const res = await updateVacancy(vacancy._id, data);
       onSave(res.data);
       onClose();
-    } catch {
-      alert("Памылка захавання");
+    } catch (err) {
+      console.error("Save Error:", err.response?.data || err.message);
+      alert(
+        "Памылка захавання: " +
+          (err.response?.data?.message || "праверце палі"),
+      );
     } finally {
       setSaving(false);
     }
   };
+
+  const SingleBtnGroup = ({ label, options, selectedValue, onSelect }) => (
+    <div className="mb-4">
+      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">
+        {label}
+      </label>
+      <div className="flex flex-wrap gap-2 p-2 bg-slate-800/30 rounded-xl border border-slate-800">
+        {options.map((opt) => {
+          const val = opt.value || opt;
+          const lbl = opt.label || opt;
+          const isActive = selectedValue === val;
+          return (
+            <button
+              key={val}
+              type="button"
+              onClick={() => onSelect(val)}
+              className={`px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all border ${
+                isActive
+                  ? "bg-emerald-500 border-emerald-500 text-slate-900"
+                  : "bg-slate-800 border-slate-700 text-slate-400"
+              }`}
+            >
+              {lbl}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
 
   const MultiBtnGroup = ({ label, options, selectedValues, onToggle }) => (
     <div className="mb-4">
@@ -129,8 +162,8 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
               onClick={() => onToggle(val)}
               className={`px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all border ${
                 isActive
-                  ? "bg-emerald-500 border-emerald-500 text-slate-900 shadow-md shadow-emerald-500/20"
-                  : "bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-500"
+                  ? "bg-emerald-500 border-emerald-500 text-slate-900"
+                  : "bg-slate-800 border-slate-700 text-slate-400"
               }`}
             >
               {lbl}
@@ -169,18 +202,18 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
         </div>
 
         <div className="px-6 py-5 space-y-8">
-          <MultiBtnGroup
+          <SingleBtnGroup
             label="Статус"
             options={MD.STATUSES}
-            selectedValues={[form.status]}
-            onToggle={(v) => setField("status", v)}
+            selectedValue={form.status}
+            onSelect={(v) => setField("status", v)}
           />
 
           <Divider label="⚙️ Сістэмныя палі" />
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
               <Field
-                label="Назва для адмінкі (templateName)"
+                label="Назва для адмінкі"
                 value={form.templateName}
                 onChange={(v) => setField("templateName", v)}
               />
@@ -211,10 +244,9 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
               label="Дата прыезду"
               value={form.arrivalDate}
               onChange={(v) => setField("arrivalDate", v)}
-              placeholder="напр. 20.04"
             />
             <Field
-              label="Колькасць (count)"
+              label="Колькасць"
               value={form.count}
               onChange={(v) => setField("count", v)}
             />
@@ -225,23 +257,23 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
             />
           </div>
 
-          <MultiBtnGroup
+          <SingleBtnGroup
             label="Катэгорыя"
             options={MD.CATEGORIES}
-            selectedValues={[form.category]}
-            onToggle={(v) => setField("category", v)}
+            selectedValue={form.category}
+            onSelect={(v) => setField("category", v)}
           />
 
           <Divider label="📍 Лакацыя" />
-          <MultiBtnGroup
-            label="Ваяводствы"
+          <SingleBtnGroup
+            label="Ваяводства / Рэгіён"
             options={MD.VOIVODESHIPS}
-            selectedValues={form.voivodeship}
-            onToggle={(v) => toggleArrayItem("voivodeship", v)}
+            selectedValue={form.voivodeship}
+            onSelect={(v) => setField("voivodeship", v)}
           />
           <div className="grid grid-cols-2 gap-4">
             <Field
-              label="Горад (location)"
+              label="Горад"
               value={form.location}
               onChange={(v) => setField("location", v)}
             />
@@ -252,7 +284,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
             />
             <div className="col-span-2">
               <Field
-                label="Поўны адрас (locationDescription)"
+                label="Поўны адрас"
                 value={form.locationDescription}
                 onChange={(v) => setField("locationDescription", v)}
               />
@@ -341,6 +373,12 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
 
           <Divider label="📋 Патрабаванні" />
           <MultiBtnGroup
+            label="Набор (Гендар)"
+            options={MD.GENDERS}
+            selectedValues={form.requirements.gender}
+            onToggle={(v) => toggleArrayItem("requirements.gender", v)}
+          />
+          <MultiBtnGroup
             label="Нацыянальнасці"
             options={MD.NATIONALITIES}
             selectedValues={form.requirements.nationalities}
@@ -352,19 +390,8 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
             selectedValues={form.requirements.standardDocs}
             onToggle={(v) => toggleArrayItem("requirements.standardDocs", v)}
           />
-          <MultiBtnGroup
-            label="Веданне моў"
-            options={MD.LANGUAGES}
-            selectedValues={form.requirements.languages}
-            onToggle={(v) => toggleArrayItem("requirements.languages", v)}
-          />
 
           <div className="grid grid-cols-2 gap-4">
-            <Field
-              label="Гендар"
-              value={form.requirements?.gender}
-              onChange={(v) => setField("requirements.gender", v)}
-            />
             <Field
               label="Макс. узрост"
               value={form.requirements?.ageMax || ""}
@@ -439,6 +466,20 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
               />
               <label htmlFor="withChildren" className="text-xs text-slate-400">
                 З дзецьмі
+              </label>
+            </div>
+            <div className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                id="withPets"
+                checked={!!form.accommodation?.withPets}
+                onChange={(e) =>
+                  setField("accommodation.withPets", e.target.checked)
+                }
+                className="accent-emerald-500"
+              />
+              <label htmlFor="withPets" className="text-xs text-slate-400">
+                З жывёламі
               </label>
             </div>
           </div>
