@@ -118,19 +118,19 @@ async function processPendingMessages() {
   if (isProcessing) return;
 
   try {
-    // 1. Ціхая праверка: калі няма чаго апрацоўваць — проста выходзім
-    const count = await UnprocessedMessage.countDocuments({ processed: false });
-    if (count === 0) return;
+    // 1. Бярэм толькі тыя паведамленні, якія:
+    // - яшчэ не апрацаваны (processed: false)
+    // - і яшчэ НЕ маюць поля rawText (значыць AI іх яшчэ не бачыў)
+    const pending = await UnprocessedMessage.find({
+      processed: false,
+      rawText: { $exists: false },
+    }).limit(10);
+
+    if (pending.length === 0) return; // Ціха выходзім, калі няма сапраўды новых
 
     isProcessing = true;
-
-    // 2. Бярэм паведамленні
-    const pending = await UnprocessedMessage.find({ processed: false }).limit(
-      10,
-    );
-
     console.log(
-      `⚙️ ПАЧАТАК АПРАЦОЎКІ: ${pending.length} паведамленняў у чарзе...`,
+      `⚙️ ПАЧАТАК АПРАЦОЎКІ: ${pending.length} новых паведамленняў у чарзе...`,
     );
 
     const startOfToday = new Date();
@@ -162,7 +162,7 @@ async function processPendingMessages() {
 
         if (!analysis || analysis.error) {
           console.log(
-            `⏳ AI памылка (ліміты) для ${msg.agencyName}. Пакідаю ў Пясочніцы.`,
+            `⏳ AI памылка (ліміты) для ${msg.agencyName}. Пакідаю ў Пясочніцы для наступнай спробы.`,
           );
           continue;
         }
@@ -175,6 +175,7 @@ async function processPendingMessages() {
           console.log(`📎 Смецце (NOISE) для ${msg.agencyName}. Хаваю.`);
           msg.category = "chat";
           msg.processed = true;
+          msg.rawText = analysis.translatedText || msg.text; // Пазначаем, што апрацавана
           await msg.save();
           continue;
         }
@@ -215,7 +216,8 @@ async function processPendingMessages() {
           }
         }
 
-        msg.rawText = analysis.translatedText || msg.text;
+        // ЗАХОЎВАЕМ ВЫНІК
+        msg.rawText = analysis.translatedText || msg.text; // Гэта наш галоўны маркер апрацоўкі
         msg.category = finalCategory;
         msg.processed = isAutoDone;
         await msg.save();
