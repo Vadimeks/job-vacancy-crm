@@ -92,8 +92,8 @@ RECENT_VACANCIES: ${JSON.stringify(recentVacancies.slice(0, 5))}
 NEW_MESSAGE: ${text}
 
 CATEGORIES: 
-- FULL_VACANCY: Detailed job offer. MUST contain: Position name, Location, AND at least one of: Salary details or Job Duties. 
-  CRITICAL: If the message is shorter than 300 characters, classify as UPDATE.
+- - FULL_VACANCY: Detailed job offer. MUST contain: Position name, Location, AND at least one of: Salary details or Job Duties. 
+  CRITICAL: If these 3 elements are present, ALWAYS classify as FULL_VACANCY, regardless of the chat source or similarity to previous messages.
 - UPDATE: Short info, changes to existing jobs, lists of vacancies without full details, or "STOP/Closed" messages.
 - RECRUITER_INFO: Legal updates (PESEL, UKR status), office info, or general recruitment rules.
 - NOISE: Greetings, social talk, system notifications.

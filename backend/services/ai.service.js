@@ -449,7 +449,10 @@ CORE PARSING RULES:
    - specificNuances: array of strings. Categorize each nuance using this format: "Category (detail)".
   Categories to use: "Температурний режим", "Запахи", "Фізичне навантаження", "Характер праці", "Санітарні обмеження", "Інше".
   Example: ["Запахи (запах гуми)", "Температурний режим (+10°C)", "Санітарні обмеження (без манікюру)"]
-  
+  9. STATUS LOGIC: 
+   - If the arrivalDate or any recruitment date mentioned in the text is clearly in the past, set "status" to "archive".
+   - Otherwise, set "status" to "active".
+   - Use exactly these strings: "active" or "archive".
 SALARY FIELD RULES:
 - baseNetto: MAIN rate from the text. Copy EXACTLY (e.g., "22.50 зл/год нетто" OR "31.40 zł/год brutto"). 
   CRITICAL: NEVER leave this field empty if any salary/rate is mentioned in the text. 
@@ -472,6 +475,7 @@ CONDITIONS & KEYWORDS:
 
 JSON STRUCTURE:
 {
+ "status": "active", 
   "agencyName": null,
   "brand": "",
   "templateName": "",
@@ -614,6 +618,7 @@ JSON STRUCTURE:
     return {
       // === 1. СИСТЕМНІ ПОЛЯ ===
       ...cleaned,
+      status: cleaned.status || "active",
       agencyName: cleaned.agencyName?.toUpperCase() || null,
       brand: cleaned.brand || "",
       templateName: cleaned.templateName || "",
