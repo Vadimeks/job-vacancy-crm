@@ -39,15 +39,15 @@ const SYSTEM_NOISE = [
   /пропущений виклик/i,
   /вхідний виклик/i,
   /^відповідає:/i,
-  /приєднався до спільноти/i,
-  /приєдналась д[ао] спільноти/i,
-  /приєднується [доа] групи/i,
-  /приєднався до .+/i, // 🆕 Фікс для "Mila прыєдналася"
-  /приєдналась до .+/i, // 🆕 Жаночы варыянт
-  /Користувач .* приєднався/i, // 🆕 Яшчэ адзін варыянт Viber
-  /joins the .* group/i,
-  /pinned a message/i,
-  /joined the group/i,
+  /^приєднався до спільноти/i,
+  /^приєдналась д[ао] спільноти/i,
+  /^приєднується [доа] групи/i,
+  /^приєднався до .+/i,
+  /^приєдналась до .+/i,
+  /Користувач .* приєднався/i,
+  /^joins the .* group/i,
+  /^pinned a message/i,
+  /^joined the group/i,
   /left the group/i,
   /фотоповідомлення/i,
   /голосове повідомлення/i,
@@ -55,7 +55,6 @@ const SYSTEM_NOISE = [
   /стікер/i,
   /закріплює повідомлення/i,
   /закріплює:?\s*$/i,
-  /ніден:\s*закріплює/i,
   /menu\s*$/i,
   /^реагує .* на/i,
   /новий коментар до вашого повідомлення/i,
@@ -114,13 +113,19 @@ function superNormalize(str) {
 // Функцыя для праверкі старых дат у тэксце
 function isOldMessage(text) {
   if (!text) return false;
-  const dateMatch = text.match(/(\d{1,2})[./](\d{1,2})/);
+
+  // Шукаем дату, якая стаіць асобна (напрыклад, "Дата: 20.04" або "на 20/04")
+  // Дадаем праверку, каб перад лічбай не было кропкі ці іншай лічбы (каб не блытаць з 20.50)
+  const dateMatch = text.match(/(?:\s|^)(\d{1,2})[./](\d{1,2})(?:\s|$)/);
   if (!dateMatch) return false;
 
   const day = parseInt(dateMatch[1], 10);
-  const month = parseInt(dateMatch[2], 10) - 1; // JS months 0-11
-  const year = new Date().getFullYear();
+  const month = parseInt(dateMatch[2], 10) - 1;
 
+  // Калі месяц больш за 12 — гэта дакладна не дата, а нейкая лічба
+  if (month > 11 || month < 0) return false;
+
+  const year = new Date().getFullYear();
   const msgDate = new Date(year, month, day);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -128,7 +133,7 @@ function isOldMessage(text) {
   const diffTime = today - msgDate;
   const diffDays = diffTime / (1000 * 60 * 60 * 24);
 
-  return diffDays > 3; // Ігнаруем, калі старэйшае за 3 дні
+  return diffDays > 3;
 }
 
 /**
