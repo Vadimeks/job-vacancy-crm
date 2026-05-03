@@ -138,8 +138,9 @@ Use this structure (SKIP lines/sections if data is null):
 [📄 Тип договору: [contractType]]
 
 [🏠 *Проживання*
-[Тип: [accommodation.type]]
-[• Вартість: [accommodation.costRaw]]
+🏠 Проживання: [accommodation.type]
+[• Можна з дітьми: Так (only if withChildren is true)]
+[• Можна з тваринами: Так (only if withPets is true)]
 [• Деталі: [accommodation.details]]
 ]
 
@@ -436,10 +437,17 @@ CORE PARSING RULES:
 3. NO INTERPRETATION: If no specific number (temperature, distance) — write as text, NEVER guess.
 4. checkInCity: ONLY if registration city DIFFERS from work city. Leave empty if same or no info. Use Latin characters.
 5. contractType: Copy EXACTLY ("Umowa o pracę" or "Umowa zlecenie"). If not mentioned — null.
-6. GENDER + COUPLES: If couples mentioned → add "Пари" to gender array AND set forCouples: true.
-    - OWN HOUSING: If the text says "власне житло", "на власному житлі", or "житло не надається", you MUST set accommodation.type to "Не надається".
-   - OWN HOUSING DETAILS: If there is a subsidy for own housing (доплата за власне житло), set accommodation.type to "Не надається" and put the subsidy amount into accommodation.details.
-   - COUPLES & HOUSING: If the text says housing for couples is NOT available yet...
+6. CRITICAL HOUSING RULES:
+   - accommodation.type: Select EXACTLY one of these Ukrainian values:
+     1. "Надається (для пар)": ONLY if the text explicitly mentions housing for couples or rooms for couples.
+     2. "Надається": General housing provided by the company.
+     3. "Не надається": If the text explicitly says housing is NOT provided.
+     4. null: If there is NO information about housing at all.
+   - accommodation.forCouples: Set to true ONLY if "Надається (для пар)" is selected.
+   - accommodation.withChildren: Set to true ONLY if the text says children are allowed in the housing.
+   - accommodation.withPets: Set to true ONLY if the text says pets are allowed in the housing.
+   - accommodation.details: Put ALL housing information here (cost, number of people in room, Wi-Fi, subsidy for own housing, info about children/pets). 
+   - STRICT RULE: Do NOT use the "costRaw" field, put the price/cost directly in "details".
 7. EXPENSES SPLIT: Costs BEFORE work (medical) → startExpenses. Costs/penalties DURING or on early exit → earlyTerminationLiability.
 8. FIELD DISTRIBUTION — description vs additionalNotes:
    - "description": job duties and work process ONLY. Use SEMICOLONS (;) to separate each duty.
@@ -449,10 +457,7 @@ CORE PARSING RULES:
    - specificNuances: array of strings. Categorize each nuance using this format: "Category (detail)".
   Categories to use: "Температурний режим", "Запахи", "Фізичне навантаження", "Характер праці", "Санітарні обмеження", "Інше".
   Example: ["Запахи (запах гуми)", "Температурний режим (+10°C)", "Санітарні обмеження (без манікюру)"]
-  9. STATUS LOGIC: 
-   - If the arrivalDate or any recruitment date mentioned in the text is clearly in the past, set "status" to "archive".
-   - Otherwise, set "status" to "active".
-   - Use exactly these strings: "active" or "archive".
+  
 SALARY FIELD RULES:
 - baseNetto: MAIN rate from the text. Copy EXACTLY (e.g., "22.50 зл/год нетто" OR "31.40 zł/год brutto"). 
   CRITICAL: NEVER leave this field empty if any salary/rate is mentioned in the text. 
@@ -475,7 +480,6 @@ CONDITIONS & KEYWORDS:
 
 JSON STRUCTURE:
 {
- "status": "active", 
   "agencyName": null,
   "brand": "",
   "templateName": "",
@@ -618,7 +622,6 @@ JSON STRUCTURE:
     return {
       // === 1. СИСТЕМНІ ПОЛЯ ===
       ...cleaned,
-      status: cleaned.status || "active",
       agencyName: cleaned.agencyName?.toUpperCase() || null,
       brand: cleaned.brand || "",
       templateName: cleaned.templateName || "",
@@ -667,12 +670,10 @@ JSON STRUCTURE:
 
       // === 5. ПРАЖЫВАННЕ І ТРАНСПАРТ ===
       accommodation: {
-        ...(cleaned.accommodation || {}),
-        type: cleaned.accommodation?.type || null,
+        type: cleaned.accommodation?.type || null, // null калі няма інфы
         forCouples: !!cleaned.accommodation?.forCouples,
         withChildren: !!cleaned.accommodation?.withChildren,
         withPets: !!cleaned.accommodation?.withPets,
-        costRaw: cleaned.accommodation?.costRaw || "",
         details: cleaned.accommodation?.details || "",
       },
       transport: {
