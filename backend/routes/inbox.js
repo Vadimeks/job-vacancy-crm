@@ -63,13 +63,13 @@ router.post("/push", async (req, res) => {
     );
 
     const incomingPrefixHash = getPrefixHash(text);
-    const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
+    const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000);
 
     // 3. Дэдуплікацыя (да базы)
     const existingMsg = await UnprocessedMessage.findOne({
       agencyName: agency,
       prefixHash: incomingPrefixHash,
-      createdAt: { $gte: twelveHoursAgo },
+      createdAt: { $gte: fortyEightHoursAgo },
     });
 
     if (existingMsg) {

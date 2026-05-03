@@ -57,6 +57,8 @@ const SYSTEM_NOISE = [
   /закріплює:?\s*$/i,
   /ніден:\s*закріплює/i,
   /menu\s*$/i,
+  /^реагує .* на/i,
+  /новий коментар до вашого повідомлення/i,
 ];
 
 const RECRUITER_CHAT_NOISE = [
@@ -182,13 +184,15 @@ function getWhitelistedAgency(chatTitle, chatId = null) {
 
   // 2. Фолбэк: Пошук па назве
   const normalizedChat = superNormalize(chatTitle);
+
   const matchByTitle = CHAT_AGENCY_MAP.find((entry) => {
     if (!entry.key) return false;
     const normalizedKey = superNormalize(entry.key);
-    return (
-      normalizedChat.includes(normalizedKey) ||
-      normalizedKey.includes(normalizedChat)
-    );
+
+    // ВАЖНА: Пярэднім толькі ці змяшчае назва чата наш ключ.
+    // Выдаляем зваротную праверку (normalizedKey.includes(normalizedChat)),
+    // якая выклікала памылку з кароткімі назвамі як "То".
+    return normalizedChat.includes(normalizedKey);
   });
 
   return matchByTitle ? matchByTitle.agency : null;
