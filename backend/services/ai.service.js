@@ -437,7 +437,9 @@ CORE PARSING RULES:
 4. checkInCity: ONLY if registration city DIFFERS from work city. Leave empty if same or no info. Use Latin characters.
 5. contractType: Copy EXACTLY ("Umowa o pracę" or "Umowa zlecenie"). If not mentioned — null.
 6. GENDER + COUPLES: If couples mentioned → add "Пари" to gender array AND set forCouples: true.
-   - COUPLES & HOUSING: If the text says housing for couples is NOT available yet (e.g. "для пар немає житла", "житло для пар поки відсутнє") → set forCouples: false, BUT write a note in accommodation.details: "Житло для пар наразі відсутнє, можливо з'явиться пізніше".
+    - OWN HOUSING: If the text says "власне житло", "на власному житлі", or "житло не надається", you MUST set accommodation.type to "Не надається".
+   - OWN HOUSING DETAILS: If there is a subsidy for own housing (доплата за власне житло), set accommodation.type to "Не надається" and put the subsidy amount into accommodation.details.
+   - COUPLES & HOUSING: If the text says housing for couples is NOT available yet...
 7. EXPENSES SPLIT: Costs BEFORE work (medical) → startExpenses. Costs/penalties DURING or on early exit → earlyTerminationLiability.
 8. FIELD DISTRIBUTION — description vs additionalNotes:
    - "description": job duties and work process ONLY. Use SEMICOLONS (;) to separate each duty.
@@ -661,7 +663,7 @@ JSON STRUCTURE:
       // === 5. ПРАЖЫВАННЕ І ТРАНСПАРТ ===
       accommodation: {
         ...(cleaned.accommodation || {}),
-        type: cleaned.accommodation?.type || "Платне",
+        type: cleaned.accommodation?.type || null,
         forCouples: !!cleaned.accommodation?.forCouples,
         withChildren: !!cleaned.accommodation?.withChildren,
         withPets: !!cleaned.accommodation?.withPets,
