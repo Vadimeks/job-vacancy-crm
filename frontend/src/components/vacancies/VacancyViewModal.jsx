@@ -71,6 +71,7 @@ export default function VacancyViewModal({
             <div className="space-y-1 text-slate-300">
               <p>
                 📍 <span className="font-semibold">Місто:</span> {v.location}
+                {v.country && v.country !== "Polska" ? ` (${v.country})` : ""}
               </p>
               {v.checkInCity && (
                 <p>
