@@ -77,7 +77,8 @@ function applyFilters(vacancies, filters) {
       const match = filters.accommodation.some((fa) => {
         if (fa === "provided") return accType && !accType.includes("власн");
         if (fa === "couples") return isCouples;
-        if (fa === "none") return accType.includes("власн") || !accType;
+        if (fa === "none")
+          return accType.includes("власн") || accType.includes("не надаєт");
         return false;
       });
       if (!match) return false;
@@ -100,10 +101,7 @@ function applyFilters(vacancies, filters) {
       const isCouples =
         !!v.accommodation?.forCouples || vGenders.includes("Пари");
       const isFamily = !!v.accommodation?.withChildren;
-      const isAlone =
-        vGenders.includes("Чоловіки") ||
-        vGenders.includes("Жінки") ||
-        vGenders.length === 0;
+      const isAlone = !isCouples && !isFamily;
 
       const match = filters.travelGroup.some((fg) => {
         if (fg === "alone") return isAlone;

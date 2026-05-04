@@ -112,8 +112,7 @@ export default function Inbox() {
   const handleAiUpdate = async (msg, vacancyId) => {
     setProcessingId(msg._id);
     try {
-      await aiUpdateVacancy(vacancyId, msg.rawText || msg.text);
-      await markInboxProcessed(msg._id);
+      await aiUpdateVacancy(vacancyId, msg.rawText || msg.text, msg._id);
       notifyUpdate();
       alert("✅ Вакансія абноўлена!");
       fetchAll();

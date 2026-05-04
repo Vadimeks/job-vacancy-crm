@@ -19,7 +19,7 @@ export const CATEGORIES = [
 
 export const STATUSES = [
   { value: "active", label: "🟢 Активна" },
-  { value: "archive", label: "📂 Архів" },
+  { value: "archived", label: "📂 Архів" },
   { value: "closed", label: "🔴 Закрита" },
 ];
 
