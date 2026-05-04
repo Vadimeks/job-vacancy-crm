@@ -76,51 +76,75 @@ async function processVacancyMessage(
   rawText,
   senderInfo = "Manual",
   preDefinedAgency = null,
-  originalText = "", // Дадалі
-  isTruncated = false, // Дадалі
+  originalText = "",
+  isTruncated = false,
 ) {
   console.log(`\n--- 🚀 ПАЧАТАК АПРАЦОЎКІ ВАКАНСІІ ---`);
 
-  let finalAgency =
-    preDefinedAgency || getWhitelistedAgency(senderInfo) || "Manual";
-
   try {
+    // [0/3] Збагачэнне тэксту з Google Docs (калі ёсць спасылка)
+    console.log(`[0/3] Праверка на Google Docs спасылкі...`);
+    const enrichedText = await aiService.enrichTextWithDocs(rawText);
+
+    // [1/3] Парсінг (адна або некалькі вакансій)
     console.log(`[1/3] Запуск Groq-парсера...`);
-    const vacancyData = await aiService.parseVacancyWithAI(rawText);
+    const vacancyList = await aiService.parseMultipleVacancies(enrichedText);
 
-    const displayName = constructVacancyDisplayName({
-      ...vacancyData,
-      agencyName: finalAgency,
-    });
-    const postText = await aiService.formatTelegramPost({
-      ...vacancyData,
-      agencyName: finalAgency,
-    });
-    const vacancyCode = await generateVacancyCode();
+    if (vacancyList.length > 1) {
+      console.log(`📦 Пакетная апрацоўка: ${vacancyList.length} вакансій`);
+    }
 
-    const newVacancy = new Vacancy({
-      ...vacancyData,
-      agencyName: finalAgency,
-      templateName: displayName,
-      vacancyCode,
-      originalText: originalText || rawText,
-      rawText: rawText,
-      isTruncated: isTruncated,
-      telegramPost: postText,
-      status: "active",
-    });
+    const savedVacancies = [];
 
-    const savedVacancy = await newVacancy.save();
-    await sendToTelegram(postText);
+    for (const vacancyData of vacancyList) {
+      // Агенцыя: preDefinedAgency > whitelist > AI-парсер > Manual
+      const finalAgency =
+        preDefinedAgency ||
+        getWhitelistedAgency(senderInfo) ||
+        vacancyData.agencyName ||
+        "Manual";
 
-    console.log(`✅ Вакансія створана: ${vacancyCode}`);
-    return savedVacancy;
+      const displayName = constructVacancyDisplayName({
+        ...vacancyData,
+        agencyName: finalAgency,
+      });
+      const postText = await aiService.formatTelegramPost({
+        ...vacancyData,
+        agencyName: finalAgency,
+      });
+      const vacancyCode = await generateVacancyCode();
+
+      const newVacancy = new Vacancy({
+        ...vacancyData,
+        agencyName: finalAgency,
+        templateName: displayName,
+        vacancyCode,
+        originalText: originalText || rawText,
+        rawText: enrichedText,
+        isTruncated: isTruncated,
+        telegramPost: postText,
+        status: "active",
+      });
+
+      const saved = await newVacancy.save();
+      await sendToTelegram(postText);
+      savedVacancies.push(saved);
+      console.log(`✅ Вакансія створана: ${vacancyCode} (${finalAgency})`);
+
+      // Паўза паміж вакансіямі каб не спаміць Telegram
+      if (vacancyList.length > 1) {
+        await new Promise((r) => setTimeout(r, 1500));
+      }
+    }
+
+    return savedVacancies[0]; // сумяшчальнасць з існуючым кодам
   } catch (err) {
     console.error(`❌ Памылка Groq: ${err.message}. Перанос у Інбокс.`);
 
-    // 🔧 Не ствараць дублікат калі такі тэкст ужо ёсць у буферы.
-    // Без гэтага кожны краш стварае новы запіс → паведамленне зацыклівалася:
-    // бралася зноў на апрацоўку → крашыла → новы fallback → і г.д. бясконца.
+    // finalAgency тут вызначаем зноў бо маглі не дайсці да цыкла
+    const finalAgency =
+      preDefinedAgency || getWhitelistedAgency(senderInfo) || "Manual";
+
     const textHash = rawText.toLowerCase().replace(/[^a-zа-яёіў0-9]/gi, "");
     const existing = await UnprocessedMessage.findOne({
       agencyName: finalAgency,
@@ -129,7 +153,6 @@ async function processVacancyMessage(
     });
 
     if (!existing) {
-      // Ствараем толькі калі такога яшчэ няма
       const fallbackMsg = new UnprocessedMessage({
         sender: senderInfo,
         agencyName: finalAgency,

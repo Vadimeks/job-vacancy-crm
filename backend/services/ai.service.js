@@ -64,7 +64,21 @@ function cleanData(obj) {
 }
 
 // --- PROMPTS ---
+const MULTI_VACANCY_SYSTEM_PROMPT = `
+ROLE: Professional HR vacancy parser.
+TASK: The input text contains MULTIPLE separate job vacancies. Parse EACH one into a separate JSON object using the SAME structure as for a single vacancy.
 
+CRITICAL RULES:
+1. Each vacancy must be a fully independent object with ALL fields filled.
+2. If some field is shared (e.g., agency, docs) — duplicate it into EACH object.
+3. Return ONLY this JSON structure, nothing else:
+{ "vacancies": [ {...}, {...}, {...} ] }
+${LANGUAGE_GUARD}
+Use the same field structure as always:
+{ "agencyName": null, "brand": "", "templateName": "", "vacancydescription": "", 
+  "category": "", "location": "", "country": "Polska", "voivodeship": "", 
+  "salary": { "baseNetto": "" }, "description": "", ... }
+`;
 const IDENTIFY_PROMPT = `
 ROLE: HR Dispatcher assistant.
 TASK: Identify which template this job vacancy message belongs to.
@@ -642,7 +656,7 @@ JSON STRUCTURE:
       location: cleaned.location || "",
       locationDescription: cleaned.locationDescription || "",
       voivodeship: cleaned.voivodeship || "Польща",
-      country: "Polska",
+      country: cleaned.country || "Polska",
       checkInCity: cleaned.checkInCity || "",
 
       // === 3. ФІНАНСЫ ===
@@ -924,6 +938,120 @@ async function simpleTranslate(text) {
     return text;
   }
 }
+async function parseMultipleVacancies(rawText) {
+  // Крок 1: Хутка правяраем — ці ёсць некалькі вакансій (дашёвы запыт)
+  const countRaw = await groqRequest(
+    `You are a vacancy counter. Count how many SEPARATE job vacancies are in the text (different city OR different position = separate vacancy). Return ONLY JSON: {"count": N}`,
+    rawText,
+    true,
+  );
+  const { count } = JSON.parse(countRaw);
+  console.log(`📊 Вакансій у паведамленні: ${count}`);
+
+  // Калі адна — звычайны парсінг
+  if (!count || count <= 1) {
+    const single = await parseVacancyWithAI(rawText);
+    return [single];
+  }
+
+  // Крок 2: Парсім усе адразу як масіў
+  console.log(`🔀 Знойдзена ${count} вакансій — запуск мульті-парсінгу...`);
+  const raw = await groqRequest(
+    MULTI_VACANCY_SYSTEM_PROMPT,
+    `Input text:\n${rawText}`,
+    true,
+  );
+  const parsed = JSON.parse(raw);
+  const list = parsed.vacancies || parsed; // страхоўка калі AI забудзе абгортку
+
+  if (!Array.isArray(list) || list.length === 0) {
+    // Фолбэк: калі нешта пайшло не так — адзінарны парсінг
+    const single = await parseVacancyWithAI(rawText);
+    return [single];
+  }
+
+  // Крок 3: Кожны элемент праганяем праз cleanData і пост-апрацоўку
+  // (каб нормалізацыя была такая ж як і для адзінарнай вакансіі)
+  return list.map((item) => {
+    const cleaned = cleanData(item);
+    return {
+      ...cleaned,
+      agencyName: cleaned.agencyName?.toUpperCase() || null,
+      country: cleaned.country || "Polska",
+      voivodeship: cleaned.voivodeship || "",
+      salary: { baseNetto: "", ...cleaned.salary },
+      requirements: {
+        gender: ["Чоловіки", "Жінки"],
+        nationalities: ["Україна"],
+        standardDocs: [],
+        polishLanguageLevel: "Не вимагається",
+        ...cleaned.requirements,
+      },
+      conditions: {
+        foodType: "Власне",
+        specificNuances: [],
+        ...cleaned.conditions,
+      },
+      accommodation: {
+        forCouples: false,
+        withChildren: false,
+        withPets: false,
+        ...cleaned.accommodation,
+      },
+      transport: { provided: false, ...cleaned.transport },
+    };
+  });
+}
+/**
+ * Спрабуе знайсці Google Docs URL у тэксце і загрузіць яго змест
+ */
+async function fetchGoogleDocText(url) {
+  const match = url.match(/\/document\/d\/([a-zA-Z0-9_-]+)/);
+  if (!match) return null;
+
+  const docId = match[1];
+  const exportUrl = `https://docs.google.com/document/d/${docId}/export?format=txt`;
+
+  try {
+    const res = await fetch(exportUrl, {
+      redirect: "follow",
+      headers: { "User-Agent": "Mozilla/5.0" },
+    });
+    if (!res.ok) return null;
+    const text = await res.text();
+    return text.length > 100 ? text : null; // ігнаруем пустыя дакументы
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Знаходзіць Google Docs спасылкі ў тэксце і дадае іх змест
+ */
+async function enrichTextWithDocs(rawText) {
+  const urlRegex =
+    /https?:\/\/docs\.google\.com\/document\/d\/[a-zA-Z0-9_-]+[^\s]*/g;
+  const urls = rawText.match(urlRegex);
+
+  if (!urls || urls.length === 0) return rawText; // няма спасылак — вяртаем як е
+
+  console.log(`🔗 Знойдзены Google Docs спасылкі: ${urls.length}. Загрузка...`);
+
+  let enriched = rawText;
+  for (const url of urls) {
+    const docText = await fetchGoogleDocText(url);
+    if (docText) {
+      console.log(`📄 Загружана з Google Docs: ${docText.length} сімв.`);
+      // Дадаем змест дока ПАСЛЯ кароткага апісання
+      // Кароткі тэкст — гэта актуалізацыя, таму ідзе першым
+      enriched = `${enriched}\n\n--- ПОВНИЙ ОПИС З ДОКУМЕНТУ ---\n${docText}`;
+    } else {
+      console.warn(`⚠️ Не ўдалося загрузіць: ${url}`);
+    }
+  }
+
+  return enriched;
+}
 module.exports = {
   parseVacancyWithAI,
   identifyTemplate,
@@ -935,4 +1063,6 @@ module.exports = {
   mergeWithTemplate,
   analyzeWithGroq,
   simpleTranslate,
+  parseMultipleVacancies, // ← новае
+  enrichTextWithDocs, // ← новае
 };
