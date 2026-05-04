@@ -123,7 +123,7 @@ async function processPendingMessages() {
     // - і яшчэ НЕ маюць поля rawText (значыць AI іх яшчэ не бачыў)
     const pending = await UnprocessedMessage.find({
       processed: false,
-      rawText: { $exists: false },
+      rawText: "",
     }).limit(10);
 
     if (pending.length === 0) return; // Ціха выходзім, калі няма сапраўды новых
