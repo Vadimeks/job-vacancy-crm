@@ -71,7 +71,6 @@ function constructVacancyDisplayName(data) {
 }
 
 // --- АСНОЎНАЯ ЛОГІКА АПРАЦОЎКІ ---
-
 async function processVacancyMessage(
   rawText,
   senderInfo = "Manual",
@@ -82,7 +81,7 @@ async function processVacancyMessage(
   console.log(`\n--- 🚀 ПАЧАТАК АПРАЦОЎКІ ВАКАНСІІ ---`);
 
   try {
-    // [0/3] Збагачэнне тэксту з Google Docs (калі ёсць спасылка)
+    // [0/3] Збагачэнне тэксту з Google Docs
     console.log(`[0/3] Праверка на Google Docs спасылкі...`);
     const enrichedText = await aiService.enrichTextWithDocs(rawText);
 
@@ -131,21 +130,19 @@ async function processVacancyMessage(
       savedVacancies.push(saved);
       console.log(`✅ Вакансія створана: ${vacancyCode} (${finalAgency})`);
 
-      // Паўза паміж вакансіямі каб не спаміць Telegram
       if (vacancyList.length > 1) {
         await new Promise((r) => setTimeout(r, 1500));
       }
     }
 
-    return savedVacancies[0]; // сумяшчальнасць з існуючым кодам
+    return savedVacancies[0];
   } catch (err) {
     console.error(`❌ Памылка Groq: ${err.message}. Перанос у Інбокс.`);
 
-    // finalAgency тут вызначаем зноў бо маглі не дайсці да цыкла
     const finalAgency =
       preDefinedAgency || getWhitelistedAgency(senderInfo) || "Manual";
-
     const textHash = rawText.toLowerCase().replace(/[^a-zа-яёіў0-9]/gi, "");
+
     const existing = await UnprocessedMessage.findOne({
       agencyName: finalAgency,
       textHash,
@@ -164,8 +161,6 @@ async function processVacancyMessage(
       });
       await fallbackMsg.save();
       console.log(`📥 Захавана ў Інбокс (error_fallback): ${finalAgency}`);
-    } else {
-      console.log(`⏭️ Fallback прапушчаны — запіс ужо ёсць: ${finalAgency}`);
     }
 
     return { status: "saved_to_inbox_due_to_error", error: err.message };

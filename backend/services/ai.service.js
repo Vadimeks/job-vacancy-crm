@@ -924,8 +924,105 @@ async function simpleTranslate(text) {
     return text;
   }
 }
+/**
+ * Сплітар: разбівае тэкст на асобныя вакансіі (выкарыстоўваем танную мадэль)
+ */
+async function splitMultipleVacancies(rawText) {
+  try {
+    console.log(`✂️ Спрабуем разбіць тэкст на асобныя вакансіі...`);
+    const SPLIT_PROMPT = `
+TASK: Identify separate job vacancies in the text. 
+Return a JSON object with an array of strings: { "parts": ["vacancy 1 text", "vacancy 2 text"] }.
+If there is only one vacancy, return it as a single element in the array.
+Do not change the text, just cut it.
+`;
+    // Выкарыстоўваем MODEL_FAST для эканоміі
+    const response = await groq.chat.completions.create({
+      model: MODEL_FAST,
+      temperature: 0.1,
+      response_format: { type: "json_object" },
+      messages: [
+        { role: "system", content: SPLIT_PROMPT },
+        { role: "user", content: rawText },
+      ],
+    });
+
+    const parsed = JSON.parse(response.choices[0].message.content);
+    return parsed.parts || [rawText];
+  } catch (err) {
+    console.error("⚠️ Splitter error:", err.message);
+    return [rawText];
+  }
+}
+
+/**
+ * Галоўны каардынатар мульці-парсінгу (Разбі і Парсі)
+ */
+async function parseMultipleVacancies(rawText) {
+  // 1. Спачатку разбіваем на часткі
+  const parts = await splitMultipleVacancies(rawText);
+  console.log(`📊 Знойдзена частак для апрацоўкі: ${parts.length}`);
+
+  if (parts.length <= 1) {
+    return [await parseVacancyWithAI(rawText)];
+  }
+
+  // 2. Парсім кожную частку асобным выклікам асноўнага парсера
+  const results = [];
+  for (const part of parts) {
+    try {
+      const vacancy = await parseVacancyWithAI(part);
+      results.push(vacancy);
+    } catch (err) {
+      console.error("❌ Памылка парсінгу часткі:", err.message);
+    }
+  }
+
+  // Калі нічога не спарсілася — вяртаем арыгінал праз адзінарны парсінг
+  return results.length > 0 ? results : [await parseVacancyWithAI(rawText)];
+}
+
+/**
+ * Загрузка тэксту з Google Docs
+ */
+async function fetchGoogleDocText(url) {
+  const match = url.match(/\/document\/d\/([a-zA-Z0-9_-]+)/);
+  if (!match) return null;
+  const docId = match[1];
+  const exportUrl = `https://docs.google.com/document/d/${docId}/export?format=txt`;
+  try {
+    const res = await fetch(exportUrl, { redirect: "follow" });
+    if (!res.ok) return null;
+    const text = await res.text();
+    return text.length > 100 ? text : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Знаходзіць Google Docs спасылкі і збагачае тэкст
+ */
+async function enrichTextWithDocs(rawText) {
+  const urlRegex =
+    /https?:\/\/docs\.google\.com\/document\/d\/[a-zA-Z0-9_-]+[^\s]*/g;
+  const urls = rawText.match(urlRegex);
+  if (!urls) return rawText;
+
+  console.log(`🔗 Знойдзены Google Docs спасылкі: ${urls.length}. Загрузка...`);
+  let enriched = rawText;
+  for (const url of urls) {
+    const docText = await fetchGoogleDocText(url);
+    if (docText) {
+      enriched = `${enriched}\n\n--- ПОВНИЙ ОПИС З ДОКУМЕНТУ ---\n${docText}`;
+    }
+  }
+  return enriched;
+}
 module.exports = {
   parseVacancyWithAI,
+  parseMultipleVacancies,
+  enrichTextWithDocs,
   identifyTemplate,
   linkTemplateToVacancy,
   formatTelegramPost,
