@@ -931,12 +931,17 @@ async function splitMultipleVacancies(rawText) {
   try {
     console.log(`✂️ Спрабуем разбіць тэкст на асобныя вакансіі...`);
     const SPLIT_PROMPT = `
-TASK: Identify separate job vacancies in the text. 
-Return a JSON object with an array of strings: { "parts": ["vacancy 1 text", "vacancy 2 text"] }.
-If there is only one vacancy, return it as a single element in the array.
-Do not change the text, just cut it.
+ROLE: Text Segmentation Expert.
+TASK: Identify if the text contains MULTIPLE separate job offers or just ONE.
+
+CRITICAL RULES:
+1. A "separate vacancy" MUST have a different job title OR a different city.
+2. If the text describes ONE job (e.g., "Operator at Volkswagen") with many details (salary, duties, location), it is ONE vacancy. DO NOT split it.
+3. Only split if you see clearly different roles (e.g., "1. Welder in Berlin, 2. Driver in Munich").
+4. If in doubt, return the whole text as one part.
+
+Return ONLY a JSON object: { "parts": ["full text of vacancy 1", "full text of vacancy 2"] }
 `;
-    // Выкарыстоўваем MODEL_FAST для эканоміі
     const response = await groq.chat.completions.create({
       model: MODEL_FAST,
       temperature: 0.1,
@@ -948,6 +953,11 @@ Do not change the text, just cut it.
     });
 
     const parsed = JSON.parse(response.choices[0].message.content);
+    // Калі AI вярнуў 10 частак для аднаго тэксту — гэта памылка, ігнаруем і вяртаем арыгінал
+    if (parsed.parts && parsed.parts.length > 5 && rawText.length < 2000) {
+      console.log("⚠️ Сплітар памыліўся (зашмат частак), адмяняем разбіўку.");
+      return [rawText];
+    }
     return parsed.parts || [rawText];
   } catch (err) {
     console.error("⚠️ Splitter error:", err.message);

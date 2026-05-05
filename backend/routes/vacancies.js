@@ -97,10 +97,12 @@ async function processVacancyMessage(
 
     for (const vacancyData of vacancyList) {
       // Агенцыя: preDefinedAgency > whitelist > AI-парсер > Manual
+      const whitelisted = getWhitelistedAgency(senderInfo);
       const finalAgency =
         preDefinedAgency ||
-        getWhitelistedAgency(senderInfo) ||
+        (whitelisted && whitelisted !== "MANUAL" ? whitelisted : null) ||
         vacancyData.agencyName ||
+        whitelisted ||
         "Manual";
 
       const displayName = constructVacancyDisplayName({
