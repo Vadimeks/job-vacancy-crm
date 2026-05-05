@@ -929,18 +929,24 @@ async function simpleTranslate(text) {
  */
 async function splitMultipleVacancies(rawText) {
   try {
-    console.log(`✂️ Спрабуем разбіць тэкст на асобныя вакансіі...`);
+    console.log(
+      `✂️ Аналіз структуры тэксту на наяўнасць паўторных вакансій...`,
+    );
     const SPLIT_PROMPT = `
-ROLE: Text Segmentation Expert.
-TASK: Identify if the text contains MULTIPLE separate job offers or just ONE.
+ROLE: HR Data Architect.
+TASK: Identify if the text contains multiple COMPLETE job offers.
 
-CRITICAL RULES:
-1. A "separate vacancy" MUST have a different job title OR a different city.
-2. If the text describes ONE job (e.g., "Operator at Volkswagen") with many details (salary, duties, location), it is ONE vacancy. DO NOT split it.
-3. Only split if you see clearly different roles (e.g., "1. Welder in Berlin, 2. Driver in Munich").
-4. If in doubt, return the whole text as one part.
+LOGIC:
+A "Complete Vacancy Signature" consists of: [Job Title/Brand] + [City] + [Salary/Rate].
+1. Scan the text for the first signature.
+2. Continue reading. If you find a SECOND signature with a DIFFERENT Job Title or a DIFFERENT City, this is a separate vacancy.
+3. If you see multiple dates, multiple bonus points, or multiple requirements for the SAME job title in the SAME city — it is ONE vacancy. DO NOT split.
 
-Return ONLY a JSON object: { "parts": ["full text of vacancy 1", "full text of vacancy 2"] }
+CRITICAL RULE: 
+- Split ONLY if you see a clear repetition of the (Title + City + Salary) pattern for different jobs.
+- If the text is just a long description of one workplace, return it as one part.
+
+Return ONLY a JSON object: { "isMultiple": boolean, "parts": ["full text of vacancy 1", "full text of vacancy 2"] }
 `;
     const response = await groq.chat.completions.create({
       model: MODEL_FAST,
@@ -953,12 +959,13 @@ Return ONLY a JSON object: { "parts": ["full text of vacancy 1", "full text of v
     });
 
     const parsed = JSON.parse(response.choices[0].message.content);
-    // Калі AI вярнуў 10 частак для аднаго тэксту — гэта памылка, ігнаруем і вяртаем арыгінал
-    if (parsed.parts && parsed.parts.length > 5 && rawText.length < 2000) {
-      console.log("⚠️ Сплітар памыліўся (зашмат частак), адмяняем разбіўку.");
+
+    if (!parsed.isMultiple || !parsed.parts || parsed.parts.length <= 1) {
       return [rawText];
     }
-    return parsed.parts || [rawText];
+
+    // Дадатковая праверка: кожная частка павінна быць змястоўнай
+    return parsed.parts.filter((p) => p.trim().length > 300);
   } catch (err) {
     console.error("⚠️ Splitter error:", err.message);
     return [rawText];
@@ -969,26 +976,41 @@ Return ONLY a JSON object: { "parts": ["full text of vacancy 1", "full text of v
  * Галоўны каардынатар мульці-парсінгу (Разбі і Парсі)
  */
 async function parseMultipleVacancies(rawText) {
-  // 1. Спачатку разбіваем на часткі
   const parts = await splitMultipleVacancies(rawText);
-  console.log(`📊 Знойдзена частак для апрацоўкі: ${parts.length}`);
 
   if (parts.length <= 1) {
-    return [await parseVacancyWithAI(rawText)];
+    const single = await parseVacancyWithAI(parts[0]);
+    return [single];
   }
 
-  // 2. Парсім кожную частку асобным выклікам асноўнага парсера
+  console.log(`📊 Знойдзена патэнцыйных вакансій: ${parts.length}`);
+
   const results = [];
   for (const part of parts) {
     try {
+      // Страхоўка: калі ў частцы няма ні горада, ні зарплаты — гэта смецце
+      const hasSalary = /[\d,]+\s*(зл|zł|€|euro|pln)/i.test(part);
+      const hasCity = /[A-Z][a-z]+/.test(part); // Наяўнасць слова з вялікай літары (лацінка)
+
+      if (!hasSalary && part.length < 500) {
+        console.log(
+          "⏭️ Пропуск часткі без прыкмет вакансіі (няма зарплаты/кароткая)",
+        );
+        continue;
+      }
+
       const vacancy = await parseVacancyWithAI(part);
-      results.push(vacancy);
+
+      // Калі пасля парсінгу няма лакацыі і апісання — гэта не вакансія
+      if (vacancy.location || vacancy.vacancydescription) {
+        results.push(vacancy);
+      }
     } catch (err) {
       console.error("❌ Памылка парсінгу часткі:", err.message);
     }
   }
 
-  // Калі нічога не спарсілася — вяртаем арыгінал праз адзінарны парсінг
+  // Калі ўсе часткі былі адхілены — парсім арыгінал цалкам
   return results.length > 0 ? results : [await parseVacancyWithAI(rawText)];
 }
 
