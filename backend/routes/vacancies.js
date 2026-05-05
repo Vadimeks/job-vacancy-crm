@@ -172,15 +172,24 @@ async function processVacancyMessage(
 // Аўта-стварэнне (з Інбокса праз робата)
 router.post("/auto", async (req, res) => {
   try {
-    const { rawText, senderInfo, messageId, originalText, isTruncated } =
-      req.body;
+    // Дадалі agencyName у спіс зменных
+    const {
+      rawText,
+      senderInfo,
+      messageId,
+      originalText,
+      isTruncated,
+      agencyName,
+    } = req.body;
+
     const result = await processVacancyMessage(
       rawText,
       senderInfo || "Manual",
-      null,
+      agencyName || null, // Калі агенцыя выбрана ўручную — перадаем яе
       originalText,
       isTruncated,
     );
+
     if (messageId) await markInboxMessageAsProcessed(messageId);
     res.status(201).json(result);
   } catch (err) {

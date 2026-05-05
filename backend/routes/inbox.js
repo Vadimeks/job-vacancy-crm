@@ -34,7 +34,9 @@ router.post("/push", async (req, res) => {
   const senderRaw = (req.body.sender || req.body.not_title || "Unknown").trim();
   const source = req.body.source || "viber";
   const chatId = req.body.chatId || null;
-
+  console.log(
+    `📡 RAW PUSH: ад "${senderRaw}" (ID: ${chatId}) | Тэкст: ${text.substring(0, 30)}...`,
+  );
   // 1. Жорсткі фільтр шуму (да базы)
   if (shouldIgnoreMessage(text)) {
     console.log(
@@ -238,7 +240,7 @@ async function processPendingMessages() {
 }
 
 setInterval(processPendingMessages, 300000);
-
+processPendingMessages();
 // --- 3. РОЎТЫ КІРАВАННЯ (ФРОНТЭНД) ---
 
 router.get("/", async (req, res) => {
