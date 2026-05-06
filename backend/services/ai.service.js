@@ -29,6 +29,12 @@ const LANGUAGE_GUARD = `
 - All descriptions, duties, notes — UKRAINIAN. Geography (location, voivodeship, checkInCity, country) — POLISH (Latin alphabet) only.
 - If the input is in Russian — TRANSLATE it to Ukrainian. Never use Russian words (e.g., use "Приїзд" instead of "Приезд", "Житло" instead of "Жилье").
 `;
+const SPLIT_PROMPT = `
+ROLE: HR Data Architect.
+TASK: Identify if the text contains multiple COMPLETE job offers.
+LOGIC: A "Complete Vacancy Signature" consists of: [Job Title/Brand] + [City] + [Salary/Rate].
+Return ONLY a JSON object: { "isMultiple": boolean, "parts": ["full text 1", "full text 2"] }
+`;
 // 1. Абноўленая функцыя cleanData
 function cleanData(obj) {
   if (obj === undefined || obj === null) return null;
@@ -215,38 +221,33 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanations.
 
 // --- ДАПАМОЖНЫЯ ФУНКЦЫІ ---
 
-// Універсальная функцыя запыту з FALLBACK логікай
+// 1. Універсальны запыт для парсінгу: SMART (70b) -> FAST (8b)
 async function groqRequest(systemPrompt, userContent, jsonMode = true) {
-  try {
-    console.log(`🤖 Groq: Спроба праз ${MODEL_SMART}...`);
-    const response = await groq.chat.completions.create({
-      model: MODEL_SMART,
-      temperature: 0.1,
-      max_tokens: 8000, // 🆕 Дадаем ліміт, каб не абразала адказ
-      response_format: jsonMode ? { type: "json_object" } : undefined,
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userContent },
-      ],
-    });
-    return response.choices[0]?.message?.content || "";
-  } catch (error) {
-    if (error.message?.includes("429")) {
-      console.warn(`⚠️ Ліміт 70b дасягнуты. Пераключаюся на ${MODEL_FAST}...`);
-      const fallbackResponse = await groq.chat.completions.create({
-        model: MODEL_FAST,
-        temperature: 0.2,
-        max_tokens: 8000, // 🆕 Тут таксама
+  const models = [MODEL_SMART, MODEL_FAST];
+
+  for (const modelName of models) {
+    try {
+      console.log(`🤖 Groq: Спроба праз ${modelName}...`);
+      const response = await groq.chat.completions.create({
+        model: modelName,
+        temperature: 0.1,
+        max_tokens: 8000,
         response_format: jsonMode ? { type: "json_object" } : undefined,
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userContent },
         ],
       });
-      return fallbackResponse.choices[0]?.message?.content || "";
+      return response.choices[0]?.message?.content || "";
+    } catch (error) {
+      if (error.message?.includes("429") || error.message?.includes("limit")) {
+        console.warn(`⚠️ Ліміт мадэлі ${modelName} дасягнуты.`);
+        continue;
+      }
+      throw error;
     }
-    throw error;
   }
+  throw new Error("RATE_LIMIT_ALL_MODELS");
 }
 
 async function mergeWithTemplate(rawText, template) {
@@ -841,72 +842,43 @@ async function updateVacancyWithAI(existingVacancy, newText) {
  * Класіфікацыя паведамлення праз Groq
  * Выкарыстоўваецца як надзейны фолбэк для Gemini
  */
+// 2. Фолбэк класіфікацыя (Stage 1), калі Gemini недаступныя
+let groqStage1FrozenUntil = 0;
+
 async function analyzeWithGroq(
   text,
   recentMessages = [],
   recentVacancies = [],
-  modelOverride = null,
 ) {
+  if (Date.now() < groqStage1FrozenUntil) return null;
+
   try {
-    const targetModel = modelOverride || MODEL_SMART;
-    console.log(`🔍 Groq (${targetModel}): Фолбэк-аналіз...`);
-
-    const systemPrompt = `
-Role: Expert Analyst of the Polish Job Market.
-Task: Classify a NEW_MESSAGE and compare it with RECENT_MESSAGES and RECENT_VACANCIES.
-Return ONLY valid JSON.
-    `;
-
-    const userContent = `
-RECENT_MESSAGES: ${JSON.stringify(recentMessages.slice(0, 3))}
-RECENT_VACANCIES: ${JSON.stringify(recentVacancies.slice(0, 2))}
-NEW_MESSAGE: ${text}
-
-CATEGORIES: 
-- FULL_VACANCY: Detailed job offer. MUST contain: Position, Location, AND (Salary OR Job Duties). 
-  CRITICAL: If the message is shorter than 300 characters, classify as UPDATE.
-- UPDATE: Short info, changes, or lists without full details.
-- RECRUITER_INFO: Legal/office info.
-- NOISE: Social talk, greetings.
-
-VERDICTS: NEW, DUPLICATE, UPDATE.
-
-Output JSON structure:
-{
-  "category": "FULL_VACANCY" | "UPDATE" | "RECRUITER_INFO" | "NOISE",
-  "comparison": { "verdict": "NEW" | "DUPLICATE" | "UPDATE", "reason": "string" },
-  "translatedText": "Clean Ukrainian translation"
-}
-    `;
-
+    console.log(`🔍 Groq (${MODEL_FAST}): Фолбэк-аналіз...`);
     const response = await groq.chat.completions.create({
-      model: targetModel,
+      model: MODEL_FAST,
       temperature: 0.1,
       response_format: { type: "json_object" },
       messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userContent },
+        {
+          role: "system",
+          content:
+            "Role: Expert Analyst. Task: Classify NEW_MESSAGE. Return ONLY JSON.",
+        },
+        {
+          role: "user",
+          content: `NEW_MESSAGE: ${text}\nReturn JSON with category, comparison, translatedText.`,
+        },
       ],
     });
-
     return JSON.parse(response.choices[0]?.message?.content);
   } catch (err) {
-    // 🔧 ПАЛЕПШАНАЕ ВЫПРАЎЛЕННЕ: больш надзейнае дэтэктаванне лімітаў
-    const errStr = err.message || "";
-    const isLimit =
-      errStr.includes("429") ||
-      errStr.includes("limit") ||
-      errStr.includes("rate_limit");
-
-    if (isLimit) {
-      console.warn(
-        `🚫 Groq: Ліміты дасягнуты (TPD/RPM). Паведамленне чакае ў чарзе.`,
-      );
-    } else {
-      console.error(
-        "❌ Groq fallback analysis failed:",
-        errStr.substring(0, 150),
-      );
+    if (err.message?.includes("429") || err.message?.includes("limit")) {
+      const now = new Date();
+      const target = new Date();
+      target.setDate(now.getDate() + 1);
+      target.setHours(7, 0, 0, 0);
+      groqStage1FrozenUntil = target.getTime();
+      console.warn(`🚫 Groq Stage 1 замарожаны да 07:00 заўтра.`);
     }
     return null;
   }
@@ -936,22 +908,6 @@ async function simpleTranslate(text) {
 /**
  * Сплітар: разбівае тэкст на асобныя вакансіі (выкарыстоўваем танную мадэль)
  */
-const SPLIT_PROMPT = `
-ROLE: HR Data Architect.
-TASK: Identify if the text contains multiple COMPLETE job offers.
-
-LOGIC:
-A "Complete Vacancy Signature" consists of: [Job Title/Brand] + [City] + [Salary/Rate].
-1. Scan the text for the first signature.
-2. Continue reading. If you find a SECOND signature with a DIFFERENT Job Title or a DIFFERENT City, this is a separate vacancy.
-3. If you see multiple dates, multiple bonus points, or multiple requirements for the SAME job title in the SAME city — it is ONE vacancy. DO NOT split.
-
-CRITICAL RULE: 
-- Split ONLY if you see a clear repetition of the (Title + City + Salary) pattern for different jobs.
-- If the text is just a long description of one workplace, return it as one part.
-
-Return ONLY a JSON object: { "isMultiple": boolean, "parts": ["full text of vacancy 1", "full text of vacancy 2"] }
-`;
 async function splitMultipleVacancies(rawText) {
   try {
     console.log(
@@ -1063,6 +1019,8 @@ async function enrichTextWithDocs(rawText) {
 }
 module.exports = {
   parseVacancyWithAI,
+  analyzeWithGroq,
+  groqRequest,
   parseMultipleVacancies,
   enrichTextWithDocs,
   identifyTemplate,
@@ -1072,6 +1030,6 @@ module.exports = {
   testConnection,
   updateVacancyWithAI,
   mergeWithTemplate,
-  analyzeWithGroq,
   simpleTranslate,
+  parseVacancyWithAI,
 };

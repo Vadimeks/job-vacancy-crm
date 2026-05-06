@@ -32,7 +32,10 @@ const CHAT_AGENCY_MAP = [
 
   { key: "nova work agency", agency: "IGNORE_SELF" },
 ];
+
 const SYSTEM_NOISE = [
+  /\*\*processing\*\*/i, // Бот APOLO/SG
+  /clean polish translation/i, // Тэхнічныя паметкі
   /реагує .* на/i,
   /новий коментар до вашого повідомлення/i,
   /ви маєте нові повідомлення/i,
@@ -62,19 +65,46 @@ const SYSTEM_NOISE = [
   /Повернутися у Viber/i,
   /З'єднання зі службою/i,
   /Службу відключено/i,
-  /цю (беремо|візьмемо|беруть)/i,
-  /тільки (цю|цього|їх|його|її) (додати|внести)/i,
+];
+
+const RECRUITER_CHAT_NOISE = [
+  /чи зможете їх взяти/i,
+  /чи все ж погодять/i,
+  /підкажіть чи/i,
   /також внесіть/i,
-  /внесіть/i,
-  /подайте (їх|його|її)/i,
-  /прошу подавати/i,
-  /прошу (підтвердити|узгодити|перевірити)/i,
-  /скажіть,? будь ласка/i,
-  /підкажіть,? (чи|будь)/i,
-  /чи все ж/i,
+  /внесіть в систему/i,
+  /прошу подавати правдивий/i,
+  /чия кандидатка\??/i,
+  /хто подав цих людей\??/i,
+  /напишіть мені в особист/i,
+  /не можу знайти ваш номер/i,
+  /скинула вам (більше|вже)/i,
+  /можу подати (жінку|чоловіка|людину|кандидат)/i,
+  /є (вільна\s+)?жінка на/i,
+  /є (вільний\s+)?чоловік на/i,
+  /є актуальні дати/i,
+  /актуальна вакансія/i,
+  /чи є (ще|місця|вільні)/i,
+  /пока нет набора/i,
+  /набора нет/i,
+  /підтвердили (всі|приїзди)/i,
+  /поговорилі\./i,
+  /поговоримо з наступною/i,
+  /чекаємо на \d/i,
+  /\d+ нові? коментар/i,
+  /2 нові коментарі/i,
+  /погодьте (їх|його|її)/i,
+  /звʼяжіться з (ним|нею|ними)/i,
+  /можемо погодити (на|їх)/i,
+  /внесіть (в резерв|будь ласка)/i,
+  /чи готові на/i,
+  /поїде на довгий термін/i,
+  /приїзд можливий (і сьогодні|завтра)/i,
   /доброго (ранку|дня|вечора)/i,
   /добрий (ранок|день|вечір)/i,
-  /так так,/i,
+  /дякую за відповідь/i,
+  /цю (беремо|візьмемо|беруть)/i,
+  /тільки (цю|цього|їх|його|її) (додати|внести)/i,
   /а щось інше може бути/i,
   /все питаю без неї/i,
   /як впишете/i,
@@ -90,38 +120,36 @@ const SYSTEM_NOISE = [
   /спочатку з ними/i,
   /мої перші були/i,
   /повідомьте будь ласка/i,
-  /Впишіть в систему/i,
-  /внесіть в систему/i,
 ];
 
-const RECRUITER_CHAT_NOISE = [
-  /чия кандидатка\??/i,
-  /хто подав цих людей\??/i,
-  /напишіть мені в особист/i,
-  /не можу знайти ваш номер/i,
-  /скинула вам (більше|вже)/i,
-  /можу подати (жінку|чоловіка|людину|кандидат)/i,
-  /є (вільна\s+)?жінка на/i,
-  /є (вільний\s+)?чоловік на/i,
-  /є актуальні дати/i,
-  /актуальна вакансія/i,
-  /чи є (ще|місця|вільні)/i,
-  /пока нет набора/i,
-  /набора нет/i,
-  /підтвердили (всі|приїзди)/i,
-  /поговорили\./i,
-  /поговоримо з наступною/i,
-  /чекаємо на \d/i,
-  /\d+ нові? коментар/i,
-  /2 нові коментарі/i,
-  /погодьте (їх|його|її)/i,
-  /звʼяжіться з (ним|нею|ними)/i,
-  /можемо погодити (на|їх)/i,
-  /внесіть (в резерв|будь ласка)/i,
-  /чи готові на/i,
-  /поїде на довгий термін/i,
-  /приїзд можливий (і сьогодні|завтра)/i,
-  /[A-Z]+\s+[A-Z]+\s+[A-Z0-9]{6,10}/, // Анкеты
+const RECRUITER_CHAT_NOISE_EN = [
+  /not written/i,
+  /sent waiting for approval/i,
+  /waiting for (a response|approval|your sms|answer)/i,
+  /can be agreed on/i,
+  /suggest (tomatoes|cucumbers)/i,
+  /(cucumbers|tomatoes) are stopped/i,
+  /something else can be/i,
+  /man is ready to relocate/i,
+  /please remind her to send/i,
+  /can (we|you|i) (agree|submit|take|offer|send|confirm|check)/i,
+  /please (reserve|submit|confirm|check|orient|keep|let|tell|send|add)/i,
+  /is there (anything|something|a place|still|only|any)/i,
+  /do you (have|take|accept)/i,
+  /at the moment/i,
+  /unfortunately/i,
+  /good (day|morning|afternoon|evening)/i,
+  /i am in contact/i,
+  /@[a-z_]+/i,
+  /^(ok|okay|noted|understood|got it|sure|yes|no)[\s,.!]*$/i,
+  /^(wait|waiting|checked|confirmed|agreed|done)[\s,.!]*$/i,
+];
+
+const CANDIDATE_FORM_NOISE = [
+  /\d+\.\s+[A-Z]+\s+[A-Z]+/i, // 1. ПРЫЗВІШЧА ІМЯ (Анкеты)
+  /^[A-Z]{2,}\s+[A-Z]{2,}\s+[A-Z]{1,2}\d{5,}/, // Анкеты па-англійску
+  /[A-Z]+\s+[A-Z]+\s+[A-Z0-9]{6,10}/, // Серыя пашпарта ў анкеце
+  /\+\d{10,13}[\s\n]+[a-z0-9._%+-]+@[a-z0-9.-]+/i, // Тэлефон + Email
   /\+\d{10,13}\s+\+\d{10,13}/, // Спісы тэлефонаў
 ];
 
@@ -135,40 +163,17 @@ const SOCIAL_NOISE = [
   /дякую (всім|за|вам)/i,
   /^дякую[\s!.]*$/i,
   /^дякуємо[\s!.]*$/i,
+  /^зрозуміло[\s!.]*$/i,
   /^доброго дня[\s!.]*$/i,
   /^добрий день[\s!.]*$/i,
   /^доброго ранку[\s!.]*$/i,
-  /^зрозуміло[\s!.]*$/i,
 ];
-// ДАДАЦЬ пасля SOCIAL_NOISE:
-const RECRUITER_CHAT_NOISE_EN = [
-  // Кароткія пытанні рэкрутэраў
-  /^can (we|you|i) (agree|submit|take|offer|send|confirm|check)/i,
-  /^please (reserve|submit|confirm|check|orient|keep|let|tell|send|add)/i,
-  /^is there (anything|something|a place|still|only|any)/i,
-  /^do you (have|take|accept)/i,
-  /^will (go|she|he|they|it)/i,
-  /^we are (waiting|clear|looking|taking|not taking)/i,
-  /^they (have|are|don't|work|fit|won't)/i,
-  /^she (has|is|was|had|still|can|cannot)/i,
-  /^he (has|is|was|had|still|can|cannot)/i,
-  /^at the moment/i,
-  /^unfortunately/i,
-  /^good (day|morning|afternoon|evening)[\s,.!]*$/i,
-  /^we (have|can|want|need|don't|are)/i,
-  /^i (have|can|want|need|don't|am|worked)/i,
-  /^@[a-z_]+[\s,.!]*$/i,
-  // Анкеты кандыдатаў па-англійску
-  /^[A-Z]{2,}\s+[A-Z]{2,}\s+[A-Z]{1,2}\d{5,}/, // SURNAME NAME AB123456
-  /^\+\d{10,13}[\s\n]+[a-z0-9._%+-]+@[a-z0-9.-]+/i, // тэл + email блок
-  // Сістэмны англійскі шум
-  /^(ok|okay|noted|understood|got it|sure|yes|no)[\s,.!]*$/i,
-  /^(wait|waiting|checked|confirmed|agreed|done)[\s,.!]*$/i,
-];
+
 const NOISE_PATTERNS = [
   ...SYSTEM_NOISE,
   ...RECRUITER_CHAT_NOISE,
-  ...RECRUITER_CHAT_NOISE_EN, // 🆕
+  ...RECRUITER_CHAT_NOISE_EN,
+  ...CANDIDATE_FORM_NOISE,
   ...SOCIAL_NOISE,
 ];
 
@@ -189,59 +194,34 @@ function superNormalize(str) {
     .replace(/[^a-zа-яёіў0-9]/gi, "");
 }
 
-// Функцыя для праверкі старых дат у тэксце
 function isOldMessage(text) {
   if (!text) return false;
-
-  // Шукаем дату, якая стаіць асобна (напрыклад, "Дата: 20.04" або "на 20/04")
-  // Дадаем праверку, каб перад лічбай не было кропкі ці іншай лічбы (каб не блытаць з 20.50)
   const dateMatch = text.match(/(?:\s|^)(\d{1,2})[./](\d{1,2})(?:\s|$)/);
   if (!dateMatch) return false;
-
   const day = parseInt(dateMatch[1], 10);
   const month = parseInt(dateMatch[2], 10) - 1;
-
-  // Калі месяц больш за 12 — гэта дакладна не дата, а нейкая лічба
   if (month > 11 || month < 0) return false;
-
   const year = new Date().getFullYear();
   const msgDate = new Date(year, month, day);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-
   const diffTime = today - msgDate;
   const diffDays = diffTime / (1000 * 60 * 60 * 24);
-
   return diffDays > 3;
 }
 
-/**
- * Правярае, ці з'яўляецца тэкст абрэзаным.
- */
 function isTruncated(text, source = "viber") {
   if (!text) return false;
-
-  // 🆕 Юзербот заўсёды забірае 100% тэксту
   if (source === "telegram_userbot") return false;
-
   const t = text.trim();
-
-  // 1. Яўная абрэзка
   if (t.endsWith("...") || t.endsWith("…")) return true;
-
-  // 2. Доўгі тэкст амаль заўсёды поўны
   if (t.length > 800) return false;
   if (t.length < 50) return false;
-
-  // 3. Бяспечныя заканчэнні (дадалі літары і лічбы для спасылак/тэл)
   const safeEndings =
     /[\p{Emoji}\p{Emoji_Presentation}.!?*)\]/|\\a-zA-Zа-яёіўА-ЯЁІЎ0-9]$/u;
   return !safeEndings.test(t);
 }
 
-/**
- * Стварае адбітак пачатку паведамлення (150 сімвалаў)
- */
 function getPrefixHash(text) {
   if (!text) return "";
   return text
@@ -251,13 +231,8 @@ function getPrefixHash(text) {
     .substring(0, 150);
 }
 
-/**
- * Разумны вайтліст: прыярытэт па ID, фолбэк на назву
- */
 function getWhitelistedAgency(chatTitle, chatId = null) {
   if (!chatTitle && !chatId) return null;
-
-  // 1. Прыярытэт: Пошук па ID
   if (chatId) {
     const incomingId = chatId.toString().trim();
     const matchById = CHAT_AGENCY_MAP.find(
@@ -265,20 +240,12 @@ function getWhitelistedAgency(chatTitle, chatId = null) {
     );
     if (matchById) return matchById.agency;
   }
-
-  // 2. Фолбэк: Пошук па назве
   const normalizedChat = superNormalize(chatTitle);
-
   const matchByTitle = CHAT_AGENCY_MAP.find((entry) => {
     if (!entry.key) return false;
     const normalizedKey = superNormalize(entry.key);
-
-    // ВАЖНА: Пярэднім толькі ці змяшчае назва чата наш ключ.
-    // Выдаляем зваротную праверку (normalizedKey.includes(normalizedChat)),
-    // якая выклікала памылку з кароткімі назвамі як "То".
     return normalizedChat.includes(normalizedKey);
   });
-
   return matchByTitle ? matchByTitle.agency : null;
 }
 
@@ -286,9 +253,6 @@ function shouldIgnoreMessage(text) {
   if (!text) return true;
   const trimmed = text.trim();
   if (trimmed.length < 15 || EMOJI_ONLY_RE.test(trimmed)) return true;
-
-  // РАДОК З isOldMessage ВЫДАЛЕНЫ, каб паведамленні не знікалі
-
   return NOISE_PATTERNS.some((p) => p.test(trimmed));
 }
 

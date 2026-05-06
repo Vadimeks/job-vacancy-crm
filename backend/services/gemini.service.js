@@ -13,23 +13,22 @@ const MODELS_CONFIG = [
 
 const geminiCache = new Map();
 const CACHE_TTL = 5 * 60 * 1000;
-
-// Мапа для замарожаных мадэляў
 const modelCooldowns = new Map();
 
 /**
- * Вылічвае колькасць мілісекунд да 07:00 раніцы наступнага дня
+ * Вылічвае час да наступнай спробы:
+ * - Калі зараз ноч (да 7 ранку) -> да 07:00
+ * - Калі зараз дзень (пасля 7 ранку) -> да пачатку наступнай гадзіны
  */
-function getMsUntilSevenAM() {
+function getMsUntilNextRetry() {
   const now = new Date();
   const target = new Date();
-  target.setHours(7, 0, 0, 0);
 
-  // Калі 07:00 сёння ўжо прайшло — ставім на заўтра
-  if (now >= target) {
-    target.setDate(target.getDate() + 1);
+  if (now.getHours() < 7) {
+    target.setHours(7, 0, 0, 0);
+  } else {
+    target.setHours(now.getHours() + 1, 0, 0, 0);
   }
-
   return target.getTime() - now.getTime();
 }
 
@@ -42,14 +41,26 @@ VERDICTS:
 - "UPDATE": Same job/brand/city, but different salary, dates, or requirements.
 - "NEW": Completely different job or location that hasn't appeared today.
 
-CATEGORIES:
-1. FULL_VACANCY: Detailed job offer (position, location, salary).
-2. UPDATE: Changes to existing jobs, short lists, or status changes.
-3. RECRUITER_INFO: Legal, logistics, or general recruitment info.
+CLASSIFICATION RULES:
+FULL_VACANCY — ONLY if a SINGLE job offer has ALL THREE:
+  ✅ Specific position name ("Зварювальник MIG-MAG", "Склад товарів")
+  ✅ Specific city or address ("Trzeboś", "48703 Stadtlohn")
+  ✅ Specific salary rate ("26 zł/h", "16€/h netto")
+  ❌ NOT FULL_VACANCY if: multi-location list, "X людей на тиждень", candidate profiles, recruiter chat.
+
+MULTI_VACANCY — message contains 2+ SEPARATE full job offers, each with own position + location + salary block.
+
+UPDATE — use for:
+  • Multi-location lists with brief info ("Eurocash Lublin 2ч, Kraków 2ч")
+  • Headcount/date changes, candidate profiles, recruiter chat.
+
+RECRUITER_INFO — legal/logistics only (PESEL, visa rules, office hours).
+NOISE — greetings, reactions, @mentions only, system messages.
 
 Output ONLY JSON:
 {
-  "category": "FULL_VACANCY" | "UPDATE" | "RECRUITER_INFO",
+  "category": "FULL_VACANCY" | "UPDATE" | "RECRUITER_INFO" | "NOISE" | "MULTI_VACANCY",
+  "vacancyCount": 1,
   "comparison": {
     "verdict": "NEW" | "DUPLICATE" | "UPDATE",
     "reason": "short explanation in Ukrainian"
@@ -72,14 +83,9 @@ async function analyzeAndCompareWithGemini(
   const now = Date.now();
 
   for (const modelCfg of MODELS_CONFIG) {
-    // ПРАВЕРКА: Ці не замарожана мадэль?
     if (modelCooldowns.has(modelCfg.name)) {
-      const cooldownUntil = modelCooldowns.get(modelCfg.name);
-      if (now < cooldownUntil) {
-        continue; // Пропускаем, мадэль яшчэ адпачывае
-      } else {
-        modelCooldowns.delete(modelCfg.name); // Час адпачынку прайшоў
-      }
+      if (now < modelCooldowns.get(modelCfg.name)) continue;
+      else modelCooldowns.delete(modelCfg.name);
     }
 
     try {
@@ -93,52 +99,13 @@ async function analyzeAndCompareWithGemini(
 RECENT_MESSAGES: ${JSON.stringify(recentMessages.slice(0, 10))}
 RECENT_VACANCIES: ${JSON.stringify(recentVacancies.slice(0, 5))}
 NEW_MESSAGE: ${text}
-
-CLASSIFICATION RULES:
-
-FULL_VACANCY — ONLY if a SINGLE job offer has ALL THREE:
-  ✅ Specific position name ("Зварювальник MIG-MAG", "Склад товарів")
-  ✅ Specific city or address ("Trzeboś", "48703 Stadtlohn")
-  ✅ Specific salary rate ("26 zł/h", "16€/h netto")
-  ❌ NOT FULL_VACANCY if: multi-location list, "X людей на тиждень",
-     "вихід від XX.XX" without full details per location,
-     candidate profiles (name + passport + experience),
-     recruiter chat, short confirmations, greetings
-
-MULTI_VACANCY — message contains 2+ SEPARATE full job offers,
-  each with own position + location + salary block.
-  Examples: SG пакет зварювальників, список вакансій з окремими ставками.
-
-UPDATE — use for:
-  • Multi-location lists with brief info ("Eurocash Lublin 2ч, Kraków 2ч")
-  • Headcount/date changes ("need 2 more", "STOP", "6 жінок")
-  • Candidate profiles (name + passport + contacts + experience)
-  • Short recruiter exchanges, availability questions
-  • Arrival confirmations, slot requests
-
-RECRUITER_INFO — legal/logistics only:
-  • PESEL/visa rules, document procedures, registration process
-  • Payment dates, office hours
-
-NOISE — greetings, reactions, @mentions only, system messages,
-  one-line confirmations ("ok", "yes", "noted", "agreed")
-
-Output JSON:
-{
-  "category": "FULL_VACANCY" | "UPDATE" | "RECRUITER_INFO" | "NOISE" | "MULTI_VACANCY",
-  "vacancyCount": 1,
-  "comparison": {
-    "verdict": "NEW" | "DUPLICATE" | "UPDATE",
-    "reason": "short explanation in Ukrainian"
-  },
-  "translatedText": "Clean Ukrainian translation"
-}
 `;
 
       const result = await model.generateContent([
         { text: SYSTEM_PROMPT },
         { text: userContent },
       ]);
+
       const response = await result.response;
       const parsed = JSON.parse(
         response
@@ -151,36 +118,28 @@ Output JSON:
       return parsed;
     } catch (error) {
       const errorMsg = error.message || "";
-      const isQuotaError =
+      if (
         errorMsg.includes("429") ||
         errorMsg.includes("Quota") ||
-        errorMsg.includes("limit");
-
-      if (isQuotaError) {
-        const cooldownMs = getMsUntilSevenAM();
+        errorMsg.includes("limit")
+      ) {
+        const cooldownMs = getMsUntilNextRetry();
         modelCooldowns.set(modelCfg.name, now + cooldownMs);
         console.warn(
-          `🚫 Gemini ${modelCfg.name}: Ліміт дасягнуты. Замарозка да 07:00 раніцы.`,
+          `🚫 Gemini ${modelCfg.name}: Ліміт. Паўза да ${new Date(now + cooldownMs).toLocaleTimeString()}`,
         );
-      } else {
-        console.warn(
-          `⚠️ Gemini ${modelCfg.name} памылка: ${errorMsg.substring(0, 100)}`,
-        );
+        continue;
       }
-      continue;
+      console.error(
+        `⚠️ Gemini ${modelCfg.name} памылка:`,
+        errorMsg.substring(0, 100),
+      );
     }
   }
 
-  // Калі ўсе Gemini недаступныя — выкарыстоўваем Groq
-  console.log(
-    "🛡️ Усе мадэлі Gemini на паўзе. Пераход на Groq (llama-3.1-8b-instant)...",
-  );
-  return await aiService.analyzeWithGroq(
-    text,
-    recentMessages,
-    recentVacancies,
-    "llama-3.1-8b-instant",
-  );
+  // Калі ўсе Gemini недаступныя — фолбэк на Groq (Stage 1)
+  console.log("🛡️ Gemini недаступныя. Пераход на Groq для класіфікацыі...");
+  return await aiService.analyzeWithGroq(text, recentMessages, recentVacancies);
 }
 
 module.exports = { analyzeAndCompareWithGemini };

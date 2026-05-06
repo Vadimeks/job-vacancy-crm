@@ -128,23 +128,26 @@ async function processPendingMessages() {
   if (isProcessing) return;
 
   try {
-    // 1. РАМОНТ: Скідваем паведамленні, якія завіслі ў апрацоўцы больш за 10 хвілін
+    // 1. Аднаўленне завіслых паведамленняў (маркер __processing__)
     const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
     await UnprocessedMessage.updateMany(
       { rawText: "__processing__", updatedAt: { $lt: tenMinutesAgo } },
       { rawText: "" },
     );
 
+    // 2. Бярэм паведамленні ў строгім храналагічным парадку (FIFO)
     const pending = await UnprocessedMessage.find({
       processed: false,
       rawText: "",
-    }).limit(10);
+    })
+      .sort({ createdAt: 1 })
+      .limit(10);
 
     if (pending.length === 0) return;
 
     isProcessing = true;
     console.log(
-      `⚙️ ПАЧАТАК АПРАЦОЎКІ: ${pending.length} новых паведамленняў...`,
+      `⚙️ ЧАРГА: Апрацоўка ${pending.length} паведамленняў па парадку...`,
     );
 
     const startOfToday = new Date();
@@ -152,15 +155,10 @@ async function processPendingMessages() {
 
     for (const msg of pending) {
       try {
-        console.log(
-          `📝 Аналіз [${msg.agencyName}]: "${logPreview(msg.text)}..."`,
-        );
-
         msg.rawText = "__processing__";
         await msg.save();
 
-        await sleep(2000);
-
+        // Збіраем кантэкст за сёння для Gemini
         const todayMessages = await UnprocessedMessage.find({
           agencyName: msg.agencyName,
           processed: true,
@@ -172,32 +170,26 @@ async function processPendingMessages() {
           createdAt: { $gte: startOfToday },
         }).limit(5);
 
+        // Stage 1: Класіфікацыя і Пераклад
         const analysis = await analyzeAndCompareWithGemini(
           msg.text,
           todayMessages,
           todayVacancies,
         );
 
-        if (!analysis || analysis.error) {
-          msg.retryCount = (msg.retryCount || 0) + 1;
-          if (msg.retryCount >= 5) {
-            msg.rawText = "__limit_exceeded__";
-            msg.processed = true;
-            msg.category = "chat";
-          } else {
-            msg.rawText = ""; // Скідваем для наступнай спробы
-          }
+        if (!analysis) {
+          console.log(`⏳ AI ліміты дасягнуты. Спыняем чаргу.`);
+          msg.rawText = "";
           await msg.save();
-          continue;
+          break; // Спыняем УСЮ апрацоўку, каб захаваць FIFO
         }
+
+        const translatedText = analysis.translatedText || msg.text;
 
         if (analysis.category === "NOISE") {
           msg.category = "chat";
           msg.processed = true;
-          msg.rawText = (analysis.translatedText || msg.text).substring(
-            0,
-            2000,
-          );
+          msg.rawText = translatedText.substring(0, 2000);
           await msg.save();
           continue;
         }
@@ -206,51 +198,61 @@ async function processPendingMessages() {
           UPDATE: "update",
           RECRUITER_INFO: "info",
           FULL_VACANCY: "vacancy",
-          MULTI_VACANCY: "vacancy",
+          MULTI_VACANCY: "update", // Мульці-вакансіі пакідаем як апдэйты для ручнога кантролю
         };
 
         let finalCategory = categoryMap[analysis.category] || "info";
         let isAutoDone = false;
-        const isMulti = analysis.category === "MULTI_VACANCY";
 
+        // Stage 2: Парсінг (толькі для адзіночных FULL_VACANCY)
         if (
-          finalCategory === "vacancy" &&
+          analysis.category === "FULL_VACANCY" &&
           AUTO_PROCESS_VACANCIES &&
           !msg.isTruncated
         ) {
-          if (!isMulti && !hasMinimalVacancyData(msg.text)) {
-            finalCategory = "update";
-          } else {
-            console.log(`🔥 Запуск Groq-парсінгу для ${msg.agencyName}...`);
-            // 🆕 ФІКС: Адпраўляем msg.text (арыгінал), а не пераклад-самары
+          if (hasMinimalVacancyData(translatedText)) {
+            console.log(`🔥 Запуск парсінгу для ${msg.agencyName}...`);
             const result = await processVacancyMessage(
-              msg.text,
+              msg.text, // Адпраўляем АРЫГІНАЛ для максімальнай якасці
               msg.sender,
               msg.agencyName,
               msg.text,
               msg.isTruncated,
             );
-            if (result && !result.error) isAutoDone = true;
+
+            if (result && !result.error) {
+              isAutoDone = true;
+            } else if (result?.error === "RATE_LIMIT_ALL_MODELS") {
+              console.log("🚫 Усе мадэлі Groq на лімітах. Спыняем чаргу.");
+              msg.rawText = "";
+              await msg.save();
+              break;
+            }
+          } else {
+            finalCategory = "update"; // Недастаткова даных для парсінгу
           }
         }
 
-        msg.rawText = analysis.translatedText || msg.text;
+        // Захоўваем вынік апрацоўкі
+        msg.rawText = translatedText;
         msg.category = finalCategory;
         msg.processed = isAutoDone;
         await msg.save();
+
+        await sleep(2000); // Паўза для захавання лімітаў RPM
       } catch (err) {
-        console.error(`❌ Памылка ітэрацыі (${msg.agencyName}):`, err.message);
-        msg.rawText = ""; // Дазваляем паўторную спробу
+        console.error(`❌ Памылка на паведамленні ${msg._id}:`, err.message);
+        msg.rawText = "";
         await msg.save();
+        break;
       }
     }
   } catch (globalErr) {
-    console.error("❌ Global Buffer Processor Error:", globalErr);
+    console.error("❌ Global Processor Error:", globalErr);
   } finally {
     isProcessing = false;
   }
 }
-
 setInterval(processPendingMessages, 300000);
 processPendingMessages();
 // --- 3. РОЎТЫ КІРАВАННЯ (ФРОНТЭНД) ---
