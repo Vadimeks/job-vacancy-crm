@@ -151,6 +151,11 @@ async function processPendingMessages() {
         console.log(
           `📝 Аналіз [${msg.agencyName}]: "${logPreview(msg.text)}..."`,
         );
+        // 🆕 ДАДАЦЬ: Маркуем паведамленне як "у апрацоўцы" адразу
+        // каб пры рэстарце яно не патрапіла ў чаргу зноў
+        msg.rawText = "__processing__";
+        await msg.save();
+
         await sleep(2000); // Затрымка для лімітаў RPM
 
         const todayMessages = await UnprocessedMessage.find({
@@ -171,9 +176,21 @@ async function processPendingMessages() {
         );
 
         if (!analysis || analysis.error) {
-          console.log(
-            `⏳ AI памылка (ліміты) для ${msg.agencyName}. Пакідаю ў Пясочніцы для наступнай спробы.`,
-          );
+          msg.retryCount = (msg.retryCount || 0) + 1;
+          if (msg.retryCount >= 5) {
+            console.log(
+              `🗑️ Занадта шмат спроб (${msg.retryCount}) для ${msg.agencyName} -> Адхіляю`,
+            );
+            msg.rawText = "__limit_exceeded__";
+            msg.processed = true;
+            msg.category = "chat";
+            await msg.save();
+          } else {
+            console.log(
+              `⏳ AI памылка (ліміты) для ${msg.agencyName}. Спроба ${msg.retryCount}/5`,
+            );
+            await msg.save();
+          }
           continue;
         }
 
@@ -185,7 +202,10 @@ async function processPendingMessages() {
           console.log(`📎 Смецце (NOISE) для ${msg.agencyName}. Хаваю.`);
           msg.category = "chat";
           msg.processed = true;
-          msg.rawText = analysis.translatedText || msg.text; // Пазначаем, што апрацавана
+          msg.rawText = (analysis.translatedText || msg.text).substring(
+            0,
+            2000,
+          );
           await msg.save();
           continue;
         }
