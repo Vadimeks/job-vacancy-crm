@@ -113,8 +113,10 @@ async function processVacancyMessage(
 
     const savedVacancies = [];
 
-    for (const vacancyData of vacancyList) {
+    for (const item of vacancyList) {
       // Агенцыя: preDefinedAgency > whitelist > AI-парсер > Manual
+      const vacancyData = item.data || item; // 🆕 сумяшчальнасць
+      const sourceBlock = item.sourceBlock || originalText || rawText; // 🆕
       const whitelisted = getWhitelistedAgency(senderInfo);
       const finalAgency =
         preDefinedAgency ||
@@ -138,7 +140,7 @@ async function processVacancyMessage(
         agencyName: finalAgency,
         templateName: displayName,
         vacancyCode,
-        originalText: originalText || rawText,
+        originalText: sourceBlock, // 🆕 замест: originalText || rawText
         rawText: enrichedText,
         isTruncated: isTruncated,
         telegramPost: postText,

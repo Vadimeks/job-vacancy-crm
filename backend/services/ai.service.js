@@ -97,7 +97,10 @@ TASK: Format the job data into a beautiful Telegram post in UKRAINIAN.
 2. If an ENTIRE SECTION (like Accommodation, Transport, or Expenses) has no data inside, DO NOT show the section header (e.g., do not show "🏠 Проживання" if there are no details).
 3. NEVER use placeholders like "немає інформації". Just skip the line.
 4. The post must be as compact as possible, looking like a natural text post, not a form.
-
+5. TRANSPORT RULE: 
+   - If transport is NOT provided → show: "🚌 Довіз: немає"
+   - If transport IS provided → show: "🚌 Довіз: надається" + details
+   - NEVER show "Власний" as transport value.
 CRITICAL PRIVACY RULE:
 - NEVER include the Agency Name (agencyName) in the post.
 - NEVER include internal notes or recruiter-only data.
@@ -218,12 +221,16 @@ async function groqRequest(systemPrompt, userContent, jsonMode = true) {
     // Спроба 1: Разумная мадэль
     console.log(`🤖 Groq: Спроба праз ${MODEL_SMART}...`);
     const response = await groq.chat.completions.create({
-      model: MODEL_SMART,
-      temperature: 0.2,
-      response_format: jsonMode ? { type: "json_object" } : undefined,
+      model: MODEL_FAST,
+      temperature: 0.1,
+      max_tokens: 8000, // 🆕 дазваляем вяртаць вялікі JSON з усімі часткамі
+      response_format: { type: "json_object" },
       messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userContent },
+        { role: "system", content: SPLIT_PROMPT },
+        {
+          role: "user",
+          content: rawText.substring(0, 12000), // 🆕 абмяжоўваем ўваход каб не перавысіць кантэкст
+        },
       ],
     });
     return response.choices[0]?.message?.content || "";
@@ -402,6 +409,12 @@ CRITICAL GEOGRAPHY RULES:
 3. voivodeship: 
    - If country is "Polska": Select exactly one from the list: ${POLISH_VOIVODESHIPS.join(", ")}. If the text doesn't mention it, determine it by the city.
    - If country is NOT "Polska": ALWAYS set voivodeship to "Європа (інші країни)".
+  4. INTERNATIONAL LOCATION RULE:
+   - If country is NOT Poland: ALWAYS write city in Latin script + append country in parentheses.
+   - Examples: "Droßdorf (Germany)", "Loriol-sur-Drôme (France)", "Corsica (France)"
+   - NEVER use Cyrillic for city names under any circumstances.
+   - For display in vacancydescription title: same rule — "Збір фруктів — Loriol-sur-Drôme (France)"
+
 CRITICAL PRIVACY & FORMATTING RULES:
 1. agencyName: Extract the RECRUITMENT AGENCY name ONLY (e.g. Manpower, OTTO). If no agency mentioned — use null.
 2. brand: Extract the specific factory or brand name (e.g., "LG", "Amazon", "Faurecia", "LPP"). This is the name of the workplace.
@@ -980,7 +993,7 @@ async function parseMultipleVacancies(rawText) {
 
   if (parts.length <= 1) {
     const single = await parseVacancyWithAI(parts[0]);
-    return [single];
+    return [{ data: single, sourceBlock: parts[0] }]; // 🆕
   }
 
   console.log(`📊 Знойдзена патэнцыйных вакансій: ${parts.length}`);
@@ -988,30 +1001,26 @@ async function parseMultipleVacancies(rawText) {
   const results = [];
   for (const part of parts) {
     try {
-      // Страхоўка: калі ў частцы няма ні горада, ні зарплаты — гэта смецце
       const hasSalary = /[\d,]+\s*(зл|zł|€|euro|pln)/i.test(part);
-      const hasCity = /[A-Z][a-z]+/.test(part); // Наяўнасць слова з вялікай літары (лацінка)
 
       if (!hasSalary && part.length < 500) {
-        console.log(
-          "⏭️ Пропуск часткі без прыкмет вакансіі (няма зарплаты/кароткая)",
-        );
+        console.log("⏭️ Пропуск часткі без прыкмет вакансіі");
         continue;
       }
 
       const vacancy = await parseVacancyWithAI(part);
 
-      // Калі пасля парсінгу няма лакацыі і апісання — гэта не вакансія
       if (vacancy.location || vacancy.vacancydescription) {
-        results.push(vacancy);
+        results.push({ data: vacancy, sourceBlock: part }); // 🆕
       }
     } catch (err) {
       console.error("❌ Памылка парсінгу часткі:", err.message);
     }
   }
 
-  // Калі ўсе часткі былі адхілены — парсім арыгінал цалкам
-  return results.length > 0 ? results : [await parseVacancyWithAI(rawText)];
+  return results.length > 0
+    ? results
+    : [{ data: await parseVacancyWithAI(rawText), sourceBlock: rawText }]; // 🆕
 }
 
 /**
