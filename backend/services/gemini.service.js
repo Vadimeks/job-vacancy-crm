@@ -22,12 +22,15 @@ const modelCooldowns = new Map();
  */
 function getMsUntilSevenAM() {
   const now = new Date();
-  const tomorrowSeven = new Date();
+  const target = new Date();
+  target.setHours(7, 0, 0, 0);
 
-  tomorrowSeven.setDate(now.getDate() + 1);
-  tomorrowSeven.setHours(7, 0, 0, 0);
+  // Калі 07:00 сёння ўжо прайшло — ставім на заўтра
+  if (now >= target) {
+    target.setDate(target.getDate() + 1);
+  }
 
-  return tomorrowSeven.getTime() - now.getTime();
+  return target.getTime() - now.getTime();
 }
 
 const SYSTEM_PROMPT = `
