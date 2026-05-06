@@ -143,6 +143,14 @@ const RECRUITER_CHAT_NOISE_EN = [
   /@[a-z_]+/i,
   /^(ok|okay|noted|understood|got it|sure|yes|no)[\s,.!]*$/i,
   /^(wait|waiting|checked|confirmed|agreed|done)[\s,.!]*$/i,
+  /not (written|added|in system|working)/i, // "Not written"
+  /(cucumbers|tomatoes|peppers|strawberry|seedlings) (are|is) (stopped|finished|no more|available)/i, // "Cucumbers are stopped"
+  /waiting for (approval|confirmation|sms|answer|response)/i,
+  /can be agreed/i,
+  /suggest (tomatoes|cucumbers)/i,
+  /he (is|was|has) (agree|returned|in Germany|in Poland)/i,
+  /something else can be/i,
+  /@[a-z_]+/i,
 ];
 
 const CANDIDATE_FORM_NOISE = [
