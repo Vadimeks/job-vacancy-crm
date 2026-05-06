@@ -91,19 +91,43 @@ RECENT_MESSAGES: ${JSON.stringify(recentMessages.slice(0, 10))}
 RECENT_VACANCIES: ${JSON.stringify(recentVacancies.slice(0, 5))}
 NEW_MESSAGE: ${text}
 
-CATEGORIES: 
-- - FULL_VACANCY: Detailed job offer. MUST contain: Position name, Location, AND at least one of: Salary details or Job Duties. 
-  CRITICAL: If these 3 elements are present, ALWAYS classify as FULL_VACANCY, regardless of the chat source or similarity to previous messages.
-- UPDATE: Short info, changes to existing jobs, lists of vacancies without full details, or "STOP/Closed" messages.
-- RECRUITER_INFO: Legal updates (PESEL, UKR status), office info, or general recruitment rules.
-- NOISE: Greetings, social talk, system notifications.
+CLASSIFICATION RULES:
 
-VERDICTS: NEW, DUPLICATE, UPDATE.
+FULL_VACANCY — ONLY if a SINGLE job offer has ALL THREE:
+  ✅ Specific position name ("Зварювальник MIG-MAG", "Склад товарів")
+  ✅ Specific city or address ("Trzeboś", "48703 Stadtlohn")
+  ✅ Specific salary rate ("26 zł/h", "16€/h netto")
+  ❌ NOT FULL_VACANCY if: multi-location list, "X людей на тиждень",
+     "вихід від XX.XX" without full details per location,
+     candidate profiles (name + passport + experience),
+     recruiter chat, short confirmations, greetings
 
-Output JSON structure:
+MULTI_VACANCY — message contains 2+ SEPARATE full job offers,
+  each with own position + location + salary block.
+  Examples: SG пакет зварювальників, список вакансій з окремими ставками.
+
+UPDATE — use for:
+  • Multi-location lists with brief info ("Eurocash Lublin 2ч, Kraków 2ч")
+  • Headcount/date changes ("need 2 more", "STOP", "6 жінок")
+  • Candidate profiles (name + passport + contacts + experience)
+  • Short recruiter exchanges, availability questions
+  • Arrival confirmations, slot requests
+
+RECRUITER_INFO — legal/logistics only:
+  • PESEL/visa rules, document procedures, registration process
+  • Payment dates, office hours
+
+NOISE — greetings, reactions, @mentions only, system messages,
+  one-line confirmations ("ok", "yes", "noted", "agreed")
+
+Output JSON:
 {
-  "category": "FULL_VACANCY" | "UPDATE" | "RECRUITER_INFO" | "NOISE",
-  "comparison": { "verdict": "NEW" | "DUPLICATE" | "UPDATE", "reason": "short explanation in Ukrainian" },
+  "category": "FULL_VACANCY" | "UPDATE" | "RECRUITER_INFO" | "NOISE" | "MULTI_VACANCY",
+  "vacancyCount": 1,
+  "comparison": {
+    "verdict": "NEW" | "DUPLICATE" | "UPDATE",
+    "reason": "short explanation in Ukrainian"
+  },
   "translatedText": "Clean Ukrainian translation"
 }
 `;

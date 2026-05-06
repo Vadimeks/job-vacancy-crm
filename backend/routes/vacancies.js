@@ -69,7 +69,25 @@ function constructVacancyDisplayName(data) {
     parts.push(data.location);
   return parts.join(" — ");
 }
-
+function sanitizeTelegramMarkdown(text) {
+  if (!text) return "";
+  return (
+    text
+      // Выдаляем незакрытыя ** (нечатная колькасць)
+      .replace(/\*\*([^*]+)\*\*/g, "*$1*") // ** -> *
+      .replace(/\*(?!\*)(.*?)\*/g, (m) => m) // пакідаем адзінарныя
+      // Выдаляем незакрытыя _ (курсіў)
+      .replace(/(?<!\w)_([^_\n]+)_(?!\w)/g, (m) => m)
+      .replace(/(?<!\w)_(?![_\s])/g, "")
+      // Выдаляем незакрытыя [ без парнага ]
+      .replace(/\[([^\]]*?)(?=\n|$)/g, "$1")
+      // Выдаляем незакрытыя ` без пары
+      .replace(/`([^`\n]*?)(?=\n|$)/gm, "$1")
+      // Зачышчаем множныя пустыя радкі
+      .replace(/\n{3,}/g, "\n\n")
+      .trim()
+  );
+}
 // --- АСНОЎНАЯ ЛОГІКА АПРАЦОЎКІ ---
 async function processVacancyMessage(
   rawText,
@@ -128,7 +146,9 @@ async function processVacancyMessage(
       });
 
       const saved = await newVacancy.save();
-      await sendToTelegram(postText);
+      const safePostText = sanitizeTelegramMarkdown(postText);
+      await sendToTelegram(safePostText);
+      console.log(`🤖 Форматування Telegram-посту...`);
       savedVacancies.push(saved);
       console.log(`✅ Вакансія створана: ${vacancyCode} (${finalAgency})`);
 
@@ -323,7 +343,7 @@ router.patch("/:id/ai-update", async (req, res) => {
     });
 
     try {
-      await sendToTelegram(telegramUpdateNote);
+      await sendToTelegram(sanitizeTelegramMarkdown(telegramUpdateNote));
     } catch (tgErr) {
       console.error("⚠️ Telegram failed:", tgErr.message);
     }

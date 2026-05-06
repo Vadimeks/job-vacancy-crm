@@ -111,10 +111,35 @@ const SOCIAL_NOISE = [
   /^доброго ранку[\s!.]*$/i,
   /^зрозуміло[\s!.]*$/i,
 ];
-
+// ДАДАЦЬ пасля SOCIAL_NOISE:
+const RECRUITER_CHAT_NOISE_EN = [
+  // Кароткія пытанні рэкрутэраў
+  /^can (we|you|i) (agree|submit|take|offer|send|confirm|check)/i,
+  /^please (reserve|submit|confirm|check|orient|keep|let|tell|send|add)/i,
+  /^is there (anything|something|a place|still|only|any)/i,
+  /^do you (have|take|accept)/i,
+  /^will (go|she|he|they|it)/i,
+  /^we are (waiting|clear|looking|taking|not taking)/i,
+  /^they (have|are|don't|work|fit|won't)/i,
+  /^she (has|is|was|had|still|can|cannot)/i,
+  /^he (has|is|was|had|still|can|cannot)/i,
+  /^at the moment/i,
+  /^unfortunately/i,
+  /^good (day|morning|afternoon|evening)[\s,.!]*$/i,
+  /^we (have|can|want|need|don't|are)/i,
+  /^i (have|can|want|need|don't|am|worked)/i,
+  /^@[a-z_]+[\s,.!]*$/i,
+  // Анкеты кандыдатаў па-англійску
+  /^[A-Z]{2,}\s+[A-Z]{2,}\s+[A-Z]{1,2}\d{5,}/, // SURNAME NAME AB123456
+  /^\+\d{10,13}[\s\n]+[a-z0-9._%+-]+@[a-z0-9.-]+/i, // тэл + email блок
+  // Сістэмны англійскі шум
+  /^(ok|okay|noted|understood|got it|sure|yes|no)[\s,.!]*$/i,
+  /^(wait|waiting|checked|confirmed|agreed|done)[\s,.!]*$/i,
+];
 const NOISE_PATTERNS = [
   ...SYSTEM_NOISE,
   ...RECRUITER_CHAT_NOISE,
+  ...RECRUITER_CHAT_NOISE_EN, // 🆕
   ...SOCIAL_NOISE,
 ];
 

@@ -17,6 +17,14 @@ const AUTO_PROCESS_VACANCIES = true;
 let isProcessing = false;
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+function hasMinimalVacancyData(text) {
+  const hasRate =
+    /\d+[.,]?\d*\s*(zł|zlot|€|eur|pln).*?(год|час|hour|\/h|\/год)/i.test(text);
+  const hasSalary = /\d{2,}[.,]?\d*\s*(zł|zlot|€|eur|pln)/i.test(text);
+  const hasLocation =
+    /(📍|місто\s*:|місце роботи|location\s*:|miejsce pracy)/i.test(text);
+  return (hasRate || hasSalary) && hasLocation;
+}
 
 function normalizeText(text) {
   if (!text) return "";
@@ -189,32 +197,37 @@ async function processPendingMessages() {
         };
 
         let finalCategory = categoryMap[analysis.category] || "info";
+        let isAutoDone = false;
 
-        if (finalCategory === "vacancy" && msg.text.length < 300) {
-          finalCategory = "update";
+        const isMulti = analysis.category === "MULTI_VACANCY";
+
+        if (isMulti) {
+          finalCategory = "vacancy";
           console.log(
-            `📏 Тэкст кароткі (${msg.text.length} сімв.) -> Зніжаю да UPDATE`,
+            `📦 MULTI_VACANCY ад ${msg.agencyName} (${analysis.vacancyCount || "?"} вакансій) -> сплітэр`,
           );
         }
-
-        let isAutoDone = false;
 
         if (
           finalCategory === "vacancy" &&
           AUTO_PROCESS_VACANCIES &&
           !msg.isTruncated
         ) {
-          console.log(`🔥 Запуск Groq-парсінгу для ${msg.agencyName}...`);
-          const result = await processVacancyMessage(
-            analysis.translatedText || msg.text,
-            msg.sender,
-            msg.agencyName,
-            msg.text,
-            msg.isTruncated,
-          );
-
-          if (result && !result.error) {
-            isAutoDone = true;
+          if (!isMulti && !hasMinimalVacancyData(msg.text)) {
+            finalCategory = "update";
+            console.log(
+              `📏 Недастаткова дадзеных для парсінгу -> UPDATE (${msg.agencyName})`,
+            );
+          } else {
+            console.log(`🔥 Запуск Groq-парсінгу для ${msg.agencyName}...`);
+            const result = await processVacancyMessage(
+              analysis.translatedText || msg.text,
+              msg.sender,
+              msg.agencyName,
+              msg.text,
+              msg.isTruncated,
+            );
+            if (result && !result.error) isAutoDone = true;
           }
         }
 
