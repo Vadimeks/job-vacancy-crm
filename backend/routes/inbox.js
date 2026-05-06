@@ -128,19 +128,23 @@ async function processPendingMessages() {
   if (isProcessing) return;
 
   try {
-    // 1. Бярэм толькі тыя паведамленні, якія:
-    // - яшчэ не апрацаваны (processed: false)
-    // - і яшчэ НЕ маюць поля rawText (значыць AI іх яшчэ не бачыў)
+    // 1. РАМОНТ: Скідваем паведамленні, якія завіслі ў апрацоўцы больш за 10 хвілін
+    const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
+    await UnprocessedMessage.updateMany(
+      { rawText: "__processing__", updatedAt: { $lt: tenMinutesAgo } },
+      { rawText: "" },
+    );
+
     const pending = await UnprocessedMessage.find({
       processed: false,
       rawText: "",
     }).limit(10);
 
-    if (pending.length === 0) return; // Ціха выходзім, калі няма сапраўды новых
+    if (pending.length === 0) return;
 
     isProcessing = true;
     console.log(
-      `⚙️ ПАЧАТАК АПРАЦОЎКІ: ${pending.length} новых паведамленняў у чарзе...`,
+      `⚙️ ПАЧАТАК АПРАЦОЎКІ: ${pending.length} новых паведамленняў...`,
     );
 
     const startOfToday = new Date();
@@ -151,12 +155,11 @@ async function processPendingMessages() {
         console.log(
           `📝 Аналіз [${msg.agencyName}]: "${logPreview(msg.text)}..."`,
         );
-        // 🆕 ДАДАЦЬ: Маркуем паведамленне як "у апрацоўцы" адразу
-        // каб пры рэстарце яно не патрапіла ў чаргу зноў
+
         msg.rawText = "__processing__";
         await msg.save();
 
-        await sleep(2000); // Затрымка для лімітаў RPM
+        await sleep(2000);
 
         const todayMessages = await UnprocessedMessage.find({
           agencyName: msg.agencyName,
@@ -178,28 +181,17 @@ async function processPendingMessages() {
         if (!analysis || analysis.error) {
           msg.retryCount = (msg.retryCount || 0) + 1;
           if (msg.retryCount >= 5) {
-            console.log(
-              `🗑️ Занадта шмат спроб (${msg.retryCount}) для ${msg.agencyName} -> Адхіляю`,
-            );
             msg.rawText = "__limit_exceeded__";
             msg.processed = true;
             msg.category = "chat";
-            await msg.save();
           } else {
-            console.log(
-              `⏳ AI памылка (ліміты) для ${msg.agencyName}. Спроба ${msg.retryCount}/5`,
-            );
-            await msg.save();
+            msg.rawText = ""; // Скідваем для наступнай спробы
           }
+          await msg.save();
           continue;
         }
 
-        console.log(
-          `🤖 AI Вердыкт для ${msg.agencyName}: ${analysis.category} | ${analysis.comparison.verdict} (Прычына: ${analysis.comparison.reason})`,
-        );
-
         if (analysis.category === "NOISE") {
-          console.log(`📎 Смецце (NOISE) для ${msg.agencyName}. Хаваю.`);
           msg.category = "chat";
           msg.processed = true;
           msg.rawText = (analysis.translatedText || msg.text).substring(
@@ -214,19 +206,12 @@ async function processPendingMessages() {
           UPDATE: "update",
           RECRUITER_INFO: "info",
           FULL_VACANCY: "vacancy",
+          MULTI_VACANCY: "vacancy",
         };
 
         let finalCategory = categoryMap[analysis.category] || "info";
         let isAutoDone = false;
-
         const isMulti = analysis.category === "MULTI_VACANCY";
-
-        if (isMulti) {
-          finalCategory = "vacancy";
-          console.log(
-            `📦 MULTI_VACANCY ад ${msg.agencyName} (${analysis.vacancyCount || "?"} вакансій) -> сплітэр`,
-          );
-        }
 
         if (
           finalCategory === "vacancy" &&
@@ -235,13 +220,11 @@ async function processPendingMessages() {
         ) {
           if (!isMulti && !hasMinimalVacancyData(msg.text)) {
             finalCategory = "update";
-            console.log(
-              `📏 Недастаткова дадзеных для парсінгу -> UPDATE (${msg.agencyName})`,
-            );
           } else {
             console.log(`🔥 Запуск Groq-парсінгу для ${msg.agencyName}...`);
+            // 🆕 ФІКС: Адпраўляем msg.text (арыгінал), а не пераклад-самары
             const result = await processVacancyMessage(
-              analysis.translatedText || msg.text,
+              msg.text,
               msg.sender,
               msg.agencyName,
               msg.text,
@@ -251,20 +234,16 @@ async function processPendingMessages() {
           }
         }
 
-        // ЗАХОЎВАЕМ ВЫНІК
-        msg.rawText = analysis.translatedText || msg.text; // Гэта наш галоўны маркер апрацоўкі
+        msg.rawText = analysis.translatedText || msg.text;
         msg.category = finalCategory;
         msg.processed = isAutoDone;
         await msg.save();
-
-        console.log(
-          `✅ Апрацавана: ${msg.agencyName} -> Катэгорыя: ${finalCategory} | Аўта-выкананне: ${isAutoDone}`,
-        );
       } catch (err) {
         console.error(`❌ Памылка ітэрацыі (${msg.agencyName}):`, err.message);
+        msg.rawText = ""; // Дазваляем паўторную спробу
+        await msg.save();
       }
     }
-    console.log(`🏁 АПРАЦОЎКА ЗАВЕРШАНА`);
   } catch (globalErr) {
     console.error("❌ Global Buffer Processor Error:", globalErr);
   } finally {

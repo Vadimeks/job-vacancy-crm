@@ -961,10 +961,14 @@ async function splitMultipleVacancies(rawText) {
     const response = await groq.chat.completions.create({
       model: MODEL_FAST,
       temperature: 0.1,
+      max_tokens: 8000, // 🆕 Дадаем, каб не абразала вялікі JSON з усімі часткамі
       response_format: { type: "json_object" },
       messages: [
         { role: "system", content: SPLIT_PROMPT },
-        { role: "user", content: rawText },
+        {
+          role: "user",
+          content: rawText.substring(0, 12000), // 🆕 Абмяжоўваем уваход для стабільнасці кантэксту
+        },
       ],
     });
 
