@@ -9,7 +9,7 @@ const CHAT_AGENCY_MAP = [
   { id: "-1003863670200", agency: "APOLO" }, // Посередники APOLO
   { id: "-5247965234", agency: "MANUAL" }, // Vacancies-app-test-group
   { id: "-1003720434755", agency: "SOLANO" }, // АКТУАЛЬНЫЕ ВАКАНСИИ
-
+  { id: "-1002851211149", agency: "IGNORE_SELF" }, // ПРАЦЯ В ПОЛЬЩІ NOVA WORK AGENCY
   // Viber Whitelist
   { key: "посередники apolo", agency: "APOLO" },
   { key: "Biedronka - PPG Partner (sistemPL)", agency: "GLOBAL" },

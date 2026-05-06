@@ -173,7 +173,8 @@ async function processPendingMessages() {
           continue;
         }
 
-        const translatedText = analysis.translatedText || enrichedText;
+        const raw = analysis.translatedText;
+        const translatedText = typeof raw === "string" ? raw : enrichedText; // Калі не радок — бярэм арыгінал
 
         if (analysis.category === "NOISE") {
           msg.category = "chat";
