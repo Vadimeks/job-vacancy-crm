@@ -218,29 +218,25 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanations.
 // Універсальная функцыя запыту з FALLBACK логікай
 async function groqRequest(systemPrompt, userContent, jsonMode = true) {
   try {
-    // Спроба 1: Разумная мадэль
     console.log(`🤖 Groq: Спроба праз ${MODEL_SMART}...`);
     const response = await groq.chat.completions.create({
-      model: MODEL_FAST,
+      model: MODEL_SMART,
       temperature: 0.1,
-      max_tokens: 8000, // 🆕 дазваляем вяртаць вялікі JSON з усімі часткамі
-      response_format: { type: "json_object" },
+      max_tokens: 8000, // 🆕 Дадаем ліміт, каб не абразала адказ
+      response_format: jsonMode ? { type: "json_object" } : undefined,
       messages: [
-        { role: "system", content: SPLIT_PROMPT },
-        {
-          role: "user",
-          content: rawText.substring(0, 12000), // 🆕 абмяжоўваем ўваход каб не перавысіць кантэкст
-        },
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userContent },
       ],
     });
     return response.choices[0]?.message?.content || "";
   } catch (error) {
-    // Калі ліміт (429) — спрабуем хуткую мадэль
     if (error.message?.includes("429")) {
       console.warn(`⚠️ Ліміт 70b дасягнуты. Пераключаюся на ${MODEL_FAST}...`);
       const fallbackResponse = await groq.chat.completions.create({
         model: MODEL_FAST,
         temperature: 0.2,
+        max_tokens: 8000, // 🆕 Тут таксама
         response_format: jsonMode ? { type: "json_object" } : undefined,
         messages: [
           { role: "system", content: systemPrompt },
@@ -249,7 +245,7 @@ async function groqRequest(systemPrompt, userContent, jsonMode = true) {
       });
       return fallbackResponse.choices[0]?.message?.content || "";
     }
-    throw error; // Калі іншая памылка — пракідваем далей
+    throw error;
   }
 }
 
@@ -431,7 +427,7 @@ CRITICAL PRIVACY & FORMATTING RULES:
    - "Автомобільна промисловість"
    - "Виробництво та промисловість"
    - "Будівництво"
-   - "Сільське господарство"
+   - "Сільське господарство" (ВАЖЛИВО: Вибирати для будь-яких робіт у полі, теплицях, збору врожаю овочів/фруктів/салатів, навіть якщо є пакування)
    - "Торгівля та послуги"
    - "Різне"
    STRICT RULES: 
@@ -940,12 +936,7 @@ async function simpleTranslate(text) {
 /**
  * Сплітар: разбівае тэкст на асобныя вакансіі (выкарыстоўваем танную мадэль)
  */
-async function splitMultipleVacancies(rawText) {
-  try {
-    console.log(
-      `✂️ Аналіз структуры тэксту на наяўнасць паўторных вакансій...`,
-    );
-    const SPLIT_PROMPT = `
+const SPLIT_PROMPT = `
 ROLE: HR Data Architect.
 TASK: Identify if the text contains multiple COMPLETE job offers.
 
@@ -961,6 +952,12 @@ CRITICAL RULE:
 
 Return ONLY a JSON object: { "isMultiple": boolean, "parts": ["full text of vacancy 1", "full text of vacancy 2"] }
 `;
+async function splitMultipleVacancies(rawText) {
+  try {
+    console.log(
+      `✂️ Аналіз структуры тэксту на наяўнасць паўторных вакансій...`,
+    );
+
     const response = await groq.chat.completions.create({
       model: MODEL_FAST,
       temperature: 0.1,
