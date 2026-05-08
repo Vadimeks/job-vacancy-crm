@@ -7,7 +7,6 @@ import {
   bulkDeleteInbox,
   getVacancies,
   aiUpdateVacancy,
-  markInboxProcessed,
 } from "../services/api";
 
 const CATEGORY_LABELS = {
@@ -43,6 +42,7 @@ export default function Inbox() {
     vacancy: 0,
     update: 0,
     info: 0,
+    pendingAi: 0, // Новае поле для статыстыкі
   });
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [selected, setSelected] = useState(new Set());
@@ -61,8 +61,18 @@ export default function Inbox() {
         getInboxStats(),
         getVacancies(),
       ]);
-      setMessages(msgsRes.data);
-      setStats(statsRes.data);
+
+      const msgs = msgsRes.data;
+      setMessages(msgs);
+
+      // Падлічваем колькасць тых, хто чакае AI, калі бэкенд яшчэ не аддае гэта ў stats
+      const pendingAiCount = msgs.filter((m) => !m.aiAnalyzed).length;
+
+      setStats({
+        ...statsRes.data,
+        pendingAi: pendingAiCount,
+      });
+
       setVacancies(vacRes.data.filter((v) => v.status === "active"));
       notifyUpdate();
     } catch (err) {
@@ -180,7 +190,7 @@ export default function Inbox() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
         {[
           {
             key: "all",
@@ -206,10 +216,16 @@ export default function Inbox() {
             count: stats.info || 0,
             color: "text-blue-400",
           },
+          {
+            key: "pending",
+            label: "Чакаюць AI",
+            count: stats.pendingAi || 0,
+            color: "text-indigo-400",
+          },
         ].map(({ key, label, count, color }) => (
           <button
             key={key}
-            onClick={() => setCategoryFilter(key)}
+            onClick={() => key !== "pending" && setCategoryFilter(key)}
             className={`bg-slate-900 border rounded-xl p-3 text-left transition-all ${categoryFilter === key ? "border-emerald-500/40 bg-emerald-500/5" : "border-slate-800"}`}
           >
             <div className={`text-2xl font-bold ${color}`}>{count}</div>
@@ -238,11 +254,12 @@ export default function Inbox() {
             const isPicking = showUpdatePicker === msg._id;
             const isProcessing = processingId === msg._id;
             const cat = CATEGORY_LABELS[msg.category] || CATEGORY_LABELS.info;
+            const isAnalyzed = msg.aiAnalyzed;
 
             return (
               <div
                 key={msg._id}
-                className={`${selected.has(msg._id) ? "bg-emerald-500/5" : ""}`}
+                className={`${selected.has(msg._id) ? "bg-emerald-500/5" : ""} ${!isAnalyzed ? "opacity-70" : ""}`}
               >
                 <div className="grid grid-cols-[40px_1fr_150px_100px_80px] gap-3 px-4 py-3 items-center hover:bg-slate-800/30 transition-colors">
                   <input
@@ -255,12 +272,24 @@ export default function Inbox() {
                     className="min-w-0 cursor-pointer"
                     onClick={() => setExpandedId(isExpanded ? null : msg._id)}
                   >
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
                       <span
                         className={`text-[9px] px-1.5 py-0.5 rounded border uppercase font-bold ${cat.color}`}
                       >
                         {cat.label}
                       </span>
+
+                      {/* СТАТУС AI */}
+                      {isAnalyzed ? (
+                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">
+                          ✨ Апрацавана
+                        </span>
+                      ) : (
+                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700 border-dashed font-medium">
+                          ⏳ Не апрацавана
+                        </span>
+                      )}
+
                       {msg.agencyName && (
                         <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
                           {msg.agencyName}
@@ -275,7 +304,8 @@ export default function Inbox() {
                     <p
                       className={`text-sm ${isExpanded ? "text-slate-100" : "text-slate-400 truncate"}`}
                     >
-                      {msg.rawText || msg.text}
+                      {/* Паказваем пераклад, калі ён ёсць, інакш арыгінал */}
+                      {isAnalyzed ? msg.rawText || msg.text : msg.text}
                     </p>
                   </div>
                   <div className="text-[11px] text-slate-500 truncate">
@@ -293,7 +323,8 @@ export default function Inbox() {
                     <button
                       onClick={() => handleCreateVacancy(msg)}
                       title="Стварыць"
-                      className="p-1.5 hover:bg-emerald-500/20 text-emerald-500 rounded-md"
+                      disabled={!isAnalyzed}
+                      className={`p-1.5 rounded-md ${isAnalyzed ? "hover:bg-emerald-500/20 text-emerald-500" : "text-slate-700 cursor-not-allowed"}`}
                     >
                       🤖
                     </button>
@@ -309,9 +340,10 @@ export default function Inbox() {
                 {isExpanded && (
                   <div className="px-14 pb-4 animate-in fade-in slide-in-from-top-1">
                     <div className="bg-slate-950 border border-slate-800 rounded-lg p-4 text-sm text-slate-100 whitespace-pre-wrap leading-relaxed">
-                      {msg.rawText || msg.text}
+                      {isAnalyzed ? msg.rawText || msg.text : msg.text}
                     </div>
-                    {!isPicking ? (
+
+                    {isAnalyzed && !isPicking && (
                       <div className="mt-3 flex gap-2">
                         <button
                           onClick={() => handleCreateVacancy(msg)}
@@ -326,7 +358,9 @@ export default function Inbox() {
                           Абнавіць існуючую
                         </button>
                       </div>
-                    ) : (
+                    )}
+
+                    {isAnalyzed && isPicking && (
                       <div className="mt-4 p-4 bg-slate-800 rounded-lg border border-amber-500/30">
                         <div className="flex justify-between items-center mb-3">
                           <h4 className="text-xs font-bold text-amber-400 uppercase tracking-wider">
@@ -364,6 +398,13 @@ export default function Inbox() {
                             ))}
                           </div>
                         )}
+                      </div>
+                    )}
+
+                    {!isAnalyzed && (
+                      <div className="mt-3 text-[10px] text-slate-500 italic">
+                        Паведамленне чакае чарговай ітэрацыі AI-аналізу (кожныя
+                        10 хвілін)...
                       </div>
                     )}
                   </div>
