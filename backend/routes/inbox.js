@@ -17,6 +17,7 @@ const AUTO_PROCESS_VACANCIES = true;
 let isProcessing = false;
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 function hasMinimalVacancyData(text) {
   const hasRate =
     /\d+[.,]?\d*\s*(zł|zlot|€|eur|pln).*?(год|час|hour|\/h|\/год)/i.test(text);
@@ -42,10 +43,23 @@ router.post("/push", async (req, res) => {
   const senderRaw = (req.body.sender || req.body.not_title || "Unknown").trim();
   const source = req.body.source || "viber";
   const chatId = req.body.chatId || null;
+
+  // 1. Вайтліст (да базы) - Прыярытэтная праверка
+  const agency = getWhitelistedAgency(senderRaw, chatId);
+
+  if (!agency) {
+    return res.status(200).json({ status: "ignored_not_whitelisted" });
+  }
+
+  if (agency === "IGNORE_SELF") {
+    return res.status(200).json({ status: "ignored_self_loop" });
+  }
+
   console.log(
     `📡 RAW PUSH: ад "${senderRaw}" (ID: ${chatId}) | Тэкст: ${text.substring(0, 30)}...`,
   );
-  // 1. Жорсткі фільтр шуму (да базы)
+
+  // 2. Жорсткі фільтр шуму
   if (shouldIgnoreMessage(text)) {
     console.log(
       `🗑️ Адхілена (Noise/Regex) ад "${senderRaw}": "${logPreview(text)}..."`,
@@ -54,20 +68,6 @@ router.post("/push", async (req, res) => {
   }
 
   try {
-    // 2. Вайтліст (да базы)
-    const agency = getWhitelistedAgency(senderRaw, chatId);
-
-    if (!agency) {
-      // Лог для дыягностыкі ID
-      console.log(
-        `🚫 Адхілена (Whitelist): ад "${senderRaw}" (ID: ${chatId}) | Тэкст: "${logPreview(text)}"`,
-      );
-      return res.status(200).json({ status: "ignored_not_whitelisted" });
-    }
-
-    if (agency === "IGNORE_SELF")
-      return res.status(200).json({ status: "ignored_self_loop" });
-
     console.log(
       `📥 Прынята: ${text.length} сімв. ад "${senderRaw}" (${agency}) [${source}]`,
     );
@@ -75,7 +75,7 @@ router.post("/push", async (req, res) => {
     const incomingPrefixHash = getPrefixHash(text);
     const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000);
 
-    // 3. Дэдуплікацыя (да базы)
+    // 3. Дэдуплікацыя (stitching)
     const existingMsg = await UnprocessedMessage.findOne({
       agencyName: agency,
       prefixHash: incomingPrefixHash,
@@ -92,6 +92,7 @@ router.post("/push", async (req, res) => {
         existingMsg.prefixHash = incomingPrefixHash;
         existingMsg.isTruncated = isTruncated(text, source);
         existingMsg.processed = false;
+        existingMsg.aiAnalyzed = false; // Скідваем аналіз, бо тэкст абнавіўся
         await existingMsg.save();
         return res.status(200).json({ status: "updated_in_buffer" });
       } else {
@@ -102,7 +103,7 @@ router.post("/push", async (req, res) => {
       }
     }
 
-    // 4. Захаванне (толькі калі прайшло ўсе фільтры)
+    // 4. Захаванне
     const newMsg = new UnprocessedMessage({
       sender: senderRaw,
       agencyName: agency,
@@ -110,8 +111,9 @@ router.post("/push", async (req, res) => {
       textHash: normalizeText(text),
       prefixHash: incomingPrefixHash,
       source: source,
-      category: "info", // Пакідаем info па тваім жаданні
+      category: "info",
       processed: false,
+      aiAnalyzed: false,
       isTruncated: isTruncated(text, source),
     });
 
@@ -123,6 +125,7 @@ router.post("/push", async (req, res) => {
     res.status(200).json({ status: "error" });
   }
 });
+
 // --- 2. ФОНАВАЯ АПРАЦОЎКА БУФЕРА ---
 async function processPendingMessages() {
   if (isProcessing) return;
@@ -135,14 +138,12 @@ async function processPendingMessages() {
       { rawText: "" },
     );
 
-    // 2. FIFO: Бярэм паведамленні, якія яшчэ НЕ прайшлі AI-аналіз
+    // 2. FIFO: Бярэм УСЕ паведамленні, якія яшчэ НЕ прайшлі AI-аналіз
     const pending = await UnprocessedMessage.find({
       processed: false,
-      aiAnalyzed: false, // 👈 Бярэм толькі "свежыя"
+      aiAnalyzed: false,
       rawText: { $ne: "__processing__" },
-    })
-      .sort({ createdAt: 1 })
-      .limit(10);
+    }).sort({ createdAt: 1 }); // 👈 Прыбралі .limit(10)
 
     if (pending.length === 0) return;
 
@@ -151,15 +152,13 @@ async function processPendingMessages() {
 
     for (const msg of pending) {
       try {
-        const originalRaw = msg.rawText;
         msg.rawText = "__processing__";
         await msg.save();
 
-        // [КРОК 0] Збагачэнне праз Google Docs (калі ёсць спасылкі)
+        // [КРОК 0] Збагачэнне праз Google Docs
         const enrichedText = await aiService.enrichTextWithDocs(msg.text);
 
         // [КРОК 1] Stage 1: Класіфікацыя і Пераклад
-        // Перадаем enrichedText, каб Gemini бачыў змест дакументаў
         const analysis = await analyzeAndCompareWithGemini(
           enrichedText,
           [],
@@ -168,13 +167,13 @@ async function processPendingMessages() {
 
         if (!analysis) {
           console.log(`⏳ AI ліміты. Пропуск паведамлення.`);
-          msg.rawText = "";
+          msg.rawText = ""; // Скідваем статус, каб паспрабаваць у наступны раз
           await msg.save();
           continue;
         }
 
         const raw = analysis.translatedText;
-        const translatedText = typeof raw === "string" ? raw : enrichedText; // Калі не радок — бярэм арыгінал
+        const translatedText = typeof raw === "string" ? raw : enrichedText;
 
         if (analysis.category === "NOISE") {
           msg.category = "chat";
@@ -204,29 +203,29 @@ async function processPendingMessages() {
           if (hasMinimalVacancyData(translatedText)) {
             console.log(`🔥 Stage 2: Groq-парсінг для ${msg.agencyName}...`);
             const result = await processVacancyMessage(
-              translatedText, // 👈 Перадаем гатовы ПЕРАКЛАД
+              translatedText,
               msg.sender,
               msg.agencyName,
-              msg.text, // Арыгінал для гісторыі
+              msg.text,
               msg.isTruncated,
             );
 
             if (result && !result.error) {
-              isAutoDone = true; // Вакансія створана, паведамленне можна хаваць
+              isAutoDone = true;
             }
           } else {
-            finalCategory = "update"; // Мала даных для парсінгу -> у пясочніцу
+            finalCategory = "update";
           }
         }
 
         // Захоўваем вынік Stage 1
         msg.rawText = translatedText;
         msg.category = finalCategory;
-        msg.aiAnalyzed = true; // 👈 AI сваю справу зрабіў
+        msg.aiAnalyzed = true;
         msg.processed = isAutoDone;
         await msg.save();
 
-        await sleep(2000);
+        await sleep(2000); // Паўза паміж запытамі для захавання RPM
       } catch (err) {
         console.error(`❌ Памылка на ${msg._id}:`, err.message);
         msg.rawText = "";
@@ -240,16 +239,18 @@ async function processPendingMessages() {
   }
 }
 
-setInterval(processPendingMessages, 300000);
+// Інтэрвал апрацоўкі павялічаны да 10 хвілін
+setInterval(processPendingMessages, 600000);
 processPendingMessages();
-// --- 3. РОЎТЫ КІРАВАННЯ (ФРОНТЭНД) ---
+
+// --- 3. РОЎТЫ КІРАВАННЯ ---
 
 router.get("/", async (req, res) => {
   try {
     const { category, limit = 200 } = req.query;
-    // 🔧 Паказваем толькі неапрацаваныя (processed: false)
     const filter = { category: { $ne: "chat" }, processed: false };
     if (category && category !== "all") filter.category = category;
+
     const messages = await UnprocessedMessage.find(filter)
       .sort({ createdAt: -1 })
       .limit(Number(limit));

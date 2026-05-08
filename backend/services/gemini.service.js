@@ -3,7 +3,6 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const aiService = require("./ai.service");
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// 🚀 Актуальныя мадэлі на красавік 2026
 const MODELS_CONFIG = [
   { name: "gemini-2.5-flash", apiVersion: "v1beta" },
   { name: "gemini-2.5-flash-lite", apiVersion: "v1beta" },
@@ -15,52 +14,49 @@ const geminiCache = new Map();
 const CACHE_TTL = 5 * 60 * 1000;
 const modelCooldowns = new Map();
 
-/**
- * Вылічвае час да наступнай спробы:
- * - Калі зараз ноч (да 7 ранку) -> да 07:00
- * - Калі зараз дзень (пасля 7 ранку) -> да пачатку наступнай гадзіны
- */
 function getMsUntilNextRetry() {
   const now = new Date();
   const target = new Date();
-
   if (now.getHours() < 7) {
     target.setHours(7, 0, 0, 0);
   } else {
-    target.setHours(now.getHours() + 1, 0, 0, 0);
+    target.setDate(now.getDate() + 1);
+    target.setHours(7, 0, 0, 0);
   }
   return target.getTime() - now.getTime();
 }
 
 const SYSTEM_PROMPT = `
 Role: Expert Analyst of the Polish Job Market.
-Task: Compare NEW_MESSAGE with TODAY_MESSAGES and TODAY_VACANCIES.
+Task: Classify and translate NEW_MESSAGE by comparing it with RECENT_MESSAGES and RECENT_VACANCIES.
 
-VERDICTS:
-- "DUPLICATE": 100% semantic match with something already received TODAY. Same job, same city, same conditions.
-- "UPDATE": Same job/brand/city, but different salary, dates, or requirements.
-- "NEW": Completely different job or location that hasn't appeared today.
+SMART DEDUPLICATION RULES:
+- Verdict "DUPLICATE": If the core information (Job, City, Salary, Requirements) is the same as in RECENT_MESSAGES or RECENT_VACANCIES.
+- CRITICAL: Ignore differences in emojis, greetings ("Доброго дня", "Привіт"), or minor punctuation. If the essence is the same -> it's a DUPLICATE.
+- Verdict "UPDATE": If it's the same job/factory but something important changed (new date, new salary, or "STOP/Closed" status).
+- Verdict "NEW": If this job or location hasn't appeared today.
 
 CLASSIFICATION RULES:
-FULL_VACANCY — ONLY if a SINGLE job offer has ALL THREE:
-  ✅ Specific position name ("Зварювальник MIG-MAG", "Склад товарів")
-  ✅ Specific city or address ("Trzeboś", "48703 Stadtlohn")
-  ✅ Specific salary rate ("26 zł/h", "16€/h netto")
-  ❌ NOT FULL_VACANCY if: multi-location list, "X людей на тиждень", candidate profiles, recruiter chat.
+1. FULL_VACANCY — ONLY if a SINGLE job offer has:
+   ✅ Position + City + Salary/Description.
+   ✅ CRITICAL: Text length MUST be > 300 characters OR contain a Google Docs link.
+   ❌ If the text is short (< 300 chars) and has NO Google Docs link -> classify as UPDATE.
 
-MULTI_VACANCY — message contains 2+ SEPARATE full job offers, each with own position + location + salary block.
+2. MULTI_VACANCY — Message contains 2+ SEPARATE full job offers.
 
-UPDATE — use for:
-  • Multi-location lists with brief info ("Eurocash Lublin 2ч, Kraków 2ч")
-  • Headcount/date changes, candidate profiles, recruiter chat.
+3. UPDATE — Short info, lists, or messages < 300 chars without a Google Docs link.
 
-RECRUITER_INFO — legal/logistics only (PESEL, visa rules, office hours).
-NOISE — greetings, reactions, @mentions only, system messages.
+4. RECRUITER_INFO — Questions between recruiters, legal info (PESEL, visa), office updates.
+
+5. NOISE — Greetings only, system messages, reactions.
+
+STRICT TRANSLATION RULE:
+- Always translate to UKRAINIAN. Keep city names in POLISH (Latin).
 
 Output ONLY JSON:
 {
   "category": "FULL_VACANCY" | "UPDATE" | "RECRUITER_INFO" | "NOISE" | "MULTI_VACANCY",
-  "vacancyCount": 1,
+  "vacancyCount": number,
   "comparison": {
     "verdict": "NEW" | "DUPLICATE" | "UPDATE",
     "reason": "short explanation in Ukrainian"
@@ -107,12 +103,11 @@ NEW_MESSAGE: ${text}
       ]);
 
       const response = await result.response;
-      const parsed = JSON.parse(
-        response
-          .text()
-          .replace(/```json|```/g, "")
-          .trim(),
-      );
+      const cleanJson = response
+        .text()
+        .replace(/```json|```/g, "")
+        .trim();
+      const parsed = JSON.parse(cleanJson);
 
       geminiCache.set(cacheKey, { data: parsed, timestamp: Date.now() });
       return parsed;
@@ -137,7 +132,6 @@ NEW_MESSAGE: ${text}
     }
   }
 
-  // Калі ўсе Gemini недаступныя — фолбэк на Groq (Stage 1)
   console.log("🛡️ Gemini недаступныя. Пераход на Groq для класіфікацыі...");
   return await aiService.analyzeWithGroq(text, recentMessages, recentVacancies);
 }

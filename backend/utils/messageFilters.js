@@ -1,15 +1,15 @@
 // backend/utils/messageFilters.js
 
 const CHAT_AGENCY_MAP = [
-  // --- Telegram Whitelist (па ID — самы надзейны спосаб) ---
-  { id: "-1002197502834", agency: "SG" }, // REKRUTER FREELANCER
-  { id: "-1003470548853", agency: "STAFF POWER" }, // STAFF POWER БРИЖУК
-  { id: "-1003038801216", agency: "SOLANO" }, // SOLANO БРИЖУК
-  { id: "-1002597324535", agency: "INTRASERVICE" }, // ІНТРАСЕРВІС БРИЖУК
-  { id: "-1003863670200", agency: "APOLO" }, // Посередники APOLO
-  { id: "-5247965234", agency: "MANUAL" }, // Vacancies-app-test-group
-  { id: "-1003720434755", agency: "SOLANO" }, // АКТУАЛЬНЫЕ ВАКАНСИИ
-  { id: "-1002851211149", agency: "IGNORE_SELF" }, // ПРАЦЯ В ПОЛЬЩІ NOVA WORK AGENCY
+  // --- Telegram Whitelist ---
+  { id: "-1002197502834", agency: "SG" },
+  { id: "-1003470548853", agency: "STAFF POWER" },
+  { id: "-1003038801216", agency: "SOLANO" },
+  { id: "-1002597324535", agency: "INTRASERVICE" },
+  { id: "-1003863670200", agency: "APOLO" },
+  { id: "-5247965234", agency: "MANUAL" },
+  { id: "-1003720434755", agency: "SOLANO" },
+  { id: "-1002851211149", agency: "IGNORE_SELF" }, // Уласны канал
   // Viber Whitelist
   { key: "посередники apolo", agency: "APOLO" },
   { key: "Biedronka - PPG Partner (sistemPL)", agency: "GLOBAL" },
@@ -29,13 +29,12 @@ const CHAT_AGENCY_MAP = [
   { key: "grupa progres", agency: "PROGRES" },
   { key: "Works4you", agency: "RALEN" },
   { key: "test-group", agency: "MANUAL" },
-
   { key: "nova work agency", agency: "IGNORE_SELF" },
 ];
 
 const SYSTEM_NOISE = [
-  /\*\*processing\*\*/i, // Бот APOLO/SG
-  /clean polish translation/i, // Тэхнічныя паметкі
+  /\*\*processing\*\*/i,
+  /clean polish translation/i,
   /реагує .* на/i,
   /новий коментар до вашого повідомлення/i,
   /ви маєте нові повідомлення/i,
@@ -47,8 +46,8 @@ const SYSTEM_NOISE = [
   /приєдналась д[ао] спільноти/i,
   /приєднується [доа] групи/i,
   /приєднався до .+/i,
-  /приєдналась до .+/i,
-  /Користувач .* приєднався/i,
+  /приєдналась да .+/i,
+  /Користувач .* прыєднався/i,
   /joins the .* group/i,
   /pinned a message/i,
   /joined the group/i,
@@ -120,6 +119,15 @@ const RECRUITER_CHAT_NOISE = [
   /спочатку з ними/i,
   /мої перші були/i,
   /повідомьте будь ласка/i,
+  // --- НОВЫЯ МАРКЕРЫ (Крок 1) ---
+  /маю жінку на/i,
+  /маю чоловіка на/i,
+  /звичайний песель/i,
+  /сильна перевірка/i,
+  /по цій уточню/i,
+  /наразі працює у/i,
+  /на анімексі/i,
+  /дзвоню, виясняю/i,
 ];
 
 const RECRUITER_CHAT_NOISE_EN = [
@@ -143,8 +151,8 @@ const RECRUITER_CHAT_NOISE_EN = [
   /@[a-z_]+/i,
   /^(ok|okay|noted|understood|got it|sure|yes|no)[\s,.!]*$/i,
   /^(wait|waiting|checked|confirmed|agreed|done)[\s,.!]*$/i,
-  /not (written|added|in system|working)/i, // "Not written"
-  /(cucumbers|tomatoes|peppers|strawberry|seedlings) (are|is) (stopped|finished|no more|available)/i, // "Cucumbers are stopped"
+  /not (written|added|in system|working)/i,
+  /(cucumbers|tomatoes|peppers|strawberry|seedlings) (are|is) (stopped|finished|no more|available)/i,
   /waiting for (approval|confirmation|sms|answer|response)/i,
   /can be agreed/i,
   /suggest (tomatoes|cucumbers)/i,
@@ -154,11 +162,11 @@ const RECRUITER_CHAT_NOISE_EN = [
 ];
 
 const CANDIDATE_FORM_NOISE = [
-  /\d+\.\s+[A-Z]+\s+[A-Z]+/i, // 1. ПРЫЗВІШЧА ІМЯ (Анкеты)
-  /^[A-Z]{2,}\s+[A-Z]{2,}\s+[A-Z]{1,2}\d{5,}/, // Анкеты па-англійску
-  /[A-Z]+\s+[A-Z]+\s+[A-Z0-9]{6,10}/, // Серыя пашпарта ў анкеце
-  /\+\d{10,13}[\s\n]+[a-z0-9._%+-]+@[a-z0-9.-]+/i, // Тэлефон + Email
-  /\+\d{10,13}\s+\+\d{10,13}/, // Спісы тэлефонаў
+  /\d+\.\s+[A-Z]+\s+[A-Z]+/i,
+  /^[A-Z]{2,}\s+[A-Z]{2,}\s+[A-Z]{1,2}\d{5,}/m, // 👈 Выпраўлена (патрабуе лічбы пашпарта)
+  /[A-Z]+\s+[A-Z]+\s+[A-Z0-9]{6,10}/,
+  /\+\d{10,13}[\s\n]+[a-z0-9._%+-]+@[a-z0-9.-]+/i,
+  /\+\d{10,13}\s+\+\d{10,13}/,
 ];
 
 const SOCIAL_NOISE = [
@@ -236,7 +244,7 @@ function getPrefixHash(text) {
     .toLowerCase()
     .replace(/\s+/g, "")
     .replace(/[^a-zа-яёіў0-9]/gi, "")
-    .substring(0, 150);
+    .substring(0, 250); // 👈 Павялічана да 250
 }
 
 function getWhitelistedAgency(chatTitle, chatId = null) {

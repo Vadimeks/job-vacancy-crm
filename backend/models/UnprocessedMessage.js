@@ -12,16 +12,16 @@ const UnprocessedMessageSchema = new mongoose.Schema(
     category: {
       type: String,
       enum: ["vacancy", "update", "info", "chat"],
-      default: "info", // 👈 Выпраўлена з "chat" на "info"
+      default: "info",
     },
     processed: { type: Boolean, default: false }, // true толькі калі вакансія створана або гэта сметніца
-    aiAnalyzed: { type: Boolean, default: false }, // 👈 НОВЫ МАРКЕР: AI зрабіў Stage 1
+    aiAnalyzed: { type: Boolean, default: false }, // AI зрабіў Stage 1
     textHash: { type: String, index: true },
     prefixHash: { type: String, index: true, default: "" },
-    createdAt: { type: Date, default: Date.now, expires: "48h" },
+    createdAt: { type: Date, default: Date.now, expires: "72h" }, // 👈 Павялічана да 3 дзён
   },
   { timestamps: true },
-); // Дадаем timestamps для адсочвання updatedAt
+);
 
 UnprocessedMessageSchema.index({ processed: 1, aiAnalyzed: 1, createdAt: -1 });
 UnprocessedMessageSchema.index({ agencyName: 1, prefixHash: 1, createdAt: -1 });
