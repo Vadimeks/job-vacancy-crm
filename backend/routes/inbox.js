@@ -131,19 +131,28 @@ async function processPendingMessages() {
   if (isProcessing) return;
 
   try {
-    // 1. Аднаўленне завіслых
-    const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
-    await UnprocessedMessage.updateMany(
-      { rawText: "__processing__", updatedAt: { $lt: tenMinutesAgo } },
+    // 1. Аднаўленне "прапушчаных" або завіслых паведамленняў (старэйшых за 5 хвілін)
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+    const recovered = await UnprocessedMessage.updateMany(
+      {
+        aiAnalyzed: false,
+        rawText: "__processing__",
+        updatedAt: { $lt: fiveMinutesAgo },
+      },
       { rawText: "" },
     );
+    if (recovered.modifiedCount > 0) {
+      console.log(
+        `🔄 Адноўлена ў чаргу: ${recovered.modifiedCount} прапушчаных паведамленняў.`,
+      );
+    }
 
-    // 2. FIFO: Бярэм УСЕ паведамленні, якія яшчэ НЕ прайшлі AI-аналіз
+    // 2. Бярэм УСЕ неапрацаваныя, пачынаючы з самых старых (FIFO)
     const pending = await UnprocessedMessage.find({
       processed: false,
       aiAnalyzed: false,
       rawText: { $ne: "__processing__" },
-    }).sort({ createdAt: 1 }); // 👈 Прыбралі .limit(10)
+    }).sort({ createdAt: 1 });
 
     if (pending.length === 0) return;
 
@@ -155,10 +164,7 @@ async function processPendingMessages() {
         msg.rawText = "__processing__";
         await msg.save();
 
-        // [КРОК 0] Збагачэнне праз Google Docs
         const enrichedText = await aiService.enrichTextWithDocs(msg.text);
-
-        // [КРОК 1] Stage 1: Класіфікацыя і Пераклад
         const analysis = await analyzeAndCompareWithGemini(
           enrichedText,
           [],
@@ -166,10 +172,13 @@ async function processPendingMessages() {
         );
 
         if (!analysis) {
-          console.log(`⏳ AI ліміты. Пропуск паведамлення.`);
-          msg.rawText = ""; // Скідваем статус, каб паспрабаваць у наступны раз
+          // КРЫТЫЧНА: Калі AI вярнуў null (ліміты), спыняем увесь цыкл
+          console.log(
+            `⏳ AI ліміты дасягнуты. Спыняем канвеер для паведамлення ${msg._id}.`,
+          );
+          msg.rawText = "";
           await msg.save();
-          continue;
+          break; // 👈 Выхад з цыкла for, астатнія паведамленні чакаюць 10 хвілін
         }
 
         const raw = analysis.translatedText;
@@ -194,7 +203,6 @@ async function processPendingMessages() {
         let finalCategory = categoryMap[analysis.category] || "info";
         let isAutoDone = false;
 
-        // [КРОК 2] Stage 2: Парсінг (толькі для FULL_VACANCY і не абрэзаных)
         if (
           analysis.category === "FULL_VACANCY" &&
           AUTO_PROCESS_VACANCIES &&
@@ -209,27 +217,24 @@ async function processPendingMessages() {
               msg.text,
               msg.isTruncated,
             );
-
-            if (result && !result.error) {
-              isAutoDone = true;
-            }
+            if (result && !result.error) isAutoDone = true;
           } else {
             finalCategory = "update";
           }
         }
 
-        // Захоўваем вынік Stage 1
         msg.rawText = translatedText;
         msg.category = finalCategory;
         msg.aiAnalyzed = true;
         msg.processed = isAutoDone;
         await msg.save();
 
-        await sleep(2000); // Паўза паміж запытамі для захавання RPM
+        await sleep(2000);
       } catch (err) {
         console.error(`❌ Памылка на ${msg._id}:`, err.message);
         msg.rawText = "";
         await msg.save();
+        break; // Пры любой памылцы лепш спыніцца і пачакаць
       }
     }
   } catch (globalErr) {

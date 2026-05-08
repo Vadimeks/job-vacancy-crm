@@ -914,17 +914,17 @@ async function splitMultipleVacancies(rawText) {
       `✂️ Аналіз структуры тэксту на наяўнасць паўторных вакансій...`,
     );
 
+    // Абмяжоўваем уваход да 5000 сімвалаў для мадэлі 8b
+    const safeInput = rawText.substring(0, 5000);
+
     const response = await groq.chat.completions.create({
       model: MODEL_FAST,
       temperature: 0.1,
-      max_tokens: 8000, // 🆕 Дадаем, каб не абразала вялікі JSON з усімі часткамі
+      max_tokens: 4000,
       response_format: { type: "json_object" },
       messages: [
         { role: "system", content: SPLIT_PROMPT },
-        {
-          role: "user",
-          content: rawText.substring(0, 12000), // 🆕 Абмяжоўваем уваход для стабільнасці кантэксту
-        },
+        { role: "user", content: safeInput },
       ],
     });
 
@@ -934,8 +934,7 @@ async function splitMultipleVacancies(rawText) {
       return [rawText];
     }
 
-    // Дадатковая праверка: кожная частка павінна быць змястоўнай
-    return parsed.parts.filter((p) => p.trim().length > 300);
+    return parsed.parts.filter((p) => p.trim().length > 150);
   } catch (err) {
     console.error("⚠️ Splitter error:", err.message);
     return [rawText];

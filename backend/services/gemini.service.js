@@ -28,30 +28,29 @@ function getMsUntilNextRetry() {
 
 const SYSTEM_PROMPT = `
 Role: Expert Analyst of the Polish Job Market.
-Task: Classify and translate NEW_MESSAGE by comparing it with RECENT_MESSAGES and RECENT_VACANCIES.
+Task: Classify and translate NEW_MESSAGE.
 
-SMART DEDUPLICATION RULES:
-- Verdict "DUPLICATE": If the core information (Job, City, Salary, Requirements) is the same as in RECENT_MESSAGES or RECENT_VACANCIES.
-- CRITICAL: Ignore differences in emojis, greetings ("Доброго дня", "Привіт"), or minor punctuation. If the essence is the same -> it's a DUPLICATE.
-- Verdict "UPDATE": If it's the same job/factory but something important changed (new date, new salary, or "STOP/Closed" status).
-- Verdict "NEW": If this job or location hasn't appeared today.
+STRICT LANGUAGE RULE:
+- ALL output text MUST be in UKRAINIAN.
+- If the input is in English, Russian, or any other language -> TRANSLATE it to Ukrainian.
+- If you translated the text, append the original text at the end like this:
+  [Ukrainian Translation]
+  \n\n--- ORIGINAL ---\n
+  [Original Text]
 
 CLASSIFICATION RULES:
 1. FULL_VACANCY — ONLY if a SINGLE job offer has:
    ✅ Position + City + Salary/Description.
-   ✅ CRITICAL: Text length MUST be > 300 characters OR contain a Google Docs link.
-   ❌ If the text is short (< 300 chars) and has NO Google Docs link -> classify as UPDATE.
+   ✅ CRITICAL: Text length MUST be > 200 characters OR contain a Google Docs link.
+   ❌ If the text is short (< 200 chars) and has NO Google Docs link -> classify as UPDATE.
 
 2. MULTI_VACANCY — Message contains 2+ SEPARATE full job offers.
-
-3. UPDATE — Short info, lists, or messages < 300 chars without a Google Docs link.
-
-4. RECRUITER_INFO — Questions between recruiters, legal info (PESEL, visa), office updates.
-
+3. UPDATE — Short info, lists, or messages < 200 chars without a Google Docs link.
+4. RECRUITER_INFO — Questions between recruiters, legal info, office updates.
 5. NOISE — Greetings only, system messages, reactions.
 
-STRICT TRANSLATION RULE:
-- Always translate to UKRAINIAN. Keep city names in POLISH (Latin).
+SMART DEDUPLICATION:
+- Verdict "DUPLICATE": If core info is the same, ignoring emojis/greetings.
 
 Output ONLY JSON:
 {
@@ -61,7 +60,7 @@ Output ONLY JSON:
     "verdict": "NEW" | "DUPLICATE" | "UPDATE",
     "reason": "short explanation in Ukrainian"
   },
-  "translatedText": "Clean Ukrainian translation"
+  "translatedText": "Ukrainian translation (with original appended if needed)"
 }
 `;
 
@@ -132,7 +131,6 @@ NEW_MESSAGE: ${text}
     }
   }
 
-  console.log("🛡️ Gemini недаступныя. Пераход на Groq для класіфікацыі...");
   return await aiService.analyzeWithGroq(text, recentMessages, recentVacancies);
 }
 
