@@ -23,6 +23,65 @@ const POLISH_VOIVODESHIPS = [
   "Wielkopolskie",
   "Zachodniopomorskie",
 ];
+// ===== ЭТАЛОННЫЯ СПІСЫ ДЛЯ УНІФІКАЦЫІ =====
+const KNOWN_AGENCIES = [
+  "APOLO",
+  "BISAR",
+  "EST",
+  "FWS",
+  "GLOBAL",
+  "INTRASERVICE",
+  "MANPOWER",
+  "MANUAL",
+  "MRÓWKI",
+  "NIDEN",
+  "OTTO",
+  "PROGRES",
+  "SG",
+  "SOLANO",
+];
+
+const BRAND_BLACKLIST = [
+  "ферма",
+  "склад",
+  "цех",
+  "фабрика",
+  "завод",
+  "підприємство",
+  "предприятие",
+  "company",
+  "factory",
+  "warehouse",
+  "farm",
+  "greenhouse",
+  "теплиця",
+  "птахофабрика",
+  "птицефабрика",
+  "комбінат",
+  "комбинат",
+  "магазин",
+  "store",
+];
+
+// Функцыя нармалізацыі агенцыі
+function normalizeAgency(raw) {
+  if (!raw) return "MANUAL";
+  const upper = raw.toUpperCase().trim();
+  if (KNOWN_AGENCIES.includes(upper)) return upper;
+  const found = KNOWN_AGENCIES.find(
+    (a) => upper.includes(a) || a.includes(upper),
+  );
+  return found || upper;
+}
+
+// Функцыя валідацыі брэнда
+function validateBrand(raw) {
+  if (!raw) return null;
+  const lower = raw.toLowerCase().trim();
+  if (BRAND_BLACKLIST.some((b) => lower.includes(b))) return null;
+  if (raw.trim().length < 2) return null;
+  return raw.trim();
+}
 const LANGUAGE_GUARD = `
 !!! STRICT LANGUAGE RULE !!!
 - ALL output text MUST be in UKRAINIAN.
@@ -115,7 +174,7 @@ CRITICAL PRIVACY RULE:
 Use this structure (SKIP lines/sections if data is null):
 
 *[vacancydescription]*
-📍 Місто: [location] 
+📍 Місто: [location][(country if not Polska)]
 [• Оформлення: м. [checkInCity]]
 [👥 Набір: [requirements.gender joined by ", "]]
 [• Приїзд: [arrivalDate]]
@@ -268,7 +327,7 @@ async function mergeWithTemplate(rawText, template) {
 
     // Абарона крытычных палёў
     merged.templateName = template.templateName;
-    merged.agencyName = template.agencyName;
+    merged.agencyName = normalizeAgency(template.agencyName);
     if (!merged.keywords?.length) merged.keywords = template.keywords;
 
     return merged;
@@ -391,11 +450,27 @@ async function parseVacancyWithAI(rawText) {
     console.log(
       `🤖 Парсинг v2.0 з повною структурою полів та уніфікацією (Версія з выпраўленнямі)...`,
     );
-
     const SYSTEM_INSTRUCTION = `
 ROLE: Professional automated job vacancy parser (Version 2.0).
 TASK: Convert job vacancy text into a JSON object with EXACTLY this structure. Fill every field based on the text. Do not invent field names.
 ${LANGUAGE_GUARD} 
+
+DOCUMENT RULES:
+- standardDocs: Use ONLY: "PESEL UKR", "Біометрія", "Карта побуту", "Віза", "Санепід", "UDT", "SEP", "Права кат. B", "Довідка резидента".
+- If not in list → requirements.additionalDocsDetails.
+- "MObywatel" → not a separate doc, mention in additionalDocsDetails if relevant
+- "Польський PESEL" or "PESEL UKR" → "PESEL UKR"
+- "біометричний паспорт" or "біометрія" → "Біометрія"
+NUANCES RULES (conditions.specificNuances):
+- Array of strings in format: "Category (detail)".
+- Categories: "Температурний режим", "Фізичне навантаження", "Запахи", "Санітарні обмеження", "Характер праці", "Інше".
+- Examples: ["Температурний режим (+5°C)", "Санітарні обмеження (без манікюру)"].
+
+GEOGRAPHY:
+- location: ONLY city name in POLISH (Latin).
+- country: If not Poland -> English country name.
+- INTERNATIONAL: city in Latin + country in parentheses in vacancydescription.
+
 CRITICAL GEOGRAPHY RULES:
 1. location: Extract ONLY the city name in POLISH using LATIN characters (A-Z). 
    - STRICT RULE: NEVER use Cyrillic (кирилиця) for city names.
@@ -599,7 +674,11 @@ JSON STRUCTURE:
 
     const cleaned = cleanData(parsed);
 
-    // 2. Лагічны загаловак
+    // ===== УНІФІКАЦЫЯ ПАСЛЯ AI =====
+    const normalizedAgency = normalizeAgency(cleaned.agencyName);
+    const validatedBrand = validateBrand(cleaned.brand);
+
+    // 1. Лагічны загаловак
     const baseTitle =
       cleaned.vacancydescription &&
       cleaned.vacancydescription !== "Нова вакансія"
@@ -607,15 +686,18 @@ JSON STRUCTURE:
         : cleaned.description?.split(/[.;]/)[0].substring(0, 100).trim() ||
           "Опис вакансії";
 
-    // Дадаем горад толькі калі яго яшчэ няма ў загалоўку
+    const displayLocation =
+      cleaned.country && cleaned.country !== "Polska"
+        ? `${cleaned.location} (${cleaned.country})`
+        : cleaned.location;
+
     const finalTitle =
-      cleaned.location &&
-      !baseTitle.toLowerCase().includes(cleaned.location.toLowerCase())
-        ? `${baseTitle} — ${cleaned.location}`
+      displayLocation &&
+      !baseTitle.toLowerCase().includes(displayLocation.toLowerCase())
+        ? `${baseTitle} — ${displayLocation}`
         : baseTitle;
 
-    // --- СТРАХОЎКА ЗАРПЛАТЫ ---
-    // Калі AI запісаў стаўку ў salaryNotes замест baseNetto, пераносім яе
+    // 2. Страхоўка зарплаты
     let finalBaseNetto = cleaned.salary?.baseNetto;
     if (
       (!finalBaseNetto || finalBaseNetto === "не вказано") &&
@@ -632,8 +714,8 @@ JSON STRUCTURE:
     return {
       // === 1. СИСТЕМНІ ПОЛЯ ===
       ...cleaned,
-      agencyName: cleaned.agencyName?.toUpperCase() || null,
-      brand: cleaned.brand || "",
+      agencyName: normalizedAgency, // 👈 Цяпер нармалізацыя працуе!
+      brand: validatedBrand, // 👈 Цяпер брэнды чыстыя!
       templateName: cleaned.templateName || "",
       vacancydescription: finalTitle,
       category: cleaned.category || null,
@@ -680,7 +762,7 @@ JSON STRUCTURE:
 
       // === 5. ПРАЖЫВАННЕ І ТРАНСПАРТ ===
       accommodation: {
-        type: cleaned.accommodation?.type || null, // null калі няма інфы
+        type: cleaned.accommodation?.type || null,
         forCouples: !!cleaned.accommodation?.forCouples,
         withChildren: !!cleaned.accommodation?.withChildren,
         withPets: !!cleaned.accommodation?.withPets,
@@ -760,7 +842,6 @@ JSON STRUCTURE:
         details: cleaned.earlyTerminationLiability?.details || "",
       },
 
-      // === 11. АПІСАННЕ ПРАЦЭСАЎ ===
       description: cleaned.description || "",
       additionalNotes: cleaned.additionalNotes || "",
       rawText: rawText,
@@ -910,12 +991,10 @@ async function simpleTranslate(text) {
  */
 async function splitMultipleVacancies(rawText) {
   try {
-    console.log(
-      `✂️ Аналіз структуры тэксту на наяўнасць паўторных вакансій...`,
-    );
+    console.log(`✂️ Аналіз структуры тэксту...`);
 
-    // Абмяжоўваем уваход да 5000 сімвалаў для мадэлі 8b
-    const safeInput = rawText.substring(0, 4000);
+    // Абмяжоўваем уваход да 5000 сімвалаў, каб не вылецець па TPM/413
+    const safeInput = rawText.substring(0, 5000);
 
     const response = await groq.chat.completions.create({
       model: MODEL_FAST,
@@ -929,7 +1008,6 @@ async function splitMultipleVacancies(rawText) {
     });
 
     const parsed = JSON.parse(response.choices[0].message.content);
-
     if (!parsed.isMultiple || !parsed.parts || parsed.parts.length <= 1) {
       return [rawText];
     }
@@ -1030,5 +1108,6 @@ module.exports = {
   updateVacancyWithAI,
   mergeWithTemplate,
   simpleTranslate,
-  parseVacancyWithAI,
+  normalizeAgency,
+  validateBrand,
 };
