@@ -128,6 +128,13 @@ const RECRUITER_CHAT_NOISE = [
   /наразі працює у/i,
   /на анімексі/i,
   /дзвоню, виясняю/i,
+  /поки немає місця/i,
+  /дякую, забрали/i,
+  /дуже хочуть працювати/i,
+  /хочуть працювати/i,
+  /передзвоню через/i,
+  /дзвоню, виясняю/i,
+  /вже завтра зв‘яжетесь/i,
 ];
 
 const RECRUITER_CHAT_NOISE_EN = [
@@ -159,6 +166,12 @@ const RECRUITER_CHAT_NOISE_EN = [
   /he (is|was|has) (agree|returned|in Germany|in Poland)/i,
   /something else can be/i,
   /@[a-z_]+/i,
+  /refused to work/i,
+  /will arrive/i,
+  /call you back/i,
+  /age is not suitable/i,
+  /team won't take/i,
+  /let's do it/i,
 ];
 
 const CANDIDATE_FORM_NOISE = [

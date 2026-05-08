@@ -186,7 +186,7 @@ async function processPendingMessages() {
 
         if (analysis.category === "NOISE") {
           msg.category = "chat";
-          msg.processed = true;
+          msg.processed = true; // 👈 Гэта важна: паведамленне знікне з Пясочніцы
           msg.aiAnalyzed = true;
           msg.rawText = translatedText.substring(0, 2000);
           await msg.save();
