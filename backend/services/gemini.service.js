@@ -40,9 +40,11 @@ Task: Classify and translate NEW_MESSAGE.
 - If the input is already in Ukrainian, just keep it as is.
 
 CLASSIFICATION RULES:
-1. FULL_VACANCY — ONLY if a SINGLE job offer has:
-   ✅ Position + City + Salary/Rate.
-   ✅ Text length MUST be > 200 characters OR contain a Google Docs link.
+1. FULL_VACANCY — A complete job advertisement.
+   ✅ MUST have: Position + City + Salary/Rate.
+   ✅ MUST have: Text length > 200 characters OR a Google Docs link.
+   ✅ CRITICAL: If the message contains a detailed job description (duties, requirements, conditions), it is ALWAYS a FULL_VACANCY, even if it's from a chat you've seen before.
+   ❌ Do NOT classify as UPDATE if it's a full job post.
 
 2. MULTI_VACANCY — Message contains 2+ SEPARATE full job offers.
 

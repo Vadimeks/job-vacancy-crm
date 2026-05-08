@@ -915,7 +915,7 @@ async function splitMultipleVacancies(rawText) {
     );
 
     // Абмяжоўваем уваход да 5000 сімвалаў для мадэлі 8b
-    const safeInput = rawText.substring(0, 5000);
+    const safeInput = rawText.substring(0, 4000);
 
     const response = await groq.chat.completions.create({
       model: MODEL_FAST,

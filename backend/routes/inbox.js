@@ -23,7 +23,10 @@ function hasMinimalVacancyData(text) {
     /\d+[.,]?\d*\s*(zł|zlot|€|eur|pln).*?(год|час|hour|\/h|\/год)/i.test(text);
   const hasSalary = /\d{2,}[.,]?\d*\s*(zł|zlot|€|eur|pln)/i.test(text);
   const hasLocation =
-    /(📍|місто\s*:|місце роботи|location\s*:|miejsce pracy)/i.test(text);
+    /(📍|місто|місце\s+роботи|location|miejsce\s+pracy|локація|адреса)/i.test(
+      text,
+    );
+
   return (hasRate || hasSalary) && hasLocation;
 }
 
