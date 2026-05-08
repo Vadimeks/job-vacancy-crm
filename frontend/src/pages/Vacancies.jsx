@@ -501,81 +501,96 @@ export default function Vacancies() {
 
         {/* СПІС ВАКАНСІЙ */}
         <div className="space-y-3">
-          {filtered.map((v) => (
-            // Знайдзі ў Vacancies.jsx блок, дзе адлюстроўваецца спіс (filtered.map)
-            // І замяні змесціва карткі на гэта:
+          {filtered.map((v) => {
+            // Лакацыя заўжды з краінай калі не Польшча
+            const locationDisplay =
+              v.country && v.country !== "Polska"
+                ? `${v.location} (${v.country})`
+                : v.location;
 
-            <div
-              key={v._id}
-              className="bg-slate-900 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition-colors"
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-3 mb-2 flex-wrap">
-                    <span className="text-xs font-mono bg-slate-800 text-slate-400 px-2 py-0.5 rounded">
-                      {v.vacancyCode}
-                    </span>
-                    <span
-                      className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLORS[v.status]}`}
+            return (
+              <div
+                key={v._id}
+                className="bg-slate-900 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition-colors"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    {/* РАДОК 1: код + статус + катэгорыя */}
+                    <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                      <span className="text-xs font-mono bg-slate-800 text-slate-400 px-2 py-0.5 rounded">
+                        {v.vacancyCode}
+                      </span>
+                      <span
+                        className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLORS[v.status]}`}
+                      >
+                        {STATUS_LABELS[v.status]}
+                      </span>
+                      {v.category && (
+                        <span className="text-[10px] uppercase tracking-wider font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2 py-0.5 rounded">
+                          📁 {v.category}
+                        </span>
+                      )}
+                      {/* БРЭНД — зверху, пасля катэгорыі */}
+                      {v.brand && (
+                        <span className="text-[10px] uppercase tracking-wider font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded">
+                          🏭 {v.brand}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* ЗАГАЛОВАК */}
+                    <h3 className="font-semibold text-slate-100 leading-snug mb-2">
+                      {v.vacancydescription}
+                    </h3>
+
+                    {/* РАДОК 2: лакацыя + агенцыя + жытло + зарплата */}
+                    <div className="flex flex-wrap gap-3 text-xs text-slate-500">
+                      {/* ЛАКАЦЫЯ — заўжды з краінай */}
+                      <span className="flex items-center gap-1">
+                        📍{" "}
+                        <span className="text-slate-300">
+                          {locationDisplay}
+                        </span>
+                      </span>
+                      <span className="flex items-center gap-1">
+                        🏢 {v.agencyName}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        🏠 {v.accommodation?.type || "—"}
+                      </span>
+                      {v.salary?.baseNetto && (
+                        <span className="text-slate-200 font-medium">
+                          💰 {v.salary.baseNetto}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* КНОПКІ */}
+                  <div className="flex flex-col gap-1.5 shrink-0">
+                    <button
+                      onClick={() => setViewVacancy(v)}
+                      className="px-3 py-1.5 text-slate-400 hover:bg-slate-800 rounded-lg text-xs transition-colors"
                     >
-                      {STATUS_LABELS[v.status]}
-                    </span>
-                    {/* ДАДАЕМ ТЭГ КАТЭГОРЫІ */}
-                    {v.category && (
-                      <span className="text-[10px] uppercase tracking-wider font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2 py-0.5 rounded">
-                        📁 {v.category}
-                      </span>
-                    )}
+                      👁 Паглядзець
+                    </button>
+                    <button
+                      onClick={() => setMatchVacancy(v)}
+                      className="px-3 py-1.5 text-emerald-400 hover:bg-emerald-500/10 rounded-lg text-xs transition-colors"
+                    >
+                      🎯 Кандыдаты
+                    </button>
+                    <button
+                      onClick={() => setEditVacancy(v)}
+                      className="px-3 py-1.5 text-slate-400 hover:bg-slate-800 rounded-lg text-xs transition-colors"
+                    >
+                      ✏️ Рэд.
+                    </button>
                   </div>
-
-                  <h3 className="font-medium text-slate-100">
-                    {v.vacancydescription}
-                  </h3>
-
-                  <div className="flex flex-wrap gap-4 mt-3 text-xs text-slate-500">
-                    {v.brand && (
-                      <span className="text-emerald-400 font-bold flex items-center gap-1">
-                        🏭 {v.brand}
-                      </span>
-                    )}
-                    <span className="flex items-center gap-1">
-                      📍 {v.location}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      🏢 {v.agencyName}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      🏠 {v.accommodation?.type || "Не вказано"}
-                    </span>
-                    <span className="text-slate-300 font-medium">
-                      💰 {v.salary?.baseNetto}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <button
-                    onClick={() => setViewVacancy(v)}
-                    className="px-3 py-1.5 text-slate-400 hover:bg-slate-800 rounded-lg text-xs transition-colors"
-                  >
-                    👁 Паглядзець
-                  </button>
-                  <button
-                    onClick={() => setMatchVacancy(v)}
-                    className="px-3 py-1.5 text-emerald-400 hover:bg-emerald-500/10 rounded-lg text-xs transition-colors"
-                  >
-                    🎯 Кандыдаты
-                  </button>
-                  <button
-                    onClick={() => setEditVacancy(v)}
-                    className="px-3 py-1.5 text-slate-400 hover:bg-slate-800 rounded-lg text-xs transition-colors"
-                  >
-                    ✏️ Рэд.
-                  </button>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
