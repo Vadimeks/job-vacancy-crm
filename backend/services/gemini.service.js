@@ -1,31 +1,13 @@
 // backend/services/gemini.service.js
-const { GoogleGenerativeAI } = require("@google/generative-ai");
-const aiService = require("./ai.service");
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// Stage 1: Класіфікацыя паведамленняў (смецце, дублі, апдейты, вакансіі)
+// Stage 2 (парсінг) — у ai.service.js праз executeAIRequest
 
-const MODELS_CONFIG = [
-  { name: "gemini-2.5-flash", apiVersion: "v1beta" },
-  { name: "gemini-2.5-flash-lite", apiVersion: "v1beta" },
-  { name: "gemini-2.0-flash", apiVersion: "v1beta" },
-  { name: "gemini-2.0-flash-lite", apiVersion: "v1beta" },
-];
+const aiService = require("./ai.service");
 
 const geminiCache = new Map();
-const CACHE_TTL = 5 * 60 * 1000;
-const modelCooldowns = new Map();
+const CACHE_TTL = 5 * 60 * 1000; // 5 хвілін
 
-function getMsUntilNextRetry() {
-  const now = new Date();
-  const target = new Date();
-  if (now.getHours() < 7) {
-    target.setHours(7, 0, 0, 0);
-  } else {
-    target.setDate(now.getDate() + 1);
-    target.setHours(7, 0, 0, 0);
-  }
-  return target.getTime() - now.getTime();
-}
-
+// Промпт максімальна просты — толькі фільтр і класіфікацыя
 const SYSTEM_PROMPT = `
 Role: Expert Analyst of the Polish Job Market.
 Task: Classify and translate NEW_MESSAGE.
@@ -33,37 +15,35 @@ Task: Classify and translate NEW_MESSAGE.
 !!! STRICT TRANSLATION RULE !!!:
 - ALL output text MUST be in UKRAINIAN.
 - If the input is in English or Russian -> TRANSLATE it to Ukrainian.
-- If you translated the text, ALWAYS append the original text at the end like this:
-  [Ukrainian Translation]
-  \n\n--- ORIGINAL ---\n
-  [Original Text]
-- If the input is already in Ukrainian, just keep it as is.
+- If you translated the text, append original at the end after separator "\n\n--- ORIGINAL ---\n"
+- If already Ukrainian — keep as is.
 
 CLASSIFICATION RULES:
-1. FULL_VACANCY — A complete job advertisement.
-   ✅ MUST have: Position + City + Salary/Rate.
-   ✅ MUST have: Text length > 200 characters OR a Google Docs link.
-   ✅ CRITICAL: If the message contains a detailed job description (duties, requirements, conditions), it is ALWAYS a FULL_VACANCY, even if it's from a chat you've seen before.
-   ❌ Do NOT classify as UPDATE if it's a full job post.
+1. FULL_VACANCY — Complete job ad. 
+   MUST have: Position + City + Salary/Rate AND text length > 200 chars OR Google Docs link.
+   If a message has detailed duties, requirements, conditions — it is ALWAYS FULL_VACANCY.
+   Do NOT classify as UPDATE if it's a full job post.
 
-2. MULTI_VACANCY — Message contains 2+ SEPARATE full job offers.
+2. MULTI_VACANCY — Message contains 2+ SEPARATE full job offers (different positions/cities).
+   If unsure — classify as FULL_VACANCY, the parser will handle splitting.
 
-3. UPDATE — Short job info, lists of cities, or status changes for existing jobs.
+3. UPDATE — Short info about existing job: new dates, count changes, rate changes, STOP signals.
 
-4. RECRUITER_INFO — General legal info (PESEL, visa), office updates, or general cooperation questions.
+4. RECRUITER_INFO — Legal/office info: PESEL updates, document requirements, office hours.
 
-5. NOISE — Greetings, system messages, AND:
-   ❌ Status of a specific candidate (e.g., "Miroshnychenko refused", "Sofiia will arrive", "I'll call you back").
-   ❌ Short chat replies (e.g., "Let's do it", "Okay", "Thanks").
-   ❌ Questions about photos/videos of housing.
-   If the message is about the progress of a specific person -> it is NOISE.
+5. NOISE — ONLY:
+   - System notifications (joined group, new comment, etc.)
+   - Emojis only or very short greetings
+   - Status of a specific candidate ("refused", "will arrive", "call me back")
+   - Short chat replies ("ok", "thanks", "noted")
+   If the message contains a job title OR a city OR a salary — it is NOT noise.
 
-Output ONLY JSON:
+Output ONLY valid JSON:
 {
   "category": "FULL_VACANCY" | "UPDATE" | "RECRUITER_INFO" | "NOISE" | "MULTI_VACANCY",
-  "vacancyCount": number,
+  "vacancyCount": 1,
   "comparison": { "verdict": "NEW" | "DUPLICATE" | "UPDATE", "reason": "..." },
-  "translatedText": "Ukrainian translation"
+  "translatedText": "Ukrainian translation of the full message"
 }
 `;
 
@@ -72,69 +52,56 @@ async function analyzeAndCompareWithGemini(
   recentMessages = [],
   recentVacancies = [],
 ) {
+  // 1. Кэш (не аналізуем адно і тое ж двойчы)
   const cacheKey = text.substring(0, 200);
   if (geminiCache.has(cacheKey)) {
     const cached = geminiCache.get(cacheKey);
     if (Date.now() - cached.timestamp < CACHE_TTL) return cached.data;
   }
 
-  const now = Date.now();
+  // 2. Для кароткіх паведамленняў (<250 сімв.) — не аналізуем глыбока,
+  //    адпраўляем напрамую ў пясочніцу як UPDATE
+  if (text.length < 250 && !text.includes("docs.google.com")) {
+    return {
+      category: "UPDATE",
+      vacancyCount: 0,
+      comparison: { verdict: "NEW", reason: "Кароткае паведамленне" },
+      translatedText: text,
+    };
+  }
 
-  for (const modelCfg of MODELS_CONFIG) {
-    if (modelCooldowns.has(modelCfg.name)) {
-      if (now < modelCooldowns.get(modelCfg.name)) continue;
-      else modelCooldowns.delete(modelCfg.name);
-    }
-
-    try {
-      console.log(`🔍 Gemini (${modelCfg.name}): Аналіз...`);
-      const model = genAI.getGenerativeModel(
-        { model: modelCfg.name },
-        { apiVersion: modelCfg.apiVersion },
-      );
-
-      const userContent = `
-RECENT_MESSAGES: ${JSON.stringify(recentMessages.slice(0, 10))}
-RECENT_VACANCIES: ${JSON.stringify(recentVacancies.slice(0, 5))}
+  const userContent = `
+RECENT_MESSAGES: ${JSON.stringify(recentMessages.slice(0, 5))}
 NEW_MESSAGE: ${text}
 `;
 
-      const result = await model.generateContent([
-        { text: SYSTEM_PROMPT },
-        { text: userContent },
-      ]);
+  try {
+    console.log(`🔍 Stage 1: Класіфікацыя паведамлення...`);
 
-      const response = await result.response;
-      const cleanJson = response
-        .text()
-        .replace(/```json|```/g, "")
-        .trim();
-      const parsed = JSON.parse(cleanJson);
+    // Выкарыстоўваем адзіны ланцужок мадэляў з ai.service.js
+    const responseText = await aiService.executeAIRequest(
+      SYSTEM_PROMPT,
+      userContent,
+      true,
+    );
 
-      geminiCache.set(cacheKey, { data: parsed, timestamp: Date.now() });
-      return parsed;
-    } catch (error) {
-      const errorMsg = error.message || "";
-      if (
-        errorMsg.includes("429") ||
-        errorMsg.includes("Quota") ||
-        errorMsg.includes("limit")
-      ) {
-        const cooldownMs = getMsUntilNextRetry();
-        modelCooldowns.set(modelCfg.name, now + cooldownMs);
-        console.warn(
-          `🚫 Gemini ${modelCfg.name}: Ліміт. Паўза да ${new Date(now + cooldownMs).toLocaleTimeString()}`,
-        );
-        continue;
-      }
-      console.error(
-        `⚠️ Gemini ${modelCfg.name} памылка:`,
-        errorMsg.substring(0, 100),
-      );
-    }
+    const cleanJson = responseText.replace(/```json|```/g, "").trim();
+    const parsed = JSON.parse(cleanJson);
+
+    geminiCache.set(cacheKey, { data: parsed, timestamp: Date.now() });
+    return parsed;
+  } catch (error) {
+    console.error(`⚠️ Stage 1 памылка:`, error.message.substring(0, 100));
+    // Калі ланцужок замарожаны (AI_COOLDOWN) — вяртаем null
+    // Калі іншая памылка — захоўваем як UPDATE для ручной апрацоўкі
+    if (error.message.includes("AI_COOLDOWN")) return null;
+    return {
+      category: "UPDATE",
+      vacancyCount: 0,
+      comparison: { verdict: "NEW", reason: "Памылка аналізу" },
+      translatedText: text,
+    };
   }
-
-  return await aiService.analyzeWithGroq(text, recentMessages, recentVacancies);
 }
 
 module.exports = { analyzeAndCompareWithGemini };

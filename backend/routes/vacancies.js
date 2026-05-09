@@ -90,25 +90,24 @@ function sanitizeTelegramMarkdown(text) {
 }
 // --- АСНОЎНАЯ ЛОГІКА АПРАЦОЎКІ ---
 async function processVacancyMessage(
-  rawText, // Тут ужо перакладзены і збагачаны тэкст з Stage 1
+  rawText, // Перакладзены тэкст
   senderInfo = "Manual",
   preDefinedAgency = null,
   originalText = "",
   isTruncated = false,
 ) {
-  console.log(`\n--- 🚀 STAGE 2: ПАРСІНГ ВАКАНСІІ (Groq) ---`);
+  console.log(`\n--- 🚀 STAGE 2: АПРАЦОЎКА ВАКАНСІЙ (Tier 1 Chain) ---`);
 
   try {
-    // [1/2] Парсінг (выкарыстоўваем гатовы тэкст, без паўторнага збагачэння)
-    const vacancyList = await aiService.parseMultipleVacancies(rawText);
+    // [1] Парсінг праз універсальны рухавік (Gemini/Groq)
+    // Цяпер AI сам вырашае, ці разбіваць на масіў і які тып прысвоіць
+    const result = await aiService.parseVacancyWithAI(rawText);
+    const vacancyList = Array.isArray(result) ? result : [result];
 
     const savedVacancies = [];
 
-    for (const item of vacancyList) {
-      const vacancyData = item.data || item;
-      const sourceBlock = item.sourceBlock || originalText || rawText;
-
-      // Вызначаем агенцыю
+    for (const vacancyData of vacancyList) {
+      // Вызначаем агенцыю (патрэбна для абодвух тыпаў)
       const whitelisted = getWhitelistedAgency(senderInfo);
       const finalAgency =
         preDefinedAgency ||
@@ -117,6 +116,23 @@ async function processVacancyMessage(
         whitelisted ||
         "Manual";
 
+      // [2] ПРАВЕРКА ТЫПУ: Калі AI палічыў, што гэта не поўная вакансія — адпраўляем у Пясочніцу
+      if (vacancyData.parsingResultType === "UPDATE") {
+        const sandboxItem = new UnprocessedMessage({
+          text: originalText || rawText,
+          senderInfo,
+          agencyName: finalAgency,
+          category: "UPDATE",
+          processed: false,
+          aiAnalyzed: true, // Каб робат не чапаў яго паўторна
+          rawText: rawText,
+        });
+        await sandboxItem.save();
+        console.log(`📩 Частка паведамлення захавана ў Пясочніцу як UPDATE.`);
+        continue; // Пераходзім да наступнага элемента масіва
+      }
+
+      // [3] СТВАРЭННЕ ПОЎНАЙ ВАКАНСІІ
       const displayName = constructVacancyDisplayName({
         ...vacancyData,
         agencyName: finalAgency,
@@ -134,8 +150,8 @@ async function processVacancyMessage(
         agencyName: finalAgency,
         templateName: displayName,
         vacancyCode,
-        originalText: sourceBlock, // Захоўваем кавалак арыгінала
-        rawText: rawText, // Захоўваем поўны пераклад
+        originalText: originalText || rawText,
+        rawText: rawText,
         isTruncated: isTruncated,
         telegramPost: postText,
         status: "active",
@@ -150,12 +166,16 @@ async function processVacancyMessage(
       savedVacancies.push(saved);
       console.log(`✅ Вакансія створана: ${vacancyCode} (${finalAgency})`);
 
+      // Паўза паміж пастамі, калі іх некалькі
       if (vacancyList.length > 1) {
         await new Promise((r) => setTimeout(r, 1500));
       }
     }
 
-    return savedVacancies[0];
+    // Вяртаем першую створаную вакансію (або пустую, калі былі толькі апдэйты)
+    return savedVacancies.length > 0
+      ? savedVacancies[0]
+      : { message: "Processed as updates" };
   } catch (err) {
     console.error(`❌ Stage 2 Error: ${err.message}`);
     return { error: err.message };
@@ -200,7 +220,10 @@ router.post("/from-template/:templateId", async (req, res) => {
     if (!template)
       return res.status(404).json({ message: "Шаблон не знойдзены" });
 
-    const parsedData = await aiService.parseVacancyWithAI(rawText);
+    const result = await aiService.parseVacancyWithAI(rawText);
+    // Бяром першую вакансію з выніку (нават калі там масіў)
+    const parsedData = Array.isArray(result) ? result[0] : result;
+
     const displayName = constructVacancyDisplayName({
       ...parsedData,
       agencyName: template.agencyName,

@@ -1,9 +1,25 @@
+// ============================================================
+// БЛОК 1: ЗАМЯНІЦЬ ІМПАРТЫ І AI_CHAIN (самы пачатак файла)
+// Замяніць: const groq = new Groq(...) і const MODEL_SMART/MODEL_FAST
+// ============================================================
+
 const Groq = require("groq-sdk");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-// Дзве мадэлі для надзейнасці
-const MODEL_SMART = "llama-3.3-70b-versatile"; // Асноўная (разумная)
-const MODEL_FAST = "llama-3.1-8b-instant"; // Запасная (хуткая)
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+// Адзіны ланцужок мадэляў: Gemini (Tier 1) → Groq (фолбэк)
+const AI_CHAIN = [
+  { provider: "gemini", name: "gemini-2.0-flash" },
+  { provider: "gemini", name: "gemini-2.0-flash-lite" },
+  { provider: "gemini", name: "gemini-2.5-flash" },
+  { provider: "gemini", name: "gemini-2.5-flash-lite" },
+  { provider: "groq", name: "llama-3.3-70b-versatile" },
+  { provider: "groq", name: "llama-3.1-8b-instant" },
+];
+
+let chainFrozenUntil = 0; // Паўза 1 гадзіна пры адмове ўсіх мадэляў
 
 const POLISH_VOIVODESHIPS = [
   "Dolnośląskie",
@@ -88,14 +104,6 @@ const LANGUAGE_GUARD = `
 - ALL output text MUST be in UKRAINIAN.
 - All descriptions, duties, notes — UKRAINIAN. Geography (location, voivodeship, checkInCity, country) — POLISH (Latin alphabet) only.
 - If the input is in Russian — TRANSLATE it to Ukrainian. Never use Russian words (e.g., use "Приїзд" instead of "Приезд", "Житло" instead of "Жилье").
-`;
-const SPLIT_PROMPT = `
-TASK: Identify if the text contains MULTIPLE DIFFERENT job offers.
-CRITICAL RULE: 
-- If the text describes ONE job (even with a very long description, many benefits, and long lists) -> RETURN IT AS ONE PIECE.
-- Split ONLY if you see a clear transition to a completely different job title (e.g., Job A: Warehouse in Psary ... Job B: Driver in Berlin).
-- If unsure, do NOT split.
-Output JSON: { "isMultiple": boolean, "parts": string[] }
 `;
 // 1. Абноўленая функцыя cleanData
 function cleanData(obj) {
@@ -282,60 +290,83 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanations.
 `;
 
 // --- ДАПАМОЖНЫЯ ФУНКЦЫІ ---
+// ============================================================
 
-// 1. Універсальны запыт для парсінгу: SMART (70b) -> FAST (8b)
-async function groqRequest(systemPrompt, userContent, jsonMode = true) {
-  const models = [MODEL_SMART, MODEL_FAST];
+async function executeAIRequest(systemPrompt, userContent, jsonMode = true) {
+  if (Date.now() < chainFrozenUntil) {
+    const diff = Math.ceil((chainFrozenUntil - Date.now()) / 60000);
+    throw new Error(`AI_COOLDOWN: Усе мадэлі адпачываюць яшчэ ${diff} хв.`);
+  }
 
-  for (const modelName of models) {
+  for (const model of AI_CHAIN) {
     try {
-      console.log(`🤖 Groq: Спроба праз ${modelName}...`);
-      const response = await groq.chat.completions.create({
-        model: modelName,
-        temperature: 0.1,
-        max_tokens: 8000,
-        response_format: jsonMode ? { type: "json_object" } : undefined,
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userContent },
-        ],
-      });
-      return response.choices[0]?.message?.content || "";
-    } catch (error) {
-      if (error.message?.includes("429") || error.message?.includes("limit")) {
-        console.warn(`⚠️ Ліміт мадэлі ${modelName} дасягнуты.`);
-        continue;
+      console.log(`🤖 AI: ${model.provider.toUpperCase()} (${model.name})...`);
+
+      if (model.provider === "gemini") {
+        const genModel = genAI.getGenerativeModel(
+          { model: model.name },
+          { apiVersion: "v1beta" },
+        );
+        const result = await genModel.generateContent([
+          { text: systemPrompt },
+          { text: userContent },
+        ]);
+        const text = (await result.response)
+          .text()
+          .replace(/```json|```/g, "")
+          .trim();
+        if (text) return text;
+      } else {
+        // Groq
+        const response = await groq.chat.completions.create({
+          model: model.name,
+          temperature: 0.1,
+          max_tokens: 8000,
+          response_format: jsonMode ? { type: "json_object" } : undefined,
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userContent },
+          ],
+        });
+        const text = response.choices[0]?.message?.content;
+        if (text) return text;
       }
-      throw error;
+    } catch (err) {
+      console.warn(`⚠️ ${model.name}: ${err.message.substring(0, 80)}`);
+      continue;
     }
   }
-  throw new Error("RATE_LIMIT_ALL_MODELS");
+
+  // Усе мадэлі не адказалі — паўза 1 гадзіна
+  chainFrozenUntil = Date.now() + 60 * 60 * 1000;
+  console.error("🚫 Усе мадэлі не адказалі. Ланцужок замарожаны на 1 гадзіну.");
+  throw new Error("ALL_AI_MODELS_FAILED");
 }
+
+// ============================================================
+// БЛОК 3: ЗАМЯНІЦЬ mergeWithTemplate
+// Знайсці async function mergeWithTemplate(...) і замяніць цалкам
+// ============================================================
 
 async function mergeWithTemplate(rawText, template) {
   try {
-    console.log(
-      `🤖 Мерж шаблона "${template.templateName}" з повідомленням...`,
-    );
-
+    console.log(`🤖 Мерж шаблона "${template.templateName}"...`);
     const content = `TEMPLATE:\n${JSON.stringify(template, null, 2)}\n\nMESSAGE:\n${rawText}`;
-    const text = await groqRequest(MERGE_PROMPT, content, true);
+    const text = await executeAIRequest(MERGE_PROMPT, content, true);
 
-    let cleanJson = text.trim();
-    cleanJson = cleanJson.replace(/```json\s*/g, "").replace(/```\s*/g, "");
+    let cleanJson = text
+      .trim()
+      .replace(/```json\s*/g, "")
+      .replace(/```\s*/g, "");
     const jsonMatch = cleanJson.match(/\{[\s\S]*\}/);
     if (jsonMatch) cleanJson = jsonMatch[0];
 
     const merged = JSON.parse(cleanJson);
-
-    // Абарона крытычных палёў
     merged.templateName = template.templateName;
     merged.agencyName = normalizeAgency(template.agencyName);
     if (!merged.keywords?.length) merged.keywords = template.keywords;
-
     return merged;
   } catch (error) {
-    if (error.message?.includes("429")) throw new Error("RATE_LIMIT");
     throw error;
   }
 }
@@ -406,7 +437,7 @@ async function identifyTemplate(rawText, templates) {
     }));
 
     const content = `MESSAGE:\n${rawText}\n\nAVAILABLE TEMPLATES:\n${JSON.stringify(templateList)}`;
-    const responseText = await groqRequest(IDENTIFY_PROMPT, content, true);
+    const responseText = await executeAIRequest(IDENTIFY_PROMPT, content, true);
     const parsed = JSON.parse(responseText);
 
     if (parsed.templateId) {
@@ -433,26 +464,23 @@ async function linkTemplateToVacancy(vacancyData, template) {
   };
 }
 
+// ============================================================
+// БЛОК 4: ЗАМЯНІЦЬ formatTelegramPost
+// ============================================================
+
 async function formatTelegramPost(vacancyData) {
-  try {
-    console.log(`🤖 Форматування Telegram-посту...`);
-    const text = await groqRequest(
-      FORMAT_PROMPT,
-      `DATA:\n${JSON.stringify(vacancyData, null, 2)}`,
-      false,
-    );
-    return text.trim();
-  } catch (error) {
-    if (error.message?.includes("429")) throw new Error("RATE_LIMIT");
-    throw error;
-  }
+  console.log(`🤖 Форматаванне Telegram-посту...`);
+  const text = await executeAIRequest(
+    FORMAT_PROMPT,
+    `DATA:\n${JSON.stringify(vacancyData, null, 2)}`,
+    false,
+  );
+  return text.trim();
 }
 
 async function parseVacancyWithAI(rawText) {
   try {
-    console.log(
-      `🤖 Парсинг v2.0 з повною структурою полів та уніфікацією (Версія з выпраўленнямі)...`,
-    );
+    console.log(`🤖 Парсінг v2.0 (Tier 1 Chain + Multi-Job Support)...`);
     const SYSTEM_INSTRUCTION = `
 ROLE: Professional automated job vacancy parser (Version 2.0).
 TASK: Convert job vacancy text into a JSON object with EXACTLY this structure. Fill every field based on the text. Do not invent field names.
@@ -549,8 +577,10 @@ CORE PARSING RULES:
    - specificNuances: array of strings. Categorize each nuance using this format: "Category (detail)".
   Categories to use: "Температурний режим", "Запахи", "Фізичне навантаження", "Характер праці", "Санітарні обмеження", "Інше".
   Example: ["Запахи (запах гуми)", "Температурний режим (+10°C)", "Санітарні обмеження (без манікюру)"]
-  
-SALARY FIELD RULES:
+9. DETERMINING TYPE (parsingResultType):
+   - Set to "FULL_VACANCY" ONLY if the job block is detailed (usually > 250 characters) AND contains: Position + City + (Salary OR detailed Duties).
+   - Set to "UPDATE" if the block is short (< 250 characters), lacks essential details, or is just a status update.
+   SALARY FIELD RULES:
 - baseNetto: MAIN rate from the text. Copy EXACTLY (e.g., "22.50 зл/год нетто" OR "31.40 zł/год brutto"). 
   CRITICAL: NEVER leave this field empty if any salary/rate is mentioned in the text. 
 - bonusDetails: ALL bonuses in FULL (night shifts, overtime, attendance, quality). Do NOT summarize.
@@ -572,6 +602,7 @@ CONDITIONS & KEYWORDS:
 
 JSON STRUCTURE:
 {
+ "parsingResultType": "FULL_VACANCY",
   "agencyName": null,
   "brand": "",
   "templateName": "",
@@ -664,196 +695,203 @@ JSON STRUCTURE:
   "arrivalDate": "",
   "count": ""
 }`;
-
-    const text = await groqRequest(
-      SYSTEM_INSTRUCTION,
+    const MULTI_RULE = `\nCRITICAL: If the text contains MULTIPLE job offers, return a JSON ARRAY. Otherwise, return a JSON OBJECT.`;
+    const text = await executeAIRequest(
+      SYSTEM_INSTRUCTION + MULTI_RULE,
       `Input text:\n${rawText}`,
       true,
     );
+    const parsedData = JSON.parse(text);
 
-    // 1. Спарсіць JSON
-    let parsed = JSON.parse(text);
-
-    // --- ПОСТ-АПРАЦОЎКА (Страхоўка) ---
-    if (parsed.location) {
-      parsed.location = parsed.location.replace(/Polska,?\s*/gi, "").trim();
-    }
-
-    const cleaned = cleanData(parsed);
-
-    // ===== УНІФІКАЦЫЯ ПАСЛЯ AI =====
-    const normalizedAgency = normalizeAgency(cleaned.agencyName);
-    const validatedBrand = validateBrand(cleaned.brand);
-
-    // 2. Лагічны загаловак (улічваем краіну)
-    const baseTitle =
-      cleaned.vacancydescription &&
-      cleaned.vacancydescription !== "Нова вакансія"
-        ? cleaned.vacancydescription
-        : "Опис вакансії";
-
-    // Фармуем прыгожую лакацыю: "Psary" або "Machecoul (France)"
-    const displayLocation =
-      cleaned.country && cleaned.country !== "Polska"
-        ? `${cleaned.location} (${cleaned.country})`
-        : cleaned.location;
-
-    // Фінальны загаловак: "Склад адзення — Psary"
-    const finalTitle =
-      displayLocation &&
-      !baseTitle.toLowerCase().includes(displayLocation.toLowerCase())
-        ? `${baseTitle} — ${displayLocation}`
-        : baseTitle;
-
-    // 2. Страхоўка зарплаты
-    let finalBaseNetto = cleaned.salary?.baseNetto;
-    if (
-      (!finalBaseNetto || finalBaseNetto === "не вказано") &&
-      cleaned.salary?.salaryNotes
-    ) {
-      if (
-        cleaned.salary.salaryNotes.toLowerCase().includes("brutto") ||
-        cleaned.salary.salaryNotes.includes("zł")
-      ) {
-        finalBaseNetto = cleaned.salary.salaryNotes;
+    // Ствараем функцыю-абгортку для твайго існуючага коду
+    const processSingle = (parsed) => {
+      // --- ПОСТ-АПРАЦОЎКА (Страхоўка) ---
+      if (parsed.location) {
+        parsed.location = parsed.location.replace(/Polska,?\s*/gi, "").trim();
       }
-    }
 
-    return {
-      // === 1. СИСТЕМНІ ПОЛЯ ===
-      ...cleaned,
-      agencyName: normalizedAgency, // 👈 Цяпер нармалізацыя працуе!
-      brand: validatedBrand, // 👈 Цяпер брэнды чыстыя!
-      templateName: cleaned.templateName || "",
-      vacancydescription: finalTitle,
-      category: cleaned.category || null,
-      keywords: Array.isArray(cleaned.keywords) ? cleaned.keywords : [],
-      contractType: cleaned.contractType || null,
-      arrivalDate: cleaned.arrivalDate || null,
-      count: cleaned.count || null,
+      const cleaned = cleanData(parsed);
 
-      forRecruiter: {
-        internalNotes: cleaned.forRecruiter?.internalNotes || "",
-        hideAgencyNameForCandidate: true,
-        hideEnterpriseNameForCandidate: true,
-      },
+      // ===== УНІФІКАЦЫЯ ПАСЛЯ AI =====
+      const normalizedAgency = normalizeAgency(cleaned.agencyName);
+      const validatedBrand = validateBrand(cleaned.brand);
 
-      // === 2. ЛАКАЦЫІ І ГЕАГРАФІЯ ===
-      location: cleaned.location || "",
-      locationDescription: cleaned.locationDescription || "",
-      voivodeship: cleaned.voivodeship || "Польща",
-      country: cleaned.country || "Polska",
-      checkInCity: cleaned.checkInCity || "",
+      // 2. Лагічны загаловак (улічваем краіну)
+      const baseTitle =
+        cleaned.vacancydescription &&
+        cleaned.vacancydescription !== "Нова вакансія"
+          ? cleaned.vacancydescription
+          : "Опис вакансії";
 
-      // === 3. ФІНАНСЫ ===
-      salary: {
-        ...(cleaned.salary || {}),
-        baseNetto: finalBaseNetto || null,
-        studentNetto: cleaned.salary?.studentNetto || "",
-        hoursRange: cleaned.salary?.hoursRange || "",
-        payoutDates: cleaned.salary?.payoutDates || "",
-        bonusDetails: cleaned.salary?.bonusDetails || "",
-        salaryNotes: cleaned.salary?.salaryNotes || "",
-      },
+      // Фармуем прыгожую лакацыю: "Psary" або "Machecoul (France)"
+      const displayLocation =
+        cleaned.country && cleaned.country !== "Polska"
+          ? `${cleaned.location} (${cleaned.country})`
+          : cleaned.location;
 
-      // === 4. ГРАФІК ===
-      schedule: {
-        ...(cleaned.schedule || {}),
-        shiftsCount: Number(cleaned.schedule?.shiftsCount) || 0,
-        hoursPerShift: cleaned.schedule?.hoursPerShift || "",
-        workDaysWeek: cleaned.schedule?.workDaysWeek || "",
-        breakDuration: cleaned.schedule?.breakDuration || "",
-        canChooseShiftOnStart: !!cleaned.schedule?.canChooseShiftOnStart,
-        shiftChoiceDetails: cleaned.schedule?.shiftChoiceDetails || "",
-        description: cleaned.schedule?.description || "",
-      },
+      // Фінальны загаловак: "Склад адзення — Psary"
+      const finalTitle =
+        displayLocation &&
+        !baseTitle.toLowerCase().includes(displayLocation.toLowerCase())
+          ? `${baseTitle} — ${displayLocation}`
+          : baseTitle;
 
-      // === 5. ПРАЖЫВАННЕ І ТРАНСПАРТ ===
-      accommodation: {
-        type: cleaned.accommodation?.type || null,
-        forCouples: !!cleaned.accommodation?.forCouples,
-        withChildren: !!cleaned.accommodation?.withChildren,
-        withPets: !!cleaned.accommodation?.withPets,
-        details: cleaned.accommodation?.details || "",
-      },
-      transport: {
-        ...(cleaned.transport || {}),
-        provided: !!cleaned.transport?.provided,
-        costRaw: cleaned.transport?.costRaw || "",
-        details: cleaned.transport?.details || "",
-      },
+      // 2. Страхоўка зарплаты
+      let finalBaseNetto = cleaned.salary?.baseNetto;
+      if (
+        (!finalBaseNetto || finalBaseNetto === "не вказано") &&
+        cleaned.salary?.salaryNotes
+      ) {
+        if (
+          cleaned.salary.salaryNotes.toLowerCase().includes("brutto") ||
+          cleaned.salary.salaryNotes.includes("zł")
+        ) {
+          finalBaseNetto = cleaned.salary.salaryNotes;
+        }
+      }
 
-      // === 6. КАМПЕНСАЦЫІ ===
-      employerCompensations: {
-        hasCompensations: !!cleaned.employerCompensations?.hasCompensations,
-        details: cleaned.employerCompensations?.details || "",
-      },
+      return {
+        // === 1. СИСТЕМНІ ПОЛЯ ===
+        ...cleaned,
+        agencyName: normalizedAgency, // 👈 Цяпер нармалізацыя працуе!
+        brand: validatedBrand, // 👈 Цяпер брэнды чыстыя!
+        templateName: cleaned.templateName || "",
+        vacancydescription: finalTitle,
+        category: cleaned.category || null,
+        keywords: Array.isArray(cleaned.keywords) ? cleaned.keywords : [],
+        contractType: cleaned.contractType || null,
+        arrivalDate: cleaned.arrivalDate || null,
+        count: cleaned.count || null,
 
-      // === 7. ПАТРАБАВАННІ ===
-      requirements: {
-        ...cleaned.requirements,
-        gender: Array.isArray(cleaned.requirements?.gender)
-          ? cleaned.requirements.gender
-          : ["Чоловіки", "Жінки"],
-        ageMax: cleaned.requirements?.ageMax || null,
-        nationalities: Array.isArray(cleaned.requirements?.nationalities)
-          ? cleaned.requirements.nationalities
-          : ["Україна"],
-        standardDocs: Array.isArray(cleaned.requirements?.standardDocs)
-          ? cleaned.requirements.standardDocs
-          : [],
-        needsAdditionalDocs: !!cleaned.requirements?.needsAdditionalDocs,
-        additionalDocsDetails:
-          cleaned.requirements?.additionalDocsDetails || "",
-        experienceRequired: !!cleaned.requirements?.experienceRequired,
-        hasEntranceTests: !!cleaned.requirements?.hasEntranceTests,
-        entranceTestsDetails: cleaned.requirements?.entranceTestsDetails || "",
-        polishLanguageLevel:
-          cleaned.requirements?.polishLanguageLevel || "Не вимагається",
-        languageDetails: cleaned.requirements?.languageDetails || "",
-        physicalLoad: cleaned.requirements?.physicalLoad || "",
-      },
+        forRecruiter: {
+          internalNotes: cleaned.forRecruiter?.internalNotes || "",
+          hideAgencyNameForCandidate: true,
+          hideEnterpriseNameForCandidate: true,
+        },
 
-      // === 8. АДРЫХТОЎКА Ў ЕЎРОПУ (А1) ===
-      businessTrip: {
-        isBusinessTrip: !!cleaned.businessTrip?.isBusinessTrip,
-        requiresPolishExperience:
-          !!cleaned.businessTrip?.requiresPolishExperience,
-        requiredDocuments: Array.isArray(
-          cleaned.businessTrip?.requiredDocuments,
-        )
-          ? cleaned.businessTrip.requiredDocuments
-          : [],
-        tripDetails: cleaned.businessTrip?.tripDetails || "",
-      },
+        // === 2. ЛАКАЦЫІ І ГЕАГРАФІЯ ===
+        location: cleaned.location || "",
+        locationDescription: cleaned.locationDescription || "",
+        voivodeship: cleaned.voivodeship || "Польща",
+        country: cleaned.country || "Polska",
+        checkInCity: cleaned.checkInCity || "",
 
-      // === 9. СПЕЦЫФІЧНЫЯ ЎМОВЫ ===
-      conditions: {
-        hasSpecificConditions: !!cleaned.conditions?.hasSpecificConditions,
-        specificNuances: Array.isArray(cleaned.conditions?.specificNuances)
-          ? cleaned.conditions.specificNuances
-          : [],
-        specificConditionsDetails:
-          cleaned.conditions?.specificConditionsDetails || "",
-        workwearFree: !!cleaned.conditions?.workwearFree,
-        foodType: cleaned.conditions?.foodType || "Власне",
-        foodDetails: cleaned.conditions?.foodDetails || "",
-      },
+        // === 3. ФІНАНСЫ ===
+        salary: {
+          ...(cleaned.salary || {}),
+          baseNetto: finalBaseNetto || null,
+          studentNetto: cleaned.salary?.studentNetto || "",
+          hoursRange: cleaned.salary?.hoursRange || "",
+          payoutDates: cleaned.salary?.payoutDates || "",
+          bonusDetails: cleaned.salary?.bonusDetails || "",
+          salaryNotes: cleaned.salary?.salaryNotes || "",
+        },
 
-      // === 10. ВЫДАТКІ І АДКАЗНАСЦЬ ===
-      startExpenses: {
-        hasStartExpenses: !!cleaned.startExpenses?.hasStartExpenses,
-        details: cleaned.startExpenses?.details || "",
-      },
-      earlyTerminationLiability: {
-        hasLiability: !!cleaned.earlyTerminationLiability?.hasLiability,
-        details: cleaned.earlyTerminationLiability?.details || "",
-      },
+        // === 4. ГРАФІК ===
+        schedule: {
+          ...(cleaned.schedule || {}),
+          shiftsCount: Number(cleaned.schedule?.shiftsCount) || 0,
+          hoursPerShift: cleaned.schedule?.hoursPerShift || "",
+          workDaysWeek: cleaned.schedule?.workDaysWeek || "",
+          breakDuration: cleaned.schedule?.breakDuration || "",
+          canChooseShiftOnStart: !!cleaned.schedule?.canChooseShiftOnStart,
+          shiftChoiceDetails: cleaned.schedule?.shiftChoiceDetails || "",
+          description: cleaned.schedule?.description || "",
+        },
 
-      description: cleaned.description || "",
-      additionalNotes: cleaned.additionalNotes || "",
-      rawText: rawText,
-    };
+        // === 5. ПРАЖЫВАННЕ І ТРАНСПАРТ ===
+        accommodation: {
+          type: cleaned.accommodation?.type || null,
+          forCouples: !!cleaned.accommodation?.forCouples,
+          withChildren: !!cleaned.accommodation?.withChildren,
+          withPets: !!cleaned.accommodation?.withPets,
+          details: cleaned.accommodation?.details || "",
+        },
+        transport: {
+          ...(cleaned.transport || {}),
+          provided: !!cleaned.transport?.provided,
+          costRaw: cleaned.transport?.costRaw || "",
+          details: cleaned.transport?.details || "",
+        },
+
+        // === 6. КАМПЕНСАЦЫІ ===
+        employerCompensations: {
+          hasCompensations: !!cleaned.employerCompensations?.hasCompensations,
+          details: cleaned.employerCompensations?.details || "",
+        },
+
+        // === 7. ПАТРАБАВАННІ ===
+        requirements: {
+          ...cleaned.requirements,
+          gender: Array.isArray(cleaned.requirements?.gender)
+            ? cleaned.requirements.gender
+            : ["Чоловіки", "Жінки"],
+          ageMax: cleaned.requirements?.ageMax || null,
+          nationalities: Array.isArray(cleaned.requirements?.nationalities)
+            ? cleaned.requirements.nationalities
+            : ["Україна"],
+          standardDocs: Array.isArray(cleaned.requirements?.standardDocs)
+            ? cleaned.requirements.standardDocs
+            : [],
+          needsAdditionalDocs: !!cleaned.requirements?.needsAdditionalDocs,
+          additionalDocsDetails:
+            cleaned.requirements?.additionalDocsDetails || "",
+          experienceRequired: !!cleaned.requirements?.experienceRequired,
+          hasEntranceTests: !!cleaned.requirements?.hasEntranceTests,
+          entranceTestsDetails:
+            cleaned.requirements?.entranceTestsDetails || "",
+          polishLanguageLevel:
+            cleaned.requirements?.polishLanguageLevel || "Не вимагається",
+          languageDetails: cleaned.requirements?.languageDetails || "",
+          physicalLoad: cleaned.requirements?.physicalLoad || "",
+        },
+
+        // === 8. АДРЫХТОЎКА Ў ЕЎРОПУ (А1) ===
+        businessTrip: {
+          isBusinessTrip: !!cleaned.businessTrip?.isBusinessTrip,
+          requiresPolishExperience:
+            !!cleaned.businessTrip?.requiresPolishExperience,
+          requiredDocuments: Array.isArray(
+            cleaned.businessTrip?.requiredDocuments,
+          )
+            ? cleaned.businessTrip.requiredDocuments
+            : [],
+          tripDetails: cleaned.businessTrip?.tripDetails || "",
+        },
+
+        // === 9. СПЕЦЫФІЧНЫЯ ЎМОВЫ ===
+        conditions: {
+          hasSpecificConditions: !!cleaned.conditions?.hasSpecificConditions,
+          specificNuances: Array.isArray(cleaned.conditions?.specificNuances)
+            ? cleaned.conditions.specificNuances
+            : [],
+          specificConditionsDetails:
+            cleaned.conditions?.specificConditionsDetails || "",
+          workwearFree: !!cleaned.conditions?.workwearFree,
+          foodType: cleaned.conditions?.foodType || "Власне",
+          foodDetails: cleaned.conditions?.foodDetails || "",
+        },
+
+        // === 10. ВЫДАТКІ І АДКАЗНАСЦЬ ===
+        startExpenses: {
+          hasStartExpenses: !!cleaned.startExpenses?.hasStartExpenses,
+          details: cleaned.startExpenses?.details || "",
+        },
+        earlyTerminationLiability: {
+          hasLiability: !!cleaned.earlyTerminationLiability?.hasLiability,
+          details: cleaned.earlyTerminationLiability?.details || "",
+        },
+
+        description: cleaned.description || "",
+        additionalNotes: cleaned.additionalNotes || "",
+        rawText: rawText,
+        parsingResultType: parsed.parsingResultType || "FULL_VACANCY",
+      };
+    }; // Закрываем функцыю processSingle
+
+    return Array.isArray(parsedData)
+      ? parsedData.map(processSingle)
+      : processSingle(parsedData);
   } catch (error) {
     console.error("❌ Fatal Parsing Error:", error.message);
     throw error;
@@ -862,28 +900,28 @@ JSON STRUCTURE:
 
 async function createTemplateFromVacancy(vacancyData) {
   try {
-    console.log(`🤖 Створення шаблону v2.0 з вакансії...`);
-    const text = await groqRequest(
+    console.log(`🤖 Стварэнне шаблона v2.0...`);
+    const text = await executeAIRequest(
       CREATE_TEMPLATE_PROMPT,
       `VACANCY DATA:\n${JSON.stringify(vacancyData, null, 2)}`,
       true,
     );
-
-    let cleanJson = text.trim();
-    cleanJson = cleanJson.replace(/```json\s*/g, "").replace(/```\s*/g, "");
+    let cleanJson = text
+      .trim()
+      .replace(/```json\s*/g, "")
+      .replace(/```\s*/g, "");
     const jsonMatch = cleanJson.match(/\{[\s\S]*\}/);
     if (jsonMatch) cleanJson = jsonMatch[0];
-
     return JSON.parse(cleanJson);
   } catch (error) {
-    console.error("❌ Помилка створення шаблону:", error.message);
+    console.error("❌ Памылка стварэння шаблона:", error.message);
     return null;
   }
 }
 
 async function testConnection() {
   try {
-    await groqRequest("Test", "Hi", false);
+    await executeAIRequest("Test", "Hi", false);
     return true;
   } catch {
     return false;
@@ -906,163 +944,18 @@ Return ONLY valid JSON with the full updated structure v2.0.
 `;
 
 async function updateVacancyWithAI(existingVacancy, newText) {
-  try {
-    console.log(
-      `🤖 Інтэлектуальнае абнаўленне вакансіі ${existingVacancy.vacancyCode}...`,
-    );
-    const content = `CURRENT_VACANCY_JSON:\n${JSON.stringify(existingVacancy, null, 2)}\n\nNEW_MESSAGE_TEXT:\n${newText}`;
-    const responseText = await groqRequest(
-      UPDATE_VACANCY_PROMPT,
-      content,
-      true,
-    );
-
-    let cleanJson = responseText
-      .trim()
-      .replace(/```json\s*/g, "")
-      .replace(/```\s*/g, "");
-    return JSON.parse(cleanJson);
-  } catch (error) {
-    console.error("❌ AI Update Error:", error.message);
-    throw error;
-  }
-}
-/**
- * Класіфікацыя паведамлення праз Groq
- * Выкарыстоўваецца як надзейны фолбэк для Gemini
- */
-// 2. Фолбэк класіфікацыя (Stage 1), калі Gemini недаступныя
-let groqStage1FrozenUntil = 0;
-
-async function analyzeWithGroq(
-  text,
-  recentMessages = [],
-  recentVacancies = [],
-) {
-  if (Date.now() < groqStage1FrozenUntil) return null;
-
-  try {
-    console.log(`🔍 Groq (${MODEL_FAST}): Фолбэк-аналіз...`);
-    const response = await groq.chat.completions.create({
-      model: MODEL_FAST,
-      temperature: 0.1,
-      response_format: { type: "json_object" },
-      messages: [
-        {
-          role: "system",
-          content:
-            "Role: Expert Analyst. Task: Classify NEW_MESSAGE. Return ONLY JSON.",
-        },
-        {
-          role: "user",
-          content: `NEW_MESSAGE: ${text}\nReturn JSON with category, comparison, translatedText.`,
-        },
-      ],
-    });
-    return JSON.parse(response.choices[0]?.message?.content);
-  } catch (err) {
-    if (err.message?.includes("429") || err.message?.includes("limit")) {
-      const now = new Date();
-      const target = new Date();
-      target.setDate(now.getDate() + 1);
-      target.setHours(7, 0, 0, 0);
-      groqStage1FrozenUntil = target.getTime();
-      console.warn(`🚫 Groq Stage 1 замарожаны да 07:00 заўтра.`);
-    }
-    return null;
-  }
-}
-
-/**
- * Хуткі пераклад тэксту (фолбэк)
- */
-async function simpleTranslate(text) {
-  try {
-    const response = await groq.chat.completions.create({
-      model: MODEL_FAST,
-      messages: [
-        {
-          role: "system",
-          content:
-            "Translate the following text to Ukrainian. Return ONLY the translation.",
-        },
-        { role: "user", content: text },
-      ],
-    });
-    return response.choices[0]?.message?.content || text;
-  } catch (err) {
-    return text;
-  }
-}
-/**
- * Сплітар: разбівае тэкст на асобныя вакансіі (выкарыстоўваем танную мадэль)
- */
-async function splitMultipleVacancies(rawText) {
-  try {
-    console.log(`✂️ Аналіз структуры тэксту...`);
-
-    // Абмяжоўваем уваход да 5000 сімвалаў, каб не вылецець па TPM/413
-    const safeInput = rawText.substring(0, 5000);
-
-    const response = await groq.chat.completions.create({
-      model: MODEL_FAST,
-      temperature: 0.1,
-      max_tokens: 4000,
-      response_format: { type: "json_object" },
-      messages: [
-        { role: "system", content: SPLIT_PROMPT },
-        { role: "user", content: safeInput },
-      ],
-    });
-
-    const parsed = JSON.parse(response.choices[0].message.content);
-    if (!parsed.isMultiple || !parsed.parts || parsed.parts.length <= 1) {
-      return [rawText];
-    }
-
-    return parsed.parts.filter((p) => p.trim().length > 150);
-  } catch (err) {
-    console.error("⚠️ Splitter error:", err.message);
-    return [rawText];
-  }
-}
-
-/**
- * Галоўны каардынатар мульці-парсінгу (Разбі і Парсі)
- */
-async function parseMultipleVacancies(rawText) {
-  const parts = await splitMultipleVacancies(rawText);
-
-  if (parts.length <= 1) {
-    const single = await parseVacancyWithAI(parts[0]);
-    return [{ data: single, sourceBlock: parts[0] }]; // 🆕
-  }
-
-  console.log(`📊 Знойдзена патэнцыйных вакансій: ${parts.length}`);
-
-  const results = [];
-  for (const part of parts) {
-    try {
-      const hasSalary = /[\d,]+\s*(зл|zł|€|euro|pln)/i.test(part);
-
-      if (!hasSalary && part.length < 500) {
-        console.log("⏭️ Пропуск часткі без прыкмет вакансіі");
-        continue;
-      }
-
-      const vacancy = await parseVacancyWithAI(part);
-
-      if (vacancy.location || vacancy.vacancydescription) {
-        results.push({ data: vacancy, sourceBlock: part }); // 🆕
-      }
-    } catch (err) {
-      console.error("❌ Памылка парсінгу часткі:", err.message);
-    }
-  }
-
-  return results.length > 0
-    ? results
-    : [{ data: await parseVacancyWithAI(rawText), sourceBlock: rawText }]; // 🆕
+  console.log(`🤖 Абнаўленне вакансіі ${existingVacancy.vacancyCode}...`);
+  const content = `CURRENT_VACANCY_JSON:\n${JSON.stringify(existingVacancy, null, 2)}\n\nNEW_MESSAGE_TEXT:\n${newText}`;
+  const responseText = await executeAIRequest(
+    UPDATE_VACANCY_PROMPT,
+    content,
+    true,
+  );
+  let cleanJson = responseText
+    .trim()
+    .replace(/```json\s*/g, "")
+    .replace(/```\s*/g, "");
+  return JSON.parse(cleanJson);
 }
 
 /**
@@ -1104,9 +997,7 @@ async function enrichTextWithDocs(rawText) {
 }
 module.exports = {
   parseVacancyWithAI,
-  analyzeWithGroq,
-  groqRequest,
-  parseMultipleVacancies,
+  executeAIRequest,
   enrichTextWithDocs,
   identifyTemplate,
   linkTemplateToVacancy,
@@ -1115,7 +1006,6 @@ module.exports = {
   testConnection,
   updateVacancyWithAI,
   mergeWithTemplate,
-  simpleTranslate,
   normalizeAgency,
   validateBrand,
 };
