@@ -305,32 +305,24 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true) {
       );
 
       if (model.provider === "gemini") {
-        // Выкарыстоўваем v1 для Enterprise і Tier 1
+        // Выкарыстоўваем v1beta, яна больш стабільная для новых мадэляў 2.0
         const genModel = genAI.getGenerativeModel(
           { model: model.name },
-          { apiVersion: "v1" },
+          { apiVersion: "v1beta" },
         );
 
-        // Выкарыстоўваем тайм-аўт, каб Gemini не вешаў сістэму
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 10000); // 10 секунд на спробу
+        // Перадаем як масіў частак — гэта самы надзейны фармат для Google SDK
+        const result = await genModel.generateContent([
+          { text: systemPrompt },
+          { text: "Input text to process:\n" + userContent },
+        ]);
 
-        try {
-          const result = await genModel.generateContent(
-            systemPrompt + "\n\n" + userContent,
-          );
-          const response = await result.response;
-          clearTimeout(timeout);
-          const text = response
-            .text()
-            .replace(/```json|```/g, "")
-            .trim();
-          if (text) return text;
-        } catch (geminiErr) {
-          clearTimeout(timeout);
-          console.warn(`⚠️ Gemini (${model.name}) не адказаў, ідзем далей...`);
-          continue; // Пры любой памылцы Gemini — адразу да наступнай мадэлі
-        }
+        const response = await result.response;
+        const text = response
+          .text()
+          .replace(/```json|```/g, "")
+          .trim();
+        if (text) return text;
       } else {
         // Groq
         const response = await groq.chat.completions.create({
@@ -344,10 +336,7 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true) {
           ],
         });
         const text = response.choices[0]?.message?.content;
-        if (text) {
-          console.log(`✅ Groq (${model.name}) паспяхова апрацаваў запыт!`);
-          return text;
-        }
+        if (text) return text;
       }
     } catch (err) {
       console.warn(
