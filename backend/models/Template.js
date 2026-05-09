@@ -1,30 +1,28 @@
+// backend/models/Template.js
 const mongoose = require("mongoose");
 
 const templateSchema = new mongoose.Schema({
-  // === 1. СІСТЭМНЫЯ ПАЛІ (Групаванне і пошук) ===
-  agencyName: { type: String, required: true }, // Назва агенцыі (напр. "MANPOWER")
-  templateName: { type: String, required: true }, // Назва завода + горад ПОЛЬСЬКАЮ (напр. "Hutchinson Dębica")
-
-  // Публічная назва для кандыдатаў
-  vacancydescription: { type: String, default: "" }, // Кароткі опіс суці работы (укр)
-
-  category: { type: String, default: "" }, // Напр: "⚙️ Виробництво і промисловість / Логістика, склади та пакування"
+  // === 1. СІСТЭМНЫЯ ПАЛІ ===
+  agencyName: { type: String, required: true },
+  templateName: { type: String, required: true },
+  vacancydescription: { type: String, default: "" },
+  brand: { type: String, default: "" }, // 🆕 Дадана як у Vacancy.js
+  category: { type: String, default: "" },
   keywords: { type: [String], default: [] },
-  contractType: { type: String, default: "" }, // "Umowa zlecenie" / "Umowa o pracę"
+  contractType: { type: String, default: "" },
 
-  // 🔒 УНУТРАНЫ БЛОК ДЛЯ РЭКРУТЭРАЎ
   forRecruiter: {
     internalNotes: { type: String, default: "" },
     hideAgencyNameForCandidate: { type: Boolean, default: true },
     hideEnterpriseNameForCandidate: { type: Boolean, default: true },
   },
 
-  // === 2. ЛАКАЦЫІ І ГЕАГРАФІЯ ===
-  location: { type: String, default: "" }, // Горад працы ПОЛЬСЬКАЮ (напр. "Warszawa")
-  locationDescription: { type: String, default: "" }, // Дакладная адраса або апісанне лакацыі
-  voivodeship: { type: String, default: "" }, // Ваяводства ПОЛЬСЬКАЮ
-  country: { type: String, default: "Polska" }, // Заўсёды "Polska"
-  checkInCity: { type: String, default: "" }, // Місто оформлення документів ПОЛЬСЬКАЮ
+  // === 2. ЛАКАЦЫІ ===
+  location: { type: String, default: "" },
+  locationDescription: { type: String, default: "" },
+  voivodeship: { type: String, default: "" },
+  country: { type: String, default: "Polska" },
+  checkInCity: { type: String, default: "" },
 
   // === 3. ФІНАНСЫ ===
   salary: {
@@ -49,7 +47,7 @@ const templateSchema = new mongoose.Schema({
 
   // === 5. ПРАЖЫВАННЕ І ТРАНСПАРТ ===
   accommodation: {
-    type: { type: String, default: "" }, // "Безкоштовне", "Платне", "Власне"
+    type: { type: String, default: "" },
     forCouples: { type: Boolean, default: false },
     withChildren: { type: Boolean, default: false },
     withPets: { type: Boolean, default: false },
@@ -62,16 +60,16 @@ const templateSchema = new mongoose.Schema({
     details: { type: String, default: "" },
   },
 
-  // === 6. КАМПЕНСАЦЫІ АД ПРАЦАДАЎЦЫ ===
+  // === 6. КАМПЕНСАЦЫІ ===
   employerCompensations: {
     hasCompensations: { type: Boolean, default: false },
     details: { type: String, default: "" },
   },
 
-  // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
+  // === 7. ПАТРАБАВАННІ ===
   requirements: {
     gender: { type: [String], default: ["Чоловіки", "Жінки"] },
-    ageMax: { type: Number, default: 99 },
+    ageMax: { type: Number, default: null }, // 🔧 Было 99 → null (як у Vacancy.js)
     nationalities: { type: [String], default: ["Україна"] },
     standardDocs: {
       type: [String],
@@ -87,7 +85,7 @@ const templateSchema = new mongoose.Schema({
     physicalLoad: { type: String, default: "" },
   },
 
-  // === 8. ВАДРЫХТОЎКА Ў ЕЎРОПУ (ДЭЛЕГАЦЫІ А1) ===
+  // === 8. ДЭЛЕГАЦЫІ А1 ===
   businessTrip: {
     isBusinessTrip: { type: Boolean, default: false },
     requiresPolishExperience: { type: Boolean, default: false },
@@ -95,17 +93,17 @@ const templateSchema = new mongoose.Schema({
     tripDetails: { type: String, default: "" },
   },
 
-  // === 9. СПЕЦЫФІЧНЫЯ ЎМОВЫ І ХАРЧАВАННЕ ===
+  // === 9. УМОВЫ І ХАРЧАВАННЕ ===
   conditions: {
     hasSpecificConditions: { type: Boolean, default: false },
     specificNuances: { type: [String], default: [] },
     specificConditionsDetails: { type: String, default: "" },
     workwearFree: { type: Boolean, default: false },
-    foodType: { type: String, default: "Власне" }, // "Власне", "Обіди", "Субсидоване"
+    foodType: { type: String, default: "Власне" },
     foodDetails: { type: String, default: "" },
   },
 
-  // === 10. ВЫДАТКІ НА СТАРЦЕ І АДКАЗНАСЦЬ ===
+  // === 10. ВЫДАТКІ ===
   startExpenses: {
     hasStartExpenses: { type: Boolean, default: false },
     details: { type: String, default: "" },
@@ -115,14 +113,14 @@ const templateSchema = new mongoose.Schema({
     details: { type: String, default: "" },
   },
 
-  // === 11. АПІСАННЕ ПРАЦЭСАЎ І НАТАТКІ ===
+  // === 11. АПІСАННЕ ===
   description: { type: String, default: "" },
   additionalNotes: { type: String, default: "" },
 
   createdAt: { type: Date, default: Date.now },
 });
 
-// Унікальны індэкс: пара agencyName + templateName (БЕЗ unique: true, каб заліць усё)
+// Не-унікальны індэкс (дазваляе дублі пры загрузцы)
 templateSchema.index({ agencyName: 1, templateName: 1 });
 
 module.exports = mongoose.model("Template", templateSchema);

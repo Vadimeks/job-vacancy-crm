@@ -2,7 +2,7 @@
 const express = require("express");
 const router = express.Router();
 const Candidate = require("../models/Candidate");
-const Vacancy = require("../models/Vacancy");
+// matching.service.js выкарыстоўваецца толькі з боку вакансій (GET /vacancies/:id/match-candidates)
 
 // GET /api/candidates
 router.get("/", async (req, res) => {
@@ -78,8 +78,10 @@ router.post("/:id/history", async (req, res) => {
 });
 
 // GET /api/candidates/:id/match-vacancies
+// Матч вакансій для кандыдата (кандыдат шукае вакансіі) — арыгінальная логіка, выпраўленая пад v2.0
 router.get("/:id/match-vacancies", async (req, res) => {
   try {
+    const Vacancy = require("../models/Vacancy");
     const candidate = await Candidate.findById(req.params.id);
     if (!candidate) return res.status(404).json({ message: "Не знойдзена" });
 
@@ -88,23 +90,30 @@ router.get("/:id/match-vacancies", async (req, res) => {
     const matched = [];
 
     for (const vacancy of vacancies) {
-      if (vacancy.requirements?.gender && candidate.gender) {
-        const vacGender = vacancy.requirements.gender.toLowerCase();
-        const isFemale =
-          vacGender.includes("жінк") || vacGender.includes("female");
-        const isMale =
-          vacGender.includes("чолов") || vacGender.includes("male");
-        const isBoth = !isFemale && !isMale;
-        if (!isBoth) {
-          if (isFemale && candidate.gender !== "female") continue;
-          if (isMale && candidate.gender !== "male") continue;
+      // --- HARD FILTERS ---
+
+      // Гендар: requirements.gender цяпер масіў ["Чоловіки", "Жінки"]
+      if (vacancy.requirements?.gender?.length > 0 && candidate.gender) {
+        const gArr = vacancy.requirements.gender.map((g) => g.toLowerCase());
+        const acceptsMale = gArr.some(
+          (g) => g.includes("чолов") || g.includes("male"),
+        );
+        const acceptsFemale = gArr.some(
+          (g) => g.includes("жінк") || g.includes("female"),
+        );
+        const acceptsAll = !acceptsMale && !acceptsFemale;
+        if (!acceptsAll) {
+          if (candidate.gender === "male" && !acceptsMale) continue;
+          if (candidate.gender === "female" && !acceptsFemale) continue;
         }
       }
 
+      // Узрост
       if (vacancy.requirements?.ageMax && candidate.age) {
         if (candidate.age > vacancy.requirements.ageMax) continue;
       }
 
+      // Нацыянальнасць: requirements.nationalities (масіў)
       if (
         vacancy.requirements?.nationalities?.length > 0 &&
         candidate.nationality
@@ -115,37 +124,50 @@ router.get("/:id/match-vacancies", async (req, res) => {
         if (!allowed.includes(candidate.nationality.toLowerCase())) continue;
       }
 
-      if (prefs?.needsAccommodation && !vacancy.accommodation?.available)
-        continue;
-
-      if (vacancy.requirements?.docs?.length > 0) {
-        const requiredDocs = vacancy.requirements.docs.map((d) =>
-          d.toLowerCase(),
-        );
-        if (
-          requiredDocs.some((d) => d.includes("санеп") || d.includes("sanep"))
-        ) {
-          if (!candidate.documents?.hasSanepid) continue;
-        }
-        if (requiredDocs.some((d) => d.includes("udt"))) {
-          if (!candidate.documents?.hasUDT) continue;
-        }
+      // Жытло: accommodation.type замест accommodation.available
+      if (prefs?.needsAccommodation) {
+        const t = (vacancy.accommodation?.type || "").toLowerCase();
+        const hasAccommodation =
+          t && !t.includes("власн") && !t.includes("не надає");
+        if (!hasAccommodation) continue;
       }
 
+      // Дакументы: requirements.standardDocs + additionalDocsDetails
+      if (vacancy.requirements?.needsAdditionalDocs) {
+        const details = (
+          vacancy.requirements.additionalDocsDetails || ""
+        ).toLowerCase();
+        if (
+          (details.includes("санеп") || details.includes("sanep")) &&
+          !candidate.documents?.hasSanepid
+        )
+          continue;
+        if (details.includes("udt") && !candidate.documents?.hasUDT) continue;
+      }
+
+      // Пары: accommodation.forCouples
+      if (prefs?.travelGroup === "couple" && !vacancy.accommodation?.forCouples)
+        continue;
+
+      // --- SOFT SCORE ---
       let score = 0;
 
+      // Лакацыя (25)
       if (prefs?.locationFlexible) score += 25;
       else if (prefs?.locationRadius) score += 15;
       else if (prefs?.location && vacancy.location) {
-        const candLoc = prefs.location.toLowerCase();
-        const vacLoc = vacancy.location.toLowerCase();
-        if (vacLoc.includes(candLoc) || candLoc.includes(vacLoc)) score += 25;
+        const cl = prefs.location.toLowerCase();
+        const vl = vacancy.location.toLowerCase();
+        if (vl.includes(cl) || cl.includes(vl)) score += 25;
       }
 
-      if (vacancy.sphere && prefs?.spheres?.length > 0) {
-        if (prefs.spheres.includes(vacancy.sphere)) score += 20;
+      // Катэгорыя: vacancy.category замест vacancy.sphere (20)
+      if (vacancy.category && prefs?.spheres?.length > 0) {
+        if (prefs.spheres.some((s) => vacancy.category.includes(s)))
+          score += 20;
       } else score += 10;
 
+      // Тып дагавора (15)
       if (vacancy.contractType && prefs?.contractType) {
         if (
           prefs.contractType === "any" ||
@@ -154,45 +176,47 @@ router.get("/:id/match-vacancies", async (req, res) => {
           score += 15;
       } else score += 10;
 
-      if (prefs?.schedule?.length > 0 && vacancy.schedule?.shifts) {
-        const shifts = vacancy.schedule.shifts;
+      // Графік: schedule.shiftsCount замест schedule.shifts (15)
+      if (prefs?.schedule?.length > 0 && vacancy.schedule?.shiftsCount) {
+        const shifts = String(vacancy.schedule.shiftsCount);
         const hasMatch =
-          (shifts.includes("1") && prefs.schedule.includes("1_shift")) ||
-          (shifts.includes("2") && prefs.schedule.includes("2_shifts")) ||
-          (shifts.includes("3") && prefs.schedule.includes("3_shifts"));
+          (shifts === "1" && prefs.schedule.includes("1_shift")) ||
+          (shifts === "2" && prefs.schedule.includes("2_shifts")) ||
+          (shifts === "3" && prefs.schedule.includes("3_shifts"));
         if (hasMatch) score += 15;
         else score += 5;
       } else score += 10;
 
-      if (vacancy.overtimeAvailable && prefs?.wantsOvertime) score += 10;
-      else if (!vacancy.overtimeAvailable && !prefs?.wantsOvertime) score += 10;
+      // Звышурочныя (10)
+      const hasOvertimeSignal =
+        vacancy.salary?.salaryNotes?.toLowerCase().includes("надгодин") ||
+        vacancy.salary?.salaryNotes?.toLowerCase().includes("overtime");
+      if (hasOvertimeSignal && prefs?.wantsOvertime) score += 10;
+      else if (!hasOvertimeSignal && !prefs?.wantsOvertime) score += 10;
       else score += 5;
 
+      // Пары (10)
       if (prefs?.travelGroup) {
-        if (vacancy.accommodation?.details) {
-          const details = vacancy.accommodation.details.toLowerCase();
-          if (prefs.travelGroup === "couple" && details.includes("пар"))
-            score += 10;
-          else if (prefs.travelGroup === "alone") score += 10;
-          else score += 5;
-        } else score += 7;
+        if (prefs.travelGroup === "couple" && vacancy.accommodation?.forCouples)
+          score += 10;
+        else if (prefs.travelGroup === "alone") score += 10;
+        else score += 5;
       } else score += 7;
 
-      if (vacancy.requirements?.languages?.length > 0) {
-        if (vacancy.requirements.languageLevel === "не патрабуецца") score += 5;
+      // Мова: polishLanguageLevel замест languageLevel (5)
+      if (vacancy.requirements?.polishLanguageLevel) {
+        const lvl = vacancy.requirements.polishLanguageLevel.toLowerCase();
+        if (lvl.includes("не вимаг")) score += 5;
         else if (candidate.languages?.length > 0) {
-          const hasLang = vacancy.requirements.languages.some((l) =>
-            candidate.languages
-              .map((cl) => cl.toLowerCase())
-              .includes(l.toLowerCase()),
-          );
-          if (hasLang) score += 5;
+          const hasPolish = candidate.languages
+            .map((l) => l.name?.toLowerCase() || l.toLowerCase())
+            .some((l) => l.includes("пол") || l.includes("pol"));
+          if (hasPolish) score += 5;
         }
       } else score += 5;
 
-      if (score >= 60) {
+      if (score >= 60)
         matched.push({ ...vacancy.toObject(), matchScore: score });
-      }
     }
 
     matched.sort((a, b) => b.matchScore - a.matchScore);

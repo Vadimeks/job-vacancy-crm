@@ -8,26 +8,31 @@ const { spawn } = require("child_process");
 const { startBot } = require("./services/telegram.service");
 const { router: vacanciesRouter } = require("./routes/vacancies");
 const inboxRouter = require("./routes/inbox");
+const templatesRouter = require("./routes/templates");
+const candidatesRouter = require("./routes/candidates");
+const applyRouter = require("./routes/apply");
 
 const app = express();
 
-// Налады мідлвараў
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Апрацоўка памылак парсінгу JSON (ахова ад бітых даных MacroDroid)
+// Апрацоўка бітых JSON (ахова ад MacroDroid)
 app.use((err, req, res, next) => {
   if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
-    console.error("⚠️ Атрыманы біты JSON. Ігнаруем памылку і працягваем.");
+    console.error("⚠️ Атрыманы біты JSON. Ігнаруем.");
     return res.status(200).json({ status: "error_bad_json_ignored" });
   }
   next();
 });
 
-// Роўты
+// Маршруты
 app.use("/api/vacancies", vacanciesRouter);
 app.use("/api/inbox", inboxRouter);
+app.use("/api/templates", templatesRouter);
+app.use("/api/candidates", candidatesRouter);
+app.use("/api/apply", applyRouter);
 
 mongoose
   .connect(process.env.MONGODB_URI)
@@ -36,8 +41,8 @@ mongoose
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Server: http://localhost:${PORT}`);
-  startBot(); // Запускаем афіцыйнага бота для апавяшчэнняў
-  startUserbot(); // Запускаем Telegram userbot у дочарным працэсе
+  startBot();
+  startUserbot();
 });
 
 // --- ЗАПУСК USERBOT У ДОЧАРНЫМ ПРАЦЭСЕ ---
@@ -47,7 +52,6 @@ app.listen(PORT, () => {
 //   калі запускаць яго ўнутры таго ж працэсу.
 //   Дочарны працэс ізаляваны: яго крах не закранае Express.
 function startUserbot() {
-  // Калі зменная не задана — маўчым (Render worker ці лакальны дэв без TG)
   if (!process.env.TELEGRAM_SESSION) {
     console.log("ℹ️ TELEGRAM_SESSION не задана — userbot не запускаецца.");
     return;
@@ -57,16 +61,14 @@ function startUserbot() {
 
   function spawnUserbot() {
     console.log("🤖 Запуск Telegram userbot (child process)...");
-
     const child = spawn(process.execPath, [userbotPath], {
-      env: process.env, // Перадаём усе env-зменныя
-      stdio: "inherit", // Логі юзербота → той жа stdout (Render іх убачыць)
+      env: process.env,
+      stdio: "inherit",
     });
 
     child.on("exit", (code, signal) => {
-      // Перазапуск пры любым сканчэнні (апроч ручнога kill)
       if (signal === "SIGTERM" || signal === "SIGKILL") {
-        console.log("🛑 Userbot спынены (SIGTERM/SIGKILL). Не перазапускаем.");
+        console.log("🛑 Userbot спынены. Не перазапускаем.");
         return;
       }
       console.warn(

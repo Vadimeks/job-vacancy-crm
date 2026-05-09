@@ -29,11 +29,14 @@ router.post("/", async (req, res) => {
 
     const saved = await candidate.save();
 
+    // Фікс: vacancy.title → vacancy.vacancydescription (схема v2.0)
     let vacancyInfo = "";
     if (vacancyId) {
       const vacancy = await Vacancy.findById(vacancyId);
       if (vacancy) {
-        vacancyInfo = `\n📋 Вакансія: *${vacancy.title}* (${vacancy.vacancyCode || vacancy._id})`;
+        const vacTitle =
+          vacancy.vacancydescription || vacancy.templateName || "Без назвы";
+        vacancyInfo = `\n📋 Вакансія: <b>${vacTitle}</b> (${vacancy.vacancyCode || vacancy._id})`;
       }
     }
 
@@ -43,14 +46,14 @@ router.post("/", async (req, res) => {
         : "Хоча тут працаваць";
 
     const msg = `
-🔔 *Новая заяўка!* (${applyType})${vacancyInfo}
+🔔 <b>Новая заяўка!</b> (${applyType})${vacancyInfo}
 
-👤 *${name}*
+👤 <b>${name}</b>
 📞 ${contactType}: ${telegram || phone || "—"}
 🌍 Нацыянальнасць: ${rest.nationality || "—"}
 📍 Знаходзіцца: ${rest.currentLocation || "—"}
 🎂 Узрост: ${rest.age || "—"}
-    `;
+    `.trim();
 
     await notifyRecruiter(msg);
     res.status(201).json(saved);

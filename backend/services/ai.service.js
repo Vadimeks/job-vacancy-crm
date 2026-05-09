@@ -39,6 +39,7 @@ const KNOWN_AGENCIES = [
   "PROGRES",
   "SG",
   "SOLANO",
+  "STAFF POWER", // 🆕
 ];
 
 const BRAND_BLACKLIST = [
