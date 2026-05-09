@@ -295,27 +295,42 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanations.
 async function executeAIRequest(systemPrompt, userContent, jsonMode = true) {
   if (Date.now() < chainFrozenUntil) {
     const diff = Math.ceil((chainFrozenUntil - Date.now()) / 60000);
-    throw new Error(`AI_COOLDOWN: Усе мадэлі адпачываюць яшчэ ${diff} хв.`);
+    throw new Error(`AI_COOLDOWN: Паўза яшчэ ${diff} хв.`);
   }
 
   for (const model of AI_CHAIN) {
     try {
-      console.log(`🤖 AI: ${model.provider.toUpperCase()} (${model.name})...`);
+      console.log(
+        `🤖 AI Спроба: ${model.provider.toUpperCase()} (${model.name})...`,
+      );
 
       if (model.provider === "gemini") {
+        // Выкарыстоўваем v1 для Enterprise і Tier 1
         const genModel = genAI.getGenerativeModel(
           { model: model.name },
-          { apiVersion: "v1beta" },
+          { apiVersion: "v1" },
         );
-        const result = await genModel.generateContent([
-          { text: systemPrompt },
-          { text: userContent },
-        ]);
-        const text = (await result.response)
-          .text()
-          .replace(/```json|```/g, "")
-          .trim();
-        if (text) return text;
+
+        // Выкарыстоўваем тайм-аўт, каб Gemini не вешаў сістэму
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 10000); // 10 секунд на спробу
+
+        try {
+          const result = await genModel.generateContent(
+            systemPrompt + "\n\n" + userContent,
+          );
+          const response = await result.response;
+          clearTimeout(timeout);
+          const text = response
+            .text()
+            .replace(/```json|```/g, "")
+            .trim();
+          if (text) return text;
+        } catch (geminiErr) {
+          clearTimeout(timeout);
+          console.warn(`⚠️ Gemini (${model.name}) не адказаў, ідзем далей...`);
+          continue; // Пры любой памылцы Gemini — адразу да наступнай мадэлі
+        }
       } else {
         // Groq
         const response = await groq.chat.completions.create({
@@ -329,23 +344,24 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true) {
           ],
         });
         const text = response.choices[0]?.message?.content;
-        if (text) return text;
+        if (text) {
+          console.log(`✅ Groq (${model.name}) паспяхова апрацаваў запыт!`);
+          return text;
+        }
       }
     } catch (err) {
-      console.warn(`⚠️ ${model.name}: ${err.message.substring(0, 80)}`);
+      console.warn(
+        `⚠️ ${model.name} адмовіла: ${err.message?.substring(0, 100)}`,
+      );
       continue;
     }
   }
 
-  // Усе мадэлі не адказалі — паўза 1 гадзіна
-  chainFrozenUntil = Date.now() + 60 * 60 * 1000;
-  console.error("🚫 Усе мадэлі не адказалі. Ланцужок замарожаны на 1 гадзіну.");
   throw new Error("ALL_AI_MODELS_FAILED");
 }
 
 // ============================================================
 // БЛОК 3: ЗАМЯНІЦЬ mergeWithTemplate
-// Знайсці async function mergeWithTemplate(...) і замяніць цалкам
 // ============================================================
 
 async function mergeWithTemplate(rawText, template) {
