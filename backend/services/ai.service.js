@@ -90,10 +90,12 @@ const LANGUAGE_GUARD = `
 - If the input is in Russian — TRANSLATE it to Ukrainian. Never use Russian words (e.g., use "Приїзд" instead of "Приезд", "Житло" instead of "Жилье").
 `;
 const SPLIT_PROMPT = `
-ROLE: HR Data Architect.
-TASK: Identify if the text contains multiple COMPLETE job offers.
-LOGIC: A "Complete Vacancy Signature" consists of: [Job Title/Brand] + [City] + [Salary/Rate].
-Return ONLY a JSON object: { "isMultiple": boolean, "parts": ["full text 1", "full text 2"] }
+TASK: Identify if the text contains MULTIPLE DIFFERENT job offers.
+CRITICAL RULE: 
+- If the text describes ONE job (even with a very long description, many benefits, and long lists) -> RETURN IT AS ONE PIECE.
+- Split ONLY if you see a clear transition to a completely different job title (e.g., Job A: Warehouse in Psary ... Job B: Driver in Berlin).
+- If unsure, do NOT split.
+Output JSON: { "isMultiple": boolean, "parts": string[] }
 `;
 // 1. Абноўленая функцыя cleanData
 function cleanData(obj) {
@@ -467,10 +469,14 @@ NUANCES RULES (conditions.specificNuances):
 - Categories: "Температурний режим", "Фізичне навантаження", "Запахи", "Санітарні обмеження", "Характер праці", "Інше".
 - Examples: ["Температурний режим (+5°C)", "Санітарні обмеження (без манікюру)"].
 
-GEOGRAPHY:
-- location: ONLY city name in POLISH (Latin).
-- country: If not Poland -> English country name.
-- INTERNATIONAL: city in Latin + country in parentheses in vacancydescription.
+GEOGRAPHY RULES:
+1. "location": The city where the actual work happens. 
+   - Look for the very first city mentioned in the text or keywords: "місто", "місце праці", "локація".
+   - Example: "Псари. Склад..." -> location: "Psary".
+2. "checkInCity": The city for administrative tasks/registration. 
+   - Look for keywords: "оформлення", "офіс", "реєстрація", "приїзд у".
+   - Example: "Оформлення: м. Катовіце" -> checkInCity: "Katowice".
+3. "country": If not Poland, specify. Default: "Polska".
 
 CRITICAL GEOGRAPHY RULES:
 1. location: Extract ONLY the city name in POLISH using LATIN characters (A-Z). 
@@ -665,10 +671,10 @@ JSON STRUCTURE:
       true,
     );
 
+    // 1. Спарсіць JSON
     let parsed = JSON.parse(text);
 
     // --- ПОСТ-АПРАЦОЎКА (Страхоўка) ---
-    // 1. Выдаляем "Polska" калі AI ўсё ж такі яго дадаў у поле горада
     if (parsed.location) {
       parsed.location = parsed.location.replace(/Polska,?\s*/gi, "").trim();
     }
@@ -679,19 +685,20 @@ JSON STRUCTURE:
     const normalizedAgency = normalizeAgency(cleaned.agencyName);
     const validatedBrand = validateBrand(cleaned.brand);
 
-    // 1. Лагічны загаловак
+    // 2. Лагічны загаловак (улічваем краіну)
     const baseTitle =
       cleaned.vacancydescription &&
       cleaned.vacancydescription !== "Нова вакансія"
         ? cleaned.vacancydescription
-        : cleaned.description?.split(/[.;]/)[0].substring(0, 100).trim() ||
-          "Опис вакансії";
+        : "Опис вакансії";
 
+    // Фармуем прыгожую лакацыю: "Psary" або "Machecoul (France)"
     const displayLocation =
       cleaned.country && cleaned.country !== "Polska"
         ? `${cleaned.location} (${cleaned.country})`
         : cleaned.location;
 
+    // Фінальны загаловак: "Склад адзення — Psary"
     const finalTitle =
       displayLocation &&
       !baseTitle.toLowerCase().includes(displayLocation.toLowerCase())
