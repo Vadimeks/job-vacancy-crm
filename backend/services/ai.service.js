@@ -12,10 +12,10 @@ const client = new GoogleGenAI({
 });
 // Адзіны ланцужок мадэляў: Gemini (Tier 1) → Groq (фолбэк)
 const AI_CHAIN = [
-  { provider: "gemini", name: "gemini-2.5-flash-lite" },
+  { provider: "gemini", name: "gemini-2.0-flash" },
   { provider: "gemini", name: "gemini-2.5-flash" },
   { provider: "gemini", name: "gemini-2.0-flash-lite" },
-  { provider: "gemini", name: "gemini-2.0-flash" },
+  { provider: "gemini", name: "gemini-2.5-flash-lite" },
   { provider: "groq", name: "llama-3.3-70b-versatile" },
   { provider: "groq", name: "llama-3.1-8b-instant" },
 ];
@@ -242,13 +242,13 @@ Use this structure (SKIP lines/sections if data is null):
 📄 Тип договору: [contractType]
 
 🏠 *Проживання*
-🏠 Проживання: [accommodation.type]
+[accommodation.type]
 • Можна з дітьми: Так (only if withChildren is true)
 • Можна з тваринами: Так (only if withPets is true)
 • Деталі: [accommodation.details]
 
 🚌 *Транспорт*
-🚌 Довіз: [transport.provided ? "надається" : "немає"]
+ [transport.provided ? "надається" : "немає"]
 • [transport.details]
 
 💸 *Витрати та відповідальність*
