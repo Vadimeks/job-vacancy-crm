@@ -189,62 +189,56 @@ TITLE RULE:
 Use this structure (SKIP lines/sections if data is null):
 
 *[vacancydescription]*
+
 📍 Місто: [location][(country if not Polska)]
 [• Оформлення: м. [checkInCity]]
 [👥 Набір: [requirements.gender joined by ", "]]
 [• Приїзд: [arrivalDate]]
 
-[💰 *Оплата праці*
+💰 *Оплата праці*
 • Ставка: [salary.baseNetto]
 • Студенти: [salary.studentNetto]
 • Виплати: [salary.payoutDates]
 • Бонуси: [salary.bonusDetails]
 • Нотатки: [salary.salaryNotes]
-]
 
-[🛠 *Характер роботи*
-[пункти з description через •]]
+🛠 *Характер роботи*
+[пункти з description через •]
 
-[📋 *Вимоги*
+📋 *Вимоги*
 • Вік: до [requirements.ageMax] років (only if < 65)
 • Документи: [requirements.standardDocs]
 • Мова: [requirements.polishLanguageLevel]
 • [requirements.physicalLoad]
-]
 
-[🕒 *Графік роботи*
+🕒 *Графік роботи*
 [schedule.description]
 • Перерва: [schedule.breakDuration]
-]
 
-[📄 Тип договору: [contractType]]
+📄 Тип договору: [contractType]
 
-[🏠 *Проживання*
+🏠 *Проживання*
 🏠 Проживання: [accommodation.type]
 • Можна з дітьми: Так (only if withChildren is true)
 • Можна з тваринами: Так (only if withPets is true)
 • Деталі: [accommodation.details]
-]
 
-[🚌 *Транспорт*
+🚌 *Транспорт*
 🚌 Довіз: [transport.provided ? "надається" : "немає"]
 • [transport.details]
-]
 
-[💸 *Витрати та відповідальність*
-• На старті: [startExpenses.details] (only if це стосується роботи, напр. медогляд)
+💸 *Витрати та відповідальність*
+• На старті: [startExpenses.details] (only if це стосуецца работы, напр. медогляд)
 • При передчасному звільненні: [earlyTerminationLiability.details]
-]
 
-[🌡 *Умови праці*
+🌡 *Умови праці*
 • Робочий одяг: [conditions.workwearFree ? "Безкоштовно" : "За рахунок працівника"]
 • Харчування: [conditions.foodType]
 • Нюанси: [conditions.specificNuances]
 • [conditions.foodDetails]
-]
 
-[📝 *Додаткова інформація*
-[additionalNotes including навчання, адаптація, вихід на норму, координатор, банківський рахунок, карта побуту, можливість роботи в інших країнах, організаваны трансфер з Украіны]]
+📝 *Додаткова інформація*
+[additionalNotes including навчання, адаптація, вихід на норму, координатор, банківський рахунок, карта побуту, можливість роботи в інших країнах, організаваны трансфер з Украіны]
 `;
 
 const CREATE_TEMPLATE_PROMPT = `
@@ -510,6 +504,12 @@ GEOGRAPHY RULES:
 - voivodeship: if Poland → exact voivodeship; else "Європа (інші країни)".
 - International: city + country in parentheses (e.g., "Droßdorf (Germany)").
 - STRICT: never Cyrillic for cities; never include "Polska" in location.
+- STRICT LOCATION VALIDATION:
+  • location = actual place of work.
+  • checkInCity = registration/arrival city.
+  • If the raw text contains a misspelled location (e.g., "Elena Gura"), automatically replace it with the correct Polish name ("Zielona Góra").
+  • Always use Polish spelling (Latin alphabet).
+  • If the location is not clearly specified, keep it as-is but add a note in additionalNotes for manual verification.
 
 PRIVACY & FORMATTING:
 - agencyName: recruitment agency only (else null).
