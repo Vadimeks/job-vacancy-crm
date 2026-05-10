@@ -2,9 +2,9 @@
 // БЛОК 1:
 
 const Groq = require("groq-sdk");
-const { GoogleGenAI } = require("@google/genai");
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-// Ініцыялізацыя кліента для Agent Platform (ADC падхопіцца аўтаматычна з adc.json)
+const { GoogleGenAI } = require("@google/genai");
+
 const client = new GoogleGenAI({
   vertexai: true,
   project: process.env.GCP_PROJECT_ID,
@@ -12,10 +12,10 @@ const client = new GoogleGenAI({
 });
 // Адзіны ланцужок мадэляў: Gemini (Tier 1) → Groq (фолбэк)
 const AI_CHAIN = [
-  { provider: "gemini", name: "gemini-2.0-flash" },
-  { provider: "gemini", name: "gemini-2.0-flash-lite" },
-  { provider: "gemini", name: "gemini-2.5-flash" },
   { provider: "gemini", name: "gemini-2.5-flash-lite" },
+  { provider: "gemini", name: "gemini-2.5-flash" },
+  { provider: "gemini", name: "gemini-2.0-flash-lite" },
+  { provider: "gemini", name: "gemini-2.0-flash" },
   { provider: "groq", name: "llama-3.3-70b-versatile" },
   { provider: "groq", name: "llama-3.1-8b-instant" },
 ];
@@ -297,11 +297,10 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true) {
 
   for (const model of AI_CHAIN) {
     try {
-      console.log(
-        `🤖 AI Спроба: ${model.provider.toUpperCase()} (${model.name})...`,
-      );
-
+      // Gemini
       if (model.provider === "gemini") {
+        console.log(`🤖 Запыт да Gemini: ${model.name}`);
+
         const response = await client.models.generateContent({
           model: model.name,
           contents: [
@@ -316,34 +315,37 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true) {
           },
         });
 
-        // У новым SDK тэкст бярэцца праз .text, а не .text()
         const text = response.text.replace(/```json|```/g, "").trim();
         if (text) return text;
-      } else {
-        // Groq
+      }
+
+      // Groq
+      if (model.provider === "groq") {
+        console.log(`🤖 Запыт да Groq: ${model.name}`);
+
         const response = await groq.chat.completions.create({
           model: model.name,
-          temperature: 0.1,
-          max_tokens: 8000,
-          response_format: jsonMode ? { type: "json_object" } : undefined,
           messages: [
             { role: "system", content: systemPrompt },
-            { role: "user", content: safeContent }, // 👈 Выкарыстоўваем safeContent
+            { role: "user", content: safeContent },
           ],
+          temperature: 0.1,
         });
-        const text = response.choices[0]?.message?.content;
+
+        const text = response.choices[0]?.message?.content?.trim();
         if (text) return text;
       }
-    } catch (err) {
-      console.warn(
-        `⚠️ ${model.name} адмовіла: ${err.message?.substring(0, 100)}`,
+    } catch (error) {
+      console.error(
+        `⚠️ Error (${model.name}):`,
+        error.message.substring(0, 100),
       );
-      continue;
+      // Працягваем да наступнай мадэлі
     }
   }
 
-  chainFrozenUntil = Date.now() + 60 * 60 * 1000;
-  throw new Error("ALL_AI_MODELS_FAILED");
+  // Калі ніводная мадэль не вярнула вынік
+  return null;
 }
 
 // ============================================================
