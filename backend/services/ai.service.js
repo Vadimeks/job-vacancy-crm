@@ -84,11 +84,35 @@ const BRAND_BLACKLIST = [
 // Функцыя нармалізацыі агенцыі
 function normalizeAgency(raw) {
   if (!raw) return "MANUAL";
+
   const upper = raw.toUpperCase().trim();
+
+  // Слоўнік для мапінгу кірыліцы ў лацінку
+  const TRANSLATION_MAP = {
+    ПРОГРЕС: "PROGRES",
+    КОНО: "KONO",
+    АПОЛО: "APOLO",
+    БІЗАР: "BISAR",
+    ЕСТ: "EST",
+    ГЛОБАЛ: "GLOBAL",
+    ОТТО: "OTTO",
+    СГ: "SG",
+    СОЛАНО: "SOLANO",
+    "ПЕРСОНЕЛ СЕРВІС": "PERSONEL SERVICE",
+    МАНПАЎЭР: "MANPOWER",
+  };
+
+  // 1. Праверка па слоўніку перакладу
+  if (TRANSLATION_MAP[upper]) return TRANSLATION_MAP[upper];
+
+  // 2. Праверка на дакладнае супадзенне ў KNOWN_AGENCIES
   if (KNOWN_AGENCIES.includes(upper)) return upper;
+
+  // 3. Пошук частковага супадзення
   const found = KNOWN_AGENCIES.find(
     (a) => upper.includes(a) || a.includes(upper),
   );
+
   return found || upper;
 }
 
@@ -337,7 +361,10 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true) {
       // Працягваем да наступнай мадэлі
     }
   }
-
+  // Калі ніводная мадэль не вярнула вынік — замарожваем ланцужок
+  chainFrozenUntil = Date.now() + 60 * 60 * 1000;
+  console.error("🚫 Усе мадэлі не адказалі. Ланцужок замарожаны на 1 гадзіну.");
+  throw new Error("ALL_AI_MODELS_FAILED");
   // Калі ніводная мадэль не вярнула вынік
   return null;
 }
@@ -447,9 +474,6 @@ async function identifyTemplate(rawText, templates) {
     console.error("❌ AI identify error:", err.message);
   }
   return null;
-  chainFrozenUntil = Date.now() + 60 * 60 * 1000;
-  console.error("🚫 Усе мадэлі не адказалі. Ланцужок замарожаны на 1 гадзіну.");
-  throw new Error("ALL_AI_MODELS_FAILED");
 }
 
 async function linkTemplateToVacancy(vacancyData, template) {
@@ -517,7 +541,7 @@ GEOGRAPHY RULES:
 PRIVACY & FORMATTING:
 - agencyName: recruitment agency only. 
   • STRICT RULE: Choose ONLY from this list: [APOLO, BISAR, EST, EWL, FWS, GLOBAL, INTRASERVICE, KONO, MANPOWER, MRÓWKI, NIDEN, OTTO, PERSONEL SERVICE, PROGRES, RALEN, SG, SOLANO, STAFF POWER, MANUAL].
-  • If the text says "КОНО" -> output "KONO". If "ОТТО" -> "OTTO".
+  • TRANSLATION RULE: If the agency name is in Cyrillic, TRANSLATE it to the Latin equivalent from the list above (e.g., "Прогрес" -> "PROGRES", "Коно" -> "KONO").
   • If no match from the list is found -> output null.
 - brand: Extract ONLY the exact factory/brand name in Polish or Latin script (e.g., "Amazon", "CCC").
   • STRICT: If no clear brand name is mentioned -> null.
