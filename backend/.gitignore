@@ -1,3 +1,4 @@
 node_modules
 .env
 log-render.md
+application_default_credentials.json
