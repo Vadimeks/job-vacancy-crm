@@ -11,7 +11,7 @@ const {
   notifyRecruiterAboutMatch,
 } = require("../services/telegram.service");
 const { matchCandidatesForVacancy } = require("../services/matching.service");
-
+const geminiService = require("../services/gemini.service");
 // --- ДАПАМОЖНЫЯ ФУНКЦЫІ ---
 
 async function generateVacancyCode() {
@@ -90,95 +90,73 @@ function sanitizeTelegramMarkdown(text) {
 }
 // --- АСНОЎНАЯ ЛОГІКА АПРАЦОЎКІ ---
 async function processVacancyMessage(
-  rawText, // Перакладзены тэкст
+  rawText,
   senderInfo = "Manual",
   preDefinedAgency = null,
   originalText = "",
-  isTruncated = false,
+  isTruncated = false, // Вярнулі параметр
 ) {
-  console.log(`\n--- 🚀 STAGE 2: АПРАЦОЎКА ВАКАНСІЙ (Tier 1 Chain) ---`);
+  console.log(`\n--- 🤖 АЎТА-КАНВЕЕР: Stage 1 (Gemini) -> Stage 2 (Groq) ---`);
 
   try {
-    // [1] Парсінг праз універсальны рухавік (Gemini/Groq)
-    // Цяпер AI сам вырашае, ці разбіваць на масіў і які тып прысвоіць
-    const result = await aiService.parseVacancyWithAI(rawText);
-    const vacancyList = Array.isArray(result) ? result : [result];
+    const analysis = await geminiService.analyzeAndCompareWithGemini(rawText);
+    if (!analysis || analysis.category === "NOISE")
+      return { message: "Ignored" };
 
-    const savedVacancies = [];
-
-    for (const vacancyData of vacancyList) {
-      // Вызначаем агенцыю (патрэбна для абодвух тыпаў)
-      const whitelisted = getWhitelistedAgency(senderInfo);
-      const finalAgency =
-        preDefinedAgency ||
-        (whitelisted && whitelisted !== "MANUAL" ? whitelisted : null) ||
-        vacancyData.agencyName ||
-        whitelisted ||
-        "Manual";
-
-      // [2] ПРАВЕРКА ТЫПУ: Калі AI палічыў, што гэта не поўная вакансія — адпраўляем у Пясочніцу
-      if (vacancyData.parsingResultType === "UPDATE") {
-        const sandboxItem = new UnprocessedMessage({
-          text: originalText || rawText,
-          senderInfo,
-          agencyName: finalAgency,
-          category: "UPDATE",
-          processed: false,
-          aiAnalyzed: true, // Каб робат не чапаў яго паўторна
-          rawText: rawText,
-        });
-        await sandboxItem.save();
-        console.log(`📩 Частка паведамлення захавана ў Пясочніцу як UPDATE.`);
-        continue; // Пераходзім да наступнага элемента масіва
-      }
-
-      // [3] СТВАРЭННЕ ПОЎНАЙ ВАКАНСІІ
-      const displayName = constructVacancyDisplayName({
-        ...vacancyData,
-        agencyName: finalAgency,
+    if (analysis.category !== "FULL_VACANCY") {
+      const sandboxItem = new UnprocessedMessage({
+        text: originalText || rawText,
+        senderInfo,
+        agencyName: preDefinedAgency || analysis.agencyName || "Manual",
+        category: analysis.category,
+        processed: false,
+        aiAnalyzed: true,
+        isTruncated: isTruncated, // Захоўваем тут
+        rawText: analysis.translatedFragments[0] || rawText,
       });
-
-      const postText = await aiService.formatTelegramPost({
-        ...vacancyData,
-        agencyName: finalAgency,
-      });
-
-      const vacancyCode = await generateVacancyCode();
-
-      const newVacancy = new Vacancy({
-        ...vacancyData,
-        agencyName: finalAgency,
-        templateName: displayName,
-        vacancyCode,
-        originalText: originalText || rawText,
-        rawText: rawText,
-        isTruncated: isTruncated,
-        telegramPost: postText,
-        status: "active",
-      });
-
-      const saved = await newVacancy.save();
-
-      // Адпраўка ў Telegram
-      const safePostText = sanitizeTelegramMarkdown(postText);
-      await sendToTelegram(safePostText);
-
-      savedVacancies.push(saved);
-      console.log(`✅ Вакансія створана: ${vacancyCode} (${finalAgency})`);
-
-      // Паўза паміж пастамі, калі іх некалькі
-      if (vacancyList.length > 1) {
-        await new Promise((r) => setTimeout(r, 1500));
-      }
+      await sandboxItem.save();
+      return { message: "Saved to sandbox" };
     }
 
-    // Вяртаем першую створаную вакансію (або пустую, калі былі толькі апдэйты)
-    return savedVacancies.length > 0
-      ? savedVacancies[0]
-      : { message: "Processed as updates" };
+    const savedVacancies = [];
+    const fragments = analysis.translatedFragments || [rawText];
+
+    for (const fragment of fragments) {
+      const result = await aiService.parseVacancyWithAI(fragment);
+      const vacancyDataList = Array.isArray(result) ? result : [result];
+
+      for (const vData of vacancyDataList) {
+        const finalAgency = preDefinedAgency || vData.agencyName || "Manual";
+        const vacancyCode = await generateVacancyCode();
+
+        const newVacancy = new Vacancy({
+          ...vData,
+          agencyName: finalAgency,
+          templateName: constructVacancyDisplayName({
+            ...vData,
+            agencyName: finalAgency,
+          }),
+          vacancyCode,
+          originalText: rawText,
+          rawText: fragment,
+          isTruncated: isTruncated, // Захоўваем у вакансію
+          telegramPost: await aiService.formatTelegramPost({
+            ...vData,
+            agencyName: finalAgency,
+          }),
+          status: "active",
+        });
+
+        const saved = await newVacancy.save();
+        await sendToTelegram(sanitizeTelegramMarkdown(saved.telegramPost));
+        savedVacancies.push(saved);
+      }
+      if (fragments.length > 1) await new Promise((r) => setTimeout(r, 1500));
+    }
+    return savedVacancies[0];
   } catch (err) {
-    console.error(`❌ Stage 2 Error: ${err.message}`);
-    return { error: err.message };
+    console.error(`❌ Auto-Pipeline Error: ${err.message}`);
+    throw err;
   }
 }
 
@@ -187,27 +165,45 @@ async function processVacancyMessage(
 // Аўта-стварэнне (з Інбокса праз робата)
 router.post("/auto", async (req, res) => {
   try {
-    // Дадалі agencyName у спіс зменных
-    const {
-      rawText,
-      senderInfo,
-      messageId,
-      originalText,
-      isTruncated,
-      agencyName,
-    } = req.body;
+    const { rawText, senderInfo, messageId, agencyName, isTruncated } =
+      req.body; // Дадалі імпарт з body
+    console.log(`\n--- 👤 РУЧНЫ ПАРСІНГ: Напрамую ў Stage 2 (Groq) ---`);
 
-    const result = await processVacancyMessage(
-      rawText,
-      senderInfo || "Manual",
-      agencyName || null, // Калі агенцыя выбрана ўручную — перадаем яе
-      originalText,
-      isTruncated,
-    );
+    const result = await aiService.parseVacancyWithAI(rawText);
+    const vacancyDataList = Array.isArray(result) ? result : [result];
+
+    const savedVacancies = [];
+    for (const vData of vacancyDataList) {
+      const finalAgency = agencyName || vData.agencyName || "Manual";
+      const vacancyCode = await generateVacancyCode();
+
+      const newVacancy = new Vacancy({
+        ...vData,
+        agencyName: finalAgency,
+        templateName: constructVacancyDisplayName({
+          ...vData,
+          agencyName: finalAgency,
+        }),
+        vacancyCode,
+        originalText: rawText,
+        rawText: rawText,
+        isTruncated: isTruncated || false, // Захоўваем
+        telegramPost: await aiService.formatTelegramPost({
+          ...vData,
+          agencyName: finalAgency,
+        }),
+        status: "active",
+      });
+
+      const saved = await newVacancy.save();
+      await sendToTelegram(sanitizeTelegramMarkdown(saved.telegramPost));
+      savedVacancies.push(saved);
+    }
 
     if (messageId) await markInboxMessageAsProcessed(messageId);
-    res.status(201).json(result);
+    res.status(201).json(savedVacancies[0]);
   } catch (err) {
+    console.error("❌ Manual Auto-route Error:", err.message);
     res.status(500).json({ message: err.message });
   }
 });
@@ -354,5 +350,45 @@ router.patch("/:id/ai-update", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
+// ============================================================
+// БЛОК 3: ПЛАНАВАЛЬНІК (Scheduler)
+// ============================================================
+
+setInterval(
+  async () => {
+    console.log(
+      "🕒 Heartbeat: Праверка Пясочніцы на неапрацаваныя паведамленні...",
+    );
+    try {
+      // Бяром паведамленні, якія яшчэ не прайшлі AI-аналіз (Stage 1)
+      const pending = await UnprocessedMessage.find({
+        processed: false,
+        aiAnalyzed: { $ne: true },
+      }).limit(5); // Абмяжоўваем порцыю, каб не спаліць ліміты API за раз
+
+      for (const msg of pending) {
+        console.log(`⚙️ Аўта-апрацоўка паведамлення: ${msg._id}`);
+
+        // Выклікаем поўны канвеер (Stage 1 + Stage 2)
+        await processVacancyMessage(
+          msg.text,
+          msg.senderInfo,
+          msg.agencyName,
+          msg.text,
+          msg.isTruncated, // Перадаем маркер абрэзкі
+        );
+
+        // Пазначаем, што паведамленне апрацавана робатам
+        msg.processed = true;
+        msg.aiAnalyzed = true;
+        await msg.save();
+      }
+    } catch (err) {
+      console.error("❌ Scheduler Error:", err.message);
+    }
+  },
+  15 * 60 * 1000,
+); // Інтэрвал 15 хвілін
 
 module.exports = { router, processVacancyMessage };

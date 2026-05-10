@@ -169,7 +169,7 @@ ROLE: Professional HR content formatter.
 TASK: Format the job data into a beautiful Telegram post in UKRAINIAN.
 
 !!! CRITICAL COMPACTNESS RULE !!!: 
-1. If a field value is null, "не вказано", or an empty array, you MUST NOT include the label or the line.
+1. IF a field value is null, undefined, or empty — DO NOT include its label, emoji, or the entire line in the post. NO EMPTY LABELS like "🕒 Графік роботи: ". If a whole section (Housing, Transport) is empty, skip its header too.
 2. If an ENTIRE SECTION (like Accommodation, Transport, or Expenses) has no data inside, DO NOT show the section header (e.g., do not show "🏠 Проживання" if there are no details).
 3. NEVER use placeholders like "немає інформації". Just skip the line.
 4. The post must be as compact as possible, looking like a natural text post, not a form.
@@ -305,17 +305,15 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true) {
       );
 
       if (model.provider === "gemini") {
-        // Выкарыстоўваем v1beta, яна больш стабільная для новых мадэляў 2.0
+        // Для Enterprise/Tier 1 выкарыстоўваем версію v1 (яна больш стабільная)
         const genModel = genAI.getGenerativeModel(
           { model: model.name },
-          { apiVersion: "v1beta" },
+          { apiVersion: "v1" },
         );
 
-        // Перадаем як масіў частак — гэта самы надзейны фармат для Google SDK
-        const result = await genModel.generateContent([
-          { text: systemPrompt },
-          { text: "Input text to process:\n" + userContent },
-        ]);
+        // Перадаем промпт і кантэнт адзіным блокам — гэта самы надзейны спосаб для Enterprise шлюзаў
+        const fullPrompt = `${systemPrompt}\n\nInput text to process:\n${userContent}`;
+        const result = await genModel.generateContent(fullPrompt);
 
         const response = await result.response;
         const text = response
@@ -324,7 +322,7 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true) {
           .trim();
         if (text) return text;
       } else {
-        // Groq
+        // Groq (застаецца без змен)
         const response = await groq.chat.completions.create({
           model: model.name,
           temperature: 0.1,
@@ -342,16 +340,16 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true) {
       console.warn(
         `⚠️ ${model.name} адмовіла: ${err.message?.substring(0, 100)}`,
       );
-      continue;
+      continue; // Ідзем да наступнай мадэлі (напрыклад, да Groq)
     }
   }
 
+  chainFrozenUntil = Date.now() + 60 * 60 * 1000;
   throw new Error("ALL_AI_MODELS_FAILED");
 }
 
 // ============================================================
-// БЛОК 3: ЗАМЯНІЦЬ mergeWithTemplate
-// ============================================================
+// БЛОК 3: mergeWithTemplate
 
 async function mergeWithTemplate(rawText, template) {
   try {
@@ -485,7 +483,7 @@ async function formatTelegramPost(vacancyData) {
 
 async function parseVacancyWithAI(rawText) {
   try {
-    console.log(`🤖 Парсінг v2.0 (Tier 1 Chain + Multi-Job Support)...`);
+    console.log(`🤖 Парсінг v2.0 ...`);
     const SYSTEM_INSTRUCTION = `
 ROLE: Professional automated job vacancy parser (Version 2.0).
 TASK: Convert job vacancy text into a JSON object with EXACTLY this structure. Fill every field based on the text. Do not invent field names.
@@ -582,10 +580,7 @@ CORE PARSING RULES:
    - specificNuances: array of strings. Categorize each nuance using this format: "Category (detail)".
   Categories to use: "Температурний режим", "Запахи", "Фізичне навантаження", "Характер праці", "Санітарні обмеження", "Інше".
   Example: ["Запахи (запах гуми)", "Температурний режим (+10°C)", "Санітарні обмеження (без манікюру)"]
-9. DETERMINING TYPE (parsingResultType):
-   - Set to "FULL_VACANCY" ONLY if the job block is detailed (usually > 250 characters) AND contains: Position + City + (Salary OR detailed Duties).
-   - Set to "UPDATE" if the block is short (< 250 characters), lacks essential details, or is just a status update.
-   SALARY FIELD RULES:
+
 - baseNetto: MAIN rate from the text. Copy EXACTLY (e.g., "22.50 зл/год нетто" OR "31.40 zł/год brutto"). 
   CRITICAL: NEVER leave this field empty if any salary/rate is mentioned in the text. 
 - bonusDetails: ALL bonuses in FULL (night shifts, overtime, attendance, quality). Do NOT summarize.
@@ -607,7 +602,6 @@ CONDITIONS & KEYWORDS:
 
 JSON STRUCTURE:
 {
- "parsingResultType": "FULL_VACANCY",
   "agencyName": null,
   "brand": "",
   "templateName": "",
@@ -700,13 +694,6 @@ JSON STRUCTURE:
   "arrivalDate": "",
   "count": ""
 }`;
-    const MULTI_RULE = `\nCRITICAL: If the text contains MULTIPLE job offers, return a JSON ARRAY. Otherwise, return a JSON OBJECT.`;
-    const text = await executeAIRequest(
-      SYSTEM_INSTRUCTION + MULTI_RULE,
-      `Input text:\n${rawText}`,
-      true,
-    );
-    const parsedData = JSON.parse(text);
 
     // Ствараем функцыю-абгортку для твайго існуючага коду
     const processSingle = (parsed) => {
@@ -963,47 +950,9 @@ async function updateVacancyWithAI(existingVacancy, newText) {
   return JSON.parse(cleanJson);
 }
 
-/**
- * Загрузка тэксту з Google Docs
- */
-async function fetchGoogleDocText(url) {
-  const match = url.match(/\/document\/d\/([a-zA-Z0-9_-]+)/);
-  if (!match) return null;
-  const docId = match[1];
-  const exportUrl = `https://docs.google.com/document/d/${docId}/export?format=txt`;
-  try {
-    const res = await fetch(exportUrl, { redirect: "follow" });
-    if (!res.ok) return null;
-    const text = await res.text();
-    return text.length > 100 ? text : null;
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Знаходзіць Google Docs спасылкі і збагачае тэкст
- */
-async function enrichTextWithDocs(rawText) {
-  const urlRegex =
-    /https?:\/\/docs\.google\.com\/document\/d\/[a-zA-Z0-9_-]+[^\s]*/g;
-  const urls = rawText.match(urlRegex);
-  if (!urls) return rawText;
-
-  console.log(`🔗 Знойдзены Google Docs спасылкі: ${urls.length}. Загрузка...`);
-  let enriched = rawText;
-  for (const url of urls) {
-    const docText = await fetchGoogleDocText(url);
-    if (docText) {
-      enriched = `${enriched}\n\n--- ПОВНИЙ ОПИС З ДОКУМЕНТУ ---\n${docText}`;
-    }
-  }
-  return enriched;
-}
 module.exports = {
   parseVacancyWithAI,
   executeAIRequest,
-  enrichTextWithDocs,
   identifyTemplate,
   linkTemplateToVacancy,
   formatTelegramPost,

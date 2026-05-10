@@ -1,72 +1,113 @@
 // backend/services/gemini.service.js
-// Stage 1: Класіфікацыя паведамленняў (смецце, дублі, апдейты, вакансіі)
-// Stage 2 (парсінг) — у ai.service.js праз executeAIRequest
-
 const aiService = require("./ai.service");
 
 const geminiCache = new Map();
-const CACHE_TTL = 5 * 60 * 1000; // 5 хвілін
+const CACHE_TTL = 5 * 60 * 1000;
 
-// Промпт максімальна просты — толькі фільтр і класіфікацыя
+/**
+ * Stage 0: Загрузка тэксту з Google Docs
+ */
+async function fetchGoogleDocText(url) {
+  const match = url.match(/\/document\/d\/([a-zA-Z0-9_-]+)/);
+  if (!match) return null;
+  const docId = match[1];
+  const exportUrl = `https://docs.google.com/document/d/${docId}/export?format=txt`;
+  try {
+    const res = await fetch(exportUrl, { redirect: "follow" });
+    if (!res.ok) return null;
+    const text = await res.text();
+    return text.length > 100 ? text : null;
+  } catch (err) {
+    console.error("⚠️ Google Docs Fetch Error:", err.message);
+    return null;
+  }
+}
+
+/**
+ * Stage 0: Пошук спасылак і збагачэнне тэксту
+ */
+async function enrichTextWithDocs(rawText) {
+  const urlRegex =
+    /https?:\/\/docs\.google\.com\/document\/d\/[a-zA-Z0-9_-]+[^\s]*/g;
+  const urls = rawText.match(urlRegex);
+  if (!urls) return rawText;
+
+  console.log(`🔗 Знойдзены Google Docs спасылкі: ${urls.length}. Загрузка...`);
+  let enriched = rawText;
+  for (const url of urls) {
+    const docText = await fetchGoogleDocText(url);
+    if (docText) {
+      enriched = `${enriched}\n\n--- ЗМЕСТ ДОКУМЕНТА ---\n${docText}`;
+    }
+  }
+  return enriched;
+}
+
 const SYSTEM_PROMPT = `
 Role: Expert Analyst of the Polish Job Market.
-Task: Classify and translate NEW_MESSAGE.
+Task: Classify, Translate, and Split NEW_MESSAGE.
+
+!!! CRITICAL SPLITTING LOGIC !!!
+1. translatedFragments: This MUST be an ARRAY of strings.
+2. If the message contains 2 or more DETAILED job offers (each has its own duties, requirements, and conditions), SPLIT them into separate strings in the array.
+3. If it's ONE job offer or a LIST of short statuses, return an array with ONE string.
+4. ALL fragments MUST be in UKRAINIAN ONLY. NO ENGLISH. NO RUSSIAN.
+5. NEVER summarize or shorten. Copy 100% of details.
 
 CLASSIFICATION RULES:
-1. FULL_VACANCY — A complete job advertisement. 
-   ✅ CRITICAL: If the message contains a detailed job description (duties, requirements, conditions) and is long (> 300 chars), it is ALWAYS FULL_VACANCY.
-   ✅ Even if you recognize the brand (like NOWALIJKA or Amazon), if the post is a full ad, mark it as FULL_VACANCY.
-   ❌ Do NOT mark as UPDATE if it's a standalone job offer.
-
-2. MULTI_VACANCY — Message contains 2+ SEPARATE full job offers.
-
-3. UPDATE — ONLY for short status changes: "need 2 more people", "rate increased", "recruitment stopped", "new dates for existing job".
-
-4. RECRUITER_INFO — Legal info, office hours, document rules.
-
-5. NOISE — System messages, emojis, or specific candidate status ("Ivan arrived").
+- FULL_VACANCY: Detailed job ad (Position + City + Salary + Duties).
+- UPDATE: Short status changes, stop-signals, or lists of rates/spots.
+- RECRUITER_INFO: Legal info, office hours, document rules.
+- NOISE: Greetings, emojis, system messages.
 
 Output ONLY valid JSON:
 {
-  "category": "FULL_VACANCY" | "UPDATE" | "RECRUITER_INFO" | "NOISE" | "MULTI_VACANCY",
-  "vacancyCount": 1,
-  "comparison": { "verdict": "NEW" | "DUPLICATE" | "UPDATE", "reason": "..." },
-  "translatedText": "Ukrainian translation"
+  "category": "FULL_VACANCY" | "UPDATE" | "RECRUITER_INFO" | "NOISE",
+  "translatedFragments": ["Fragment 1 (UA)", "Fragment 2 (UA)"],
+  "comparison": { "verdict": "NEW" | "DUPLICATE" | "UPDATE", "reason": "..." }
 }
 `;
 
+/**
+ * Stage 1: Санітар, Сплітар і Перакладчык
+ */
 async function analyzeAndCompareWithGemini(
   text,
   recentMessages = [],
   recentVacancies = [],
 ) {
-  // 1. Кэш (не аналізуем адно і тое ж двойчы)
-  const cacheKey = text.substring(0, 200);
+  // 1. Stage 0: Збагачэнне праз Google Docs
+  const enrichedText = await enrichTextWithDocs(text);
+
+  // 2. «Жалезнае правіла 250 сімвалаў»
+  // Калі тэкст кароткі і няма Google Docs — гэта аўтаматычна UPDATE (эканомім токены)
+  if (enrichedText.length < 250 && !enrichedText.includes("docs.google.com")) {
+    console.log(
+      `📉 Кароткае паведамленне (${enrichedText.length} сімв.), аўта-класіфікацыя: UPDATE`,
+    );
+    return {
+      category: "UPDATE",
+      translatedFragments: [enrichedText],
+      comparison: { verdict: "NEW", reason: "Short message (<250 chars)" },
+      enrichedText: enrichedText,
+    };
+  }
+
+  // 3. Кэш
+  const cacheKey = enrichedText.substring(0, 250);
   if (geminiCache.has(cacheKey)) {
     const cached = geminiCache.get(cacheKey);
     if (Date.now() - cached.timestamp < CACHE_TTL) return cached.data;
   }
 
-  // 2. Для кароткіх паведамленняў (<250 сімв.) — не аналізуем глыбока,
-  //    адпраўляем напрамую ў пясочніцу як UPDATE
-  if (text.length < 250 && !text.includes("docs.google.com")) {
-    return {
-      category: "UPDATE",
-      vacancyCount: 0,
-      comparison: { verdict: "NEW", reason: "Кароткае паведамленне" },
-      translatedText: text,
-    };
-  }
-
   const userContent = `
-RECENT_MESSAGES: ${JSON.stringify(recentMessages.slice(0, 5))}
-NEW_MESSAGE: ${text}
+RECENT_CONTEXT: ${JSON.stringify([...recentMessages, ...recentVacancies].slice(0, 5))}
+NEW_MESSAGE: ${enrichedText}
 `;
 
   try {
-    console.log(`🔍 Stage 1: Класіфікацыя паведамлення...`);
+    console.log(`🔍 Stage 1: Класіфікацыя і спліцінг (Tier 1)...`);
 
-    // Выкарыстоўваем адзіны ланцужок мадэляў з ai.service.js
     const responseText = await aiService.executeAIRequest(
       SYSTEM_PROMPT,
       userContent,
@@ -76,20 +117,21 @@ NEW_MESSAGE: ${text}
     const cleanJson = responseText.replace(/```json|```/g, "").trim();
     const parsed = JSON.parse(cleanJson);
 
+    parsed.enrichedText = enrichedText;
+
     geminiCache.set(cacheKey, { data: parsed, timestamp: Date.now() });
     return parsed;
   } catch (error) {
-    console.error(`⚠️ Stage 1 памылка:`, error.message.substring(0, 100));
-    // Калі ланцужок замарожаны (AI_COOLDOWN) — вяртаем null
-    // Калі іншая памылка — захоўваем як UPDATE для ручной апрацоўкі
+    console.error(`⚠️ Stage 1 Error:`, error.message.substring(0, 100));
     if (error.message.includes("AI_COOLDOWN")) return null;
+
     return {
       category: "UPDATE",
-      vacancyCount: 0,
-      comparison: { verdict: "NEW", reason: "Памылка аналізу" },
-      translatedText: text,
+      translatedFragments: [enrichedText],
+      comparison: { verdict: "NEW", reason: "AI error fallback" },
+      enrichedText: enrichedText,
     };
   }
 }
 
-module.exports = { analyzeAndCompareWithGemini };
+module.exports = { analyzeAndCompareWithGemini, enrichTextWithDocs };
