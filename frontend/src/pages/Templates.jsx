@@ -20,7 +20,7 @@ export default function Templates() {
       const res = await getTemplates();
       setTemplates(res.data);
     } catch {
-      console.error("Памылка загрузкі шаблонаў");
+      console.error("Помилка завантаження шаблонів");
     } finally {
       setLoading(false);
     }
@@ -45,12 +45,12 @@ export default function Templates() {
   });
 
   const handleDelete = async (id) => {
-    if (!confirm("Выдаліць шаблон?")) return;
+    if (!confirm("Видалити шаблон?")) return;
     try {
       await deleteTemplate(id);
       setTemplates((prev) => prev.filter((t) => t._id !== id));
     } catch {
-      alert("Памылка выдалення");
+      alert("Помилка видалення");
     }
   };
 
@@ -74,17 +74,17 @@ export default function Templates() {
       {/* Загаловак */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-100">Шаблоны</h1>
+          <h1 className="text-2xl font-semibold text-slate-100">Шаблони</h1>
           <p className="text-sm text-slate-500 mt-1">
-            {filtered.length} з {templates.length} шаблонаў у {agencies.length}{" "}
-            агенцыях
+            {filtered.length} з {templates.length} шаблонів у {agencies.length}{" "}
+            агенціях
           </p>
         </div>
         <button
           onClick={() => setShowAddForm(true)}
           className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-medium text-sm rounded-lg transition-colors"
         >
-          <span>＋</span> Новы шаблон
+          <span>＋</span> Новий шаблон
         </button>
       </div>
 
@@ -94,7 +94,7 @@ export default function Templates() {
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Пошук па назве, фірме, горадзе, ключавых словах..."
+          placeholder="Пошук за назвою, фірмою, містом, ключовими словами..."
           className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors"
         />
       </div>
@@ -110,7 +110,7 @@ export default function Templates() {
                 : "bg-slate-800 text-slate-400 hover:bg-slate-700"
             }`}
           >
-            Усе агенцыі
+            Усі агенції
           </button>
           {agencies.map((a) => (
             <button
@@ -130,21 +130,21 @@ export default function Templates() {
 
       {/* Спіс шаблонаў */}
       {loading ? (
-        <div className="text-slate-500 text-sm">Загрузка...</div>
+        <div className="text-slate-500 text-sm">Завантаження...</div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-16 text-slate-600">
           <div className="text-4xl mb-3">📋</div>
           <div className="text-sm">
             {search
-              ? `Нічога не знойдзена па «${search}»`
-              : "Шаблонаў пакуль няма"}
+              ? `Нічого не знайдено за «${search}»`
+              : "Шаблонів поки немає"}
           </div>
           {search && (
             <button
               onClick={() => setSearch("")}
               className="mt-3 text-xs text-emerald-500 hover:text-emerald-400"
             >
-              Ачысціць пошук
+              Очистити пошук
             </button>
           )}
         </div>

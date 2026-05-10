@@ -45,14 +45,14 @@ export const ACCOMMODATION_OPTIONS = [
 ];
 
 export const TRANSPORT_OPTIONS = [
-  { value: "provided", label: "🚌 Ёсць давоз" },
-  { value: "none", label: "❌ Няма давозу" },
+  { value: "provided", label: "🚌 Є довіз" },
+  { value: "none", label: "❌ Немає довозу" },
 ];
 
 export const TRAVEL_GROUPS = [
-  { value: "alone", label: "👤 Адзін / Адна" },
-  { value: "couple", label: "👫 Пары" },
-  { value: "family", label: "👨‍👩‍👧 Сям'я" },
+  { value: "alone", label: "👤 Один / Одна" },
+  { value: "couple", label: "👫 Пари" },
+  { value: "family", label: "👨‍👩‍👧 Сім'я" },
 ];
 
 export const NATIONALITIES = [
@@ -67,7 +67,7 @@ export const NATIONALITIES = [
 export const DOCS = [
   { value: "PESEL UKR", label: "PESEL UKR" },
   { value: "Віза", label: "Віза" },
-  { value: "Карта побуту", label: "Карта побуту" }, // Выпраўлена 'у'
+  { value: "Карта побуту", label: "Карта побуту" },
   { value: "Книжка санепід", label: "Санепід" },
   { value: "UDT", label: "UDT" },
   { value: "Довідка резидента", label: "Довідка резидента" },
@@ -78,13 +78,36 @@ export const DOCS = [
 export const CHECKLIST_ITEMS = [
   { value: "no_jewelry", label: "🚫 Без прикрас/нігтів" },
   { value: "manual_tests", label: "🖐️ Мануальні тести" },
-  { value: "math_tests", label: "🔢 Тэсты па матэматыцы" },
-  { value: "physical_load", label: "🏋️ Фізічная нагрузка" },
+  { value: "math_tests", label: "🔢 Тести з математики" },
+  { value: "physical_load", label: "🏋️ Фізичне навантаження" },
   { value: "cold_temp", label: "❄️ Холод (-22..+10°C)" },
   { value: "hot_temp", label: "🔥 Спека (+30°C)" },
-  { value: "standing_work", label: "🚶 Робота стоячы" },
+  { value: "standing_work", label: "🚶 Робота стоячи" },
   { value: "smell_fish", label: "🐟 Запах риби" },
   { value: "smell_rubber", label: "🚗 Запах гуми" },
+];
+
+// Еталонний список агенцій (синхронізовано з бекендом)
+export const AGENCIES = [
+  "APOLO",
+  "BISAR",
+  "EST",
+  "EWL",
+  "FWS",
+  "GLOBAL",
+  "INTRASERVICE",
+  "KONO",
+  "MANPOWER",
+  "MANUAL",
+  "MRÓWKI",
+  "NIDEN",
+  "OTTO",
+  "PERSONEL SERVICE",
+  "PROGRES",
+  "RALEN",
+  "SG",
+  "SOLANO",
+  "STAFF POWER",
 ];
 
 export const VOIVODESHIPS = [

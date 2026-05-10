@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { useLocation } from "react-router-dom"; // Дадалі гэты радок
+import { useLocation } from "react-router-dom";
 import {
   getVacancies,
   getTemplates,
@@ -299,12 +299,12 @@ export default function Vacancies() {
   };
 
   const handleDelete = async (id) => {
-    if (!confirm("Выдаліць вакансію?")) return;
+    if (!confirm("Видалити вакансію?")) return;
     try {
       await deleteVacancy(id);
       setVacancies((prev) => prev.filter((v) => v._id !== id));
     } catch {
-      alert("Памылка выдалення");
+      alert("Помилка видалення");
     }
   };
 
@@ -313,11 +313,11 @@ export default function Vacancies() {
     setAutoLoading(true);
     try {
       await createVacancyAuto(autoText, sourceMessageId);
-      notifyUpdate(); // <--- ДАДАЛІ
+      notifyUpdate();
       handleCloseForm();
       await fetchVacancies();
     } catch {
-      alert("Памылка стварэння");
+      alert("Помилка створення");
     } finally {
       setAutoLoading(false);
     }
@@ -325,7 +325,7 @@ export default function Vacancies() {
 
   const handleTemplateCreate = async () => {
     if (!selectedTemplate || !autoText.trim())
-      return alert("Запоўніце ўсе палі");
+      return alert("Заповніть усі поля");
     setAutoLoading(true);
     try {
       await createVacancyFromTemplate(
@@ -333,12 +333,12 @@ export default function Vacancies() {
         autoText,
         sourceMessageId,
       );
-      notifyUpdate(); // <--- ДАДАЛІ
+      notifyUpdate();
       handleCloseForm();
       setSourceMessageId(null);
       await fetchVacancies();
     } catch {
-      alert("Памылка стварэння");
+      alert("Помилка створення");
     } finally {
       setAutoLoading(false);
     }
@@ -388,7 +388,7 @@ export default function Vacancies() {
                 brands={dynamicData.brands}
                 locations={dynamicData.locations}
                 voivodeships={dynamicData.voivodeships}
-                nuances={dynamicData.nuances} // ДАДАЦЬ ГЭТА
+                nuances={dynamicData.nuances}
               />
             </div>
             <div className="p-4 border-t border-slate-800">
@@ -396,7 +396,7 @@ export default function Vacancies() {
                 onClick={handleApplyFilters}
                 className="w-full py-2.5 bg-emerald-500 text-slate-900 font-bold rounded-lg"
               >
-                Паказаць {previewCount} вакансій
+                Показати {previewCount} вакансій
               </button>
             </div>
           </div>
@@ -410,11 +410,11 @@ export default function Vacancies() {
               onClick={() => setSidebarOpen(true)}
               className="lg:hidden px-3 py-2 bg-slate-800 text-slate-300 rounded-lg"
             >
-              ⚙️ Фільтры {isDirty && "●"}
+              ⚙️ Фільтри {isDirty && "●"}
             </button>
             <div>
               <h1 className="text-2xl font-semibold text-slate-100">
-                Вакансіі
+                Вакансії
               </h1>
               <p className="text-sm text-slate-500">
                 {filtered.length} з {vacancies.length}
@@ -425,7 +425,7 @@ export default function Vacancies() {
             onClick={() => setShowAutoForm(!showAutoForm)}
             className="px-4 py-2 bg-emerald-500 text-slate-900 font-medium rounded-lg"
           >
-            ＋ Дадаць
+            ＋ Додати
           </button>
         </div>
 
@@ -439,7 +439,7 @@ export default function Vacancies() {
                   onClick={() => setFormMode(m)}
                   className={`px-4 py-2 rounded-lg text-sm font-medium ${formMode === m ? "bg-emerald-500 text-slate-900" : "bg-slate-800 text-slate-400"}`}
                 >
-                  {m === "auto" ? "🤖 Аўта (AI)" : "📋 З шаблона"}
+                  {m === "auto" ? "🤖 Авто (AI)" : "📋 З шаблона"}
                 </button>
               ))}
             </div>
@@ -472,7 +472,7 @@ export default function Vacancies() {
             <textarea
               value={autoText}
               onChange={(e) => setAutoText(e.target.value)}
-              placeholder="Устаўце тэкст вакансіі..."
+              placeholder="Вставте текст вакансії..."
               rows={4}
               className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-sm text-slate-100 resize-none"
             />
@@ -487,13 +487,13 @@ export default function Vacancies() {
                 disabled={autoLoading || !autoText.trim()}
                 className="px-4 py-2 bg-emerald-500 text-slate-900 font-medium rounded-lg disabled:opacity-50"
               >
-                {autoLoading ? "Апрацоўка..." : "Апрацаваць і дадаць"}
+                {autoLoading ? "Обробка..." : "Обробити та додати"}
               </button>
               <button
                 onClick={handleCloseForm}
                 className="px-4 py-2 bg-slate-800 text-slate-300 rounded-lg"
               >
-                Адмена
+                Скасувати
               </button>
             </div>
           </div>
@@ -540,7 +540,7 @@ export default function Vacancies() {
 
                     {/* ЗАГАЛОВАК */}
                     <h3 className="font-semibold text-slate-100 leading-snug mb-2">
-                      {v.vacancydescription}
+                      {v.vacancydescription || v.templateName}
                     </h3>
 
                     {/* РАДОК 2: лакацыя + агенцыя + жытло + зарплата */}
@@ -572,19 +572,19 @@ export default function Vacancies() {
                       onClick={() => setViewVacancy(v)}
                       className="px-3 py-1.5 text-slate-400 hover:bg-slate-800 rounded-lg text-xs transition-colors"
                     >
-                      👁 Паглядзець
+                      👁 Переглянути
                     </button>
                     <button
                       onClick={() => setMatchVacancy(v)}
                       className="px-3 py-1.5 text-emerald-400 hover:bg-emerald-500/10 rounded-lg text-xs transition-colors"
                     >
-                      🎯 Кандыдаты
+                      🎯 Кандидати
                     </button>
                     <button
                       onClick={() => setEditVacancy(v)}
                       className="px-3 py-1.5 text-slate-400 hover:bg-slate-800 rounded-lg text-xs transition-colors"
                     >
-                      ✏️ Рэд.
+                      ✏️ Ред.
                     </button>
                   </div>
                 </div>
@@ -601,7 +601,7 @@ export default function Vacancies() {
             onClick={handleApplyFilters}
             className="px-5 py-3 bg-emerald-500 text-slate-900 font-bold rounded-xl shadow-lg"
           >
-            Паказаць {previewCount} вакансій ✓
+            Показати {previewCount} вакансій ✓
           </button>
         </div>
       )}

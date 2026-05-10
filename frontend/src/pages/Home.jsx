@@ -60,13 +60,13 @@ export default function Home() {
             </div>
 
             <h1 className="text-4xl md:text-6xl font-bold text-slate-100 leading-tight mb-6">
-              Работа ў Польшчы
-              <span className="block text-emerald-400">для ўкраінцаў</span>
+              Робота в Польщі
+              <span className="block text-emerald-400">для українців</span>
             </h1>
 
             <p className="text-lg text-slate-400 mb-8 max-w-xl">
-              Актуальныя вакансіі ад правераных агенцый. Безкаштоўнае
-              пасрэдніцтва, афіцыйнае аформленне, жытло і транспарт.
+              Актуальні вакансії від перевірених агенцій. Безкоштовне
+              посередництво, офіційне оформлення, житло та транспорт.
             </p>
 
             <div className="flex flex-wrap gap-4">
@@ -74,14 +74,14 @@ export default function Home() {
                 to="/vacancies"
                 className="px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-semibold rounded-xl transition-colors"
               >
-                Усе вакансіі &#8594;
+                Усі вакансії &#8594;
               </Link>
 
               <a
                 href="#vacancies"
                 className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-slate-100 font-medium rounded-xl transition-colors"
               >
-                Свежыя вакансіі
+                Свіжі вакансії
               </a>
             </div>
           </div>
@@ -92,9 +92,9 @@ export default function Home() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
         <div className="grid grid-cols-3 gap-4">
           {[
-            { label: "Усяго вакансій", value: stats.total },
-            { label: "Актыўных", value: stats.active },
-            { label: "Дадана сёння", value: stats.today },
+            { label: "Всього вакансій", value: stats.total },
+            { label: "Активних", value: stats.active },
+            { label: "Додано сьогодні", value: stats.today },
           ].map((s) => (
             <div
               key={s.label}
@@ -116,22 +116,22 @@ export default function Home() {
       >
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-slate-100">
-            Свежыя вакансіі
+            Свіжі вакансії
           </h2>
           <Link
             to="/vacancies"
             className="text-sm text-emerald-400 hover:text-emerald-300 transition-colors"
           >
-            Усе вакансіі &#8594;
+            Усі вакансії &#8594;
           </Link>
         </div>
 
         {loading ? (
-          <div className="text-slate-500 text-sm">Загрузка...</div>
+          <div className="text-slate-500 text-sm">Завантаження...</div>
         ) : vacancies.length === 0 ? (
           <div className="text-center py-12 text-slate-600">
             <div className="text-3xl mb-2">💼</div>
-            <div className="text-sm">Вакансій пакуль няма</div>
+            <div className="text-sm">Вакансій поки немає</div>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -151,11 +151,11 @@ export default function Home() {
                       <span
                         className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLORS[v.status]}`}
                       >
-                        Актыўная
+                        Активна
                       </span>
                     </div>
                     <h3 className="font-medium text-slate-100 truncate">
-                      {v.title}
+                      {v.vacancydescription || v.templateName}
                     </h3>
                   </div>
                 </div>
@@ -165,9 +165,14 @@ export default function Home() {
                   {v.agencyName && v.agencyName !== "Manual" && (
                     <span>🏢 {v.agencyName}</span>
                   )}
-                  {v.salary?.base && <span>💰 {v.salary.base}</span>}
+                  {v.salary?.baseNetto && <span>💰 {v.salary.baseNetto}</span>}
                   {v.requirements?.gender && (
-                    <span>👤 {v.requirements.gender}</span>
+                    <span>
+                      👤{" "}
+                      {Array.isArray(v.requirements.gender)
+                        ? v.requirements.gender.join(", ")
+                        : v.requirements.gender}
+                    </span>
                   )}
                   {v.arrivalDate && <span>📅 {v.arrivalDate}</span>}
                 </div>
@@ -187,7 +192,7 @@ export default function Home() {
                     onClick={() => setViewVacancy(v)}
                     className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg transition-colors"
                   >
-                    👁 Паглядзець
+                    👁 Переглянути
                   </button>
                   {v.status === "active" && (
                     <button
@@ -197,7 +202,7 @@ export default function Home() {
                       }}
                       className="px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 text-xs rounded-lg transition-colors"
                     >
-                      🟢 Хачу тут працаваць
+                      🟢 Хочу тут працювати
                     </button>
                   )}
                 </div>
@@ -218,7 +223,7 @@ export default function Home() {
               <span className="text-sm text-slate-400">RecrutCRM</span>
             </div>
             <div className="text-xs text-slate-600">
-              © 2026 · Безкаштоўнае пасрэдніцтва · Афіцыйнае аформленне
+              © 2026 · Безкоштовне посередництво · Офіційне оформлення
             </div>
           </div>
         </div>

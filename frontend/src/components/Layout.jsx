@@ -4,12 +4,12 @@ import { NavLink, Link } from "react-router-dom";
 import { getInboxStats } from "../services/api";
 
 const NAV_ITEMS = [
-  { to: "/", label: "Галоўная", exact: true },
-  { to: "/vacancies", label: "Вакансіі" },
-  { to: "/candidates", label: "Кандыдаты" },
-  { to: "/templates", label: "Шаблоны" },
-  { to: "/agencies", label: "Агенцыі" },
-  { to: "/inbox", label: "Уваходныя" },
+  { to: "/", label: "Головна", exact: true },
+  { to: "/vacancies", label: "Вакансії" },
+  { to: "/candidates", label: "Кандидати" },
+  { to: "/templates", label: "Шаблони" },
+  { to: "/agencies", label: "Агенції" },
+  { to: "/inbox", label: "Вхідні" },
 ];
 
 export default function Layout({ children }) {

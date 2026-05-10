@@ -166,10 +166,10 @@ export default function Inbox() {
       <div className="flex items-start justify-between mb-6 flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-semibold text-slate-100">
-            Пясочніца (Inbox)
+            Пісочниця (Inbox)
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Апрацоўка ўваходных паведамленняў
+            Обробка вхідних повідомлень
           </p>
         </div>
         <div className="flex gap-2">
@@ -178,14 +178,14 @@ export default function Inbox() {
               onClick={handleBulkDelete}
               className="px-3 py-1.5 text-xs bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500/20 transition-colors"
             >
-              Выдаліць выбраныя ({selected.size})
+              Видалити вибрані ({selected.size})
             </button>
           )}
           <button
             onClick={fetchAll}
             className="px-3 py-1.5 text-xs bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 transition-colors"
           >
-            Абнавіць спіс
+            Оновити список
           </button>
         </div>
       </div>
@@ -194,31 +194,31 @@ export default function Inbox() {
         {[
           {
             key: "all",
-            label: "Усе",
+            label: "Усі",
             count: stats.total,
             color: "text-slate-300",
           },
           {
             key: "vacancy",
-            label: "Вакансіі",
+            label: "Вакансії",
             count: stats.vacancy,
             color: "text-emerald-400",
           },
           {
             key: "update",
-            label: "Абнаўленні",
+            label: "Оновлення",
             count: stats.update,
             color: "text-amber-400",
           },
           {
             key: "info",
-            label: "Інфа",
+            label: "Інфо",
             count: stats.info || 0,
             color: "text-blue-400",
           },
           {
             key: "pending",
-            label: "Чакаюць AI",
+            label: "Чекають AI",
             count: stats.pendingAi || 0,
             color: "text-indigo-400",
           },
@@ -282,11 +282,11 @@ export default function Inbox() {
                       {/* СТАТУС AI */}
                       {isAnalyzed ? (
                         <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">
-                          ✨ Апрацавана
+                          ✨ Оброблено
                         </span>
                       ) : (
                         <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700 border-dashed font-medium">
-                          ⏳ Не апрацавана
+                          ⏳ Не оброблено
                         </span>
                       )}
 
@@ -297,7 +297,7 @@ export default function Inbox() {
                       )}
                       {msg.isTruncated && (
                         <span className="text-[9px] px-1.5 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/30 font-bold animate-pulse">
-                          ⚠️ АБРЭЗАНА
+                          ⚠️ Обрізано
                         </span>
                       )}
                     </div>
@@ -349,13 +349,13 @@ export default function Inbox() {
                           onClick={() => handleCreateVacancy(msg)}
                           className="text-xs bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-md transition-colors"
                         >
-                          Стварыць вакансію
+                          Створити вакансію
                         </button>
                         <button
                           onClick={() => setShowUpdatePicker(msg._id)}
                           className="text-xs bg-amber-600/20 hover:bg-amber-600/30 text-amber-400 border border-amber-500/20 px-3 py-1.5 rounded-md transition-colors"
                         >
-                          Абнавіць існуючую
+                          Оновити існуючую
                         </button>
                       </div>
                     )}
@@ -364,18 +364,18 @@ export default function Inbox() {
                       <div className="mt-4 p-4 bg-slate-800 rounded-lg border border-amber-500/30">
                         <div className="flex justify-between items-center mb-3">
                           <h4 className="text-xs font-bold text-amber-400 uppercase tracking-wider">
-                            Выберыце вакансію:
+                            Оберить вакансію:
                           </h4>
                           <button
                             onClick={() => setShowUpdatePicker(null)}
                             className="text-slate-500 hover:text-white text-xs"
                           >
-                            Скасаваць
+                            Скосувати
                           </button>
                         </div>
                         {isProcessing ? (
                           <div className="py-4 text-center text-amber-400 text-xs animate-pulse">
-                            AI апрацоўвае...
+                            AI обробляє...
                           </div>
                         ) : (
                           <div className="max-h-60 overflow-y-auto space-y-1 pr-2 custom-scrollbar">
@@ -392,7 +392,7 @@ export default function Inbox() {
                                   {v.templateName || v.vacancydescription}
                                 </span>
                                 <span className="opacity-0 group-hover:opacity-100 text-[10px] bg-emerald-500 text-white px-1.5 py-0.5 rounded">
-                                  Выбраць
+                                  Обрати
                                 </span>
                               </button>
                             ))}
@@ -403,8 +403,8 @@ export default function Inbox() {
 
                     {!isAnalyzed && (
                       <div className="mt-3 text-[10px] text-slate-500 italic">
-                        Паведамленне чакае чарговай ітэрацыі AI-аналізу (кожныя
-                        10 хвілін)...
+                        Повідомлення чекає на чергову ітерацію AI-аналізу (кожні
+                        10 хвилин)...
                       </div>
                     )}
                   </div>
