@@ -694,7 +694,8 @@ JSON STRUCTURE:
   "arrivalDate": "",
   "count": ""
 }`;
-
+    const text = await executeAIRequest(SYSTEM_INSTRUCTION, rawText, true);
+    const parsedData = JSON.parse(text);
     // Ствараем функцыю-абгортку для твайго існуючага коду
     const processSingle = (parsed) => {
       // --- ПОСТ-АПРАЦОЎКА (Страхоўка) ---
