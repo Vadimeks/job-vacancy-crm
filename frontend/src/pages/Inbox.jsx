@@ -15,7 +15,7 @@ const CATEGORY_LABELS = {
     color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
   },
   update: {
-    label: "Абнаўленне",
+    label: "Оновлення",
     color: "text-amber-400 bg-amber-500/10 border-amber-500/20",
   },
   info: {
@@ -124,10 +124,10 @@ export default function Inbox() {
     try {
       await aiUpdateVacancy(vacancyId, msg.rawText || msg.text, msg._id);
       notifyUpdate();
-      alert("✅ Вакансія абноўлена!");
+      alert("✅ Вакансія оновлена!");
       fetchAll();
     } catch (err) {
-      alert("❌ Памылка: " + err.message);
+      alert("❌ Помилка: " + err.message);
     } finally {
       setProcessingId(null);
       setShowUpdatePicker(null);
@@ -242,10 +242,10 @@ export default function Inbox() {
             onChange={toggleSelectAll}
             className="accent-emerald-500"
           />
-          <span>Змест паведамлення</span>
-          <span>Агенцыя / Чат</span>
+          <span>Змест повидомлення</span>
+          <span>Агенція / Чат</span>
           <span>Час</span>
-          <span className="text-right">Дзеянні</span>
+          <span className="text-right">Дії</span>
         </div>
 
         <div className="divide-y divide-slate-800/50">
