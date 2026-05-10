@@ -3,7 +3,10 @@ const express = require("express");
 const router = express.Router();
 const UnprocessedMessage = require("../models/UnprocessedMessage");
 const Vacancy = require("../models/Vacancy");
-const { analyzeAndCompareWithGemini } = require("../services/gemini.service");
+const {
+  analyzeAndCompareWithGemini,
+  enrichTextWithDocs,
+} = require("../services/gemini.service");
 const { processVacancyMessage } = require("./vacancies");
 const {
   shouldIgnoreMessage,
@@ -167,7 +170,7 @@ async function processPendingMessages() {
         msg.rawText = "__processing__";
         await msg.save();
 
-        const enrichedText = await aiService.enrichTextWithDocs(msg.text);
+        const enrichedText = await enrichTextWithDocs(msg.text);
         const analysis = await analyzeAndCompareWithGemini(
           enrichedText,
           [],
