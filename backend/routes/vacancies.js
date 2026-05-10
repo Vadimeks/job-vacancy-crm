@@ -12,6 +12,7 @@ const {
 } = require("../services/telegram.service");
 const { matchCandidatesForVacancy } = require("../services/matching.service");
 const geminiService = require("../services/gemini.service");
+
 // --- ДАПАМОЖНЫЯ ФУНКЦЫІ ---
 
 async function generateVacancyCode() {
@@ -78,6 +79,7 @@ function constructVacancyDisplayName(data) {
     parts.push(data.location);
   return parts.join(" — ");
 }
+
 function sanitizeTelegramMarkdown(text) {
   if (!text) return "";
   return (
@@ -97,13 +99,14 @@ function sanitizeTelegramMarkdown(text) {
       .trim()
   );
 }
+
 // --- АСНОЎНАЯ ЛОГІКА АПРАЦОЎКІ ---
 async function processVacancyMessage(
   rawText,
-  senderInfo = "Manual",
+  sender = "Manual", // Выкарыстоўваем sender для адпаведнасці мадэлі
   preDefinedAgency = null,
   originalText = "",
-  isTruncated = false, // Вярнулі параметр
+  isTruncated = false,
 ) {
   console.log(`\n--- 🤖 АЎТА-КАНВЕЕР: Stage 1 (Gemini) -> Stage 2 (Groq) ---`);
 
@@ -115,13 +118,15 @@ async function processVacancyMessage(
     if (analysis.category !== "FULL_VACANCY") {
       const sandboxItem = new UnprocessedMessage({
         text: originalText || rawText,
-        senderInfo,
+        sender: sender, // 👈 ВЫПРАЎЛЕНА: цяпер супадае з патрабаваннем схемы
         agencyName: preDefinedAgency || analysis.agencyName || "Manual",
         category: analysis.category,
         processed: false,
         aiAnalyzed: true,
-        isTruncated: isTruncated, // Захоўваем тут
-        rawText: analysis.translatedFragments[0] || rawText,
+        isTruncated: isTruncated,
+        rawText: analysis.translatedFragments
+          ? analysis.translatedFragments[0]
+          : rawText,
       });
       await sandboxItem.save();
       return { message: "Saved to sandbox" };
@@ -148,7 +153,7 @@ async function processVacancyMessage(
           vacancyCode,
           originalText: rawText,
           rawText: fragment,
-          isTruncated: isTruncated, // Захоўваем у вакансію
+          isTruncated: isTruncated,
           telegramPost: await aiService.formatTelegramPost({
             ...vData,
             agencyName: finalAgency,
@@ -175,7 +180,7 @@ async function processVacancyMessage(
 router.post("/auto", async (req, res) => {
   try {
     const { rawText, senderInfo, messageId, agencyName, isTruncated } =
-      req.body; // Дадалі імпарт з body
+      req.body;
     console.log(`\n--- 👤 РУЧНЫ ПАРСІНГ: Напрамую ў Stage 2 (Groq) ---`);
 
     const result = await aiService.parseVacancyWithAI(rawText);
@@ -196,7 +201,7 @@ router.post("/auto", async (req, res) => {
         vacancyCode,
         originalText: rawText,
         rawText: rawText,
-        isTruncated: isTruncated || false, // Захоўваем
+        isTruncated: isTruncated || false,
         telegramPost: await aiService.formatTelegramPost({
           ...vData,
           agencyName: finalAgency,
@@ -226,7 +231,6 @@ router.post("/from-template/:templateId", async (req, res) => {
       return res.status(404).json({ message: "Шаблон не знойдзены" });
 
     const result = await aiService.parseVacancyWithAI(rawText);
-    // Бяром першую вакансію з выніку (нават калі там масіў)
     const parsedData = Array.isArray(result) ? result[0] : result;
 
     const displayName = constructVacancyDisplayName({
@@ -263,10 +267,10 @@ router.post("/from-template/:templateId", async (req, res) => {
   }
 });
 
-// Ручное стварэнне (Самы важны фікс тут!)
+// Ручное стварэнне
 router.post("/", async (req, res) => {
   try {
-    const { messageId, ...vacancyData } = req.body; // Дастаем messageId
+    const { messageId, ...vacancyData } = req.body;
     const vacancyCode = await generateVacancyCode();
 
     const newVacancy = new Vacancy({ ...vacancyData, vacancyCode });
@@ -275,7 +279,6 @@ router.post("/", async (req, res) => {
     const postText = await aiService.formatTelegramPost(saved);
     await sendToTelegram(postText);
 
-    // Калі ствараем з інбокса — пазначаем як апрацаванае
     if (messageId) {
       await markInboxMessageAsProcessed(messageId);
     }
@@ -360,44 +363,6 @@ router.patch("/:id/ai-update", async (req, res) => {
   }
 });
 
-// ============================================================
-// БЛОК 3: ПЛАНАВАЛЬНІК (Scheduler)
-// ============================================================
-
-setInterval(
-  async () => {
-    console.log(
-      "🕒 Heartbeat: Праверка Пясочніцы на неапрацаваныя паведамленні...",
-    );
-    try {
-      // Бяром паведамленні, якія яшчэ не прайшлі AI-аналіз (Stage 1)
-      const pending = await UnprocessedMessage.find({
-        processed: false,
-        aiAnalyzed: { $ne: true },
-      }).limit(5); // Абмяжоўваем порцыю, каб не спаліць ліміты API за раз
-
-      for (const msg of pending) {
-        console.log(`⚙️ Аўта-апрацоўка паведамлення: ${msg._id}`);
-
-        // Выклікаем поўны канвеер (Stage 1 + Stage 2)
-        await processVacancyMessage(
-          msg.text,
-          msg.senderInfo,
-          msg.agencyName,
-          msg.text,
-          msg.isTruncated, // Перадаем маркер абрэзкі
-        );
-
-        // Пазначаем, што паведамленне апрацавана робатам
-        msg.processed = true;
-        msg.aiAnalyzed = true;
-        await msg.save();
-      }
-    } catch (err) {
-      console.error("❌ Scheduler Error:", err.message);
-    }
-  },
-  15 * 60 * 1000,
-); // Інтэрвал 15 хвілін
+// 👈 ЛІШНІ ПЛАНАВАЛЬНІК ВЫДАЛЕНЫ (каб не канфліктаваць з inbox.js)
 
 module.exports = { router, processVacancyMessage };

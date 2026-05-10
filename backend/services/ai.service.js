@@ -166,18 +166,24 @@ ROLE: Professional HR content formatter.
 TASK: Format the job data into a beautiful Telegram post in UKRAINIAN.
 
 !!! CRITICAL COMPACTNESS RULE !!!: 
-1. IF a field value is null, undefined, or empty — DO NOT include its label, emoji, or the entire line in the post. NO EMPTY LABELS like "🕒 Графік роботи: ". If a whole section (Housing, Transport) is empty, skip its header too.
-2. If an ENTIRE SECTION (like Accommodation, Transport, or Expenses) has no data inside, DO NOT show the section header (e.g., do not show "🏠 Проживання" if there are no details).
+1. IF a field value is null, undefined, or empty — DO NOT include its label, emoji, or the entire line in the post. NO EMPTY LABELS like "🕒 Графік роботи: ".
+2. If an ENTIRE SECTION (Accommodation, Transport, Expenses) has no data inside, skip its header too.
 3. NEVER use placeholders like "немає інформації". Just skip the line.
 4. The post must be as compact as possible, looking like a natural text post, not a form.
 5. TRANSPORT RULE: 
    - If transport is NOT provided → show: "🚌 Довіз: немає"
-   - If transport IS provided → show: "🚌 Довіз: надається" + details
+   - If transport IS provided → show: "🚌 Довіз: надається" + details (corporate buses, local routes).
    - NEVER show "Власний" as transport value.
+   - Організаваны трансфер з Украіны (напрыклад, са Львова) → завсёды ў *Додаткову інформацію*, не ў блок транспарту.
+
 CRITICAL PRIVACY RULE:
-- NEVER include the Agency Name (agencyName) in the post.
+- NEVER include the Agency Name (agencyName).
 - NEVER include internal notes or recruiter-only data.
 - Use vacancydescription as the main title.
+
+TITLE RULE:
+- vacancydescription must be formatted as "Job Essence (Category) — Location".
+- Location = place of work, not checkInCity.
 
 Use this structure (SKIP lines/sections if data is null):
 
@@ -188,66 +194,56 @@ Use this structure (SKIP lines/sections if data is null):
 [• Приїзд: [arrivalDate]]
 
 [💰 *Оплата праці*
-[• Ставка: [salary.baseNetto]]
-[• Студенти: [salary.studentNetto]]
-[• Годин на місяць: [salary.hoursRange]]
-[• Виплати: [salary.payoutDates]]
-[• Бонуси: [salary.bonusDetails]]
-[• Нотатки: [salary.salaryNotes]]
+• Ставка: [salary.baseNetto]
+• Студенти: [salary.studentNetto]
+• Виплати: [salary.payoutDates]
+• Бонуси: [salary.bonusDetails]
+• Нотатки: [salary.salaryNotes]
 ]
 
 [🛠 *Характер роботи*
 [пункти з description через •]]
 
 [📋 *Вимоги*
-[• Вік: до [requirements.ageMax] років (only if < 65)]
-[• Документи: [requirements.standardDocs]]
-[• Мова: [requirements.polishLanguageLevel]]
-[• [requirements.physicalLoad]]
+• Вік: до [requirements.ageMax] років (only if < 65)
+• Документи: [requirements.standardDocs]
+• Мова: [requirements.polishLanguageLevel]
+• [requirements.physicalLoad]
 ]
 
 [🕒 *Графік роботи*
 [schedule.description]
-[• Перерва: [schedule.breakDuration]]
+• Перерва: [schedule.breakDuration]
 ]
 
 [📄 Тип договору: [contractType]]
 
 [🏠 *Проживання*
 🏠 Проживання: [accommodation.type]
-[• Можна з дітьми: Так (only if withChildren is true)]
-[• Можна з тваринами: Так (only if withPets is true)]
-[• Деталі: [accommodation.details]]
+• Можна з дітьми: Так (only if withChildren is true)
+• Можна з тваринами: Так (only if withPets is true)
+• Деталі: [accommodation.details]
 ]
 
 [🚌 *Транспорт*
-[• [transport.costRaw]]
-[• [transport.details]]
+🚌 Довіз: [transport.provided ? "надається" : "немає"]
+• [transport.details]
 ]
 
 [💸 *Витрати та відповідальність*
-[• На старті: [startExpenses.details] (only if hasStartExpenses is true)]
-[• При передчасному звільненні: [earlyTerminationLiability.details] (only if hasLiability is true)]
+• На старті: [startExpenses.details] (only if це стосується роботи, напр. медогляд)
+• При передчасному звільненні: [earlyTerminationLiability.details]
 ]
 
 [🌡 *Умови праці*
-[• Робочий одяг: [conditions.workwearFree ? "Безкоштовно" : "За рахунок працівника"]]
-[• Харчування: [conditions.foodType]]
-[• Нюанси: [conditions.specificNuances]]
-[• [conditions.foodDetails]]
-[• [conditions.specificConditionsDetails]]
+• Робочий одяг: [conditions.workwearFree ? "Безкоштовно" : "За рахунок працівника"]
+• Харчування: [conditions.foodType]
+• Нюанси: [conditions.specificNuances]
+• [conditions.foodDetails]
 ]
 
-[🎁 *Компенсації від роботодавця*
-[employerCompensations.details]]
-
 [📝 *Додаткова інформація*
-[additionalNotes]]
-
-Rules:
-- Write in Ukrainian.
-- Use ONLY • for bullet points.
-- Return ONLY the formatted post text.
+[additionalNotes including навчання, адаптація, вихід на норму, координатор, банківський рахунок, карта побуту, можливість роботи в інших країнах, організаваны трансфер з Украіны]]
 `;
 
 const CREATE_TEMPLATE_PROMPT = `
@@ -307,7 +303,7 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true) {
       if (model.provider === "gemini") {
         const genModel = genAI.getGenerativeModel(
           { model: model.name },
-          { apiVersion: "v1beta" }, // 👈 Зменена на v1beta
+          { apiVersion: "v1beta" },
         );
 
         // 👇 Выкарыстоўваем safeContent
@@ -485,9 +481,9 @@ async function parseVacancyWithAI(rawText) {
     console.log(`🤖 Парсінг v2.0 ...`);
 
     const SYSTEM_INSTRUCTION = `
-ROLE: Professional automated job vacancy parser (v2.0).
+ROLE: Professional automated job vacancy parser (v2.2).
 TASK: Convert job vacancy text into a JSON object with EXACTLY this structure. Fill every field based on the text. Do not invent field names.
-${LANGUAGE_GUARD} 
+
 LANGUAGE:
 - Descriptions, duties, notes → Ukrainian.
 - Geography (location, voivodeship, checkInCity, country) → Polish (Latin alphabet only).
@@ -512,12 +508,17 @@ GEOGRAPHY RULES:
 
 PRIVACY & FORMATTING:
 - agencyName: recruitment agency only (else null).
-- brand: factory/brand name.
+- brand: Extract ONLY the exact factory/brand name in Polish or Latin (English) script.
+  • Examples: "Amazon", "CCC", "Faurecia", "LPP".
+  • STRICT: Do NOT output descriptions like "світовий лідер", "птахофабрика", "велика компанія".
+  • STRICT: If no clear brand name is mentioned 
 - templateName: brand + city (Polish spelling).
-- vacancydescription: short Ukrainian title "Essence (Category)".
-  - No city/brand/agency names.
-  - If goods not specified → generic "Склад (Логістика)".
-  - Do not guess product type from brand.
+- vacancydescription: PUBLIC TITLE in Ukrainian.
+  • Format: "Job Essence (Category) — Location".
+  • Examples: "Склад товарів (Логістика) — Warszawa", "Виробництво деталей (Автопром) — Grójec".
+  • STRICT: Location = place of work, not checkInCity.
+  • STRICT: Do NOT include brand/agency names.
+  • STRICT: If goods type not explicitly mentioned → generic "Склад (Логістика)".
 
 CATEGORY:
 One of:
@@ -527,7 +528,7 @@ One of:
 
 DESCRIPTION & NOTES:
 - description: ONLY duties; full detail; separated by ;.
-- additionalNotes: everything else (recruitment, transport, videos, contract details, client brand names).
+- additionalNotes: everything else (recruitment, transport, videos, contract details, client brand names, навчання/вихід на норму).
 - No duplication: if info already in structured fields → don’t repeat.
 
 CONDITIONS:
@@ -554,7 +555,7 @@ SCHEDULE:
 - description: full shift schedule with times (never summarized).
 
 EXPENSES:
-- startExpenses: costs before work (medical).
+- startExpenses: costs before work (medical, transfers).
 - earlyTerminationLiability: costs/penalties during or on exit.
 
 LOCATION DESCRIPTION:

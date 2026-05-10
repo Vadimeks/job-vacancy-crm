@@ -12,13 +12,14 @@ const UnprocessedMessageSchema = new mongoose.Schema(
     category: {
       type: String,
       enum: ["vacancy", "update", "info", "chat"],
+      lowercase: true, // 👈 Аўтаматычна пераводзіць UPDATE -> update для валідацыі
       default: "info",
     },
     processed: { type: Boolean, default: false }, // true толькі калі вакансія створана або гэта сметніца
     aiAnalyzed: { type: Boolean, default: false }, // AI зрабіў Stage 1
     textHash: { type: String, index: true },
     prefixHash: { type: String, index: true, default: "" },
-    createdAt: { type: Date, default: Date.now, expires: "72h" }, // 👈 Павялічана да 3 дзён
+    createdAt: { type: Date, default: Date.now, expires: "72h" }, // Павялічана да 3 дзён
   },
   { timestamps: true },
 );
