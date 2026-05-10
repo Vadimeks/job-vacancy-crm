@@ -447,6 +447,9 @@ async function identifyTemplate(rawText, templates) {
     console.error("❌ AI identify error:", err.message);
   }
   return null;
+  chainFrozenUntil = Date.now() + 60 * 60 * 1000;
+  console.error("🚫 Усе мадэлі не адказалі. Ланцужок замарожаны на 1 гадзіну.");
+  throw new Error("ALL_AI_MODELS_FAILED");
 }
 
 async function linkTemplateToVacancy(vacancyData, template) {
@@ -512,11 +515,12 @@ GEOGRAPHY RULES:
   • If the location is not clearly specified, keep it as-is but add a note in additionalNotes for manual verification.
 
 PRIVACY & FORMATTING:
-- agencyName: recruitment agency only (else null).
-- brand: Extract ONLY the exact factory/brand name in Polish or Latin (English) script.
-  • Examples: "Amazon", "CCC", "Faurecia", "LPP".
-  • STRICT: Do NOT output descriptions like "світовий лідер", "птахофабрика", "велика компанія".
-  • STRICT: If no clear brand name is mentioned → null.
+- agencyName: recruitment agency only. 
+  • STRICT RULE: Choose ONLY from this list: [APOLO, BISAR, EST, EWL, FWS, GLOBAL, INTRASERVICE, KONO, MANPOWER, MRÓWKI, NIDEN, OTTO, PERSONEL SERVICE, PROGRES, RALEN, SG, SOLANO, STAFF POWER, MANUAL].
+  • If the text says "КОНО" -> output "KONO". If "ОТТО" -> "OTTO".
+  • If no match from the list is found -> output null.
+- brand: Extract ONLY the exact factory/brand name in Polish or Latin script (e.g., "Amazon", "CCC").
+  • STRICT: If no clear brand name is mentioned -> null.
 - templateName: brand + city (Polish spelling).
 - vacancydescription: PUBLIC TITLE in Ukrainian.
   • Format: "Job Essence (Category) — Location".
