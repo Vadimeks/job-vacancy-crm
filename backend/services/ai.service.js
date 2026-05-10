@@ -481,7 +481,7 @@ async function parseVacancyWithAI(rawText) {
     console.log(`🤖 Парсінг v2.0 ...`);
 
     const SYSTEM_INSTRUCTION = `
-ROLE: Professional automated job vacancy parser (v2.2).
+ROLE: Professional automated job vacancy parser (v2.3).
 TASK: Convert job vacancy text into a JSON object with EXACTLY this structure. Fill every field based on the text. Do not invent field names.
 
 LANGUAGE:
@@ -511,7 +511,7 @@ PRIVACY & FORMATTING:
 - brand: Extract ONLY the exact factory/brand name in Polish or Latin (English) script.
   • Examples: "Amazon", "CCC", "Faurecia", "LPP".
   • STRICT: Do NOT output descriptions like "світовий лідер", "птахофабрика", "велика компанія".
-  • STRICT: If no clear brand name is mentioned 
+  • STRICT: If no clear brand name is mentioned → null.
 - templateName: brand + city (Polish spelling).
 - vacancydescription: PUBLIC TITLE in Ukrainian.
   • Format: "Job Essence (Category) — Location".
@@ -528,7 +528,7 @@ One of:
 
 DESCRIPTION & NOTES:
 - description: ONLY duties; full detail; separated by ;.
-- additionalNotes: everything else (recruitment, transport, videos, contract details, client brand names, навчання/вихід на норму).
+- additionalNotes: everything else (recruitment, transport, videos, contract details, client brand names, навчання/вихід на норму, кількість людей у цеху).
 - No duplication: if info already in structured fields → don’t repeat.
 
 CONDITIONS:
@@ -544,15 +544,19 @@ ACCOMMODATION:
 
 SALARY:
 - baseNetto: exact rate (never empty if mentioned).
+- studentNetto: if mentioned.
 - bonusDetails: all bonuses in full.
 - salaryNotes: advances, overtime, housing allowance.
+- payoutDates: if mentioned.
 
 REQUIREMENTS:
 - polishLanguageLevel: one of "Не вимагається", "A1", "A2", "B1", "B2", "C1".
 - documents: only from strict list; others → additionalDocsDetails.
+- gender, ageMax, nationalities, physicalLoad — fill if present.
 
 SCHEDULE:
 - description: full shift schedule with times (never summarized).
+- shiftsCount, hoursPerShift, workDaysWeek, breakDuration — fill if present.
 
 EXPENSES:
 - startExpenses: costs before work (medical, transfers).
@@ -665,6 +669,7 @@ JSON STRUCTURE:
   "arrivalDate": "",
   "count": ""
 }`;
+
     const text = await executeAIRequest(SYSTEM_INSTRUCTION, rawText, true);
     const parsedData = JSON.parse(text);
     // Ствараем функцыю-абгортку для твайго існуючага коду
