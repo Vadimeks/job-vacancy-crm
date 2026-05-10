@@ -15,22 +15,31 @@ const geminiService = require("../services/gemini.service");
 // --- ДАПАМОЖНЫЯ ФУНКЦЫІ ---
 
 async function generateVacancyCode() {
-  // Шукаем апошнюю вакансію з самым вялікім кодам праз сартаванне
+  let nextNum = 1;
+
+  // Шукаем апошнюю вакансію
   const lastVacancy = await Vacancy.findOne({}, { vacancyCode: 1 }).sort({
     vacancyCode: -1,
   });
 
-  let nextNum = 1;
-
   if (lastVacancy && lastVacancy.vacancyCode) {
-    // Выцягваем лічбы з "VAC-0019" -> 19
     const lastNum = parseInt(lastVacancy.vacancyCode.replace("VAC-", ""), 10);
     if (!isNaN(lastNum)) {
       nextNum = lastNum + 1;
     }
   }
 
-  return `VAC-${String(nextNum).padStart(4, "0")}`;
+  // 👇 СТРАХОЎКА: Калі код ужо заняты (напрыклад, пасля таймаўту), шукаем наступны вольны
+  let code = `VAC-${String(nextNum).padStart(4, "0")}`;
+  let isTaken = await Vacancy.exists({ vacancyCode: code });
+
+  while (isTaken) {
+    nextNum++;
+    code = `VAC-${String(nextNum).padStart(4, "0")}`;
+    isTaken = await Vacancy.exists({ vacancyCode: code });
+  }
+
+  return code;
 }
 
 /**

@@ -483,39 +483,92 @@ async function formatTelegramPost(vacancyData) {
 async function parseVacancyWithAI(rawText) {
   try {
     console.log(`🤖 Парсінг v2.0 ...`);
-    const SYSTEM_INSTRUCTION = `
-Task: Convert vacancy text → JSON (EXACT structure).
-LANGUAGE: Descriptions, duties, notes → Ukrainian. Geography → Polish (Latin). Categories → exact Ukrainian strings.
-${LANGUAGE_GUARD} 
-GEOGRAPHY:
-- location: first city; Polish spelling (Warszawa, Kraków).
-- checkInCity: registration city.
-- country: default Polska; else English name.
-- voivodeship: if Poland -> exact; else "Європа (інші країни)".
-- International: "City (Country)".
 
-PRIVACY:
-- agencyName: agency only.
-- brand: factory name.
-- templateName: brand + city.
-- vacancydescription: "Essence (Category)". No city/brand names here.
+    const SYSTEM_INSTRUCTION = `
+ROLE: Professional automated job vacancy parser (v2.0).
+TASK: Convert job vacancy text into a JSON object with EXACTLY this structure. Fill every field based on the text. Do not invent field names.
+${LANGUAGE_GUARD} 
+LANGUAGE:
+- Descriptions, duties, notes → Ukrainian.
+- Geography (location, voivodeship, checkInCity, country) → Polish (Latin alphabet only).
+- Categories → exact Ukrainian strings.
+
+DOCUMENT RULES:
+- Use ONLY: "PESEL UKR", "Біометрія", "Карта побуту", "Віза", "Санепід", "UDT", "SEP", "Права кат. B", "Довідка резидента".
+- Others → additionalDocsDetails.
+
+NUANCES RULES (conditions.specificNuances):
+- Array of "Category (detail)".
+- Categories: "Температурний режим", "Запахи", "Фізичне навантаження", "Характер праці", "Санітарні обмеження", "Інше".
+- Example: ["Температурний режим (+5°C)", "Санітарні обмеження (без манікюру)"].
+
+GEOGRAPHY RULES:
+- location: first city mentioned; Polish spelling only (Warszawa, Kraków, Polkowice).
+- checkInCity: registration/оформлення city.
+- country: default Polska; if not Poland → English name.
+- voivodeship: if Poland → exact voivodeship; else "Європа (інші країни)".
+- International: city + country in parentheses (e.g., "Droßdorf (Germany)").
+- STRICT: never Cyrillic for cities; never include "Polska" in location.
+
+PRIVACY & FORMATTING:
+- agencyName: recruitment agency only (else null).
+- brand: factory/brand name.
+- templateName: brand + city (Polish spelling).
+- vacancydescription: short Ukrainian title "Essence (Category)".
+  - No city/brand/agency names.
+  - If goods not specified → generic "Склад (Логістика)".
+  - Do not guess product type from brand.
 
 CATEGORY:
+One of:
 "Склади та логістика", "Харчова промисловість", "Автомобільна промисловість",
 "Виробництво та промисловість", "Будівництво", "Сільське господарство",
 "Торгівля та послуги", "Різне".
 
-DETAILS:
+DESCRIPTION & NOTES:
 - description: ONLY duties; full detail; separated by ;.
-- additionalNotes: everything else. No duplication.
+- additionalNotes: everything else (recruitment, transport, videos, contract details, client brand names).
+- No duplication: if info already in structured fields → don’t repeat.
+
+CONDITIONS:
 - specificNuances: array of "Category (detail)".
-- accommodation: type ("Надається (для пар)", "Надається", "Не надається", null), booleans, details.
-- salary: baseNetto (exact), bonusDetails, salaryNotes.
-- requirements: polishLanguageLevel (A1-C1), documents (strict list: PESEL UKR, Біометрія, Карта побуту, Віза, Санепід, UDT, SEP, Права кат. B, Довідка резидента).
-- schedule.description: full shift schedule with times.
-- expenses: startExpenses (before work), earlyTerminationLiability (during/exit).
-- locationDescription: full address + distance.
-- keywords: 5–10 items (factory, city, brand, process terms).
+- foodType: "Власне", "Обіди", "Субсидоване".
+- workwearFree: if mentioned.
+
+ACCOMMODATION:
+- type: "Надається (для пар)", "Надається", "Не надається", null.
+- forCouples/withChildren/withPets → true only if explicitly stated.
+- details: all housing info (cost, Wi-Fi, rules).
+- Do not use costRaw, write price directly in details.
+
+SALARY:
+- baseNetto: exact rate (never empty if mentioned).
+- bonusDetails: all bonuses in full.
+- salaryNotes: advances, overtime, housing allowance.
+
+REQUIREMENTS:
+- polishLanguageLevel: one of "Не вимагається", "A1", "A2", "B1", "B2", "C1".
+- documents: only from strict list; others → additionalDocsDetails.
+
+SCHEDULE:
+- description: full shift schedule with times (never summarized).
+
+EXPENSES:
+- startExpenses: costs before work (medical).
+- earlyTerminationLiability: costs/penalties during or on exit.
+
+LOCATION DESCRIPTION:
+- locationDescription: full address + distance (if given).
+
+KEYWORDS:
+- 5–10 items: factory name, city (UKR/PL), brand names, job process terms.
+
+CORE RULES:
+- ZERO LOSS: never skip details.
+- NO SUMMARIZATION: duties must be copied in full.
+- SEMICOLON (;) between duties.
+- NO INTERPRETATION: never guess numbers.
+- contractType: copy exactly ("Umowa o pracę" or "Umowa zlecenie"), else null.
 
 JSON STRUCTURE:
 {
