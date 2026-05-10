@@ -100,10 +100,7 @@ function validateBrand(raw) {
   return raw.trim();
 }
 const LANGUAGE_GUARD = `
-!!! STRICT LANGUAGE RULE !!!
-- ALL output text MUST be in UKRAINIAN.
-- All descriptions, duties, notes — UKRAINIAN. Geography (location, voivodeship, checkInCity, country) — POLISH (Latin alphabet) only.
-- If the input is in Russian — TRANSLATE it to Ukrainian. Never use Russian words (e.g., use "Приїзд" instead of "Приезд", "Житло" instead of "Жилье").
+!!! UKRAINIAN ONLY. Geography: Polish (Latin). Input is already UA, do not translate.
 `;
 // 1. Абноўленая функцыя cleanData
 function cleanData(obj) {
@@ -293,6 +290,9 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanations.
 // ============================================================
 
 async function executeAIRequest(systemPrompt, userContent, jsonMode = true) {
+  // Абмяжоўваем уваход, каб не было памылкі 413
+  const safeContent = String(userContent).substring(0, 6000);
+
   if (Date.now() < chainFrozenUntil) {
     const diff = Math.ceil((chainFrozenUntil - Date.now()) / 60000);
     throw new Error(`AI_COOLDOWN: Паўза яшчэ ${diff} хв.`);
@@ -305,14 +305,13 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true) {
       );
 
       if (model.provider === "gemini") {
-        // Для Enterprise/Tier 1 выкарыстоўваем версію v1 (яна больш стабільная)
         const genModel = genAI.getGenerativeModel(
           { model: model.name },
-          { apiVersion: "v1" },
+          { apiVersion: "v1beta" }, // 👈 Зменена на v1beta
         );
 
-        // Перадаем промпт і кантэнт адзіным блокам — гэта самы надзейны спосаб для Enterprise шлюзаў
-        const fullPrompt = `${systemPrompt}\n\nInput text to process:\n${userContent}`;
+        // 👇 Выкарыстоўваем safeContent
+        const fullPrompt = `${systemPrompt}\n\nInput text to process:\n${safeContent}`;
         const result = await genModel.generateContent(fullPrompt);
 
         const response = await result.response;
@@ -322,7 +321,7 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true) {
           .trim();
         if (text) return text;
       } else {
-        // Groq (застаецца без змен)
+        // Groq
         const response = await groq.chat.completions.create({
           model: model.name,
           temperature: 0.1,
@@ -330,7 +329,7 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true) {
           response_format: jsonMode ? { type: "json_object" } : undefined,
           messages: [
             { role: "system", content: systemPrompt },
-            { role: "user", content: userContent },
+            { role: "user", content: safeContent }, // 👈 Выкарыстоўваем safeContent
           ],
         });
         const text = response.choices[0]?.message?.content;
@@ -340,7 +339,7 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true) {
       console.warn(
         `⚠️ ${model.name} адмовіла: ${err.message?.substring(0, 100)}`,
       );
-      continue; // Ідзем да наступнай мадэлі (напрыклад, да Groq)
+      continue;
     }
   }
 
@@ -485,120 +484,38 @@ async function parseVacancyWithAI(rawText) {
   try {
     console.log(`🤖 Парсінг v2.0 ...`);
     const SYSTEM_INSTRUCTION = `
-ROLE: Professional automated job vacancy parser (Version 2.0).
-TASK: Convert job vacancy text into a JSON object with EXACTLY this structure. Fill every field based on the text. Do not invent field names.
+Task: Convert vacancy text → JSON (EXACT structure).
+LANGUAGE: Descriptions, duties, notes → Ukrainian. Geography → Polish (Latin). Categories → exact Ukrainian strings.
 ${LANGUAGE_GUARD} 
+GEOGRAPHY:
+- location: first city; Polish spelling (Warszawa, Kraków).
+- checkInCity: registration city.
+- country: default Polska; else English name.
+- voivodeship: if Poland -> exact; else "Європа (інші країни)".
+- International: "City (Country)".
 
-DOCUMENT RULES:
-- standardDocs: Use ONLY: "PESEL UKR", "Біометрія", "Карта побуту", "Віза", "Санепід", "UDT", "SEP", "Права кат. B", "Довідка резидента".
-- If not in list → requirements.additionalDocsDetails.
-- "MObywatel" → not a separate doc, mention in additionalDocsDetails if relevant
-- "Польський PESEL" or "PESEL UKR" → "PESEL UKR"
-- "біометричний паспорт" or "біометрія" → "Біометрія"
-NUANCES RULES (conditions.specificNuances):
-- Array of strings in format: "Category (detail)".
-- Categories: "Температурний режим", "Фізичне навантаження", "Запахи", "Санітарні обмеження", "Характер праці", "Інше".
-- Examples: ["Температурний режим (+5°C)", "Санітарні обмеження (без манікюру)"].
+PRIVACY:
+- agencyName: agency only.
+- brand: factory name.
+- templateName: brand + city.
+- vacancydescription: "Essence (Category)". No city/brand names here.
 
-GEOGRAPHY RULES:
-1. "location": The city where the actual work happens. 
-   - Look for the very first city mentioned in the text or keywords: "місто", "місце праці", "локація".
-   - Example: "Псари. Склад..." -> location: "Psary".
-2. "checkInCity": The city for administrative tasks/registration. 
-   - Look for keywords: "оформлення", "офіс", "реєстрація", "приїзд у".
-   - Example: "Оформлення: м. Катовіце" -> checkInCity: "Katowice".
-3. "country": If not Poland, specify. Default: "Polska".
+CATEGORY:
+"Склади та логістика", "Харчова промисловість", "Автомобільна промисловість",
+"Виробництво та промисловість", "Будівництво", "Сільське господарство",
+"Торгівля та послуги", "Різне".
 
-CRITICAL GEOGRAPHY RULES:
-1. location: Extract ONLY the city name in POLISH using LATIN characters (A-Z). 
-   - STRICT RULE: NEVER use Cyrillic (кирилиця) for city names.
-   - STRICT RULE: NEVER include the country name "Polska" or "Poland".
-   - Examples: "Варшава" -> "Warszawa", "Краків" -> "Kraków", "Польковиці/Polkovice" -> "Polkowice".
-   - ALWAYS use Polish spelling for city names. This is mandatory for database filters.
-2. country: Identify the country. If it's NOT Poland (e.g., Germany, Netherlands, Lithuania), write the English name of the country.
-3. voivodeship: 
-   - If country is "Polska": Select exactly one from the list: ${POLISH_VOIVODESHIPS.join(", ")}. If the text doesn't mention it, determine it by the city.
-   - If country is NOT "Polska": ALWAYS set voivodeship to "Європа (інші країни)".
-  4. INTERNATIONAL LOCATION RULE:
-   - If country is NOT Poland: ALWAYS write city in Latin script + append country in parentheses.
-   - Examples: "Droßdorf (Germany)", "Loriol-sur-Drôme (France)", "Corsica (France)"
-   - NEVER use Cyrillic for city names under any circumstances.
-   - For display in vacancydescription title: same rule — "Збір фруктів — Loriol-sur-Drôme (France)"
-
-CRITICAL PRIVACY & FORMATTING RULES:
-1. agencyName: Extract the RECRUITMENT AGENCY name ONLY (e.g. Manpower, OTTO). If no agency mentioned — use null.
-2. brand: Extract the specific factory or brand name (e.g., "LG", "Amazon", "Faurecia", "LPP"). This is the name of the workplace.
-3. templateName: Factory/brand name + city IN POLISH ONLY (e.g. "Faurecia Grójec"). THIS IS FOR INTERNAL USE.
-4. vacancydescription: THIS IS THE PUBLIC TITLE. Create a short informative description in UKRAINIAN. 
-       - Use the specific job name in FORMAT: "Job Essence (Subcategory)". 
-       - Examples: "Склад товарів (Логістика)", "Виробництво деталей (Автопром)".
-       - STRICT RULE: If the specific type of goods (clothing, food, etc.) is NOT explicitly mentioned in the text — use a generic title like "Склад (Логістика)". Do NOT invent "Clothing" or "Shoes".
-       - CRITICAL: DO NOT use brand names or company knowledge to guess the product type. If the text says "CCC" but doesn't mention "shoes", do NOT write "Склад взуття". Write "Склад (Логістика)".
-       - STRICT RULE: Do NOT include city name, factory name, brand name, or agency name here.
-5. category (sphere): Identify the job category. Return ONLY one of the following UKRAINIAN values:
-   - "Склади та логістика"
-   - "Харчова промисловість"
-   - "Автомобільна промисловість"
-   - "Виробництво та промисловість"
-   - "Будівництво"
-   - "Сільське господарство" (ВАЖЛИВО: Вибирати для будь-яких робіт у полі, теплицях, збору врожаю овочів/фруктів/салатів, навіть якщо є пакування)
-   - "Торгівля та послуги"
-   - "Різне"
-   STRICT RULES: 
-   1. The output MUST be the exact Ukrainian string from the list above.
-   2. Do NOT translate these keys into English or Polish.
-   3. Do NOT invent new categories.
-6. MAX DETAIL EXTRACTION: Never summarize or skip ANY details. 
-   - If the text mentions recruitment steps (interview/співбесіда, BHP, medical check), include them in "additionalNotes".
-   - If the text mentions minimum hours (e.g., 168h/month), include this in "salary.salaryNotes" or "schedule.description".
-   - Transport schedules, bus routes, and links to videos MUST be placed in "additionalNotes".
-
-CORE PARSING RULES:
-1. LANGUAGE: All descriptions, duties, notes — UKRAINIAN. Geography (location, voivodeship, checkInCity, country) — POLISH (Latin alphabet) only.
-2. ZERO LOSS & NO SUMMARIZATION: Never summarize duties. 
-   - IMPORTANT: Use a SEMICOLON (;) to separate every single duty or task in the "description" field. This is critical for correct bullet-point formatting on the frontend.
-3. NO INTERPRETATION: If no specific number (temperature, distance) — write as text, NEVER guess.
-4. checkInCity: ONLY if registration city DIFFERS from work city. Leave empty if same or no info. Use Latin characters.
-5. contractType: Copy EXACTLY ("Umowa o pracę" or "Umowa zlecenie"). If not mentioned — null.
-6. CRITICAL HOUSING RULES:
-   - accommodation.type: Select EXACTLY one of these Ukrainian values:
-     1. "Надається (для пар)": ONLY if the text explicitly mentions housing for couples or rooms for couples.
-     2. "Надається": General housing provided by the company.
-     3. "Не надається": If the text explicitly says housing is NOT provided.
-     4. null: If there is NO information about housing at all.
-   - accommodation.forCouples: Set to true ONLY if "Надається (для пар)" is selected.
-   - accommodation.withChildren: Set to true ONLY if the text says children are allowed in the housing.
-   - accommodation.withPets: Set to true ONLY if the text says pets are allowed in the housing.
-   - accommodation.details: Put ALL housing information here (cost, number of people in room, Wi-Fi, subsidy for own housing, info about children/pets). 
-   - STRICT RULE: Do NOT use the "costRaw" field, put the price/cost directly in "details".
-7. EXPENSES SPLIT: Costs BEFORE work (medical) → startExpenses. Costs/penalties DURING or on early exit → earlyTerminationLiability.
-8. FIELD DISTRIBUTION — description vs additionalNotes:
-   - "description": job duties and work process ONLY. Use SEMICOLONS (;) to separate each duty.
-   - "additionalNotes": ALL other information that does not fit any specific structured field — recruitment stages, bus schedules, video links, contract details, extra notes, client brand names (BMW, Tesla).
-   - ZERO LOSS RULE: Any piece of information from the source text that cannot be placed in a specific structured field MUST be written into "additionalNotes". Nothing is ever lost.
-   - STRICT NO-DUPLICATION: If information is ALREADY captured in specific fields (salary, accommodation, transport, conditions.workwearFree, conditions.foodType), you MUST NOT repeat it in "description" or "additionalNotes".
-   - specificNuances: array of strings. Categorize each nuance using this format: "Category (detail)".
-  Categories to use: "Температурний режим", "Запахи", "Фізичне навантаження", "Характер праці", "Санітарні обмеження", "Інше".
-  Example: ["Запахи (запах гуми)", "Температурний режим (+10°C)", "Санітарні обмеження (без манікюру)"]
-
-- baseNetto: MAIN rate from the text. Copy EXACTLY (e.g., "22.50 зл/год нетто" OR "31.40 zł/год brutto"). 
-  CRITICAL: NEVER leave this field empty if any salary/rate is mentioned in the text. 
-- bonusDetails: ALL bonuses in FULL (night shifts, overtime, attendance, quality). Do NOT summarize.
-- salaryNotes: advances policy, extra housing allowance, overtime policy.
-
-REQUIREMENTS RULES:
-- polishLanguageLevel: This field MUST be one of these: "Не вимагається", "A1", "A2", "B1", "B2", "C1". 
-If the text says something else, map it to the closest code. Do NOT output descriptions like "рівень розуміння". Output ONLY the code.
-
-LOCATION & DESCRIPTION:
-- locationDescription: combine address AND distance (e.g., "ul. Spółdzielcza 4, 05-600 Grójec (50 км від Варшави)").
-- description: copy ALL duties in FULL detail. Do NOT summarize. Preserve all sentences.
-- schedule.description: MUST contain the FULL shift schedule with exact times. Example: "І зміна: пн–пт 12 год (06:00–18:00) + сб 8 год (06:00–14:00); ІІ зміна: пн–пт 12 год (14:00–02:00); ІІІ зміна: нд–чт 12 год (22:00–10:00) + пт 8 год (22:00–06:00)". NEVER summarize or omit shift times if they are present in the text.
-
-CONDITIONS & KEYWORDS:
-- specificNuances: array of short tags (["Запах гуми", "Шум", "Холодний склад"]).
-- foodType: ONLY "Власне", "Обіди" (if FREE), or "Субсидоване".
-- keywords: 5-10 items (factory name, city in UKR/PL, brand names, job process terms).
+DETAILS:
+- description: ONLY duties; full detail; separated by ;.
+- additionalNotes: everything else. No duplication.
+- specificNuances: array of "Category (detail)".
+- accommodation: type ("Надається (для пар)", "Надається", "Не надається", null), booleans, details.
+- salary: baseNetto (exact), bonusDetails, salaryNotes.
+- requirements: polishLanguageLevel (A1-C1), documents (strict list: PESEL UKR, Біометрія, Карта побуту, Віза, Санепід, UDT, SEP, Права кат. B, Довідка резидента).
+- schedule.description: full shift schedule with times.
+- expenses: startExpenses (before work), earlyTerminationLiability (during/exit).
+- locationDescription: full address + distance.
+- keywords: 5–10 items (factory, city, brand, process terms).
 
 JSON STRUCTURE:
 {
