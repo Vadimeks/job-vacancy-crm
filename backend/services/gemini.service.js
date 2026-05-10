@@ -123,14 +123,9 @@ NEW_MESSAGE: ${enrichedText}
     return parsed;
   } catch (error) {
     console.error(`⚠️ Stage 1 Error:`, error.message.substring(0, 100));
-    if (error.message.includes("AI_COOLDOWN")) return null;
-
-    return {
-      category: "UPDATE",
-      translatedFragments: [enrichedText],
-      comparison: { verdict: "NEW", reason: "AI error fallback" },
-      enrichedText: enrichedText,
-    };
+    // Вяртаем null, каб паведамленне засталося ў Пясочніцы як "Неапрацаванае"
+    // Гэта не дасць вакансіі ператварыцца ў "Інфа" пры памылцы AI
+    return null;
   }
 }
 

@@ -1,14 +1,15 @@
 // ============================================================
-// БЛОК 1: ЗАМЯНІЦЬ ІМПАРТЫ І AI_CHAIN (самы пачатак файла)
-// Замяніць: const groq = new Groq(...) і const MODEL_SMART/MODEL_FAST
-// ============================================================
+// БЛОК 1:
 
 const Groq = require("groq-sdk");
-const { GoogleGenerativeAI } = require("@google/generative-ai");
-
+const { GoogleGenAI } = require("@google/genai");
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-
+// Ініцыялізацыя кліента для Agent Platform (ADC падхопіцца аўтаматычна з adc.json)
+const client = new GoogleGenAI({
+  vertexai: true,
+  project: process.env.GCP_PROJECT_ID,
+  location: "us-central1",
+});
 // Адзіны ланцужок мадэляў: Gemini (Tier 1) → Groq (фолбэк)
 const AI_CHAIN = [
   { provider: "gemini", name: "gemini-2.0-flash" },
@@ -301,20 +302,22 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true) {
       );
 
       if (model.provider === "gemini") {
-        const genModel = genAI.getGenerativeModel(
-          { model: model.name },
-          { apiVersion: "v1beta" },
-        );
+        const response = await client.models.generateContent({
+          model: model.name,
+          contents: [
+            {
+              role: "user",
+              parts: [{ text: `${systemPrompt}\n\n${safeContent}` }],
+            },
+          ],
+          config: {
+            temperature: 0.1,
+            responseMimeType: jsonMode ? "application/json" : "text/plain",
+          },
+        });
 
-        // 👇 Выкарыстоўваем safeContent
-        const fullPrompt = `${systemPrompt}\n\nInput text to process:\n${safeContent}`;
-        const result = await genModel.generateContent(fullPrompt);
-
-        const response = await result.response;
-        const text = response
-          .text()
-          .replace(/```json|```/g, "")
-          .trim();
+        // У новым SDK тэкст бярэцца праз .text, а не .text()
+        const text = response.text.replace(/```json|```/g, "").trim();
         if (text) return text;
       } else {
         // Groq
