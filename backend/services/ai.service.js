@@ -26,8 +26,10 @@ async function getAccessToken() {
 }
 
 const AI_CHAIN = [
-  { provider: "vertex", name: "gemini-2.0-flash-001" },
-  { provider: "vertex", name: "gemini-1.5-flash-002" },
+  { provider: "vertex", name: "gemini-2.0-flash" },
+  { provider: "vertex", name: "gemini-2.5-flash" },
+  { provider: "vertex", name: "gemini-2.0-flash-lite" },
+  { provider: "vertex", name: "gemini-2.5-flash-lite" },
   { provider: "groq", name: "llama-3.3-70b-versatile" },
   { provider: "groq", name: "llama-3.1-8b-instant" },
 ];
