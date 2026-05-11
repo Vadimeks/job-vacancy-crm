@@ -4,19 +4,24 @@
 const Groq = require("groq-sdk");
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-const { GoogleGenAI } = require("@google/genai");
+const { GoogleAuth } = require("google-auth-library");
 
-const client = new GoogleGenAI({
-  apiKey: process.env.GOOGLE_API_KEY, // ключ з Render ENV
-  vertexai: false, // або проста прыбраць гэты параметр
+// Настройка аўтэнтыфікацыі для Render
+const auth = new GoogleAuth({
+  credentials: JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON),
+  scopes: ["https://www.googleapis.com/auth/cloud-platform"],
 });
+
+async function getAccessToken() {
+  const client = await auth.getClient();
+  const token = await client.getAccessToken();
+  return token.token;
+}
 
 // Адзіны ланцужок мадэляў: Gemini (Tier 1) → Groq (фолбэк)
 const AI_CHAIN = [
-  { provider: "gemini", name: "gemini-2.0-flash" },
-  { provider: "gemini", name: "gemini-2.5-flash" },
-  { provider: "gemini", name: "gemini-2.0-flash-lite" },
-  { provider: "gemini", name: "gemini-2.5-flash-lite" },
+  { provider: "vertex", name: "gemini-2.0-flash-001" },
+  { provider: "vertex", name: "gemini-1.5-flash-002" },
   { provider: "groq", name: "llama-3.3-70b-versatile" },
   { provider: "groq", name: "llama-3.1-8b-instant" },
 ];
@@ -304,41 +309,63 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanations.
 
 // --- ДАПАМОЖНЫЯ ФУНКЦЫІ ---
 // ============================================================
-
 async function executeAIRequest(systemPrompt, userContent, jsonMode = true) {
-  // Абмяжоўваем уваход, каб не было памылкі 413
-  const safeContent = String(userContent).substring(0, 6000);
+  const safeContent = String(userContent).substring(0, 8000);
 
-  if (Date.now() < chainFrozenUntil) {
+  if (
+    typeof chainFrozenUntil !== "undefined" &&
+    Date.now() < chainFrozenUntil
+  ) {
     const diff = Math.ceil((chainFrozenUntil - Date.now()) / 60000);
     throw new Error(`AI_COOLDOWN: Паўза яшчэ ${diff} хв.`);
   }
 
   for (const model of AI_CHAIN) {
     try {
-      // Gemini
-      if (model.provider === "gemini") {
-        console.log(`🤖 Запыт да Gemini: ${model.name}`);
+      // БЛОК 1: Vertex AI
+      if (model.provider === "vertex") {
+        console.log(`🤖 Запыт да Vertex AI: ${model.name}`);
+        const token = await getAccessToken();
+        if (!token) throw new Error("Не атрымалася стварыць токен");
 
-        const response = await client.models.generateContent({
-          model: model.name,
-          contents: [
-            {
-              role: "user",
-              parts: [{ text: `${systemPrompt}\n\n${safeContent}` }],
-            },
-          ],
-          config: {
-            temperature: 0.1,
-            responseMimeType: jsonMode ? "application/json" : "text/plain",
+        const url = `https://${LOCATION}-aiplatform.googleapis.com/v1/projects/${GOOGLE_PROJECT_ID}/locations/${LOCATION}/publishers/google/models/${model.name}:streamGenerateContent`;
+
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
+          body: JSON.stringify({
+            contents: [
+              {
+                role: "user",
+                parts: [{ text: `${systemPrompt}\n\n${safeContent}` }],
+              },
+            ],
+            generationConfig: {
+              temperature: 0.1,
+              responseMimeType: jsonMode ? "application/json" : "text/plain",
+            },
+          }),
         });
 
-        const text = response.text.replace(/```json|```/g, "").trim();
-        if (text) return text;
-      }
+        const data = await response.json();
+        if (data.error || (Array.isArray(data) && data[0]?.error)) {
+          throw new Error(data.error?.message || data[0]?.error?.message);
+        }
 
-      // Groq
+        // Збіраем тэкст (Vertex вяртае масіў аб'ектаў у stream-рэжыме)
+        const chunks = Array.isArray(data) ? data : [data];
+        let fullText = "";
+        for (const chunk of chunks) {
+          const chunkText = chunk.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (chunkText) fullText += chunkText;
+        }
+
+        if (fullText) return fullText.replace(/```json|```/g, "").trim();
+      }
+      // БЛОК 2: Groq
       if (model.provider === "groq") {
         console.log(`🤖 Запыт да Groq: ${model.name}`);
 
@@ -351,38 +378,45 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true) {
           temperature: 0.1,
         };
 
-        // Запытваем JSON mode калі патрэбна
         if (jsonMode) {
           groqParams.response_format = { type: "json_object" };
         }
 
         const response = await groq.chat.completions.create(groqParams);
-
         let text = response.choices[0]?.message?.content?.trim();
-        // Страхоўка: здымаем ```json фэнсы калі мадэль усё роўна іх дадала
+
         if (text) {
-          text = text
-            .replace(/^```(?:json)?\s*/i, "")
-            .replace(/\s*```$/i, "")
-            .trim();
-          return text;
+          let cleanText = text.trim();
+          if (cleanText.startsWith("```")) {
+            cleanText = cleanText.split("\n").slice(1).join("\n");
+          }
+          if (cleanText.endsWith("```")) {
+            cleanText = cleanText.split("```")[0];
+          }
+          return cleanText.trim();
         }
       }
     } catch (error) {
       console.error(
         `⚠️ Error (${model.name}):`,
-        error.message.substring(0, 100),
+        error.message.substring(0, 150),
       );
-      // Працягваем да наступнай мадэлі
     }
   }
-  // Калі ніводная мадэль не вярнула вынік — замарожваем ланцужок
+
+  // Калі ланцужок не спрацаваў
   chainFrozenUntil = Date.now() + 60 * 60 * 1000;
-  console.error("🚫 Усе мадэлі не адказалі. Ланцужок замарожаны на 1 гадзіну.");
+  console.error("🚫 Усе AI мадэлі адмовілі. Ланцужок замарожаны на 1 гадзіну.");
   throw new Error("ALL_AI_MODELS_FAILED");
-  // Калі ніводная мадэль не вярнула вынік
-  return null;
 }
+
+// Калі цыкл скончыўся і ніводная мадэль не вярнула вынік
+if (typeof chainFrozenUntil !== "undefined") {
+  chainFrozenUntil = Date.now() + 60 * 60 * 1000;
+}
+
+console.error("🚫 Усе AI мадэлі адмовілі. Ланцужок замарожаны на 1 гадзіну.");
+throw new Error("ALL_AI_MODELS_FAILED");
 
 // ============================================================
 // БЛОК 3: mergeWithTemplate
