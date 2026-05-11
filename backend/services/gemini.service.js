@@ -49,22 +49,25 @@ Task: Classify, Translate, and Split NEW_MESSAGE.
 
 !!! CRITICAL SPLITTING LOGIC !!!
 1. translatedFragments: This MUST be an ARRAY of strings.
-2. If the message contains 2 or more DETAILED job offers (each has its own duties, requirements, and conditions), SPLIT them into separate strings in the array.
-3. If it's ONE job offer or a LIST of short statuses, return an array with ONE string.
-4. ALL fragments MUST be in UKRAINIAN ONLY. NO ENGLISH. NO RUSSIAN.
-5. NEVER summarize or shorten. Copy 100% of details.
+2. SPLIT only when the message contains 2 or more COMPLETE and INDEPENDENT job offers.
+   Each independent offer MUST have ALL FOUR: its own job title + its own city + its own salary + its own duties.
+3. DO NOT SPLIT if:
+   - The message describes ONE vacancy broken into sections (💰 Оплата, ⚙️ Обов'язки, 🕒 Графік, 🏠 Проживання, 🚌 Транспорт etc.) — these are sections of ONE vacancy, NOT separate vacancies.
+   - Different emoji-sections describe different aspects of the same job offer.
+   - The message is a list of short vacancy statuses without full details for each.
+4. GOLDEN RULE: When in doubt — return ONE fragment. Incorrect splitting is far worse than not splitting.
+5. ALL fragments MUST be in UKRAINIAN ONLY. NO ENGLISH. NO RUSSIAN.
+6. NEVER summarize or shorten. Copy 100% of details into each fragment.
 
-!!! SHARED INFO RULE (CRITICAL) !!!
-6. If the message ends with a general block (e.g., "Додатково:", "Загальні умови:", "📌 Додатково") that applies to ALL vacancies (e.g., housing type, transport, legalization, SNF certificate) — DO NOT create a separate fragment for it.
-   Instead: APPEND this shared info to the END of EVERY vacancy fragment it applies to, under "📌 Загальна інформація:".
-7. A block is "shared" if it has NO job title, NO city, NO salary, NO duties — only general conditions.
-8. NEVER classify a shared/general block as a standalone FULL_VACANCY fragment.
+!!! SHARED INFO RULE !!!
+7. If the message ends with a general block ("Додатково:", "Загальні умови:", "📌") with NO job title/city/salary/duties — DO NOT make it a separate fragment.
+   Instead: APPEND it to the END of every vacancy fragment under "📌 Загальна інформація:".
 
 CLASSIFICATION RULES:
-- FULL_VACANCY: Detailed job ad (Position + City + Salary + Duties).
-- UPDATE: Short status changes, stop-signals, or lists of rates/spots.
+- FULL_VACANCY: Detailed job ad with Position + City + Salary + Duties. ALL FOUR must be present.
+- UPDATE: Short status changes, stop-signals, or lists of rates/spots without full details.
 - RECRUITER_INFO: Legal info, office hours, document rules.
-- NOISE: Greetings, emojis, system messages.
+- NOISE: Greetings, emojis only, system messages.
 
 Output ONLY valid JSON:
 {
