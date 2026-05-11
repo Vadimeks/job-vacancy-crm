@@ -12,10 +12,10 @@ const client = new GoogleGenAI({
 });
 // Адзіны ланцужок мадэляў: Gemini (Tier 1) → Groq (фолбэк)
 const AI_CHAIN = [
-  { provider: "gemini", name: "google/gemini-2.0-flash-001" },
-  { provider: "gemini", name: "google/gemini-2.5-flash" },
-  { provider: "gemini", name: "google/gemini-2.0-flash-lite-001" },
-  { provider: "gemini", name: "google/gemini-2.5-flash-lite" },
+  { provider: "gemini", name: "gemini-2.0-flash" },
+  { provider: "gemini", name: "gemini-2.5-flash" },
+  { provider: "gemini", name: "gemini-2.0-flash-lite" },
+  { provider: "gemini", name: "gemini-2.5-flash-lite" },
   { provider: "groq", name: "llama-3.3-70b-versatile" },
   { provider: "groq", name: "llama-3.1-8b-instant" },
 ];
