@@ -3,13 +3,14 @@
 
 const Groq = require("groq-sdk");
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+
 const { GoogleGenAI } = require("@google/genai");
 
 const client = new GoogleGenAI({
-  vertexai: false,
-  project: process.env.GCP_PROJECT_ID,
-  location: "us-central1",
+  apiKey: process.env.GOOGLE_API_KEY, // ключ з Render ENV
+  vertexai: false, // або проста прыбраць гэты параметр
 });
+
 // Адзіны ланцужок мадэляў: Gemini (Tier 1) → Groq (фолбэк)
 const AI_CHAIN = [
   { provider: "gemini", name: "gemini-2.0-flash" },
