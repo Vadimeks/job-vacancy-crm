@@ -224,7 +224,7 @@ Use this structure (SKIP lines/sections if data is null):
 • Студенти: [salary.studentNetto]
 • Виплати: [salary.payoutDates]
 • Бонуси: [salary.bonusDetails]
-• Нотатки: [salary.salaryNotes]
+• Деталі: [salary.salaryNotes]
 
 🛠 *Характер роботи*
 [пункти з description через •]
@@ -341,17 +341,31 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true) {
       if (model.provider === "groq") {
         console.log(`🤖 Запыт да Groq: ${model.name}`);
 
-        const response = await groq.chat.completions.create({
+        const groqParams = {
           model: model.name,
           messages: [
             { role: "system", content: systemPrompt },
             { role: "user", content: safeContent },
           ],
           temperature: 0.1,
-        });
+        };
 
-        const text = response.choices[0]?.message?.content?.trim();
-        if (text) return text;
+        // Запытваем JSON mode калі патрэбна
+        if (jsonMode) {
+          groqParams.response_format = { type: "json_object" };
+        }
+
+        const response = await groq.chat.completions.create(groqParams);
+
+        let text = response.choices[0]?.message?.content?.trim();
+        // Страхоўка: здымаем ```json фэнсы калі мадэль усё роўна іх дадала
+        if (text) {
+          text = text
+            .replace(/^```(?:json)?\s*/i, "")
+            .replace(/\s*```$/i, "")
+            .trim();
+          return text;
+        }
       }
     } catch (error) {
       console.error(
@@ -704,7 +718,12 @@ JSON STRUCTURE:
 }`;
 
     const text = await executeAIRequest(SYSTEM_INSTRUCTION, rawText, true);
-    const parsedData = JSON.parse(text);
+    // Страхоўка: здымаем ```json фэнсы на выпадак калі яны дайшлі да гэтага месца
+    const cleanText = text
+      .replace(/^```(?:json)?\s*/i, "")
+      .replace(/\s*```$/i, "")
+      .trim();
+    const parsedData = JSON.parse(cleanText);
     // Ствараем функцыю-абгортку для твайго існуючага коду
     const processSingle = (parsed) => {
       // --- ПОСТ-АПРАЦОЎКА (Страхоўка) ---

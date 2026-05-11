@@ -54,6 +54,12 @@ Task: Classify, Translate, and Split NEW_MESSAGE.
 4. ALL fragments MUST be in UKRAINIAN ONLY. NO ENGLISH. NO RUSSIAN.
 5. NEVER summarize or shorten. Copy 100% of details.
 
+!!! SHARED INFO RULE (CRITICAL) !!!
+6. If the message ends with a general block (e.g., "Додатково:", "Загальні умови:", "📌 Додатково") that applies to ALL vacancies (e.g., housing type, transport, legalization, SNF certificate) — DO NOT create a separate fragment for it.
+   Instead: APPEND this shared info to the END of EVERY vacancy fragment it applies to, under "📌 Загальна інформація:".
+7. A block is "shared" if it has NO job title, NO city, NO salary, NO duties — only general conditions.
+8. NEVER classify a shared/general block as a standalone FULL_VACANCY fragment.
+
 CLASSIFICATION RULES:
 - FULL_VACANCY: Detailed job ad (Position + City + Salary + Duties).
 - UPDATE: Short status changes, stop-signals, or lists of rates/spots.
