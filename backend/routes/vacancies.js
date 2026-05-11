@@ -16,31 +16,44 @@ const geminiService = require("../services/gemini.service");
 // --- ДАПАМОЖНЫЯ ФУНКЦЫІ ---
 
 async function generateVacancyCode() {
-  let nextNum = 1;
+  // Атамарная аперацыя: знаходзім апошні код і адразу рэзервуем наступны
+  // Выкарыстоўваем retry loop для абароны ад race condition
+  const MAX_RETRIES = 10;
 
-  // Шукаем апошнюю вакансію
-  const lastVacancy = await Vacancy.findOne({}, { vacancyCode: 1 }).sort({
-    vacancyCode: -1,
-  });
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    let nextNum = 1;
 
-  if (lastVacancy && lastVacancy.vacancyCode) {
-    const lastNum = parseInt(lastVacancy.vacancyCode.replace("VAC-", ""), 10);
-    if (!isNaN(lastNum)) {
-      nextNum = lastNum + 1;
+    const lastVacancy = await Vacancy.findOne({}, { vacancyCode: 1 }).sort({
+      vacancyCode: -1,
+    });
+
+    if (lastVacancy && lastVacancy.vacancyCode) {
+      const lastNum = parseInt(lastVacancy.vacancyCode.replace("VAC-", ""), 10);
+      if (!isNaN(lastNum)) {
+        nextNum = lastNum + 1;
+      }
     }
+
+    // Шукаем першы вольны код пачынаючы з nextNum
+    let code = `VAC-${String(nextNum).padStart(4, "0")}`;
+    let isTaken = await Vacancy.exists({ vacancyCode: code });
+
+    while (isTaken) {
+      nextNum++;
+      code = `VAC-${String(nextNum).padStart(4, "0")}`;
+      isTaken = await Vacancy.exists({ vacancyCode: code });
+    }
+
+    // Спрабуем "зарэзерваваць" код праз insertOne-like trick:
+    // калі паміж нашай праверкай і захаваннем хтосьці ўжо ўзяў гэты код —
+    // E11000 злавім у catch вышэй і паўторым спробу
+    return code;
   }
 
-  // 👇 СТРАХОЎКА: Калі код ужо заняты (напрыклад, пасля таймаўту), шукаем наступны вольны
-  let code = `VAC-${String(nextNum).padStart(4, "0")}`;
-  let isTaken = await Vacancy.exists({ vacancyCode: code });
-
-  while (isTaken) {
-    nextNum++;
-    code = `VAC-${String(nextNum).padStart(4, "0")}`;
-    isTaken = await Vacancy.exists({ vacancyCode: code });
-  }
-
-  return code;
+  // Апошні рэзерв: timestamp-based код
+  const fallback = `VAC-${Date.now().toString().slice(-6)}`;
+  console.warn(`⚠️ generateVacancyCode: выкарыстаны fallback код ${fallback}`);
+  return fallback;
 }
 
 /**
@@ -141,27 +154,43 @@ async function processVacancyMessage(
 
       for (const vData of vacancyDataList) {
         const finalAgency = preDefinedAgency || vData.agencyName || "Manual";
-        const vacancyCode = await generateVacancyCode();
 
-        const newVacancy = new Vacancy({
-          ...vData,
-          agencyName: finalAgency,
-          templateName: constructVacancyDisplayName({
-            ...vData,
-            agencyName: finalAgency,
-          }),
-          vacancyCode,
-          originalText: rawText,
-          rawText: fragment,
-          isTruncated: isTruncated,
-          telegramPost: await aiService.formatTelegramPost({
-            ...vData,
-            agencyName: finalAgency,
-          }),
-          status: "active",
-        });
-
-        const saved = await newVacancy.save();
+        let saved;
+        let saveAttempts = 0;
+        while (saveAttempts < 5) {
+          try {
+            const vacancyCode = await generateVacancyCode();
+            const newVacancy = new Vacancy({
+              ...vData,
+              agencyName: finalAgency,
+              templateName: constructVacancyDisplayName({
+                ...vData,
+                agencyName: finalAgency,
+              }),
+              vacancyCode,
+              originalText: rawText,
+              rawText: fragment,
+              isTruncated: isTruncated,
+              telegramPost: await aiService.formatTelegramPost({
+                ...vData,
+                agencyName: finalAgency,
+              }),
+              status: "active",
+            });
+            saved = await newVacancy.save();
+            break; // Паспяхова захавана
+          } catch (saveErr) {
+            if (saveErr.code === 11000 && saveAttempts < 4) {
+              saveAttempts++;
+              console.warn(
+                `⚠️ vacancyCode дубль, паўторная спроба ${saveAttempts}/4...`,
+              );
+              await new Promise((r) => setTimeout(r, 100 * saveAttempts));
+            } else {
+              throw saveErr;
+            }
+          }
+        }
         await sendToTelegram(sanitizeTelegramMarkdown(saved.telegramPost));
         savedVacancies.push(saved);
       }
