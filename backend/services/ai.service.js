@@ -6,7 +6,7 @@ const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const { GoogleGenAI } = require("@google/genai");
 
 const client = new GoogleGenAI({
-  vertexai: true,
+  vertexai: false,
   project: process.env.GCP_PROJECT_ID,
   location: "us-central1",
 });
