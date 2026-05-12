@@ -14,11 +14,21 @@ async function fetchGoogleDocText(url) {
   const exportUrl = `https://docs.google.com/document/d/${docId}/export?format=txt`;
   try {
     const res = await fetch(exportUrl, { redirect: "follow" });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      console.warn(`⚠️ Google Doc: Памылка HTTP ${res.status} (ID: ${docId})`);
+      return null;
+    }
     const text = await res.text();
-    return text.length > 100 ? text : null;
+    if (text && text.length > 100) {
+      console.log(
+        `✅ Google Doc загружаны: ${text.length} сімв. (ID: ${docId})`,
+      );
+      return text;
+    }
+    console.warn(`⚠️ Google Doc пусты або занадта кароткі (ID: ${docId})`);
+    return null;
   } catch (err) {
-    console.error("⚠️ Google Docs Fetch Error:", err.message);
+    console.error(`❌ Google Doc Fetch Error (ID: ${docId}):`, err.message);
     return null;
   }
 }
@@ -52,16 +62,16 @@ Task: Classify, Translate, and Split NEW_MESSAGE.
 2. SPLIT only when the message contains 2 or more COMPLETE and INDEPENDENT job offers.
    Each independent offer MUST have ALL FOUR: its own job title + its own city + its own salary + its own duties.
 3. DO NOT SPLIT if:
-   - The message describes ONE vacancy broken into sections (💰 Оплата, ⚙️ Обов'язки, 🕒 Графік, 🏠 Проживання, 🚌 Транспорт etc.) — these are sections of ONE vacancy, NOT separate vacancies.
-   - Different emoji-sections describe different aspects of the same job offer.
-   - The message is a list of short vacancy statuses without full details for each.
-4. GOLDEN RULE: When in doubt — return ONE fragment. Incorrect splitting is far worse than not splitting.
-5. ALL fragments MUST be in UKRAINIAN ONLY. NO ENGLISH. NO RUSSIAN.
-6. NEVER summarize or shorten. Copy 100% of details into each fragment.
+   - The message describes ONE vacancy broken into sections (💰 Оплата, ⚙️ Обов'язки, etc.).
+   - The message contains multiple job titles (e.g., "Welder / Saw Operator" or "Helper / Machine Operator") that share the SAME city, SAME salary, and SAME accommodation. This is ONE vacancy with multiple duties.
+   - The same vacancy is repeated in different languages (Russian, Ukrainian, Polish). Treat it as ONE vacancy.
+4. MULTI-LANGUAGE RULE: If a message has a Russian (or any other language) block and then an Ukrainian block describing the same jobs — translate everything to Ukrainian and keep the structure. If there are 2 jobs in Russian and 2 in Ukrainian — the result must be 2 fragments, not 4.
+5. GOLDEN RULE: When in doubt — return ONE fragment. Incorrect splitting is far worse than not splitting.
+6. ALL fragments MUST be in UKRAINIAN ONLY.
+7. NEVER summarize or shorten. Copy 100% of details into each fragment.
 
 !!! SHARED INFO RULE !!!
-7. If the message ends with a general block ("Додатково:", "Загальні умови:", "📌") with NO job title/city/salary/duties — DO NOT make it a separate fragment.
-   Instead: APPEND it to the END of every vacancy fragment under "📌 Загальна інформація:".
+8. If the message ends with a general block ("Додатково:", "Загальні умови:") with NO job title/city/salary — APPEND it to the END of every vacancy fragment.
 
 CLASSIFICATION RULES:
 - FULL_VACANCY: Detailed job ad with Position + City + Salary + Duties. ALL FOUR must be present.

@@ -202,29 +202,34 @@ CRITICAL RULE: If the factory and location match, but the JOB PROCESS (duties/pr
 // 2. Абноўлены FORMAT_PROMPT
 const FORMAT_PROMPT = `
 ROLE: Professional HR content formatter.
-TASK: Format the job data into a beautiful Telegram post in UKRAINIAN.
+TASK: Format job data into a beautiful Telegram post in UKRAINIAN.
 
-!!! CRITICAL COMPACTNESS RULE !!!: 
-1. IF a field value is null, undefined, or empty — DO NOT include its label, emoji, or the entire line in the post. NO EMPTY LABELS like "🕒 Графік роботи: ".
-2. If an ENTIRE SECTION (Accommodation, Transport, Expenses) has no data inside, skip its header too.
-3. NEVER use placeholders like "немає інформації". Just skip the line.
-4. The post must be as compact as possible, looking like a natural text post, not a form.
-5. TRANSPORT RULE: 
-   - If transport is NOT provided → show: "🚌 Довіз: немає"
-   - If transport IS provided → show: "🚌 Довіз: надається" + details (corporate buses, local routes).
-   - NEVER show "Власний" as transport value.
-   - Організаваны трансфер з Украіны (напрыклад, са Львова) → завсёды ў *Додаткову інформацію*, не ў блок транспарту.
+!!! CRITICAL FORMATTING RULE (COMPACT VS FULL) !!!
+1. IF the vacancy has very little information (e.g., only title, city, and rate, but NO duties/description) -> Use COMPACT MODE.
+   COMPACT MODE: One single paragraph. Example: "🔥 *Зварювальник — Stadtlohn (Germany)* / Ставка: 16€ / Житло: надається / Документи: будь-які. Деталі: [additionalNotes]"
+2. IF the vacancy has full details -> Use FULL MODE (structured with bullets).
 
-CRITICAL PRIVACY RULE:
-- NEVER include the Agency Name (agencyName).
+!!! CRITICAL COMPACTNESS RULE !!!
+- If a field value is null, undefined, or empty — DO NOT include its label, emoji, or the entire line in the post.
+- If an ENTIRE SECTION (Accommodation, Transport, Expenses) has no data inside, skip its header too.
+- NEVER use placeholders like "немає інформації". Just skip the line.
+- The post must be as compact as possible, looking like a natural text post, not a form.
+
+!!! CRITICAL RULES !!!
+- NEVER include the Agency Name.
 - NEVER include internal notes or recruiter-only data.
-- Use vacancydescription as the main title.
+- GEOGRAPHY: If country is NOT Polska, show it in parentheses ONCE. Example: "Stadtlohn (Germany)". NEVER "Stadtlohn (Germany) (Germany)".
+- TRANSPORT RULE:
+   • If transport is NOT provided → "🚌 Довіз: немає"
+   • If transport IS provided → "🚌 Довіз: надається" + details
+   • NEVER show "Власний" as transport value
+   • Організаваны трансфер з Украіны → заўсёды ў *Додаткову інформацію*, не ў блок транспарту.
 
 TITLE RULE:
 - vacancydescription must be formatted as "Job Essence (Category) — Location".
 - Location = place of work, not checkInCity.
 
-Use this structure (SKIP lines/sections if data is null):
+FULL MODE STRUCTURE (skip empty lines/sections):
 
 *[vacancydescription]*
 
@@ -235,45 +240,46 @@ Use this structure (SKIP lines/sections if data is null):
 
 💰 *Оплата праці*
 • Ставка: [salary.baseNetto]
-• Студенти: [salary.studentNetto]
-• Виплати: [salary.payoutDates]
-• Бонуси: [salary.bonusDetails]
-• Деталі: [salary.salaryNotes]
+[• Студенти: [salary.studentNetto]]
+[• Виплати: [salary.payoutDates]]
+[• Бонуси: [salary.bonusDetails]]
+[• Деталі: [salary.salaryNotes]]
 
 🛠 *Характер роботи*
-[пункти з description через •]
+[description items with •]
 
 📋 *Вимоги*
-• Вік: до [requirements.ageMax] років (only if < 65)
+[• Вік: до [requirements.ageMax] років (only if < 65)]
 • Документи: [requirements.standardDocs]
 • Мова: [requirements.polishLanguageLevel]
-• [requirements.physicalLoad]
+[• Фізичне навантаження: [requirements.physicalLoad]]
 
 🕒 *Графік роботи*
 [schedule.description]
-• Перерва: [schedule.breakDuration]
+[• Перерва: [schedule.breakDuration]]
 
-📄 Тип договору: [contractType]
+📄 *Тип договору:* [contractType]
 
 🏠 *Проживання*
 [accommodation.type]
-• Можна з дітьми: Так (only if withChildren is true)
-• Можна з тваринами: Так (only if withPets is true)
-• Деталі: [accommodation.details]
+[• Для пар: Так (only if forCouples is true)]
+[• Можна з дітьми: Так (only if withChildren is true)]
+[• Можна з тваринами: Так (only if withPets is true)]
+[• Деталі: [accommodation.details]]
 
-🚌 *Транспорт*
- [transport.provided ? "надається" : "немає"]
-• [transport.details]
+🚌 *Транспорт (довіз)*
+[transport.provided ? "надається" : "немає"]
+[• Деталі: [transport.details]]
 
 💸 *Витрати та відповідальність*
-• На старті: [startExpenses.details] (only if це стосуецца работы, напр. медогляд)
-• При передчасному звільненні: [earlyTerminationLiability.details]
+[• На старті: [startExpenses.details]]
+[• При передчасному звільненні: [earlyTerminationLiability.details]]
 
 🌡 *Умови праці*
 • Робочий одяг: [conditions.workwearFree ? "Безкоштовно" : "За рахунок працівника"]
 • Харчування: [conditions.foodType]
-• Нюанси: [conditions.specificNuances]
-• [conditions.foodDetails]
+[• Нюанси: [conditions.specificNuances joined by "; "]]
+[• Деталі: [conditions.foodDetails]]
 
 📝 *Додаткова інформація*
 [additionalNotes including навчання, адаптація, вихід на норму, координатор, банківський рахунок, карта побуту, можливість роботи в інших країнах, організаваны трансфер з Украіны]
@@ -542,7 +548,31 @@ async function formatTelegramPost(vacancyData) {
   );
   return text.trim();
 }
+function normalizeLocation(location, country) {
+  if (!location) return "";
+  // 1. Выдаляем кірылічныя назвы краін і дублі ў дужках
+  let clean = location
+    .replace(/\s*\(Німеччина\)/gi, "")
+    .replace(/\s*\(Нідерланди\)/gi, "")
+    .replace(/\s*\(Франція\)/gi, "")
+    .replace(/\s*\(Польща\)/gi, "")
+    .replace(/\s*\(Germany\)/gi, "")
+    .replace(/\s*\(Netherlands\)/gi, "")
+    .replace(/\s*\(France\)/gi, "")
+    .replace(/\s*\(Poland\)/gi, "")
+    .trim();
 
+  // 2. Выдаляем дублі тыпу (Germany) (Germany)
+  clean = clean.replace(/\(([^)]+)\)\s*\(\1\)/gi, "($1)");
+
+  // 3. Калі краіна не Польшча, выдаляем яе з самога горада, бо яна дадасца пазней
+  if (country && country !== "Polska") {
+    const countryPattern = new RegExp(`\\s*\\(${country}\\)\\s*$`, "i");
+    clean = clean.replace(countryPattern, "").trim();
+  }
+
+  return clean;
+}
 async function parseVacancyWithAI(rawText) {
   try {
     console.log(`🤖 Парсінг v2.0 ...`);
@@ -561,9 +591,20 @@ DOCUMENT RULES:
 - Others → additionalDocsDetails.
 
 NUANCES RULES (conditions.specificNuances):
-- Array of "Category (detail)".
-- Categories: "Температурний режим", "Запахи", "Фізичне навантаження", "Характер праці", "Санітарні обмеження", "Інше".
-- Example: ["Температурний режим (+5°C)", "Санітарні обмеження (без манікюру)"].
+- MANDATORY: Extract ALL specific working conditions into this array. 
+- NEVER put these details into additionalNotes if they fit a category below.
+- Format: "Category (detail)".
+- Categories (USE ONLY THESE 10):
+  1. "Тэмпературний режим" (e.g., +5°C, холодний цех, спека)
+  2. "Фізично-важка праця" (e.g., підняття ваги >15кг, робота з великими деталями)
+  3. "Санітарні обмеження" (e.g., без манікюру, без біжутерії, без вій)
+  4. "Запахи та алергени" (e.g., запах гуми, фарби, пил, клей)
+  5. "Шум" (e.g., робота в берушах, шумні станки)
+  6. "Характер праці" (e.g., 100% стоячи, робота на колінах, сидяча робота, робота са сканером)
+  7. "Специфічні навички" (e.g., знання креслень, робота з ножам, пневмоінструмент)
+  8. "Норми" (e.g., робота на акорд, високий темп, виконання плану)
+  9. "Тести пры вступі" (e.g., мануальні тести, матэматыка, праверка зроку)
+  10. "Інше" (anything else specific)
 
 GEOGRAPHY RULES:
 - location: first city mentioned; Polish spelling only (Warszawa, Kraków, Polkowice).
@@ -764,27 +805,36 @@ JSON STRUCTURE:
       const normalizedAgency = normalizeAgency(cleaned.agencyName);
       const validatedBrand = validateBrand(cleaned.brand);
 
-      // 2. Лагічны загаловак (улічваем краіну)
-      const baseTitle =
-        cleaned.vacancydescription &&
-        cleaned.vacancydescription !== "Нова вакансія"
-          ? cleaned.vacancydescription
-          : "Опис вакансії";
-
-      // Фармуем прыгожую лакацыю: "Psary" або "Machecoul (France)"
+      // 1. Разумная лакацыя без дубляў
+      const cleanLoc = normalizeLocation(cleaned.location, cleaned.country);
       const displayLocation =
         cleaned.country && cleaned.country !== "Polska"
-          ? `${cleaned.location} (${cleaned.country})`
-          : cleaned.location;
+          ? `${cleanLoc} (${cleaned.country})`
+          : cleanLoc;
 
-      // Фінальны загаловак: "Склад адзення — Psary"
+      // 2. Разумны загаловак: выдаляем старую лакацыю перад дадаваннем новай
+      const baseTitle = cleaned.vacancydescription || "Опис вакансії";
+      const titleWithoutLocation = baseTitle.includes(" — ")
+        ? baseTitle.substring(0, baseTitle.lastIndexOf(" — ")).trim()
+        : baseTitle;
+
       const finalTitle =
         displayLocation &&
-        !baseTitle.toLowerCase().includes(displayLocation.toLowerCase())
-          ? `${baseTitle} — ${displayLocation}`
-          : baseTitle;
+        !titleWithoutLocation
+          .toLowerCase()
+          .includes(displayLocation.toLowerCase())
+          ? `${titleWithoutLocation} — ${displayLocation}`
+          : titleWithoutLocation;
 
-      // 2. Страхоўка зарплаты
+      // 3. Страхоўка па транспарце: "Власний" = provided: false
+      if (
+        cleaned.transport?.details?.toLowerCase().includes("власн") ||
+        cleaned.transport?.costRaw?.toLowerCase().includes("власн")
+      ) {
+        cleaned.transport.provided = false;
+      }
+
+      // 4. Страхоўка зарплаты
       let finalBaseNetto = cleaned.salary?.baseNetto;
       if (
         (!finalBaseNetto || finalBaseNetto === "не вказано") &&
@@ -801,8 +851,9 @@ JSON STRUCTURE:
       return {
         // === 1. СИСТЕМНІ ПОЛЯ ===
         ...cleaned,
-        agencyName: normalizedAgency, // 👈 Цяпер нармалізацыя працуе!
-        brand: validatedBrand, // 👈 Цяпер брэнды чыстыя!
+        agencyName: normalizedAgency,
+        brand: validatedBrand,
+        location: cleanLoc,
         templateName: cleaned.templateName || "",
         vacancydescription: finalTitle,
         category: cleaned.category || null,

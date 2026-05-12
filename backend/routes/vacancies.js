@@ -14,7 +14,41 @@ const { matchCandidatesForVacancy } = require("../services/matching.service");
 const geminiService = require("../services/gemini.service");
 
 // --- ДАПАМОЖНЫЯ ФУНКЦЫІ ---
+function normalizeLocationForDB(location, country) {
+  if (!location) return "";
+  let clean = location
+    .replace(/\s*\(Німеччина\)/gi, "")
+    .replace(/\s*\(Нідерланди\)/gi, "")
+    .replace(/\s*\(Франція\)/gi, "")
+    .replace(/\s*\(Польща\)/gi, "")
+    .replace(/\s*\(Germany\)/gi, "")
+    .replace(/\s*\(Netherlands\)/gi, "")
+    .replace(/\s*\(France\)/gi, "")
+    .replace(/\s*\(Poland\)/gi, "")
+    .trim();
 
+  // Выдаляем дублі тыпу (Germany) (Germany)
+  clean = clean.replace(/\(([^)]+)\)\s*\(\1\)/gi, "($1)");
+
+  // Калі не Польшча — пакідаем толькі назву горада, краіна і так ёсць у полі country
+  if (country && country !== "Polska") {
+    const countryPattern = new RegExp(`\\s*\\(${country}\\)\\s*$`, "i");
+    clean = clean.replace(countryPattern, "").trim();
+  }
+  return clean;
+}
+
+const BRAND_BLACKLIST = [
+  "ферма",
+  "склад",
+  "цех",
+  "фабрика",
+  "завод",
+  "підприємство",
+  "company",
+  "factory",
+  "warehouse",
+];
 async function generateVacancyCode() {
   // Атамарная аперацыя: знаходзім апошні код і адразу рэзервуем наступны
   // Выкарыстоўваем retry loop для абароны ад race condition
@@ -92,7 +126,29 @@ function constructVacancyDisplayName(data) {
     parts.push(data.location);
   return parts.join(" — ");
 }
-
+function cleanTelegramPost(text) {
+  if (!text) return "";
+  return text
+    .split("\n")
+    .filter((line) => {
+      const trimmed = line.trim();
+      if (!trimmed) return true;
+      // Выдаляем пустыя загалоўкі і дзіўныя сімвалы ад AI
+      if (
+        trimmed.endsWith(":") ||
+        trimmed.match(/^[^a-zA-Zа-яёіў0-9*🔥📍💰🛠📋🏠🚌💸🌡📝]+:?\s*$/)
+      )
+        return false;
+      // Выдаляем радкі тыпу "• null" або "• undefined"
+      if (trimmed.includes("null") || trimmed.includes("undefined"))
+        return false;
+      return true;
+    })
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .replace(/\n\s*\n\s*\n/g, "\n\n") // Яшчэ адна страхоўка ад пустых прабелаў
+    .trim();
+}
 function sanitizeTelegramMarkdown(text) {
   if (!text) return "";
   return (
@@ -191,7 +247,9 @@ async function processVacancyMessage(
             }
           }
         }
-        await sendToTelegram(sanitizeTelegramMarkdown(saved.telegramPost));
+        await sendToTelegram(
+          cleanTelegramPost(sanitizeTelegramMarkdown(saved.telegramPost)),
+        );
         savedVacancies.push(saved);
       }
       if (fragments.length > 1) await new Promise((r) => setTimeout(r, 1500));
@@ -318,7 +376,62 @@ router.post("/", async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 });
+router.get("/filters-data", async (req, res) => {
+  try {
+    const vacancies = await Vacancy.find({ status: "active" });
 
+    const cities = new Set();
+    const agencies = new Set();
+    const brands = new Set();
+    const nuances = new Set();
+
+    vacancies.forEach((v) => {
+      // 1. Гарады (нармалізаваныя)
+      const city = normalizeLocationForDB(v.location, v.country);
+      if (city) {
+        const displayCity =
+          v.country !== "Polska" ? `${city} (${v.country})` : city;
+        cities.add(displayCity);
+      }
+
+      // 2. Агенцыі (толькі нармалізаваныя)
+      if (v.agencyName && v.agencyName !== "Manual") agencies.add(v.agencyName);
+
+      // 3. Брэнды (чысцім ад смецця)
+      if (
+        v.brand &&
+        !BRAND_BLACKLIST.some((b) => v.brand.toLowerCase().includes(b))
+      ) {
+        brands.add(v.brand);
+      }
+
+      // 4. Нюансы (катэгорыі)
+      if (v.conditions?.specificNuances) {
+        v.conditions.specificNuances.forEach((n) => {
+          const category = n.split(" (")[0];
+          nuances.add(category);
+        });
+      }
+    });
+
+    res.json({
+      cities: Array.from(cities).sort(),
+      agencies: Array.from(agencies).sort(),
+      brands: Array.from(brands).sort(),
+      nuances: Array.from(nuances).sort(),
+      contractTypes: [
+        "Umowa zlecenie",
+        "Umowa o pracę",
+        "Відрядження (A1)",
+        "Інше",
+      ],
+      workHours: ["8 годин", "10-12 годин", "Інше"],
+      shiftTypes: ["Тільки день", "Змішані (день/ніч)"],
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 // Спіс вакансій
 router.get("/", async (req, res) => {
   try {
@@ -392,6 +505,23 @@ router.patch("/:id/ai-update", async (req, res) => {
   }
 });
 
-// 👈 ЛІШНІ ПЛАНАВАЛЬНІК ВЫДАЛЕНЫ (каб не канфліктаваць з inbox.js)
+router.post("/system/cleanup-locations", async (req, res) => {
+  try {
+    const vacancies = await Vacancy.find();
+    let updatedCount = 0;
+
+    for (const v of vacancies) {
+      const newLoc = normalizeLocationForDB(v.location, v.country);
+      if (newLoc !== v.location) {
+        v.location = newLoc;
+        await v.save();
+        updatedCount++;
+      }
+    }
+    res.json({ message: `✅ Апрацавана вакансій: ${updatedCount}` });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 module.exports = { router, processVacancyMessage };
