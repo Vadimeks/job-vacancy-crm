@@ -1092,4 +1092,5 @@ module.exports = {
   mergeWithTemplate,
   normalizeAgency,
   validateBrand,
+  normalizeLocation,
 };
