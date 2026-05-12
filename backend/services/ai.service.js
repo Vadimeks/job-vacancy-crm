@@ -654,10 +654,17 @@ function normalizeNuances(nuances) {
   if (!Array.isArray(nuances)) return [];
   return nuances
     .map((n) => {
-      const category = ALLOWED_NUANCE_CATEGORIES.find((cat) =>
-        n.startsWith(cat),
+      if (!n) return null;
+      const trimmed = n.trim();
+      // Параўноўваем катэгорыі без уліку рэгістра
+      const matchedCategory = ALLOWED_NUANCE_CATEGORIES.find((cat) =>
+        trimmed.toLowerCase().startsWith(cat.toLowerCase()),
       );
-      return category ? n : null;
+
+      if (matchedCategory) return trimmed;
+
+      // Калі катэгорыя не знойдзена — заварочваем у "Інше"
+      return `Інше (${trimmed})`;
     })
     .filter(Boolean);
 }

@@ -169,43 +169,27 @@ function sanitizeTelegramMarkdown(text) {
   );
 }
 
-// --- АСНОЎНАЯ ЛОГІКА АПРАЦОЎКІ ---
+// ============================================================
+// БЛОК 4: ЗАМЯНІЦЬ processVacancyMessage (цалкам)
+// ============================================================
 async function processVacancyMessage(
   rawText,
-  sender = "Manual", // Выкарыстоўваем sender для адпаведнасці мадэлі
+  sender = "Manual",
   preDefinedAgency = null,
   originalText = "",
   isTruncated = false,
 ) {
-  console.log(`\n--- 🤖 АЎТА-КАНВЕЕР: Stage 1 (Gemini) -> Stage 2 (Groq) ---`);
+  // Gemini больш не выклікаем, бо тэкст прыходзіць ужо перакладзены (з Inbox або Пясочніцы)
+  console.log(
+    `\n--- 🤖 Stage 2: Groq-парсінг для ${preDefinedAgency || "Manual"} ---`,
+  );
 
   try {
-    const analysis = await geminiService.analyzeAndCompareWithGemini(rawText);
-    if (!analysis || analysis.category === "NOISE")
-      return { message: "Ignored" };
-
-    if (analysis.category !== "FULL_VACANCY") {
-      const sandboxItem = new UnprocessedMessage({
-        text: originalText || rawText,
-        sender: sender, // 👈 ВЫПРАЎЛЕНА: цяпер супадае з патрабаваннем схемы
-        agencyName: preDefinedAgency || analysis.agencyName || "Manual",
-        category: analysis.category,
-        processed: false,
-        aiAnalyzed: true,
-        isTruncated: isTruncated,
-        rawText: analysis.translatedFragments
-          ? analysis.translatedFragments[0]
-          : rawText,
-      });
-      await sandboxItem.save();
-      return { message: "Saved to sandbox" };
-    }
-
     const savedVacancies = [];
-    const fragments = analysis.translatedFragments || [rawText];
+    // Тэкст ужо з'яўляецца адзінарным фрагментам
+    const fragments = [rawText];
 
     for (const fragment of fragments) {
-      // Перадаем агенцыю, вызначаную па ID чата, каб яна не страцілася
       const result = await aiService.parseVacancyWithAI(
         fragment,
         preDefinedAgency,
@@ -228,7 +212,7 @@ async function processVacancyMessage(
                 agencyName: finalAgency,
               }),
               vacancyCode,
-              originalText: rawText,
+              originalText: originalText || rawText,
               rawText: fragment,
               isTruncated: isTruncated,
               telegramPost: await aiService.formatTelegramPost({
@@ -238,30 +222,29 @@ async function processVacancyMessage(
               status: "active",
             });
             saved = await newVacancy.save();
-            break; // Паспяхова захавана
+            break;
           } catch (saveErr) {
             if (saveErr.code === 11000 && saveAttempts < 4) {
               saveAttempts++;
-              console.warn(
-                `⚠️ vacancyCode дубль, паўторная спроба ${saveAttempts}/4...`,
-              );
               await new Promise((r) => setTimeout(r, 100 * saveAttempts));
             } else {
               throw saveErr;
             }
           }
         }
-        await sendToTelegram(
-          cleanTelegramPost(sanitizeTelegramMarkdown(saved.telegramPost)),
-        );
-        savedVacancies.push(saved);
+
+        if (saved) {
+          await sendToTelegram(
+            cleanTelegramPost(sanitizeTelegramMarkdown(saved.telegramPost)),
+          );
+          savedVacancies.push(saved);
+        }
       }
-      if (fragments.length > 1) await new Promise((r) => setTimeout(r, 1500));
     }
-    return savedVacancies[0];
+    return savedVacancies.length > 0 ? savedVacancies[0] : null;
   } catch (err) {
-    console.error(`❌ Auto-Pipeline Error: ${err.message}`);
-    throw err;
+    console.error(`❌ processVacancyMessage Error: ${err.message}`);
+    return { error: err.message };
   }
 }
 

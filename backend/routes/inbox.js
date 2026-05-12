@@ -164,32 +164,36 @@ async function processPendingMessages() {
     isProcessing = true;
     console.log(`⚙️ КАНВЕЕР: Апрацоўка ${pending.length} паведамленняў...`);
 
+    // ============================================================
+    // БЛОК 2: ПОЎНЫ ЦЫКЛ for (const msg of pending) У processPendingMessages
+    // ============================================================
+
     for (const msg of pending) {
       try {
         msg.rawText = "__processing__";
         await msg.save();
 
-        const enrichedText = await enrichTextWithDocs(msg.text);
-        const analysis = await analyzeAndCompareWithGemini(
-          enrichedText,
-          [],
-          [],
-        );
+        // Выклікаем Gemini (Stage 1) — ён робіць пераклад і спліцінг
+        const analysis = await analyzeAndCompareWithGemini(msg.text, [], []);
 
         if (!analysis) {
-          // КРЫТЫЧНА: Калі AI вярнуў null (ліміты), спыняем увесь цыкл
           console.log(
             `⏳ AI ліміты дасягнуты. Спыняем канвеер для паведамлення ${msg._id}.`,
           );
           msg.rawText = "";
           await msg.save();
-          break; // 👈 Выхад з цыкла for, астатнія паведамленні чакаюць 10 хвілін
+          break;
         }
 
-        const raw = analysis.translatedText;
-        const translatedText = typeof raw === "string" ? raw : enrichedText;
+        // ✅ ВЫПРАЎЛЕННЕ БАГА З МОВАЙ:
+        // Склейваем фрагменты для адлюстравання ў Пясочніцы (rawText)
+        const translatedText =
+          analysis.translatedFragments &&
+          Array.isArray(analysis.translatedFragments)
+            ? analysis.translatedFragments.join("\n\n---\n\n")
+            : msg.text;
 
-        // --- НОВАЕ: Layer 2 Filtering (Ачыстка Пясочніцы) ---
+        // --- Layer 2 Filtering (Ачыстка Пясочніцы пасля AI) ---
         if (
           analysis.category === "NOISE" ||
           shouldIgnorePostAI(translatedText)
@@ -198,12 +202,13 @@ async function processPendingMessages() {
             `🗑️ Аўта-архівацыя шуму (Layer 2): "${logPreview(translatedText)}..."`,
           );
           msg.category = "chat";
-          msg.processed = true; // Паведамленне знікне з Пясочніцы
+          msg.processed = true;
           msg.aiAnalyzed = true;
           msg.rawText = translatedText;
           await msg.save();
           continue;
         }
+
         const categoryMap = {
           UPDATE: "update",
           RECRUITER_INFO: "info",
@@ -214,27 +219,35 @@ async function processPendingMessages() {
         let finalCategory = categoryMap[analysis.category] || "info";
         let isAutoDone = false;
 
+        // Калі гэта паўнавартасная вакансія — запускаем Stage 2 (Groq)
         if (
           analysis.category === "FULL_VACANCY" &&
           AUTO_PROCESS_VACANCIES &&
           !msg.isTruncated
         ) {
-          if (hasMinimalVacancyData(translatedText)) {
-            console.log(`🔥 Stage 2: Groq-парсінг для ${msg.agencyName}...`);
-            const result = await processVacancyMessage(
-              translatedText,
-              msg.sender,
-              msg.agencyName,
-              msg.text,
-              msg.isTruncated,
-            );
-            if (result && !result.error) isAutoDone = true;
-          } else {
-            finalCategory = "update";
+          // Калі фрагментаў некалькі — апрацоўваем кожны асобна
+          const fragments = analysis.translatedFragments || [translatedText];
+          let allProcessed = true;
+
+          for (const fragment of fragments) {
+            if (hasMinimalVacancyData(fragment)) {
+              console.log(`🔥 Stage 2: Groq-парсінг для ${msg.agencyName}...`);
+              const result = await processVacancyMessage(
+                fragment, // Перадаем канкрэтны фрагмент
+                msg.sender,
+                msg.agencyName,
+                msg.text,
+                msg.isTruncated,
+              );
+              if (!result || result.error) allProcessed = false;
+            } else {
+              allProcessed = false;
+            }
           }
+          if (allProcessed) isAutoDone = true;
         }
 
-        msg.rawText = translatedText;
+        msg.rawText = translatedText; // Цяпер у Пясочніцы будзе ўкраінская мова
         msg.category = finalCategory;
         msg.aiAnalyzed = true;
         msg.processed = isAutoDone;
@@ -245,7 +258,7 @@ async function processPendingMessages() {
         console.error(`❌ Памылка на ${msg._id}:`, err.message);
         msg.rawText = "";
         await msg.save();
-        break; // Пры любой памылцы лепш спыніцца і пачакаць
+        break;
       }
     }
   } catch (globalErr) {
