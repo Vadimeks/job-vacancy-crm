@@ -818,11 +818,10 @@ JSON STRUCTURE:
         ? baseTitle.substring(0, baseTitle.lastIndexOf(" — ")).trim()
         : baseTitle;
 
+      // Правяраем, ці ёсць ЧЫСТАЯ назва горада ў загалоўку (без краіны)
       const finalTitle =
-        displayLocation &&
-        !titleWithoutLocation
-          .toLowerCase()
-          .includes(displayLocation.toLowerCase())
+        cleanLoc &&
+        !titleWithoutLocation.toLowerCase().includes(cleanLoc.toLowerCase())
           ? `${titleWithoutLocation} — ${displayLocation}`
           : titleWithoutLocation;
 

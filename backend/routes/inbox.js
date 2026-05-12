@@ -13,6 +13,7 @@ const {
   getWhitelistedAgency,
   isTruncated,
   getPrefixHash,
+  shouldIgnorePostAI,
 } = require("../utils/messageFilters");
 const aiService = require("../services/ai.service");
 
@@ -190,15 +191,21 @@ async function processPendingMessages() {
         const raw = analysis.translatedText;
         const translatedText = typeof raw === "string" ? raw : enrichedText;
 
-        if (analysis.category === "NOISE") {
+        // --- НОВАЕ: Layer 2 Filtering (Ачыстка Пясочніцы) ---
+        if (
+          analysis.category === "NOISE" ||
+          shouldIgnorePostAI(translatedText)
+        ) {
+          console.log(
+            `🗑️ Аўта-архівацыя шуму (Layer 2): "${logPreview(translatedText)}..."`,
+          );
           msg.category = "chat";
-          msg.processed = true; // 👈 Гэта важна: паведамленне знікне з Пясочніцы
+          msg.processed = true; // Паведамленне знікне з Пясочніцы
           msg.aiAnalyzed = true;
-          msg.rawText = translatedText.substring(0, 2000);
+          msg.rawText = translatedText;
           await msg.save();
           continue;
         }
-
         const categoryMap = {
           UPDATE: "update",
           RECRUITER_INFO: "info",
