@@ -254,21 +254,21 @@ FULL MODE STRUCTURE (skip empty lines/sections):
 • Мова: [requirements.polishLanguageLevel]
 [• Фізичне навантаження: [requirements.physicalLoad]]
 
-🕒 *Графік роботи*
-[schedule.description]
+🕒 *Графік роботи :* [schedule.description]
+
 [• Перерва: [schedule.breakDuration]]
 
 📄 *Тип договору:* [contractType]
 
-🏠 *Проживання*
-[accommodation.type]
+🏠 *Проживання :* [accommodation.type]
+
 [• Для пар: Так (only if forCouples is true)]
 [• Можна з дітьми: Так (only if withChildren is true)]
 [• Можна з тваринами: Так (only if withPets is true)]
 [• Деталі: [accommodation.details]]
 
-🚌 *Транспорт (довіз)*
-[transport.provided ? "надається" : "немає"]
+🚌 *Транспорт (довіз) :* [transport.provided ? "надається" : "немає"]
+
 [• Деталі: [transport.details]]
 
 💸 *Витрати та відповідальність*
