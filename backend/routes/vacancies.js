@@ -205,7 +205,11 @@ async function processVacancyMessage(
     const fragments = analysis.translatedFragments || [rawText];
 
     for (const fragment of fragments) {
-      const result = await aiService.parseVacancyWithAI(fragment);
+      // Перадаем агенцыю, вызначаную па ID чата, каб яна не страцілася
+      const result = await aiService.parseVacancyWithAI(
+        fragment,
+        preDefinedAgency,
+      );
       const vacancyDataList = Array.isArray(result) ? result : [result];
 
       for (const vData of vacancyDataList) {
@@ -270,7 +274,8 @@ router.post("/auto", async (req, res) => {
       req.body;
     console.log(`\n--- 👤 РУЧНЫ ПАРСІНГ: Напрамую ў Stage 2 (Groq) ---`);
 
-    const result = await aiService.parseVacancyWithAI(rawText);
+    // Перадаем абраную агенцыю (forcedAgency)
+    const result = await aiService.parseVacancyWithAI(rawText, agencyName);
     const vacancyDataList = Array.isArray(result) ? result : [result];
 
     const savedVacancies = [];
@@ -511,14 +516,29 @@ router.post("/system/cleanup-locations", async (req, res) => {
     let updatedCount = 0;
 
     for (const v of vacancies) {
-      const newLoc = normalizeLocationForDB(v.location, v.country);
+      // Выкарыстоўваем новую эталонную функцыю з aiService
+      const newLoc = aiService.normalizeLocation(v.location, v.country);
+
+      // Калі лакацыя змянілася — абнаўляем і загаловак, каб прыбраць дублі
       if (newLoc !== v.location) {
         v.location = newLoc;
+
+        // Абнаўляем загаловак (прыбіраем стары горад, дадаем новы)
+        const baseTitle = v.vacancydescription || "Опис вакансії";
+        const titleWithoutLocation = baseTitle.includes(" — ")
+          ? baseTitle.substring(0, baseTitle.lastIndexOf(" — ")).trim()
+          : baseTitle;
+
+        v.vacancydescription = `${titleWithoutLocation} — ${newLoc}`;
+
         await v.save();
         updatedCount++;
       }
     }
-    res.json({ message: `✅ Апрацавана вакансій: ${updatedCount}` });
+    res.json({
+      message: `✅ Апрацавана вакансій: ${vacancies.length}`,
+      updated: updatedCount,
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

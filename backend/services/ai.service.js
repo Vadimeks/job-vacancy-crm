@@ -94,7 +94,48 @@ const BRAND_BLACKLIST = [
   "магазин",
   "store",
 ];
+const COUNTRY_MAP = {
+  німеччина: "Germany",
+  германия: "Germany",
+  deutschland: "Germany",
+  germany: "Germany",
+  нідерланди: "Netherlands",
+  нидерланды: "Netherlands",
+  nederland: "Netherlands",
+  netherlands: "Netherlands",
+  польща: "Polska",
+  польша: "Polska",
+  poland: "Polska",
+  polska: "Polska",
+  франція: "France",
+  франция: "France",
+  france: "France",
+  бельгія: "Belgium",
+  бельгия: "Belgium",
+  belgium: "Belgium",
+  чехія: "Czech Republic",
+  чехия: "Czech Republic",
+  czechia: "Czech Republic",
+};
+// Функцыя для ачысткі назвы горада ад любых краін у дужках
+function normalizeLocation(location, country) {
+  if (!location) return "";
 
+  // 1. Выдаляем любыя канструкцыі ў дужках (краіны на розных мовах)
+  let clean = location.replace(/\s*\([^)]+\)/gi, "").trim();
+
+  // 2. Вызначаем эталонную назву краіны
+  const normalizedCountry = country
+    ? COUNTRY_MAP[country.toLowerCase()] || country
+    : "Polska";
+
+  // 3. Калі гэта не Польшча, дадаем краіну ў дужках (адзін раз)
+  if (normalizedCountry !== "Polska") {
+    return `${clean} (${normalizedCountry})`;
+  }
+
+  return clean;
+}
 // Функцыя нармалізацыі агенцыі
 function normalizeAgency(raw) {
   if (!raw) return "MANUAL";
@@ -223,8 +264,9 @@ TASK: Format job data into a beautiful Telegram post in UKRAINIAN.
    • If transport is NOT provided → "🚌 Довіз: немає"
    • If transport IS provided → "🚌 Довіз: надається" + details
    • NEVER show "Власний" as transport value
-   • Організаваны трансфер з Украіны → заўсёды ў *Додаткову інформацію*, не ў блок транспарту.
-
+- ACCOMMODATION: If costRaw is present, show it! Example: "🏠 Проживання: Надається (450 €/міс)".
+- LANGUAGE: If requirements.languageDetails is present, show it in the Requirements block.
+- COMPACTNESS: If a section is empty, skip it. No placeholders like "немає інформацыі".
 TITLE RULE:
 - vacancydescription must be formatted as "Job Essence (Category) — Location".
 - Location = place of work, not checkInCity.
@@ -322,7 +364,20 @@ Rules:
 Return ONLY valid JSON with the complete merged result using FULL structure v2.0.
 IMPORTANT: Return ONLY valid JSON, no markdown, no explanations.
 `;
+const UPDATE_VACANCY_PROMPT = `
+ROLE: Professional HR Dispatcher.
+TASK: Update an EXISTING job vacancy (JSON v2.0) with information from a NEW message.
+${LANGUAGE_GUARD}
 
+CRITICAL RULES FOR UPDATE:
+1. If the message mentions housing cost (e.g., "450€", "15€/доба") -> update accommodation.costRaw and accommodation.details.
+2. If the message says "STOP", "closed", "зібрана", "не актуально" -> set status to "closed".
+3. KEEP ALL OTHER FIELDS: If a field (like agencyName, brand, or description) is NOT mentioned in the new message, you MUST keep the value from CURRENT_VACANCY_JSON. NEVER reset them to null.
+4. DO NOT change vacancyCode or _id.
+5. If new requirements appear (e.g., "English language") -> update requirements.languageDetails.
+
+Return ONLY valid JSON.
+`;
 // --- ДАПАМОЖНЫЯ ФУНКЦЫІ ---
 // ============================================================
 async function executeAIRequest(systemPrompt, userContent, jsonMode = true) {
@@ -417,9 +472,6 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true) {
   chainFrozenUntil = Date.now() + 60 * 60 * 1000;
   throw new Error("ALL_AI_MODELS_FAILED");
 }
-
-// ============================================================
-// БЛОК 3: mergeWithTemplate
 
 async function mergeWithTemplate(rawText, template) {
   try {
@@ -537,10 +589,6 @@ async function linkTemplateToVacancy(vacancyData, template) {
   };
 }
 
-// ============================================================
-// БЛОК 4: ЗАМЯНІЦЬ formatTelegramPost
-// ============================================================
-
 async function formatTelegramPost(vacancyData) {
   console.log(`🤖 Форматаванне Telegram-посту...`);
   const text = await executeAIRequest(
@@ -550,34 +598,11 @@ async function formatTelegramPost(vacancyData) {
   );
   return text.trim();
 }
-function normalizeLocation(location, country) {
-  if (!location) return "";
-  // 1. Выдаляем кірылічныя назвы краін і дублі ў дужках
-  let clean = location
-    .replace(/\s*\(Німеччина\)/gi, "")
-    .replace(/\s*\(Нідерланди\)/gi, "")
-    .replace(/\s*\(Франція\)/gi, "")
-    .replace(/\s*\(Польща\)/gi, "")
-    .replace(/\s*\(Germany\)/gi, "")
-    .replace(/\s*\(Netherlands\)/gi, "")
-    .replace(/\s*\(France\)/gi, "")
-    .replace(/\s*\(Poland\)/gi, "")
-    .trim();
-
-  // 2. Выдаляем дублі тыпу (Germany) (Germany)
-  clean = clean.replace(/\(([^)]+)\)\s*\(\1\)/gi, "($1)");
-
-  // 3. Калі краіна не Польшча, выдаляем яе з самога горада, бо яна дадасца пазней
-  if (country && country !== "Polska") {
-    const countryPattern = new RegExp(`\\s*\\(${country}\\)\\s*$`, "i");
-    clean = clean.replace(countryPattern, "").trim();
-  }
-
-  return clean;
-}
 async function parseVacancyWithAI(rawText) {
   try {
-    console.log(`🤖 Парсінг v2.0 ...`);
+    console.log(
+      `🤖 Парсінг v2.0 ... ${forcedAgency ? `(Forced Agency: ${forcedAgency})` : ""}`,
+    );
 
     const SYSTEM_INSTRUCTION = `
 ROLE: Professional automated job vacancy parser (v2.3).
@@ -788,58 +813,58 @@ JSON STRUCTURE:
 }`;
 
     const text = await executeAIRequest(SYSTEM_INSTRUCTION, rawText, true);
-    // Страхоўка: здымаем ```json фэнсы на выпадак калі яны дайшлі да гэтага месца
     const cleanText = text
       .replace(/^```(?:json)?\s*/i, "")
       .replace(/\s*```$/i, "")
       .trim();
     const parsedData = JSON.parse(cleanText);
-    // Ствараем функцыю-абгортку для твайго існуючага коду
+
     const processSingle = (parsed) => {
-      // --- ПОСТ-АПРАЦОЎКА (Страхоўка) ---
+      // --- Страхоўка лакацыі: прыбіраем дубляванне "Polska"
       if (parsed.location) {
         parsed.location = parsed.location.replace(/Polska,?\s*/gi, "").trim();
       }
 
       const cleaned = cleanData(parsed);
 
-      // ===== УНІФІКАЦЫЯ ПАСЛЯ AI =====
-      const normalizedAgency = normalizeAgency(cleaned.agencyName);
+      // Агенцыя: Forced → AI → Manual
+      const normalizedAgency =
+        forcedAgency || normalizeAgency(cleaned.agencyName);
+
+      // Бренд
       const validatedBrand = validateBrand(cleaned.brand);
 
-      // 1. Разумная лакацыя без дубляў
-      const cleanLoc = normalizeLocation(cleaned.location, cleaned.country);
-      const displayLocation =
-        cleaned.country && cleaned.country !== "Polska"
-          ? `${cleanLoc} (${cleaned.country})`
-          : cleanLoc;
+      // 1. Атрымліваем ужо гатовую лакацыю (Warszawa або Berlin (Germany))
+      const displayLocation = normalizeLocation(
+        cleaned.location,
+        cleaned.country,
+      );
 
-      // 2. Разумны загаловак: выдаляем старую лакацыю перад дадаваннем новай
+      // 2. Загаловак: выкарыстоўваем displayLocation
       const baseTitle = cleaned.vacancydescription || "Опис вакансії";
       const titleWithoutLocation = baseTitle.includes(" — ")
         ? baseTitle.substring(0, baseTitle.lastIndexOf(" — ")).trim()
         : baseTitle;
 
-      // Правяраем, ці ёсць ЧЫСТАЯ назва горада ў загалоўку (без краіны)
       const finalTitle =
-        cleanLoc &&
-        !titleWithoutLocation.toLowerCase().includes(cleanLoc.toLowerCase())
+        displayLocation &&
+        !titleWithoutLocation
+          .toLowerCase()
+          .includes(displayLocation.toLowerCase())
           ? `${titleWithoutLocation} — ${displayLocation}`
           : titleWithoutLocation;
 
-      // 3. Страхоўка па транспарце: "Власний" = provided: false + ачыстка дэталяў
+      // Транспарт: "Власний" → provided: false
       if (
         cleaned.transport?.details?.toLowerCase().includes("власн") ||
         cleaned.transport?.costRaw?.toLowerCase().includes("власн")
       ) {
         cleaned.transport.provided = false;
-        cleaned.transport.details = ""; // Ачышчаем, каб у ТГ не было "Довіз: немає / Власний"
+        cleaned.transport.details = "";
       }
 
-      // 4. Страхоўка зарплаты
+      // Зарплата: дадаём валюту, калі толькі лічба
       let finalBaseNetto = cleaned.salary?.baseNetto;
-
-      // --- НОВАЕ: Страхоўка валюты (калі прыйшла проста лічба) ---
       if (
         finalBaseNetto &&
         !isNaN(String(finalBaseNetto).replace(",", ".").trim())
@@ -848,7 +873,7 @@ JSON STRUCTURE:
         finalBaseNetto = `${finalBaseNetto} ${currency}`;
       }
 
-      // Існуючы фолбэк на salaryNotes
+      // Fallback на salaryNotes
       if (
         (!finalBaseNetto || finalBaseNetto === "не вказано") &&
         cleaned.salary?.salaryNotes
@@ -867,7 +892,6 @@ JSON STRUCTURE:
         ...cleaned,
         agencyName: normalizedAgency,
         brand: validatedBrand,
-        location: cleanLoc,
         templateName: cleaned.templateName || "",
         vacancydescription: finalTitle,
         category: cleaned.category || null,
@@ -883,7 +907,7 @@ JSON STRUCTURE:
         },
 
         // === 2. ЛАКАЦЫІ І ГЕАГРАФІЯ ===
-        location: cleaned.location || "",
+        location: displayLocation,
         locationDescription: cleaned.locationDescription || "",
         voivodeship: cleaned.voivodeship || "Польща",
         country: cleaned.country || "Polska",
@@ -1040,21 +1064,6 @@ async function testConnection() {
     return false;
   }
 }
-const UPDATE_VACANCY_PROMPT = `
-ROLE: Professional HR Dispatcher.
-TASK: Update an EXISTING job vacancy (JSON v2.0) with information from a NEW message.
-${LANGUAGE_GUARD}
-Rules:
-1. If the message says "STOP", "closed", "зібрана", "не актуально", "набір закрито" -> set status to "closed".
-2. If the message mentions a new salary/rate -> update salary.baseNetto and other salary fields.
-3. If the message mentions a new arrival date -> update arrivalDate.
-4. If the message mentions a change in requirements (gender, age) -> update requirements.
-5. If the message contains new details -> append them to additionalNotes or update specific fields.
-6. KEEP all other fields from the original JSON exactly as they are.
-7. Do NOT change vacancyCode, _id, or agencyName.
-
-Return ONLY valid JSON with the full updated structure v2.0.
-`;
 
 async function updateVacancyWithAI(existingVacancy, newText) {
   console.log(`🤖 Абнаўленне вакансіі ${existingVacancy.vacancyCode}...`);
