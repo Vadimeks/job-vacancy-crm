@@ -59,18 +59,22 @@ const KNOWN_AGENCIES = [
   "APOLO",
   "BISAR",
   "EST",
+  "EWL",
   "FWS",
   "GLOBAL",
   "INTRASERVICE",
+  "KONO",
   "MANPOWER",
   "MANUAL",
   "MRÓWKI",
   "NIDEN",
   "OTTO",
+  "PERSONEL SERVICE",
   "PROGRES",
+  "RALEN",
   "SG",
   "SOLANO",
-  "STAFF POWER", // 🆕
+  "STAFF POWER",
 ];
 
 const BRAND_BLACKLIST = [
@@ -117,6 +121,39 @@ const COUNTRY_MAP = {
   чехия: "Czech Republic",
   czechia: "Czech Republic",
 };
+const VOIVODESHIP_MAP = {
+  "вармінсько-мазурське": "Warmińsko-mazurskie",
+  великопольське: "Wielkopolskie",
+  нижньосілезьке: "Dolnośląskie",
+  "куявсько-поморське": "Kujawsko-pomorskie",
+  люблінське: "Lubelskie",
+  любуське: "Lubuskie",
+  лодзинське: "Łódzkie",
+  малопольське: "Małopolskie",
+  мазовецьке: "Mazowieckie",
+  опольське: "Opolskie",
+  підкарпатське: "Podkarpackie",
+  підляське: "Podlaskie",
+  поморське: "Pomorskie",
+  сілезьке: "Śląskie",
+  свентокшиське: "Świętokrzyskie",
+  західнопоморське: "Zachodniopomorskie",
+  "підкарпатське воєводство": "Podkarpackie",
+};
+
+const ALLOWED_NUANCE_CATEGORIES = [
+  "Тэмпературний режим",
+  "Фізично-важка праця",
+  "Санітарні обмеження",
+  "Запахи та алергени",
+  "Шум",
+  "Характер праці",
+  "Специфічні навички",
+  "Норми",
+  "Тести пры вступі",
+  "Інше",
+];
+
 // Функцыя для ачысткі назвы горада ад любых краін у дужках
 function normalizeLocation(location, country) {
   if (!location) return "";
@@ -139,45 +176,60 @@ function normalizeLocation(location, country) {
 // Функцыя нармалізацыі агенцыі
 function normalizeAgency(raw) {
   if (!raw) return "MANUAL";
-
   const upper = raw.toUpperCase().trim();
 
-  // Слоўнік для мапінгу кірыліцы ў лацінку
   const TRANSLATION_MAP = {
-    ПРОГРЕС: "PROGRES",
-    КОНО: "KONO",
     АПОЛО: "APOLO",
-    БІЗАР: "BISAR",
+    БИСАР: "BISAR",
+    БІСАР: "BISAR",
     ЕСТ: "EST",
+    ЕВЛ: "EWL",
+    ЄВЛ: "EWL",
+    ФВС: "FWS",
     ГЛОБАЛ: "GLOBAL",
+    ИНТРАСЕРВИС: "INTRASERVICE",
+    ІНТРАСЕРВІС: "INTRASERVICE",
+    "ПАРТНЕР/ИНТРАСЕРВИС": "INTRASERVICE",
+    КОНО: "KONO",
+    МАНПАУЭР: "MANPOWER",
+    МАНПАВЕР: "MANPOWER",
+    МАНУАЛ: "MANUAL",
+    МРУВКИ: "MRÓWKI",
+    МРУВКІ: "MRÓWKI",
+    НИДЕН: "NIDEN",
+    НІДЕН: "NIDEN",
     ОТТО: "OTTO",
+    "ПЕРСОНЕЛ СЕРВИС": "PERSONEL SERVICE",
+    "ПЕРСОНЕЛ СЕРВІС": "PERSONEL SERVICE",
+    ПРОГРЕСС: "PROGRES",
+    ПРОГРЕС: "PROGRES",
+    РАЛЕН: "RALEN",
     СГ: "SG",
     СОЛАНО: "SOLANO",
-    "ПЕРСОНЕЛ СЕРВІС": "PERSONEL SERVICE",
-    МАНПАЎЭР: "MANPOWER",
+    "СТАФФ ПАУЭР": "STAFF POWER",
+    "СТАФ ПАВЕР": "STAFF POWER",
   };
 
-  // 1. Праверка па слоўніку перакладу
-  if (TRANSLATION_MAP[upper]) return TRANSLATION_MAP[upper];
+  const translated = TRANSLATION_MAP[upper] || upper;
 
-  // 2. Праверка на дакладнае супадзенне ў KNOWN_AGENCIES
-  if (KNOWN_AGENCIES.includes(upper)) return upper;
-
-  // 3. Пошук частковага супадзення
+  // Шукаем дакладнае супадзенне або ўваходжанне ў эталонны спіс
   const found = KNOWN_AGENCIES.find(
-    (a) => upper.includes(a) || a.includes(upper),
+    (a) => translated === a || translated.includes(a) || a.includes(translated),
   );
 
-  return found || upper;
+  return found || translated;
 }
 
 // Функцыя валідацыі брэнда
 function validateBrand(raw) {
   if (!raw) return null;
-  const lower = raw.toLowerCase().trim();
-  if (BRAND_BLACKLIST.some((b) => lower.includes(b))) return null;
-  if (raw.trim().length < 2) return null;
-  return raw.trim();
+  const upper = raw.toUpperCase().trim();
+  if (
+    BRAND_BLACKLIST.some((b) => upper.toLowerCase().includes(b.toLowerCase()))
+  )
+    return null;
+  if (upper.length < 2) return null;
+  return upper;
 }
 const LANGUAGE_GUARD = `
 !!! UKRAINIAN ONLY. Geography: Polish (Latin). Input is already UA, do not translate.
@@ -598,7 +650,19 @@ async function formatTelegramPost(vacancyData) {
   );
   return text.trim();
 }
-async function parseVacancyWithAI(rawText) {
+function normalizeNuances(nuances) {
+  if (!Array.isArray(nuances)) return [];
+  return nuances
+    .map((n) => {
+      const category = ALLOWED_NUANCE_CATEGORIES.find((cat) =>
+        n.startsWith(cat),
+      );
+      return category ? n : null;
+    })
+    .filter(Boolean);
+}
+
+async function parseVacancyWithAI(rawText, forcedAgency = null) {
   try {
     console.log(
       `🤖 Парсінг v2.0 ... ${forcedAgency ? `(Forced Agency: ${forcedAgency})` : ""}`,
@@ -886,7 +950,9 @@ JSON STRUCTURE:
           finalBaseNetto = cleaned.salary.salaryNotes;
         }
       }
-
+      const vLower = cleaned.voivodeship?.toLowerCase().trim();
+      const finalVoivodeship =
+        VOIVODESHIP_MAP[vLower] || cleaned.voivodeship || "Польща";
       return {
         // === 1. СИСТЕМНІ ПОЛЯ ===
         ...cleaned,
@@ -909,7 +975,7 @@ JSON STRUCTURE:
         // === 2. ЛАКАЦЫІ І ГЕАГРАФІЯ ===
         location: displayLocation,
         locationDescription: cleaned.locationDescription || "",
-        voivodeship: cleaned.voivodeship || "Польща",
+        voivodeship: finalVoivodeship,
         country: cleaned.country || "Polska",
         checkInCity: cleaned.checkInCity || "",
 
@@ -999,9 +1065,9 @@ JSON STRUCTURE:
         // === 9. СПЕЦЫФІЧНЫЯ ЎМОВЫ ===
         conditions: {
           hasSpecificConditions: !!cleaned.conditions?.hasSpecificConditions,
-          specificNuances: Array.isArray(cleaned.conditions?.specificNuances)
-            ? cleaned.conditions.specificNuances
-            : [],
+          specificNuances: normalizeNuances(
+            cleaned.conditions?.specificNuances,
+          ),
           specificConditionsDetails:
             cleaned.conditions?.specificConditionsDetails || "",
           workwearFree: !!cleaned.conditions?.workwearFree,
@@ -1093,4 +1159,6 @@ module.exports = {
   normalizeAgency,
   validateBrand,
   normalizeLocation,
+  normalizeNuances, // <--- ДАДАДЗЕНА
+  VOIVODESHIP_MAP, // <--- ДАДАДЗЕНА
 };

@@ -259,9 +259,11 @@ function getPrefixHash(text) {
   if (!text) return "";
   return text
     .toLowerCase()
+    .replace(/\d{1,2}[./]\d{1,2}/g, "") // Выдаляем даты (12.05, 12/05)
+    .replace(/\d{1,2}:\d{2}/g, "") // Выдаляем час (16:44)
     .replace(/\s+/g, "")
     .replace(/[^a-zа-яёіў0-9]/gi, "")
-    .substring(0, 250); // 👈 Павялічана да 250
+    .substring(0, 250);
 }
 
 function getWhitelistedAgency(chatTitle, chatId = null) {

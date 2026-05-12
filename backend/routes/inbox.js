@@ -81,31 +81,29 @@ router.post("/push", async (req, res) => {
 
     const incomingPrefixHash = getPrefixHash(text);
     const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000);
+    // 3. Дэдуплікацыя (па хэшы або прэфіксе ў межах адной агенцыі)
+    const incomingTextHash = normalizeText(text);
 
-    // 3. Дэдуплікацыя (stitching)
     const existingMsg = await UnprocessedMessage.findOne({
       agencyName: agency,
-      prefixHash: incomingPrefixHash,
+      $or: [{ prefixHash: incomingPrefixHash }, { textHash: incomingTextHash }],
       createdAt: { $gte: fortyEightHoursAgo },
     });
 
     if (existingMsg) {
+      // Калі новае паведамленне даўжэйшае (даслалі працяг), абнаўляем старое
       if (text.length > existingMsg.text.length) {
-        console.log(
-          `🔄 Абнаўленне (stitching): ${agency} (${existingMsg.text.length} -> ${text.length} сімв.)`,
-        );
+        console.log(`🔄 Абнаўленне (stitching): ${agency}`);
         existingMsg.text = text;
-        existingMsg.textHash = normalizeText(text);
+        existingMsg.textHash = incomingTextHash;
         existingMsg.prefixHash = incomingPrefixHash;
-        existingMsg.isTruncated = isTruncated(text, source);
         existingMsg.processed = false;
-        existingMsg.aiAnalyzed = false; // Скідваем аналіз, бо тэкст абнавіўся
+        existingMsg.aiAnalyzed = false;
         await existingMsg.save();
         return res.status(200).json({ status: "updated_in_buffer" });
       } else {
-        console.log(
-          `🔁 Ігнараваны дубль (prefixHash) ад ${agency}: "${logPreview(text)}"`,
-        );
+        // Калі тэкст такі ж або карацейшы — гэта дубль, ігнаруем
+        console.log(`🔁 Ігнараваны дубль ад ${agency}: "${logPreview(text)}"`);
         return res.status(200).json({ status: "ignored_duplicate" });
       }
     }

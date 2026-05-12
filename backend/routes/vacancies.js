@@ -516,27 +516,67 @@ router.post("/system/cleanup-locations", async (req, res) => {
     let updatedCount = 0;
 
     for (const v of vacancies) {
-      // Выкарыстоўваем новую эталонную функцыю з aiService
-      const newLoc = aiService.normalizeLocation(v.location, v.country);
+      let isChanged = false;
 
-      // Калі лакацыя змянілася — абнаўляем і загаловак, каб прыбраць дублі
+      // 1. Лакацыя
+      const newLoc = aiService.normalizeLocation(v.location, v.country);
       if (newLoc !== v.location) {
         v.location = newLoc;
+        isChanged = true;
+      }
 
-        // Абнаўляем загаловак (прыбіраем стары горад, дадаем новы)
+      // 2. Агенцыя (UpperCase + Translation)
+      const newAgency = aiService.normalizeAgency(v.agencyName);
+      if (v.agencyName !== newAgency) {
+        v.agencyName = newAgency;
+        isChanged = true;
+      }
+
+      // 3. Брэнд (UpperCase + Blacklist)
+      const newBrand = aiService.validateBrand(v.brand);
+      if (v.brand !== newBrand) {
+        v.brand = newBrand;
+        isChanged = true;
+      }
+
+      // 4. Ваяводства (Пераклад)
+      const vLower = v.voivodeship?.toLowerCase().trim();
+      // Мы выкарыстоўваем VOIVODESHIP_MAP, які трэба таксама экспартаваць з aiService
+      const newVoiv = aiService.VOIVODESHIP_MAP[vLower] || v.voivodeship;
+      if (v.voivodeship !== newVoiv) {
+        v.voivodeship = newVoiv;
+        isChanged = true;
+      }
+
+      // 5. Нюансы (Фільтрацыя па 10 катэгорыях)
+      if (v.conditions?.specificNuances) {
+        const newNuances = aiService.normalizeNuances(
+          v.conditions.specificNuances,
+        );
+        if (
+          JSON.stringify(v.conditions.specificNuances) !==
+          JSON.stringify(newNuances)
+        ) {
+          v.conditions.specificNuances = newNuances;
+          isChanged = true;
+        }
+      }
+
+      if (isChanged) {
+        // Абнаўляем загаловак, каб прыбраць дублі лакацый
         const baseTitle = v.vacancydescription || "Опис вакансії";
-        const titleWithoutLocation = baseTitle.includes(" — ")
-          ? baseTitle.substring(0, baseTitle.lastIndexOf(" — ")).trim()
+        const titlePart = baseTitle.includes(" — ")
+          ? baseTitle.split(" — ")[0]
           : baseTitle;
-
-        v.vacancydescription = `${titleWithoutLocation} — ${newLoc}`;
+        v.vacancydescription = `${titlePart.trim()} — ${v.location}`;
 
         await v.save();
         updatedCount++;
       }
     }
     res.json({
-      message: `✅ Апрацавана вакансій: ${vacancies.length}`,
+      message: "✅ Super Cleanup Done",
+      total: vacancies.length,
       updated: updatedCount,
     });
   } catch (err) {
