@@ -240,6 +240,7 @@ FULL MODE STRUCTURE (skip empty lines/sections):
 
 💰 *Оплата праці*
 • Ставка: [salary.baseNetto]
+[• Годин на місяць: [salary.hoursRange]]
 [• Студенти: [salary.studentNetto]]
 [• Виплати: [salary.payoutDates]]
 [• Бонуси: [salary.bonusDetails]]
@@ -249,6 +250,7 @@ FULL MODE STRUCTURE (skip empty lines/sections):
 [description items with •]
 
 📋 *Вимоги*
+[• Досвід роботи: [requirements.experienceRequired ? "Обов'язковий" : "Не вимагається"]]
 [• Вік: до [requirements.ageMax] років (only if < 65)]
 • Документи: [requirements.standardDocs]
 • Мова: [requirements.polishLanguageLevel]
@@ -658,16 +660,16 @@ ACCOMMODATION:
 - Do not use costRaw, write price directly in details.
 
 SALARY:
-- baseNetto: exact rate (never empty if mentioned).
-- studentNetto: if mentioned.
+- baseNetto: exact rate WITH currency symbol (e.g., "25 zł/god", "16 €/h"). NEVER return just a number.
+- studentNetto: if mentioned, also with currency.
+- hoursRange: total hours per month (e.g., "230-260").
 - bonusDetails: all bonuses in full.
 - salaryNotes: advances, overtime, housing allowance.
-- payoutDates: if mentioned.
 
 REQUIREMENTS:
+- experienceRequired: true/false (check if "досвід" is mentioned as required).
 - polishLanguageLevel: one of "Не вимагається", "A1", "A2", "B1", "B2", "C1".
 - documents: only from strict list; others → additionalDocsDetails.
-- gender, ageMax, nationalities, physicalLoad — fill if present.
 
 SCHEDULE:
 - description: full shift schedule with times (never summarized).
@@ -825,23 +827,36 @@ JSON STRUCTURE:
           ? `${titleWithoutLocation} — ${displayLocation}`
           : titleWithoutLocation;
 
-      // 3. Страхоўка па транспарце: "Власний" = provided: false
+      // 3. Страхоўка па транспарце: "Власний" = provided: false + ачыстка дэталяў
       if (
         cleaned.transport?.details?.toLowerCase().includes("власн") ||
         cleaned.transport?.costRaw?.toLowerCase().includes("власн")
       ) {
         cleaned.transport.provided = false;
+        cleaned.transport.details = ""; // Ачышчаем, каб у ТГ не было "Довіз: немає / Власний"
       }
 
       // 4. Страхоўка зарплаты
       let finalBaseNetto = cleaned.salary?.baseNetto;
+
+      // --- НОВАЕ: Страхоўка валюты (калі прыйшла проста лічба) ---
+      if (
+        finalBaseNetto &&
+        !isNaN(String(finalBaseNetto).replace(",", ".").trim())
+      ) {
+        const currency = cleaned.country === "Polska" ? "zł/god" : "€/год";
+        finalBaseNetto = `${finalBaseNetto} ${currency}`;
+      }
+
+      // Існуючы фолбэк на salaryNotes
       if (
         (!finalBaseNetto || finalBaseNetto === "не вказано") &&
         cleaned.salary?.salaryNotes
       ) {
         if (
           cleaned.salary.salaryNotes.toLowerCase().includes("brutto") ||
-          cleaned.salary.salaryNotes.includes("zł")
+          cleaned.salary.salaryNotes.includes("zł") ||
+          cleaned.salary.salaryNotes.includes("€")
         ) {
           finalBaseNetto = cleaned.salary.salaryNotes;
         }
