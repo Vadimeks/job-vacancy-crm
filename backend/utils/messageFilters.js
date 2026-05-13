@@ -294,8 +294,23 @@ function shouldIgnoreMessage(text) {
   if (trimmed.length < 15 || EMOJI_ONLY_RE.test(trimmed)) return true;
   return NOISE_PATTERNS.some((p) => p.test(trimmed));
 }
-
+// Новая функцыя для дэтэкцыі маркетынгавых анонсаў з бонусамі
+function isMarketingBonus(text) {
+  if (!text || text.length > 400) return false;
+  // Шукаем пачатак з бонуса (напр. **500 зл за кандидата**)
+  return /^\**\d+\s*зл\s*за\s*кандидата/i.test(text.trim());
+}
 const POST_AI_NOISE_UA = [
+  /зарплата прийшла/i,
+  /коли виплата/i,
+  /є місця на/i, // "є місця на нотіно?"
+  /хтось серйозний/i,
+  /питають і зникають/i,
+  /хто перший/i,
+  /чекає на карту/i,
+  /децизію/i, // "чекає децизію"
+  /минутку.*уточню/i,
+  /освядчення треба замовити/i,
   /(чи\s+)?(актуально|є\s+місця|залишились|вільно|є\s+вакансії)/i,
   /яка\s+(назва|ставка|дата|локація)/i,
   /(де|куди|коли)\s+(таблиця|файл|координатор|приїзд|виїзд)/i,
@@ -336,4 +351,5 @@ module.exports = {
   isTruncated,
   getPrefixHash,
   shouldIgnorePostAI,
+  isMarketingBonus, // 👈 Экспартуем новую функцыю
 };

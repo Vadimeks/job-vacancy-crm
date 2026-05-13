@@ -68,8 +68,9 @@ const templateSchema = new mongoose.Schema({
 
   // === 7. ПАТРАБАВАННІ ===
   requirements: {
-    gender: { type: [String], default: ["Чоловіки", "Жінки"] },
-    ageMax: { type: Number, default: null }, // 🔧 Было 99 → null (як у Vacancy.js)
+    gender: { type: [String], default: ["Чоловіки", "Жінки", "Пари", "Сім'ї"] },
+    genderDescription: { type: String, default: "" }, // 🆕 Сінхранізацыя
+    ageMax: { type: Number, default: null },
     nationalities: { type: [String], default: ["Україна"] },
     standardDocs: {
       type: [String],
@@ -82,7 +83,7 @@ const templateSchema = new mongoose.Schema({
     entranceTestsDetails: { type: String, default: "" },
     polishLanguageLevel: { type: String, default: "Не вимагається" },
     languageDetails: { type: String, default: "" },
-    physicalLoad: { type: String, default: "" },
+    physicalLoad: { type: Boolean, default: false },
   },
 
   // === 8. ДЭЛЕГАЦЫІ А1 ===

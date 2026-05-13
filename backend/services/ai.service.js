@@ -157,20 +157,16 @@ const ALLOWED_NUANCE_CATEGORIES = [
 // Функцыя для ачысткі назвы горада ад любых краін у дужках
 function normalizeLocation(location, country) {
   if (!location) return "";
-
   // 1. Выдаляем любыя канструкцыі ў дужках (краіны на розных мовах)
   let clean = location.replace(/\s*\([^)]+\)/gi, "").trim();
-
   // 2. Вызначаем эталонную назву краіны
   const normalizedCountry = country
     ? COUNTRY_MAP[country.toLowerCase()] || country
     : "Polska";
-
-  // 3. Калі гэта не Польшча, дадаем краіну ў дужках (адзін раз)
-  if (normalizedCountry !== "Polska") {
+  // Фікс: дадаем краіну толькі калі яе яшчэ няма ў радку
+  if (normalizedCountry !== "Polska" && !clean.includes(normalizedCountry)) {
     return `${clean} (${normalizedCountry})`;
   }
-
   return clean;
 }
 // Функцыя нармалізацыі агенцыі
@@ -219,7 +215,6 @@ function normalizeAgency(raw) {
 
   return found || translated;
 }
-
 // Функцыя валідацыі брэнда
 function validateBrand(raw) {
   if (!raw) return null;
@@ -311,6 +306,7 @@ TASK: Format job data into a beautiful Telegram post in UKRAINIAN.
 !!! CRITICAL RULES !!!
 - NEVER include the Agency Name.
 - NEVER include internal notes or recruiter-only data.
+- NEVER show technical phrases like "інформація не поўна", "текст обірваний" or "no information".
 - GEOGRAPHY: If country is NOT Polska, show it in parentheses ONCE. Example: "Stadtlohn (Germany)". NEVER "Stadtlohn (Germany) (Germany)".
 - TRANSPORT RULE:
    • If transport is NOT provided → "🚌 Довіз: немає"
@@ -347,24 +343,20 @@ FULL MODE STRUCTURE (skip empty lines/sections):
 [• Досвід роботи: [requirements.experienceRequired ? "Обов'язковий" : "Не вимагається"]]
 [• Вік: до [requirements.ageMax] років (only if < 65)]
 • Документи: [requirements.standardDocs]
-• Мова: [requirements.polishLanguageLevel]
-[• Фізичне навантаження: [requirements.physicalLoad]]
+• Мова: [requirements.polishLanguageLevel] ([requirements.languageDetails])
+[• Фізично важка праця: Так (only if physicalLoad is true)]
 
-🕒 *Графік роботи :* [schedule.description]
-
-[• Перерва: [schedule.breakDuration]]
+🕒 *Графік роботи:* [schedule.description]
 
 📄 *Тип договору:* [contractType]
 
 🏠 *Проживання :* [accommodation.type]
-
 [• Для пар: Так (only if forCouples is true)]
 [• Можна з дітьми: Так (only if withChildren is true)]
 [• Можна з тваринами: Так (only if withPets is true)]
 [• Деталі: [accommodation.details]]
 
 🚌 *Транспорт (довіз) :* [transport.provided ? "надається" : "немає"]
-
 [• Деталі: [transport.details]]
 
 💸 *Витрати та відповідальність*
@@ -389,10 +381,9 @@ The template should:
 1. Extract the BRAND/COMPANY name from templateName or description
 2. Generate a short descriptive templateName: "[Brand] [City] - [Short job description]"
    Example: "Aurora Kąty Wrocławskie - Склад одягу та аксесуарів"
-3. Generate keywords array (5-10 items): brand name, location, key job terms in Ukrainian, Polish and Russian variants
-4. Map ALL fields to Structure v2.0
-5. Set agencyName to the value from vacancy UPPERCASE, or "Unknown" if not specified
-
+3. Generate keywords array (5-10 items): brand name, location, key job terms in Ukrainian, Polish (latin) variants
+4. Map ALL fields to Structure v2.1 (including genderDescription and specificNuances as objects)
+5. Set agencyName to the value from vacancy UPPERCASE.
 Return ONLY valid JSON.
 `;
 
@@ -418,15 +409,14 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanations.
 `;
 const UPDATE_VACANCY_PROMPT = `
 ROLE: Professional HR Dispatcher.
-TASK: Update an EXISTING job vacancy (JSON v2.0) with information from a NEW message.
+TASK: Update an EXISTING job vacancy (JSON v2.1) with information from a NEW message.
 ${LANGUAGE_GUARD}
 
 CRITICAL RULES FOR UPDATE:
-1. If the message mentions housing cost (e.g., "450€", "15€/доба") -> update accommodation.costRaw and accommodation.details.
+1. PRIVACY: Any new mentions of recruiter bonuses or internal counts MUST go ONLY to forRecruiter.internalNotes.
 2. If the message says "STOP", "closed", "зібрана", "не актуально" -> set status to "closed".
-3. KEEP ALL OTHER FIELDS: If a field (like agencyName, brand, or description) is NOT mentioned in the new message, you MUST keep the value from CURRENT_VACANCY_JSON. NEVER reset them to null.
-4. DO NOT change vacancyCode or _id.
-5. If new requirements appear (e.g., "English language") -> update requirements.languageDetails.
+3. KEEP ALL OTHER FIELDS: If a field is NOT mentioned in the new message, you MUST keep the value from CURRENT_VACANCY_JSON.
+4. Update genderDescription if new count info appears.
 
 Return ONLY valid JSON.
 `;
@@ -654,19 +644,19 @@ function normalizeNuances(nuances) {
   if (!Array.isArray(nuances)) return [];
   return nuances
     .map((n) => {
-      if (!n) return null;
-      const trimmed = n.trim();
-      // Параўноўваем катэгорыі без уліку рэгістра
-      const matchedCategory = ALLOWED_NUANCE_CATEGORIES.find((cat) =>
-        trimmed.toLowerCase().startsWith(cat.toLowerCase()),
+      if (!n || typeof n !== "object") return null;
+
+      // AI прысылае { category, text }. Валідуем катэгорыю.
+      const matchedCategory = ALLOWED_NUANCE_CATEGORIES.find(
+        (cat) => cat.toLowerCase() === (n.category || "").toLowerCase(),
       );
 
-      if (matchedCategory) return trimmed;
-
-      // Калі катэгорыя не знойдзена — заварочваем у "Інше"
-      return `Інше (${trimmed})`;
+      return {
+        category: matchedCategory || "Інше",
+        text: n.text || "",
+      };
     })
-    .filter(Boolean);
+    .filter((n) => n && n.text); // Пакідаем толькі тыя, дзе ёсць тэкст
 }
 
 async function parseVacancyWithAI(rawText, forcedAgency = null) {
@@ -691,7 +681,7 @@ DOCUMENT RULES:
 NUANCES RULES (conditions.specificNuances):
 - MANDATORY: Extract ALL specific working conditions into this array. 
 - NEVER put these details into additionalNotes if they fit a category below.
-- Format: "Category (detail)".
+- Format: Array of objects { "category": "CATEGORY_NAME", "text": "detail" }.
 - Categories (USE ONLY THESE 10):
   1. "Тэмпературний режим" (e.g., +5°C, холодний цех, спека)
   2. "Фізично-важка праця" (e.g., підняття ваги >15кг, робота з великими деталями)
@@ -732,6 +722,8 @@ PRIVACY & FORMATTING:
   • STRICT: Location = place of work, not checkInCity.
   • STRICT: Do NOT include brand/agency names.
   • STRICT: If goods type not explicitly mentioned → generic "Склад (Логістика)".
+!!! CRITICAL PRIVACY: Recruiter bonuses and internal counts MUST go ONLY to forRecruiter.internalNotes. NEVER in public fields.
+
 
 CATEGORY:
 One of:
@@ -748,6 +740,10 @@ CONDITIONS:
 - specificNuances: array of "Category (detail)".
 - foodType: "Власне", "Обіди", "Субсидоване".
 - workwearFree: if mentioned.
+
+GENDER & COUNT ACCURACY
+genderDescription: Detailed string (e.g., "2 пари + 1 жінка"). If only men are accepted, write "Тільки чоловіки".
+- gender: Array of ["Чоловіки", "Жінки", "Пари", "Сім'ї"]. STRICT: Use ONLY these 4 values. NEVER use "Any", "One" or other terms.
 
 ACCOMMODATION:
 - type: "Надається (для пар)", "Надається", "Не надається", null.
@@ -766,6 +762,7 @@ REQUIREMENTS:
 - experienceRequired: true/false (check if "досвід" is mentioned as required).
 - polishLanguageLevel: one of "Не вимагається", "A1", "A2", "B1", "B2", "C1".
 - documents: only from strict list; others → additionalDocsDetails.
+- physicalLoad: Boolean (true if work is physically heavy/demanding, else false).
 
 SCHEDULE:
 - description: full shift schedule with times (never summarized).
@@ -842,7 +839,8 @@ JSON STRUCTURE:
     "details": ""
   },
   "requirements": {
-    "gender": [],
+    "gender": ["Чоловіки", "Жінки", "Пари", "Сім'ї"],
+    "genderDescription": "2 пари + 1 жінка",
     "ageMax": null,
     "nationalities": ["Україна"],
     "standardDocs": ["PESEL UKR", "Віза", "Карта побуту"],
@@ -853,7 +851,7 @@ JSON STRUCTURE:
     "entranceTestsDetails": "",
     "polishLanguageLevel": "Не вимагається",
     "languageDetails": "",
-    "physicalLoad": ""
+    "physicalLoad": false
   },
   "businessTrip": {
     "isBusinessTrip": false,
@@ -863,7 +861,9 @@ JSON STRUCTURE:
   },
   "conditions": {
     "hasSpecificConditions": false,
-    "specificNuances": [],
+    "specificNuances": [
+      { "category": "Характер праці", "text": "робота зі сканером" }
+    ],
     "specificConditionsDetails": "",
     "workwearFree": false,
     "foodType": "Власне",
@@ -1035,7 +1035,8 @@ JSON STRUCTURE:
           ...cleaned.requirements,
           gender: Array.isArray(cleaned.requirements?.gender)
             ? cleaned.requirements.gender
-            : ["Чоловіки", "Жінки"],
+            : ["Чоловіки", "Жінки", "Пари", "Сім'ї"],
+          genderDescription: cleaned.requirements?.genderDescription || "",
           ageMax: cleaned.requirements?.ageMax || null,
           nationalities: Array.isArray(cleaned.requirements?.nationalities)
             ? cleaned.requirements.nationalities
@@ -1053,7 +1054,7 @@ JSON STRUCTURE:
           polishLanguageLevel:
             cleaned.requirements?.polishLanguageLevel || "Не вимагається",
           languageDetails: cleaned.requirements?.languageDetails || "",
-          physicalLoad: cleaned.requirements?.physicalLoad || "",
+          physicalLoad: !!cleaned.requirements?.physicalLoad,
         },
 
         // === 8. АДРЫХТОЎКА Ў ЕЎРОПУ (А1) ===
