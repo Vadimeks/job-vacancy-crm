@@ -66,7 +66,9 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
     conditions: {
       ...vacancy.conditions,
       specificNuances: Array.isArray(vacancy.conditions?.specificNuances)
-        ? vacancy.conditions.specificNuances.join(", ")
+        ? vacancy.conditions.specificNuances
+            .map((n) => (typeof n === "object" ? n.text : n))
+            .join(", ")
         : vacancy.conditions?.specificNuances || "",
     },
   });
@@ -144,8 +146,8 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
             typeof form.conditions.specificNuances === "string"
               ? form.conditions.specificNuances
                   .split(",")
-                  .map((n) => n.trim())
-                  .filter(Boolean)
+                  .map((n) => ({ category: "Інше", text: n.trim() }))
+                  .filter((obj) => obj.text)
               : form.conditions.specificNuances,
         },
       };
@@ -310,22 +312,26 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
                 onChange={(v) => setField("vacancydescription", v)}
               />
             </div>
-
             {/* АГЕНЦЫЯ — dropdown */}
             <AgencyDropdown />
-
+            <div className="col-span-2">
+              <Field
+                label="Каментар па набору (напр. 2 пари + 1 жінка)"
+                value={form.requirements?.genderDescription}
+                onChange={(v) => setField("requirements.genderDescription", v)}
+              />
+            </div>
+            ;
             <Field
               label="Брэнд / Завод"
               value={form.brand}
               onChange={(v) => setField("brand", v)}
             />
-
             <Field
               label="Дата прыезду"
               value={form.arrivalDate}
               onChange={(v) => setField("arrivalDate", v)}
             />
-
             <Field
               label="Ключавыя словы"
               value={form.keywords}
@@ -531,11 +537,19 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
               }
               type="number"
             />
-            <Field
-              label="Фізічная нагрузка"
-              value={form.requirements?.physicalLoad}
-              onChange={(v) => setField("requirements.physicalLoad", v)}
-            />
+            <label className="flex items-center gap-3 cursor-pointer p-3 bg-slate-800/50 rounded-xl border border-slate-700">
+              <input
+                type="checkbox"
+                checked={!!form.requirements?.physicalLoad}
+                onChange={(e) =>
+                  setField("requirements.physicalLoad", e.target.checked)
+                }
+                className="w-4 h-4 accent-emerald-500"
+              />
+              <span className="text-xs text-slate-300 font-medium">
+                Фізічна важкая праця (Так/Не)
+              </span>
+            </label>
             <div className="col-span-2">
               <Field
                 label="Дадатковыя дакументы (тэкст)"

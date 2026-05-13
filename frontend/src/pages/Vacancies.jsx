@@ -138,7 +138,12 @@ function applyFilters(vacancies, filters) {
     if (filters.nuances?.length > 0) {
       const vNuances = v.conditions?.specificNuances || [];
       const hasMatch = filters.nuances.some((fn) =>
-        vNuances.some((vn) => vn.startsWith(fn)),
+        vNuances.some((vn) => {
+          // vn можа быць аб'ектам {category, text} або радком (старыя даныя)
+          const vnCat =
+            typeof vn === "object" && vn !== null ? vn.category : vn;
+          return vnCat?.startsWith(fn);
+        }),
       );
       if (!hasMatch) return false;
     }
@@ -256,8 +261,14 @@ export default function Vacancies() {
       // Нюансы (Збіраем толькі катэгорыі для фільтра)
       if (v.conditions?.specificNuances) {
         v.conditions.specificNuances.forEach((n) => {
-          const category = n.includes(" (") ? n.split(" (")[0] : n;
-          nuances.add(category);
+          // Калі n — аб'ект, бярэм category, калі радок — старая логіка
+          const category =
+            typeof n === "object" && n !== null
+              ? n.category || "Інше"
+              : n.includes?.(" (")
+                ? n.split(" (")[0]
+                : n;
+          if (category) nuances.add(category);
         });
       }
     });

@@ -322,12 +322,12 @@ export default function VacancyViewModal({
               {/* НЮАНСЫ — тэгі */}
               {v.conditions?.specificNuances?.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 mt-2">
-                  {v.conditions.specificNuances.map((n, i) => (
-                    <span
-                      key={i}
-                      className="text-[11px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700"
-                    >
-                      {n}
+                  {v.conditions?.specificNuances?.map((n, idx) => (
+                    <span key={idx}>
+                      {typeof n === "object" ? n.text : n}
+                      {idx < v.conditions.specificNuances.length - 1
+                        ? "; "
+                        : ""}
                     </span>
                   ))}
                 </div>
