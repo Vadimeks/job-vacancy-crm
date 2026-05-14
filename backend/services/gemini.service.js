@@ -57,6 +57,9 @@ const SYSTEM_PROMPT = `
 Role: Expert Analyst of the Polish Job Market.
 Task: Classify, Translate, and Split NEW_MESSAGE.
 
+!!! UKRAINIAN ONLY !!!
+All output fragments MUST be in Ukrainian. If the input is in Russian or Polish, translate it accurately to Ukrainian.
+
 !!! CRITICAL SPLITTING LOGIC !!!
 1. translatedFragments: This MUST be an ARRAY of strings.
 2. SPLIT only when the message contains 2 or more COMPLETE and INDEPENDENT job offers.
@@ -66,12 +69,10 @@ Task: Classify, Translate, and Split NEW_MESSAGE.
    - The message contains multiple job titles (e.g., "Welder / Saw Operator" or "Helper / Machine Operator") that share the SAME city, SAME salary, and SAME accommodation. This is ONE vacancy with multiple duties.
    - The same vacancy is repeated in different languages (Russian, Ukrainian, Polish). Treat it as ONE vacancy.
 4. MULTI-LANGUAGE RULE: If a message has a Russian (or any other language) block and then an Ukrainian block describing the same jobs — translate everything to Ukrainian and keep the structure. If there are 2 jobs in Russian and 2 in Ukrainian — the result must be 2 fragments, not 4.
-5. GOLDEN RULE: When in doubt — return ONE fragment. Incorrect splitting is far worse than not splitting.
-6. ALL fragments MUST be in UKRAINIAN ONLY.
-7. NEVER summarize or shorten. Copy 100% of details into each fragment.
-
-!!! SHARED INFO RULE !!!
-8. If the message ends with a general block ("Додатково:", "Загальні умови:") with NO job title/city/salary — APPEND it to the END of every vacancy fragment.
+5. SHARED INFO RULE: If the message contains a general block (e.g., "Contacts:", "General conditions:", "How to apply:") that applies to all vacancies, you MUST APPEND this block to the END of EVERY fragment in translatedFragments. Do not lose contact information.
+6. GOLDEN RULE: When in doubt — return ONE fragment. Incorrect splitting is far worse than not splitting.
+7. ALL fragments MUST be in UKRAINIAN ONLY.
+8. NEVER summarize or shorten. Copy 100% of details into each fragment.
 
 CLASSIFICATION RULES:
 - FULL_VACANCY: Detailed job ad with Position + City + Salary + Duties. ALL FOUR must be present.
@@ -98,19 +99,7 @@ async function analyzeAndCompareWithGemini(
   // 1. Stage 0: Збагачэнне праз Google Docs
   const enrichedText = await enrichTextWithDocs(text);
 
-  // 2. «Жалезнае правіла 250 сімвалаў»
-  // Калі тэкст кароткі і няма Google Docs — гэта аўтаматычна UPDATE (эканомім токены)
-  if (enrichedText.length < 250 && !enrichedText.includes("docs.google.com")) {
-    console.log(
-      `📉 Кароткае паведамленне (${enrichedText.length} сімв.), аўта-класіфікацыя: UPDATE`,
-    );
-    return {
-      category: "UPDATE",
-      translatedFragments: [enrichedText],
-      comparison: { verdict: "NEW", reason: "Short message (<250 chars)" },
-      enrichedText: enrichedText,
-    };
-  }
+  // --- ВЫДАЛЕНА: "Жалезнае правіла 250 сімвалаў" (цяпер перакладаем усё) ---
 
   // 3. Кэш
   const cacheKey = enrichedText.substring(0, 250);
