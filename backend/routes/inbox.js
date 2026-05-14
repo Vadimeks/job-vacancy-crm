@@ -14,6 +14,7 @@ const {
   isTruncated,
   getPrefixHash,
   shouldIgnorePostAI,
+  isMarketingBonus,
 } = require("../utils/messageFilters");
 const aiService = require("../services/ai.service");
 
