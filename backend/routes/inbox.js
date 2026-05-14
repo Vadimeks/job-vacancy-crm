@@ -164,10 +164,6 @@ async function processPendingMessages() {
     isProcessing = true;
     console.log(`⚙️ КАНВЕЕР: Апрацоўка ${pending.length} паведамленняў...`);
 
-    // ============================================================
-    // БЛОК 2: ПОЎНЫ ЦЫКЛ for (const msg of pending) У processPendingMessages
-    // ============================================================
-
     for (const msg of pending) {
       try {
         msg.rawText = "__processing__";
@@ -185,7 +181,6 @@ async function processPendingMessages() {
           break;
         }
 
-        // ✅ ВЫПРАЎЛЕННЕ БАГА З МОВАЙ:
         // Склейваем фрагменты для адлюстравання ў Пясочніцы (rawText)
         const translatedText =
           analysis.translatedFragments &&
@@ -193,10 +188,14 @@ async function processPendingMessages() {
             ? analysis.translatedFragments.join("\n\n---\n\n")
             : msg.text;
 
-        // --- Layer 2 Filtering (Ачыстка Пясочніцы пасля AI) ---
+        const isFullVacancy = analysis.category === "FULL_VACANCY";
+        const isMarketing = isMarketingBonus(translatedText);
+
+        // --- Layer 2 Filtering (Ачыстка Пясочніцы пасля AI з імунітэтам для вакансій) ---
+        // Рэгексы шуму ігнаруюцца, калі AI ўпэўнены, што гэта FULL_VACANCY
         if (
           analysis.category === "NOISE" ||
-          shouldIgnorePostAI(translatedText)
+          (!isFullVacancy && shouldIgnorePostAI(translatedText))
         ) {
           console.log(
             `🗑️ Аўта-архівацыя шуму (Layer 2): "${logPreview(translatedText)}..."`,
@@ -216,24 +215,25 @@ async function processPendingMessages() {
           MULTI_VACANCY: "update",
         };
 
+        // Калі гэта маркетынгавы бонус і НЕ поўная вакансія — катэгорыя update
         let finalCategory = categoryMap[analysis.category] || "info";
+        if (!isFullVacancy && isMarketing) {
+          finalCategory = "update";
+        }
+
         let isAutoDone = false;
 
-        // Калі гэта паўнавартасная вакансія — запускаем Stage 2 (Groq)
-        if (
-          analysis.category === "FULL_VACANCY" &&
-          AUTO_PROCESS_VACANCIES &&
-          !msg.isTruncated
-        ) {
-          // Калі фрагментаў некалькі — апрацоўваем кожны асобна
+        // --- Аўтаматычны парсінг (Stage 2 - Groq) ---
+        if (isFullVacancy && AUTO_PROCESS_VACANCIES && !msg.isTruncated) {
           const fragments = analysis.translatedFragments || [translatedText];
           let allProcessed = true;
 
           for (const fragment of fragments) {
-            if (hasMinimalVacancyData(fragment)) {
+            // Слабая валідацыя: калі AI сказаў FULL_VACANCY, давяраем яму
+            if (hasMinimalVacancyData(fragment) || isFullVacancy) {
               console.log(`🔥 Stage 2: Groq-парсінг для ${msg.agencyName}...`);
               const result = await processVacancyMessage(
-                fragment, // Перадаем канкрэтны фрагмент
+                fragment,
                 msg.sender,
                 msg.agencyName,
                 msg.text,
@@ -247,7 +247,7 @@ async function processPendingMessages() {
           if (allProcessed) isAutoDone = true;
         }
 
-        msg.rawText = translatedText; // Цяпер у Пясочніцы будзе ўкраінская мова
+        msg.rawText = translatedText; // У Пясочніцы заўсёды ўкраінская мова
         msg.category = finalCategory;
         msg.aiAnalyzed = true;
         msg.processed = isAutoDone;
@@ -262,7 +262,7 @@ async function processPendingMessages() {
       }
     }
   } catch (globalErr) {
-    console.error("❌ Global Error:", globalErr);
+    console.error("❌ Global Error in processPendingMessages:", globalErr);
   } finally {
     isProcessing = false;
   }
