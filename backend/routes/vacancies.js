@@ -3,6 +3,7 @@ const express = require("express");
 const router = express.Router();
 const Vacancy = require("../models/Vacancy");
 const Template = require("../models/Template");
+const Counter = require("../models/Counter");
 const UnprocessedMessage = require("../models/UnprocessedMessage");
 const aiService = require("../services/ai.service");
 const { getWhitelistedAgency } = require("../utils/messageFilters");
@@ -11,32 +12,8 @@ const {
   notifyRecruiterAboutMatch,
 } = require("../services/telegram.service");
 const { matchCandidatesForVacancy } = require("../services/matching.service");
-const geminiService = require("../services/gemini.service");
 
 // --- ДАПАМОЖНЫЯ ФУНКЦЫІ ---
-function normalizeLocationForDB(location, country) {
-  if (!location) return "";
-  let clean = location
-    .replace(/\s*\(Німеччина\)/gi, "")
-    .replace(/\s*\(Нідерланди\)/gi, "")
-    .replace(/\s*\(Франція\)/gi, "")
-    .replace(/\s*\(Польща\)/gi, "")
-    .replace(/\s*\(Germany\)/gi, "")
-    .replace(/\s*\(Netherlands\)/gi, "")
-    .replace(/\s*\(France\)/gi, "")
-    .replace(/\s*\(Poland\)/gi, "")
-    .trim();
-
-  // Выдаляем дублі тыпу (Germany) (Germany)
-  clean = clean.replace(/\(([^)]+)\)\s*\(\1\)/gi, "($1)");
-
-  // Калі не Польшча — пакідаем толькі назву горада, краіна і так ёсць у полі country
-  if (country && country !== "Polska") {
-    const countryPattern = new RegExp(`\\s*\\(${country}\\)\\s*$`, "i");
-    clean = clean.replace(countryPattern, "").trim();
-  }
-  return clean;
-}
 
 const BRAND_BLACKLIST = [
   "ферма",
@@ -49,57 +26,43 @@ const BRAND_BLACKLIST = [
   "factory",
   "warehouse",
 ];
+
+// ============================================================
+// БЛОК 1: АПТЫМІЗАВАНЫ ГЕНЕРАТАР (толькі логіка падліку)
+// ============================================================
 async function generateVacancyCode() {
-  // Атамарная аперацыя: знаходзім апошні код і адразу рэзервуем наступны
-  // Выкарыстоўваем retry loop для абароны ад race condition
-  const MAX_RETRIES = 10;
+  // Атамарна павялічваем лічыльнік. Калі яго няма — ствараем (upsert)
+  let counter = await Counter.findOneAndUpdate(
+    { name: "vacancy" },
+    { $inc: { seq: 1 } },
+    { new: true, upsert: true },
+  );
 
-  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-    let nextNum = 1;
-
+  // Калі гэта першы запуск, а ў базе ўжо ёсць вакансіі — падцягваем seq
+  if (counter.seq === 1) {
     const lastVacancy = await Vacancy.findOne({}, { vacancyCode: 1 }).sort({
       vacancyCode: -1,
     });
-
     if (lastVacancy && lastVacancy.vacancyCode) {
       const lastNum = parseInt(lastVacancy.vacancyCode.replace("VAC-", ""), 10);
       if (!isNaN(lastNum)) {
-        nextNum = lastNum + 1;
+        counter = await Counter.findOneAndUpdate(
+          { name: "vacancy" },
+          { $set: { seq: lastNum + 1 } },
+          { new: true },
+        );
       }
     }
-
-    // Шукаем першы вольны код пачынаючы з nextNum
-    let code = `VAC-${String(nextNum).padStart(4, "0")}`;
-    let isTaken = await Vacancy.exists({ vacancyCode: code });
-
-    while (isTaken) {
-      nextNum++;
-      code = `VAC-${String(nextNum).padStart(4, "0")}`;
-      isTaken = await Vacancy.exists({ vacancyCode: code });
-    }
-
-    // Спрабуем "зарэзерваваць" код праз insertOne-like trick:
-    // калі паміж нашай праверкай і захаваннем хтосьці ўжо ўзяў гэты код —
-    // E11000 злавім у catch вышэй і паўторым спробу
-    return code;
   }
 
-  // Апошні рэзерв: timestamp-based код
-  const fallback = `VAC-${Date.now().toString().slice(-6)}`;
-  console.warn(`⚠️ generateVacancyCode: выкарыстаны fallback код ${fallback}`);
-  return fallback;
+  return `VAC-${String(counter.seq).padStart(4, "0")}`;
 }
 
-/**
- * Разумная паметка паведамлення як апрацаванага.
- * Пазначае як 'processed' само паведамленне І ўсе яго дублікаты па хэшы.
- */
-async function markInboxMessageAsProcessed(messageId, rawText = null) {
+async function markInboxMessageAsProcessed(messageId) {
   try {
     if (messageId) {
       const msg = await UnprocessedMessage.findById(messageId);
       if (msg && msg.textHash) {
-        // Пазначаем усе паведамленні з такім жа хэшам (дублікаты)
         await UnprocessedMessage.updateMany(
           { textHash: msg.textHash, processed: false },
           { processed: true },
@@ -126,6 +89,7 @@ function constructVacancyDisplayName(data) {
     parts.push(data.location);
   return parts.join(" — ");
 }
+
 function cleanTelegramPost(text) {
   if (!text) return "";
   return text
@@ -133,44 +97,35 @@ function cleanTelegramPost(text) {
     .filter((line) => {
       const trimmed = line.trim();
       if (!trimmed) return true;
-      // Выдаляем пустыя загалоўкі і дзіўныя сімвалы ад AI
       if (
         trimmed.endsWith(":") ||
         trimmed.match(/^[^a-zA-Zа-яёіў0-9*🔥📍💰🛠📋🏠🚌💸🌡📝]+:?\s*$/)
       )
         return false;
-      // Выдаляем радкі тыпу "• null" або "• undefined"
       if (trimmed.includes("null") || trimmed.includes("undefined"))
         return false;
       return true;
     })
     .join("\n")
     .replace(/\n{3,}/g, "\n\n")
-    .replace(/\n\s*\n\s*\n/g, "\n\n") // Яшчэ адна страхоўка ад пустых прабелаў
     .trim();
 }
+
 function sanitizeTelegramMarkdown(text) {
   if (!text) return "";
-  return (
-    text
-      // Выдаляем незакрытыя ** (нечатная колькасць)
-      .replace(/\*\*([^*]+)\*\*/g, "*$1*") // ** -> *
-      .replace(/\*(?!\*)(.*?)\*/g, (m) => m) // пакідаем адзінарныя
-      // Выдаляем незакрытыя _ (курсіў)
-      .replace(/(?<!\w)_([^_\n]+)_(?!\w)/g, (m) => m)
-      .replace(/(?<!\w)_(?![_\s])/g, "")
-      // Выдаляем незакрытыя [ без парнага ]
-      .replace(/\[([^\]]*?)(?=\n|$)/g, "$1")
-      // Выдаляем незакрытыя ` без пары
-      .replace(/`([^`\n]*?)(?=\n|$)/gm, "$1")
-      // Зачышчаем множныя пустыя радкі
-      .replace(/\n{3,}/g, "\n\n")
-      .trim()
-  );
+  return text
+    .replace(/\*\*([^*]+)\*\*/g, "*$1*")
+    .replace(/\*(?!\*)(.*?)\*/g, (m) => m)
+    .replace(/(?<!\w)_([^_\n]+)_(?!\w)/g, (m) => m)
+    .replace(/(?<!\w)_(?![_\s])/g, "")
+    .replace(/\[([^\]]*?)(?=\n|$)/g, "$1")
+    .replace(/`([^`\n]*?)(?=\n|$)/gm, "$1")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }
 
 // ============================================================
-// БЛОК 4: ЗАМЯНІЦЬ processVacancyMessage (цалкам)
+// ЦЭНТРАЛІЗАВАНАЯ ФУНКЦЫЯ ПРАЦЭСІНГУ
 // ============================================================
 async function processVacancyMessage(
   rawText,
@@ -179,92 +134,21 @@ async function processVacancyMessage(
   originalText = "",
   isTruncated = false,
 ) {
-  // Gemini больш не выклікаем, бо тэкст прыходзіць ужо перакладзены (з Inbox або Пясочніцы)
   console.log(
     `\n--- 🤖 Stage 2: Groq-парсінг для ${preDefinedAgency || "Manual"} ---`,
   );
 
   try {
     const savedVacancies = [];
-    // Тэкст ужо з'яўляецца адзінарным фрагментам
-    const fragments = [rawText];
-
-    for (const fragment of fragments) {
-      const result = await aiService.parseVacancyWithAI(
-        fragment,
-        preDefinedAgency,
-      );
-      const vacancyDataList = Array.isArray(result) ? result : [result];
-
-      for (const vData of vacancyDataList) {
-        const finalAgency = preDefinedAgency || vData.agencyName || "Manual";
-
-        let saved;
-        let saveAttempts = 0;
-        while (saveAttempts < 5) {
-          try {
-            const vacancyCode = await generateVacancyCode();
-            const newVacancy = new Vacancy({
-              ...vData,
-              agencyName: finalAgency,
-              templateName: constructVacancyDisplayName({
-                ...vData,
-                agencyName: finalAgency,
-              }),
-              vacancyCode,
-              originalText: originalText || rawText,
-              rawText: fragment,
-              isTruncated: isTruncated,
-              telegramPost: await aiService.formatTelegramPost({
-                ...vData,
-                agencyName: finalAgency,
-              }),
-              status: "active",
-            });
-            saved = await newVacancy.save();
-            break;
-          } catch (saveErr) {
-            if (saveErr.code === 11000 && saveAttempts < 4) {
-              saveAttempts++;
-              await new Promise((r) => setTimeout(r, 100 * saveAttempts));
-            } else {
-              throw saveErr;
-            }
-          }
-        }
-
-        if (saved) {
-          await sendToTelegram(
-            cleanTelegramPost(sanitizeTelegramMarkdown(saved.telegramPost)),
-          );
-          savedVacancies.push(saved);
-        }
-      }
-    }
-    return savedVacancies.length > 0 ? savedVacancies[0] : null;
-  } catch (err) {
-    console.error(`❌ processVacancyMessage Error: ${err.message}`);
-    return { error: err.message };
-  }
-}
-
-// --- МАРШРУТЫ API ---
-
-// Аўта-стварэнне (з Інбокса праз робата)
-router.post("/auto", async (req, res) => {
-  try {
-    const { rawText, senderInfo, messageId, agencyName, isTruncated } =
-      req.body;
-    console.log(`\n--- 👤 РУЧНЫ ПАРСІНГ: Напрамую ў Stage 2 (Groq) ---`);
-
-    // Перадаем абраную агенцыю (forcedAgency)
-    const result = await aiService.parseVacancyWithAI(rawText, agencyName);
+    const result = await aiService.parseVacancyWithAI(
+      rawText,
+      preDefinedAgency,
+    );
     const vacancyDataList = Array.isArray(result) ? result : [result];
 
-    const savedVacancies = [];
     for (const vData of vacancyDataList) {
-      const finalAgency = agencyName || vData.agencyName || "Manual";
-      const vacancyCode = await generateVacancyCode();
+      const finalAgency = preDefinedAgency || vData.agencyName || "Manual";
+      const vacancyCode = await generateVacancyCode(); // атамарны код
 
       const newVacancy = new Vacancy({
         ...vData,
@@ -274,9 +158,9 @@ router.post("/auto", async (req, res) => {
           agencyName: finalAgency,
         }),
         vacancyCode,
-        originalText: rawText,
+        originalText: originalText || rawText,
         rawText: rawText,
-        isTruncated: isTruncated || false,
+        isTruncated: isTruncated,
         telegramPost: await aiService.formatTelegramPost({
           ...vData,
           agencyName: finalAgency,
@@ -285,14 +169,43 @@ router.post("/auto", async (req, res) => {
       });
 
       const saved = await newVacancy.save();
+      console.log(`✅ Вакансія створана: ${vacancyCode}`);
+
       await sendToTelegram(sanitizeTelegramMarkdown(saved.telegramPost));
       savedVacancies.push(saved);
     }
 
-    if (messageId) await markInboxMessageAsProcessed(messageId);
-    res.status(201).json(savedVacancies[0]);
+    return savedVacancies.length > 0 ? savedVacancies[0] : null;
   } catch (err) {
-    console.error("❌ Manual Auto-route Error:", err.message);
+    console.error(`❌ processVacancyMessage Error: ${err.message}`);
+    return { error: err.message };
+  }
+}
+
+// --- МАРШРУТЫ API ---
+
+// Аўта-стварэнне (Рэфактарынг v2.1)
+router.post("/auto", async (req, res) => {
+  try {
+    const { rawText, senderInfo, messageId, agencyName, isTruncated } =
+      req.body;
+
+    const result = await processVacancyMessage(
+      rawText,
+      senderInfo || "Manual",
+      agencyName,
+      rawText,
+      isTruncated || false,
+    );
+
+    if (result && !result.error) {
+      if (messageId) await markInboxMessageAsProcessed(messageId);
+      res.status(201).json(result);
+    } else {
+      throw new Error(result?.error || "Памылка апрацоўкі");
+    }
+  } catch (err) {
+    console.error("❌ Auto-route Error:", err.message);
     res.status(500).json({ message: err.message });
   }
 });
@@ -330,7 +243,7 @@ router.post("/from-template/:templateId", async (req, res) => {
     const postText = await aiService.formatTelegramPost(newVacancy);
     newVacancy.telegramPost = postText;
     const saved = await newVacancy.save();
-    await sendToTelegram(postText);
+    await sendToTelegram(sanitizeTelegramMarkdown(postText));
 
     if (messageId) {
       await markInboxMessageAsProcessed(messageId);
@@ -352,7 +265,7 @@ router.post("/", async (req, res) => {
     const saved = await newVacancy.save();
 
     const postText = await aiService.formatTelegramPost(saved);
-    await sendToTelegram(postText);
+    await sendToTelegram(sanitizeTelegramMarkdown(postText));
 
     if (messageId) {
       await markInboxMessageAsProcessed(messageId);
@@ -364,6 +277,8 @@ router.post("/", async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 });
+
+// Фільтры (Выпраўлена для v2.1)
 router.get("/filters-data", async (req, res) => {
   try {
     const vacancies = await Vacancy.find({ status: "active" });
@@ -374,18 +289,17 @@ router.get("/filters-data", async (req, res) => {
     const nuances = new Set();
 
     vacancies.forEach((v) => {
-      // 1. Гарады (нармалізаваныя)
-      const city = normalizeLocationForDB(v.location, v.country);
-      if (city) {
+      // 1. Гарады
+      if (v.location) {
         const displayCity =
-          v.country !== "Polska" ? `${city} (${v.country})` : city;
+          v.country !== "Polska" ? `${v.location} (${v.country})` : v.location;
         cities.add(displayCity);
       }
 
-      // 2. Агенцыі (толькі нармалізаваныя)
+      // 2. Агенцыі
       if (v.agencyName && v.agencyName !== "Manual") agencies.add(v.agencyName);
 
-      // 3. Брэнды (чысцім ад смецця)
+      // 3. Брэнды
       if (
         v.brand &&
         !BRAND_BLACKLIST.some((b) => v.brand.toLowerCase().includes(b))
@@ -393,11 +307,16 @@ router.get("/filters-data", async (req, res) => {
         brands.add(v.brand);
       }
 
-      // 4. Нюансы (катэгорыі)
-      if (v.conditions?.specificNuances) {
+      // 4. Нюансы (Абноўлена пад аб'екты v2.1)
+      if (
+        v.conditions?.specificNuances &&
+        Array.isArray(v.conditions.specificNuances)
+      ) {
         v.conditions.specificNuances.forEach((n) => {
-          const category = n.split(" (")[0];
-          nuances.add(category);
+          // n цяпер гэта { category: "...", text: "..." }
+          if (n && n.category) {
+            nuances.add(n.category);
+          }
         });
       }
     });
@@ -420,6 +339,7 @@ router.get("/filters-data", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
 // Спіс вакансій
 router.get("/", async (req, res) => {
   try {
@@ -493,6 +413,7 @@ router.patch("/:id/ai-update", async (req, res) => {
   }
 });
 
+// Cleanup Script (Абноўлена v2.1)
 router.post("/system/cleanup-locations", async (req, res) => {
   try {
     const vacancies = await Vacancy.find();
@@ -508,30 +429,29 @@ router.post("/system/cleanup-locations", async (req, res) => {
         isChanged = true;
       }
 
-      // 2. Агенцыя (UpperCase + Translation)
+      // 2. Агенцыя
       const newAgency = aiService.normalizeAgency(v.agencyName);
       if (v.agencyName !== newAgency) {
         v.agencyName = newAgency;
         isChanged = true;
       }
 
-      // 3. Брэнд (UpperCase + Blacklist)
+      // 3. Брэнд
       const newBrand = aiService.validateBrand(v.brand);
       if (v.brand !== newBrand) {
         v.brand = newBrand;
         isChanged = true;
       }
 
-      // 4. Ваяводства (Пераклад)
+      // 4. Ваяводства
       const vLower = v.voivodeship?.toLowerCase().trim();
-      // Мы выкарыстоўваем VOIVODESHIP_MAP, які трэба таксама экспартаваць з aiService
       const newVoiv = aiService.VOIVODESHIP_MAP[vLower] || v.voivodeship;
       if (v.voivodeship !== newVoiv) {
         v.voivodeship = newVoiv;
         isChanged = true;
       }
 
-      // 5. Нюансы (Фільтрацыя па 10 катэгорыях)
+      // 5. Нюансы (v2.1)
       if (v.conditions?.specificNuances) {
         const newNuances = aiService.normalizeNuances(
           v.conditions.specificNuances,
@@ -546,7 +466,7 @@ router.post("/system/cleanup-locations", async (req, res) => {
       }
 
       if (isChanged) {
-        // Абнаўляем загаловак, каб прыбраць дублі лакацый
+        // Абнаўляем загаловак па стандарце v2.1
         const baseTitle = v.vacancydescription || "Опис вакансії";
         const titlePart = baseTitle.includes(" — ")
           ? baseTitle.split(" — ")[0]
