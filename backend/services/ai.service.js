@@ -150,7 +150,7 @@ const ALLOWED_NUANCE_CATEGORIES = [
   "Характер праці",
   "Специфічні навички",
   "Норми",
-  "Тести пры вступі",
+  "Тести при вступі",
   "Інше",
 ];
 
@@ -173,7 +173,6 @@ function normalizeLocation(location, country) {
 function normalizeAgency(raw) {
   if (!raw) return "MANUAL";
   const upper = raw.toUpperCase().trim();
-
   const TRANSLATION_MAP = {
     АПОЛО: "APOLO",
     БИСАР: "BISAR",
@@ -205,15 +204,12 @@ function normalizeAgency(raw) {
     "СТАФФ ПАУЭР": "STAFF POWER",
     "СТАФ ПАВЕР": "STAFF POWER",
   };
-
   const translated = TRANSLATION_MAP[upper] || upper;
-
-  // Шукаем дакладнае супадзенне або ўваходжанне ў эталонны спіс
   const found = KNOWN_AGENCIES.find(
     (a) => translated === a || translated.includes(a) || a.includes(translated),
   );
 
-  return found || translated;
+  return found || "MANUAL";
 }
 // Функцыя валідацыі брэнда
 function validateBrand(raw) {
@@ -343,7 +339,7 @@ FULL MODE STRUCTURE (skip empty lines/sections):
 [• Досвід роботи: [requirements.experienceRequired ? "Обов'язковий" : "Не вимагається"]]
 [• Вік: до [requirements.ageMax] років (only if < 65)]
 • Документи: [requirements.standardDocs]
-• Мова: [requirements.polishLanguageLevel] ([requirements.languageDetails])
+• Мова: [polishLanguageLevel] [([languageDetails])] (skip brackets if details empty)
 [• Фізично важка праця: Так (only if physicalLoad is true)]
 
 🕒 *Графік роботи:* [schedule.description]
@@ -366,7 +362,7 @@ FULL MODE STRUCTURE (skip empty lines/sections):
 🌡 *Умови праці*
 • Робочий одяг: [conditions.workwearFree ? "Безкоштовно" : "За рахунок працівника"]
 • Харчування: [conditions.foodType]
-[• Нюанси: [conditions.specificNuances joined by "; "]]
+[• [specificNuances.text] (each as a bullet point, NO category labels)]
 [• Деталі: [conditions.foodDetails]]
 
 📝 *Додаткова інформація*
@@ -722,7 +718,10 @@ PRIVACY & FORMATTING:
   • STRICT: Location = place of work, not checkInCity.
   • STRICT: Do NOT include brand/agency names.
   • STRICT: If goods type not explicitly mentioned → generic "Склад (Логістика)".
-!!! CRITICAL PRIVACY: Recruiter bonuses and internal counts MUST go ONLY to forRecruiter.internalNotes. NEVER in public fields.
+!!! CRITICAL PRIVACY SHIELD !!!
+- RECRUITER BONUSES: Any mention of money "per candidate" (e.g., "800 зл за кандидата", "бонус за рекомендацію") MUST go ONLY to forRecruiter.internalNotes.
+- INTERNAL COUNTS: Mentions like "need 1 person", "last 2 spots" go ONLY to forRecruiter.internalNotes.
+- NEVER put recruiter-only info in public fields (salary, description, additionalNotes).
 
 
 CATEGORY:
@@ -737,7 +736,7 @@ DESCRIPTION & NOTES:
 - No duplication: if info already in structured fields → don’t repeat.
 
 CONDITIONS:
-- specificNuances: array of "Category (detail)".
+- specificNuances: array of objects { "category": "CATEGORY_NAME", "text": "detail" }.
 - foodType: "Власне", "Обіди", "Субсидоване".
 - workwearFree: if mentioned.
 
@@ -967,6 +966,13 @@ JSON STRUCTURE:
         brand: validatedBrand,
         templateName: cleaned.templateName || "",
         vacancydescription: finalTitle,
+        description: cleaned.description
+          ? cleaned.description
+              .split(";")
+              .map((s) => s.trim())
+              .filter(Boolean)
+              .join("; ")
+          : "",
         category: cleaned.category || null,
         keywords: Array.isArray(cleaned.keywords) ? cleaned.keywords : [],
         contractType: cleaned.contractType || null,
