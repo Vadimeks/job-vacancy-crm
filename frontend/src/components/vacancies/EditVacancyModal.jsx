@@ -53,6 +53,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
       : vacancy.keywords || "",
     requirements: {
       ...vacancy.requirements,
+      physicalLoad: !!vacancy.requirements?.physicalLoad, // Гарантуем true/false для чэкбокса
       gender: Array.isArray(vacancy.requirements?.gender)
         ? vacancy.requirements.gender
         : [],
@@ -146,8 +147,19 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
             typeof form.conditions.specificNuances === "string"
               ? form.conditions.specificNuances
                   .split(",")
-                  .map((n) => ({ category: "Інше", text: n.trim() }))
-                  .filter((obj) => obj.text)
+                  .map((txt) => {
+                    const trimmed = txt.trim();
+                    // Шукаем, ці быў гэты тэкст у арыгінальных нюансах, каб захаваць катэгорыю
+                    const original = vacancy.conditions?.specificNuances?.find(
+                      (on) =>
+                        (typeof on === "object" ? on.text : on) === trimmed,
+                    );
+                    return {
+                      category: original?.category || "Інше",
+                      text: trimmed,
+                    };
+                  })
+                  .filter((n) => n.text)
               : form.conditions.specificNuances,
         },
       };
@@ -321,7 +333,6 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
                 onChange={(v) => setField("requirements.genderDescription", v)}
               />
             </div>
-            ;
             <Field
               label="Брэнд / Завод"
               value={form.brand}

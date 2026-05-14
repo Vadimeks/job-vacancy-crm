@@ -2160,3 +2160,56 @@ isInformative() / isSimpleMessage()
   - Выпраўлена захаванне нюансаў (канвертацыя тэксту ў аб'екты).
 - **VacancyViewModal.jsx:** Ачышчаны вывад нюансаў (толькі тэкст без катэгорый).
 - **Vacancies.jsx:** Выпраўлены крытычныя памылкі `e.includes` праз падтрымку нюансаў-аб'ектаў у фільтрах і статыстыцы.
+
+### [14.05.2026] — Unified Modernization Plan v2.1
+
+**Backend & AI:**
+
+- **Pipeline Fix:** Removed 250-char translation limit; AI classification now overrides Layer 2 noise filters.
+- **Privacy Shield:** Strictly isolated recruiter bonuses and internal counts into `forRecruiter.internalNotes`.
+- **Marketing De-duplication:** Implemented `isMarketingBonus` filter to prevent duplicate vacancies from short promo posts.
+- **Data Normalization:** Fixed double-country naming in locations; structured nuances as `{category, text}` objects.
+- **TG Formatting:** Cleaned nuances from category labels; merged language requirements; removed redundant schedule fields and technical AI noise.
+
+**Frontend (Roadmap):**
+
+- **Advanced Filtering:** Sticky sidebar with multi-select (checkbox) dropdowns.
+- **Visual Diagnostics:** Added "⚠️ TRUNCATED" badge for incomplete vacancies.
+- **Interactive UI:** Nuance-based Tag Cloud for quick filtering and better data visualization.
+  [14.05.2026] - gemini.service.js: removed 250-char limit for translation; added shared info rule to splitting prompt while maintaining strict vacancy criteria.
+
+### [14.05.2026] — Pipeline & Filtering Update
+
+- **inbox.js**: Дададзена аднаўленне "завіслых" паведамленняў (`__processing__`), укаранёна фільтрацыя Layer 2 з імунітэтам для поўных вакансій і інтэгравана дэтэкцыя маркетынгавых бонусаў SG.
+- **messageFilters.js**: Пашыраны спіс `POST_AI_NOISE_UA` новымі ўкраінскімі стоп-фразамі для лепшай гігіены Пясочніцы.
+
+### [14.05.2026] — Backend: Atomic Counters & Logic Unification
+
+- **Counter.js**: Створана новая мадэль для атамарных лічыльнікаў у MongoDB.
+- **vacancies.js**:
+  - Укаранёна функцыя `generateVacancyCode` праз `findOneAndUpdate` ($inc), што на 100% гарантуе ўнікальнасць VAC-кодаў без race conditions.
+  - Рэфактарынг `processVacancyMessage`: логіка захавання спрошчана, прыбраны лішнія retry-цыклы.
+  - Маршрут `/auto` пераведзены на выкарыстанне цэнтралізаванай функцыі працэсінгу.
+  - Выпраўлены збор фільтраў у `/filters-data` для падтрымкі нюансаў у фармаце аб'ектаў `{category, text}`.
+  - Скрыпт `/system/cleanup-locations` абноўлены пад стандарты v2.1 (нармалізацыя нюансаў і загалоўкаў).
+
+### [14.05.2026] — AI Service: Privacy & Formatting Refinement
+
+- **ai.service.js**:
+  - Укаранёны **Privacy Shield**: бонусы рэкрутэраў і ўнутраныя лічбы набору цяпер строга ізалююцца ў `internalNotes`.
+  - Структура `specificNuances` пераведзена на масіў аб'ектаў `{category, text}` для дакладнай катэгарызацыі.
+  - Аптымізаваны `FORMAT_PROMPT`: прыбраны назвы катэгорый нюансаў і палепшаны вывад моўнага блока для Тэлеграма (кампактны рэжым).
+  - Дададзена аўтаматычная чыстка `description` ад пустых радкоў і фолбэк на `MANUAL` для невядомых агенцый у функцыі `normalizeAgency`.
+
+### [15.05.2026] — Frontend: UI/UX Evolution v2.1
+
+- **VacancyViewModal.jsx**:
+  - Укаранёны каляровыя тэгі для нюансаў (чырвоныя для крытычных катэгорый).
+  - Дададзена адлюстраванне канкрэтыкі па набору (`genderDescription`) і лагічны вывад фізічнай нагрузкі.
+- **Vacancies.jsx**:
+  - Дададзены візуальны badge "⚠️ ОБРІЗАНО" для вакансій з непаўным тэкстам.
+  - Укаранёна "Хмара тэгаў" (Tag Cloud) прама на картках вакансій для хуткага азнаямлення.
+  - Пераведзена фільтрацыя нюансаў на строгае супадзенне катэгорый.
+- **EditVacancyModal.jsx**:
+  - Рэалізавана разумнае захаванне нюансаў: пры рэдагаванні тэксту катэгорыі (напр. "Шум") цяпер захоўваюцца.
+  - Дададзена поле для рэдагавання `genderDescription` і выпраўлена праца чэкбокса фізічнай нагрузкі.

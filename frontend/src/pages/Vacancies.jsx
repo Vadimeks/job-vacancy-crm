@@ -139,10 +139,9 @@ function applyFilters(vacancies, filters) {
       const vNuances = v.conditions?.specificNuances || [];
       const hasMatch = filters.nuances.some((fn) =>
         vNuances.some((vn) => {
-          // vn можа быць аб'ектам {category, text} або радком (старыя даныя)
           const vnCat =
             typeof vn === "object" && vn !== null ? vn.category : vn;
-          return vnCat?.startsWith(fn);
+          return vnCat === fn; // Дакладнае супадзенне катэгорыі
         }),
       );
       if (!hasMatch) return false;
@@ -528,8 +527,16 @@ export default function Vacancies() {
                   <div className="flex-1 min-w-0">
                     {/* РАДОК 1: код + статус + катэгорыя */}
                     <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                      <span className="text-xs font-mono bg-slate-800 text-slate-400 px-2 py-0.5 rounded">
+                      <span className="text-xs font-mono bg-slate-800 text-slate-400 px-2 py-0.5 rounded flex items-center gap-1">
                         {v.vacancyCode}
+                        {v.isTruncated && (
+                          <span
+                            className="text-amber-500"
+                            title="Текст обірваний"
+                          >
+                            ⚠️
+                          </span>
+                        )}
                       </span>
                       <span
                         className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLORS[v.status]}`}
@@ -563,6 +570,13 @@ export default function Vacancies() {
                           {locationDisplay}
                         </span>
                       </span>
+                      <span className="flex items-center gap-1 text-slate-300">
+                        👥{" "}
+                        {v.requirements?.genderDescription ||
+                          (Array.isArray(v.requirements?.gender)
+                            ? v.requirements.gender.join(", ")
+                            : v.requirements?.gender)}
+                      </span>
                       <span className="flex items-center gap-1">
                         🏢 {v.agencyName}
                       </span>
@@ -573,6 +587,26 @@ export default function Vacancies() {
                         <span className="text-slate-200 font-medium">
                           💰 {v.salary.baseNetto}
                         </span>
+                      )}
+                      {/* Хмара тэгаў нюансаў на картцы */}
+                      {v.conditions?.specificNuances?.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mt-3">
+                          {v.conditions.specificNuances
+                            .slice(0, 3)
+                            .map((n, idx) => (
+                              <span
+                                key={idx}
+                                className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700 uppercase font-bold tracking-tighter"
+                              >
+                                {typeof n === "object" ? n.text : n}
+                              </span>
+                            ))}
+                          {v.conditions.specificNuances.length > 3 && (
+                            <span className="text-[9px] text-slate-600 font-bold">
+                              +{v.conditions.specificNuances.length - 3}
+                            </span>
+                          )}
+                        </div>
                       )}
                     </div>
                   </div>

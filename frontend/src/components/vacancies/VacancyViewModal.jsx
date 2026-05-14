@@ -138,9 +138,10 @@ export default function VacancyViewModal({
               )}
               <p className="text-sm text-slate-300">
                 👥 <span className="font-semibold">Набір:</span>{" "}
-                {Array.isArray(v.requirements?.gender)
-                  ? v.requirements.gender.join(", ")
-                  : v.requirements?.gender}
+                {v.requirements?.genderDescription ||
+                  (Array.isArray(v.requirements?.gender)
+                    ? v.requirements.gender.join(", ")
+                    : v.requirements?.gender)}
                 {v.arrivalDate && (
                   <span className="text-emerald-400">
                     , приїзд {v.arrivalDate}
@@ -220,9 +221,9 @@ export default function VacancyViewModal({
                 <Note>Додатково: {v.requirements.additionalDocsDetails}</Note>
               )}
               <Row label="Мова" value={v.requirements?.polishLanguageLevel} />
-              {v.requirements?.physicalLoad && (
-                <p className="text-sm text-amber-300 italic">
-                  ⚡ {v.requirements.physicalLoad}
+              {v.requirements?.physicalLoad === true && (
+                <p className="text-sm text-red-400 font-bold flex items-center gap-2">
+                  ⚡ Фізично важка праця
                 </p>
               )}
             </div>
@@ -319,17 +320,33 @@ export default function VacancyViewModal({
               <Row label="Харчування" value={v.conditions?.foodType} />
               <Note>{v.conditions?.foodDetails}</Note>
 
-              {/* НЮАНСЫ — тэгі */}
+              {/* НЮАНСЫ — каляровыя тэгі v2.1 */}
               {v.conditions?.specificNuances?.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 mt-2">
-                  {v.conditions?.specificNuances?.map((n, idx) => (
-                    <span key={idx}>
-                      {typeof n === "object" ? n.text : n}
-                      {idx < v.conditions.specificNuances.length - 1
-                        ? "; "
-                        : ""}
-                    </span>
-                  ))}
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {v.conditions.specificNuances.map((n, idx) => {
+                    const text = typeof n === "object" ? n.text : n;
+                    const category =
+                      typeof n === "object" ? n.category : "Інше";
+
+                    // Вызначаем колер у залежнасці ад катэгорыі
+                    const isUrgent =
+                      category === "Тэмпературний режим" ||
+                      category === "Фізично-важка праця";
+
+                    return (
+                      <span
+                        key={idx}
+                        className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide border ${
+                          isUrgent
+                            ? "bg-red-500/10 text-red-400 border-red-500/20"
+                            : "bg-slate-800 text-slate-300 border-slate-700"
+                        }`}
+                        title={category}
+                      >
+                        {text}
+                      </span>
+                    );
+                  })}
                 </div>
               )}
               <Note>{v.conditions?.specificConditionsDetails}</Note>
