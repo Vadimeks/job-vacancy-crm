@@ -288,10 +288,9 @@ const FORMAT_PROMPT = `
 ROLE: Professional HR content formatter.
 TASK: Format job data into a beautiful Telegram post in UKRAINIAN.
 
-!!! CRITICAL FORMATTING RULE (COMPACT VS FULL) !!!
-1. IF the vacancy has very little information (e.g., only title, city, and rate, but NO duties/description) -> Use COMPACT MODE.
-   COMPACT MODE: One single paragraph. Example: "🔥 *Зварювальник — Stadtlohn (Germany)* / Ставка: 16€ / Житло: надається / Документи: будь-які. Деталі: [additionalNotes]"
-2. IF the vacancy has full details -> Use FULL MODE (structured with bullets).
+!!! CRITICAL MODE SELECTION !!!
+- Use COMPACT MODE if the total length of the vacancy information (rawText) is less than 700 characters.
+- Use FULL MODE if the total length is 700 characters or more.
 
 !!! CRITICAL COMPACTNESS RULE !!!
 - If a field value is null, undefined, or empty — DO NOT include its label, emoji, or the entire line in the post.
@@ -300,10 +299,13 @@ TASK: Format job data into a beautiful Telegram post in UKRAINIAN.
 - The post must be as compact as possible, looking like a natural text post, not a form.
 
 !!! CRITICAL RULES !!!
-- NEVER include the Agency Name.
-- NEVER include internal notes or recruiter-only data.
-- NEVER show technical phrases like "інформація не поўна", "текст обірваний" or "no information".
+- NEVER include Agency Name, internalNotes, or parsingResultType.
+- NEVER include genderDescription (it is for internal use only).
+- If a field is null, empty, or "Не вимагається" (for experience), skip the entire line.
+- Use Ukrainian for all labels.
+
 - GEOGRAPHY: If country is NOT Polska, show it in parentheses ONCE. Example: "Stadtlohn (Germany)". NEVER "Stadtlohn (Germany) (Germany)".
+
 - TRANSPORT RULE:
    • If transport is NOT provided → "🚌 Довіз: немає"
    • If transport IS provided → "🚌 Довіз: надається" + details
@@ -337,7 +339,8 @@ FULL MODE STRUCTURE (skip empty lines/sections):
 
 📋 *Вимоги*
 [• Досвід роботи: [requirements.experienceRequired ? "Обов'язковий" : "Не вимагається"]]
-[• Вік: до [requirements.ageMax] років (only if < 65)]
+[• Вік: [requirements.ageMax]]
+[• Національність: [requirements.nationalities joined by ", "]]
 • Документи: [requirements.standardDocs]
 • Мова: [polishLanguageLevel] [([languageDetails])] (skip brackets if details empty)
 [• Фізично важка праця: Так (only if physicalLoad is true)]
@@ -655,7 +658,11 @@ function normalizeNuances(nuances) {
     .filter((n) => n && n.text); // Пакідаем толькі тыя, дзе ёсць тэкст
 }
 
-async function parseVacancyWithAI(rawText, forcedAgency = null) {
+async function parseVacancyWithAI(
+  rawText,
+  forcedAgency = null,
+  parsingResultType = "FULL_VACANCY",
+) {
   try {
     console.log(
       `🤖 Парсінг v2.0 ... ${forcedAgency ? `(Forced Agency: ${forcedAgency})` : ""}`,
@@ -719,10 +726,9 @@ PRIVACY & FORMATTING:
   • STRICT: Do NOT include brand/agency names.
   • STRICT: If goods type not explicitly mentioned → generic "Склад (Логістика)".
 !!! CRITICAL PRIVACY SHIELD !!!
-- RECRUITER BONUSES: Any mention of money "per candidate" (e.g., "800 зл за кандидата", "бонус за рекомендацію") MUST go ONLY to forRecruiter.internalNotes.
+- RECRUITER BONUSES: Any mention of money "per candidate" (e.g., "800 зл за кандидата", "500 зл за людину") MUST go ONLY to forRecruiter.internalNotes.
 - INTERNAL COUNTS: Mentions like "need 1 person", "last 2 spots" go ONLY to forRecruiter.internalNotes.
 - NEVER put recruiter-only info in public fields (salary, description, additionalNotes).
-
 
 CATEGORY:
 One of:
@@ -740,9 +746,13 @@ CONDITIONS:
 - foodType: "Власне", "Обіди", "Субсидоване".
 - workwearFree: if mentioned.
 
-GENDER & COUNT ACCURACY
-genderDescription: Detailed string (e.g., "2 пари + 1 жінка"). If only men are accepted, write "Тільки чоловіки".
-- gender: Array of ["Чоловіки", "Жінки", "Пари", "Сім'ї"]. STRICT: Use ONLY these 4 values. NEVER use "Any", "One" or other terms.
+GENDER & AGE ACCURACY:
+- gender: Array of ["Чоловіки", "Жінки", "Пари", "Сім'ї"]. Use ONLY these 4 values.
+- genderDescription: ONLY specific counts (e.g., "2 пари", "Тільки чоловіки"). 
+- ageMax: Age requirements as a STRING (e.g., "18-55", "до 60 років"). 
+- nationalities: Array of countries (e.g., ["Україна", "Білорусь"]).
+
+!!! STRICT RULE: Extract age and nationality from ANY part of the text and put them ONLY in their specific fields. NEVER leave them in genderDescription.
 
 ACCOMMODATION:
 - type: "Надається (для пар)", "Надається", "Не надається", null.
@@ -879,7 +889,8 @@ JSON STRUCTURE:
   "description": "",
   "additionalNotes": "",
   "arrivalDate": "",
-  "count": ""
+  "count": "",
+  "parsingResultType": "FULL_VACANCY"
 }`;
 
     const text = await executeAIRequest(SYSTEM_INSTRUCTION, rawText, true);
@@ -1043,7 +1054,7 @@ JSON STRUCTURE:
             ? cleaned.requirements.gender
             : ["Чоловіки", "Жінки", "Пари", "Сім'ї"],
           genderDescription: cleaned.requirements?.genderDescription || "",
-          ageMax: cleaned.requirements?.ageMax || null,
+          ageMax: String(cleaned.requirements?.ageMax || ""), // 🆕 Захоўваем як радок (напр. "18-50")
           nationalities: Array.isArray(cleaned.requirements?.nationalities)
             ? cleaned.requirements.nationalities
             : ["Україна"],
@@ -1102,7 +1113,7 @@ JSON STRUCTURE:
         description: cleaned.description || "",
         additionalNotes: cleaned.additionalNotes || "",
         rawText: rawText,
-        parsingResultType: parsed.parsingResultType || "FULL_VACANCY",
+        parsingResultType: parsingResultType,
       };
     }; // Закрываем функцыю processSingle
 

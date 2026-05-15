@@ -133,6 +133,7 @@ async function processVacancyMessage(
   preDefinedAgency = null,
   originalText = "",
   isTruncated = false,
+  parsingResultType = "FULL_VACANCY",
 ) {
   console.log(
     `\n--- 🤖 Stage 2: Groq-парсінг для ${preDefinedAgency || "Manual"} ---`,
@@ -143,6 +144,7 @@ async function processVacancyMessage(
     const result = await aiService.parseVacancyWithAI(
       rawText,
       preDefinedAgency,
+      parsingResultType,
     );
     const vacancyDataList = Array.isArray(result) ? result : [result];
 
@@ -161,17 +163,19 @@ async function processVacancyMessage(
         originalText: originalText || rawText,
         rawText: rawText,
         isTruncated: isTruncated,
-        telegramPost: await aiService.formatTelegramPost({
-          ...vData,
-          agencyName: finalAgency,
-        }),
+        parsingResultType: parsingResultType, // 🆕 Захоўваем вердыкт AI
         status: "active",
       });
 
       const saved = await newVacancy.save();
       console.log(`✅ Вакансія створана: ${vacancyCode}`);
 
-      await sendToTelegram(sanitizeTelegramMarkdown(saved.telegramPost));
+      // 🆕 Фармуем пост на аснове ЗАХАВАНАГА аб'екта (Privacy Shield у дзеянні)
+      const postText = await aiService.formatTelegramPost(saved);
+      saved.telegramPost = postText;
+      await saved.save(); // Абнаўляем запіс з гатовым пастом
+
+      await sendToTelegram(sanitizeTelegramMarkdown(postText));
       savedVacancies.push(saved);
     }
 
@@ -187,8 +191,14 @@ async function processVacancyMessage(
 // Аўта-стварэнне (Рэфактарынг v2.1)
 router.post("/auto", async (req, res) => {
   try {
-    const { rawText, senderInfo, messageId, agencyName, isTruncated } =
-      req.body;
+    const {
+      rawText,
+      senderInfo,
+      messageId,
+      agencyName,
+      isTruncated,
+      parsingResultType,
+    } = req.body;
 
     const result = await processVacancyMessage(
       rawText,
@@ -196,6 +206,7 @@ router.post("/auto", async (req, res) => {
       agencyName,
       rawText,
       isTruncated || false,
+      parsingResultType || "FULL_VACANCY",
     );
 
     if (result && !result.error) {
@@ -213,12 +224,16 @@ router.post("/auto", async (req, res) => {
 // Стварэнне з шаблона
 router.post("/from-template/:templateId", async (req, res) => {
   try {
-    const { rawText, messageId } = req.body;
+    const { rawText, messageId, parsingResultType } = req.body; // 🆕 Прымаем вердыкт
     const template = await Template.findById(req.params.templateId);
     if (!template)
       return res.status(404).json({ message: "Шаблон не знойдзены" });
 
-    const result = await aiService.parseVacancyWithAI(rawText);
+    const result = await aiService.parseVacancyWithAI(
+      rawText,
+      null,
+      parsingResultType || "FULL_VACANCY",
+    );
     const parsedData = Array.isArray(result) ? result[0] : result;
 
     const displayName = constructVacancyDisplayName({
@@ -237,12 +252,17 @@ router.post("/from-template/:templateId", async (req, res) => {
       vacancyCode: await generateVacancyCode(),
       templateId: template._id,
       rawText: rawText,
+      parsingResultType: parsingResultType || "FULL_VACANCY", // 🆕 Захоўваем вердыкт
       status: "active",
     });
 
-    const postText = await aiService.formatTelegramPost(newVacancy);
-    newVacancy.telegramPost = postText;
     const saved = await newVacancy.save();
+
+    // 🆕 Фармуем пост на аснове ЗАХАВАНАГА аб'екта
+    const postText = await aiService.formatTelegramPost(saved);
+    saved.telegramPost = postText;
+    await saved.save();
+
     await sendToTelegram(sanitizeTelegramMarkdown(postText));
 
     if (messageId) {

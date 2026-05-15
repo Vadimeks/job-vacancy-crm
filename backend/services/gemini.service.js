@@ -1,12 +1,54 @@
 // backend/services/gemini.service.js
 const aiService = require("./ai.service");
+const { google } = require("googleapis");
+const path = require("path");
 
+const auth = new google.auth.GoogleAuth({
+  keyFile: path.join(process.cwd(), "google-creds.json"),
+  scopes: ["https://www.googleapis.com/auth/drive.readonly"],
+});
+const drive = google.drive({ version: "v3", auth });
 const geminiCache = new Map();
 const CACHE_TTL = 5 * 60 * 1000;
 
 /**
- * Stage 0: Загрузка тэксту з Google Docs
+ * Stage 0: Спіс файлаў у папцы і збор тэксту з іх
  */
+async function fetchGoogleDriveFolderText(folderUrl) {
+  const match = folderUrl.match(/folders\/([a-zA-Z0-9_-]+)/);
+  if (!match) return null;
+  const folderId = match[1];
+
+  try {
+    const res = await drive.files.list({
+      q: `'${folderId}' in parents and trashed = false`,
+      fields: "files(id, name, mimeType)",
+    });
+
+    const files = res.data.files;
+    if (!files || files.length === 0) return null;
+
+    console.log(`📂 Google Drive: Знойдзена ${files.length} файлаў у папцы.`);
+    let folderContent = "";
+
+    for (const file of files) {
+      // Чытаем толькі Google Docs або простыя TXT
+      if (file.mimeType === "application/vnd.google-apps.document") {
+        const text = await fetchGoogleDocText(
+          `https://docs.google.com/document/d/${file.id}/`,
+        );
+        if (text) folderContent += `\n\n--- ФАЙЛ: ${file.name} ---\n${text}`;
+      }
+    }
+    return folderContent;
+  } catch (err) {
+    console.error(
+      `❌ Google Drive Folder Error (ID: ${folderId}):`,
+      err.message,
+    );
+    return null;
+  }
+}
 async function fetchGoogleDocText(url) {
   const match = url.match(/\/document\/d\/([a-zA-Z0-9_-]+)/);
   if (!match) return null;
@@ -33,23 +75,37 @@ async function fetchGoogleDocText(url) {
   }
 }
 
-/**
- * Stage 0: Пошук спасылак і збагачэнне тэксту
- */
 async function enrichTextWithDocs(rawText) {
-  const urlRegex =
+  // Рэгекс для файлаў і папак
+  const docRegex =
     /https?:\/\/docs\.google\.com\/document\/d\/[a-zA-Z0-9_-]+[^\s]*/g;
-  const urls = rawText.match(urlRegex);
-  if (!urls) return rawText;
+  const folderRegex =
+    /https?:\/\/drive\.google\.com\/drive\/folders\/[a-zA-Z0-9_-]+[^\s]*/g;
 
-  console.log(`🔗 Знойдзены Google Docs спасылкі: ${urls.length}. Загрузка...`);
+  const docUrls = rawText.match(docRegex) || [];
+  const folderUrls = rawText.match(folderRegex) || [];
+
+  if (docUrls.length === 0 && folderUrls.length === 0) return rawText;
+
+  console.log(
+    `🔗 Знойдзены спасылкі: Docs(${docUrls.length}), Folders(${folderUrls.length}). Загрузка...`,
+  );
   let enriched = rawText;
-  for (const url of urls) {
-    const docText = await fetchGoogleDocText(url);
-    if (docText) {
-      enriched = `${enriched}\n\n--- ЗМЕСТ ДОКУМЕНТА ---\n${docText}`;
-    }
+
+  // 1. Апрацоўка папак
+  for (const url of folderUrls) {
+    const folderText = await fetchGoogleDriveFolderText(url);
+    if (folderText)
+      enriched = `${enriched}\n\n--- ЗМЕСТ ПАПКІ DRIVE ---\n${folderText}`;
   }
+
+  // 2. Апрацоўка асобных дакументаў
+  for (const url of docUrls) {
+    const docText = await fetchGoogleDocText(url);
+    if (docText)
+      enriched = `${enriched}\n\n--- ЗМЕСТ ДОКУМЕНТА ---\n${docText}`;
+  }
+
   return enriched;
 }
 
@@ -68,21 +124,24 @@ All output fragments MUST be in Ukrainian. If the input is in Russian or Polish,
    - The message describes ONE vacancy broken into sections (💰 Оплата, ⚙️ Обов'язки, etc.).
    - The message contains multiple job titles (e.g., "Welder / Saw Operator" or "Helper / Machine Operator") that share the SAME city, SAME salary, and SAME accommodation. This is ONE vacancy with multiple duties.
    - The same vacancy is repeated in different languages (Russian, Ukrainian, Polish). Treat it as ONE vacancy.
-4. MULTI-LANGUAGE RULE: If a message has a Russian (or any other language) block and then an Ukrainian block describing the same jobs — translate everything to Ukrainian and keep the structure. If there are 2 jobs in Russian and 2 in Ukrainian — the result must be 2 fragments, not 4.
+4. MULTI-LANGUAGE RULE: If the enriched text contains the same vacancy in multiple languages (e.g., Ukrainian and Russian), merge them into one Ukrainian fragment. 
+!!! PRIORITY: Use the Ukrainian version as the primary source. If other language versions (Russian, Polish) contain unique details not present in the Ukrainian text, add those details to the final Ukrainian fragment. If there are 2 jobs in Russian and 2 in Ukrainian — the result must be 2 fragments, not 4.
 5. SHARED INFO RULE: If the message contains a general block (e.g., "Contacts:", "General conditions:", "How to apply:") that applies to all vacancies, you MUST APPEND this block to the END of EVERY fragment in translatedFragments. Do not lose contact information.
 6. GOLDEN RULE: When in doubt — return ONE fragment. Incorrect splitting is far worse than not splitting.
 7. ALL fragments MUST be in UKRAINIAN ONLY.
 8. NEVER summarize or shorten. Copy 100% of details into each fragment.
 
 CLASSIFICATION RULES:
-- FULL_VACANCY: Detailed job ad with Position + City + Salary + Duties. ALL FOUR must be present.
-- UPDATE: Short status changes, stop-signals, or lists of rates/spots without full details.
-- RECRUITER_INFO: Legal info, office hours, document rules.
-- NOISE: Greetings, emojis only, system messages.
+- FULL_VACANCY: Detailed job ad with Position + City + Salary + Duties. ALL FOUR must be present. Duties must be a detailed description of the work process. 
+!!! CRITICAL: If the text is shorter than 400 characters OR lacks a detailed description of duties, classify it as UPDATE, even if it has a city and salary.
+- UPDATE: Short status changes, stop-signals, lists of rates/spots, or job offers WITHOUT detailed duties.
+- TRUNCATED: A job ad that is clearly cut off (ends mid-sentence, mid-word, or ends with "..." / "…").
+- RECRUITER_INFO: Legal info, office hours, document rules, or general cooperation terms.
+- NOISE: Greetings, emojis only, system messages, or social chat.
 
 Output ONLY valid JSON:
 {
-  "category": "FULL_VACANCY" | "UPDATE" | "RECRUITER_INFO" | "NOISE",
+  "category": "FULL_VACANCY" | "UPDATE" | "TRUNCATED" | "RECRUITER_INFO" | "NOISE",
   "translatedFragments": ["Fragment 1 (UA)", "Fragment 2 (UA)"],
   "comparison": { "verdict": "NEW" | "DUPLICATE" | "UPDATE", "reason": "..." }
 }

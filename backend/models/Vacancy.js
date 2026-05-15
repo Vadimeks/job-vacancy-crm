@@ -81,7 +81,7 @@ const vacancySchema = new mongoose.Schema({
   requirements: {
     gender: { type: [String], default: ["Чоловіки", "Жінки", "Пари", "Сім'ї"] },
     genderDescription: { type: String, default: "" }, // 🆕 Для канкрэтыкі "2 пари + 1 жінка"
-    ageMax: { type: Number, default: null },
+    ageMax: { type: String, default: "" }, // 🆕 Узрост (напр. "18-55", "да 60 років")
     nationalities: { type: [String], default: ["Україна"] },
     standardDocs: {
       type: [String],
@@ -142,7 +142,7 @@ const vacancySchema = new mongoose.Schema({
   rawText: { type: String, default: "" }, // Пераклад (украінская), з якім працуе парсер
   isTruncated: { type: Boolean, default: false }, // Ці было зыходнае паведамленне абрэзаным
   telegramPost: { type: String, default: "" },
-
+  parsingResultType: { type: String, default: "FULL_VACANCY" }, // 🆕 Вердыкт AI (FULL_VACANCY, UPDATE, TRUNCATED, INFO)
   status: {
     type: String,
     enum: ["active", "closed", "archived"],

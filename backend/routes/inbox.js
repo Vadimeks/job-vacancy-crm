@@ -190,6 +190,7 @@ async function processPendingMessages() {
             : msg.text;
 
         const isFullVacancy = analysis.category === "FULL_VACANCY";
+        if (analysis.category === "TRUNCATED") msg.isTruncated = true; // 🆕 Калі AI бачыць, што тэкст абарваны — пазначаем гэта
         const isMarketing = isMarketingBonus(translatedText);
 
         // --- Layer 2 Filtering (Ачыстка Пясочніцы пасля AI з імунітэтам для вакансій) ---
@@ -213,6 +214,7 @@ async function processPendingMessages() {
           UPDATE: "update",
           RECRUITER_INFO: "info",
           FULL_VACANCY: "vacancy",
+          TRUNCATED: "vacancy", // 🆕 Абрэзаныя вакансіі ідуць у тую ж укладку
           MULTI_VACANCY: "update",
         };
 
@@ -239,6 +241,7 @@ async function processPendingMessages() {
                 msg.agencyName,
                 msg.text,
                 msg.isTruncated,
+                analysis.category, // 🆕 Перадаем вердыкт (FULL_VACANCY, UPDATE ці TRUNCATED)
               );
               if (!result || result.error) allProcessed = false;
             } else {
