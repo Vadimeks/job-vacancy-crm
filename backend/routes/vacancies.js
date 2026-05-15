@@ -6,6 +6,7 @@ const Template = require("../models/Template");
 const Counter = require("../models/Counter");
 const UnprocessedMessage = require("../models/UnprocessedMessage");
 const aiService = require("../services/ai.service");
+const { enrichTextWithDocs } = require("../services/gemini.service");
 const { getWhitelistedAgency } = require("../utils/messageFilters");
 const {
   sendToTelegram,
@@ -138,11 +139,14 @@ async function processVacancyMessage(
   console.log(
     `\n--- 🤖 Stage 2: Groq-парсінг для ${preDefinedAgency || "Manual"} ---`,
   );
-
   try {
+    // 🆕 Stage 0: Узбагачаем тэкст з Google Docs/Drive перад парсінгам
+    const enrichedText = await enrichTextWithDocs(rawText);
+
     const savedVacancies = [];
+    // Мяняем rawText на enrichedText у выкліку парсера:
     const result = await aiService.parseVacancyWithAI(
-      rawText,
+      enrichedText,
       preDefinedAgency,
       parsingResultType,
     );
@@ -161,7 +165,7 @@ async function processVacancyMessage(
         }),
         vacancyCode,
         originalText: originalText || rawText,
-        rawText: rawText,
+        rawText: enrichedText, // 🆕 Захоўваем ужо поўны тэкст з файлаў
         isTruncated: isTruncated,
         parsingResultType: parsingResultType, // 🆕 Захоўваем вердыкт AI
         status: "active",
@@ -224,13 +228,16 @@ router.post("/auto", async (req, res) => {
 // Стварэнне з шаблона
 router.post("/from-template/:templateId", async (req, res) => {
   try {
-    const { rawText, messageId, parsingResultType } = req.body; // 🆕 Прымаем вердыкт
+    const { rawText, messageId, parsingResultType } = req.body;
     const template = await Template.findById(req.params.templateId);
     if (!template)
       return res.status(404).json({ message: "Шаблон не знойдзены" });
 
+    // 🆕 Stage 0: Узбагачаем тэкст перад парсінгам
+    const enrichedText = await enrichTextWithDocs(rawText);
+
     const result = await aiService.parseVacancyWithAI(
-      rawText,
+      enrichedText, // ✅ Цяпер парсер атрымае тэкст з файлаў Drive
       null,
       parsingResultType || "FULL_VACANCY",
     );
@@ -251,7 +258,7 @@ router.post("/from-template/:templateId", async (req, res) => {
       templateName: displayName,
       vacancyCode: await generateVacancyCode(),
       templateId: template._id,
-      rawText: rawText,
+      rawText: enrichedText, // 🆕 Захоўваем ужо поўны тэкст з файлаў
       parsingResultType: parsingResultType || "FULL_VACANCY", // 🆕 Захоўваем вердыкт
       status: "active",
     });
