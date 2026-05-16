@@ -22,7 +22,7 @@ export default function VacancyFilters({
     setFilters({ ...draft, [key]: val });
   };
 
-  // Падлік актыўных фільтраў (акрамя пошуку)
+  // Підрахунок активних фільтрів (крім пошуку)
   const activeCount = Object.entries(draft).reduce((acc, [key, val]) => {
     if (key === "search") return acc;
     if (Array.isArray(val) && val.length > 0) return acc + 1;
@@ -33,14 +33,14 @@ export default function VacancyFilters({
     <div className="bg-slate-900/60 p-5 rounded-2xl border border-slate-800 h-full overflow-y-auto custom-scrollbar">
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-lg font-black text-emerald-400 tracking-tight italic">
-          ФІЛЬТРЫ
+          ФІЛЬТРИ
         </h3>
         {activeCount > 0 && (
           <button
             onClick={() => setFilters(EMPTY_FILTERS)}
             className="text-[10px] font-bold text-slate-500 hover:text-red-400 transition-colors uppercase"
           >
-            Скінуць ({activeCount})
+            Скинути ({activeCount})
           </button>
         )}
       </div>
@@ -54,7 +54,7 @@ export default function VacancyFilters({
           type="text"
           value={draft.search || ""}
           onChange={(e) => setFilters({ ...draft, search: e.target.value })}
-          placeholder="Назва, апісанне..."
+          placeholder="Назва, опис..."
           className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500/50 transition-all"
         />
       </Section>
@@ -66,139 +66,139 @@ export default function VacancyFilters({
           options={MD.STATUSES}
           selected={draft.status}
           onChange={(v) => updateField("status", v)}
-          placeholder="Усе статусы"
+          placeholder="Усі статуси"
         />
       </Section>
 
-      {/* КАТЭГОРЫЯ */}
+      {/* КАТЕГОРІЯ */}
       <Section>
         <MultiSelect
-          label="Катэгорыя"
+          label="Категорія"
           options={MD.CATEGORIES}
           selected={draft.category}
           onChange={(v) => updateField("category", v)}
-          placeholder="Усе катэгорыі"
+          placeholder="Усі категорії"
         />
       </Section>
 
-      {/* ВАЯВОДСТВА (Дынамічнае) */}
+      {/* РЕГІОН (Воєводство) */}
       <Section>
         <MultiSelect
-          label="Ваяводства"
+          label="Регіон (Воєводство)"
           options={voivodeships}
           selected={draft.voivodeship}
           onChange={(v) => updateField("voivodeship", v)}
-          placeholder="Усе рэгіёны"
+          placeholder="Усі регіони"
         />
       </Section>
 
-      {/* ЛАКАЦЫЯ (Дынамічная) */}
+      {/* МІСТО */}
       <Section>
         <MultiSelect
-          label="Горад"
+          label="Місто"
           options={locations}
           selected={draft.location}
           onChange={(v) => updateField("location", v)}
-          placeholder="Усе гарады"
+          placeholder="Усі міста"
         />
       </Section>
 
-      {/* ЖЫТЛО */}
+      {/* ЖИТЛО */}
       <Section>
         <MultiSelect
-          label="Жыллё"
+          label="Житло"
           options={MD.ACCOMMODATION_OPTIONS}
           selected={draft.accommodation}
           onChange={(v) => updateField("accommodation", v)}
-          placeholder="Любыя ўмовы"
+          placeholder="Будь-які умови"
         />
       </Section>
 
-      {/* ТРАНСПАРТ */}
+      {/* ДОВІЗ */}
       <Section>
         <MultiSelect
-          label="Давоз да працы"
+          label="Довіз до роботи"
           options={MD.TRANSPORT_OPTIONS}
           selected={draft.transport}
           onChange={(v) => updateField("transport", v)}
-          placeholder="Не важна"
+          placeholder="Не важливо"
         />
       </Section>
 
-      {/* ХТО ЕДЗЕ */}
+      {/* ХТО ЇДЕ (Замість travelGroup выкарыстоўваем gender) */}
       <Section>
         <MultiSelect
-          label="Хто едзе"
-          options={MD.TRAVEL_GROUPS}
-          selected={draft.travelGroup}
-          onChange={(v) => updateField("travelGroup", v)}
-          placeholder="Будзь-хто"
+          label="Хто їде"
+          options={MD.GENDERS}
+          selected={draft.gender}
+          onChange={(v) => updateField("gender", v)}
+          placeholder="Будь-хто"
         />
       </Section>
 
       {/* МОВА */}
       <Section>
         <MultiSelect
-          label="Узровень польскай"
+          label="Рівень польської"
           options={MD.LANGUAGES}
           selected={draft.language}
           onChange={(v) => updateField("language", v)}
-          placeholder="Любы ўзровень"
+          placeholder="Будь-який рівень"
         />
       </Section>
 
-      {/* НАЦЫЯНАЛЬНАСЦЬ */}
+      {/* НАЦІОНАЛЬНІСТЬ */}
       <Section>
         <MultiSelect
-          label="Нацыянальнасць"
+          label="Національність"
           options={MD.NATIONALITIES}
           selected={draft.nationality}
           onChange={(v) => updateField("nationality", v)}
-          placeholder="Усе нацыі"
+          placeholder="Усі нації"
         />
       </Section>
 
-      {/* ДАКУМЕНТЫ */}
+      {/* ДОКУМЕНТИ */}
       <Section>
         <MultiSelect
-          label="Дакументы"
+          label="Документи"
           options={MD.DOCS}
           selected={draft.docs}
           onChange={(v) => updateField("docs", v)}
-          placeholder="Любыя дакументы"
+          placeholder="Будь-які документи"
         />
       </Section>
 
-      {/* НЮАНСЫ (ЧЭК-ЛІСТ) */}
+      {/* ОСОБЛИВОСТІ (ЧЕК-ЛИСТ) */}
       <Section>
         <MultiSelect
-          label="Асаблівасці (Чэк-ліст)"
-          options={nuances} // 2. ВЫКАРЫСТАЦЬ НАПРАМУ ЗАМЕСТ dynamicData.nuances
+          label="Особливості (Чек-лист)"
+          options={nuances}
           selected={draft.nuances}
           onChange={(v) => updateField("nuances", v)}
-          placeholder="Выбраць нюансы..."
+          placeholder="Вибрати нюанси..."
         />
       </Section>
 
-      {/* АГЕНЦЫЯ (Дынамічная) */}
+      {/* АГЕНЦІЯ */}
       <Section>
         <MultiSelect
-          label="Агенцыя"
+          label="Агенція"
           options={agencies}
           selected={draft.agencyName}
           onChange={(v) => updateField("agencyName", v)}
-          placeholder="Усе агенцыі"
+          placeholder="Усі агенції"
         />
       </Section>
 
-      {/* БРЭНД (Дынамічны) */}
+      {/* БРЕНД */}
       <Section>
         <MultiSelect
-          label="Брэнд / Завод"
+          label="Бренд / Завод"
           options={brands}
           selected={draft.brand}
           onChange={(v) => updateField("brand", v)}
-          placeholder="Усе брэнды"
+          placeholder="Усі бренди"
         />
       </Section>
     </div>

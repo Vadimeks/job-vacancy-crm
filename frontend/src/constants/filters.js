@@ -2,21 +2,20 @@
 
 export const EMPTY_FILTERS = {
   search: "",
-  status: [], // Зменена на масіў
+  status: [],
   voivodeship: [],
   location: [],
   category: [],
-  gender: [],
+  gender: [], // Выкарыстоўваем гэта замест travelGroup
   schedule: [],
   accommodation: [],
   transport: [],
-  travelGroup: [],
   language: [],
   nationality: [],
   docs: [],
   agencyName: [],
   brand: [],
-  nuances: [], // Новае поле для чэк-ліста
+  nuances: [],
 };
 
 export const EMPTY_CANDIDATE_FILTERS = {
@@ -29,7 +28,6 @@ export const EMPTY_CANDIDATE_FILTERS = {
   schedule: [],
   accommodation: [],
   transport: [],
-  travelGroup: [],
   language: [],
   nationality: [],
   docs: [],

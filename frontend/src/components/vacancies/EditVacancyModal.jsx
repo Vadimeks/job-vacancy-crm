@@ -29,9 +29,9 @@ const CONTRACT_OPTIONS = [
 ];
 
 const COUNT_OPTIONS = [
-  { value: "1", label: "1 чалавек" },
+  { value: "1", label: "1 особа" },
   { value: "2", label: "Пара (2)" },
-  { value: "сім'я", label: "Сям'я" },
+  { value: "сім'я", label: "Сім'я" },
 ];
 
 const FOOD_OPTIONS = ["Власне", "Обіди", "Субсидоване"];
@@ -53,7 +53,8 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
       : vacancy.keywords || "",
     requirements: {
       ...vacancy.requirements,
-      physicalLoad: !!vacancy.requirements?.physicalLoad, // Гарантуем true/false для чэкбокса
+      ageMax: vacancy.requirements?.ageMax || "", // 🆕 Цяпер гэта радок
+      physicalLoad: !!vacancy.requirements?.physicalLoad,
       gender: Array.isArray(vacancy.requirements?.gender)
         ? vacancy.requirements.gender
         : [],
@@ -134,6 +135,10 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
     try {
       const data = {
         ...form,
+        requirements: {
+          ...form.requirements,
+          // ageMax застаецца радком з стану form
+        },
         keywords:
           typeof form.keywords === "string"
             ? form.keywords
@@ -255,7 +260,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
   const AgencyDropdown = () => (
     <div className="mb-0">
       <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">
-        Агенцыя
+        Агенція
       </label>
       <select
         value={form.agencyName || "MANUAL"}
@@ -282,7 +287,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 sticky top-0 bg-slate-900 z-10">
           <div>
             <h2 className="font-semibold text-slate-100">
-              Рэдагаванне вакансіі
+              Редагування вакансії
             </h2>
             <div className="flex items-center gap-3 mt-1 text-xs font-mono">
               <span className="text-slate-500">{vacancy.vacancyCode}</span>
@@ -312,39 +317,39 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
               <Field
-                label="Назва для адмінкі"
+                label="Назва для адмінки"
                 value={form.templateName}
                 onChange={(v) => setField("templateName", v)}
               />
             </div>
             <div className="col-span-2">
               <Field
-                label="Публічны загаловак"
+                label="Публічний заголовок"
                 value={form.vacancydescription}
                 onChange={(v) => setField("vacancydescription", v)}
               />
             </div>
-            {/* АГЕНЦЫЯ — dropdown */}
+            {/* Агенція— dropdown */}
             <AgencyDropdown />
             <div className="col-span-2">
               <Field
-                label="Каментар па набору (напр. 2 пари + 1 жінка)"
+                label="Коментар по набору (напр. 2 пари + 1 жінка)"
                 value={form.requirements?.genderDescription}
                 onChange={(v) => setField("requirements.genderDescription", v)}
               />
             </div>
             <Field
-              label="Брэнд / Завод"
+              label="Бренд / Завод"
               value={form.brand}
               onChange={(v) => setField("brand", v)}
             />
             <Field
-              label="Дата прыезду"
+              label="Дата приїзду"
               value={form.arrivalDate}
               onChange={(v) => setField("arrivalDate", v)}
             />
             <Field
-              label="Ключавыя словы"
+              label="Ключові слова"
               value={form.keywords}
               onChange={(v) => setField("keywords", v)}
             />
@@ -352,7 +357,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
 
           {/* КОЛЬКАСЦЬ — кнопкі */}
           <SingleBtnGroup
-            label="Колькасць / Хто едзе"
+            label="Кількість / Хто їде"
             options={COUNT_OPTIONS}
             selectedValue={form.count}
             onSelect={(v) => setField("count", v)}
@@ -400,7 +405,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
             small
           />
 
-          <Divider label="📍 Лакацыя" />
+          <Divider label="📍 Локація" />
           <SingleBtnGroup
             label="Ваяводства / Рэгіён"
             options={MD.VOIVODESHIPS}
@@ -433,7 +438,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
             />
           </div>
 
-          <Divider label="💰 Аплата" />
+          <Divider label="💰 Оплата" />
           <div className="grid grid-cols-2 gap-4">
             <Field
               label="Базавая стаўка"
@@ -502,18 +507,18 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
             />
           </div>
 
-          <Divider label="🛠 Абавязкі" />
+          <Divider label="🛠 Обов'язки" />
           <textarea
             value={form.description || ""}
             onChange={(e) => setField("description", e.target.value)}
             rows={4}
-            placeholder="Абавязкі праз кропку з коскай (;)"
+            placeholder="Обов'язки праз кропку з коскай (;)"
             className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500 resize-none"
           />
 
-          <Divider label="📋 Патрабаванні" />
+          <Divider label="📋 Вимоги" />
           <MultiBtnGroup
-            label="Набор (Гендар)"
+            label="Набір (Гендер)"
             options={MD.GENDERS}
             selectedValues={form.requirements.gender}
             onToggle={(v) => toggleArrayItem("requirements.gender", v)}
@@ -541,13 +546,12 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
 
           <div className="grid grid-cols-2 gap-4">
             <Field
-              label="Макс. узрост"
+              label="Вік (напр. 18-55, до 60 років)"
               value={form.requirements?.ageMax || ""}
-              onChange={(v) =>
-                setField("requirements.ageMax", v === "" ? null : Number(v))
-              }
-              type="number"
+              onChange={(v) => setField("requirements.ageMax", v)}
+              type="text"
             />
+
             <label className="flex items-center gap-3 cursor-pointer p-3 bg-slate-800/50 rounded-xl border border-slate-700">
               <input
                 type="checkbox"
@@ -572,7 +576,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
             </div>
           </div>
 
-          <Divider label="🏠 Жытло" />
+          <Divider label="🏠 Житло" />
 
           {/* ТЫП ЖЫТЛА — кнопкі */}
           <SingleBtnGroup
@@ -617,7 +621,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
             </label>
           </div>
 
-          <Divider label="🚌 Транспарт" />
+          <Divider label="🚌 Транспорт" />
           <div className="grid grid-cols-2 gap-4">
             <label className="flex items-center gap-3 cursor-pointer">
               <input
@@ -644,7 +648,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
             </div>
           </div>
 
-          <Divider label="🌡 Умовы працы" />
+          <Divider label="🌡 Умови праці" />
 
           {/* ХАРЧАВАННЕ — кнопкі */}
           <SingleBtnGroup
@@ -691,7 +695,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
             </div>
           </div>
 
-          <Divider label="💸 Выдаткі і адказнасць" />
+          <Divider label="💸 Витрати та відповідальність" />
           <div className="grid grid-cols-2 gap-4">
             <label className="flex items-center gap-3 cursor-pointer">
               <input
@@ -738,7 +742,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
             </div>
           </div>
 
-          <Divider label="🎁 Кампенсацыі" />
+          <Divider label="🎁 Компенсації" />
           <div className="grid grid-cols-2 gap-4">
             <label className="flex items-center gap-3 cursor-pointer">
               <input
@@ -763,7 +767,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
             </div>
           </div>
 
-          <Divider label="📝 Дадаткова" />
+          <Divider label="📝 Додатково" />
           <textarea
             value={form.additionalNotes || ""}
             onChange={(e) => setField("additionalNotes", e.target.value)}
@@ -772,7 +776,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
             placeholder="Дадатковыя нататкі..."
           />
 
-          <Divider label="🔒 Для рэкрутэра" />
+          <Divider label="🔒 Для рекрутера" />
           <textarea
             value={form.forRecruiter?.internalNotes || ""}
             onChange={(e) =>
@@ -790,13 +794,13 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
             disabled={saving}
             className="px-5 py-2 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-slate-900 font-bold text-sm rounded-lg transition-colors"
           >
-            {saving ? "Захаванне..." : "Захаваць змены"}
+            {saving ? "Збереження..." : "Зберегти зміни"}
           </button>
           <button
             onClick={onClose}
             className="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm rounded-lg transition-colors"
           >
-            Адмена
+            Скасувати
           </button>
         </div>
       </div>

@@ -27,6 +27,7 @@ export const GENDERS = [
   { value: "Чоловіки", label: "👨 Чоловіки" },
   { value: "Жінки", label: "👩 Жінки" },
   { value: "Пари", label: "👫 Пари" },
+  { value: "Сім'ї", label: "👨‍👩‍👧 Сім'ї" },
 ];
 
 export const LANGUAGES = [
@@ -49,11 +50,7 @@ export const TRANSPORT_OPTIONS = [
   { value: "none", label: "❌ Немає довозу" },
 ];
 
-export const TRAVEL_GROUPS = [
-  { value: "alone", label: "👤 Один / Одна" },
-  { value: "couple", label: "👫 Пари" },
-  { value: "family", label: "👨‍👩‍👧 Сім'я" },
-];
+// TRAVEL_GROUPS выдалены, бо дублюе GENDERS
 
 export const NATIONALITIES = [
   { value: "Україна", label: "🇺🇦 Україна" },
@@ -68,7 +65,7 @@ export const DOCS = [
   { value: "PESEL UKR", label: "PESEL UKR" },
   { value: "Віза", label: "Віза" },
   { value: "Карта побуту", label: "Карта побуту" },
-  { value: "Книжка санепід", label: "Санепід" },
+  { value: "Книжка санепід", label: "Книжка санепід" },
   { value: "UDT", label: "UDT" },
   { value: "Довідка резидента", label: "Довідка резидента" },
   { value: "SEP", label: "SEP (Електрики)" },
@@ -76,18 +73,18 @@ export const DOCS = [
 ];
 
 export const CHECKLIST_ITEMS = [
-  { value: "no_jewelry", label: "🚫 Без прикрас/нігтів" },
-  { value: "manual_tests", label: "🖐️ Мануальні тести" },
-  { value: "math_tests", label: "🔢 Тести з математики" },
-  { value: "physical_load", label: "🏋️ Фізичне навантаження" },
-  { value: "cold_temp", label: "❄️ Холод (-22..+10°C)" },
-  { value: "hot_temp", label: "🔥 Спека (+30°C)" },
-  { value: "standing_work", label: "🚶 Робота стоячи" },
-  { value: "smell_fish", label: "🐟 Запах риби" },
-  { value: "smell_rubber", label: "🚗 Запах гуми" },
+  { value: "temperature", label: "🌡️ Температурний режим" },
+  { value: "physical_load", label: "🏋️ Фізично-важка праця" },
+  { value: "sanitary_limits", label: "🚫 Санітарні обмеження" },
+  { value: "smells_allergens", label: "👃 Запахи та алергени" },
+  { value: "noise", label: "📢 Шум" },
+  { value: "work_character", label: "🚶 Характер праці (стоячи/сидячи)" }, // Удакладнена назва
+  { value: "skills", label: "🛠️ Специфічні навички" },
+  { value: "norms", label: "📈 Норми" },
+  { value: "entry_tests", label: "📝 Тести при вступі" },
+  { value: "other", label: "➕ Інше" },
 ];
 
-// Еталонний список агенцій (синхронізовано з бекендом)
 export const AGENCIES = [
   "APOLO",
   "BISAR",

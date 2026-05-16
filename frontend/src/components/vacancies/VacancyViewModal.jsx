@@ -80,10 +80,10 @@ export default function VacancyViewModal({
                 }`}
               >
                 {v.status === "active"
-                  ? "Актыўная"
+                  ? "Активна"
                   : v.status === "closed"
-                    ? "Закрыта"
-                    : "Архіў"}
+                    ? "Закрита"
+                    : "Архів"}
               </span>
             )}
             {/* КАТЭГОРЫЯ */}
@@ -138,10 +138,17 @@ export default function VacancyViewModal({
               )}
               <p className="text-sm text-slate-300">
                 👥 <span className="font-semibold">Набір:</span>{" "}
-                {v.requirements?.genderDescription ||
-                  (Array.isArray(v.requirements?.gender)
-                    ? v.requirements.gender.join(", ")
-                    : v.requirements?.gender)}
+                <span className="text-white">
+                  {v.gender ||
+                    (Array.isArray(v.requirements?.gender)
+                      ? v.requirements.gender.join(", ")
+                      : v.requirements?.gender)}
+                </span>
+                {v.requirements?.genderDescription && (
+                  <span className="text-slate-400 ml-1 italic">
+                    ({v.requirements.genderDescription})
+                  </span>
+                )}
                 {v.arrivalDate && (
                   <span className="text-emerald-400">
                     , приїзд {v.arrivalDate}
@@ -210,8 +217,14 @@ export default function VacancyViewModal({
               border="border-amber-500/20"
             />
             <div className="space-y-1.5">
-              {v.requirements?.ageMax && v.requirements.ageMax < 65 && (
-                <Row label="Вік" value={`до ${v.requirements.ageMax} років`} />
+              {v.requirements?.ageMax && (
+                <Row label="Вік" value={v.requirements.ageMax} />
+              )}
+              {v.requirements?.nationalities?.length > 0 && (
+                <Row
+                  label="Національність"
+                  value={v.requirements.nationalities.join(", ")}
+                />
               )}
               <Row
                 label="Документи"
@@ -322,29 +335,25 @@ export default function VacancyViewModal({
 
               {/* НЮАНСЫ — каляровыя тэгі v2.1 */}
               {v.conditions?.specificNuances?.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-3">
+                <div className="flex flex-col gap-2 mt-3">
                   {v.conditions.specificNuances.map((n, idx) => {
                     const text = typeof n === "object" ? n.text : n;
                     const category =
                       typeof n === "object" ? n.category : "Інше";
-
-                    // Вызначаем колер у залежнасці ад катэгорыі
                     const isUrgent =
-                      category === "Тэмпературний режим" ||
-                      category === "Фізично-важка праця";
+                      category === "temperature" ||
+                      category === "physical_load";
 
                     return (
-                      <span
+                      <div
                         key={idx}
-                        className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide border ${
-                          isUrgent
-                            ? "bg-red-500/10 text-red-400 border-red-500/20"
-                            : "bg-slate-800 text-slate-300 border-slate-700"
-                        }`}
-                        title={category}
+                        className={`px-3 py-2 rounded-lg text-xs border flex flex-col gap-0.5 ${isUrgent ? "bg-red-500/5 text-red-400 border-red-500/10" : "bg-slate-800/50 text-slate-300 border-slate-700"}`}
                       >
-                        {text}
-                      </span>
+                        <span className="text-[10px] font-bold uppercase opacity-50 tracking-wider">
+                          {category}
+                        </span>
+                        <span className="font-medium">{text}</span>
+                      </div>
                     );
                   })}
                 </div>
@@ -428,7 +437,9 @@ export default function VacancyViewModal({
           {/* МЕТА */}
           <div className="pt-4 border-t border-slate-800 flex justify-between items-center text-[10px] font-mono text-slate-600">
             <span>ID: {v._id}</span>
-            <span>СТВОРАНА: {new Date(v.createdAt).toLocaleString()}</span>
+            <span>
+              СТВОРЕНО: {new Date(v.createdAt).toLocaleString("uk-UA")}
+            </span>
           </div>
         </div>
 
