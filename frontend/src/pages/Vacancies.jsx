@@ -629,11 +629,21 @@ export default function Vacancies() {
                         </span>
                       </div>
 
-                      {/* ЗАРПЛАТА (Акцэнт справа) */}
-                      {v.salary?.baseNetto && (
+                      {/* ЗАРПЛАТА (Разумны вывад) */}
+                      {(v.salary?.baseNetto ||
+                        v.salary?.studentNetto ||
+                        v.salary?.baseBrutto) && (
                         <div className="flex items-center gap-1.5 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20 ml-auto">
                           <span className="text-emerald-400 font-black text-sm">
-                            💰 {v.salary.baseNetto}
+                            💰{" "}
+                            {v.salary.baseNetto ||
+                              v.salary.studentNetto ||
+                              v.salary.baseBrutto}
+                            {!v.salary.baseNetto && v.salary.studentNetto && (
+                              <span className="text-[10px] ml-1 opacity-70">
+                                (студ.)
+                              </span>
+                            )}
                           </span>
                         </div>
                       )}
