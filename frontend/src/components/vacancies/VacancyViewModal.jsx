@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Copy, Check, X, Factory, Tag } from "lucide-react";
 
-// Два памеры: загалоўкі (SectionTitle) і апісальны тэкст (Note)
 const SectionTitle = ({
   icon,
   label,
@@ -15,7 +14,6 @@ const SectionTitle = ({
   </h3>
 );
 
-// Апісальны радок — курсіў, меньшы
 const Note = ({ children }) =>
   children ? (
     <p className="text-xs text-slate-400 italic mt-1 leading-relaxed">
@@ -23,7 +21,6 @@ const Note = ({ children }) =>
     </p>
   ) : null;
 
-// Звычайны радок значэння
 const Row = ({ label, value }) =>
   value ? (
     <p className="text-sm text-slate-200 leading-snug">
@@ -49,11 +46,18 @@ export default function VacancyViewModal({
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Лакацыя з краінай (калі не Польшча)
+  // Разумная лакацыя: дадаем краіну толькі калі яе няма ў назве горада
   const locationDisplay =
-    v.country && v.country !== "Polska"
+    v.country && v.country !== "Polska" && !v.location?.includes(v.country)
       ? `${v.location} (${v.country})`
       : v.location;
+
+  // Статусы на ўкраінскай
+  const STATUS_LABELS = {
+    active: "Активна",
+    closed: "Закрита",
+    archived: "Архів",
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -61,7 +65,6 @@ export default function VacancyViewModal({
         className="absolute inset-0 bg-black/80 backdrop-blur-md"
         onClick={onClose}
       />
-
       <div className="relative bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl custom-scrollbar">
         {/* ШАПКА */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 sticky top-0 bg-slate-900 z-10">
@@ -69,35 +72,25 @@ export default function VacancyViewModal({
             <span className="text-[10px] font-mono bg-slate-800 text-slate-400 px-2 py-0.5 rounded border border-slate-700">
               {v.vacancyCode}
             </span>
-            {v.status && (
-              <span
-                className={`text-[10px] px-2 py-0.5 rounded font-bold border uppercase tracking-wider ${
-                  v.status === "active"
-                    ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                    : v.status === "closed"
-                      ? "bg-red-500/10 text-red-400 border-red-500/20"
-                      : "bg-slate-500/10 text-slate-400 border-slate-500/20"
-                }`}
-              >
-                {v.status === "active"
-                  ? "Активна"
+            <span
+              className={`text-[10px] px-2 py-0.5 rounded font-bold border uppercase tracking-wider ${
+                v.status === "active"
+                  ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
                   : v.status === "closed"
-                    ? "Закрита"
-                    : "Архів"}
-              </span>
-            )}
-            {/* КАТЭГОРЫЯ */}
+                    ? "bg-red-500/10 text-red-400 border-red-500/20"
+                    : "bg-slate-500/10 text-slate-400 border-slate-500/20"
+              }`}
+            >
+              {STATUS_LABELS[v.status] || v.status}
+            </span>
             {v.category && (
               <span className="text-[10px] bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded font-bold border border-blue-500/20 uppercase tracking-wider">
-                <Tag size={9} className="inline mr-1" />
-                {v.category}
+                <Tag size={9} className="inline mr-1" /> {v.category}
               </span>
             )}
-            {/* БРЭНД — зверху, побач з катэгорыяй */}
             {v.brand && (
               <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded font-bold border border-emerald-500/20 uppercase tracking-wider">
-                <Factory size={9} className="inline mr-1" />
-                {v.brand}
+                <Factory size={9} className="inline mr-1" /> {v.brand}
               </span>
             )}
           </div>
@@ -105,7 +98,6 @@ export default function VacancyViewModal({
             <button
               onClick={handleCopyTelegram}
               className="p-2 text-slate-400 hover:text-emerald-400 transition-all"
-              title="Капіяваць пост"
             >
               {copied ? <Check size={18} /> : <Copy size={18} />}
             </button>
@@ -119,13 +111,12 @@ export default function VacancyViewModal({
         </div>
 
         <div className="px-8 py-6 space-y-7">
-          {/* ГАЛОЎНЫ ЗАГАЛОВАК */}
+          {/* ГАЛОЎНЫ ЗАГАЛОВАК І ЛАКАЦЫЯ */}
           <div>
             <h2 className="text-xl font-black text-white leading-tight mb-3">
               {v.vacancydescription}
             </h2>
             <div className="space-y-1">
-              {/* ЛАКАЦЫЯ ЗАЎЖДЫ З КРАІНАЙ (калі не Польшча) */}
               <p className="text-base text-slate-200">
                 📍 <span className="font-semibold">Місто:</span>{" "}
                 <span className="text-white font-bold">{locationDisplay}</span>
@@ -138,11 +129,11 @@ export default function VacancyViewModal({
               )}
               <p className="text-sm text-slate-300">
                 👥 <span className="font-semibold">Набір:</span>{" "}
-                <span className="text-white">
+                <span className="text-white font-bold">
                   {v.gender ||
                     (Array.isArray(v.requirements?.gender)
                       ? v.requirements.gender.join(", ")
-                      : v.requirements?.gender)}
+                      : "Будь-хто")}
                 </span>
                 {v.requirements?.genderDescription && (
                   <span className="text-slate-400 ml-1 italic">
@@ -150,20 +141,15 @@ export default function VacancyViewModal({
                   </span>
                 )}
                 {v.arrivalDate && (
-                  <span className="text-emerald-400">
+                  <span className="text-emerald-400 font-bold">
                     , приїзд {v.arrivalDate}
                   </span>
                 )}
               </p>
-              {v.count && (
-                <p className="text-sm text-slate-300">
-                  🔢 <span className="font-semibold">Кількість:</span> {v.count}
-                </p>
-              )}
             </div>
           </div>
 
-          {/* АПЛАТА */}
+          {/* ОПЛАТА ПРАЦІ */}
           <section>
             <SectionTitle
               icon="💰"
@@ -176,16 +162,18 @@ export default function VacancyViewModal({
               <Row label="Студенти" value={v.salary?.studentNetto} />
               <Row label="Годин на місяць" value={v.salary?.hoursRange} />
               <Row label="Виплати" value={v.salary?.payoutDates} />
+
               {v.salary?.bonusDetails && (
-                <p className="text-sm text-emerald-400 mt-2 bg-emerald-500/5 p-2 rounded-lg border border-emerald-500/10">
-                  🎁 {v.salary.bonusDetails}
-                </p>
+                <div className="text-sm text-emerald-400 mt-2 bg-emerald-500/5 p-3 rounded-xl border border-emerald-500/10 flex items-start gap-2">
+                  <span className="shrink-0">🎁</span>
+                  <span>{v.salary.bonusDetails}</span>
+                </div>
               )}
               <Note>{v.salary?.salaryNotes}</Note>
             </div>
           </section>
 
-          {/* АБАВЯЗКІ */}
+          {/* ХАРАКТЕР РОБОТИ (АБАВЯЗКІ) */}
           <section>
             <SectionTitle
               icon="🛠"
@@ -193,22 +181,30 @@ export default function VacancyViewModal({
               color="text-blue-400"
               border="border-blue-500/20"
             />
-            <div className="space-y-1.5">
-              {v.description?.split(/[;]/).map(
+            <div className="space-y-2">
+              {(v.description || "").split(/[;]/).map(
                 (item, i) =>
                   item.trim() && (
-                    <div key={i} className="flex items-start gap-2">
-                      <span className="text-blue-500 mt-0.5 shrink-0">•</span>
-                      <span className="text-sm text-slate-200 leading-snug">
+                    <div key={i} className="flex items-start gap-2.5 group">
+                      <span className="text-blue-500 mt-1 shrink-0 text-[10px]">
+                        ▶
+                      </span>
+                      <span className="text-sm text-slate-200 leading-relaxed group-hover:text-white transition-colors">
                         {item.trim()}
                       </span>
                     </div>
                   ),
               )}
+              {/* Калі апісання няма, паказваем заглушку */}
+              {(!v.description || v.description.trim() === "") && (
+                <p className="text-sm text-slate-500 italic">
+                  Опис обов'язків відсутній
+                </p>
+              )}
             </div>
           </section>
 
-          {/* ПАТРАБАВАННІ */}
+          {/* ВИМОГИ */}
           <section>
             <SectionTitle
               icon="📋"
@@ -220,29 +216,44 @@ export default function VacancyViewModal({
               {v.requirements?.ageMax && (
                 <Row label="Вік" value={v.requirements.ageMax} />
               )}
-              {v.requirements?.nationalities?.length > 0 && (
-                <Row
-                  label="Національність"
-                  value={v.requirements.nationalities.join(", ")}
-                />
-              )}
-              <Row
-                label="Документи"
-                value={v.requirements?.standardDocs?.join(", ")}
-              />
+
+              {/* Бяспечны вывад нацыянальнасцяў */}
+              {Array.isArray(v.requirements?.nationalities) &&
+                v.requirements.nationalities.length > 0 && (
+                  <Row
+                    label="Національність"
+                    value={v.requirements.nationalities.join(", ")}
+                  />
+                )}
+
+              {/* Бяспечны вывад дакументаў */}
+              {Array.isArray(v.requirements?.standardDocs) &&
+                v.requirements.standardDocs.length > 0 && (
+                  <Row
+                    label="Документи"
+                    value={v.requirements.standardDocs.join(", ")}
+                  />
+                )}
+
               {v.requirements?.additionalDocsDetails && (
-                <Note>Додатково: {v.requirements.additionalDocsDetails}</Note>
+                <Note>
+                  Додатково:{" "}
+                  {v.requirements.additionalDocsDetails.replace(/^з\s+/i, "")}
+                </Note>
               )}
+
               <Row label="Мова" value={v.requirements?.polishLanguageLevel} />
+
               {v.requirements?.physicalLoad === true && (
-                <p className="text-sm text-red-400 font-bold flex items-center gap-2">
-                  ⚡ Фізично важка праця
-                </p>
+                <div className="mt-2 p-2 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center gap-2 text-red-400 font-bold text-sm">
+                  <span>⚡</span>
+                  <span>Фізично важка праця</span>
+                </div>
               )}
             </div>
           </section>
 
-          {/* ГРАФІК І ДАГАВОР */}
+          {/* ГРАФІК ТА ДОГОВІР */}
           <section>
             <SectionTitle
               icon="🕒"
@@ -252,16 +263,22 @@ export default function VacancyViewModal({
             />
             <div className="space-y-1.5">
               {v.schedule?.description && (
-                <p className="text-sm text-slate-200 leading-relaxed">
+                <p className="text-sm text-slate-200 leading-relaxed bg-slate-800/30 p-3 rounded-xl border border-slate-800 mb-2">
                   {v.schedule.description}
                 </p>
               )}
               <Row label="Робочі дні" value={v.schedule?.workDaysWeek} />
               <Row label="Перерва" value={v.schedule?.breakDuration} />
+
               {v.contractType && (
-                <p className="mt-2 text-sm text-blue-400 font-bold">
-                  📄 Тип договору: {v.contractType}
-                </p>
+                <div className="mt-3 flex items-center gap-2">
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                    Тип договору:
+                  </span>
+                  <span className="text-sm text-blue-400 font-black bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/20">
+                    {v.contractType}
+                  </span>
+                </div>
               )}
             </div>
           </section>
@@ -279,16 +296,21 @@ export default function VacancyViewModal({
                 {v.accommodation?.type ? (
                   <p className="text-sm text-slate-200 font-semibold">
                     {v.accommodation.type}
+                    {v.accommodation?.forCouples && " (можливо для пар 👫)"}
                   </p>
                 ) : (
-                  <p className="text-sm text-slate-500 italic">Не вказано</p>
+                  <p className="text-sm text-slate-500 italic">
+                    Інформація про житло відсутня
+                  </p>
                 )}
                 {v.accommodation?.withChildren && (
-                  <p className="text-xs text-emerald-400">✓ Можна з дітьми</p>
+                  <p className="text-xs text-emerald-400 flex items-center gap-1">
+                    <span>✓</span> Можна з дітьми
+                  </p>
                 )}
                 {v.accommodation?.withPets && (
-                  <p className="text-xs text-emerald-400">
-                    ✓ Можна з тваринами
+                  <p className="text-xs text-emerald-400 flex items-center gap-1">
+                    <span>✓</span> Можна з тваринами
                   </p>
                 )}
                 <Note>{v.accommodation?.details}</Note>
@@ -303,17 +325,21 @@ export default function VacancyViewModal({
               />
               <div className="space-y-1">
                 <p className="text-sm text-slate-200 font-semibold">
-                  {v.transport?.provided ? "Надається" : "Власний"}
+                  {v.transport?.provided
+                    ? "Надається роботодавцем"
+                    : "Власний / Не надається"}
                 </p>
                 {v.transport?.costRaw && (
-                  <p className="text-sm text-cyan-300">{v.transport.costRaw}</p>
+                  <p className="text-sm text-cyan-300 font-medium">
+                    {v.transport.costRaw}
+                  </p>
                 )}
                 <Note>{v.transport?.details}</Note>
               </div>
             </div>
           </section>
 
-          {/* УМОВЫ ПРАЦЫ */}
+          {/* УМОВИ ПРАЦІ ТА НЮАНСИ */}
           <section>
             <SectionTitle
               icon="🌡"
@@ -321,80 +347,113 @@ export default function VacancyViewModal({
               color="text-rose-400"
               border="border-rose-500/20"
             />
-            <div className="space-y-1.5">
-              <Row
-                label="Робочий одяг"
-                value={
-                  v.conditions?.workwearFree
-                    ? "Безкоштовно"
-                    : "За рахунок працівника"
-                }
-              />
-              <Row label="Харчування" value={v.conditions?.foodType} />
+            <div className="space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <Row
+                  label="Робочий одяг"
+                  value={
+                    v.conditions?.workwearFree
+                      ? "Безкоштовно"
+                      : "За рахунок працівника"
+                  }
+                />
+                <Row label="Харчування" value={v.conditions?.foodType} />
+              </div>
               <Note>{v.conditions?.foodDetails}</Note>
 
-              {/* НЮАНСЫ — каляровыя тэгі v2.1 */}
-              {v.conditions?.specificNuances?.length > 0 && (
-                <div className="flex flex-col gap-2 mt-3">
-                  {v.conditions.specificNuances.map((n, idx) => {
-                    const text = typeof n === "object" ? n.text : n;
-                    const category =
-                      typeof n === "object" ? n.category : "Інше";
-                    const isUrgent =
-                      category === "temperature" ||
-                      category === "physical_load";
+              {/* РАЗУМНАЯ ДЭДУПЛІКАЦЫЯ НЮАНСАЎ */}
+              {Array.isArray(v.conditions?.specificNuances) &&
+                v.conditions.specificNuances.length > 0 && (
+                  <div className="flex flex-col gap-2 mt-4">
+                    {v.conditions.specificNuances.map((n, idx) => {
+                      const text = (typeof n === "object" ? n.text : n) || "";
+                      const category =
+                        (typeof n === "object" ? n.category : "other") ||
+                        "other";
 
-                    return (
-                      <div
-                        key={idx}
-                        className={`px-3 py-2 rounded-lg text-xs border flex flex-col gap-0.5 ${isUrgent ? "bg-red-500/5 text-red-400 border-red-500/10" : "bg-slate-800/50 text-slate-300 border-slate-700"}`}
-                      >
-                        <span className="text-[10px] font-bold uppercase opacity-50 tracking-wider">
-                          {category}
-                        </span>
-                        <span className="font-medium">{text}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+                      // Збіраем увесь тэкст для праверкі на дублікаты
+                      const mainText =
+                        `${v.vacancydescription || ""} ${v.description || ""} ${v.conditions?.characterOfWork || ""}`.toLowerCase();
+
+                      // Калі тэкст нюансу ўжо ёсць у апісанні — не рэндэрым яго
+                      if (text && mainText.includes(text.toLowerCase()))
+                        return null;
+
+                      const categoryLabels = {
+                        temperature: "Температурний режим",
+                        physical_load: "Фізично-важка праця",
+                        sanitary_limits: "Санітарні обмеження",
+                        smells_allergens: "Запахи та алергени",
+                        noise: "Шум",
+                        work_character: "Характер праці",
+                        skills: "Специфічні навички",
+                        norms: "Норми",
+                        entry_tests: "Тести при вступі",
+                        other: "Особливості",
+                      };
+
+                      const isUrgent =
+                        category === "temperature" ||
+                        category === "physical_load";
+
+                      return (
+                        <div
+                          key={idx}
+                          className={`px-4 py-3 rounded-xl border flex flex-col gap-1 transition-all hover:bg-slate-800/50 ${
+                            isUrgent
+                              ? "bg-red-500/5 text-red-400 border-red-500/10"
+                              : "bg-slate-800/30 text-slate-300 border-slate-800"
+                          }`}
+                        >
+                          <span className="text-[10px] font-black uppercase opacity-60 tracking-widest">
+                            {categoryLabels[category] || categoryLabels.other}
+                          </span>
+                          <span className="text-sm leading-relaxed font-medium">
+                            {text}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               <Note>{v.conditions?.specificConditionsDetails}</Note>
             </div>
           </section>
 
-          {/* ВЫДАТКІ І КАМПЕНСАЦЫІ */}
+          {/* ВИТРАТИ ТА КОМПЕНСАЦІЇ */}
           {(v.startExpenses?.hasStartExpenses ||
             v.earlyTerminationLiability?.hasLiability ||
             v.employerCompensations?.hasCompensations) && (
-            <section className="bg-slate-800/30 p-4 rounded-xl border border-slate-800 space-y-3">
-              {v.startExpenses?.hasStartExpenses && v.startExpenses.details && (
-                <div>
-                  <p className="text-xs font-bold text-orange-400 uppercase mb-1">
-                    💸 Витрати на старті
-                  </p>
-                  <p className="text-sm text-slate-300">
-                    {v.startExpenses.details}
-                  </p>
-                </div>
-              )}
-              {v.earlyTerminationLiability?.hasLiability &&
-                v.earlyTerminationLiability.details && (
+            <section className="bg-slate-800/30 p-5 rounded-2xl border border-slate-800 space-y-4">
+              {v.startExpenses?.hasStartExpenses &&
+                v.startExpenses?.details && (
                   <div>
-                    <p className="text-xs font-bold text-red-400 uppercase mb-1">
+                    <p className="text-[10px] font-black text-orange-400 uppercase tracking-widest mb-1.5">
+                      💸 Витрати на старті
+                    </p>
+                    <p className="text-sm text-slate-300 leading-relaxed">
+                      {v.startExpenses.details}
+                    </p>
+                  </div>
+                )}
+              {v.earlyTerminationLiability?.hasLiability &&
+                v.earlyTerminationLiability?.details && (
+                  <div>
+                    <p className="text-[10px] font-black text-red-400 uppercase tracking-widest mb-1.5">
                       ⚠️ При достроковому звільненні
                     </p>
-                    <p className="text-sm text-slate-300">
+                    <p className="text-sm text-slate-300 leading-relaxed">
                       {v.earlyTerminationLiability.details}
                     </p>
                   </div>
                 )}
               {v.employerCompensations?.hasCompensations &&
-                v.employerCompensations.details && (
+                v.employerCompensations?.details && (
                   <div>
-                    <p className="text-xs font-bold text-emerald-400 uppercase mb-1">
-                      🎁 Компенсації
+                    <p className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-1.5">
+                      🎁 Компенсації та бонуси
                     </p>
-                    <p className="text-sm text-slate-300">
+                    <p className="text-sm text-slate-300 leading-relaxed">
                       {v.employerCompensations.details}
                     </p>
                   </div>
@@ -402,10 +461,10 @@ export default function VacancyViewModal({
             </section>
           )}
 
-          {/* ДАДАТКОВАЯ ІНФАРМАЦЫЯ */}
+          {/* ДОДАТКОВА ІНФОРМАЦІЯ */}
           {v.additionalNotes && (
-            <div className="p-4 bg-amber-500/5 border border-amber-500/20 rounded-xl">
-              <p className="text-[10px] text-amber-500 font-bold uppercase tracking-widest mb-2">
+            <div className="p-5 bg-amber-500/5 border border-amber-500/20 rounded-2xl">
+              <p className="text-[10px] text-amber-500 font-black uppercase tracking-widest mb-2">
                 📝 Додаткова інформація
               </p>
               <p className="text-sm text-slate-300 whitespace-pre-wrap leading-relaxed">
@@ -414,28 +473,33 @@ export default function VacancyViewModal({
             </div>
           )}
 
-          {/* КРЫНІЦА */}
-          <section className="mt-6 pt-6 border-t border-slate-800 space-y-4">
+          {/* ДЖЕРЕЛО ТА СИСТЕМНА ІНФО */}
+          <section className="mt-8 pt-6 border-t border-slate-800 space-y-4">
             {v.isTruncated && (
-              <div className="bg-red-500/10 border border-red-500/20 p-3 rounded-xl text-red-400 text-xs font-bold flex items-center gap-2">
-                ⚠️ Увага: Гэтая вакансія створана з абрэзанага паведамлення.
+              <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-xl text-red-400 text-xs font-bold flex items-center gap-3">
+                <span className="text-xl">⚠️</span>
+                <span>
+                  Увага: Ця вакансія створена з обрізаного повідомлення. Деякі
+                  деталі можуть бути відсутні.
+                </span>
               </div>
             )}
+
             <details className="group">
-              <summary className="text-[10px] font-bold text-slate-500 uppercase tracking-widest cursor-pointer hover:text-slate-300 transition-colors list-none flex items-center gap-2">
+              <summary className="text-[10px] font-black text-slate-500 uppercase tracking-widest cursor-pointer hover:text-slate-300 transition-colors list-none flex items-center gap-2">
                 <span className="group-open:rotate-90 transition-transform inline-block">
                   ▶
                 </span>
-                Тэкст паведамлення (Пераклад)
+                Текст повідомлення (Оригінал)
               </summary>
-              <div className="mt-4 p-4 bg-black/40 rounded-xl border border-slate-800 text-[12px] text-slate-400 font-mono leading-relaxed whitespace-pre-wrap">
-                {v.rawText || "Тэкст адсутнічае"}
+              <div className="mt-4 p-4 bg-black/40 rounded-xl border border-slate-800 text-[11px] text-slate-400 font-mono leading-relaxed whitespace-pre-wrap overflow-x-auto">
+                {v.rawText || "Текст повідомлення відсутній"}
               </div>
             </details>
           </section>
 
-          {/* МЕТА */}
-          <div className="pt-4 border-t border-slate-800 flex justify-between items-center text-[10px] font-mono text-slate-600">
+          {/* МЕТА-ДАНІ */}
+          <div className="pt-4 border-t border-slate-800 flex justify-between items-center text-[9px] font-mono text-slate-600 uppercase tracking-tighter">
             <span>ID: {v._id}</span>
             <span>
               СТВОРЕНО: {new Date(v.createdAt).toLocaleString("uk-UA")}
@@ -443,25 +507,30 @@ export default function VacancyViewModal({
           </div>
         </div>
 
-        {/* КНОПКІ ДЗЕЯННЯЎ */}
-        <div className="flex flex-wrap gap-3 px-6 py-4 border-t border-slate-800 sticky bottom-0 bg-slate-900 z-10">
+        {/* КНОПКИ ДІЙ */}
+        <div className="flex flex-wrap gap-3 px-8 py-5 border-t border-slate-800 sticky bottom-0 bg-slate-900 z-10">
           <button
             onClick={() => onMatch(v)}
-            className="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-bold text-sm rounded-xl transition-all"
+            className="px-8 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-black text-sm rounded-xl transition-all shadow-lg shadow-emerald-500/10"
           >
-            🎯 Кандыдаты
+            🎯 КАНДИДАТИ
           </button>
           <button
             onClick={() => onEdit(v)}
-            className="px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-semibold rounded-xl border border-slate-700 transition-all"
+            className="px-8 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-bold rounded-xl border border-slate-700 transition-all"
           >
-            ✏️ Рэдагаваць
+            ✏️ РЕДАГУВАТИ
           </button>
           <button
-            onClick={() => onDelete(v._id)}
-            className="px-6 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-500 text-sm font-semibold rounded-xl border border-red-500/20 ml-auto transition-all"
+            onClick={() => {
+              if (
+                window.confirm("Ви впевнені, що хочете видалити цю вакансію?")
+              )
+                onDelete(v._id);
+            }}
+            className="px-8 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-500 text-sm font-bold rounded-xl border border-red-500/20 ml-auto transition-all"
           >
-            🗑 Выдаліць
+            🗑️ ВИДАЛИТИ
           </button>
         </div>
       </div>

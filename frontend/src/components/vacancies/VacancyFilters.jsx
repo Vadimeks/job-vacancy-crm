@@ -28,7 +28,11 @@ export default function VacancyFilters({
     if (Array.isArray(val) && val.length > 0) return acc + 1;
     return acc;
   }, 0);
-
+  // Мапінг тэхнічных ключоў нюансаў у прыгожыя лэйблы з masterData
+  const mappedNuances = nuances.map((key) => {
+    const found = MD.CHECKLIST_ITEMS.find((item) => item.value === key);
+    return found ? found : { value: key, label: key };
+  });
   return (
     <div className="bg-slate-900/60 p-5 rounded-2xl border border-slate-800 h-full overflow-y-auto custom-scrollbar">
       <div className="flex items-center justify-between mb-6">
@@ -173,7 +177,7 @@ export default function VacancyFilters({
       <Section>
         <MultiSelect
           label="Особливості (Чек-лист)"
-          options={nuances}
+          options={mappedNuances} // Замянілі тут
           selected={draft.nuances}
           onChange={(v) => updateField("nuances", v)}
           placeholder="Вибрати нюанси..."

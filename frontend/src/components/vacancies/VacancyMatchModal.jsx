@@ -12,12 +12,12 @@ const STATUS_COLORS = {
 };
 
 const STATUS_LABELS = {
-  new: "Новы",
-  active: "Актыўны",
-  waiting: "Чакае",
-  employed: "Працуе",
-  left: "Сышоў",
-  blacklist: "Блэкліст",
+  new: "Новий",
+  active: "Активний",
+  waiting: "Очікує",
+  employed: "Працює",
+  left: "Звільнився", // Было "Пішов"
+  blacklist: "Чорний список", // Было "Блекліст"
 };
 
 export default function VacancyMatchModal({ vacancy, onClose }) {
@@ -30,7 +30,7 @@ export default function VacancyMatchModal({ vacancy, onClose }) {
         const res = await matchCandidatesForVacancy(vacancy._id);
         setCandidates(res.data);
       } catch {
-        console.error("Памылка матчынгу");
+        console.error("Помилка матчингу");
       } finally {
         setLoading(false);
       }
@@ -45,11 +45,11 @@ export default function VacancyMatchModal({ vacancy, onClose }) {
         onClick={onClose}
       />
       <div className="relative bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto mx-4">
-        {/* Загаловак */}
+        {/* Заголовок */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 sticky top-0 bg-slate-900 z-10">
           <div>
             <h2 className="font-semibold text-slate-100">
-              🎯 Падыходзячыя кандыдаты
+              🎯 Відповідні кандидати
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
               {vacancy.title}
@@ -66,25 +66,25 @@ export default function VacancyMatchModal({ vacancy, onClose }) {
           </button>
         </div>
 
-        {/* Змест */}
+        {/* Зміст */}
         <div className="px-6 py-5">
           {loading ? (
             <div className="text-center py-8 text-slate-500 text-sm">
-              Пошук кандыдатаў...
+              Пошук кандидатів...
             </div>
           ) : candidates.length === 0 ? (
             <div className="text-center py-8 text-slate-600">
               <div className="text-3xl mb-2">🔍</div>
-              <p className="text-sm">Падыходзячых кандыдатаў не знойдзена</p>
+              <p className="text-sm">Відповідних кандидатів не знайдено</p>
               <p className="text-xs text-slate-700 mt-1">
-                Упэўніцеся што ў базе ёсць кандыдаты са статусамі
+                Переконайтеся, що в базі є кандидати зі статусами
                 new/active/waiting
               </p>
             </div>
           ) : (
             <>
               <p className="text-xs text-slate-500 mb-4">
-                Знойдзена {candidates.length} кандыдатаў
+                Знайдено {candidates.length} кандидатів
               </p>
               <div className="space-y-3">
                 {candidates.map((c) => (
@@ -116,32 +116,32 @@ export default function VacancyMatchModal({ vacancy, onClose }) {
                           {c.currentLocation && (
                             <span>📍 {c.currentLocation}</span>
                           )}
-                          {c.age && <span>🎂 {c.age} г.</span>}
+                          {c.age && <span>🎂 {c.age} р.</span>}
                           {c.gender && (
                             <span>{c.gender === "female" ? "👩" : "👨"}</span>
                           )}
                         </div>
 
-                        {/* Пажаданні */}
+                        {/* Побажання */}
                         <div className="flex flex-wrap gap-2 mt-2">
                           {c.jobPreferences?.locationFlexible && (
                             <span className="text-xs bg-slate-700 text-slate-400 px-2 py-0.5 rounded">
-                              🗺 Гатовы да пераезду
+                              🗺 Готовий до переїзду
                             </span>
                           )}
                           {c.jobPreferences?.needsAccommodation && (
                             <span className="text-xs bg-slate-700 text-slate-400 px-2 py-0.5 rounded">
-                              🏠 Патрэбна жытло
+                              🏠 Потрібне житло
                             </span>
                           )}
                           {c.jobPreferences?.readyDate && (
                             <span className="text-xs bg-slate-700 text-slate-400 px-2 py-0.5 rounded">
-                              📅 Гатовы з: {c.jobPreferences.readyDate}
+                              📅 Готовий з: {c.jobPreferences.readyDate}
                             </span>
                           )}
                         </div>
 
-                        {/* Дакументы */}
+                        {/* Документи */}
                         <div className="flex gap-2 mt-2">
                           {[
                             [c.documents?.hasVisa, "Віза"],
@@ -162,12 +162,12 @@ export default function VacancyMatchModal({ vacancy, onClose }) {
                         </div>
                       </div>
 
-                      {/* Score */}
+                      {/* Оцінка */}
                       <div className="shrink-0 text-center">
                         <div className="text-lg font-bold text-emerald-400">
                           {c.matchScore}
                         </div>
-                        <div className="text-xs text-slate-600">балаў</div>
+                        <div className="text-xs text-slate-600">балів</div>
                       </div>
                     </div>
                   </div>

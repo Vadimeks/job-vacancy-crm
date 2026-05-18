@@ -494,12 +494,21 @@ export default function Vacancies() {
         {/* СПІС ВАКАНСІЙ */}
         <div className="space-y-3">
           {filtered.map((v) => {
-            // Лакацыя заўжды з краінай калі не Польшча
+            // Разумная лакацыя: дадаем краіну толькі калі яе яшчэ няма ў назве горада
             const locationDisplay =
-              v.country && v.country !== "Polska"
+              v.country &&
+              v.country !== "Polska" &&
+              !v.location.includes(v.country)
                 ? `${v.location} (${v.country})`
                 : v.location;
-
+            // Збіраем толькі унікальныя катэгорыі нюансаў для кампактнага вываду
+            const uniqueCategories = Array.from(
+              new Set(
+                (v.conditions?.specificNuances || []).map((n) =>
+                  typeof n === "object" && n !== null ? n.category : n,
+                ),
+              ),
+            );
             return (
               <div
                 key={v._id}
@@ -507,10 +516,10 @@ export default function Vacancies() {
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
-                    {/* РАДОК 1: код + статус + катэгорыя */}
-                    <div className="flex items-center gap-2 mb-2 flex-wrap">
-                      {/* ID + Truncated */}
-                      <span className="text-xs font-mono bg-slate-800 text-slate-400 px-2 py-0.5 rounded flex items-center gap-1">
+                    {/* РАДОК 1: ПАШПАРТ ВАКАНСІІ (ID, Статус, Агенцыя, Брэнд, Катэгорыя, Лакацыя) */}
+                    <div className="flex items-center gap-2 mb-2 flex-wrap border-b border-slate-800/50 pb-2">
+                      {/* ID + Truncated Marker */}
+                      <span className="text-[10px] font-mono bg-slate-800 text-slate-400 px-2 py-0.5 rounded flex items-center gap-1 border border-slate-700">
                         {v.vacancyCode}
                         {v.isTruncated && (
                           <span
@@ -522,19 +531,19 @@ export default function Vacancies() {
                         )}
                       </span>
 
-                      {/* Статус */}
+                      {/* Статус (Украінізаваны) */}
                       <span
-                        className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full ${STATUS_COLORS[v.status]}`}
+                        className={`text-[10px] uppercase font-black px-2 py-0.5 rounded-full ${STATUS_COLORS[v.status]}`}
                       >
                         {STATUS_LABELS[v.status]}
                       </span>
 
-                      {/* Агенція (Перанесены знізу) */}
+                      {/* Агенція */}
                       <span className="text-[10px] uppercase tracking-wider font-bold bg-slate-800 text-slate-300 border border-slate-700 px-2 py-0.5 rounded">
                         🏢 {v.agencyName}
                       </span>
 
-                      {/* Брэнд */}
+                      {/* Брэнд (Завод) */}
                       {v.brand && (
                         <span className="text-[10px] uppercase tracking-wider font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded">
                           🏭 {v.brand}
@@ -548,18 +557,19 @@ export default function Vacancies() {
                         </span>
                       )}
 
-                      {/* Локація + Воєводство (Перанесены знізу) */}
-                      <span className="text-[10px] font-bold bg-slate-800 text-slate-200 px-2 py-0.5 rounded flex items-center gap-1">
-                        📍 {locationDisplay}{" "}
-                        {v.voivodeship && (
-                          <span className="text-slate-500 ml-1">
-                            ({v.voivodeship})
-                          </span>
-                        )}
+                      {/* Лакацыя + Ваяводства (толькі для Польшчы) */}
+                      <span className="text-[10px] font-bold bg-slate-800 text-slate-200 px-2 py-0.5 rounded flex items-center gap-1 border border-slate-700">
+                        📍 {locationDisplay}
+                        {v.voivodeship &&
+                          v.voivodeship !== "Європа (інші країни)" && (
+                            <span className="text-slate-500 ml-1 font-medium">
+                              ({v.voivodeship})
+                            </span>
+                          )}
                       </span>
 
-                      {/* Дата створення */}
-                      <span className="text-[10px] text-slate-600 ml-auto font-mono">
+                      {/* Дата стварэння (Справа) */}
+                      <span className="text-[10px] text-slate-600 ml-auto font-mono italic">
                         {new Date(v.createdAt).toLocaleDateString("uk-UA")}
                       </span>
                     </div>
@@ -569,89 +579,113 @@ export default function Vacancies() {
                       {v.vacancydescription || v.templateName}
                     </h3>
 
-                    {/* РАДОК 2: ГЕНДАР + жытло + зарплата */}
-                    <div className="flex flex-wrap gap-3 text-xs text-slate-500 items-center">
-                      {/* ГЕНДАР / НАБОР */}
-                      <span className="flex items-center gap-1 text-slate-300">
-                        👥{" "}
-                        {v.requirements?.genderDescription ||
-                          (Array.isArray(v.requirements?.gender)
-                            ? v.requirements.gender.join(", ")
-                            : v.requirements?.gender)}
-                      </span>
-
-                      {/* ЖЫТЛО */}
-                      <span className="flex items-center gap-1">
-                        🏠 {v.accommodation?.type || "—"}
-                      </span>
-
-                      {/* ЗАРПЛАТА */}
-                      {v.salary?.baseNetto && (
-                        <span className="text-slate-200 font-medium bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-                          💰 {v.salary.baseNetto}
+                    {/* РАДОК 2: ГЕНДАР (МАРКЕРЫ) + ЖЫТЛО + ЗАРПЛАТА */}
+                    <div className="flex flex-wrap gap-4 text-xs items-center mb-3">
+                      {/* ГЕНДАР / НАБОР (Толькі маркеры) */}
+                      <div className="flex items-center gap-1.5 bg-slate-800/40 px-2 py-1 rounded-lg border border-slate-800">
+                        <span className="text-slate-500">👥</span>
+                        <span className="text-slate-200 font-bold uppercase tracking-tight text-[10px]">
+                          {v.gender ||
+                            (Array.isArray(v.requirements?.gender)
+                              ? v.requirements.gender.join(", ")
+                              : "Будь-хто")}
                         </span>
+                      </div>
+
+                      {/* ЖЫТЛО (Кароткі статус) */}
+                      <div className="flex items-center gap-1.5 text-slate-400">
+                        <span>🏠</span>
+                        <span className="font-medium">
+                          {v.accommodation?.type?.includes("власн") ||
+                          v.accommodation?.type?.includes("не надаєт")
+                            ? "Без житла"
+                            : "Житло надається"}
+                        </span>
+                      </div>
+
+                      {/* ЗАРПЛАТА (Акцэнт) */}
+                      {v.salary?.baseNetto && (
+                        <div className="flex items-center gap-1.5 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20 ml-auto">
+                          <span className="text-emerald-400 font-black text-sm">
+                            💰 {v.salary.baseNetto}
+                          </span>
+                        </div>
                       )}
                     </div>
-                  </div>
-                  {/* ХМАРА ТЕГІВ v2.2 */}
-                  <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-slate-800/50">
-                    {/* ЖИТЛО */}
-                    <span
-                      className={`text-[9px] px-1.5 py-0.5 rounded border font-bold uppercase tracking-tighter ${v.accommodation?.type?.includes("власн") || v.accommodation?.type?.includes("не надаєт") ? "bg-red-500/5 text-red-400/70 border-red-500/10" : "bg-orange-500/10 text-orange-400 border-orange-500/20"}`}
-                    >
-                      🏠 {v.accommodation?.type || "Житло не вказано"}
-                      {v.accommodation?.forCouples && " + 👫"}
-                    </span>
-
-                    {/* ДОВІЗ */}
-                    <span
-                      className={`text-[9px] px-1.5 py-0.5 rounded border font-bold uppercase tracking-tighter ${v.transport?.provided ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/20" : "bg-slate-800 text-slate-500 border-slate-700"}`}
-                    >
-                      🚌 {v.transport?.provided ? "Є довіз" : "Немає довозу"}
-                    </span>
-
-                    {/* МОВА */}
-                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20 font-bold uppercase tracking-tighter">
-                      🗣️ {v.requirements?.polishLanguageLevel || "Любий рівень"}
-                    </span>
-
-                    {/* НАЦІОНАЛЬНІСТЬ */}
-                    {v.requirements?.nationalities?.length > 0 && (
-                      <span className="text-[9px] px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 font-bold uppercase tracking-tighter">
-                        🌍 {v.requirements.nationalities.join("/")}
-                      </span>
-                    )}
-
-                    {/* ДОКУМЕНТИ */}
-                    {v.requirements?.standardDocs?.length > 0 && (
-                      <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-bold uppercase tracking-tighter">
-                        📄 {v.requirements.standardDocs.join(" / ")}
-                      </span>
-                    )}
-
-                    {/* ОСОБЛИВОСТІ (Тільки категорії нюансів) */}
-                    {v.conditions?.specificNuances?.map((n, idx) => {
-                      const category =
-                        typeof n === "object" && n !== null ? n.category : n;
-                      // Вызначаем іконку для папулярных катэгорый
-                      const icons = {
-                        temperature: "🌡️",
-                        physical_load: "🏋️",
-                        noise: "📢",
-                        norms: "📈",
-                      };
-                      const icon = icons[category] || "✨";
-
-                      return (
-                        <span
-                          key={idx}
-                          className="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/5 text-amber-500/80 border border-amber-500/10 font-bold uppercase tracking-tighter"
-                        >
-                          {icon} {category}
+                    {/* ХМАРА ТЕГІВ v2.2 (Групаваная і кампактная) */}
+                    <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-slate-800/50">
+                      {/* ЖИТЛО (Дэталі) */}
+                      {v.accommodation?.forCouples && (
+                        <span className="text-[9px] px-1.5 py-0.5 rounded border border-orange-500/20 bg-orange-500/10 text-orange-400 font-bold uppercase tracking-tighter">
+                          👫 Для пар
                         </span>
-                      );
-                    })}
+                      )}
+
+                      {/* ДОВІЗ */}
+                      <span
+                        className={`text-[9px] px-1.5 py-0.5 rounded border font-bold uppercase tracking-tighter ${v.transport?.provided ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/20" : "bg-slate-800 text-slate-500 border-slate-700"}`}
+                      >
+                        🚌 {v.transport?.provided ? "Є довіз" : "Без довозу"}
+                      </span>
+
+                      {/* МОВА */}
+                      <span className="text-[9px] px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20 font-bold uppercase tracking-tighter">
+                        🗣️{" "}
+                        {v.requirements?.polishLanguageLevel || "Любий рівень"}
+                      </span>
+
+                      {/* НАЦІОНАЛЬНІСТЬ */}
+                      {(v.requirements?.nationalities || []).length > 0 && (
+                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 font-bold uppercase tracking-tighter">
+                          🌍 {v.requirements.nationalities.join(", ")}
+                        </span>
+                      )}
+
+                      {/* ДОКУМЕНТИ */}
+                      {(v.requirements?.standardDocs || []).length > 0 && (
+                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-bold uppercase tracking-tighter">
+                          📄 {v.requirements.standardDocs.join(" / ")}
+                        </span>
+                      )}
+
+                      {/* ОСОБЛИВОСТІ (Толькі унікальныя катэгорыі) */}
+                      {uniqueCategories.map((category, idx) => {
+                        const icons = {
+                          temperature: "🌡️",
+                          physical_load: "🏋️",
+                          noise: "📢",
+                          norms: "📈",
+                          sanitary_limits: "🚫",
+                          smells_allergens: "👃",
+                          work_character: "🚶",
+                          skills: "🛠️",
+                          entry_tests: "📝",
+                        };
+                        const labels = {
+                          temperature: "Температурний режим",
+                          physical_load: "Фізично-важка праця",
+                          sanitary_limits: "Санітарні обмеження",
+                          smells_allergens: "Запахи та алергени",
+                          noise: "Шум",
+                          work_character: "Характер праці",
+                          skills: "Специфічні навички",
+                          norms: "Норми",
+                          entry_tests: "Тести при вступі",
+                        };
+
+                        return (
+                          <span
+                            key={idx}
+                            className="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/5 text-amber-500/80 border border-amber-500/10 font-bold uppercase tracking-tighter"
+                          >
+                            {icons[category] || "✨"}{" "}
+                            {labels[category] || category}
+                          </span>
+                        );
+                      })}
+                    </div>
                   </div>
+
                   {/* КНОПКІ */}
                   <div className="flex flex-col gap-1.5 shrink-0">
                     <button
