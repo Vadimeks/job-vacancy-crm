@@ -573,14 +573,13 @@ export default function Vacancies() {
                         {new Date(v.createdAt).toLocaleDateString("uk-UA")}
                       </span>
                     </div>
-
                     {/* ЗАГАЛОВАК */}
                     <h3 className="font-semibold text-slate-100 leading-snug mb-2">
                       {v.vacancydescription || v.templateName}
                     </h3>
 
-                    {/* ХМАРА ТЕГІВ v2.2 (Групаваная і кампактная) */}
-                    <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-slate-800/50">
+                    {/* РАДОК 2: БАЗАВЫЯ ЎМОВЫ (Гендэр, Жытло, Давоз, Мова) + ЗАРПЛАТА */}
+                    <div className="flex flex-wrap gap-4 text-xs items-center mb-3">
                       {/* ГЕНДАР / НАБОР */}
                       <div className="flex items-center gap-1.5 bg-slate-800/40 px-2 py-1 rounded-lg border border-slate-800">
                         <span className="text-slate-500">👥</span>
@@ -594,7 +593,43 @@ export default function Vacancies() {
                           )}
                         </span>
                       </div>
-                      {/* ЗАРПЛАТА (Акцэнт) */}
+
+                      {/* ЖИТЛО + ПАРИ */}
+                      <div className="flex items-center gap-1.5 text-slate-400">
+                        <span>🏠</span>
+                        <span className="font-medium">
+                          {v.accommodation?.type
+                            ?.toLowerCase()
+                            .includes("власн") ||
+                          v.accommodation?.type
+                            ?.toLowerCase()
+                            .includes("не надаєт")
+                            ? "Без житла"
+                            : "Житло надається"}
+                          {v.accommodation?.forCouples && (
+                            <span className="text-orange-400 ml-1">+ 👫</span>
+                          )}
+                        </span>
+                      </div>
+
+                      {/* ДОВІЗ */}
+                      <div className="flex items-center gap-1.5 text-slate-400">
+                        <span>🚌</span>
+                        <span className="font-medium">
+                          {v.transport?.provided ? "Є довіз" : "Без довозу"}
+                        </span>
+                      </div>
+
+                      {/* МОВА */}
+                      <div className="flex items-center gap-1.5 text-slate-400">
+                        <span>🗣️</span>
+                        <span className="font-medium">
+                          {v.requirements?.polishLanguageLevel ||
+                            "Любий рівень"}
+                        </span>
+                      </div>
+
+                      {/* ЗАРПЛАТА (Акцэнт справа) */}
                       {v.salary?.baseNetto && (
                         <div className="flex items-center gap-1.5 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20 ml-auto">
                           <span className="text-emerald-400 font-black text-sm">
@@ -602,36 +637,10 @@ export default function Vacancies() {
                           </span>
                         </div>
                       )}
-                      {/* ЖИТЛО + ПАРИ (Аб'яднаны тэг) */}
-                      <span
-                        className={`text-[9px] px-1.5 py-0.5 rounded border font-bold uppercase tracking-tighter ${
-                          v.accommodation?.type
-                            ?.toLowerCase()
-                            .includes("власн") ||
-                          v.accommodation?.type
-                            ?.toLowerCase()
-                            .includes("не надаєт")
-                            ? "bg-red-500/5 text-red-400/70 border-red-500/10"
-                            : "bg-orange-500/10 text-orange-400 border-orange-500/20"
-                        }`}
-                      >
-                        🏠 {v.accommodation?.type || "Житло не вказано"}
-                        {v.accommodation?.forCouples && " + 👫"}
-                      </span>
+                    </div>
 
-                      {/* ДОВІЗ */}
-                      <span
-                        className={`text-[9px] px-1.5 py-0.5 rounded border font-bold uppercase tracking-tighter ${v.transport?.provided ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/20" : "bg-slate-800 text-slate-500 border-slate-700"}`}
-                      >
-                        🚌 {v.transport?.provided ? "Є довіз" : "Без довозу"}
-                      </span>
-
-                      {/* МОВА */}
-                      <span className="text-[9px] px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20 font-bold uppercase tracking-tighter">
-                        🗣️{" "}
-                        {v.requirements?.polishLanguageLevel || "Любий рівень"}
-                      </span>
-
+                    {/* ХМАРА ТЕГІВ v2.2 (Спецыфічныя патрабаванні: Нацыі, Дакументы, Нюансы) */}
+                    <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-slate-800/50">
                       {/* НАЦІОНАЛЬНІСТЬ */}
                       {(v.requirements?.nationalities || []).length > 0 && (
                         <span className="text-[9px] px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 font-bold uppercase tracking-tighter">
@@ -646,7 +655,7 @@ export default function Vacancies() {
                         </span>
                       )}
 
-                      {/* ОСОБЛИВОСТІ (Толькі унікальныя катэгорыі) */}
+                      {/* ОСОБЛИВОСТІ (Толькі унікальныя катэгорыі з кантэнтам) */}
                       {uniqueCategories.map((category, idx) => {
                         const icons = {
                           temperature: "🌡️",
@@ -670,6 +679,7 @@ export default function Vacancies() {
                           norms: "Норми",
                           entry_tests: "Тести при вступі",
                         };
+
                         // Калі тэксту для гэтай катэгорыі няма (схаваны як дубль), не паказваем пусты тэг
                         const hasContent = v.conditions?.specificNuances?.some(
                           (n) =>
@@ -678,6 +688,7 @@ export default function Vacancies() {
                               : n === category,
                         );
                         if (!hasContent) return null;
+
                         return (
                           <span
                             key={idx}

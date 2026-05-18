@@ -2327,41 +2327,14 @@ isInformative() / isSimpleMessage()
 - Оновлено `CHECKLIST_ITEMS` з іконками та уточненими назвами.
 - Розширено `GENDERS` (додано "Сім'ї") та актуалізовано список `AGENCIES`.
 
----
+### [18.05.2026] — Frontend: Аптимізація ієрархії даних у картці вакансії v2.2.1
 
-{/_ РАДОК 2: ГЕНДАР (МАРКЕРЫ) + ЖЫТЛО + ЗАРПЛАТА _/}
-<div className="flex flex-wrap gap-4 text-xs items-center mb-3">
-{/_ ГЕНДАР / НАБОР _/}
-<div className="flex items-center gap-1.5 bg-slate-800/40 px-2 py-1 rounded-lg border border-slate-800">
-<span className="text-slate-500">👥</span>
-<span className="text-slate-200 font-bold uppercase tracking-tight text-[10px]">
-{v.requirements?.gender &&
-v.requirements.gender.length > 0
-? v.requirements.gender.join(", ")
-: v.gender || "Будь-хто"}
-{v.requirements?.genderDescription && (
-<span className="text-emerald-500 ml-1">\*</span>
-)}
-</span>
-</div>
+**Зміни в інтерфейсі (Vacancies.jsx):**
 
-                      {/* ЖЫТЛО (Кароткі статус) */}
-                      <div className="flex items-center gap-1.5 text-slate-400">
-                        <span>🏠</span>
-                        <span className="font-medium">
-                          {v.accommodation?.type?.includes("власн") ||
-                          v.accommodation?.type?.includes("не надаєт")
-                            ? "Без житла"
-                            : "Житло надається"}
-                        </span>
-                      </div>
-
-                      {/* ЗАРПЛАТА (Акцэнт) */}
-                      {v.salary?.baseNetto && (
-                        <div className="flex items-center gap-1.5 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20 ml-auto">
-                          <span className="text-emerald-400 font-black text-sm">
-                            💰 {v.salary.baseNetto}
-                          </span>
-                        </div>
-                      )}
-                    </div>
+- **Реструктуризація "Панелі швидких фактів" (Рядок 2)**: Усі базові умови побуту (Набір, Житло, Довіз, Мова) зібрані в один логічний блок. Це дозволяє рекрутеру миттєво оцінити "фундамент" вакансії.
+- **Інтеграція тега "Пари"**: Позначка 👫 тепер відображається безпосередньо поруч зі статусом житла (`Житло надається + 👫`). Це усунуло дублювання інформації та звільнило місце в хмарі тегів.
+- **Оптимізація "Хмари тегів"**: Тепер блок тегів фокусується виключно на специфічних вимогах:
+  - **Національності** (🌍) та **Документи** (📄).
+  - **Нюанси** (🌡️, 🏋️ тощо) — додано логіку приховування порожніх тегів. Якщо текст нюансу був видалений як дублікат основного опису, сам тег категорії більше не відображається.
+- **Інформаційна точність**: Збережено маркер `*` для гендера, який сигналізує про наявність важливих уточнень у повному описі (наприклад, про чоловіків зі своїм житлом).
+- **Візуальна гігієна**: Картка стала більш структурованою, з чітким поділом на "базовий комфорт" та "специфічні вимоги".
