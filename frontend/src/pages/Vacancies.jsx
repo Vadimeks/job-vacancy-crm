@@ -581,14 +581,17 @@ export default function Vacancies() {
 
                     {/* РАДОК 2: ГЕНДАР (МАРКЕРЫ) + ЖЫТЛО + ЗАРПЛАТА */}
                     <div className="flex flex-wrap gap-4 text-xs items-center mb-3">
-                      {/* ГЕНДАР / НАБОР (Толькі маркеры) */}
+                      {/* ГЕНДАР / НАБОР */}
                       <div className="flex items-center gap-1.5 bg-slate-800/40 px-2 py-1 rounded-lg border border-slate-800">
                         <span className="text-slate-500">👥</span>
                         <span className="text-slate-200 font-bold uppercase tracking-tight text-[10px]">
-                          {v.gender ||
-                            (Array.isArray(v.requirements?.gender)
-                              ? v.requirements.gender.join(", ")
-                              : "Будь-хто")}
+                          {v.requirements?.gender &&
+                          v.requirements.gender.length > 0
+                            ? v.requirements.gender.join(", ")
+                            : v.gender || "Будь-хто"}
+                          {v.requirements?.genderDescription && (
+                            <span className="text-emerald-500 ml-1">*</span>
+                          )}
                         </span>
                       </div>
 
@@ -614,12 +617,22 @@ export default function Vacancies() {
                     </div>
                     {/* ХМАРА ТЕГІВ v2.2 (Групаваная і кампактная) */}
                     <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-slate-800/50">
-                      {/* ЖИТЛО (Дэталі) */}
-                      {v.accommodation?.forCouples && (
-                        <span className="text-[9px] px-1.5 py-0.5 rounded border border-orange-500/20 bg-orange-500/10 text-orange-400 font-bold uppercase tracking-tighter">
-                          👫 Для пар
-                        </span>
-                      )}
+                      {/* ЖИТЛО + ПАРИ (Аб'яднаны тэг) */}
+                      <span
+                        className={`text-[9px] px-1.5 py-0.5 rounded border font-bold uppercase tracking-tighter ${
+                          v.accommodation?.type
+                            ?.toLowerCase()
+                            .includes("власн") ||
+                          v.accommodation?.type
+                            ?.toLowerCase()
+                            .includes("не надаєт")
+                            ? "bg-red-500/5 text-red-400/70 border-red-500/10"
+                            : "bg-orange-500/10 text-orange-400 border-orange-500/20"
+                        }`}
+                      >
+                        🏠 {v.accommodation?.type || "Житло не вказано"}
+                        {v.accommodation?.forCouples && " + 👫"}
+                      </span>
 
                       {/* ДОВІЗ */}
                       <span
@@ -672,7 +685,14 @@ export default function Vacancies() {
                           norms: "Норми",
                           entry_tests: "Тести при вступі",
                         };
-
+                        // Калі тэксту для гэтай катэгорыі няма (схаваны як дубль), не паказваем пусты тэг
+                        const hasContent = v.conditions?.specificNuances?.some(
+                          (n) =>
+                            typeof n === "object"
+                              ? n.category === category
+                              : n === category,
+                        );
+                        if (!hasContent) return null;
                         return (
                           <span
                             key={idx}
