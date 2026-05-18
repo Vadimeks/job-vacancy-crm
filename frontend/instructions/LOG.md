@@ -2326,3 +2326,42 @@ isInformative() / isSimpleMessage()
 
 - Оновлено `CHECKLIST_ITEMS` з іконками та уточненими назвами.
 - Розширено `GENDERS` (додано "Сім'ї") та актуалізовано список `AGENCIES`.
+
+---
+
+{/_ РАДОК 2: ГЕНДАР (МАРКЕРЫ) + ЖЫТЛО + ЗАРПЛАТА _/}
+<div className="flex flex-wrap gap-4 text-xs items-center mb-3">
+{/_ ГЕНДАР / НАБОР _/}
+<div className="flex items-center gap-1.5 bg-slate-800/40 px-2 py-1 rounded-lg border border-slate-800">
+<span className="text-slate-500">👥</span>
+<span className="text-slate-200 font-bold uppercase tracking-tight text-[10px]">
+{v.requirements?.gender &&
+v.requirements.gender.length > 0
+? v.requirements.gender.join(", ")
+: v.gender || "Будь-хто"}
+{v.requirements?.genderDescription && (
+<span className="text-emerald-500 ml-1">\*</span>
+)}
+</span>
+</div>
+
+                      {/* ЖЫТЛО (Кароткі статус) */}
+                      <div className="flex items-center gap-1.5 text-slate-400">
+                        <span>🏠</span>
+                        <span className="font-medium">
+                          {v.accommodation?.type?.includes("власн") ||
+                          v.accommodation?.type?.includes("не надаєт")
+                            ? "Без житла"
+                            : "Житло надається"}
+                        </span>
+                      </div>
+
+                      {/* ЗАРПЛАТА (Акцэнт) */}
+                      {v.salary?.baseNetto && (
+                        <div className="flex items-center gap-1.5 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20 ml-auto">
+                          <span className="text-emerald-400 font-black text-sm">
+                            💰 {v.salary.baseNetto}
+                          </span>
+                        </div>
+                      )}
+                    </div>

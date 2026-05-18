@@ -579,8 +579,8 @@ export default function Vacancies() {
                       {v.vacancydescription || v.templateName}
                     </h3>
 
-                    {/* РАДОК 2: ГЕНДАР (МАРКЕРЫ) + ЖЫТЛО + ЗАРПЛАТА */}
-                    <div className="flex flex-wrap gap-4 text-xs items-center mb-3">
+                    {/* ХМАРА ТЕГІВ v2.2 (Групаваная і кампактная) */}
+                    <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-slate-800/50">
                       {/* ГЕНДАР / НАБОР */}
                       <div className="flex items-center gap-1.5 bg-slate-800/40 px-2 py-1 rounded-lg border border-slate-800">
                         <span className="text-slate-500">👥</span>
@@ -594,18 +594,6 @@ export default function Vacancies() {
                           )}
                         </span>
                       </div>
-
-                      {/* ЖЫТЛО (Кароткі статус) */}
-                      <div className="flex items-center gap-1.5 text-slate-400">
-                        <span>🏠</span>
-                        <span className="font-medium">
-                          {v.accommodation?.type?.includes("власн") ||
-                          v.accommodation?.type?.includes("не надаєт")
-                            ? "Без житла"
-                            : "Житло надається"}
-                        </span>
-                      </div>
-
                       {/* ЗАРПЛАТА (Акцэнт) */}
                       {v.salary?.baseNetto && (
                         <div className="flex items-center gap-1.5 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20 ml-auto">
@@ -614,9 +602,6 @@ export default function Vacancies() {
                           </span>
                         </div>
                       )}
-                    </div>
-                    {/* ХМАРА ТЕГІВ v2.2 (Групаваная і кампактная) */}
-                    <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-slate-800/50">
                       {/* ЖИТЛО + ПАРИ (Аб'яднаны тэг) */}
                       <span
                         className={`text-[9px] px-1.5 py-0.5 rounded border font-bold uppercase tracking-tighter ${
