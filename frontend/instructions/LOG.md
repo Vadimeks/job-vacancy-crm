@@ -2442,3 +2442,5 @@ isInformative() / isSimpleMessage()
   - Блок зарплаты перанесены ўнутар агульнага шэрагу з іконкамі і прыціснуты да правага краю (`ml-auto`), што выправіла памылку з "выпаданнем" цэлага радка.
 - **Сінхранізацыя нюансаў**: Мапінг іконак і логіка падсветкі "крытычных" умоў (тэмпература, нагрузка) цалкам пераведзены на новыя ўкраінскія назвы катэгорый з бэкенда.
 - **Чытальнасць**: Укаранёна ўласцівасць `whitespace-pre-wrap` для блокаў графіка і жылля ў мадальным акне, што дазволіла адлюстроўваць падрабязныя спісы ад AI ў зручным выглядзе.
+  Enhanced formatText helper with regex to split text by semicolons and periods (only when followed by a capital letter).
+  This ensures legacy "monolith" text blocks are automatically converted into readable bulleted lists without breaking decimals or abbreviations.

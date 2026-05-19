@@ -1,6 +1,26 @@
 import React, { useState } from "react";
 import { Copy, Check, X, Factory, Tag } from "lucide-react";
+const formatText = (text) => {
+  if (!text || typeof text !== "string") return "";
 
+  // Калі ў тэксце ўжо ёсць пераносы радкоў — значыць, AI ўжо яго аформіў, вяртаем як ёсць
+  if (text.includes("\n")) return text;
+
+  // Разбіваем тэкст па:
+  // 1. Кропцы з коскай (;)
+  // 2. Кропцы (.), пасля якой ідзе прабел і ВЯЛІКАЯ літара (каб не зламаць "м. Poznań" ці "25.36")
+  const parts = text
+    .split(/[;]\s*|\.\s+(?=[A-ZА-ЯЁІЎ])/)
+    .map((part) => part.trim())
+    .filter((part) => part.length > 0);
+
+  if (parts.length > 1) {
+    // Дадаем буліт да кожнага пункта і злучаем пераносам радка
+    return "• " + parts.join("\n• ");
+  }
+
+  return text;
+};
 const SectionTitle = ({
   icon,
   label,
@@ -184,7 +204,7 @@ export default function VacancyViewModal({
             <div className="bg-slate-800/20 p-4 rounded-xl border border-slate-800/50">
               {v.description ? (
                 <div className="text-sm text-slate-200 leading-relaxed whitespace-pre-wrap">
-                  {v.description}
+                  {formatText(v.description)}
                 </div>
               ) : (
                 <p className="text-sm text-slate-500 italic">
@@ -254,7 +274,7 @@ export default function VacancyViewModal({
             <div className="space-y-1.5">
               {v.schedule?.description && (
                 <p className="text-sm text-slate-200 leading-relaxed bg-slate-800/30 p-3 rounded-xl border border-slate-800 mb-2 whitespace-pre-wrap">
-                  {v.schedule.description}
+                  {formatText(v.schedule.description)}
                 </p>
               )}
               <Row label="Робочі дні" value={v.schedule?.workDaysWeek} />
@@ -460,7 +480,7 @@ export default function VacancyViewModal({
                 📝 Додаткова інформація
               </p>
               <p className="text-sm text-slate-300 whitespace-pre-wrap leading-relaxed">
-                {v.additionalNotes}
+                {formatText(v.additionalNotes)}
               </p>
             </div>
           )}
