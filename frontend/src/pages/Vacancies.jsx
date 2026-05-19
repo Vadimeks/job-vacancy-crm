@@ -634,13 +634,20 @@ export default function Vacancies() {
                         </span>
                       </div>
 
-                      {/* ЗАРПЛАТА (Выкарыстоўваем rawSalaryDisplay для прыгажосці) */}
-                      {(v.salary?.rawSalaryDisplay || v.salary?.baseNetto) && (
+                      {/* ЗАРПЛАТА (Разумны вывад v2.2) */}
+                      {(v.salary?.rawSalaryDisplay ||
+                        v.salary?.baseNetto ||
+                        v.salary?.salaryNotes) && (
                         <div className="flex items-center gap-1.5 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20 ml-auto">
                           <span className="text-emerald-400 font-black text-sm">
                             💰{" "}
                             {v.salary.rawSalaryDisplay ||
-                              `${v.salary.baseNetto} ${v.salary.currency || "PLN"}`}
+                              (v.salary.baseNetto
+                                ? `${v.salary.baseNetto} ${v.salary.currency || "PLN"}`
+                                : null) ||
+                              (v.salary.salaryNotes?.length < 30
+                                ? v.salary.salaryNotes
+                                : "Уточнюйте")}
                           </span>
                         </div>
                       )}
