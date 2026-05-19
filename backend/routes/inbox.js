@@ -52,26 +52,36 @@ router.post("/push", async (req, res) => {
   const source = req.body.source || "viber";
   const chatId = req.body.chatId || null;
 
-  // 1. Вайтліст (да базы) - Прыярытэтная праверка
+  // 1. Вайтліст (самы першы рубеж)
   const agency = getWhitelistedAgency(senderRaw, chatId);
-
-  if (!agency) {
-    return res.status(200).json({ status: "ignored_not_whitelisted" });
+  if (!agency || agency === "IGNORE_SELF") {
+    return res.status(200).json({ status: "ignored" });
   }
 
-  if (agency === "IGNORE_SELF") {
-    return res.status(200).json({ status: "ignored_self_loop" });
+  // 2. Хуткая праверка на дублікат (ДА вываду логаў і захавання)
+  const incomingPrefixHash = getPrefixHash(text);
+  const incomingTextHash = normalizeText(text);
+  const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000);
+
+  const existingMsg = await UnprocessedMessage.findOne({
+    agencyName: agency,
+    $or: [{ prefixHash: incomingPrefixHash }, { textHash: incomingTextHash }],
+    createdAt: { $gte: fortyEightHoursAgo },
+  });
+
+  if (existingMsg && text.length <= existingMsg.text.length) {
+    // Калі гэта поўны дубль або карацейшы — моўчкі ігнаруем
+    return res.status(200).json({ status: "ignored_duplicate" });
   }
 
+  // Толькі калі гэта НЕ дубль, выводзім лог і ідзем далей
   console.log(
-    `📡 RAW PUSH: ад "${senderRaw}" (ID: ${chatId}) | Тэкст: ${text.substring(0, 30)}...`,
+    `📡 RAW PUSH: ад "${senderRaw}" (${agency}) | Тэкст: ${text.substring(0, 30)}...`,
   );
 
-  // 2. Жорсткі фільтр шуму
+  // 3. Жорсткі фільтр шуму (Regex)
   if (shouldIgnoreMessage(text)) {
-    console.log(
-      `🗑️ Адхілена (Noise/Regex) ад "${senderRaw}": "${logPreview(text)}..."`,
-    );
+    console.log(`🗑️ Адхілена (Noise/Regex): "${logPreview(text)}..."`);
     return res.status(200).json({ status: "ignored_noise" });
   }
 
@@ -170,31 +180,56 @@ async function processPendingMessages() {
         msg.rawText = "__processing__";
         await msg.save();
 
-        // Выклікаем Gemini (Stage 1) — ён робіць пераклад і спліцінг
+        // 1. Імунітэт па даўжыні (Крок 3.1)
+        const isShort = msg.text.length < 350;
+        const isKnownAgency = msg.agencyName && msg.agencyName !== "MANUAL";
+
+        if (isShort && isKnownAgency) {
+          console.log(
+            `ℹ️ Імунітэт па даўжыні (${msg.text.length} сімв.): ${msg.agencyName} -> UPDATE`,
+          );
+          msg.category = "update";
+          msg.processed = true; // Аўта-архівацыя
+          msg.aiAnalyzed = true;
+          msg.rawText = msg.text;
+          await msg.save();
+          continue;
+        }
+
+        // 2. Stage 1: Класіфікацыя
         const analysis = await analyzeAndCompareWithGemini(msg.text, [], []);
 
         if (!analysis) {
           console.log(
-            `⏳ AI ліміты дасягнуты. Спыняем канвеер для паведамлення ${msg._id}.`,
+            `⏳ AI ліміты дасягнуты. Спыняем канвеер для ${msg._id}.`,
           );
           msg.rawText = "";
           await msg.save();
           break;
         }
 
-        // Склейваем фрагменты для адлюстравання ў Пясочніцы (rawText)
-        const translatedText =
-          analysis.translatedFragments &&
-          Array.isArray(analysis.translatedFragments)
-            ? analysis.translatedFragments.join("\n\n---\n\n")
-            : msg.text;
+        const fragments = analysis.translatedFragments || [];
+        console.log(
+          `🧠 AI Stage 1: Катэгорыя ${analysis.category}, Фрагментаў: ${fragments.length}, Даўжыні: [${fragments.map((f) => f.length).join(", ")}]`,
+        );
+
+        // 3. Абарона ад "сплітар-хаосу" (Крок 3.2)
+        if (fragments.length > 5) {
+          console.log(
+            `⚠️ Занадта шмат фрагментаў (${fragments.length}). Перавод у UPDATE для ручной праверкі.`,
+          );
+          msg.category = "update";
+          msg.processed = false;
+          msg.aiAnalyzed = true;
+          msg.rawText = fragments.join("\n\n---\n\n");
+          await msg.save();
+          continue;
+        }
 
         const isFullVacancy = analysis.category === "FULL_VACANCY";
-        if (analysis.category === "TRUNCATED") msg.isTruncated = true; // 🆕 Калі AI бачыць, што тэкст абарваны — пазначаем гэта
-        const isMarketing = isMarketingBonus(translatedText);
+        const translatedText = fragments.join("\n\n---\n\n");
 
-        // --- Layer 2 Filtering (Ачыстка Пясочніцы пасля AI з імунітэтам для вакансій) ---
-        // Рэгексы шуму ігнаруюцца, калі AI ўпэўнены, што гэта FULL_VACANCY
+        // 4. Layer 2 Filtering (Шум пасля AI)
         if (
           analysis.category === "NOISE" ||
           (!isFullVacancy && shouldIgnorePostAI(translatedText))
@@ -214,44 +249,30 @@ async function processPendingMessages() {
           UPDATE: "update",
           RECRUITER_INFO: "info",
           FULL_VACANCY: "vacancy",
-          TRUNCATED: "vacancy", // 🆕 Абрэзаныя вакансіі ідуць у тую ж укладку
-          MULTI_VACANCY: "update",
+          TRUNCATED: "vacancy",
         };
-
-        // Калі гэта маркетынгавы бонус і НЕ поўная вакансія — катэгорыя update
         let finalCategory = categoryMap[analysis.category] || "info";
-        if (!isFullVacancy && isMarketing) {
-          finalCategory = "update";
-        }
-
         let isAutoDone = false;
 
-        // --- Аўтаматычны парсінг (Stage 2 - Groq) ---
+        // 5. Stage 2: Парсінг (толькі для поўных вакансій)
         if (isFullVacancy && AUTO_PROCESS_VACANCIES && !msg.isTruncated) {
-          const fragments = analysis.translatedFragments || [translatedText];
           let allProcessed = true;
-
           for (const fragment of fragments) {
-            // Слабая валідацыя: калі AI сказаў FULL_VACANCY, давяраем яму
-            if (hasMinimalVacancyData(fragment) || isFullVacancy) {
-              console.log(`🔥 Stage 2: Groq-парсінг для ${msg.agencyName}...`);
-              const result = await processVacancyMessage(
-                fragment,
-                msg.sender,
-                msg.agencyName,
-                msg.text,
-                msg.isTruncated,
-                analysis.category, // 🆕 Перадаем вердыкт (FULL_VACANCY, UPDATE ці TRUNCATED)
-              );
-              if (!result || result.error) allProcessed = false;
-            } else {
-              allProcessed = false;
-            }
+            // Перадаем fragment як enrichedText, бо ён ужо збагачаны і перакладзены ў Stage 1
+            const result = await processVacancyMessage(
+              fragment,
+              msg.sender,
+              msg.agencyName,
+              msg.text,
+              msg.isTruncated,
+              analysis.category,
+            );
+            if (!result || result.error) allProcessed = false;
           }
           if (allProcessed) isAutoDone = true;
         }
 
-        msg.rawText = translatedText; // У Пясочніцы заўсёды ўкраінская мова
+        msg.rawText = translatedText;
         msg.category = finalCategory;
         msg.aiAnalyzed = true;
         msg.processed = isAutoDone;

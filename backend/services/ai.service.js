@@ -326,7 +326,7 @@ FULL MODE STRUCTURE (skip empty lines/sections):
 [• Приїзд: [arrivalDate]]
 
 💰 *Оплата праці*
-• Ставка: [salary.baseNetto]
+• Ставка: [salary.rawSalaryDisplay]
 [• Годин на місяць: [salary.hoursRange]]
 [• Студенти: [salary.studentNetto]]
 [• Виплати: [salary.payoutDates]]
@@ -338,7 +338,7 @@ FULL MODE STRUCTURE (skip empty lines/sections):
 
 📋 *Вимоги*
 [• Досвід роботи: [requirements.experienceRequired ? "Обов'язковий" : "Не вимагається"]]
-[• Вік: [requirements.ageMax]]
+[• Вік: [requirements.age.rawText]]
 [• Національність: [requirements.nationalities joined by ", "]]
 • Документи: [requirements.standardDocs]
 • Мова: [polishLanguageLevel] [([languageDetails])] (skip brackets if details empty)
@@ -769,6 +769,7 @@ GENDER & AGE ACCURACY:
 - genderDescription: ONLY specific counts (e.g., "2 пари", "Тільки чоловіки"). 
 - ageMax: Age requirements as a STRING (e.g., "18-55", "до 60 років"). 
 - nationalities: Array of countries (e.g., ["Україна", "Білорусь"]).
+  PRIORITY RULE: If the message starts with a specific urgent call (e.g., "ПОТРЕБУЄМ 7 жінок"), this has HIGHER priority than any general template text at the end (e.g., "Стать: чоловіки, жінки, пари"). In this case, set gender to ["Жінки"] and put "7 жінок" in genderDescription.
 
 !!! STRICT RULE: Extract age and nationality from ANY part of the text and put them ONLY in their specific fields. NEVER leave them in genderDescription.
 
@@ -834,9 +835,12 @@ JSON STRUCTURE:
   "country": "Polska",
   "checkInCity": "",
   "salary": {
-    "baseNetto": "",
-    "studentNetto": "",
-    "hoursRange": "",
+    "baseNetto": 25.36,
+    "studentNetto": 31.40,
+    "baseBrutto": null,
+    "currency": "PLN",
+    "rawSalaryDisplay": "25.36 - 30.00 zł/god (нетто)",
+    "hoursRange": "210-270",
     "payoutDates": "",
     "bonusDetails": "",
     "salaryNotes": ""
@@ -869,8 +873,12 @@ JSON STRUCTURE:
   },
   "requirements": {
     "gender": ["Чоловіки", "Жінки", "Пари", "Сім'ї"],
-    "genderDescription": "2 пари + 1 жінка",
-    "ageMax": null,
+    "genderDescription": "Тільки жінки (гаряча вакансія)",
+    "age": {
+      "min": 18,
+      "max": 55,
+      "rawText": "від 18 до 55 років"
+    },
     "nationalities": ["Україна"],
     "standardDocs": ["PESEL UKR", "Віза", "Карта побуту"],
     "needsAdditionalDocs": false,
@@ -1025,9 +1033,12 @@ JSON STRUCTURE:
 
         // === 3. ФІНАНСЫ ===
         salary: {
-          ...(cleaned.salary || {}),
-          baseNetto: finalBaseNetto || null,
-          studentNetto: cleaned.salary?.studentNetto || "",
+          baseNetto: Number(cleaned.salary?.baseNetto) || null,
+          studentNetto: Number(cleaned.salary?.studentNetto) || null,
+          baseBrutto: Number(cleaned.salary?.baseBrutto) || null,
+          currency: cleaned.salary?.currency || "PLN",
+          rawSalaryDisplay:
+            cleaned.salary?.rawSalaryDisplay || cleaned.salary?.baseNetto || "",
           hoursRange: cleaned.salary?.hoursRange || "",
           payoutDates: cleaned.salary?.payoutDates || "",
           bonusDetails: cleaned.salary?.bonusDetails || "",
@@ -1074,7 +1085,13 @@ JSON STRUCTURE:
             ? cleaned.requirements.gender
             : ["Чоловіки", "Жінки", "Пари", "Сім'ї"],
           genderDescription: cleaned.requirements?.genderDescription || "",
-          ageMax: String(cleaned.requirements?.ageMax || ""), // 🆕 Захоўваем як радок (напр. "18-50")
+          age: {
+            min: Number(cleaned.requirements?.age?.min) || 18,
+            max: Number(cleaned.requirements?.age?.max) || 60,
+            rawText:
+              cleaned.requirements?.age?.rawText ||
+              String(cleaned.requirements?.ageMax || ""),
+          },
           nationalities: Array.isArray(cleaned.requirements?.nationalities)
             ? cleaned.requirements.nationalities
             : ["Україна"],

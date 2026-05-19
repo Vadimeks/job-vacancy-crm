@@ -1,12 +1,10 @@
-// backend/models/Template.js
 const mongoose = require("mongoose");
 
 const templateSchema = new mongoose.Schema({
-  // === 1. СІСТЭМНЫЯ ПАЛІ ===
   agencyName: { type: String, required: true },
   templateName: { type: String, required: true },
   vacancydescription: { type: String, default: "" },
-  brand: { type: String, default: "" }, // 🆕 Дадана як у Vacancy.js
+  brand: { type: String, default: "" },
   category: { type: String, default: "" },
   keywords: { type: [String], default: [] },
   contractType: { type: String, default: "" },
@@ -17,24 +15,24 @@ const templateSchema = new mongoose.Schema({
     hideEnterpriseNameForCandidate: { type: Boolean, default: true },
   },
 
-  // === 2. ЛАКАЦЫІ ===
   location: { type: String, default: "" },
   locationDescription: { type: String, default: "" },
   voivodeship: { type: String, default: "" },
   country: { type: String, default: "Polska" },
   checkInCity: { type: String, default: "" },
 
-  // === 3. ФІНАНСЫ ===
   salary: {
-    baseNetto: { type: String, default: "" },
-    studentNetto: { type: String, default: "" },
+    baseNetto: { type: Number, default: null },
+    studentNetto: { type: Number, default: null },
+    baseBrutto: { type: Number, default: null },
+    currency: { type: String, enum: ["PLN", "EUR"], default: "PLN" },
+    rawSalaryDisplay: { type: String, default: "" },
     hoursRange: { type: String, default: "" },
     payoutDates: { type: String, default: "" },
     bonusDetails: { type: String, default: "" },
     salaryNotes: { type: String, default: "" },
   },
 
-  // === 4. ГРАФІК ===
   schedule: {
     shiftsCount: { type: Number, default: 0 },
     hoursPerShift: { type: String, default: "" },
@@ -45,7 +43,6 @@ const templateSchema = new mongoose.Schema({
     description: { type: String, default: "" },
   },
 
-  // === 5. ПРАЖЫВАННЕ І ТРАНСПАРТ ===
   accommodation: {
     type: { type: String, default: "" },
     forCouples: { type: Boolean, default: false },
@@ -60,17 +57,19 @@ const templateSchema = new mongoose.Schema({
     details: { type: String, default: "" },
   },
 
-  // === 6. КАМПЕНСАЦЫІ ===
   employerCompensations: {
     hasCompensations: { type: Boolean, default: false },
     details: { type: String, default: "" },
   },
 
-  // === 7. ПАТРАБАВАННІ ===
   requirements: {
     gender: { type: [String], default: ["Чоловіки", "Жінки", "Пари", "Сім'ї"] },
-    genderDescription: { type: String, default: "" }, // 🆕 Сінхранізацыя
-    ageMax: { type: Number, default: null },
+    genderDescription: { type: String, default: "" },
+    age: {
+      min: { type: Number, default: 18 },
+      max: { type: Number, default: 60 },
+      rawText: { type: String, default: "" },
+    },
     nationalities: { type: [String], default: ["Україна"] },
     standardDocs: {
       type: [String],
@@ -86,7 +85,6 @@ const templateSchema = new mongoose.Schema({
     physicalLoad: { type: Boolean, default: false },
   },
 
-  // === 8. ДЭЛЕГАЦЫІ А1 ===
   businessTrip: {
     isBusinessTrip: { type: Boolean, default: false },
     requiresPolishExperience: { type: Boolean, default: false },
@@ -94,17 +92,20 @@ const templateSchema = new mongoose.Schema({
     tripDetails: { type: String, default: "" },
   },
 
-  // === 9. УМОВЫ І ХАРЧАВАННЕ ===
   conditions: {
     hasSpecificConditions: { type: Boolean, default: false },
-    specificNuances: { type: [String], default: [] },
+    specificNuances: [
+      {
+        category: { type: String },
+        text: { type: String },
+      },
+    ],
     specificConditionsDetails: { type: String, default: "" },
     workwearFree: { type: Boolean, default: false },
     foodType: { type: String, default: "Власне" },
     foodDetails: { type: String, default: "" },
   },
 
-  // === 10. ВЫДАТКІ ===
   startExpenses: {
     hasStartExpenses: { type: Boolean, default: false },
     details: { type: String, default: "" },
@@ -114,14 +115,12 @@ const templateSchema = new mongoose.Schema({
     details: { type: String, default: "" },
   },
 
-  // === 11. АПІСАННЕ ===
   description: { type: String, default: "" },
   additionalNotes: { type: String, default: "" },
 
   createdAt: { type: Date, default: Date.now },
 });
 
-// Не-унікальны індэкс (дазваляе дублі пры загрузцы)
 templateSchema.index({ agencyName: 1, templateName: 1 });
 
 module.exports = mongoose.model("Template", templateSchema);

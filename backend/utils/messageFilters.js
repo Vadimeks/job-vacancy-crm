@@ -139,6 +139,12 @@ const RECRUITER_CHAT_NOISE = [
   /зателефоную/i,
   /дякую всім/i,
   /всім зранку/i,
+  /чи візьмуть на/i,
+  /усіх на/i,
+  /подавайте,? контактую/i,
+  /на вірту подавати/i,
+  /ось пара дуже/i,
+  /чи є ще на .{1,20}$/i,
 ];
 
 const RECRUITER_CHAT_NOISE_EN = [
@@ -180,10 +186,11 @@ const RECRUITER_CHAT_NOISE_EN = [
 
 const CANDIDATE_FORM_NOISE = [
   /\d+\.\s+[A-Z]+\s+[A-Z]+/i,
-  /^[A-Z]{2,}\s+[A-Z]{2,}\s+[A-Z]{1,2}\d{5,}/m, // 👈 Выпраўлена (патрабуе лічбы пашпарта)
+  /^[A-Z]{2,}\s+[A-Z]{2,}\s+[A-Z]{1,2}\d{5,}/m,
   /[A-Z]+\s+[A-Z]+\s+[A-Z0-9]{6,10}/,
   /\+\d{10,13}[\s\n]+[a-z0-9._%+-]+@[a-z0-9.-]+/i,
   /\+\d{10,13}\s+\+\d{10,13}/,
+  /^[A-ZА-ЯЁІЎ\s]+:\s*[A-ZА-ЯЁІЎ\s]+:\s*[A-ZА-ЯЁІЎ\s]+/m, // 🆕 Форма "Імя: Горад: Праект"
 ];
 
 const SOCIAL_NOISE = [
@@ -259,6 +266,7 @@ function getPrefixHash(text) {
   if (!text) return "";
   return text
     .toLowerCase()
+    .replace(/menu\s*$/i, "") // 🆕 Выдаляем "Menu" у канцы (спам ад Viber)
     .replace(/\d{1,2}[./]\d{1,2}/g, "") // Выдаляем даты
     .replace(/\d{1,2}:\d{2}/g, "") // Выдаляем час
     .replace(

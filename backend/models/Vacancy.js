@@ -37,8 +37,11 @@ const vacancySchema = new mongoose.Schema({
 
   // === 3. ФІНАНСЫ ===
   salary: {
-    baseNetto: { type: String, default: "" },
-    studentNetto: { type: String, default: "" },
+    baseNetto: { type: Number, default: null }, // Мінімальная лічба для фільтра
+    studentNetto: { type: Number, default: null },
+    baseBrutto: { type: Number, default: null },
+    currency: { type: String, enum: ["PLN", "EUR"], default: "PLN" },
+    rawSalaryDisplay: { type: String, default: "" }, // Тут будзе "25-30 зл/год" або "5000-7000 зл/мес"
     hoursRange: { type: String, default: "" },
     payoutDates: { type: String, default: "" },
     bonusDetails: { type: String, default: "" },
@@ -80,8 +83,12 @@ const vacancySchema = new mongoose.Schema({
   // === 7. ПАТРАБАВАННІ І КАНДЫДАТЫ ===
   requirements: {
     gender: { type: [String], default: ["Чоловіки", "Жінки", "Пари", "Сім'ї"] },
-    genderDescription: { type: String, default: "" }, // 🆕 Для канкрэтыкі "2 пари + 1 жінка"
-    ageMax: { type: String, default: "" }, // 🆕 Узрост (напр. "18-55", "да 60 років")
+    genderDescription: { type: String, default: "" },
+    age: {
+      min: { type: Number, default: 18 },
+      max: { type: Number, default: 60 },
+      rawText: { type: String, default: "" }, // Тут будзе "18-55 років"
+    },
     nationalities: { type: [String], default: ["Україна"] },
     standardDocs: {
       type: [String],
