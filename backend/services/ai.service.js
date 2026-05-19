@@ -789,8 +789,9 @@ SALARY:
 - studentNetto: if mentioned, also with currency.
 - hoursRange: total hours per month (e.g., "230-260").
 - bonusDetails: all bonuses in full.
-- salaryNotes: advances, overtime, housing allowance.
-
+- salaryNotes: advances, overtime, housing allowance, and detailed rate explanations.
+- rawSalaryDisplay: STRICTLY SHORT. Only the rate range and currency. Example: "25.36 - 31.40 zł/god". NEVER put long explanations here. Put them in salaryNotes.
+  
 REQUIREMENTS:
 - experienceRequired: true/false (check if "досвід" is mentioned as required).
 - polishLanguageLevel: one of "Не вимагається", "A1", "A2", "B1", "B2", "C1".
