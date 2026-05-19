@@ -186,7 +186,7 @@ export default function VacancyViewModal({
               {v.salary?.bonusDetails && (
                 <div className="text-sm text-emerald-400 mt-2 bg-emerald-500/5 p-3 rounded-xl border border-emerald-500/10 flex items-start gap-2">
                   <span className="shrink-0">🎁</span>
-                  <span>{v.salary.bonusDetails}</span>
+                  <span>{formatText(v.salary.bonusDetails)}</span>
                 </div>
               )}
               <Note>{v.salary?.salaryNotes}</Note>
