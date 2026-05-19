@@ -95,8 +95,10 @@ function applyFilters(vacancies, filters) {
 
     // --- 7. Хто їде (Gender) ---
     if (filters.gender?.length > 0) {
-      const vGender = v.gender; // Новае поле з v2.2
-      if (!filters.gender.includes(vGender)) return false;
+      const vGenders = v.requirements?.gender || [];
+      // Калі хаця б адзін выбраны гендэр ёсць у масіве вакансіі
+      const match = filters.gender.some((fg) => vGenders.includes(fg));
+      if (!match) return false;
     }
 
     // --- 8. Мова ---
@@ -598,14 +600,17 @@ export default function Vacancies() {
                       <div className="flex items-center gap-1.5 text-slate-400">
                         <span>🏠</span>
                         <span className="font-medium">
-                          {v.accommodation?.type
-                            ?.toLowerCase()
-                            .includes("власн") ||
-                          v.accommodation?.type
-                            ?.toLowerCase()
-                            .includes("не надаєт")
-                            ? "Без житла"
-                            : "Житло надається"}
+                          {!v.accommodation?.type ||
+                          v.accommodation?.type === ""
+                            ? "Житло не вказано"
+                            : v.accommodation.type
+                                  .toLowerCase()
+                                  .includes("власн") ||
+                                v.accommodation.type
+                                  .toLowerCase()
+                                  .includes("не надаєт")
+                              ? "Без житла"
+                              : "Житло надається"}
                           {v.accommodation?.forCouples && (
                             <span className="text-orange-400 ml-1">+ 👫</span>
                           )}
@@ -629,21 +634,13 @@ export default function Vacancies() {
                         </span>
                       </div>
 
-                      {/* ЗАРПЛАТА (Разумны вывад) */}
-                      {(v.salary?.baseNetto ||
-                        v.salary?.studentNetto ||
-                        v.salary?.baseBrutto) && (
+                      {/* ЗАРПЛАТА (Выкарыстоўваем rawSalaryDisplay для прыгажосці) */}
+                      {(v.salary?.rawSalaryDisplay || v.salary?.baseNetto) && (
                         <div className="flex items-center gap-1.5 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20 ml-auto">
                           <span className="text-emerald-400 font-black text-sm">
                             💰{" "}
-                            {v.salary.baseNetto ||
-                              v.salary.studentNetto ||
-                              v.salary.baseBrutto}
-                            {!v.salary.baseNetto && v.salary.studentNetto && (
-                              <span className="text-[10px] ml-1 opacity-70">
-                                (студ.)
-                              </span>
-                            )}
+                            {v.salary.rawSalaryDisplay ||
+                              `${v.salary.baseNetto} ${v.salary.currency || "PLN"}`}
                           </span>
                         </div>
                       )}
