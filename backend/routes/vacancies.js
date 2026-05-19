@@ -450,22 +450,28 @@ router.post("/system/cleanup-locations", async (req, res) => {
     let updatedCount = 0;
 
     for (const v of vacancies) {
-      let isChanged = false; // 👈 Аб'яўляем адзін раз у пачатку цыкла
+      let isChanged = false;
 
-      // --- МІГРАЦЫЯ ДАНЫХ ПАД НОВУЮ МАДЭЛЬ v2.2 ---
-      // 1. Зарплата (перавод з радка ў лічбу)
-      if (typeof v.salary?.baseNetto === "string") {
-        const match = v.salary.baseNetto.match(/(\d+[.,]?\d*)/);
-        v.salary.rawSalaryDisplay = v.salary.baseNetto; // Захоўваем арыгінал
-        if (match) {
-          v.salary.baseNetto = parseFloat(match[1].replace(",", "."));
-        } else {
-          v.salary.baseNetto = null;
+      // 1. МІГРАЦЫЯ ЗАРПЛАТЫ (v2.2)
+      // Калі rawSalaryDisplay яшчэ няма, спрабуем аднавіць з сырых даных MongoDB
+      if (!v.salary.rawSalaryDisplay) {
+        // Бярэм значэнне наўпрост з дакумента, ігнаруючы тыпы Mongoose
+        const rawBase = v._doc.salary?.baseNetto;
+        if (typeof rawBase === "string" && rawBase.length > 0) {
+          v.salary.rawSalaryDisplay = rawBase;
+          const match = rawBase.match(/(\d+[.,]?\d*)/);
+          if (match) {
+            v.salary.baseNetto = parseFloat(match[1].replace(",", "."));
+          }
+          isChanged = true;
+        } else if (v.salary.salaryNotes) {
+          // Калі ў baseNetto пуста, але ёсць нататкі — бярэм іх як тэкст
+          v.salary.rawSalaryDisplay = v.salary.salaryNotes;
+          isChanged = true;
         }
-        isChanged = true;
       }
 
-      // 2. Узрост (перавод у структуру age)
+      // 2. МІГРАЦЫЯ ЎЗРОСТУ
       if (v.requirements?.ageMax && !v.requirements?.age?.max) {
         v.requirements.age = {
           min: 18,
@@ -475,21 +481,21 @@ router.post("/system/cleanup-locations", async (req, res) => {
         isChanged = true;
       }
 
-      // 3. Лакацыя
+      // 3. ЛАКАЦЫЯ
       const newLoc = aiService.normalizeLocation(v.location, v.country);
       if (newLoc !== v.location) {
         v.location = newLoc;
         isChanged = true;
       }
 
-      // 4. Агенцыя
+      // 4. АГЕНЦЫЯ
       const newAgency = aiService.normalizeAgency(v.agencyName);
       if (v.agencyName !== newAgency) {
         v.agencyName = newAgency;
         isChanged = true;
       }
 
-      // 5. Нюансы
+      // 5. НЮАНСЫ
       if (v.conditions?.specificNuances) {
         const newNuances = aiService.normalizeNuances(
           v.conditions.specificNuances,
@@ -504,7 +510,7 @@ router.post("/system/cleanup-locations", async (req, res) => {
       }
 
       if (isChanged) {
-        // Абнаўляем загаловак па стандарце
+        // Абнаўляем загаловак
         const baseTitle = v.vacancydescription || "Опис вакансії";
         const titlePart = baseTitle.includes(" — ")
           ? baseTitle.split(" — ")[0]
@@ -516,7 +522,7 @@ router.post("/system/cleanup-locations", async (req, res) => {
       }
     }
     res.json({
-      message: "✅ Super Cleanup Done",
+      message: "✅ Міграцыя завершана",
       total: vacancies.length,
       updated: updatedCount,
     });
