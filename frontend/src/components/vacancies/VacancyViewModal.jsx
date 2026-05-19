@@ -303,9 +303,9 @@ export default function VacancyViewModal({
                     <span>✓</span> Можна з тваринами
                   </p>
                 )}
-                <Note className="whitespace-pre-wrap">
+                <div className="text-xs text-slate-400 whitespace-pre-wrap mt-2">
                   {v.accommodation?.details}
-                </Note>
+                </div>
               </div>
             </div>
             <div>

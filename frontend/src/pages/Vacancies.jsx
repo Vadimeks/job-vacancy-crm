@@ -236,10 +236,12 @@ export default function Vacancies() {
 
       if (isEurope) {
         voivodeships.add("Європа (інші країни)");
-        // Калі ў лакацыі ўжо ёсць краіна ў дужках — бярэм як ёсць, інакш дадаем
-        const locName = v.location?.includes("(")
-          ? v.location
-          : `${v.location} (${v.country})`;
+        // Чысцім горад ад старых дужак перад дадаваннем у фільтр
+        const cityOnly = (v.location || "").split("(")[0].trim();
+        const locName =
+          v.country && v.country !== "Polska"
+            ? `${cityOnly} (${v.country})`
+            : cityOnly;
         locations.add(locName);
       } else {
         if (v.voivodeship) voivodeships.add(v.voivodeship);
@@ -497,12 +499,11 @@ export default function Vacancies() {
         <div className="space-y-3">
           {filtered.map((v) => {
             // Разумная лакацыя: дадаем краіну толькі калі яе яшчэ няма ў назве горада
+            const cityOnly = (v.location || "").split("(")[0].trim();
             const locationDisplay =
-              v.country &&
-              v.country !== "Polska" &&
-              !v.location.includes(v.country)
-                ? `${v.location} (${v.country})`
-                : v.location;
+              v.country && v.country !== "Polska"
+                ? `${cityOnly} (${v.country})`
+                : cityOnly;
             // Збіраем толькі унікальныя катэгорыі нюансаў для кампактнага вываду
             const uniqueCategories = Array.from(
               new Set(
@@ -580,23 +581,6 @@ export default function Vacancies() {
                       {v.vacancydescription || v.templateName}
                     </h3>
 
-                    {/* КАРОТКІ ОПІС (З падтрымкай абзацаў) */}
-                    {v.description && (
-                      <div className="text-[11px] text-slate-400 mb-3 line-clamp-2 whitespace-pre-wrap leading-relaxed border-l-2 border-slate-800 pl-2">
-                        {v.description}
-                      </div>
-                    )}
-                    {/* ЗАРПЛАТА (Кампактны вывад) */}
-                    {(v.salary?.baseNetto || v.salary?.rawSalaryDisplay) && (
-                      <div className="flex items-center gap-1.5 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20 ml-auto">
-                        <span className="text-emerald-400 font-black text-sm">
-                          💰{" "}
-                          {v.salary.baseNetto
-                            ? `${v.salary.baseNetto} ${v.salary.currency || "PLN"}`
-                            : v.salary.rawSalaryDisplay?.split(";")[0]}
-                        </span>
-                      </div>
-                    )}
                     {/* РАДОК 2: БАЗАВЫЯ ЎМОВЫ (Гендэр, Жытло, Давоз, Мова) + ЗАРПЛАТА */}
                     <div className="flex flex-wrap gap-4 text-xs items-center mb-3">
                       {/* ГЕНДАР / НАБОР */}
@@ -649,6 +633,17 @@ export default function Vacancies() {
                             "Любий рівень"}
                         </span>
                       </div>
+                      {/* ЗАРПЛАТА (Кампактны вывад v2.3) */}
+                      {(v.salary?.baseNetto || v.salary?.rawSalaryDisplay) && (
+                        <div className="flex items-center gap-1.5 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20 ml-auto">
+                          <span className="text-emerald-400 font-black text-sm">
+                            💰{" "}
+                            {v.salary.baseNetto
+                              ? `${v.salary.baseNetto} ${v.salary.currency || "PLN"}`
+                              : v.salary.rawSalaryDisplay?.split(";")[0]}
+                          </span>
+                        </div>
+                      )}
                     </div>
 
                     {/* ХМАРА ТЕГІВ v2.2 (Спецыфічныя патрабаванні: Нацыі, Дакументы, Нюансы) */}
@@ -680,17 +675,6 @@ export default function Vacancies() {
                           "Специфічні навички": "🛠️",
                           "Тести пры вступі": "📝",
                         };
-                        const labels = {
-                          temperature: "Температурний режим",
-                          physical_load: "Фізично-важка праця",
-                          sanitary_limits: "Санітарні обмеження",
-                          smells_allergens: "Запахи та алергени",
-                          noise: "Шум",
-                          work_character: "Характер праці",
-                          skills: "Специфічні навички",
-                          norms: "Норми",
-                          entry_tests: "Тести при вступі",
-                        };
 
                         // Калі тэксту для гэтай катэгорыі няма (схаваны як дубль), не паказваем пусты тэг
                         const hasContent = v.conditions?.specificNuances?.some(
@@ -706,8 +690,7 @@ export default function Vacancies() {
                             key={idx}
                             className="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/5 text-amber-500/80 border border-amber-500/10 font-bold uppercase tracking-tighter"
                           >
-                            {icons[category] || "✨"}{" "}
-                            {labels[category] || category}
+                            {icons[category] || "✨"} {category}
                           </span>
                         );
                       })}
