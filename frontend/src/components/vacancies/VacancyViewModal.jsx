@@ -181,22 +181,12 @@ export default function VacancyViewModal({
               color="text-blue-400"
               border="border-blue-500/20"
             />
-            <div className="space-y-2">
-              {(v.description || "").split(/[;]/).map(
-                (item, i) =>
-                  item.trim() && (
-                    <div key={i} className="flex items-start gap-2.5 group">
-                      <span className="text-blue-500 mt-1 shrink-0 text-[10px]">
-                        ▶
-                      </span>
-                      <span className="text-sm text-slate-200 leading-relaxed group-hover:text-white transition-colors">
-                        {item.trim()}
-                      </span>
-                    </div>
-                  ),
-              )}
-              {/* Калі апісання няма, паказваем заглушку */}
-              {(!v.description || v.description.trim() === "") && (
+            <div className="bg-slate-800/20 p-4 rounded-xl border border-slate-800/50">
+              {v.description ? (
+                <div className="text-sm text-slate-200 leading-relaxed whitespace-pre-wrap">
+                  {v.description}
+                </div>
+              ) : (
                 <p className="text-sm text-slate-500 italic">
                   Опис обов'язків відсутній
                 </p>
@@ -380,21 +370,21 @@ export default function VacancyViewModal({
                         return null;
 
                       const categoryLabels = {
-                        temperature: "Температурний режим",
-                        physical_load: "Фізично-важка праця",
-                        sanitary_limits: "Санітарні обмеження",
-                        smells_allergens: "Запахи та алергени",
-                        noise: "Шум",
-                        work_character: "Характер праці",
-                        skills: "Специфічні навички",
-                        norms: "Норми",
-                        entry_tests: "Тести при вступі",
-                        other: "Особливості",
+                        "Температурний режим": "Температурний режим",
+                        "Фізично-важка праця": "Фізично-важка праця",
+                        "Санітарні обмеження": "Санітарні обмеження",
+                        "Запахи та алергени": "Запахи та алергени",
+                        Шум: "Шум",
+                        "Характер праці": "Характер праці",
+                        "Специфічні навички": "Специфічні навички",
+                        Норми: "Норми",
+                        "Тести при вступі": "Тести при вступі",
+                        Інше: "Особливості",
                       };
 
                       const isUrgent =
-                        category === "temperature" ||
-                        category === "physical_load";
+                        category === "Температурний режим" ||
+                        category === "Фізично-важка праця";
 
                       return (
                         <div

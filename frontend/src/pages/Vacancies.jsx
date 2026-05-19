@@ -586,8 +586,7 @@ export default function Vacancies() {
                       <div className="flex items-center gap-1.5 bg-slate-800/40 px-2 py-1 rounded-lg border border-slate-800">
                         <span className="text-slate-500">👥</span>
                         <span className="text-slate-200 font-bold uppercase tracking-tight text-[10px]">
-                          {v.requirements?.gender &&
-                          v.requirements.gender.length > 0
+                          {Array.isArray(v.requirements?.gender)
                             ? v.requirements.gender.join(", ")
                             : v.gender || "Будь-хто"}
                           {v.requirements?.genderDescription && (
@@ -672,15 +671,15 @@ export default function Vacancies() {
                       {/* ОСОБЛИВОСТІ (Толькі унікальныя катэгорыі з кантэнтам) */}
                       {uniqueCategories.map((category, idx) => {
                         const icons = {
-                          temperature: "🌡️",
-                          physical_load: "🏋️",
-                          noise: "📢",
-                          norms: "📈",
-                          sanitary_limits: "🚫",
-                          smells_allergens: "👃",
-                          work_character: "🚶",
-                          skills: "🛠️",
-                          entry_tests: "📝",
+                          "Температурний режим": "🌡️",
+                          "Фізично-важка праця": "🏋️",
+                          Шум: "📢",
+                          Норми: "📈",
+                          "Санітарні обмеження": "🚫",
+                          "Запахи та алергени": "👃",
+                          "Характер праці": "🚶",
+                          "Специфічні навички": "🛠️",
+                          "Тести пры вступі": "📝",
                         };
                         const labels = {
                           temperature: "Температурний режим",
