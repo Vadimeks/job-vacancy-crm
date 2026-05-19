@@ -443,7 +443,7 @@ router.patch("/:id/ai-update", async (req, res) => {
   }
 });
 
-// Cleanup Script (Абноўлена v2.1)
+// Cleanup Script (Абноўлена v2.2)
 router.post("/system/cleanup-locations", async (req, res) => {
   try {
     const vacancies = await Vacancy.find();
@@ -452,27 +452,40 @@ router.post("/system/cleanup-locations", async (req, res) => {
     for (const v of vacancies) {
       let isChanged = false;
 
-      // 1. МІГРАЦЫЯ ЗАРПЛАТЫ (v2.2)
-      // Калі rawSalaryDisplay яшчэ няма, спрабуем аднавіць з сырых даных MongoDB
-      if (!v.salary.rawSalaryDisplay) {
-        // Бярэм значэнне наўпрост з дакумента, ігнаруючы тыпы Mongoose
-        const rawBase = v._doc.salary?.baseNetto;
-        if (typeof rawBase === "string" && rawBase.length > 0) {
-          v.salary.rawSalaryDisplay = rawBase;
-          const match = rawBase.match(/(\d+[.,]?\d*)/);
-          if (match) {
-            v.salary.baseNetto = parseFloat(match[1].replace(",", "."));
-          }
-          isChanged = true;
-        } else if (v.salary.salaryNotes) {
-          // Калі ў baseNetto пуста, але ёсць нататкі — бярэм іх як тэкст
-          v.salary.rawSalaryDisplay = v.salary.salaryNotes;
-          isChanged = true;
-        }
+      // Бярэм сырыя даныя наўпрост з MongoDB, каб абысці валідацыю Mongoose на гэтым этапе
+      const rawSalary = v._doc.salary || {};
+      const rawRequirements = v._doc.requirements || {};
+
+      // 1. МІГРАЦЫЯ ЗАРПЛАТЫ (baseNetto)
+      if (typeof rawSalary.baseNetto === "string") {
+        v.salary.rawSalaryDisplay = rawSalary.baseNetto;
+        const match = rawSalary.baseNetto.match(/(\d+[.,]?\d*)/);
+        v.salary.baseNetto = match
+          ? parseFloat(match[1].replace(",", "."))
+          : null;
+        isChanged = true;
       }
 
-      // 2. МІГРАЦЫЯ ЎЗРОСТУ
-      if (v.requirements?.ageMax && !v.requirements?.age?.max) {
+      // 2. МІГРАЦЫЯ ЗАРПЛАТЫ (studentNetto)
+      if (typeof rawSalary.studentNetto === "string") {
+        const match = rawSalary.studentNetto.match(/(\d+[.,]?\d*)/);
+        v.salary.studentNetto = match
+          ? parseFloat(match[1].replace(",", "."))
+          : null;
+        isChanged = true;
+      }
+
+      // 3. ФІКС PHYSICAL LOAD (Boolean)
+      if (typeof rawRequirements.physicalLoad !== "boolean") {
+        v.requirements.physicalLoad = !!rawRequirements.physicalLoad; // "" -> false, "Так" -> true
+        isChanged = true;
+      }
+
+      // 4. МІГРАЦЫЯ ЎЗРОСТУ
+      if (
+        v.requirements?.ageMax &&
+        (!v.requirements?.age || !v.requirements?.age?.max)
+      ) {
         v.requirements.age = {
           min: 18,
           max: parseInt(v.requirements.ageMax) || 60,
@@ -481,32 +494,17 @@ router.post("/system/cleanup-locations", async (req, res) => {
         isChanged = true;
       }
 
-      // 3. ЛАКАЦЫЯ
+      // 5. ЛАКАЦЫЯ І АГЕНЦЫЯ (Стандартная нармалізацыя)
       const newLoc = aiService.normalizeLocation(v.location, v.country);
       if (newLoc !== v.location) {
         v.location = newLoc;
         isChanged = true;
       }
 
-      // 4. АГЕНЦЫЯ
       const newAgency = aiService.normalizeAgency(v.agencyName);
       if (v.agencyName !== newAgency) {
         v.agencyName = newAgency;
         isChanged = true;
-      }
-
-      // 5. НЮАНСЫ
-      if (v.conditions?.specificNuances) {
-        const newNuances = aiService.normalizeNuances(
-          v.conditions.specificNuances,
-        );
-        if (
-          JSON.stringify(v.conditions.specificNuances) !==
-          JSON.stringify(newNuances)
-        ) {
-          v.conditions.specificNuances = newNuances;
-          isChanged = true;
-        }
       }
 
       if (isChanged) {
@@ -517,16 +515,18 @@ router.post("/system/cleanup-locations", async (req, res) => {
           : baseTitle;
         v.vacancydescription = `${titlePart.trim()} — ${v.location}`;
 
-        await v.save();
+        // ЗАХАВАННЕ БЕЗ ВАЛІДАЦЫІ (толькі для гэтага скрыпта, каб прапіхнуць змены тыпаў)
+        await v.save({ validateBeforeSave: false });
         updatedCount++;
       }
     }
     res.json({
-      message: "✅ Міграцыя завершана",
+      message: "✅ Міграцыя завершана паспяхова",
       total: vacancies.length,
       updated: updatedCount,
     });
   } catch (err) {
+    console.error("❌ Cleanup Error:", err);
     res.status(500).json({ message: err.message });
   }
 });
