@@ -114,22 +114,25 @@ function cleanTelegramPost(text) {
 
 function sanitizeTelegramMarkdown(text) {
   if (!text) return "";
-  return text
-    .replace(/\*\*([^*]+)\*\*/g, "*$1*")
-    .replace(/\*(?!\*)(.*?)\*/g, (m) => m)
-    .replace(/(?<!\w)_([^_\n]+)_(?!\w)/g, (m) => m)
-    .replace(/(?<!\w)_(?![_\s])/g, "")
-    .replace(/\[([^\]]*?)(?=\n|$)/g, "$1")
-    .replace(/`([^`\n]*?)(?=\n|$)/gm, "$1")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
+  return (
+    text
+      // Выдаляем бітыя спасылкі Markdown, якія можа стварыць AI
+      .replace(/\[([^\]]*?)(?=\n|$)/g, "$1")
+      .replace(/`([^`\n]*?)(?=\n|$)/gm, "$1")
+      // Замяняем тлусты шрыфт ** на * (для Markdown V1)
+      .replace(/\*\*/g, "*")
+      // Прыбіраем сімвалы, якія часта ламаюць парсінг, калі яны адзіночныя
+      .replace(/[_`\[\]()]/g, "")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim()
+  );
 }
 
 // ============================================================
 // ЦЭНТРАЛІЗАВАНАЯ ФУНКЦЫЯ ПРАЦЭСІНГУ
 // ============================================================
 async function processVacancyMessage(
-  rawText,
+  enrichedText, // 👈 Тэкст ужо збагачаны дакументамі
   sender = "Manual",
   preDefinedAgency = null,
   originalText = "",
@@ -140,21 +143,20 @@ async function processVacancyMessage(
     `\n--- 🤖 Stage 2: Groq-парсінг для ${preDefinedAgency || "Manual"} ---`,
   );
   try {
-    // 🆕 Stage 0: Узбагачаем тэкст з Google Docs/Drive перад парсінгам
-    const enrichedText = await enrichTextWithDocs(rawText);
-
     const savedVacancies = [];
-    // Мяняем rawText на enrichedText у выкліку парсера:
+
+    // ВАЖНА: Перадаем enrichedText першым аргументам!
     const result = await aiService.parseVacancyWithAI(
       enrichedText,
       preDefinedAgency,
       parsingResultType,
     );
+
     const vacancyDataList = Array.isArray(result) ? result : [result];
 
     for (const vData of vacancyDataList) {
       const finalAgency = preDefinedAgency || vData.agencyName || "Manual";
-      const vacancyCode = await generateVacancyCode(); // атамарны код
+      const vacancyCode = await generateVacancyCode();
 
       const newVacancy = new Vacancy({
         ...vData,
@@ -164,20 +166,20 @@ async function processVacancyMessage(
           agencyName: finalAgency,
         }),
         vacancyCode,
-        originalText: originalText || rawText,
-        rawText: enrichedText, // 🆕 Захоўваем ужо поўны тэкст з файлаў
+        originalText: originalText || enrichedText, // 👈 Выправілі rawText на enrichedText
+        rawText: enrichedText,
         isTruncated: isTruncated,
-        parsingResultType: parsingResultType, // 🆕 Захоўваем вердыкт AI
+        parsingResultType: parsingResultType,
         status: "active",
       });
 
       const saved = await newVacancy.save();
       console.log(`✅ Вакансія створана: ${vacancyCode}`);
 
-      // 🆕 Фармуем пост на аснове ЗАХАВАНАГА аб'екта (Privacy Shield у дзеянні)
+      // Фармуем пост на аснове ЗАХАВАНАГА аб'екта (Privacy Shield)
       const postText = await aiService.formatTelegramPost(saved);
       saved.telegramPost = postText;
-      await saved.save(); // Абнаўляем запіс з гатовым пастом
+      await saved.save();
 
       await sendToTelegram(sanitizeTelegramMarkdown(postText));
       savedVacancies.push(saved);
@@ -234,7 +236,10 @@ router.post("/from-template/:templateId", async (req, res) => {
       return res.status(404).json({ message: "Шаблон не знойдзены" });
 
     // 🆕 Stage 0: Узбагачаем тэкст перад парсінгам
-    const enrichedText = await enrichTextWithDocs(rawText);
+    // Калі тэкст прыйшоў з інбокса, ён можа быць ужо ўзбагачаны
+    const enrichedText = rawText.includes("--- ЗМЕСТ")
+      ? rawText
+      : await enrichTextWithDocs(rawText);
 
     const result = await aiService.parseVacancyWithAI(
       enrichedText, // ✅ Цяпер парсер атрымае тэкст з файлаў Drive
