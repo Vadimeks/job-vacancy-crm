@@ -291,6 +291,14 @@ router.post("/from-template/:templateId", async (req, res) => {
 router.post("/", async (req, res) => {
   try {
     const { messageId, ...vacancyData } = req.body;
+    // 🛡️ Абарона ад пустышак: калі апісанне менш за 30 сімвалаў — адхіляем
+    const desc = vacancyData.description || "";
+    if (desc.length < 30) {
+      return res.status(400).json({
+        message:
+          "Занадта кароткі апісанне. Дадзеных недастаткова для стварэння новай вакансіі. Калі ласка, выкарыстоўвайце функцыю 'Абнавіць існуючую'.",
+      });
+    }
     const vacancyCode = await generateVacancyCode();
 
     const newVacancy = new Vacancy({ ...vacancyData, vacancyCode });
@@ -321,9 +329,17 @@ router.get("/filters-data", async (req, res) => {
     const nuances = new Set();
 
     vacancies.forEach((v) => {
-      // 1. Гарады
+      // 1. Гарады (Разбіваем спісы праз коску і чысцім ад дубляў краіны)
       if (v.location) {
-        cities.add(v.location);
+        if (v.location.includes(",")) {
+          // Калі гарадоў некалькі (напр. "Pasym, Ryn"), дадаем кожны асобна ў фільтр
+          v.location.split(",").forEach((city) => {
+            const trimmedCity = city.trim();
+            if (trimmedCity) cities.add(trimmedCity);
+          });
+        } else {
+          cities.add(v.location);
+        }
       }
 
       // 2. Агенцыі

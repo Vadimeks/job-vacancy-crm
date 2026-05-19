@@ -124,6 +124,7 @@ All output fragments MUST be in Ukrainian. If the input is in Russian or Polish,
    - The message describes ONE vacancy broken into sections (💰 Оплата, ⚙️ Обов'язки, etc.).
    - The message contains multiple job titles (e.g., "Welder / Saw Operator" or "Helper / Machine Operator") that share the SAME city, SAME salary, and SAME accommodation. This is ONE vacancy with multiple duties.
    - The same vacancy is repeated in different languages (Russian, Ukrainian, Polish). Treat it as ONE vacancy.
+3.1. MULTI-CITY RULE: If a message contains ONE job description but lists multiple cities (e.g., "Biedronka: Pasym, Ryn, Pisz"), DO NOT split it into fragments. Keep it as ONE fragment. The parser in Stage 2 will handle the list of cities.
 4. MULTI-LANGUAGE RULE: If the enriched text contains the same vacancy in multiple languages (e.g., Ukrainian and Russian), merge them into one Ukrainian fragment. 
 !!! PRIORITY: Use the Ukrainian version as the primary source. If other language versions (Russian, Polish) contain unique details not present in the Ukrainian text, add those details to the final Ukrainian fragment. If there are 2 jobs in Russian and 2 in Ukrainian — the result must be 2 fragments, not 4.
 5. SHARED INFO RULE: If the message contains a general block (e.g., "Contacts:", "General conditions:", "How to apply:") that applies to all vacancies, you MUST APPEND this block to the END of EVERY fragment in translatedFragments. Do not lose contact information.

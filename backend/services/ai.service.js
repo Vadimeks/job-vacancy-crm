@@ -159,12 +159,17 @@ function normalizeLocation(location, country) {
   // 1. Выдаляем УСЕ дужкі і тое, што ў іх (прыбіраем старыя краіны)
   let clean = location.replace(/\s*\([^)]+\)/gi, "").trim();
 
-  // 2. Вызначаем эталонную назву краіны
+  // 2. Прыбіраем дублікаты гарадоў, калі яны ідуць праз коску (напр. "Warszawa, Warszawa")
+  if (clean.includes(",")) {
+    clean = [...new Set(clean.split(",").map((s) => s.trim()))].join(", ");
+  }
+
+  // 3. Вызначаем эталонную назву краіны
   const normalizedCountry = country
     ? COUNTRY_MAP[country.toLowerCase()] || country
     : "Polska";
 
-  // 3. Дадаем краіну толькі калі гэта не Польшча
+  // 4. Дадаем краіну толькі калі гэта не Польшча
   if (normalizedCountry !== "Polska") {
     return `${clean} (${normalizedCountry})`;
   }
@@ -333,7 +338,7 @@ FULL MODE STRUCTURE (skip empty lines/sections):
 [• Студенти: [salary.studentNetto]]
 [• Виплати: [salary.payoutDates]]
 [• Бонуси: [salary.bonusDetails]]
-[• Деталі: [salary.salaryNotes]]
+[• Деталі: [salary.salaryNotes]] (!!! SKIP this line if salaryNotes repeats the same information as salary.rawSalaryDisplay)
 
 🛠 *Характер роботи*
 [description items with •]
@@ -718,18 +723,13 @@ NUANCES RULES (conditions.specificNuances):
   10. "Інше" (anything else specific)
 
 GEOGRAPHY RULES:
-- location: first city mentioned; Polish spelling only (Warszawa, Kraków, Polkowice).
+- location: actual place of work. Polish spelling only (Warszawa, Kraków).
+- MULTI-CITY RULE: If the text lists multiple cities for the SAME job description (e.g., Biedronka: Pasym, Ryn, Pisz), DO NOT split into fragments. Instead, list ALL cities in the 'location' field separated by commas (e.g., "Pasym, Ryn, Pisz").
 - checkInCity: registration/оформлення city.
 - country: default Polska; if not Poland → English name.
 - voivodeship: if Poland → exact voivodeship; else "Європа (інші країни)".
 - International: city + country in parentheses (e.g., "Droßdorf (Germany)").
 - STRICT: never Cyrillic for cities; never include "Polska" in location.
-- STRICT LOCATION VALIDATION:
-  • location = actual place of work.
-  • checkInCity = registration/arrival city.
-  • If the raw text contains a misspelled location (e.g., "Elena Gura"), automatically replace it with the correct Polish name ("Zielona Góra").
-  • Always use Polish spelling (Latin alphabet).
-  • If the location is not clearly specified, keep it as-is but add a note in additionalNotes for manual verification.
 
 PRIVACY & FORMATTING:
 - agencyName: recruitment agency only. 
@@ -755,10 +755,12 @@ One of:
 "Склади та логістика", "Харчова промисловість", "Автомобільна промисловість",
 "Виробництво та промисловість", "Будівництво", "Сільське господарство",
 "Торгівля та послуги", "Різне".
+!!! RULE: Jobs like "Caregiver", "Nanny", "Medical assistant", "Догляд за літніми" must be classified as "Різне".
 
 DESCRIPTION & NOTES:
-- description: ONLY duties; full detail; separated by ;.
-- additionalNotes: everything else (recruitment, transport, videos, contract details, client brand names, навчання/вихід на норму, кількість людей у цеху).
+- description: ONLY duties; full detail.
+- FORMATTING RULE: Use double newlines (\n\n) between logical paragraphs. Use bullet points (•) for lists.
+- additionalNotes: everything else (recruitment, transport, videos, contract details, client brand names, навчання/вихід на норму).
 - No duplication: if info already in structured fields → don’t repeat.
 
 CONDITIONS:
@@ -1008,11 +1010,12 @@ JSON STRUCTURE:
         templateName: cleaned.templateName || "",
         vacancydescription: finalTitle,
         description: cleaned.description
-          ? cleaned.description
+          ? "• " +
+            cleaned.description
               .split(";")
               .map((s) => s.trim())
               .filter(Boolean)
-              .join("; ")
+              .join("\n• ")
           : "",
         category: cleaned.category || null,
         keywords: Array.isArray(cleaned.keywords) ? cleaned.keywords : [],
