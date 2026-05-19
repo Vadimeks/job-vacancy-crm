@@ -323,9 +323,7 @@ router.get("/filters-data", async (req, res) => {
     vacancies.forEach((v) => {
       // 1. Гарады
       if (v.location) {
-        const displayCity =
-          v.country !== "Polska" ? `${v.location} (${v.country})` : v.location;
-        cities.add(displayCity);
+        cities.add(v.location);
       }
 
       // 2. Агенцыі
@@ -452,38 +450,46 @@ router.post("/system/cleanup-locations", async (req, res) => {
     let updatedCount = 0;
 
     for (const v of vacancies) {
-      let isChanged = false;
+      let isChanged = false; // 👈 Аб'яўляем адзін раз у пачатку цыкла
 
-      // 1. Лакацыя
+      // --- МІГРАЦЫЯ ДАНЫХ ПАД НОВУЮ МАДЭЛЬ v2.2 ---
+      // 1. Зарплата (перавод з радка ў лічбу)
+      if (typeof v.salary?.baseNetto === "string") {
+        const match = v.salary.baseNetto.match(/(\d+[.,]?\d*)/);
+        v.salary.rawSalaryDisplay = v.salary.baseNetto; // Захоўваем арыгінал
+        if (match) {
+          v.salary.baseNetto = parseFloat(match[1].replace(",", "."));
+        } else {
+          v.salary.baseNetto = null;
+        }
+        isChanged = true;
+      }
+
+      // 2. Узрост (перавод у структуру age)
+      if (v.requirements?.ageMax && !v.requirements?.age?.max) {
+        v.requirements.age = {
+          min: 18,
+          max: parseInt(v.requirements.ageMax) || 60,
+          rawText: `до ${v.requirements.ageMax} років`,
+        };
+        isChanged = true;
+      }
+
+      // 3. Лакацыя
       const newLoc = aiService.normalizeLocation(v.location, v.country);
       if (newLoc !== v.location) {
         v.location = newLoc;
         isChanged = true;
       }
 
-      // 2. Агенцыя
+      // 4. Агенцыя
       const newAgency = aiService.normalizeAgency(v.agencyName);
       if (v.agencyName !== newAgency) {
         v.agencyName = newAgency;
         isChanged = true;
       }
 
-      // 3. Брэнд
-      const newBrand = aiService.validateBrand(v.brand);
-      if (v.brand !== newBrand) {
-        v.brand = newBrand;
-        isChanged = true;
-      }
-
-      // 4. Ваяводства
-      const vLower = v.voivodeship?.toLowerCase().trim();
-      const newVoiv = aiService.VOIVODESHIP_MAP[vLower] || v.voivodeship;
-      if (v.voivodeship !== newVoiv) {
-        v.voivodeship = newVoiv;
-        isChanged = true;
-      }
-
-      // 5. Нюансы (v2.1)
+      // 5. Нюансы
       if (v.conditions?.specificNuances) {
         const newNuances = aiService.normalizeNuances(
           v.conditions.specificNuances,
@@ -498,7 +504,7 @@ router.post("/system/cleanup-locations", async (req, res) => {
       }
 
       if (isChanged) {
-        // Абнаўляем загаловак па стандарце v2.1
+        // Абнаўляем загаловак па стандарце
         const baseTitle = v.vacancydescription || "Опис вакансії";
         const titlePart = baseTitle.includes(" — ")
           ? baseTitle.split(" — ")[0]

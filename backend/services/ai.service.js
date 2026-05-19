@@ -156,14 +156,16 @@ const ALLOWED_NUANCE_CATEGORIES = [
 // Функцыя для ачысткі назвы горада ад любых краін у дужках
 function normalizeLocation(location, country) {
   if (!location) return "";
-  // 1. Выдаляем любыя канструкцыі ў дужках (краіны на розных мовах)
+  // 1. Выдаляем УСЕ дужкі і тое, што ў іх (прыбіраем старыя краіны)
   let clean = location.replace(/\s*\([^)]+\)/gi, "").trim();
+
   // 2. Вызначаем эталонную назву краіны
   const normalizedCountry = country
     ? COUNTRY_MAP[country.toLowerCase()] || country
     : "Polska";
-  // Фікс: дадаем краіну толькі калі яе яшчэ няма ў радку
-  if (normalizedCountry !== "Polska" && !clean.includes(normalizedCountry)) {
+
+  // 3. Дадаем краіну толькі калі гэта не Польшча
+  if (normalizedCountry !== "Polska") {
     return `${clean} (${normalizedCountry})`;
   }
   return clean;
