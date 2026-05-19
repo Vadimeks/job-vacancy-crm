@@ -253,7 +253,7 @@ export default function VacancyViewModal({
             />
             <div className="space-y-1.5">
               {v.schedule?.description && (
-                <p className="text-sm text-slate-200 leading-relaxed bg-slate-800/30 p-3 rounded-xl border border-slate-800 mb-2">
+                <p className="text-sm text-slate-200 leading-relaxed bg-slate-800/30 p-3 rounded-xl border border-slate-800 mb-2 whitespace-pre-wrap">
                   {v.schedule.description}
                 </p>
               )}
@@ -303,7 +303,9 @@ export default function VacancyViewModal({
                     <span>✓</span> Можна з тваринами
                   </p>
                 )}
-                <Note>{v.accommodation?.details}</Note>
+                <Note className="whitespace-pre-wrap">
+                  {v.accommodation?.details}
+                </Note>
               </div>
             </div>
             <div>

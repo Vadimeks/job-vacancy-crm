@@ -236,10 +236,10 @@ export default function Vacancies() {
 
       if (isEurope) {
         voivodeships.add("Європа (інші країни)");
-        const locName =
-          v.country && v.country !== "Polska"
-            ? `${v.location} (${v.country})`
-            : v.location;
+        // Калі ў лакацыі ўжо ёсць краіна ў дужках — бярэм як ёсць, інакш дадаем
+        const locName = v.location?.includes("(")
+          ? v.location
+          : `${v.location} (${v.country})`;
         locations.add(locName);
       } else {
         if (v.voivodeship) voivodeships.add(v.voivodeship);
@@ -580,6 +580,23 @@ export default function Vacancies() {
                       {v.vacancydescription || v.templateName}
                     </h3>
 
+                    {/* КАРОТКІ ОПІС (З падтрымкай абзацаў) */}
+                    {v.description && (
+                      <div className="text-[11px] text-slate-400 mb-3 line-clamp-2 whitespace-pre-wrap leading-relaxed border-l-2 border-slate-800 pl-2">
+                        {v.description}
+                      </div>
+                    )}
+                    {/* ЗАРПЛАТА (Кампактны вывад) */}
+                    {(v.salary?.baseNetto || v.salary?.rawSalaryDisplay) && (
+                      <div className="flex items-center gap-1.5 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20 ml-auto">
+                        <span className="text-emerald-400 font-black text-sm">
+                          💰{" "}
+                          {v.salary.baseNetto
+                            ? `${v.salary.baseNetto} ${v.salary.currency || "PLN"}`
+                            : v.salary.rawSalaryDisplay?.split(";")[0]}
+                        </span>
+                      </div>
+                    )}
                     {/* РАДОК 2: БАЗАВЫЯ ЎМОВЫ (Гендэр, Жытло, Давоз, Мова) + ЗАРПЛАТА */}
                     <div className="flex flex-wrap gap-4 text-xs items-center mb-3">
                       {/* ГЕНДАР / НАБОР */}
@@ -632,24 +649,6 @@ export default function Vacancies() {
                             "Любий рівень"}
                         </span>
                       </div>
-
-                      {/* ЗАРПЛАТА (Разумны вывад v2.2) */}
-                      {(v.salary?.rawSalaryDisplay ||
-                        v.salary?.baseNetto ||
-                        v.salary?.salaryNotes) && (
-                        <div className="flex items-center gap-1.5 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20 ml-auto">
-                          <span className="text-emerald-400 font-black text-sm">
-                            💰{" "}
-                            {v.salary.rawSalaryDisplay ||
-                              (v.salary.baseNetto
-                                ? `${v.salary.baseNetto} ${v.salary.currency || "PLN"}`
-                                : null) ||
-                              (v.salary.salaryNotes?.length < 30
-                                ? v.salary.salaryNotes
-                                : "Уточнюйте")}
-                          </span>
-                        </div>
-                      )}
                     </div>
 
                     {/* ХМАРА ТЕГІВ v2.2 (Спецыфічныя патрабаванні: Нацыі, Дакументы, Нюансы) */}
