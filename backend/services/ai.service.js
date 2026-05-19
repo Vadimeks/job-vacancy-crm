@@ -27,7 +27,6 @@ async function getAccessToken() {
 
 const AI_CHAIN = [
   { provider: "vertex", name: "gemini-2.5-flash" },
-  { provider: "vertex", name: "gemini-3-flash-preview" },
   { provider: "vertex", name: "gemini-2.5-flash-lite" },
   { provider: "vertex", name: "gemini-3.1-flash-lite" },
   { provider: "groq", name: "llama-3.3-70b-versatile" },
@@ -142,7 +141,7 @@ const VOIVODESHIP_MAP = {
 };
 
 const ALLOWED_NUANCE_CATEGORIES = [
-  "Тэмпературний режим",
+  "Температурний режим",
   "Фізично-важка праця",
   "Санітарні обмеження",
   "Запахи та алергени",
@@ -632,11 +631,30 @@ async function linkTemplateToVacancy(vacancyData, template) {
 
 async function formatTelegramPost(vacancyData) {
   console.log(`🤖 Форматаванне Telegram-посту...`);
+
+  // 🛡️ Technical Privacy Shield
+  const rawObj = vacancyData.toObject ? vacancyData.toObject() : vacancyData;
+  const {
+    forRecruiter,
+    originalText,
+    rawText,
+    textHash,
+    prefixHash,
+    __v,
+    _id,
+    ...publicData
+  } = rawObj;
+
   const text = await executeAIRequest(
     FORMAT_PROMPT,
-    `DATA:\n${JSON.stringify(vacancyData, null, 2)}`,
+    `DATA:\n${JSON.stringify(publicData, null, 2)}`,
     false,
   );
+
+  if (!text || text.startsWith("{") || text.length < 50) {
+    throw new Error("AI returned invalid format for Telegram post");
+  }
+
   return text.trim();
 }
 function normalizeNuances(nuances) {
@@ -686,7 +704,7 @@ NUANCES RULES (conditions.specificNuances):
 - NEVER put these details into additionalNotes if they fit a category below.
 - Format: Array of objects { "category": "CATEGORY_NAME", "text": "detail" }.
 - Categories (USE ONLY THESE 10):
-  1. "Тэмпературний режим" (e.g., +5°C, холодний цех, спека)
+  1. "Температурний режим" (e.g., +5°C, холодний цех, спека)
   2. "Фізично-важка праця" (e.g., підняття ваги >15кг, робота з великими деталями)
   3. "Санітарні обмеження" (e.g., без манікюру, без біжутерії, без вій)
   4. "Запахи та алергени" (e.g., запах гуми, фарби, пил, клей)
@@ -694,7 +712,7 @@ NUANCES RULES (conditions.specificNuances):
   6. "Характер праці" (e.g., 100% стоячи, робота на колінах, сидяча робота, робота са сканером)
   7. "Специфічні навички" (e.g., знання креслень, робота з ножам, пневмоінструмент)
   8. "Норми" (e.g., робота на акорд, високий темп, виконання плану)
-  9. "Тести пры вступі" (e.g., мануальні тести, матэматыка, праверка зроку)
+  9. "Тести при вступі" (e.g., мануальні тести, математика, перевірка зору)
   10. "Інше" (anything else specific)
 
 GEOGRAPHY RULES:
@@ -761,7 +779,8 @@ ACCOMMODATION:
 - Do not use costRaw, write price directly in details.
 
 SALARY:
-- baseNetto: exact rate WITH currency symbol (e.g., "25 zł/god", "16 €/h"). NEVER return just a number.
+- baseNetto: exact rate WITH currency symbol (e.g., "25 zł/god"). 
+  CORRUPTION RULE: If the rate is corrupted (e.g., "˲5.12 zł"), DO NOT skip it. Try to recover the number (e.g., 25.12) or put the raw corrupted string into salaryNotes so a human can fix it. NEVER leave baseNetto empty if a rate is clearly present.
 - studentNetto: if mentioned, also with currency.
 - hoursRange: total hours per month (e.g., "230-260").
 - bonusDetails: all bonuses in full.
@@ -770,6 +789,7 @@ SALARY:
 REQUIREMENTS:
 - experienceRequired: true/false (check if "досвід" is mentioned as required).
 - polishLanguageLevel: one of "Не вимагається", "A1", "A2", "B1", "B2", "C1".
+  LANGUAGE RULE: If ANY specific language knowledge is required (e.g., Romanian, English), DO NOT set polishLanguageLevel to "Не вимагається". Set it to "A1" or higher and specify the language in languageDetails.
 - documents: only from strict list; others → additionalDocsDetails.
 - physicalLoad: Boolean (true if work is physically heavy/demanding, else false).
 
