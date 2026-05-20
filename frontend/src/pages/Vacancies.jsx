@@ -146,7 +146,31 @@ function applyFilters(vacancies, filters) {
       return false;
     if (filters.brand?.length > 0 && !filters.brand.includes(v.brand))
       return false;
+    // --- 13. Зарплата (Лічбавы фільтр) ---
+    const fMinSal =
+      filters.minSalary !== "" ? parseFloat(filters.minSalary) : null;
+    const fMaxSal =
+      filters.maxSalary !== "" ? parseFloat(filters.maxSalary) : null;
+    const vSal = v.salary?.baseNetto; // Можа быць лічбай або null
 
+    if (fMinSal !== null || fMaxSal !== null) {
+      // Калі ў вакансіі няма лічбавай ЗП, а мы фільтруем — хаваем яе
+      if (vSal === null || vSal === undefined || isNaN(vSal)) return false;
+      if (fMinSal !== null && vSal < fMinSal) return false;
+      if (fMaxSal !== null && vSal > fMaxSal) return false;
+    }
+
+    // --- 14. Узрост (Лічбавы фільтр па maxAge) ---
+    const fMinAge = filters.minAge !== "" ? parseFloat(filters.minAge) : null;
+    const fMaxAge = filters.maxAge !== "" ? parseFloat(filters.maxAge) : null;
+    const vAge = v.requirements?.age?.max; // Можа быць лічбай або null
+
+    if (fMinAge !== null || fMaxAge !== null) {
+      // Калі ў вакансіі няма ўзросту, а мы фільтруем — хаваем яе
+      if (vAge === null || vAge === undefined || isNaN(vAge)) return false;
+      if (fMinAge !== null && vAge < fMinAge) return false;
+      if (fMaxAge !== null && vAge > fMaxAge) return false;
+    }
     return true;
   });
 }
