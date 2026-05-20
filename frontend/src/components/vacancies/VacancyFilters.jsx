@@ -62,6 +62,19 @@ export default function VacancyFilters({
           className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500/50 transition-all"
         />
       </Section>
+      {/* АБРАНАЕ */}
+      <Section>
+        <button
+          onClick={() => updateField("isFavorite", !draft.isFavorite)}
+          className={`w-full flex items-center justify-center gap-2 py-2 rounded-xl border transition-all font-bold text-xs ${
+            draft.isFavorite
+              ? "bg-amber-500/20 border-amber-500/50 text-amber-400"
+              : "bg-slate-800/30 border-slate-700 text-slate-400 hover:border-slate-600"
+          }`}
+        >
+          {draft.isFavorite ? "★ ТІЛЬКИ ОБРАНІ" : "☆ ПОКАЗАТИ ВСІ"}
+        </button>
+      </Section>
 
       {/* СТАТУС */}
       <Section>
@@ -139,7 +152,28 @@ export default function VacancyFilters({
           placeholder="Будь-хто"
         />
       </Section>
-
+      {/* ВІК */}
+      <Section>
+        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">
+          Вік (до)
+        </label>
+        <div className="flex gap-2">
+          <input
+            type="number"
+            value={draft.minAge || ""}
+            onChange={(e) => updateField("minAge", e.target.value)}
+            placeholder="Від"
+            className="w-1/2 bg-slate-800/50 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500/50"
+          />
+          <input
+            type="number"
+            value={draft.maxAge || ""}
+            onChange={(e) => updateField("maxAge", e.target.value)}
+            placeholder="До"
+            className="w-1/2 bg-slate-800/50 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500/50"
+          />
+        </div>
+      </Section>
       {/* МОВА */}
       <Section>
         <MultiSelect
@@ -161,7 +195,28 @@ export default function VacancyFilters({
           placeholder="Усі нації"
         />
       </Section>
-
+      {/* ЗАРПЛАТА */}
+      <Section>
+        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">
+          Зарплата (Netto)
+        </label>
+        <div className="flex gap-2">
+          <input
+            type="number"
+            value={draft.minSalary || ""}
+            onChange={(e) => updateField("minSalary", e.target.value)}
+            placeholder="Від"
+            className="w-1/2 bg-slate-800/50 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500/50"
+          />
+          <input
+            type="number"
+            value={draft.maxSalary || ""}
+            onChange={(e) => updateField("maxSalary", e.target.value)}
+            placeholder="До"
+            className="w-1/2 bg-slate-800/50 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500/50"
+          />
+        </div>
+      </Section>
       {/* ДОКУМЕНТИ */}
       <Section>
         <MultiSelect

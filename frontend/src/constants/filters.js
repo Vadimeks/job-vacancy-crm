@@ -2,11 +2,16 @@
 
 export const EMPTY_FILTERS = {
   search: "",
+  isFavorite: false, // 👈 Дададзена
+  minSalary: "", // 👈 Дададзена
+  maxSalary: "", // 👈 Дададзена
+  minAge: "", // 👈 Дададзена
+  maxAge: "", // 👈 Дададзена
   status: [],
   voivodeship: [],
   location: [],
   category: [],
-  gender: [], // Выкарыстоўваем гэта замест travelGroup
+  gender: [],
   schedule: [],
   accommodation: [],
   transport: [],

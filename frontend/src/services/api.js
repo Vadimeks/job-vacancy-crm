@@ -27,7 +27,9 @@ export const deleteVacancy = (id) => api.delete(`/vacancies/${id}`);
 // Дадалі messageId для аўтаматычнай ачысткі інбокса пры абнаўленні
 export const aiUpdateVacancy = (id, rawText, messageId) =>
   api.patch(`/vacancies/${id}/ai-update`, { rawText, messageId });
-
+// Пераключэнне "зорачкі" (абранае)
+export const toggleFavoriteVacancy = (id) =>
+  api.patch(`/vacancies/${id}/favorite`);
 // --- ШАБЛОНЫ ---
 export const getTemplates = () => api.get("/templates");
 export const createTemplate = (data) => api.post("/templates", data);
