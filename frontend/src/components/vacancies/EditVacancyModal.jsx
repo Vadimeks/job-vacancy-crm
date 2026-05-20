@@ -4,24 +4,6 @@ import Field from "../shared/Field";
 import Divider from "../shared/Divider";
 import * as MD from "../../constants/masterData";
 
-// Еталонні списки — повинні збігатися з KNOWN_AGENCIES у ai.service.js
-const AGENCY_OPTIONS = [
-  "APOLO",
-  "BISAR",
-  "EST",
-  "FWS",
-  "GLOBAL",
-  "INTRASERVICE",
-  "MANPOWER",
-  "MANUAL",
-  "MRÓWKI",
-  "NIDEN",
-  "OTTO",
-  "PROGRES",
-  "SG",
-  "SOLANO",
-];
-
 const CONTRACT_OPTIONS = [
   { value: "Umowa zlecenie", label: "Umowa zlecenie" },
   { value: "Umowa o pracę", label: "Umowa o pracę" },
@@ -274,7 +256,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
         onChange={(e) => setField("agencyName", e.target.value)}
         className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500"
       >
-        {AGENCY_OPTIONS.map((a) => (
+        {MD.AGENCIES.map((a) => (
           <option key={a} value={a}>
             {a}
           </option>
