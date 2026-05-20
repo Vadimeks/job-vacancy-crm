@@ -7,6 +7,7 @@ import {
   createVacancyAuto,
   createVacancyFromTemplate,
   aiUpdateVacancy,
+  toggleFavoriteVacancy,
 } from "../services/api";
 import EditVacancyModal from "../components/vacancies/EditVacancyModal";
 import ApplyModal from "../components/vacancies/ApplyModal";
@@ -219,7 +220,19 @@ export default function Vacancies() {
         .finally(() => setTemplatesLoading(false));
     }
   }, [showAutoForm, formMode, templates.length]);
-
+  const handleToggleFavorite = async (id) => {
+    try {
+      const res = await toggleFavoriteVacancy(id);
+      // Аптымістычна абнаўляем лакальны спіс вакансій
+      setVacancies((prev) =>
+        prev.map((v) =>
+          v._id === id ? { ...v, isFavorite: res.data.isFavorite } : v,
+        ),
+      );
+    } catch (err) {
+      console.error("Памылка пераключэння абранага:", err);
+    }
+  };
   // Абноўлены dynamicData
   const dynamicData = useMemo(() => {
     const agencies = new Set();
@@ -590,18 +603,33 @@ export default function Vacancies() {
                   <div className="flex-1 min-w-0">
                     {/* РАДОК 1: ПАШПАРТ ВАКАНСІІ (ID, Статус, Агенцыя, Брэнд, Катэгорыя, Лакацыя) */}
                     <div className="flex items-center gap-2 mb-2 flex-wrap border-b border-slate-800/50 pb-2">
-                      {/* ID + Truncated Marker */}
-                      <span className="text-[10px] font-mono bg-slate-800 text-slate-400 px-2 py-0.5 rounded flex items-center gap-1 border border-slate-700">
-                        {v.vacancyCode}
-                        {v.isTruncated && (
-                          <span
-                            className="text-amber-500"
-                            title="Текст обірваний"
-                          >
-                            ⚠️
-                          </span>
-                        )}
-                      </span>
+                      {/* ID + Favorite Star + Truncated Marker */}
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleToggleFavorite(v._id);
+                          }}
+                          className={`text-lg transition-transform active:scale-125 ${
+                            v.isFavorite
+                              ? "text-amber-400"
+                              : "text-slate-600 hover:text-slate-400"
+                          }`}
+                        >
+                          {v.isFavorite ? "★" : "☆"}
+                        </button>
+                        <span className="text-[10px] font-mono bg-slate-800 text-slate-400 px-2 py-0.5 rounded flex items-center gap-1 border border-slate-700">
+                          {v.vacancyCode}
+                          {v.isTruncated && (
+                            <span
+                              className="text-amber-500"
+                              title="Текст обірваний"
+                            >
+                              ⚠️
+                            </span>
+                          )}
+                        </span>
+                      </div>
 
                       {/* Статус (Украінізаваны) */}
                       <span

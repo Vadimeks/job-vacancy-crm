@@ -90,10 +90,12 @@ export const AGENCIES = [
   "BISAR",
   "EST",
   "EWL",
+  "FOLGA",
   "FWS",
   "GLOBAL",
   "INTRASERVICE",
   "KONO",
+  "KREON",
   "MANPOWER",
   "MANUAL",
   "MRÓWKI",
@@ -105,7 +107,8 @@ export const AGENCIES = [
   "SG",
   "SOLANO",
   "STAFF POWER",
-];
+  "VEKOS",
+].sort();
 
 export const VOIVODESHIPS = [
   "Dolnośląskie",
