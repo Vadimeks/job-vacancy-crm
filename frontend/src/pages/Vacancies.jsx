@@ -6,6 +6,7 @@ import {
   deleteVacancy,
   createVacancyAuto,
   createVacancyFromTemplate,
+  aiUpdateVacancy,
 } from "../services/api";
 import EditVacancyModal from "../components/vacancies/EditVacancyModal";
 import ApplyModal from "../components/vacancies/ApplyModal";
@@ -168,7 +169,9 @@ export default function Vacancies() {
   const [applyVacancy, setApplyVacancy] = useState(null);
   const [matchVacancy, setMatchVacancy] = useState(null);
   const [viewVacancy, setViewVacancy] = useState(null);
-
+  const [vacancySearch, setVacancySearch] = useState("");
+  const [selectedVacancyForUpdate, setSelectedVacancyForUpdate] =
+    useState(null);
   const [draft, setDraft] = useState(EMPTY_FILTERS);
   const [applied, setApplied] = useState(EMPTY_FILTERS);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -278,7 +281,19 @@ export default function Vacancies() {
       return matchAgency && matchSearch;
     });
   }, [templates, selectedAgency, templateSearch]);
-
+  const filteredVacanciesForUpdate = useMemo(() => {
+    return vacancies
+      .filter((v) => v.status === "active")
+      .filter((v) => {
+        const q = vacancySearch.toLowerCase().trim();
+        return (
+          !q ||
+          v.vacancyCode?.toLowerCase().includes(q) ||
+          v.vacancydescription?.toLowerCase().includes(q) ||
+          v.location?.toLowerCase().includes(q)
+        );
+      });
+  }, [vacancies, vacancySearch]);
   const previewCount = useMemo(
     () => applyFilters(vacancies, draft).length,
     [vacancies, draft],
@@ -339,11 +354,32 @@ export default function Vacancies() {
       setAutoLoading(false);
     }
   };
-
+  const handleAIUpdate = async () => {
+    if (!selectedVacancyForUpdate || !autoText.trim())
+      return alert("Оберіть вакансію та введіть текст");
+    setAutoLoading(true);
+    try {
+      await aiUpdateVacancy(
+        selectedVacancyForUpdate._id,
+        autoText,
+        sourceMessageId,
+      );
+      notifyUpdate();
+      handleCloseForm();
+      setSourceMessageId(null);
+      await fetchVacancies();
+    } catch (err) {
+      alert("Помилка оновлення: " + err.message);
+    } finally {
+      setAutoLoading(false);
+    }
+  };
   const handleCloseForm = () => {
     setShowAutoForm(false);
     setAutoText("");
     setSelectedTemplate(null);
+    setSelectedVacancyForUpdate(null); // 👈 Дададзена
+    setVacancySearch(""); // 👈 Дададзена
     setFormMode("auto");
   };
 
@@ -429,13 +465,17 @@ export default function Vacancies() {
         {showAutoForm && (
           <div className="mb-6 bg-slate-900 border border-slate-800 rounded-xl p-5">
             <div className="flex gap-2 mb-4">
-              {["auto", "template"].map((m) => (
+              {["auto", "template", "update"].map((m) => (
                 <button
                   key={m}
                   onClick={() => setFormMode(m)}
                   className={`px-4 py-2 rounded-lg text-sm font-medium ${formMode === m ? "bg-emerald-500 text-slate-900" : "bg-slate-800 text-slate-400"}`}
                 >
-                  {m === "auto" ? "🤖 Авто (AI)" : "📋 З шаблона"}
+                  {m === "auto"
+                    ? "🤖 Авто (AI)"
+                    : m === "template"
+                      ? "📋 З шаблона"
+                      : "🔄 Оновити VAC"}
                 </button>
               ))}
             </div>
@@ -446,25 +486,52 @@ export default function Vacancies() {
                   type="text"
                   value={templateSearch}
                   onChange={(e) => setTemplateSearch(e.target.value)}
-                  placeholder="Пошук шаблона..."
+                  placeholder="Пошук шаблона (назва, горад)..."
                   className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100"
                 />
-                {templateSearch && (
-                  <div className="max-h-48 overflow-y-auto border border-slate-800 rounded-lg p-1">
-                    {filteredTemplates.map((t) => (
-                      <button
-                        key={t._id}
-                        onClick={() => setSelectedTemplate(t)}
-                        className={`w-full text-left px-3 py-2 rounded-lg text-sm ${selectedTemplate?._id === t._id ? "bg-emerald-500/10 text-emerald-400" : "text-slate-300 hover:bg-slate-800"}`}
-                      >
-                        {t.templateName} ({t.agencyName})
-                      </button>
-                    ))}
-                  </div>
-                )}
+                <div className="max-h-48 overflow-y-auto border border-slate-800 rounded-lg p-1 bg-slate-900/50">
+                  {filteredTemplates.map((t) => (
+                    <button
+                      key={t._id}
+                      onClick={() => setSelectedTemplate(t)}
+                      className={`w-full text-left px-3 py-2 rounded-lg text-sm mb-1 ${selectedTemplate?._id === t._id ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" : "text-slate-300 hover:bg-slate-800"}`}
+                    >
+                      <span className="font-bold">{t.templateName}</span>
+                      <span className="text-slate-500 ml-2 text-xs">
+                        ({t.agencyName})
+                      </span>
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
-
+            {formMode === "update" && (
+              <div className="mb-4 space-y-3">
+                <input
+                  type="text"
+                  value={vacancySearch}
+                  onChange={(e) => setVacancySearch(e.target.value)}
+                  placeholder="Пошук вакансії (код, назва, горад)..."
+                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100"
+                />
+                <div className="max-h-48 overflow-y-auto border border-slate-800 rounded-lg p-1 bg-slate-900/50">
+                  {filteredVacanciesForUpdate.map((v) => (
+                    <button
+                      key={v._id}
+                      onClick={() => setSelectedVacancyForUpdate(v)}
+                      className={`w-full text-left px-3 py-2 rounded-lg text-sm mb-1 ${selectedVacancyForUpdate?._id === v._id ? "bg-blue-500/20 text-blue-400 border border-blue-500/30" : "text-slate-300 hover:bg-slate-800"}`}
+                    >
+                      <span className="font-mono text-xs bg-slate-800 px-1 rounded mr-2">
+                        {v.vacancyCode}
+                      </span>
+                      <span className="font-medium">
+                        {v.vacancydescription || v.templateName}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             <textarea
               value={autoText}
               onChange={(e) => setAutoText(e.target.value)}
@@ -478,7 +545,9 @@ export default function Vacancies() {
                 onClick={
                   formMode === "template"
                     ? handleTemplateCreate
-                    : handleAutoCreate
+                    : formMode === "update"
+                      ? handleAIUpdate
+                      : handleAutoCreate
                 }
                 disabled={autoLoading || !autoText.trim()}
                 className="px-4 py-2 bg-emerald-500 text-slate-900 font-medium rounded-lg disabled:opacity-50"
