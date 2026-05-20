@@ -409,7 +409,7 @@ Rules:
 - If message mentions housing change → update accommodation fields
 - If message mentions schedule change → update schedule fields
 - If field is NOT mentioned in message → keep template value EXACTLY as is
-
+- DESCRIPTION PRESERVATION: The 'description' field in the template contains detailed duties. NEVER delete or shorten it. If the message adds a new duty, append it to the existing list.
 Return ONLY valid JSON with the complete merged result using FULL structure v2.0.
 IMPORTANT: Return ONLY valid JSON, no markdown, no explanations.
 `;
@@ -420,10 +420,10 @@ ${LANGUAGE_GUARD}
 
 CRITICAL RULES FOR UPDATE:
 1. PRIVACY: Any new mentions of recruiter bonuses or internal counts MUST go ONLY to forRecruiter.internalNotes.
-2. If the message says "STOP", "closed", "зібрана", "не актуально" -> set status to "closed".
+2. If the message says "STOP", "closed", "зібрана", "не актуально", "стоп" -> set status to "closed".
 3. KEEP ALL OTHER FIELDS: If a field is NOT mentioned in the new message, you MUST keep the value from CURRENT_VACANCY_JSON.
 4. Update genderDescription if new count info appears.
-
+- DESCRIPTION: Do not overwrite the existing description. If new duties are mentioned, add them to the list.
 Return ONLY valid JSON.
 `;
 // --- ДАПАМОЖНЫЯ ФУНКЦЫІ ---
@@ -751,7 +751,6 @@ PRIVACY & FORMATTING:
 - INTERNAL COUNTS: Mentions like "need 1 person", "last 2 spots" go ONLY to forRecruiter.internalNotes.
 - NEVER put recruiter-only info in public fields (salary, description, additionalNotes).
 - TECHNICAL INFO: Any mention of "KRAZ", "nr certyfikatu", or "Oferta pracy tymczasowej" MUST go ONLY to forRecruiter.internalNotes. NEVER put this in public fields.
-
 CATEGORY:
 One of:
 "Склади та логістика", "Харчова промисловість", "Автомобільна промисловість",
@@ -1040,8 +1039,13 @@ JSON STRUCTURE:
 
         // === 3. ФІНАНСЫ ===
         salary: {
-          baseNetto: Number(cleaned.salary?.baseNetto) || null,
-          studentNetto: Number(cleaned.salary?.studentNetto) || null,
+          baseNetto:
+            Number(String(cleaned.salary?.baseNetto).replace(/[^0-9.]/g, "")) ||
+            null,
+          studentNetto:
+            Number(
+              String(cleaned.salary?.studentNetto).replace(/[^0-9.]/g, ""),
+            ) || null,
           baseBrutto: Number(cleaned.salary?.baseBrutto) || null,
           currency: cleaned.salary?.currency || "PLN",
           rawSalaryDisplay:
