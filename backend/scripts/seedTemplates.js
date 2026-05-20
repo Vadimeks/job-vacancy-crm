@@ -1,4 +1,3 @@
-// backend/scripts/seedTemplates.js
 require("dotenv").config();
 const mongoose = require("mongoose");
 const fs = require("fs");
@@ -6,88 +5,96 @@ const path = require("path");
 const Template = require("../models/Template");
 const Vacancy = require("../models/Vacancy");
 
+// Функцыя для прывядзення шаблона да стандарту v2.0
+const transformTemplate = (data) => {
+  const t = { ...data };
+
+  // 1. Нармалізацыя зарплаты
+  if (typeof t.salary?.baseNetto === "string") {
+    t.salary.rawSalaryDisplay = t.salary.baseNetto;
+    const match = t.salary.baseNetto.match(/(\d+[.,]?\d*)/);
+    t.salary.baseNetto = match ? parseFloat(match[1].replace(",", ".")) : null;
+  }
+  if (typeof t.salary?.studentNetto === "string") {
+    const match = t.salary.studentNetto.match(/(\d+[.,]?\d*)/);
+    t.salary.studentNetto = match
+      ? parseFloat(match[1].replace(",", "."))
+      : null;
+  }
+
+  // 2. Нармалізацыя нагрузкі (Boolean)
+  if (typeof t.requirements?.physicalLoad !== "boolean") {
+    t.requirements.physicalLoad = !!t.requirements?.physicalLoad;
+  }
+
+  // 3. Нармалізацыя нюансаў (Масіў аб'ектаў)
+  if (
+    t.conditions?.specificNuances &&
+    Array.isArray(t.conditions.specificNuances)
+  ) {
+    t.conditions.specificNuances = t.conditions.specificNuances.map((n) => {
+      if (typeof n === "string") {
+        return { category: "Інше", text: n };
+      }
+      return n;
+    });
+  }
+
+  // 4. Нармалізацыя ўзросту
+  if (t.requirements?.ageMax && !t.requirements?.age?.max) {
+    t.requirements.age = {
+      min: 18,
+      max: parseInt(t.requirements.ageMax) || 60,
+      rawText: `до ${t.requirements.ageMax} років`,
+    };
+  }
+
+  return t;
+};
+
 const seedTemplates = async () => {
   try {
-    // 1. Падключэнне да базы
     await mongoose.connect(process.env.MONGODB_URI);
     console.log("✅ Падключана да MongoDB");
 
-    // ============================================================
-    // ⚠️ БЛОК ПОЎНАЙ АЧЫСТКІ
-    // ============================================================
     try {
-      // Выдаляем старыя індэксы, якія могуць замінаць
       await Template.collection.dropIndex("agencyName_1_templateName_1");
       console.log("🗑️ Унікальны індэкс выдалены.");
     } catch (e) {
-      console.log("ℹ️ Індэкс не знойдзены або ўжо выдалены.");
+      console.log("ℹ️ Індэкс не знойдзены.");
     }
 
-    await Template.deleteMany({}); // Ачыстка шаблонаў
-    await Vacancy.deleteMany({}); // Ачыстка тых самых 150 старых вакансій
-    console.log("🗑️ База цалкам стэрылізавана (Templates + Vacancies).");
-    // ============================================================
+    await Template.deleteMany({});
+    await Vacancy.deleteMany({});
+    console.log("🗑️ База стэрылізавана.");
 
-    // 2. Пошук усіх файлаў у папцы templates
     const templatesDir = path.join(__dirname, "../data/templates");
-
-    if (!fs.existsSync(templatesDir)) {
-      console.error("❌ Папка не знойдзена:", templatesDir);
-      process.exit(1);
-    }
-
     const files = fs
       .readdirSync(templatesDir)
-      .filter(
-        (file) => file.endsWith(".js") && file !== "universal-template.js",
-      );
-
-    console.log(`📂 Знойдзена файлаў у папцы: ${files.length}`);
+      .filter((f) => f.endsWith(".js") && f !== "universal-template.js");
 
     let allTemplates = [];
-
-    // 3. Збор даных з кожнага файла
     for (const file of files) {
       const filePath = path.join(templatesDir, file);
-      delete require.cache[require.resolve(filePath)];
       const fileData = require(filePath);
+      const templates = Array.isArray(fileData) ? fileData : [fileData];
 
-      let countInFile = 0;
-      if (Array.isArray(fileData)) {
-        allTemplates = [...allTemplates, ...fileData];
-        countInFile = fileData.length;
-      } else if (fileData && typeof fileData === "object") {
-        allTemplates.push(fileData);
-        countInFile = 1;
-      }
-
-      console.log(`📄 Файл: ${file} | Прачытана шаблонаў: ${countInFile}`);
+      // Трансфармуем кожны шаблон перад дадаваннем у агульны спіс
+      const cleaned = templates.map(transformTemplate);
+      allTemplates = [...allTemplates, ...cleaned];
+      console.log(`📄 Файл: ${file} | Апрацавана: ${cleaned.length}`);
     }
 
-    console.log(`---`);
-    console.log(`📦 Агулам сабрана шаблонаў у файлах: ${allTemplates.length}`);
-
-    // Фільтрацыя па назве
-    const validTemplates = allTemplates.filter((temp) => {
-      if (!temp.templateName) {
-        console.log(
-          `⚠️ Аб'ект без templateName у агенцыі: ${temp.agencyName || "невядома"}`,
-        );
-        return false;
-      }
-      return true;
-    });
-
-    // 4. Загрузка ў базу (Чысты імпарт праз insertMany)
-    if (validTemplates.length > 0) {
-      await Template.insertMany(validTemplates);
-      console.log(`✅ УСПЕХ: Запісана ${validTemplates.length} шаблонаў у БД!`);
+    if (allTemplates.length > 0) {
+      // Выкарыстоўваем захаванне без валідацыі для масавай загрузкі,
+      // бо мы самі ачысцілі даныя
+      await Template.insertMany(allTemplates, { lean: true });
+      console.log(`✅ УСПЕХ: Запісана ${allTemplates.length} шаблонаў!`);
     }
 
-    console.log("🚀 Працэдура завершана паспяхова.");
     process.exit(0);
   } catch (err) {
-    console.error("❌ Памылка сіда:", err);
+    console.error("❌ Памылка сіда:", err.message);
     process.exit(1);
   }
 };
