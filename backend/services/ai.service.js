@@ -437,83 +437,103 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true) {
   }
 
   for (const model of AI_CHAIN) {
-    try {
-      // --- VERTEX AI ---
-      if (model.provider === "vertex") {
-        console.log(`🤖 Запыт да Vertex AI: ${model.name}`);
-        const token = await getAccessToken();
-        if (!token) throw new Error("Токен адсутнічае");
+    let retries = 2; // Колькасць спроб для кожнай мадэлі пры памылках 5xx
 
-        const url = `https://${LOCATION}-aiplatform.googleapis.com/v1/projects/${GOOGLE_PROJECT_ID}/locations/${LOCATION}/publishers/google/models/${model.name}:streamGenerateContent`;
+    while (retries >= 0) {
+      try {
+        // --- VERTEX AI ---
+        if (model.provider === "vertex") {
+          console.log(
+            `🤖 Запыт да Vertex AI: ${model.name} (Спроб засталося: ${retries})`,
+          );
+          const token = await getAccessToken();
+          if (!token) throw new Error("Токен адсутнічае");
 
-        const response = await fetch(url, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            contents: [
-              {
-                role: "user",
-                parts: [{ text: `${systemPrompt}\n\n${safeContent}` }],
-              },
-            ],
-            generationConfig: {
-              temperature: 0.1,
-              responseMimeType: jsonMode ? "application/json" : "text/plain",
+          const url = `https://${LOCATION}-aiplatform.googleapis.com/v1/projects/${GOOGLE_PROJECT_ID}/locations/${LOCATION}/publishers/google/models/${model.name}:streamGenerateContent`;
+
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 секунд таймаўт
+
+          const response = await fetch(url, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
             },
-          }),
-        });
+            signal: controller.signal,
+            body: JSON.stringify({
+              contents: [
+                {
+                  role: "user",
+                  parts: [{ text: `${systemPrompt}\n\n${safeContent}` }],
+                },
+              ],
+              generationConfig: {
+                temperature: 0.1,
+                responseMimeType: jsonMode ? "application/json" : "text/plain",
+              },
+            }),
+          });
 
-        const data = await response.json();
-        if (data.error || (Array.isArray(data) && data[0]?.error)) {
-          throw new Error(data.error?.message || data[0]?.error?.message);
-        }
+          clearTimeout(timeoutId);
 
-        const chunks = Array.isArray(data) ? data : [data];
-        let fullText = "";
-        for (const chunk of chunks) {
-          const chunkText = chunk.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (chunkText) fullText += chunkText;
-        }
-
-        if (fullText) return fullText.replace(/```json|```/g, "").trim();
-      }
-
-      // --- GROQ ---
-      if (model.provider === "groq") {
-        console.log(`🤖 Запыт да Groq: ${model.name}`);
-        const groqParams = {
-          model: model.name,
-          messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: safeContent },
-          ],
-          temperature: 0.1,
-        };
-        if (jsonMode) groqParams.response_format = { type: "json_object" };
-
-        const response = await groq.chat.completions.create(groqParams);
-        let text = response.choices[0]?.message?.content?.trim();
-
-        if (text) {
-          // Чыстка без рэгулярак (каб не глючыў інтэрфейс)
-          let cleanText = text.trim();
-          if (cleanText.startsWith("```")) {
-            cleanText = cleanText.split("\n").slice(1).join("\n");
+          if (response.status >= 500) {
+            throw new Error(`SERVER_ERROR_${response.status}`);
           }
-          if (cleanText.endsWith("```")) {
-            cleanText = cleanText.split("```")[0];
+
+          const data = await response.json();
+          if (data.error || (Array.isArray(data) && data[0]?.error)) {
+            throw new Error(data.error?.message || data[0]?.error?.message);
           }
-          return cleanText.trim();
+
+          const chunks = Array.isArray(data) ? data : [data];
+          let fullText = "";
+          for (const chunk of chunks) {
+            const chunkText = chunk.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (chunkText) fullText += chunkText;
+          }
+
+          if (fullText) return fullText.replace(/```json|```/g, "").trim();
         }
+
+        // --- GROQ ---
+        if (model.provider === "groq") {
+          console.log(`🤖 Запыт да Groq: ${model.name}`);
+          const groqParams = {
+            model: model.name,
+            messages: [
+              { role: "system", content: systemPrompt },
+              { role: "user", content: safeContent },
+            ],
+            temperature: 0.1,
+          };
+          if (jsonMode) groqParams.response_format = { type: "json_object" };
+
+          const response = await groq.chat.completions.create(groqParams);
+          let text = response.choices[0]?.message?.content?.trim();
+          if (text) return text.replace(/```json|```/g, "").trim();
+        }
+
+        break; // Калі паспяхова — выходзім з цыкла спроб (while)
+      } catch (error) {
+        const isNetworkError =
+          error.name === "AbortError" || error.message.includes("SERVER_ERROR");
+
+        if (isNetworkError && retries > 0) {
+          console.warn(
+            `⚠️ Часовая памылка (${model.name}), паўтор праз 2 сек...`,
+          );
+          retries--;
+          await new Promise((r) => setTimeout(r, 2000));
+          continue;
+        }
+
+        console.error(
+          `⚠️ Error (${model.name}):`,
+          error.message.substring(0, 150),
+        );
+        break; // Пераходзім да наступнай мадэлі ў AI_CHAIN
       }
-    } catch (error) {
-      console.error(
-        `⚠️ Error (${model.name}):`,
-        error.message.substring(0, 150),
-      );
     }
   }
 

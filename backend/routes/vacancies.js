@@ -389,7 +389,43 @@ router.get("/filters-data", async (req, res) => {
 // Спіс вакансій
 router.get("/", async (req, res) => {
   try {
-    const vacancies = await Vacancy.find().sort({ createdAt: -1 });
+    const {
+      isFavorite,
+      minSalary,
+      maxSalary,
+      minAge,
+      maxAge,
+      city,
+      agency,
+      category,
+      status = "active",
+    } = req.query;
+
+    let query = { status };
+
+    // Фільтр па абраных
+    if (isFavorite === "true") query.isFavorite = true;
+
+    // Фільтр па зарплаце (baseNetto)
+    if (minSalary || maxSalary) {
+      query["salary.baseNetto"] = {};
+      if (minSalary) query["salary.baseNetto"].$gte = Number(minSalary);
+      if (maxSalary) query["salary.baseNetto"].$lte = Number(maxSalary);
+    }
+
+    // Фільтр па ўзросце (maxAge)
+    if (minAge || maxAge) {
+      query["requirements.age.max"] = {};
+      if (minAge) query["requirements.age.max"].$gte = Number(minAge);
+      if (maxAge) query["requirements.age.max"].$lte = Number(maxAge);
+    }
+
+    // Мульты-фільтры (масівы)
+    if (city) query.location = { $in: city.split(",") };
+    if (agency) query.agencyName = { $in: agency.split(",") };
+    if (category) query.category = { $in: category.split(",") };
+
+    const vacancies = await Vacancy.find(query).sort({ createdAt: -1 });
     res.json(vacancies);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -546,5 +582,19 @@ router.post("/system/cleanup-locations", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+// Пераключэнне статусу "Абранае"
+router.patch("/:id/favorite", async (req, res) => {
+  try {
+    const vacancy = await Vacancy.findById(req.params.id);
+    if (!vacancy)
+      return res.status(404).json({ message: "Вакансія не знойдзена" });
 
+    vacancy.isFavorite = !vacancy.isFavorite;
+    await vacancy.save();
+
+    res.json({ _id: vacancy._id, isFavorite: vacancy.isFavorite });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 module.exports = { router, processVacancyMessage };

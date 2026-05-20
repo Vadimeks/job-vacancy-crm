@@ -155,7 +155,7 @@ const vacancySchema = new mongoose.Schema({
     enum: ["active", "closed", "archived"],
     default: "active",
   },
-
+  isFavorite: { type: Boolean, default: false, index: true },
   vacancyCode: { type: String, unique: true, sparse: true },
   createdAt: { type: Date, default: Date.now },
 });
