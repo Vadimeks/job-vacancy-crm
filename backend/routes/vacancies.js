@@ -407,17 +407,21 @@ router.get("/", async (req, res) => {
     if (isFavorite === "true") query.isFavorite = true;
 
     // Фільтр па зарплаце (baseNetto)
-    if (minSalary || maxSalary) {
-      query["salary.baseNetto"] = {};
-      if (minSalary) query["salary.baseNetto"].$gte = Number(minSalary);
-      if (maxSalary) query["salary.baseNetto"].$lte = Number(maxSalary);
+    if ((minSalary && minSalary !== "") || (maxSalary && maxSalary !== "")) {
+      query["salary.baseNetto"] = { $ne: null };
+      if (minSalary && minSalary !== "")
+        query["salary.baseNetto"].$gte = Number(minSalary);
+      if (maxSalary && maxSalary !== "")
+        query["salary.baseNetto"].$lte = Number(maxSalary);
     }
 
     // Фільтр па ўзросце (maxAge)
-    if (minAge || maxAge) {
-      query["requirements.age.max"] = {};
-      if (minAge) query["requirements.age.max"].$gte = Number(minAge);
-      if (maxAge) query["requirements.age.max"].$lte = Number(maxAge);
+    if ((minAge && minAge !== "") || (maxAge && maxAge !== "")) {
+      query["requirements.age.max"] = { $ne: null };
+      if (minAge && minAge !== "")
+        query["requirements.age.max"].$gte = Number(minAge);
+      if (maxAge && maxAge !== "")
+        query["requirements.age.max"].$lte = Number(maxAge);
     }
 
     // Мульты-фільтры (масівы)
