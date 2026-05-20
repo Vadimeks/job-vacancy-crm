@@ -309,6 +309,7 @@ TASK: Format job data into a beautiful Telegram post in UKRAINIAN.
 - NEVER include genderDescription (it is for internal use only).
 - If a field is null, empty, or "Не вимагається" (for experience), skip the entire line.
 - Use Ukrainian for all labels.
+- NEVER include technical info like "KRAZ", "nr certyfikatu", or "Oferta pracy tymczasowej".
 
 - GEOGRAPHY: If country is NOT Polska, show it in parentheses ONCE. Example: "Stadtlohn (Germany)". NEVER "Stadtlohn (Germany) (Germany)".
 
@@ -335,7 +336,7 @@ FULL MODE STRUCTURE (skip empty lines/sections):
 💰 *Оплата праці*
 • Ставка: [salary.rawSalaryDisplay]
 [• Годин на місяць: [salary.hoursRange]]
-[• Студенти: [salary.studentNetto]]
+[• Студенти: [salary.studentNetto] [salary.currency]/god (netto)]
 [• Виплати: [salary.payoutDates]]
 [• Бонуси: [salary.bonusDetails]]
 [• Деталі: [salary.salaryNotes]] (!!! SKIP this line if salaryNotes repeats the same information as salary.rawSalaryDisplay)
@@ -749,6 +750,7 @@ PRIVACY & FORMATTING:
 - RECRUITER BONUSES: Any mention of money "per candidate" (e.g., "800 зл за кандидата", "500 зл за людину") MUST go ONLY to forRecruiter.internalNotes.
 - INTERNAL COUNTS: Mentions like "need 1 person", "last 2 spots" go ONLY to forRecruiter.internalNotes.
 - NEVER put recruiter-only info in public fields (salary, description, additionalNotes).
+- TECHNICAL INFO: Any mention of "KRAZ", "nr certyfikatu", or "Oferta pracy tymczasowej" MUST go ONLY to forRecruiter.internalNotes. NEVER put this in public fields.
 
 CATEGORY:
 One of:
@@ -1011,11 +1013,10 @@ JSON STRUCTURE:
         templateName: cleaned.templateName || "",
         vacancydescription: finalTitle,
         description: cleaned.description
-          ? "• " +
-            cleaned.description
-              .split(";")
+          ? cleaned.description
+              .split(/[;.]/) // Разбіваем і па кропцы, і па кропцы з коскай
               .map((s) => s.trim())
-              .filter(Boolean)
+              .filter((part) => part.length > 5) // Ігнаруем занадта кароткія абрыўкі
               .join("\n• ")
           : "",
         category: cleaned.category || null,
