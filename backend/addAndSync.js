@@ -44,6 +44,10 @@ const CONFIG = {
   sheetName: "Польша",
   agencyName: "INTRASERVICE",
 };
+// КАНФІГУРАЦЫЯ: Калі хочаш апрацаваць УСЕ табліцы — пакінь null.
+// Калі адну канкрэтную — упішы яе spreadsheetId.
+const TARGET_SHEET_ID = "13PN6zOZiDLAL-iLm58NSbsig4h_inXp-GfmNWxc53y8"; // Напрыклад, Intraservice
+const TARGET_SHEET_NAME = "Польша"; // Назва ўкладкі
 
 async function run() {
   try {
@@ -51,30 +55,36 @@ async function run() {
     await mongoose.connect(process.env.MONGODB_URI);
     console.log("✅ Падключана.");
 
-    let source = await SheetSource.findOne({
-      spreadsheetId: CONFIG.spreadsheetId,
-      sheetName: CONFIG.sheetName,
-    });
+    if (TARGET_SHEET_ID) {
+      // Апрацоўка адной канкрэтнай табліцы
+      let source = await SheetSource.findOne({
+        spreadsheetId: TARGET_SHEET_ID,
+        sheetName: TARGET_SHEET_NAME,
+      });
 
-    if (!source) {
-      source = new SheetSource(CONFIG);
-      await source.save();
-      console.log(`📝 Крыніца "${CONFIG.sheetName}" дададзена ў базу.`);
-    } else {
-      console.log(`ℹ️ Крыніца "${CONFIG.sheetName}" ужо ёсць у базе.`);
+      if (!source) {
+        console.log("📝 Дадаем новую крыніцу для тэсту...");
+        source = new SheetSource({
+          spreadsheetId: TARGET_SHEET_ID,
+          sheetName: TARGET_SHEET_NAME,
+          agencyName: "TEST_AGENCY",
+        });
+        await source.save();
+      }
 
-      // 1. Скідваем мапінг слупкоў (каб AI праверыў іх зноў)
-      source.columnMap = {};
-
-      // 2. АЧЫШЧАЕМ ГІСТОРЫЮ ХЭШАЎ (каб прайсці па ўсіх радках зноў)
+      // Прымусовы скід для тэсту (раскаментуй калі трэба)
+      // source.columnMap = {};
       // source.processedHashes = [];
+      // await source.save();
 
-      await source.save();
-      console.log("🧹 Гісторыя апрацоўкі і мапінг слупкоў ачышчаны.");
+      console.log(
+        `🚀 Запуск сінхранізацыі толькі для: ${TARGET_SHEET_NAME}...`,
+      );
+      await sheetsService.syncSheetVacancies(source._id);
+    } else {
+      // Апрацоўка ўсіх актыўных табліц
+      await sheetsService.syncAllSheets();
     }
-
-    console.log(`🚀 Запуск сінхранізацыі для ${CONFIG.agencyName}...`);
-    await sheetsService.syncSheetVacancies(source._id);
 
     console.log("🏁 Працэдура завершана.");
   } catch (err) {

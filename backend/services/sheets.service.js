@@ -15,7 +15,49 @@ const auth = new google.auth.GoogleAuth({
 });
 
 const sheets = google.sheets({ version: "v4", auth });
+/**
+ * Вызначае вердыкт для статусу радка.
+ * ACTIVE - апрацоўваем
+ * SKIP   - прапускаем радок (continue)
+ * STOP   - спыняем усю табліцу (break)
+ */
+function getStatusVerdict(statusText) {
+  // Калі статус пусты (колер у Рален ці няма слупка ў Отто)
+  // — лічым АКТЫЎНЫМ, каб не прапусціць новае.
+  if (!statusText || statusText.trim() === "") return "ACTIVE";
 
+  const s = statusText.toLowerCase().trim();
+
+  // Спіс актыўных статусаў
+  const activeKeywords = [
+    "активная",
+    "aktywna",
+    "приоритет",
+    "ищем",
+    "✅",
+    "актуально",
+    "акція",
+    "актив.✅",
+  ];
+
+  // Спіс тэрмінальных статусаў (пасля якіх ідзе архіў)
+  const terminalKeywords = [
+    "закрыто",
+    "nieaktualne",
+    "стоп",
+    "❌",
+    "архив",
+    "не актив",
+    "не актив.❌",
+  ];
+
+  if (activeKeywords.some((kw) => s.includes(kw))) return "ACTIVE";
+  if (terminalKeywords.some((kw) => s.includes(kw))) return "STOP";
+
+  // Калі статус невядомы (нейкі тэкст, якога няма ў спісах)
+  // — лепш прапусціць радок, каб не есці токены на смецце.
+  return "SKIP";
+}
 /**
  * Вызначае мапінг слупкоў праз AI
  */
@@ -133,8 +175,6 @@ async function syncSheetVacancies(sourceId) {
         ? Object.fromEntries(source.columnMap)
         : source.columnMap || {};
 
-    console.log("📍 Бягучы мапінг слупкоў:", colMap);
-
     if (
       !colMap ||
       Object.keys(colMap).length === 0 ||
@@ -174,6 +214,7 @@ async function syncSheetVacancies(sourceId) {
       "status",
     ];
 
+    // --- КРОК 4: ЦЫКЛ ПА РАДКАХ ---
     for (let i = headerRowIndex + 1; i < rowData.length; i++) {
       const cells = rowData[i].values;
       if (!cells || cells.length === 0) continue;
@@ -188,19 +229,21 @@ async function syncSheetVacancies(sourceId) {
         }
       });
 
+      // --- ПРАВЕРКА СТАТУСУ (BREAK / CONTINUE) ---
+      const verdict = getStatusVerdict(rowDataObj.status?.value);
+
+      if (verdict === "STOP") {
+        console.log(
+          `🛑 Тэрмінальны статус "${rowDataObj.status.value}" на радку ${i + 1}. Спыняем табліцу.`,
+        );
+        break;
+      }
+      if (verdict === "SKIP") continue;
+
       if (!rowDataObj.position.value || rowDataObj.position.value.length < 3)
         continue;
 
-      const rowStatus = (rowDataObj.status?.value || "").toLowerCase();
-      if (
-        rowStatus.includes("стоп") ||
-        rowStatus.includes("архив") ||
-        rowStatus.includes("не актив")
-      ) {
-        console.log(`Status STOP for: ${rowDataObj.position.value}. Skipping.`);
-        continue;
-      }
-
+      // Групаванне па лакацыі
       if (rowDataObj.location.value) {
         lastLocation = rowDataObj.location.value;
       } else {
@@ -216,7 +259,7 @@ async function syncSheetVacancies(sourceId) {
         `🆕 Радок ${i + 1}: ${rowDataObj.position.value} | ${rowDataObj.location.value}`,
       );
 
-      // --- КРОК 4: ЗБОР ТЭКСТУ ДЛЯ STAGE 1 ---
+      // Збор тэксту для Stage 1
       let rawRowText = `Пасада: ${rowDataObj.position.value}\nЛакацыя: ${rowDataObj.location.value}\nСтаўка: ${rowDataObj.salary.value}\nДадаткова: ${rowDataObj.details.value} ${rowDataObj.position.note} ${rowDataObj.details.note}`;
 
       const externalUrl =
@@ -234,7 +277,7 @@ async function syncSheetVacancies(sourceId) {
         }
       }
 
-      // --- КРОК 5: ЗАПУСК АДЗІНАГА КАНВЕЕРА (Stage 1: Пераклад + Класіфікацыя + Дэдуплікацыя) ---
+      // Stage 1: Пераклад + Класіфікацыя + Дэдуплікацыя
       console.log(`🔎 Праверка праз Stage 1 для: ${rowDataObj.position.value}`);
       const analysis = await analyzeAndCompareWithGemini(
         rawRowText,
@@ -247,7 +290,6 @@ async function syncSheetVacancies(sourceId) {
         continue;
       }
 
-      // Праверка вердыкту дэдуплікацыі
       if (analysis.comparison?.verdict === "DUPLICATE") {
         console.log(
           `🔁 AI вызначыў дублікат: ${analysis.comparison.reason}. Пропуск.`,
@@ -259,22 +301,16 @@ async function syncSheetVacancies(sourceId) {
 
       if (analysis.category === "FULL_VACANCY") {
         for (const fragment of analysis.translatedFragments) {
-          // Stage 2: Парсінг (fragment ужо на ўкраінскай і збагачаны дакументамі)
           await processVacancyMessage(
             fragment,
             "Google Sheets",
             source.agencyName,
-            fragment, // originalText цяпер таксама ўкраінскі
+            fragment,
             false,
             "FULL_VACANCY",
           );
         }
-        console.log(`✅ Вакансія(і) створана з радка ${i + 1}`);
-      } else if (analysis.comparison?.verdict === "UPDATE") {
-        console.log(
-          `🔄 Знойдзена абнаўленне: ${analysis.comparison.reason}. Запуск AI-update...`,
-        );
-        // Тут можна выклікаць updateVacancyWithAI, калі мы знойдзем ID вакансіі ў reason або праз дадатковы пошук
+        console.log(`✅ Вакансія створана з радка ${i + 1}`);
       }
 
       source.processedHashes.push(rowHash);
@@ -292,9 +328,6 @@ async function syncSheetVacancies(sourceId) {
   }
 }
 
-/**
- * Запуск сінхранізацыі для ўсіх актыўных крыніц
- */
 async function syncAllSheets() {
   const sources = await SheetSource.find({ status: "active" });
   console.log(`🚀 Запуск сінхранізацыі для ${sources.length} табліц...`);
@@ -303,7 +336,4 @@ async function syncAllSheets() {
   }
 }
 
-module.exports = {
-  syncSheetVacancies,
-  syncAllSheets,
-};
+module.exports = { syncSheetVacancies, syncAllSheets };

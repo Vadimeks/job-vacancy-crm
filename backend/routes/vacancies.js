@@ -32,31 +32,29 @@ const BRAND_BLACKLIST = [
 // БЛОК 1: АПТЫМІЗАВАНЫ ГЕНЕРАТАР (толькі логіка падліку)
 // ============================================================
 async function generateVacancyCode() {
-  // Атамарна павялічваем лічыльнік. Калі яго няма — ствараем (upsert)
-  let counter = await Counter.findOneAndUpdate(
-    { name: "vacancy" },
-    { $inc: { seq: 1 } },
-    { new: true, upsert: true },
-  );
+  // Шукаем адну апошнюю вакансію з самым вялікім кодам
+  const lastVacancy = await Vacancy.findOne({}, { vacancyCode: 1 }).sort({
+    vacancyCode: -1,
+  });
 
-  // Калі гэта першы запуск, а ў базе ўжо ёсць вакансіі — падцягваем seq
-  if (counter.seq === 1) {
-    const lastVacancy = await Vacancy.findOne({}, { vacancyCode: 1 }).sort({
-      vacancyCode: -1,
-    });
-    if (lastVacancy && lastVacancy.vacancyCode) {
-      const lastNum = parseInt(lastVacancy.vacancyCode.replace("VAC-", ""), 10);
-      if (!isNaN(lastNum)) {
-        counter = await Counter.findOneAndUpdate(
-          { name: "vacancy" },
-          { $set: { seq: lastNum + 1 } },
-          { new: true },
-        );
-      }
+  let nextNum = 1;
+
+  if (lastVacancy && lastVacancy.vacancyCode) {
+    // Выцягваем лічбу з "VAC-0095" -> 95
+    const lastNum = parseInt(lastVacancy.vacancyCode.replace("VAC-", ""), 10);
+    if (!isNaN(lastNum)) {
+      nextNum = lastNum + 1;
     }
   }
 
-  return `VAC-${String(counter.seq).padStart(4, "0")}`;
+  // Абнаўляем Counter проста для парадку (неабавязкова, але карысна)
+  await Counter.findOneAndUpdate(
+    { name: "vacancy" },
+    { $set: { seq: nextNum } },
+    { upsert: true },
+  );
+
+  return `VAC-${String(nextNum).padStart(4, "0")}`;
 }
 
 async function markInboxMessageAsProcessed(messageId) {
@@ -597,6 +595,19 @@ router.patch("/:id/favorite", async (req, res) => {
     await vacancy.save();
 
     res.json({ _id: vacancy._id, isFavorite: vacancy.isFavorite });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+// Масавае выдаленне вакансій
+router.post("/bulk-delete", async (req, res) => {
+  try {
+    const { ids } = req.body;
+    if (!ids || !Array.isArray(ids)) {
+      return res.status(400).json({ message: "Спіс ID адсутнічае" });
+    }
+    const result = await Vacancy.deleteMany({ _id: { $in: ids } });
+    res.json({ message: `✅ Выдалена вакансій: ${result.deletedCount}` });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
