@@ -76,32 +76,36 @@ async function fetchGoogleDocText(url) {
 }
 
 async function enrichTextWithDocs(rawText) {
-  // Рэгекс для файлаў і папак
+  // Палепшаныя рэгексы, якія ігнаруюць лішнія элементы тыпу /u/0/
   const docRegex =
-    /https?:\/\/docs\.google\.com\/document\/d\/[a-zA-Z0-9_-]+[^\s]*/g;
+    /docs\.google\.com\/document\/(?:u\/\d+\/)?d\/([a-zA-Z0-9_-]+)/g;
   const folderRegex =
-    /https?:\/\/drive\.google\.com\/drive\/folders\/[a-zA-Z0-9_-]+[^\s]*/g;
+    /drive\.google\.com\/(?:drive\/)?folders\/([a-zA-Z0-9_-]+)/g;
 
-  const docUrls = rawText.match(docRegex) || [];
-  const folderUrls = rawText.match(folderRegex) || [];
+  const docMatches = [...rawText.matchAll(docRegex)];
+  const folderMatches = [...rawText.matchAll(folderRegex)];
 
-  if (docUrls.length === 0 && folderUrls.length === 0) return rawText;
+  if (docMatches.length === 0 && folderMatches.length === 0) return rawText;
 
   console.log(
-    `🔗 Знойдзены спасылкі: Docs(${docUrls.length}), Folders(${folderUrls.length}). Загрузка...`,
+    `🔗 Знойдзены спасылкі Google: Docs(${docMatches.length}), Folders(${folderMatches.length}). Загрузка...`,
   );
   let enriched = rawText;
 
   // 1. Апрацоўка папак
-  for (const url of folderUrls) {
-    const folderText = await fetchGoogleDriveFolderText(url);
+  for (const match of folderMatches) {
+    const folderId = match[1];
+    const folderUrl = `https://drive.google.com/drive/folders/${folderId}`;
+    const folderText = await fetchGoogleDriveFolderText(folderUrl);
     if (folderText)
       enriched = `${enriched}\n\n--- ЗМЕСТ ПАПКІ DRIVE ---\n${folderText}`;
   }
 
   // 2. Апрацоўка асобных дакументаў
-  for (const url of docUrls) {
-    const docText = await fetchGoogleDocText(url);
+  for (const match of docMatches) {
+    const docId = match[1];
+    const docUrl = `https://docs.google.com/document/d/${docId}/`;
+    const docText = await fetchGoogleDocText(docUrl);
     if (docText)
       enriched = `${enriched}\n\n--- ЗМЕСТ ДОКУМЕНТА ---\n${docText}`;
   }
