@@ -321,9 +321,10 @@ TASK: Format job data into a beautiful Telegram post in UKRAINIAN.
 - GEOGRAPHY: If country is NOT Polska, show it in parentheses ONCE. Example: "Stadtlohn (Germany)". NEVER "Stadtlohn (Germany) (Germany)".
 
 - TRANSPORT RULE:
-   • If transport is NOT provided → "🚌 Довіз: немає"
-   • If transport IS provided → "🚌 Довіз: надається" + details
-   • NEVER show "Власний" as transport value
+   • If the text mentions "безкоштовний доїзд", "автобус від фірми", "довіз до роботи" -> provided MUST be true.
+   • provided is false ONLY if candidates must use their own car or public transport at their own expense.
+   • If transport is NOT provided -> "🚌 Довіз: немає"
+   • If transport IS provided -> "🚌 Довіз: надається" + details
 - ACCOMMODATION: If costRaw is present, show it! Example: "🏠 Проживання: Надається (450 €/міс)".
 - LANGUAGE: If requirements.languageDetails is present, show it in the Requirements block.
 - COMPACTNESS: If a section is empty, skip it. No placeholders like "немає інформацыі".
@@ -478,6 +479,7 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true) {
               generationConfig: {
                 temperature: 0.1,
                 responseMimeType: jsonMode ? "application/json" : "text/plain",
+                maxOutputTokens: 8192,
               },
             }),
           });
@@ -1076,7 +1078,10 @@ JSON STRUCTURE:
           baseBrutto: Number(cleaned.salary?.baseBrutto) || null,
           currency: cleaned.salary?.currency || "PLN",
           rawSalaryDisplay:
-            cleaned.salary?.rawSalaryDisplay || cleaned.salary?.baseNetto || "",
+            cleaned.salary?.rawSalaryDisplay ||
+            (cleaned.salary?.baseNetto
+              ? `${cleaned.salary.baseNetto} ${cleaned.salary.currency || "PLN"}`
+              : ""),
           hoursRange: cleaned.salary?.hoursRange || "",
           payoutDates: cleaned.salary?.payoutDates || "",
           bonusDetails: cleaned.salary?.bonusDetails || "",
@@ -1124,8 +1129,8 @@ JSON STRUCTURE:
             : ["Чоловіки", "Жінки", "Пари", "Сім'ї"],
           genderDescription: cleaned.requirements?.genderDescription || "",
           age: {
-            min: Number(cleaned.requirements?.age?.min) || 18,
-            max: Number(cleaned.requirements?.age?.max) || 60,
+            min: Number(cleaned.requirements?.age?.min) || null,
+            max: Number(cleaned.requirements?.age?.max) || null,
             rawText:
               cleaned.requirements?.age?.rawText ||
               String(cleaned.requirements?.ageMax || ""),

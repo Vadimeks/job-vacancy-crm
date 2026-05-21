@@ -85,8 +85,8 @@ const vacancySchema = new mongoose.Schema({
     gender: { type: [String], default: ["Чоловіки", "Жінки", "Пари", "Сім'ї"] },
     genderDescription: { type: String, default: "" },
     age: {
-      min: { type: Number, default: 18 },
-      max: { type: Number, default: 60 },
+      min: { type: Number, default: null },
+      max: { type: Number, default: null },
       rawText: { type: String, default: "" }, // Тут будзе "18-55 років"
     },
     nationalities: { type: [String], default: ["Україна"] },
