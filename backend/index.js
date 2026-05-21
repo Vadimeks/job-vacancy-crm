@@ -54,12 +54,12 @@ app.listen(PORT, () => {
   startBot();
   startUserbot();
   // 🧪 Тэставы запуск сінхранізацыі праз 10 секунд пасля старту (толькі для праверкі дэплою)
-  setTimeout(() => {
-    console.log("🚀 Тэставы запуск сінхранізацыі табліц...");
-    syncAllSheets().catch((err) =>
-      console.error("❌ Памылка тэставага запуску:", err.message),
-    );
-  }, 10000);
+  // setTimeout(() => {
+  //   console.log("🚀 Тэставы запуск сінхранізацыі табліц...");
+  //   syncAllSheets().catch((err) =>
+  //     console.error("❌ Памылка тэставага запуску:", err.message),
+  //   );
+  // }, 10000);
 });
 
 // --- ЗАПУСК USERBOT У ДОЧАРНЫМ ПРАЦЭСЕ ---
