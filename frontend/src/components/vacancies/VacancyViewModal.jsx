@@ -534,11 +534,9 @@ export default function VacancyViewModal({
             ✏️ РЕДАГУВАТИ
           </button>
           <button
-            onClick={() => {
-              if (
-                window.confirm("Ви впевнені, що хочете видалити цю вакансію?")
-              )
-                onDelete(v._id);
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(v._id); // Пацверджанне спрацуе ў асноўнай функцыі handleDelete
             }}
             className="px-8 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-500 text-sm font-bold rounded-xl border border-red-500/20 ml-auto transition-all"
           >

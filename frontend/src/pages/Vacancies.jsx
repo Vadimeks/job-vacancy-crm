@@ -8,6 +8,7 @@ import {
   createVacancyFromTemplate,
   aiUpdateVacancy,
   toggleFavoriteVacancy,
+  bulkDeleteVacancies,
 } from "../services/api";
 import EditVacancyModal from "../components/vacancies/EditVacancyModal";
 import ApplyModal from "../components/vacancies/ApplyModal";
@@ -178,7 +179,28 @@ function applyFilters(vacancies, filters) {
 
 export default function Vacancies() {
   const location = useLocation(); // Дадалі
+  const [selectedIds, setSelectedIds] = useState([]);
+
+  const toggleSelect = (id) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
+    );
+  };
+
+  const handleBulkDelete = async () => {
+    if (!window.confirm(`Видалити ${selectedIds.length} вакансій?`)) return;
+    try {
+      await bulkDeleteVacancies(selectedIds);
+      setVacancies((prev) => prev.filter((v) => !selectedIds.includes(v._id)));
+      setSelectedIds([]);
+    } catch (err) {
+      alert("Помилка масового видалення");
+    }
+  };
+  // -----------------------
+
   const [vacancies, setVacancies] = useState([]);
+
   const [loading, setLoading] = useState(true);
   const [autoText, setAutoText] = useState("");
   const [autoLoading, setAutoLoading] = useState(false);
@@ -622,13 +644,23 @@ export default function Vacancies() {
             return (
               <div
                 key={v._id}
-                className="bg-slate-900 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition-colors"
+                className={`bg-slate-900 border rounded-xl p-5 transition-all ${
+                  selectedIds.includes(v._id)
+                    ? "border-emerald-500/50 ring-1 ring-emerald-500/20"
+                    : "border-slate-800 hover:border-slate-700"
+                }`}
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
-                    {/* РАДОК 1: ПАШПАРТ ВАКАНСІІ (ID, Статус, Агенцыя, Брэнд, Катэгорыя, Лакацыя) */}
                     <div className="flex items-center gap-2 mb-2 flex-wrap border-b border-slate-800/50 pb-2">
-                      {/* ID + Favorite Star + Truncated Marker */}
+                      {/* ЧЭКБОКС ДЛЯ ВЫБАРУ */}
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.includes(v._id)}
+                        onChange={() => toggleSelect(v._id)}
+                        className="w-4 h-4 rounded border-slate-700 bg-slate-800 text-emerald-500 focus:ring-emerald-500/20 focus:ring-offset-0"
+                      />
+
                       <div className="flex items-center gap-2">
                         <button
                           onClick={(e) => {

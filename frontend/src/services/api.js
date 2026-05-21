@@ -30,6 +30,8 @@ export const aiUpdateVacancy = (id, rawText, messageId) =>
 // Пераключэнне "зорачкі" (абранае)
 export const toggleFavoriteVacancy = (id) =>
   api.patch(`/vacancies/${id}/favorite`);
+export const bulkDeleteVacancies = (ids) =>
+  api.post("/vacancies/bulk-delete", { ids });
 // --- ШАБЛОНЫ ---
 export const getTemplates = () => api.get("/templates");
 export const createTemplate = (data) => api.post("/templates", data);
