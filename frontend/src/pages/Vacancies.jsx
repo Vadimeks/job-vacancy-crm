@@ -33,6 +33,7 @@ function applyFilters(vacancies, filters) {
   if (!vacancies) return [];
 
   return vacancies.filter((v) => {
+    if (filters.isFavorite && !v.isFavorite) return false;
     // --- 1. Пошук ---
     if (filters.search) {
       const s = filters.search.toLowerCase();
@@ -707,6 +708,18 @@ export default function Vacancies() {
                       {/* ГЕНДАР / НАБОР */}
                       <div className="flex items-center gap-1.5 bg-slate-800/40 px-2 py-1 rounded-lg border border-slate-800">
                         <span className="text-slate-500">👥</span>
+                        {/* Узрост (Дададзена для зручнасці рэкрутэра) */}
+                        {v.requirements?.age?.max && (
+                          <div className="flex items-center gap-1.5 bg-slate-800/40 px-2 py-1 rounded-lg border border-slate-800">
+                            <span className="text-slate-500 text-[10px]">
+                              🎂
+                            </span>
+                            <span className="text-slate-300 font-bold text-[10px]">
+                              {v.requirements.age.min || 18}-
+                              {v.requirements.age.max} р.
+                            </span>
+                          </div>
+                        )}
                         <span className="text-slate-200 font-bold uppercase tracking-tight text-[10px]">
                           {Array.isArray(v.requirements?.gender)
                             ? v.requirements.gender.join(", ")
@@ -755,13 +768,13 @@ export default function Vacancies() {
                         </span>
                       </div>
                       {/* ЗАРПЛАТА (Кампактны вывад v2.3) */}
-                      {(v.salary?.baseNetto || v.salary?.rawSalaryDisplay) && (
+                      {(v.salary?.rawSalaryDisplay || v.salary?.baseNetto) && (
                         <div className="flex items-center gap-1.5 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20 ml-auto">
                           <span className="text-emerald-400 font-black text-sm">
                             💰{" "}
-                            {v.salary.baseNetto
-                              ? `${v.salary.baseNetto} ${v.salary.currency || "PLN"}`
-                              : v.salary.rawSalaryDisplay?.split(";")[0]}
+                            {v.salary.rawSalaryDisplay
+                              ? v.salary.rawSalaryDisplay.split(";")[0]
+                              : `${v.salary.baseNetto} ${v.salary.currency || "PLN"}`}
                           </span>
                         </div>
                       )}

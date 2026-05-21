@@ -2530,3 +2530,27 @@ isInformative() / isSimpleMessage()
 - **EditVacancyModal.jsx**: Выдалены захардкоджаны масіў `AGENCY_OPTIONS`, які выклікаў рассінхранізацыю даных.
 - **EditVacancyModal.jsx**: Кампанент `AgencyDropdown` пераведзены на выкарыстанне эталоннага спіса `MD.AGENCIES` з `masterData.js`.
 - **Вынік**: Забяспечана поўная сінхранізацыя спіса агенцый паміж фільтрамі, AI-парсерам і формамі рэдагавання. Цяпер КРЕОН, FOLGA і іншыя новыя агенцыі даступныя для выбару ўручную.
+
+## [2026-05-21] - Backend Fixes & AI Service Optimization
+
+### Changed
+
+- **`backend/models/Vacancy.js`**: Changed default values for `requirements.age.min` and `requirements.age.max` from `18`/`60` to `null` to avoid false filtering criteria when age is not specified in the vacancy text.
+- **`backend/services/ai.service.js`**:
+  - Updated `generationConfig` by adding `maxOutputTokens: 8192` to prevent the AI response from truncating during long parsing tasks.
+  - Enhanced `SYSTEM_INSTRUCTION` for the AI model, explicitly adding a `TRANSPORT RULE` to prevent adding generic driver requirements if they are not directly mentioned.
+  - Refactored parsing logic in `processSingle` to default age values to `null` instead of hardcoded numbers when the model fails to extract age limits.
+  - Adjusted parsing priority for compensation fields, ensuring that if a clear salary range is found, it takes precedence over single values.
+
+### [21.05.2026 13:20] UI/UX & AI Parser Optimization (v2.4)
+
+- **Frontend (`Vacancies.jsx`):**
+  - Выпраўлена логіка фільтрацыі `isFavorite` у функцыі `applyFilters`. Цяпер кнопка "Тільки обрані" працуе карэктна.
+  - Абноўлена адлюстраванне зарплаты на картцы: прыярытэт аддадзены дыяпазону (`rawSalaryDisplay`), што дазваляе бачыць стаўкі "27–32 PLN" адразу ў спісе.
+  - Дададзены візуальны бэйдж узросту (`18-55 р.`) на картку вакансіі для зручнасці рэкрутэраў.
+
+- **Backend (`Vacancy.js` & `ai.service.js`):**
+  - Зменены дэфолтныя значэнні ўзросту з `18/60` на `null`. Гэта выправіла баг, калі вакансіі без указанага ўзросту знікалі пры выкарыстанні лічбавых фільтраў.
+  - Аптымізаваны `SYSTEM_INSTRUCTION` для AI: дададзена строгае правіла для бясплатнага транспарту (выпраўленне памылкі ў VAC-0099).
+  - Павялічаны ліміт `maxOutputTokens` да 8192 у запытах да Gemini, каб пазбегнуць абрывання тэксту ў доўгіх вакансіях (выпраўленне VAC-0104).
+  - Выпраўлены `rawSalaryDisplay` у парсеры для захавання тэкставага дыяпазону ставак.
