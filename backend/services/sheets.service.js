@@ -2,9 +2,11 @@ const { google } = require("googleapis");
 const path = require("path");
 const crypto = require("crypto");
 const SheetSource = require("../models/SheetSource");
+const Vacancy = require("../models/Vacancy");
 const aiService = require("./ai.service");
 const scraperService = require("./scraper.service");
-const { enrichTextWithDocs } = require("./gemini.service");
+// Мяняем enrichTextWithDocs на analyzeAndCompareWithGemini
+const { analyzeAndCompareWithGemini } = require("./gemini.service");
 const { processVacancyMessage } = require("../routes/vacancies");
 
 const auth = new google.auth.GoogleAuth({
@@ -32,6 +34,7 @@ async function identifyColumnsWithAI(headers) {
     - link: "link", "опис", "Фото житла", "link na strone", "CCЫЛКА".
     - agency: "Агенція", "Назва ў CRM", "Офіс".
     - details: "ЖИТЛО/ДОЇЗД", "Коментар", "Примітки", "Dodatkowa notatka", "Примечание", "Проживание".
+    - status: "Статус", "Status", "Актуально".
     
     RETURN ONLY JSON:
     {
@@ -40,7 +43,8 @@ async function identifyColumnsWithAI(headers) {
       "salary": index,
       "link": index,
       "agency": index,
-      "details": index
+      "details": index,
+      "status": index
     }
   `;
 
@@ -58,6 +62,9 @@ async function identifyColumnsWithAI(headers) {
   }
 }
 
+/**
+ * Здабывае даныя з ячэйкі (тэкст, спасылку або нататку)
+ */
 function extractCellData(cell) {
   if (!cell) return { value: "", link: "", note: "" };
   const value = cell.formattedValue || "";
@@ -72,6 +79,9 @@ function extractCellData(cell) {
   return { value, link, note };
 }
 
+/**
+ * Галоўная функцыя сінхранізацыі табліцы
+ */
 async function syncSheetVacancies(sourceId) {
   const source = await SheetSource.findById(sourceId);
   if (!source || source.status === "paused") return;
@@ -83,18 +93,21 @@ async function syncSheetVacancies(sourceId) {
   try {
     const response = await sheets.spreadsheets.get({
       spreadsheetId: source.spreadsheetId,
-      ranges: [`${source.sheetName}!A1:Z100`],
+      ranges: [`${source.sheetName}!A1:Z150`],
       includeGridData: true,
     });
 
     const rowData = response.data.sheets[0].data[0].rowData;
-    if (!rowData || rowData.length < 1) return;
+    if (!rowData || rowData.length < 1) {
+      console.log("⚠️ Табліца пустая.");
+      return;
+    }
 
     // --- КРОК 1: ПОШУК РАДКА ЗАГАЛОЎКАЎ ---
     let headerRowIndex = -1;
     const keywords = ["вакансія", "вакансия", "проект", "статус", "посада"];
 
-    for (let i = 0; i < Math.min(rowData.length, 10); i++) {
+    for (let i = 0; i < Math.min(rowData.length, 15); i++) {
       const rowValues = (rowData[i].values || []).map((v) =>
         (v.formattedValue || "").toLowerCase(),
       );
@@ -105,7 +118,7 @@ async function syncSheetVacancies(sourceId) {
     }
 
     if (headerRowIndex === -1) {
-      console.log("⚠️ Не ўдалося знайсці радок загалоўкаў у першых 10 радках.");
+      console.log("⚠️ Не ўдалося знайсці радок загалоўкаў у першых 15 радках.");
       return;
     }
 
@@ -120,23 +133,36 @@ async function syncSheetVacancies(sourceId) {
         ? Object.fromEntries(source.columnMap)
         : source.columnMap || {};
 
+    console.log("📍 Бягучы мапінг слупкоў:", colMap);
+
     if (
       !colMap ||
       Object.keys(colMap).length === 0 ||
-      colMap.position === null
+      colMap.position === null ||
+      colMap.position === undefined
     ) {
-      console.log("🧠 Запыт да AI для мапінгу...");
+      console.log("🧠 Мапінг адсутнічае або няпоўны. Запыт да AI...");
       colMap = await identifyColumnsWithAI(headers);
-      console.log("🗺️ Мапінг:", colMap);
+      console.log("🗺️ Вызначаны мапінг ад AI:", colMap);
       if (colMap && colMap.position !== null) {
         source.columnMap = colMap;
         await source.save();
       } else {
+        console.log("⚠️ AI не змог вызначыць структуру слупкоў.");
         return;
       }
     }
 
-    // --- КРОК 3: АПРАЦОЎКА ДАНЫХ ---
+    // --- КРОК 3: ПАДРЫХТОЎКА КАНТЭКСТУ ДЛЯ ДЭДУПЛІКАЦЫІ ---
+    const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000);
+    const recentVacancies = await Vacancy.find({
+      createdAt: { $gte: fortyEightHoursAgo },
+    })
+      .select(
+        "vacancydescription location agencyName salary.rawSalaryDisplay createdAt",
+      )
+      .limit(30);
+
     let lastLocation = "";
     const expectedKeys = [
       "position",
@@ -145,9 +171,9 @@ async function syncSheetVacancies(sourceId) {
       "link",
       "agency",
       "details",
+      "status",
     ];
 
-    // Пачынаем з наступнага радка пасля загалоўкаў
     for (let i = headerRowIndex + 1; i < rowData.length; i++) {
       const cells = rowData[i].values;
       if (!cells || cells.length === 0) continue;
@@ -165,6 +191,16 @@ async function syncSheetVacancies(sourceId) {
       if (!rowDataObj.position.value || rowDataObj.position.value.length < 3)
         continue;
 
+      const rowStatus = (rowDataObj.status?.value || "").toLowerCase();
+      if (
+        rowStatus.includes("стоп") ||
+        rowStatus.includes("архив") ||
+        rowStatus.includes("не актив")
+      ) {
+        console.log(`Status STOP for: ${rowDataObj.position.value}. Skipping.`);
+        continue;
+      }
+
       if (rowDataObj.location.value) {
         lastLocation = rowDataObj.location.value;
       } else {
@@ -180,75 +216,94 @@ async function syncSheetVacancies(sourceId) {
         `🆕 Радок ${i + 1}: ${rowDataObj.position.value} | ${rowDataObj.location.value}`,
       );
 
-      // 5. Збор поўнага тэксту для AI
-      let fullDescription = `
-        ВАКАНСІЯ З ТАБЛІЦЫ:
-        Пасада: ${rowDataObj.position.value}
-        Лакацыя: ${rowDataObj.location.value}
-        Стаўка: ${rowDataObj.salary.value}
-        Агенцыя: ${source.agencyName}
-        Дадаткова: ${rowDataObj.details.value} ${rowDataObj.position.note} ${rowDataObj.details.note}
-      `;
+      // --- КРОК 4: ЗБОР ТЭКСТУ ДЛЯ STAGE 1 ---
+      let rawRowText = `Пасада: ${rowDataObj.position.value}\nЛакацыя: ${rowDataObj.location.value}\nСтаўка: ${rowDataObj.salary.value}\nДадаткова: ${rowDataObj.details.value} ${rowDataObj.position.note} ${rowDataObj.details.note}`;
 
       const externalUrl =
         rowDataObj.link.link ||
         rowDataObj.position.link ||
         rowDataObj.link.value;
-
       if (externalUrl && externalUrl.startsWith("http")) {
-        // ЛЮБАЯ спасылка на google (docs, drive, sheets) ідзе ў Stage 0
         if (externalUrl.includes("google.com")) {
-          console.log(
-            `📄 Google-спасылка знойдзена, будзе апрацавана праз Stage 0`,
-          );
-          fullDescription += `\n\nДэталі тут: ${externalUrl}`;
+          rawRowText += `\nСпасылка: ${externalUrl}`;
         } else {
-          console.log(
-            `🔗 Загрузка вонкавага кантэнту (Telegraph/HTML): ${externalUrl}`,
-          );
           const externalContent =
             await scraperService.getExternalContent(externalUrl);
-          if (externalContent) {
-            fullDescription += `\n\n--- ДЭТАЛЬНАЕ АПІСАННЕ ПА СПАСЫЛЦЫ ---\n${externalContent}`;
-          }
+          if (externalContent)
+            rawRowText += `\n\n--- АПІСАННЕ ---\n${externalContent}`;
         }
       }
 
-      // 6. Stage 0 + Stage 2
-      const enrichedText = await enrichTextWithDocs(fullDescription);
-
-      const result = await processVacancyMessage(
-        enrichedText,
-        "Google Sheets",
-        source.agencyName,
-        fullDescription,
-        false,
-        "FULL_VACANCY",
+      // --- КРОК 5: ЗАПУСК АДЗІНАГА КАНВЕЕРА (Stage 1: Пераклад + Класіфікацыя + Дэдуплікацыя) ---
+      console.log(`🔎 Праверка праз Stage 1 для: ${rowDataObj.position.value}`);
+      const analysis = await analyzeAndCompareWithGemini(
+        rawRowText,
+        [],
+        recentVacancies,
       );
 
-      if (result && !result.error) {
-        source.processedHashes.push(rowHash);
-        if (source.processedHashes.length > 500) source.processedHashes.shift();
-        await source.save();
-        console.log(`✅ Дададзена: ${rowDataObj.position.value}`);
+      if (!analysis) {
+        console.log("⚠️ AI не змог апрацаваць радок, пропуск.");
+        continue;
       }
 
-      await new Promise((r) => setTimeout(r, 2000));
+      // Праверка вердыкту дэдуплікацыі
+      if (analysis.comparison?.verdict === "DUPLICATE") {
+        console.log(
+          `🔁 AI вызначыў дублікат: ${analysis.comparison.reason}. Пропуск.`,
+        );
+        source.processedHashes.push(rowHash);
+        await source.save();
+        continue;
+      }
+
+      if (analysis.category === "FULL_VACANCY") {
+        for (const fragment of analysis.translatedFragments) {
+          // Stage 2: Парсінг (fragment ужо на ўкраінскай і збагачаны дакументамі)
+          await processVacancyMessage(
+            fragment,
+            "Google Sheets",
+            source.agencyName,
+            fragment, // originalText цяпер таксама ўкраінскі
+            false,
+            "FULL_VACANCY",
+          );
+        }
+        console.log(`✅ Вакансія(і) створана з радка ${i + 1}`);
+      } else if (analysis.comparison?.verdict === "UPDATE") {
+        console.log(
+          `🔄 Знойдзена абнаўленне: ${analysis.comparison.reason}. Запуск AI-update...`,
+        );
+        // Тут можна выклікаць updateVacancyWithAI, калі мы знойдзем ID вакансіі ў reason або праз дадатковы пошук
+      }
+
+      source.processedHashes.push(rowHash);
+      if (source.processedHashes.length > 1000) source.processedHashes.shift();
+      await source.save();
+
+      await new Promise((r) => setTimeout(r, 3000));
     }
 
     source.lastProcessedAt = new Date();
     await source.save();
     console.log(`🏁 Сінхранізацыя ${source.sheetName} завершана.`);
   } catch (err) {
-    console.error(`❌ Sync Error:`, err.message);
+    console.error(`❌ Sync Error (${source.sheetName}):`, err.message);
   }
 }
 
+/**
+ * Запуск сінхранізацыі для ўсіх актыўных крыніц
+ */
 async function syncAllSheets() {
   const sources = await SheetSource.find({ status: "active" });
+  console.log(`🚀 Запуск сінхранізацыі для ${sources.length} табліц...`);
   for (const source of sources) {
     await syncSheetVacancies(source._id);
   }
 }
 
-module.exports = { syncSheetVacancies, syncAllSheets };
+module.exports = {
+  syncSheetVacancies,
+  syncAllSheets,
+};

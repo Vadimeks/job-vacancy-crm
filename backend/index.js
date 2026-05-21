@@ -11,7 +11,8 @@ const inboxRouter = require("./routes/inbox");
 const templatesRouter = require("./routes/templates");
 const candidatesRouter = require("./routes/candidates");
 const applyRouter = require("./routes/apply");
-
+const cron = require("node-cron");
+const { syncAllSheets } = require("./services/sheets.service");
 const app = express();
 
 app.use(cors());
@@ -37,12 +38,28 @@ app.use("/api/apply", applyRouter);
 mongoose
   .connect(process.env.MONGODB_URI)
   .then(() => console.log("✅ MongoDB Connected"));
-
+// Запуск сінхранізацыі кожную раніцу а 07:00
+cron.schedule("0 7 * * *", async () => {
+  console.log("⏰ CRON: Пачатак штодзённай сінхранізацыі табліц...");
+  try {
+    await syncAllSheets();
+    console.log("✅ CRON: Сінхранізацыя завершана паспяхова.");
+  } catch (err) {
+    console.error("❌ CRON: Памылка сінхранізацыі:", err.message);
+  }
+});
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Server: http://localhost:${PORT}`);
   startBot();
   startUserbot();
+  // 🧪 Тэставы запуск сінхранізацыі праз 10 секунд пасля старту (толькі для праверкі дэплою)
+  setTimeout(() => {
+    console.log("🚀 Тэставы запуск сінхранізацыі табліц...");
+    syncAllSheets().catch((err) =>
+      console.error("❌ Памылка тэставага запуску:", err.message),
+    );
+  }, 10000);
 });
 
 // --- ЗАПУСК USERBOT У ДОЧАРНЫМ ПРАЦЭСЕ ---

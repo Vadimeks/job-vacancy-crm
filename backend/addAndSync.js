@@ -67,7 +67,7 @@ async function run() {
       source.columnMap = {};
 
       // 2. АЧЫШЧАЕМ ГІСТОРЫЮ ХЭШАЎ (каб прайсці па ўсіх радках зноў)
-      source.processedHashes = [];
+      // source.processedHashes = [];
 
       await source.save();
       console.log("🧹 Гісторыя апрацоўкі і мапінг слупкоў ачышчаны.");

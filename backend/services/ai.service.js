@@ -434,6 +434,29 @@ CRITICAL RULES FOR UPDATE:
 - DESCRIPTION: Do not overwrite the existing description. If new duties are mentioned, add them to the list.
 Return ONLY valid JSON.
 `;
+const COMPARE_VACANCIES_PROMPT = `
+ROLE: HR Data Auditor.
+TASK: Compare a NEW vacancy from a spreadsheet with an EXISTING vacancy from the database.
+${LANGUAGE_GUARD}
+
+NEW_DATA:
+{{newData}}
+
+EXISTING_DATA:
+{{existingData}}
+
+DECISION RULES:
+1. If they describe the EXACT SAME job at the same factory/location → return verdict: "DUPLICATE".
+2. If it's the same job but the NEW_DATA has updated salary, dates, or spots → return verdict: "UPDATE".
+3. If they are different jobs (different roles, different factories, or different cities) → return verdict: "NEW".
+
+Return ONLY JSON:
+{
+  "verdict": "DUPLICATE" | "UPDATE" | "NEW",
+  "reason": "Short explanation in Ukrainian",
+  "mergedData": null or merged JSON object if verdict is UPDATE
+}
+`;
 // --- ДАПАМОЖНЫЯ ФУНКЦЫІ ---
 // ============================================================
 async function executeAIRequest(systemPrompt, userContent, jsonMode = true) {
@@ -1250,7 +1273,20 @@ async function updateVacancyWithAI(existingVacancy, newText) {
     .replace(/```\s*/g, "");
   return JSON.parse(cleanJson);
 }
-
+async function compareVacanciesWithAI(newData, existingData) {
+  try {
+    const content = `NEW:\n${JSON.stringify(newData)}\n\nEXISTING:\n${JSON.stringify(existingData)}`;
+    const response = await executeAIRequest(
+      COMPARE_VACANCIES_PROMPT,
+      content,
+      true,
+    );
+    return JSON.parse(response);
+  } catch (err) {
+    console.error("❌ AI Comparison Error:", err.message);
+    return { verdict: "NEW" }; // У выпадку памылкі лічым як новую
+  }
+}
 module.exports = {
   parseVacancyWithAI,
   executeAIRequest,
@@ -1266,4 +1302,6 @@ module.exports = {
   normalizeLocation,
   normalizeNuances, // <--- ДАДАДЗЕНА
   VOIVODESHIP_MAP, // <--- ДАДАДЗЕНА
+  COMPARE_VACANCIES_PROMPT,
+  compareVacanciesWithAI,
 };
