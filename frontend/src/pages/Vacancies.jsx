@@ -186,7 +186,13 @@ export default function Vacancies() {
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
     );
   };
-
+  const toggleSelectAll = () => {
+    if (selectedIds.length === filtered.length && filtered.length > 0) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(filtered.map((v) => v._id));
+    }
+  };
   const handleBulkDelete = async () => {
     if (!window.confirm(`Видалити ${selectedIds.length} вакансій?`)) return;
     try {
@@ -623,7 +629,33 @@ export default function Vacancies() {
             </div>
           </div>
         )}
+        {/* ПАНЭЛЬ МАСАВЫХ ДЗЕЯННЯЎ */}
+        <div className="flex items-center justify-between bg-slate-900/50 border border-slate-800 rounded-xl px-4 py-3 mb-4">
+          <div className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              checked={
+                filtered.length > 0 && selectedIds.length === filtered.length
+              }
+              onChange={toggleSelectAll}
+              className="w-4 h-4 rounded border-slate-700 bg-slate-800 text-emerald-500 focus:ring-emerald-500/20"
+            />
+            <span className="text-sm text-slate-400 font-medium">
+              {selectedIds.length > 0
+                ? `Выбрана: ${selectedIds.length}`
+                : "Выбраць усе адфільтраваныя"}
+            </span>
+          </div>
 
+          {selectedIds.length > 0 && (
+            <button
+              onClick={handleBulkDelete}
+              className="flex items-center gap-2 px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-500 text-xs font-black rounded-lg border border-red-500/20 transition-all"
+            >
+              🗑️ ВЫДАЛІЦЬ ВЫБРАНЫЯ
+            </button>
+          )}
+        </div>
         {/* СПІС ВАКАНСІЙ */}
         <div className="space-y-3">
           {filtered.map((v) => {
