@@ -708,18 +708,7 @@ export default function Vacancies() {
                       {/* ГЕНДАР / НАБОР */}
                       <div className="flex items-center gap-1.5 bg-slate-800/40 px-2 py-1 rounded-lg border border-slate-800">
                         <span className="text-slate-500">👥</span>
-                        {/* Узрост (Дададзена для зручнасці рэкрутэра) */}
-                        {v.requirements?.age?.max && (
-                          <div className="flex items-center gap-1.5 bg-slate-800/40 px-2 py-1 rounded-lg border border-slate-800">
-                            <span className="text-slate-500 text-[10px]">
-                              🎂
-                            </span>
-                            <span className="text-slate-300 font-bold text-[10px]">
-                              {v.requirements.age.min || 18}-
-                              {v.requirements.age.max} р.
-                            </span>
-                          </div>
-                        )}
+
                         <span className="text-slate-200 font-bold uppercase tracking-tight text-[10px]">
                           {Array.isArray(v.requirements?.gender)
                             ? v.requirements.gender.join(", ")
@@ -729,7 +718,16 @@ export default function Vacancies() {
                           )}
                         </span>
                       </div>
-
+                      {/* Узрост (Дададзена для зручнасці рэкрутэра) */}
+                      {v.requirements?.age?.max && (
+                        <div className="flex items-center gap-1.5 bg-slate-800/40 px-2 py-1 rounded-lg border border-slate-800">
+                          <span className="text-slate-500 text-[10px]">🎂</span>
+                          <span className="text-slate-300 font-bold text-[10px]">
+                            {v.requirements.age.min || 18}-
+                            {v.requirements.age.max} р.
+                          </span>
+                        </div>
+                      )}
                       {/* ЖИТЛО + ПАРИ */}
                       <div className="flex items-center gap-1.5 text-slate-400">
                         <span>🏠</span>
