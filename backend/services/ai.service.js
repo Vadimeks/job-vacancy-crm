@@ -277,50 +277,21 @@ function cleanData(obj) {
 function repairJson(text) {
   if (!text) return "{}";
 
-  // 1. Прыбіраем Markdown блокі
+  // 1. Твая старая ачыстка Markdown (правераная часам)
   let cleaned = text
-    .replace(/```json/gi, "")
-    .replace(/```/g, "")
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/\s*```$/i, "")
     .trim();
 
-  // 2. Экраніруем нелегальныя сімвалы (пераносы радкоў) унутры двукоссяў
-  // Гэта выпраўляе памылку "Bad control character in string literal"
-  cleaned = cleaned.replace(/"((?:[^"\\]|\\.)*)"/g, (match, p1) => {
-    return (
-      '"' +
-      p1.replace(/\n/g, "\\n").replace(/\r/g, "\\r").replace(/\t/g, "\\t") +
-      '"'
-    );
-  });
-
-  // 3. Шукаем межы аб'екта {...} або масіва [...]
-  const firstBrace = cleaned.indexOf("{");
-  const firstBracket = cleaned.indexOf("[");
-  let start = -1;
-  let end = -1;
-
-  if (
-    firstBrace !== -1 &&
-    (firstBracket === -1 || (firstBrace < firstBracket && firstBrace !== -1))
-  ) {
-    start = firstBrace;
-    end = cleaned.lastIndexOf("}");
-  } else if (firstBracket !== -1) {
-    start = firstBracket;
-    end = cleaned.lastIndexOf("]");
+  // 2. Фікс для "Bad control character":
+  // Калі JSON не парсіцца, замяняем сырыя пераносы радкоў на сімвал \n
+  try {
+    JSON.parse(cleaned);
+    return cleaned;
+  } catch (e) {
+    // Гэта дапаможа, калі AI прыслаў тэкст у некалькі радкоў унутры палёў
+    return cleaned.replace(/\n/g, "\\n").replace(/\r/g, "\\r");
   }
-
-  if (start !== -1 && end !== -1) {
-    cleaned = cleaned.substring(start, end + 1);
-  }
-
-  // 4. Выдаляем "вісячыя" коскі перад закрываючымі дужкамі
-  cleaned = cleaned.replace(/,\s*([\]}])/g, "$1");
-
-  // 5. Выдаляем аднарадковыя каментарыі JS
-  cleaned = cleaned.replace(/\/\/.*$/gm, "");
-
-  return cleaned;
 }
 // --- PROMPTS ---
 
@@ -583,6 +554,7 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true) {
               { role: "user", content: safeContent },
             ],
             temperature: 0.1,
+            max_tokens: 4096, // 👈 Абавязкова, каб JSON не абрываўся
           };
           if (jsonMode) groqParams.response_format = { type: "json_object" };
 

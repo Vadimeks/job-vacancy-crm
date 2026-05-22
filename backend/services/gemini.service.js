@@ -172,9 +172,12 @@ async function analyzeAndCompareWithGemini(
     if (Date.now() - cached.timestamp < CACHE_TTL) return cached.data;
   }
 
+  // Абмяжоўваем тэкст да 10,000 сімвалаў, каб захаваць усе моўныя версіі для перакладу
+  const safeEnrichedText = enrichedText.substring(0, 10000);
+
   const userContent = `
 RECENT_CONTEXT: ${JSON.stringify([...recentMessages, ...recentVacancies].slice(0, 5))}
-NEW_MESSAGE: ${enrichedText}
+NEW_MESSAGE: ${safeEnrichedText}
 `;
 
   try {
