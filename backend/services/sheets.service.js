@@ -20,35 +20,27 @@ const sheets = google.sheets({ version: "v4", auth });
  * Вызначае вердыкт для статусу радка.
  */
 function getStatusVerdict(statusText) {
+  // Калі статус пусты — лічым актыўным
   if (!statusText || statusText.trim() === "") return "ACTIVE";
 
   const s = statusText.toLowerCase().trim();
 
-  const activeKeywords = [
-    "активная",
-    "aktywna",
-    "приоритет",
-    "ищем",
-    "✅",
-    "актуально",
-    "акція",
-    "актив.✅",
-  ];
-
+  // Спіс тэрмінальных статусаў (толькі тое, што дакладна закрыта)
   const terminalKeywords = [
-    "закрыто",
     "nieaktualne",
+    "закрыто",
     "стоп",
     "❌",
     "архив",
     "не актив",
-    "не актив.❌",
+    "не актуально",
   ];
 
-  if (activeKeywords.some((kw) => s.includes(kw))) return "ACTIVE";
+  // Калі знойдзена хоць адно "стоп-слова" — адпраўляем у закрытыя
   if (terminalKeywords.some((kw) => s.includes(kw))) return "STOP";
 
-  return "SKIP";
+  // Усё астатняе (нават "Rezerwa" ці "Opiekunka на злеценню") — лічым актыўным
+  return "ACTIVE";
 }
 
 /**
@@ -63,15 +55,15 @@ async function identifyColumnsWithAI(headers) {
     HEADERS: ${JSON.stringify(headers)}
     
     MAPPING RULES (Find the best index for each field):
-    - position: "Вакансия", "ПРОЕКТ", "Должность", "Назва", "вакансія укр. мовою".
-    - location: "Место работы", "ЛОКАЦІЇ", "Локализация", "Lokalizacja", "Місто".
-    - salary: "Ставка", "Оплата", "stawka", "Wynagrodzenie", "Ставка zl netto".
-    - link: "link", "опис", "Фото житла", "link na strone", "CCЫЛКА".
+    - position: "Lokalizacja/ Podopieczny", "Вакансия", "ПРОЕКТ", "Должность", "Назва", "вакансія укр. мовою".MUST BE "Lokalizacja/ Podopieczny" or "Вакансия" or "Должность". NEVER use "Status" column for position.
+    - location: "Lokalizacja", "Место работы", "ЛОКАЦІЇ", "Локализация", "Місто".
+    - salary: "Wynagrodzenie", "Ставка", "Оплата", "stawka", "Ставка zl netto".
+    - link: "ОПИС", "link", "опис", "Фото житла", "link na strone", "CCЫЛКА".
     - agency: "Агенція", "Назва ў CRM", "Офіс".
-    - details: "ЖИТЛО/ДОЇЗД", "Коментар", "Примітки", "Примечание", "Комментарий".
-    - status: "Статус", "Status", "Актуально", "АКТИВ".
-    - gender: "Пол", "Стать", "Хто потрібен".
-    - nationality: "Гражданство", "Громадянство", "Національність".
+    - details: "Stan podopiecznego", "Dodatkowa notatka", "ЖИТЛО/ДОЇЗД", "Коментар", "Примітки".
+    - status: "Status rekrutacji", "Статус", "Status", "Актуально", "АКТИВ".
+    - gender: "Plec", "Пол", "Стать", "Хто потрібен".
+    - nationality: "Narodowość", "Гражданство", "Громадянство", "Національність".
     
     RETURN ONLY JSON:
     {
@@ -164,6 +156,12 @@ async function syncSheetVacancies(sourceId) {
       "aktywna",
       "назва",
       "фірма",
+      "rekrutacji",
+      "lokalizacja",
+      "wynagrodzenie",
+      "opiekunki",
+      "podopieczny",
+      "start pracy", // 👈 Дададзена для Opiekunki
     ];
 
     for (let i = 0; i < Math.min(rowData.length, 20); i++) {
@@ -264,8 +262,14 @@ async function syncSheetVacancies(sourceId) {
         rowDataObj.position.value || rowDataObj.link.value || "Без назви";
 
       if (verdict === "STOP") {
-        closedTitles.push(combinedTitle);
-        continue; // 👈 Не спыняем табліцу, проста ідзем далей
+        // Калі мы памылкова ўзялі статус замест назвы (напр. "Nieaktualne"),
+        // паспрабуем узяць імя з суседняга слупка для справаздачы
+        const reportName = combinedTitle.toLowerCase().includes("nieaktualne")
+          ? rowDataObj.location.value || combinedTitle
+          : combinedTitle;
+
+        closedTitles.push(reportName);
+        continue;
       }
       if (verdict === "SKIP") continue;
 
@@ -286,17 +290,35 @@ async function syncSheetVacancies(sourceId) {
 
       let rawRowText = `Пасада: ${combinedTitle}\nЛокація: ${rowDataObj.location.value}\nСтавка: ${rowDataObj.salary.value}\nСтать: ${rowDataObj.gender.value}\nНаціональність: ${rowDataObj.nationality.value}\nДодатково: ${rowDataObj.details.value} ${rowDataObj.position.note} ${rowDataObj.details.note}`;
 
+      // --- РАЗУМНЫ ПОШУК СПАСЫЛКІ (Агрэсіўны) ---
+      // 1. Шукаем схаваную гіперспасылку (мета-даныя) у ключавых слупках
+      // Мы правяраем .link, які запаўняецца ў extractCellData
       const externalUrl =
         rowDataObj.link.link ||
         rowDataObj.position.link ||
-        rowDataObj.link.value;
-      if (externalUrl && externalUrl.startsWith("http")) {
+        rowDataObj.details.link ||
+        // 2. Калі мета-спасылкі няма, шукаем тэкст, які пачынаецца з http
+        [
+          rowDataObj.link.value,
+          rowDataObj.position.value,
+          rowDataObj.details.value,
+        ].find((v) => v && String(v).trim().startsWith("http"));
+
+      if (externalUrl && String(externalUrl).startsWith("http")) {
+        console.log(
+          `🔗 Знойдзена спасылка для апрацоўкі: ${externalUrl.substring(0, 60)}...`,
+        );
+
+        // Дадаем спасылку ў тэкст.
+        // analyzeAndCompareWithGemini -> enrichTextWithDocs аўтаматычна знойдзе яе і спампуе змест.
+        rawRowText += `\nСпасылка: ${externalUrl}`;
+
+        // Калі гэта НЕ Google Doc (напр. Telegraph), дадаткова скрапім яго тут
         if (!externalUrl.includes("google.com")) {
-          // 👈 Гігіена спасылак Google
           const externalContent =
             await scraperService.getExternalContent(externalUrl);
           if (externalContent)
-            rawRowText += `\n\n--- АПІСАННЕ ---\n${externalContent}`;
+            rawRowText += `\n\n--- АПІСАННЕ З САЙТА ---\n${externalContent}`;
         }
       }
 

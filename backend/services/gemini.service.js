@@ -135,7 +135,7 @@ All output fragments MUST be in Ukrainian. If the input is in Russian or Polish,
 6. GOLDEN RULE: When in doubt — return ONE fragment. Incorrect splitting is far worse than not splitting.
 7. ALL fragments MUST be in UKRAINIAN ONLY.
 8. NEVER summarize or shorten. Copy 100% of details into each fragment.
-
+PRIVACY: If you see a raw Google Docs link (docs.google.com) in the input, USE its content for translation, but DO NOT include the raw URL link in the final "translatedFragments".
 CLASSIFICATION RULES:
 - FULL_VACANCY: Detailed job ad with Position + City + Salary + Duties. ALL FOUR must be present. Duties must be a detailed description of the work process. 
 !!! CRITICAL: If the text is shorter than 400 characters OR lacks a detailed description of duties, classify it as UPDATE, even if it has a city and salary.
