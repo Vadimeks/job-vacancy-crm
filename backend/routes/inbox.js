@@ -278,7 +278,7 @@ async function processPendingMessages() {
         msg.processed = isAutoDone;
         await msg.save();
 
-        await sleep(2000);
+        await sleep(4000); // Павялічана да 4 сек для стабільнасці AI
       } catch (err) {
         console.error(`❌ Памылка на ${msg._id}:`, err.message);
         msg.rawText = "";

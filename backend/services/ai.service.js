@@ -272,18 +272,28 @@ function cleanData(obj) {
   return obj;
 }
 /**
- * Інтэлектуальны рамонт JSON-радкоў ад AI
+ * Супер-рамонтнік JSON: апрацоўвае Markdown, вісячыя коскі і нябачныя сімвалы
  */
 function repairJson(text) {
   if (!text) return "{}";
 
-  // 1. Прыбіраем Markdown блокі (```json ... ```)
+  // 1. Прыбіраем Markdown блокі
   let cleaned = text
     .replace(/```json/gi, "")
     .replace(/```/g, "")
     .trim();
 
-  // 2. Шукаем межы аб'екта {...} або масіва [...]
+  // 2. Экраніруем нелегальныя сімвалы (пераносы радкоў) унутры двукоссяў
+  // Гэта выпраўляе памылку "Bad control character in string literal"
+  cleaned = cleaned.replace(/"((?:[^"\\]|\\.)*)"/g, (match, p1) => {
+    return (
+      '"' +
+      p1.replace(/\n/g, "\\n").replace(/\r/g, "\\r").replace(/\t/g, "\\t") +
+      '"'
+    );
+  });
+
+  // 3. Шукаем межы аб'екта {...} або масіва [...]
   const firstBrace = cleaned.indexOf("{");
   const firstBracket = cleaned.indexOf("[");
   let start = -1;
@@ -304,10 +314,10 @@ function repairJson(text) {
     cleaned = cleaned.substring(start, end + 1);
   }
 
-  // 3. Выдаляем "вісячыя" коскі перад закрываючымі дужкамі (common AI error)
+  // 4. Выдаляем "вісячыя" коскі перад закрываючымі дужкамі
   cleaned = cleaned.replace(/,\s*([\]}])/g, "$1");
 
-  // 4. Выдаляем аднарадковыя каментарыі JS
+  // 5. Выдаляем аднарадковыя каментарыі JS
   cleaned = cleaned.replace(/\/\/.*$/gm, "");
 
   return cleaned;
