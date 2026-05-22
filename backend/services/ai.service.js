@@ -518,14 +518,16 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true) {
   }
 
   for (const model of AI_CHAIN) {
-    let retries = 2; // Колькасць спроб для кожнай мадэлі пры памылках 5xx
+    let retries = 1; // Для кожнай мадэлі робім 1 паўтор пры сеткавых памылках
 
     while (retries >= 0) {
       try {
+        let fullText = "";
+
         // --- VERTEX AI ---
         if (model.provider === "vertex") {
           console.log(
-            `🤖 Запыт да Vertex AI: ${model.name} (Спроб засталося: ${retries})`,
+            `🤖 Запыт да Vertex AI: ${model.name} (Спроб: ${retries})`,
           );
           const token = await getAccessToken();
           if (!token) throw new Error("Токен адсутнічае");
@@ -533,7 +535,7 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true) {
           const url = `https://${LOCATION}-aiplatform.googleapis.com/v1/projects/${GOOGLE_PROJECT_ID}/locations/${LOCATION}/publishers/google/models/${model.name}:streamGenerateContent`;
 
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 секунд таймаўт
+          const timeoutId = setTimeout(() => controller.abort(), 60000);
 
           const response = await fetch(url, {
             method: "POST",
@@ -559,23 +561,16 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true) {
 
           clearTimeout(timeoutId);
 
-          if (response.status >= 500) {
+          if (response.status === 429) throw new Error("RATE_LIMIT");
+          if (response.status >= 500)
             throw new Error(`SERVER_ERROR_${response.status}`);
-          }
 
           const data = await response.json();
-          if (data.error || (Array.isArray(data) && data[0]?.error)) {
-            throw new Error(data.error?.message || data[0]?.error?.message);
-          }
-
           const chunks = Array.isArray(data) ? data : [data];
-          let fullText = "";
           for (const chunk of chunks) {
             const chunkText = chunk.candidates?.[0]?.content?.parts?.[0]?.text;
             if (chunkText) fullText += chunkText;
           }
-
-          if (fullText) return fullText.replace(/```json|```/g, "").trim();
         }
 
         // --- GROQ ---
@@ -592,34 +587,44 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true) {
           if (jsonMode) groqParams.response_format = { type: "json_object" };
 
           const response = await groq.chat.completions.create(groqParams);
-          let text = response.choices[0]?.message?.content?.trim();
-          if (text) return text.replace(/```json|```/g, "").trim();
+          fullText = response.choices[0]?.message?.content?.trim();
         }
 
-        break; // Калі паспяхова — выходзім з цыкла спроб (while)
-      } catch (error) {
-        const isNetworkError =
-          error.name === "AbortError" || error.message.includes("SERVER_ERROR");
+        // --- ВАЛІДАЦЫЯ ВЫНІКУ ---
+        if (!fullText || fullText.length < 5) throw new Error("EMPTY_RESPONSE");
 
-        if (isNetworkError && retries > 0) {
-          console.warn(
-            `⚠️ Часовая памылка (${model.name}), паўтор праз 2 сек...`,
-          );
+        if (jsonMode) {
+          try {
+            const repaired = repairJson(fullText);
+            JSON.parse(repaired); // Пробны парсінг
+            return repaired; // Калі паспяхова — вяртаем адрамантаваны JSON
+          } catch (e) {
+            console.warn(
+              `⚠️ Мадэль ${model.name} вярнула біты JSON. Пераходзім да наступнай...`,
+            );
+            throw new Error("INVALID_JSON");
+          }
+        }
+
+        return fullText.trim();
+      } catch (error) {
+        const isRetryable =
+          error.message.includes("SERVER_ERROR") || error.name === "AbortError";
+
+        if (isRetryable && retries > 0) {
+          console.warn(`⚠️ Часовая памылка (${model.name}), паўтор...`);
           retries--;
           await new Promise((r) => setTimeout(r, 2000));
           continue;
         }
 
-        console.error(
-          `⚠️ Error (${model.name}):`,
-          error.message.substring(0, 150),
-        );
-        break; // Пераходзім да наступнай мадэлі ў AI_CHAIN
+        console.error(`⚠️ Памылка мадэлі (${model.name}):`, error.message);
+        break; // Выхад з while, пераход да наступнай мадэлі ў for
       }
     }
   }
 
-  chainFrozenUntil = Date.now() + 60 * 60 * 1000;
+  chainFrozenUntil = Date.now() + 15 * 60 * 1000; // Калі ўсё ляснула — адпачываем 15 хв
   throw new Error("ALL_AI_MODELS_FAILED");
 }
 
