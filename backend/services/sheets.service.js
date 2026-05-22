@@ -3,9 +3,9 @@ const path = require("path");
 const crypto = require("crypto");
 const SheetSource = require("../models/SheetSource");
 const Vacancy = require("../models/Vacancy");
+const UnprocessedMessage = require("../models/UnprocessedMessage"); // 👈 Дададзена для справаздач
 const aiService = require("./ai.service");
 const scraperService = require("./scraper.service");
-// Мяняем enrichTextWithDocs на analyzeAndCompareWithGemini
 const { analyzeAndCompareWithGemini } = require("./gemini.service");
 const { processVacancyMessage } = require("../routes/vacancies");
 
@@ -15,20 +15,15 @@ const auth = new google.auth.GoogleAuth({
 });
 
 const sheets = google.sheets({ version: "v4", auth });
+
 /**
  * Вызначае вердыкт для статусу радка.
- * ACTIVE - апрацоўваем
- * SKIP   - прапускаем радок (continue)
- * STOP   - спыняем усю табліцу (break)
  */
 function getStatusVerdict(statusText) {
-  // Калі статус пусты (колер у Рален ці няма слупка ў Отто)
-  // — лічым АКТЫЎНЫМ, каб не прапусціць новае.
   if (!statusText || statusText.trim() === "") return "ACTIVE";
 
   const s = statusText.toLowerCase().trim();
 
-  // Спіс актыўных статусаў
   const activeKeywords = [
     "активная",
     "aktywna",
@@ -40,7 +35,6 @@ function getStatusVerdict(statusText) {
     "актив.✅",
   ];
 
-  // Спіс тэрмінальных статусаў (пасля якіх ідзе архіў)
   const terminalKeywords = [
     "закрыто",
     "nieaktualne",
@@ -54,10 +48,9 @@ function getStatusVerdict(statusText) {
   if (activeKeywords.some((kw) => s.includes(kw))) return "ACTIVE";
   if (terminalKeywords.some((kw) => s.includes(kw))) return "STOP";
 
-  // Калі статус невядомы (нейкі тэкст, якога няма ў спісах)
-  // — лепш прапусціць радок, каб не есці токены на смецце.
   return "SKIP";
 }
+
 /**
  * Вызначае мапінг слупкоў праз AI
  */
@@ -69,14 +62,16 @@ async function identifyColumnsWithAI(headers) {
     TASK: Map Google Sheets headers to vacancy fields.
     HEADERS: ${JSON.stringify(headers)}
     
-    MAPPING RULES:
-    - position: "Вакансия", "ПРОЕКТ", "Должность", "Назва", "Вакансия/ опис".
-    - location: "Место работы", "ЛОКАЦІЇ МІСЦЯ РОБОТИ", "Локализация", "Lokalizacja", "Місто".
-    - salary: "Ставка", "Оплата", "stawka", "Wynagrodzenie".
+    MAPPING RULES (Find the best index for each field):
+    - position: "Вакансия", "ПРОЕКТ", "Должность", "Назва", "вакансія укр. мовою".
+    - location: "Место работы", "ЛОКАЦІЇ", "Локализация", "Lokalizacja", "Місто".
+    - salary: "Ставка", "Оплата", "stawka", "Wynagrodzenie", "Ставка zl netto".
     - link: "link", "опис", "Фото житла", "link na strone", "CCЫЛКА".
     - agency: "Агенція", "Назва ў CRM", "Офіс".
-    - details: "ЖИТЛО/ДОЇЗД", "Коментар", "Примітки", "Dodatkowa notatka", "Примечание", "Проживание".
-    - status: "Статус", "Status", "Актуально".
+    - details: "ЖИТЛО/ДОЇЗД", "Коментар", "Примітки", "Примечание", "Комментарий".
+    - status: "Статус", "Status", "Актуально", "АКТИВ".
+    - gender: "Пол", "Стать", "Хто потрібен".
+    - nationality: "Гражданство", "Громадянство", "Національність".
     
     RETURN ONLY JSON:
     {
@@ -86,8 +81,11 @@ async function identifyColumnsWithAI(headers) {
       "link": index,
       "agency": index,
       "details": index,
-      "status": index
+      "status": index,
+      "gender": index,
+      "nationality": index
     }
+    (index is 0-based. If not found, use null)
   `;
 
   try {
@@ -96,17 +94,14 @@ async function identifyColumnsWithAI(headers) {
       "Identify columns",
       true,
     );
-    const cleanJson = response.replace(/```json|```/g, "").trim();
-    return JSON.parse(cleanJson);
+
+    return JSON.parse(aiService.repairJson(response));
   } catch (err) {
     console.error("❌ AI Column Mapping Error:", err.message);
     return null;
   }
 }
 
-/**
- * Здабывае даныя з ячэйкі (тэкст, спасылку або нататку)
- */
 function extractCellData(cell) {
   if (!cell) return { value: "", link: "", note: "" };
   const value = cell.formattedValue || "";
@@ -132,6 +127,11 @@ async function syncSheetVacancies(sourceId) {
     `📊 Пачатак сінхранізацыі: ${source.sheetName} (${source.agencyName})`,
   );
 
+  // Масівы для справаздачы
+  const addedTitles = [];
+  const closedTitles = [];
+  const updatedTitles = [];
+
   try {
     const response = await sheets.spreadsheets.get({
       spreadsheetId: source.spreadsheetId,
@@ -145,22 +145,43 @@ async function syncSheetVacancies(sourceId) {
       return;
     }
 
-    // --- КРОК 1: ПОШУК РАДКА ЗАГАЛОЎКАЎ ---
+    // --- КРОК 1: ПОШУК РАДКА ЗАГАЛОЎКАЎ (Пашыраны спіс) ---
     let headerRowIndex = -1;
-    const keywords = ["вакансія", "вакансия", "проект", "статус", "посада"];
+    const keywords = [
+      "вакансія",
+      "вакансия",
+      "проект",
+      "статус",
+      "посада",
+      "ставка",
+      "оплата",
+      "локализация",
+      "пол",
+      "місто",
+      "city",
+      "klient",
+      "опис",
+      "aktywna",
+      "назва",
+      "фірма",
+    ];
 
-    for (let i = 0; i < Math.min(rowData.length, 15); i++) {
+    for (let i = 0; i < Math.min(rowData.length, 20); i++) {
+      // Павялічана да 20 радкоў
       const rowValues = (rowData[i].values || []).map((v) =>
         (v.formattedValue || "").toLowerCase(),
       );
-      if (keywords.some((kw) => rowValues.some((rv) => rv.includes(kw)))) {
+      const matchCount = rowValues.filter((rv) =>
+        keywords.some((kw) => rv.includes(kw)),
+      ).length;
+      if (matchCount >= 2) {
         headerRowIndex = i;
         break;
       }
     }
 
     if (headerRowIndex === -1) {
-      console.log("⚠️ Не ўдалося знайсці радок загалоўкаў у першых 15 радках.");
+      console.log("⚠️ Не ўдалося знайсці радок загалоўкаў.");
       return;
     }
 
@@ -178,12 +199,10 @@ async function syncSheetVacancies(sourceId) {
     if (
       !colMap ||
       Object.keys(colMap).length === 0 ||
-      colMap.position === null ||
-      colMap.position === undefined
+      colMap.position === null
     ) {
-      console.log("🧠 Мапінг адсутнічае або няпоўны. Запыт да AI...");
+      console.log("🧠 Мапінг адсутнічае. Запыт да AI...");
       colMap = await identifyColumnsWithAI(headers);
-      console.log("🗺️ Вызначаны мапінг ад AI:", colMap);
       if (colMap && colMap.position !== null) {
         source.columnMap = colMap;
         await source.save();
@@ -193,7 +212,6 @@ async function syncSheetVacancies(sourceId) {
       }
     }
 
-    // --- КРОК 3: ПАДРЫХТОЎКА КАНТЭКСТУ ДЛЯ ДЭДУПЛІКАЦЫІ ---
     const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000);
     const recentVacancies = await Vacancy.find({
       createdAt: { $gte: fortyEightHoursAgo },
@@ -201,7 +219,7 @@ async function syncSheetVacancies(sourceId) {
       .select(
         "vacancydescription location agencyName salary.rawSalaryDisplay createdAt",
       )
-      .limit(30);
+      .limit(50);
 
     let lastLocation = "";
     const expectedKeys = [
@@ -212,6 +230,8 @@ async function syncSheetVacancies(sourceId) {
       "agency",
       "details",
       "status",
+      "gender",
+      "nationality",
     ];
 
     // --- КРОК 4: ЦЫКЛ ПА РАДКАХ ---
@@ -229,21 +249,26 @@ async function syncSheetVacancies(sourceId) {
         }
       });
 
-      // --- ПРАВЕРКА СТАТУСУ (BREAK / CONTINUE) ---
+      // Пропуск цалкам пустых радкоў
+      if (
+        !rowDataObj.position.value &&
+        !rowDataObj.details.value &&
+        !rowDataObj.salary.value
+      )
+        continue;
+
       const verdict = getStatusVerdict(rowDataObj.status?.value);
 
+      // Збор назвы для справаздачы
+      const combinedTitle =
+        rowDataObj.position.value || rowDataObj.link.value || "Без назви";
+
       if (verdict === "STOP") {
-        console.log(
-          `🛑 Тэрмінальны статус "${rowDataObj.status.value}" на радку ${i + 1}. Спыняем табліцу.`,
-        );
-        break;
+        closedTitles.push(combinedTitle);
+        continue; // 👈 Не спыняем табліцу, проста ідзем далей
       }
       if (verdict === "SKIP") continue;
 
-      if (!rowDataObj.position.value || rowDataObj.position.value.length < 3)
-        continue;
-
-      // Групаванне па лакацыі
       if (rowDataObj.location.value) {
         lastLocation = rowDataObj.location.value;
       } else {
@@ -256,20 +281,18 @@ async function syncSheetVacancies(sourceId) {
       if (source.processedHashes.includes(rowHash)) continue;
 
       console.log(
-        `🆕 Радок ${i + 1}: ${rowDataObj.position.value} | ${rowDataObj.location.value}`,
+        `🆕 Радок ${i + 1}: ${combinedTitle} | ${rowDataObj.location.value}`,
       );
 
-      // Збор тэксту для Stage 1
-      let rawRowText = `Пасада: ${rowDataObj.position.value}\nЛакацыя: ${rowDataObj.location.value}\nСтаўка: ${rowDataObj.salary.value}\nДадаткова: ${rowDataObj.details.value} ${rowDataObj.position.note} ${rowDataObj.details.note}`;
+      let rawRowText = `Пасада: ${combinedTitle}\nЛокація: ${rowDataObj.location.value}\nСтавка: ${rowDataObj.salary.value}\nСтать: ${rowDataObj.gender.value}\nНаціональність: ${rowDataObj.nationality.value}\nДодатково: ${rowDataObj.details.value} ${rowDataObj.position.note} ${rowDataObj.details.note}`;
 
       const externalUrl =
         rowDataObj.link.link ||
         rowDataObj.position.link ||
         rowDataObj.link.value;
       if (externalUrl && externalUrl.startsWith("http")) {
-        if (externalUrl.includes("google.com")) {
-          rawRowText += `\nСпасылка: ${externalUrl}`;
-        } else {
+        if (!externalUrl.includes("google.com")) {
+          // 👈 Гігіена спасылак Google
           const externalContent =
             await scraperService.getExternalContent(externalUrl);
           if (externalContent)
@@ -277,23 +300,32 @@ async function syncSheetVacancies(sourceId) {
         }
       }
 
-      // Stage 1: Пераклад + Класіфікацыя + Дэдуплікацыя
-      console.log(`🔎 Праверка праз Stage 1 для: ${rowDataObj.position.value}`);
       const analysis = await analyzeAndCompareWithGemini(
         rawRowText,
         [],
         recentVacancies,
       );
 
-      if (!analysis) {
-        console.log("⚠️ AI не змог апрацаваць радок, пропуск.");
+      if (!analysis) continue;
+
+      // Апрацоўка дублікатаў і абнаўленняў
+      if (analysis.comparison?.verdict === "DUPLICATE") {
+        source.processedHashes.push(rowHash);
         continue;
       }
 
-      if (analysis.comparison?.verdict === "DUPLICATE") {
-        console.log(
-          `🔁 AI вызначыў дублікат: ${analysis.comparison.reason}. Пропуск.`,
-        );
+      if (analysis.comparison?.verdict === "UPDATE") {
+        updatedTitles.push(combinedTitle);
+        // Адпраўляем UPDATE у Inbox
+        await new UnprocessedMessage({
+          sender: "Google Sheets",
+          agencyName: source.agencyName,
+          text: `Оновлення в табліці для: ${combinedTitle}\n\n${analysis.translatedFragments?.[0] || rawRowText}`,
+          category: "update",
+          source: "google_sheets",
+          aiAnalyzed: true,
+        }).save();
+
         source.processedHashes.push(rowHash);
         await source.save();
         continue;
@@ -310,14 +342,40 @@ async function syncSheetVacancies(sourceId) {
             "FULL_VACANCY",
           );
         }
-        console.log(`✅ Вакансія створана з радка ${i + 1}`);
+        addedTitles.push(combinedTitle);
       }
 
       source.processedHashes.push(rowHash);
-      if (source.processedHashes.length > 1000) source.processedHashes.shift();
+      if (source.processedHashes.length > 1000) {
+        source.processedHashes.splice(0, source.processedHashes.length - 1000);
+      }
       await source.save();
+      await new Promise((r) => setTimeout(r, 4000)); // Паўза 4 сек для стабільнасці
+    }
 
-      await new Promise((r) => setTimeout(r, 3000));
+    // --- ФІНАЛЬНАЯ СПРАВАЗДАЧА Ў INBOX ---
+    if (
+      addedTitles.length > 0 ||
+      closedTitles.length > 0 ||
+      updatedTitles.length > 0
+    ) {
+      let reportText = `📊 **Звіт: ${source.agencyName} (${source.sheetName})**\n\n`;
+      if (addedTitles.length > 0)
+        reportText += `✨ **Нові:** ${addedTitles.join(", ")}\n`;
+      if (updatedTitles.length > 0)
+        reportText += `🔄 **Оновлені:** ${updatedTitles.join(", ")}\n`;
+      if (closedTitles.length > 0)
+        reportText += `🛑 **Закриті/Стоп:** ${closedTitles.join(", ")}\n`;
+
+      await new UnprocessedMessage({
+        sender: "System",
+        agencyName: source.agencyName,
+        text: reportText,
+        category: "info",
+        source: "google_sheets",
+        processed: false,
+        aiAnalyzed: true,
+      }).save();
     }
 
     source.lastProcessedAt = new Date();

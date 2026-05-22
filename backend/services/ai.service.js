@@ -271,7 +271,47 @@ function cleanData(obj) {
 
   return obj;
 }
+/**
+ * Інтэлектуальны рамонт JSON-радкоў ад AI
+ */
+function repairJson(text) {
+  if (!text) return "{}";
 
+  // 1. Прыбіраем Markdown блокі (```json ... ```)
+  let cleaned = text
+    .replace(/```json/gi, "")
+    .replace(/```/g, "")
+    .trim();
+
+  // 2. Шукаем межы аб'екта {...} або масіва [...]
+  const firstBrace = cleaned.indexOf("{");
+  const firstBracket = cleaned.indexOf("[");
+  let start = -1;
+  let end = -1;
+
+  if (
+    firstBrace !== -1 &&
+    (firstBracket === -1 || (firstBrace < firstBracket && firstBrace !== -1))
+  ) {
+    start = firstBrace;
+    end = cleaned.lastIndexOf("}");
+  } else if (firstBracket !== -1) {
+    start = firstBracket;
+    end = cleaned.lastIndexOf("]");
+  }
+
+  if (start !== -1 && end !== -1) {
+    cleaned = cleaned.substring(start, end + 1);
+  }
+
+  // 3. Выдаляем "вісячыя" коскі перад закрываючымі дужкамі (common AI error)
+  cleaned = cleaned.replace(/,\s*([\]}])/g, "$1");
+
+  // 4. Выдаляем аднарадковыя каментарыі JS
+  cleaned = cleaned.replace(/\/\/.*$/gm, "");
+
+  return cleaned;
+}
 // --- PROMPTS ---
 
 const IDENTIFY_PROMPT = `
@@ -586,7 +626,7 @@ async function mergeWithTemplate(rawText, template) {
     const jsonMatch = cleanJson.match(/\{[\s\S]*\}/);
     if (jsonMatch) cleanJson = jsonMatch[0];
 
-    const merged = JSON.parse(cleanJson);
+    const merged = JSON.parse(repairJson(text));
     merged.templateName = template.templateName;
     merged.agencyName = normalizeAgency(template.agencyName);
     if (!merged.keywords?.length) merged.keywords = template.keywords;
@@ -663,7 +703,7 @@ async function identifyTemplate(rawText, templates) {
 
     const content = `MESSAGE:\n${rawText}\n\nAVAILABLE TEMPLATES:\n${JSON.stringify(templateList)}`;
     const responseText = await executeAIRequest(IDENTIFY_PROMPT, content, true);
-    const parsed = JSON.parse(responseText);
+    const parsed = JSON.parse(repairJson(responseText));
 
     if (parsed.templateId) {
       const matched = templates.find(
@@ -980,11 +1020,8 @@ JSON STRUCTURE:
 }`;
 
     const text = await executeAIRequest(SYSTEM_INSTRUCTION, rawText, true);
-    const cleanText = text
-      .replace(/^```(?:json)?\s*/i, "")
-      .replace(/\s*```$/i, "")
-      .trim();
-    const parsedData = JSON.parse(cleanText);
+
+    const parsedData = JSON.parse(repairJson(text));
 
     const processSingle = (parsed) => {
       // --- Страхоўка лакацыі: прыбіраем дубляванне "Polska"
@@ -1243,7 +1280,7 @@ async function createTemplateFromVacancy(vacancyData) {
       .replace(/```\s*/g, "");
     const jsonMatch = cleanJson.match(/\{[\s\S]*\}/);
     if (jsonMatch) cleanJson = jsonMatch[0];
-    return JSON.parse(cleanJson);
+    return JSON.parse(repairJson(text));
   } catch (error) {
     console.error("❌ Памылка стварэння шаблона:", error.message);
     return null;
@@ -1267,10 +1304,8 @@ async function updateVacancyWithAI(existingVacancy, newText) {
     content,
     true,
   );
-  let cleanJson = responseText
-    .trim()
-    .replace(/```json\s*/g, "")
-    .replace(/```\s*/g, "");
+
+  const cleanJson = repairJson(responseText); // 👈 Выкарыстоўваем repairJson
   return JSON.parse(cleanJson);
 }
 async function compareVacanciesWithAI(newData, existingData) {
@@ -1281,7 +1316,7 @@ async function compareVacanciesWithAI(newData, existingData) {
       content,
       true,
     );
-    return JSON.parse(response);
+    return JSON.parse(repairJson(response));
   } catch (err) {
     console.error("❌ AI Comparison Error:", err.message);
     return { verdict: "NEW" }; // У выпадку памылкі лічым як новую
@@ -1304,4 +1339,5 @@ module.exports = {
   VOIVODESHIP_MAP, // <--- ДАДАДЗЕНА
   COMPARE_VACANCIES_PROMPT,
   compareVacanciesWithAI,
+  repairJson,
 };

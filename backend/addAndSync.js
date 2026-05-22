@@ -46,8 +46,9 @@ const CONFIG = {
 };
 // КАНФІГУРАЦЫЯ: Калі хочаш апрацаваць УСЕ табліцы — пакінь null.
 // Калі адну канкрэтную — упішы яе spreadsheetId.
-const TARGET_SHEET_ID = "13PN6zOZiDLAL-iLm58NSbsig4h_inXp-GfmNWxc53y8"; // Напрыклад, Intraservice
-const TARGET_SHEET_NAME = "Польша"; // Назва ўкладкі
+
+const TARGET_SHEET_ID = "1qASi88Ihwdw3LpFLQECg-7YSGuv07lZ4pMqFNyTgk8E";
+const TARGET_SHEET_NAME = "ВАКАНСИИ 2026";
 
 async function run() {
   try {
@@ -73,9 +74,9 @@ async function run() {
       }
 
       // Прымусовы скід для тэсту (раскаментуй калі трэба)
-      // source.columnMap = {};
-      // source.processedHashes = [];
-      // await source.save();
+      source.columnMap = {};
+      source.processedHashes = [];
+      await source.save();
 
       console.log(
         `🚀 Запуск сінхранізацыі толькі для: ${TARGET_SHEET_NAME}...`,

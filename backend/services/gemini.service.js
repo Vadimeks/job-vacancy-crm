@@ -186,8 +186,7 @@ NEW_MESSAGE: ${enrichedText}
       true,
     );
 
-    const cleanJson = responseText.replace(/```json|```/g, "").trim();
-    const parsed = JSON.parse(cleanJson);
+    const parsed = JSON.parse(aiService.repairJson(responseText));
 
     parsed.enrichedText = enrichedText;
 
