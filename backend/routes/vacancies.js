@@ -120,7 +120,7 @@ function sanitizeTelegramMarkdown(text) {
       // Замяняем тлусты шрыфт ** на * (для Markdown V1)
       .replace(/\*\*/g, "*")
       // Прыбіраем сімвалы, якія часта ламаюць парсінг, калі яны адзіночныя
-      .replace(/[_`\[\]()]/g, "")
+      .replace(/[_`\[\]]/g, "")
       .replace(/\n{3,}/g, "\n\n")
       .trim()
   );

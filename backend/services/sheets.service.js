@@ -210,9 +210,9 @@ async function syncSheetVacancies(sourceId) {
       }
     }
 
-    const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000);
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000); // Павялічана да 30 дзён
     const recentVacancies = await Vacancy.find({
-      createdAt: { $gte: fortyEightHoursAgo },
+      createdAt: { $gte: thirtyDaysAgo },
     })
       .select(
         "vacancydescription location agencyName salary.rawSalaryDisplay createdAt",
@@ -262,13 +262,12 @@ async function syncSheetVacancies(sourceId) {
         rowDataObj.position.value || rowDataObj.link.value || "Без назви";
 
       if (verdict === "STOP") {
-        // Калі мы памылкова ўзялі статус замест назвы (напр. "Nieaktualne"),
-        // паспрабуем узяць імя з суседняга слупка для справаздачы
         const reportName = combinedTitle.toLowerCase().includes("nieaktualne")
           ? rowDataObj.location.value || combinedTitle
           : combinedTitle;
 
-        stats.closed++; // Лічым для гісторыі
+        stats.closed++;
+        details.push(`🛑 ${reportName}`); // Дададзена назва ў спіс дэталяў
         continue;
       }
       if (verdict === "SKIP") continue;
@@ -297,7 +296,7 @@ async function syncSheetVacancies(sourceId) {
         stats.ignored++;
         // Сінхранізуем лакальны спіс хэшаў, каб больш не запытваць БД па гэтым радку
         source.processedHashes.push(rowHash);
-        await source.save();
+
         continue;
       }
 
@@ -365,7 +364,7 @@ async function syncSheetVacancies(sourceId) {
         }).save();
 
         source.processedHashes.push(rowHash);
-        await source.save();
+
         continue;
       }
 

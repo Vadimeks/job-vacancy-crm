@@ -40,11 +40,7 @@ const vacancySchema = new mongoose.Schema({
     baseNetto: { type: Number, default: null }, // Мінімальная лічба для фільтра
     studentNetto: { type: Number, default: null },
     baseBrutto: { type: Number, default: null },
-    currency: {
-      type: String,
-      enum: ["PLN", "EUR", "USD", "€", "zł"],
-      default: "PLN",
-    },
+    currency: { type: String, default: "PLN" }, // Выдалены enum, каб дазволіць любую валюту (напр. CZK)
     rawSalaryDisplay: { type: String, default: "" }, // Тут будзе "25-30 зл/год" або "5000-7000 зл/мес"
     hoursRange: { type: String, default: "" },
     payoutDates: { type: String, default: "" },
