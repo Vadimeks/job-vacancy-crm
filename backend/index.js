@@ -14,7 +14,7 @@ const applyRouter = require("./routes/apply");
 const cron = require("node-cron");
 const { syncAllSheets } = require("./services/sheets.service");
 const app = express();
-
+const CronLog = require("./models/CronLog");
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
