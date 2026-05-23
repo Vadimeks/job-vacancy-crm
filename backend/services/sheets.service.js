@@ -21,27 +21,34 @@ const sheets = google.sheets({ version: "v4", auth });
  * Вызначае вердыкт для статусу радка.
  */
 function getStatusVerdict(statusText) {
-  // Калі статус пусты — лічым актыўным
-  if (!statusText || statusText.trim() === "") return "ACTIVE";
+  if (!statusText) return "ACTIVE";
 
-  const s = statusText.toLowerCase().trim();
+  const s = statusText.trim(); // Не робім toLowerCase адразу, каб не пашкодзіць некаторыя эмодзі
 
-  // --- НОВАЕ: Апрацоўка лагічных значэнняў з табліц ---
-  if (s === "false" || s === "0") return "STOP";
-  if (s === "true" || s === "1") return "ACTIVE";
+  // 1. Прыярытэтная праверка на іконкі (як у Personel Service / Bisar)
+  if (s.includes("❌") || s.includes("✖️")) return "STOP";
+  if (s.includes("✅") || s.includes("✔️")) return "ACTIVE";
 
-  // Спіс тэрмінальных статусаў
+  const lowerS = s.toLowerCase();
+
+  // 2. Апрацоўка лагічных значэнняў і лічбаў
+  if (lowerS === "false" || lowerS === "0" || lowerS === "nie") return "STOP";
+  if (lowerS === "true" || lowerS === "1" || lowerS === "tak") return "ACTIVE";
+
+  // 3. Спіс тэрмінальных тэкставых статусаў
   const terminalKeywords = [
     "nieaktualne",
     "закрыто",
     "стоп",
-    "❌",
     "архив",
     "не актив",
     "не актуально",
+    "wstrzymane",
+    "zakończona",
+    "brak",
   ];
 
-  if (terminalKeywords.some((kw) => s.includes(kw))) return "STOP";
+  if (terminalKeywords.some((kw) => lowerS.includes(kw))) return "STOP";
 
   return "ACTIVE";
 }
