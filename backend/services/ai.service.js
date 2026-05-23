@@ -1018,6 +1018,13 @@ JSON STRUCTURE:
 
       const cleaned = cleanData(parsed);
 
+      // --- НАРМАЛІЗАЦЫЯ ВАЛЮТ (Устаўлена ўнутр вобласці бачнасці cleaned) ---
+      if (cleaned && cleaned.salary && cleaned.salary.currency) {
+        const c = String(cleaned.salary.currency).toUpperCase();
+        if (c === "€") cleaned.salary.currency = "EUR";
+        if (c === "ZŁ" || c === "ZL") cleaned.salary.currency = "PLN";
+      }
+
       // Агенцыя: Forced → AI → Manual
       const normalizedAgency =
         forcedAgency || normalizeAgency(cleaned.agencyName);
@@ -1243,12 +1250,7 @@ JSON STRUCTURE:
         parsingResultType: parsingResultType,
       };
     }; // Закрываем функцыю processSingle
-    // --- НАРМАЛІЗАЦЫЯ ВАЛЮТ ---
-    if (cleaned.salary?.currency) {
-      const c = cleaned.salary.currency.toUpperCase();
-      if (c === "€") cleaned.salary.currency = "EUR";
-      if (c === "ZŁ" || c === "ZL") cleaned.salary.currency = "PLN";
-    }
+
     return Array.isArray(parsedData)
       ? parsedData.map(processSingle)
       : processSingle(parsedData);
