@@ -276,20 +276,20 @@ function cleanData(obj) {
  */
 function repairJson(text) {
   if (!text) return "{}";
-
-  // 1. Твая старая ачыстка Markdown (правераная часам)
+  // Выдаляем Markdown і лішнія прабелы
   let cleaned = text
     .replace(/^```(?:json)?\s*/i, "")
     .replace(/\s*```$/i, "")
     .trim();
 
-  // 2. Фікс для "Bad control character":
-  // Калі JSON не парсіцца, замяняем сырыя пераносы радкоў на сімвал \n
+  // Выдаляем нябачныя сімвалы кіравання, якія ламаюць JSON.parse
+  cleaned = cleaned.replace(/[\u0000-\u001F\u007F-\u009F]/g, "");
+
   try {
     JSON.parse(cleaned);
     return cleaned;
   } catch (e) {
-    // Гэта дапаможа, калі AI прыслаў тэкст у некалькі радкоў унутры палёў
+    // Калі ўсё яшчэ не парсіцца, спрабуем экраніраваць пераносы радкоў унутры палёў
     return cleaned.replace(/\n/g, "\\n").replace(/\r/g, "\\r");
   }
 }
@@ -1243,7 +1243,12 @@ JSON STRUCTURE:
         parsingResultType: parsingResultType,
       };
     }; // Закрываем функцыю processSingle
-
+    // --- НАРМАЛІЗАЦЫЯ ВАЛЮТ ---
+    if (cleaned.salary?.currency) {
+      const c = cleaned.salary.currency.toUpperCase();
+      if (c === "€") cleaned.salary.currency = "EUR";
+      if (c === "ZŁ" || c === "ZL") cleaned.salary.currency = "PLN";
+    }
     return Array.isArray(parsedData)
       ? parsedData.map(processSingle)
       : processSingle(parsedData);

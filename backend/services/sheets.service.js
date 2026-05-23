@@ -380,6 +380,7 @@ async function syncSheetVacancies(sourceId) {
             "FULL_VACANCY",
             rowHash, // 👈 ПЕРАДАЕМ ХЭШ ДЛЯ ЗАХАВАННЯ
           );
+          await new Promise((r) => setTimeout(r, 2000));
         }
         stats.added++;
         details.push(`✨ ${combinedTitle}`);
@@ -404,7 +405,25 @@ async function syncSheetVacancies(sourceId) {
 
     // --- ФІНАЛЬНАЯ СПРАВАЗДАЧА Ў INBOX ---
     if (stats.added > 0 || stats.updated > 0 || stats.closed > 0) {
-      const reportText = `📊 **Звіт: ${source.agencyName}**\n✨ Нові: ${stats.added}\n🔄 Оновлені: ${stats.updated}\n🛑 Закриті: ${stats.closed}\n⏭️ Ігноровано (дублі): ${stats.ignored}`;
+      let reportText = `📊 **Звіт: ${source.agencyName} (${source.sheetName})**\n`;
+
+      if (stats.added > 0) {
+        const addedNames = details
+          .filter((d) => d.startsWith("✨"))
+          .map((d) => d.replace("✨ ", ""))
+          .join(", ");
+        reportText += `\n✨ **Нові (${stats.added}):** ${addedNames}\n`;
+      }
+
+      if (stats.updated > 0) {
+        const updatedNames = details
+          .filter((d) => d.startsWith("🔄"))
+          .map((d) => d.replace("🔄 ", ""))
+          .join(", ");
+        reportText += `\n🔄 **Оновлені (${stats.updated}):** ${updatedNames}\n`;
+      }
+
+      reportText += `\n🛑 Закриті: ${stats.closed}\n⏭️ Ігноровано (дублі): ${stats.ignored}`;
 
       await new UnprocessedMessage({
         sender: "System",
