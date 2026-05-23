@@ -38,28 +38,66 @@ app.use("/api/apply", applyRouter);
 mongoose
   .connect(process.env.MONGODB_URI)
   .then(() => console.log("✅ MongoDB Connected"));
-// Запуск сінхранізацыі кожную раніцу а 07:00
-cron.schedule("0 7 * * *", async () => {
-  console.log("⏰ CRON: Пачатак штодзённай сінхранізацыі табліц...");
+// --- БЛОК РАЗУМНАЙ СІНХРАНІЗАЦЫІ (CRON + INSURANCE) ---
+
+/**
+ * Функцыя-абгортка, якая гарантуе, што сінхранізацыя выканаецца толькі 1 раз на суткі,
+ * нават калі сервер перазагружаўся або дэплоіўся.
+ */
+async function runSyncWithInsurance() {
+  const taskName = "sheets-sync";
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Скідваем час да пачатку сутак для параўнання
+
   try {
+    // Шукаем запіс аб апошнім запуску гэтай задачы
+    const log = await CronLog.findOne({ taskName });
+
+    if (log && log.lastRun >= today) {
+      console.log(
+        `🛡️ INSURANCE: Сінхранізацыя за сёння (${today.toLocaleDateString()}) ужо была выканана. Пропуск.`,
+      );
+      return;
+    }
+
+    console.log("⏰ CRON/STARTUP: Пачатак штодзённай сінхранізацыі табліц...");
+
+    // Выклік асноўнага сэрвісу
     await syncAllSheets();
-    console.log("✅ CRON: Сінхранізацыя завершана паспяхова.");
+
+    // Фіксуем паспяховы запуск у базе
+    await CronLog.findOneAndUpdate(
+      { taskName },
+      { lastRun: new Date() },
+      { upsert: true, new: true },
+    );
+
+    console.log(
+      "✅ CRON/STARTUP: Сінхранізацыя завершана і зафіксавана ў базе.",
+    );
   } catch (err) {
-    console.error("❌ CRON: Памылка сінхранізацыі:", err.message);
+    console.error(
+      "❌ INSURANCE ERROR: Памылка падчас выканання сінхранізацыі:",
+      err.message,
+    );
   }
+}
+
+// Запуск Cron кожную раніцу а 05:00 UTC (08:00 па Кіеве)
+cron.schedule("0 5 * * *", async () => {
+  console.log("⏰ CRON: Трыгер спрацаваў (05:00 UTC).");
+  await runSyncWithInsurance();
 });
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Server: http://localhost:${PORT}`);
   startBot();
   startUserbot();
-  // 🧪 Тэставы запуск сінхранізацыі праз 10 секунд пасля старту (толькі для праверкі дэплою)
-  // setTimeout(() => {
-  //   console.log("🚀 Тэставы запуск сінхранізацыі табліц...");
-  //   syncAllSheets().catch((err) =>
-  //     console.error("❌ Памылка тэставага запуску:", err.message),
-  //   );
-  // }, 10000);
+
+  // Разумная страхоўка пры старце:
+  // Калі сервер падняўся пасля дэплою і сёння яшчэ не было сінхранізацыі — яна запусціцца.
+  // Калі ўжо была — функцыя проста выведзе лог і нічога не прадублюе.
+  runSyncWithInsurance();
 });
 
 // --- ЗАПУСК USERBOT У ДОЧАРНЫМ ПРАЦЭСЕ ---
