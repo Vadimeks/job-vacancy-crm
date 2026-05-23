@@ -136,6 +136,7 @@ async function processVacancyMessage(
   originalText = "",
   isTruncated = false,
   parsingResultType = "FULL_VACANCY",
+  sourceHash = null, // 👈 Дададзена
 ) {
   console.log(
     `\n--- 🤖 Stage 2: Groq-парсінг для ${preDefinedAgency || "Manual"} ---`,
@@ -168,6 +169,7 @@ async function processVacancyMessage(
         rawText: enrichedText,
         isTruncated: isTruncated,
         parsingResultType: parsingResultType,
+        sourceHash: sourceHash,
         status: "active",
       });
 

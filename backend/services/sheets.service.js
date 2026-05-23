@@ -2,7 +2,8 @@ const { google } = require("googleapis");
 const path = require("path");
 const crypto = require("crypto");
 const SheetSource = require("../models/SheetSource");
-const Vacancy = require("../models/Vacancy");
+const Vacancy = require("../models/Vacancy"); // Дададзена
+const SyncHistory = require("../models/SyncHistory"); // Дададзена
 const UnprocessedMessage = require("../models/UnprocessedMessage"); // 👈 Дададзена для справаздач
 const aiService = require("./ai.service");
 const scraperService = require("./scraper.service");
@@ -119,10 +120,9 @@ async function syncSheetVacancies(sourceId) {
     `📊 Пачатак сінхранізацыі: ${source.sheetName} (${source.agencyName})`,
   );
 
-  // Масівы для справаздачы
-  const addedTitles = [];
-  const closedTitles = [];
-  const updatedTitles = [];
+  // Новая структура для SyncHistory і справаздач
+  const stats = { added: 0, updated: 0, closed: 0, ignored: 0 };
+  const details = [];
 
   try {
     const response = await sheets.spreadsheets.get({
@@ -268,7 +268,7 @@ async function syncSheetVacancies(sourceId) {
           ? rowDataObj.location.value || combinedTitle
           : combinedTitle;
 
-        closedTitles.push(reportName);
+        stats.closed++; // Лічым для гісторыі
         continue;
       }
       if (verdict === "SKIP") continue;
@@ -282,11 +282,26 @@ async function syncSheetVacancies(sourceId) {
       const rowString = JSON.stringify(rowDataObj);
       const rowHash = crypto.createHash("md5").update(rowString).digest("hex");
 
-      if (source.processedHashes.includes(rowHash)) continue;
+      // 1. ПРАВЕРКА Ў ЛАКАЛЬНЫМ СПІСЕ КРЫНІЦЫ (хуткая)
+      if (source.processedHashes.includes(rowHash)) {
+        stats.ignored++;
+        continue;
+      }
 
-      console.log(
-        `🆕 Радок ${i + 1}: ${combinedTitle} | ${rowDataObj.location.value}`,
-      );
+      // 2. ГЛАБАЛЬНАЯ ПРАВЕРКА Ў БАЗЕ (абарона ад дубляў пасля 48 гадзін)
+      const existingVacancy = await Vacancy.findOne({ sourceHash: rowHash });
+      if (existingVacancy) {
+        console.log(
+          `🛡️ ГЛАБАЛЬНЫ ФІЛЬТР: Вакансія "${combinedTitle}" ужо ёсць у базе. Пропуск.`,
+        );
+        stats.ignored++;
+        // Сінхранізуем лакальны спіс хэшаў, каб больш не запытваць БД па гэтым радку
+        source.processedHashes.push(rowHash);
+        await source.save();
+        continue;
+      }
+
+      console.log(`🆕 Новы радок ${i + 1}: ${combinedTitle}`);
 
       let rawRowText = `Пасада: ${combinedTitle}\nЛокація: ${rowDataObj.location.value}\nСтавка: ${rowDataObj.salary.value}\nСтать: ${rowDataObj.gender.value}\nНаціональність: ${rowDataObj.nationality.value}\nДодатково: ${rowDataObj.details.value} ${rowDataObj.position.note} ${rowDataObj.details.note}`;
 
@@ -337,7 +352,8 @@ async function syncSheetVacancies(sourceId) {
       }
 
       if (analysis.comparison?.verdict === "UPDATE") {
-        updatedTitles.push(combinedTitle);
+        stats.updated++;
+        details.push(`🔄 ${combinedTitle}`);
         // Адпраўляем UPDATE у Inbox
         await new UnprocessedMessage({
           sender: "Google Sheets",
@@ -362,9 +378,11 @@ async function syncSheetVacancies(sourceId) {
             fragment,
             false,
             "FULL_VACANCY",
+            rowHash, // 👈 ПЕРАДАЕМ ХЭШ ДЛЯ ЗАХАВАННЯ
           );
         }
-        addedTitles.push(combinedTitle);
+        stats.added++;
+        details.push(`✨ ${combinedTitle}`);
       }
 
       source.processedHashes.push(rowHash);
@@ -375,19 +393,18 @@ async function syncSheetVacancies(sourceId) {
       await new Promise((r) => setTimeout(r, 4000)); // Паўза 4 сек для стабільнасці
     }
 
+    // --- ЗАПІС ГІСТОРЫІ Ў БАЗУ ---
+    await SyncHistory.create({
+      agencyName: source.agencyName,
+      sheetName: source.sheetName,
+      stats: stats,
+      details: details,
+      status: "success",
+    });
+
     // --- ФІНАЛЬНАЯ СПРАВАЗДАЧА Ў INBOX ---
-    if (
-      addedTitles.length > 0 ||
-      closedTitles.length > 0 ||
-      updatedTitles.length > 0
-    ) {
-      let reportText = `📊 **Звіт: ${source.agencyName} (${source.sheetName})**\n\n`;
-      if (addedTitles.length > 0)
-        reportText += `✨ **Нові:** ${addedTitles.join(", ")}\n`;
-      if (updatedTitles.length > 0)
-        reportText += `🔄 **Оновлені:** ${updatedTitles.join(", ")}\n`;
-      if (closedTitles.length > 0)
-        reportText += `🛑 **Закриті/Стоп:** ${closedTitles.join(", ")}\n`;
+    if (stats.added > 0 || stats.updated > 0 || stats.closed > 0) {
+      const reportText = `📊 **Звіт: ${source.agencyName}**\n✨ Нові: ${stats.added}\n🔄 Оновлені: ${stats.updated}\n🛑 Закриті: ${stats.closed}\n⏭️ Ігноровано (дублі): ${stats.ignored}`;
 
       await new UnprocessedMessage({
         sender: "System",
@@ -405,6 +422,13 @@ async function syncSheetVacancies(sourceId) {
     console.log(`🏁 Сінхранізацыя ${source.sheetName} завершана.`);
   } catch (err) {
     console.error(`❌ Sync Error (${source.sheetName}):`, err.message);
+    // Фіксуем памылку ў гісторыі
+    await SyncHistory.create({
+      agencyName: source.agencyName,
+      sheetName: source.sheetName,
+      status: "error",
+      errorMessage: err.message,
+    });
   }
 }
 

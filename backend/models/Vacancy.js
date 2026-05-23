@@ -157,6 +157,10 @@ const vacancySchema = new mongoose.Schema({
   },
   isFavorite: { type: Boolean, default: false, index: true },
   vacancyCode: { type: String, unique: true, sparse: true },
+  // --- ДАДАДЗЕНА ДЛЯ ГЛАБАЛЬНАЙ АБАРОНЫ АД ДУБЛІКАТАЎ ---
+  // Хэш зыходнага радка з табліцы. Дазваляе ігнараваць дублікаты вечна.
+  sourceHash: { type: String, index: true },
+  // -----------------------------------------------------
   createdAt: { type: Date, default: Date.now },
 });
 
