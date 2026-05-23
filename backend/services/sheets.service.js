@@ -26,7 +26,11 @@ function getStatusVerdict(statusText) {
 
   const s = statusText.toLowerCase().trim();
 
-  // Спіс тэрмінальных статусаў (толькі тое, што дакладна закрыта)
+  // --- НОВАЕ: Апрацоўка лагічных значэнняў з табліц ---
+  if (s === "false" || s === "0") return "STOP";
+  if (s === "true" || s === "1") return "ACTIVE";
+
+  // Спіс тэрмінальных статусаў
   const terminalKeywords = [
     "nieaktualne",
     "закрыто",
@@ -37,10 +41,8 @@ function getStatusVerdict(statusText) {
     "не актуально",
   ];
 
-  // Калі знойдзена хоць адно "стоп-слова" — адпраўляем у закрытыя
   if (terminalKeywords.some((kw) => s.includes(kw))) return "STOP";
 
-  // Усё астатняе (нават "Rezerwa" ці "Opiekunka на злеценню") — лічым актыўным
   return "ACTIVE";
 }
 
@@ -56,9 +58,9 @@ async function identifyColumnsWithAI(headers) {
     HEADERS: ${JSON.stringify(headers)}
     
     MAPPING RULES (Find the best index for each field):
-    - position: "Lokalizacja/ Podopieczny", "Вакансия", "ПРОЕКТ", "Должность", "Назва", "вакансія укр. мовою".MUST BE "Lokalizacja/ Podopieczny" or "Вакансия" or "Должность". NEVER use "Status" column for position.
-    - location: "Lokalizacja", "Место работы", "ЛОКАЦІЇ", "Локализация", "Місто".
-    - salary: "Wynagrodzenie", "Ставка", "Оплата", "stawka", "Ставка zl netto".
+    - position: "ПРОЕКТ", "Должность", "Назва", "вакансія укр. мовою". (If "Вакансія" contains a city, use "Проект" as position).
+    - location: "Вакансія" (if it contains city names like Słubice, Stryków), "Lokalizacja", "Место работы", "Місто".
+    - salary: "Wynagrodzenie", "Ставка", "Оплата", "stawka".
     - link: "ОПИС", "link", "опис", "Фото житла", "link na strone", "CCЫЛКА".
     - agency: "Агенція", "Назва ў CRM", "Офіс".
     - details: "Stan podopiecznego", "Dodatkowa notatka", "ЖИТЛО/ДОЇЗД", "Коментар", "Примітки".
@@ -343,7 +345,10 @@ async function syncSheetVacancies(sourceId) {
       );
 
       if (!analysis) continue;
-
+      // --- НОВАЕ: Дыягностыка для адладкі ---
+      console.log(
+        `🧠 AI Verdict для "${combinedTitle}": Category=${analysis.category}, Comparison=${analysis.comparison?.verdict || "NEW"}`,
+      );
       // Апрацоўка дублікатаў і абнаўленняў
       if (analysis.comparison?.verdict === "DUPLICATE") {
         source.processedHashes.push(rowHash);

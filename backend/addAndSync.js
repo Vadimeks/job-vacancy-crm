@@ -47,8 +47,8 @@ const CONFIG = {
 // КАНФІГУРАЦЫЯ: Калі хочаш апрацаваць УСЕ табліцы — пакінь null.
 // Калі адну канкрэтную — упішы яе spreadsheetId.
 
-const TARGET_SHEET_ID = "13PN6zOZiDLAL-iLm58NSbsig4h_inXp-GfmNWxc53y8";
-const TARGET_SHEET_NAME = "Opiekunki";
+const TARGET_SHEET_ID = "18x5KvkUglitqcpr69F0q6z08vfF2BTnjYBlRdMtv8bA";
+const TARGET_SHEET_NAME = "vekos";
 
 async function run() {
   try {
@@ -68,7 +68,7 @@ async function run() {
         source = new SheetSource({
           spreadsheetId: TARGET_SHEET_ID,
           sheetName: TARGET_SHEET_NAME,
-          agencyName: "TEST_AGENCY",
+          agencyName: "VEKOS",
         });
         await source.save();
       }
