@@ -327,6 +327,8 @@ export default function Vacancies() {
       "Zachodniopomorskie",
     ].map((v) => v.toLowerCase());
 
+    const EUROPE_LABEL = "Інші країни Європи";
+
     vacancies.forEach((v) => {
       if (v.agencyName) agencies.add(v.agencyName);
 
@@ -337,52 +339,41 @@ export default function Vacancies() {
         brands.add("NO BRAND");
       }
 
-      // 2. Ваяводствы (Разбіваем па коскай + Нармалізацыя Kujawsko-Pomorskie)
+      // 2. Ваяводствы (Разбіваем па коскай + Эталон для Еўропы)
       if (v.voivodeship) {
         v.voivodeship.split(",").forEach((vovPart) => {
-          let vov = vovPart.trim();
+          const vov = vovPart.trim();
           const lowVov = vov.toLowerCase();
           if (lowVov === "польща" || !vov) return;
 
-          // Калі гэта Еўропа — заўсёды дадаем эталонны варыянт
           if (lowVov.includes("європа") || lowVov.includes("країни європи")) {
-            voivodeships.add("Інші країни Європи");
+            voivodeships.add(EUROPE_LABEL);
           } else {
-            // Для польскіх ваяводстваў (напр. Kujawsko-Pomorskie)
-            vov = vov
+            // Нармалізацыя польскіх назваў (напр. Kujawsko-Pomorskie)
+            const normalizedVov = vov
               .split("-")
               .map(
                 (word) =>
                   word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
               )
               .join("-");
-            voivodeships.add(vov);
+            voivodeships.add(normalizedVov);
           }
         });
       }
 
-      // 3. Гарады (Вяртаем краіны + Жорсткі фільтр смецця)
+      // 3. Гарады (Вяртаем краіны + Фільтруем смецце)
       if (v.location) {
         v.location.split(",").forEach((loc) => {
           let clean = loc.trim();
           const lowClean = clean.toLowerCase();
 
-          // Калі гэта замежжа і няма дужак — дадаем для фільтра
+          // Калі гэта замежжа і няма дужак — дадаем краіну для фільтра
           if (v.country && v.country !== "Polska" && !clean.includes("(")) {
             clean = `${clean} (${v.country})`;
           }
 
-          // Выдаляем любыя згадкі Еўропы, Польшчы і "уточнюецца" з гарадоў
-          const isNoise = [
-            "польща",
-            "уточнюється",
-            "різні локалізації",
-            "інші країни європи",
-            "європа",
-            "europe",
-          ].some((noise) => lowClean.includes(isNoise)); // <--- ПАМЫЛКА ТУТ, выпраўлена ніжэй
-
-          // ПРАВІЛЬНАЯ ПРАВЕРКА:
+          // Спіс забароненых слоў (смецце ў гарадах)
           const noiseWords = [
             "польща",
             "уточнюється",
