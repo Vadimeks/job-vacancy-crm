@@ -112,7 +112,7 @@ export const AGENCIES = [
 
 export const VOIVODESHIPS = [
   "Dolnośląskie",
-  "Kujawsko-pomorskie",
+  "Kujawsko-Pomorskie",
   "Lubelskie",
   "Lubuskie",
   "Łódzkie",
@@ -124,8 +124,8 @@ export const VOIVODESHIPS = [
   "Pomorskie",
   "Śląskie",
   "Świętokrzyskie",
-  "Warmińsko-mazurskie",
+  "Warmińsko-Mazurskie",
   "Wielkopolskie",
   "Zachodniopomorskie",
-  "Європа (інші країни)",
+  "Інші країни Європи",
 ];

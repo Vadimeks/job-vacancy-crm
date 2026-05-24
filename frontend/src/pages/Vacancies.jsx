@@ -150,7 +150,7 @@ function applyFilters(vacancies, filters) {
       return false;
     if (filters.brand?.length > 0) {
       const match = filters.brand.some((fb) => {
-        if (fb === "Без бренду") return !v.brand;
+        if (fb === "NO BRAND") return !v.brand || v.brand === "БРЕНДОВИЙ ОДЯГ";
         return v.brand === fb;
       });
       if (!match) return false;
@@ -308,10 +308,9 @@ export default function Vacancies() {
     const voivodeships = new Set();
     const nuances = new Set();
 
-    // Спіс ваяводстваў для адсеву з гарадоў
     const VOIV_LIST = [
       "Dolnośląskie",
-      "Kujawsko-pomorskie",
+      "Kujawsko-Pomorskie",
       "Lubelskie",
       "Lubuskie",
       "Łódzkie",
@@ -323,7 +322,7 @@ export default function Vacancies() {
       "Pomorskie",
       "Śląskie",
       "Świętokrzyskie",
-      "Warmińsko-mazurskie",
+      "Warmińsko-Mazurskie",
       "Wielkopolskie",
       "Zachodniopomorskie",
     ].map((v) => v.toLowerCase());
@@ -331,36 +330,52 @@ export default function Vacancies() {
     vacancies.forEach((v) => {
       if (v.agencyName) agencies.add(v.agencyName);
 
-      // 1. Брэнды (UPPERCASE + ачыстка)
+      // 1. Брэнды
       if (v.brand && v.brand !== "БРЕНДОВИЙ ОДЯГ") {
         brands.add(v.brand.toUpperCase().trim());
       } else {
-        brands.add("Без бренду");
+        brands.add("NO BRAND");
       }
 
-      // 2. Ваяводствы (Нармалізацыя рэгістра: śląskie -> Śląskie)
+      // 2. Ваяводствы (Разбіваем па коскай + Нармалізацыя Kujawsko-Pomorskie)
       if (v.voivodeship) {
-        let vov = v.voivodeship.trim();
-        if (vov.toLowerCase() === "польща") {
-          // ігнаруем агульнае "Польща", калі ёсць горад
-        } else {
-          vov = vov.charAt(0).toUpperCase() + vov.slice(1).toLowerCase();
+        v.voivodeship.split(",").forEach((vovPart) => {
+          let vov = vovPart.trim();
+          if (vov.toLowerCase() === "польща") return;
+
+          // Выпраўляем рэгістр, у тым ліку пасля дэфіса
+          vov = vov
+            .split("-")
+            .map(
+              (word) =>
+                word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
+            )
+            .join("-");
+
           voivodeships.add(vov);
-        }
+        });
       }
 
-      // 3. Гарады (Разбіваем па коскай + прыбіраем ваяводствы)
+      // 3. Гарады (Вяртаем краіны + Фільтруем кірыліцу)
       if (v.location) {
         v.location.split(",").forEach((loc) => {
-          let clean = loc.split("(")[0].trim();
+          let clean = loc.trim();
+
+          // Калі гэта замежжа і няма дужак — дадаем для фільтра
+          if (v.country && v.country !== "Polska" && !clean.includes("(")) {
+            clean = `${clean} (${v.country})`;
+          }
+
           const lowClean = clean.toLowerCase();
+          const hasCyrillic = /[А-ЯЁІЎ]/.test(clean);
 
           if (
             clean &&
             lowClean !== "польща" &&
             lowClean !== "уточнюється" &&
             lowClean !== "різні локалізації" &&
-            !VOIV_LIST.includes(lowClean) // Прыбіраем ваяводствы са спіса гарадоў
+            !hasCyrillic && // Прыбіраем кірыліцу (напр. Нейвердал)
+            !VOIV_LIST.includes(lowClean)
           ) {
             locations.add(clean);
           }
@@ -374,6 +389,15 @@ export default function Vacancies() {
         });
       }
     });
+
+    // Дадаем катэгорыю для замежжа, калі яна ёсць у базе
+    if (
+      vacancies.some(
+        (v) => v.voivodeship === "Інші країни Європи" || v.country !== "Polska",
+      )
+    ) {
+      voivodeships.add("Інші країни Європи");
+    }
 
     return {
       agencies: Array.from(agencies).sort(),
