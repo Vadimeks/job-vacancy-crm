@@ -556,21 +556,22 @@ router.post("/system/cleanup-locations", async (req, res) => {
           isChanged = true;
         }
       }
-      // 4. Уніфікацыя Еўропы
-      const oldEurope = "Європа (інші країни)";
-      const newEurope = "Інші країни Європи";
+      // 4. Уніфікацыя Еўропы (Разумная)
+      const europeRegex = /європа|інші країни європи/i;
+      const targetEurope = "Інші країни Європи";
 
-      if (v.voivodeship === oldEurope) {
-        v.voivodeship = newEurope;
-        isChanged = true;
+      if (v.voivodeship && europeRegex.test(v.voivodeship)) {
+        if (v.voivodeship !== targetEurope) {
+          v.voivodeship = targetEurope;
+          isChanged = true;
+        }
       }
-      if (v.location && v.location.includes(oldEurope)) {
-        v.location = v.location.replace(oldEurope, newEurope);
+
+      if (v.location && europeRegex.test(v.location)) {
+        // Калі ў лакацыі напісана толькі "Еўропа" — замяняем на "Польшча" (бо гэта не горад)
+        // А катэгорыя ваяводства ўжо будзе "Інші країни Європи"
+        v.location = "Польща";
         isChanged = true;
-      }
-      if (isChanged) {
-        await v.save({ validateBeforeSave: false });
-        updatedCount++;
       }
     }
     res.json({
