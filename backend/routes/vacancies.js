@@ -561,15 +561,12 @@ router.post("/system/cleanup-locations", async (req, res) => {
       const targetEurope = "Інші країни Європи";
 
       if (v.voivodeship && europeRegex.test(v.voivodeship)) {
-        if (v.voivodeship !== targetEurope) {
-          v.voivodeship = targetEurope;
-          isChanged = true;
-        }
+        v.voivodeship = targetEurope;
+        isChanged = true;
       }
 
       if (v.location && europeRegex.test(v.location)) {
-        // Калі ў лакацыі напісана толькі "Еўропа" — замяняем на "Польшча" (бо гэта не горад)
-        // А катэгорыя ваяводства ўжо будзе "Інші країни Європи"
+        // Калі ў лакацыі напісана "Еўропа" — гэта памылка, ставім "Польща" (бо горад невядомы)
         v.location = "Польща";
         isChanged = true;
       }
