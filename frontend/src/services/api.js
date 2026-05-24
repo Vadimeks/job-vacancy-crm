@@ -10,7 +10,8 @@ const api = axios.create({
 });
 
 // --- ВАКАНСІІ ---
-export const getVacancies = () => api.get("/vacancies");
+export const getVacancies = (status) =>
+  api.get("/vacancies", { params: { status } });
 export const createVacancy = (data) => api.post("/vacancies", data);
 
 // Дадалі messageId для аўтаматычнай ачысткі інбокса

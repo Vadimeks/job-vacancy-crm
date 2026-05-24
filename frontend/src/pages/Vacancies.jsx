@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import {
   getVacancies,
@@ -146,8 +146,13 @@ function applyFilters(vacancies, filters) {
       !filters.agencyName.includes(v.agencyName)
     )
       return false;
-    if (filters.brand?.length > 0 && !filters.brand.includes(v.brand))
-      return false;
+    if (filters.brand?.length > 0) {
+      const match = filters.brand.some((fb) => {
+        if (fb === "Без бренду") return !v.brand;
+        return v.brand === fb;
+      });
+      if (!match) return false;
+    }
     // --- 13. Зарплата (Лічбавы фільтр) ---
     const fMinSal =
       filters.minSalary !== "" ? parseFloat(filters.minSalary) : null;
@@ -227,7 +232,11 @@ export default function Vacancies() {
   const [selectedVacancyForUpdate, setSelectedVacancyForUpdate] =
     useState(null);
   const [draft, setDraft] = useState(EMPTY_FILTERS);
-  const [applied, setApplied] = useState(EMPTY_FILTERS);
+  // Па змаўчанні паказваем і актыўныя, і закрытыя вакансіі
+  const [applied, setApplied] = useState({
+    ...EMPTY_FILTERS,
+    status: ["active", "closed"],
+  });
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sourceMessageId, setSourceMessageId] = useState(null);
   const notifyUpdate = () => {
@@ -243,17 +252,20 @@ export default function Vacancies() {
     }
   }, [location.state]);
 
-  const fetchVacancies = async () => {
+  const fetchVacancies = useCallback(async () => {
     try {
-      const res = await getVacancies();
+      const statusParam =
+        applied.status?.length > 0 ? applied.status.join(",") : "active,closed";
+
+      const res = await getVacancies(statusParam);
       setVacancies(res.data);
     } catch {
       console.error("Памылка загрузкі вакансій");
     } finally {
       setLoading(false);
     }
-  };
-  // Дадай гэта пасля fetchVacancies
+  }, [applied.status]); // Функцыя будзе абнаўляцца толькі пры змене статусаў
+
   useEffect(() => {
     // Калі ўсе фільтры пустыя (скінуты), аўтаматычна прымяняем іх
     if (JSON.stringify(draft) === JSON.stringify(EMPTY_FILTERS)) {
@@ -262,7 +274,7 @@ export default function Vacancies() {
   }, [draft]);
   useEffect(() => {
     fetchVacancies();
-  }, []);
+  }, [fetchVacancies]); // Цяпер залежым ад мемаізаванай функцыі // Перазагружаем дадзеныя з сервера, калі змяніўся набор статусаў
 
   useEffect(() => {
     if (showAutoForm && formMode === "template" && templates.length === 0) {
@@ -296,7 +308,12 @@ export default function Vacancies() {
 
     vacancies.forEach((v) => {
       if (v.agencyName) agencies.add(v.agencyName);
-      if (v.brand) brands.add(v.brand);
+      // Замяніце радок if (v.brand) brands.add(v.brand); на гэты:
+      if (v.brand) {
+        brands.add(v.brand);
+      } else {
+        brands.add("Без бренду");
+      }
 
       // Геаграфія (Разумны збор)
       const isEurope =
