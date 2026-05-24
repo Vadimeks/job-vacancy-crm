@@ -256,13 +256,23 @@ async function syncSheetVacancies(sourceId) {
         }
       });
 
-      // Пропуск цалкам пустых радкоў
+      // --- ЛОГІКА "ЯКАРА" І ВАЛІДАЦЫЯ (BISAR Style) ---
+
+      // 1. Калі ў радку ёсць горад — запамінаем яго. Калі няма — бярэм стары "якар".
       if (
-        !rowDataObj.position.value &&
-        !rowDataObj.details.value &&
-        !rowDataObj.salary.value
-      )
+        rowDataObj.location.value &&
+        rowDataObj.location.value.trim() !== ""
+      ) {
+        lastLocation = rowDataObj.location.value.trim();
+      } else {
+        rowDataObj.location.value = lastLocation;
+      }
+
+      // 2. Вызначаем, ці з'яўляецца радок вакансіяй.
+      // Калі няма ні назвы праекта, ні спасылкі на док — гэта пусты радок або смецце.
+      if (!rowDataObj.position.value && !rowDataObj.link.value) {
         continue;
+      }
 
       const verdict = getStatusVerdict(rowDataObj.status?.value);
 
@@ -280,12 +290,6 @@ async function syncSheetVacancies(sourceId) {
         continue;
       }
       if (verdict === "SKIP") continue;
-
-      if (rowDataObj.location.value) {
-        lastLocation = rowDataObj.location.value;
-      } else {
-        rowDataObj.location.value = lastLocation;
-      }
 
       const rowString = JSON.stringify(rowDataObj);
       const rowHash = crypto.createHash("md5").update(rowString).digest("hex");
@@ -415,7 +419,13 @@ async function syncSheetVacancies(sourceId) {
     });
 
     // --- ФІНАЛЬНАЯ СПРАВАЗДАЧА Ў INBOX ---
-    if (stats.added > 0 || stats.updated > 0 || stats.closed > 0) {
+    // Цяпер адпраўляем, нават калі былі толькі дублікаты (ignored)
+    if (
+      stats.added > 0 ||
+      stats.updated > 0 ||
+      stats.closed > 0 ||
+      stats.ignored > 0
+    ) {
       let reportText = `📊 **Звіт: ${source.agencyName} (${source.sheetName})**\n`;
 
       if (stats.added > 0) {

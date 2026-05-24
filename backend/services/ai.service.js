@@ -158,24 +158,40 @@ const ALLOWED_NUANCE_CATEGORIES = [
 
 // Функцыя для ачысткі назвы горада ад любых краін у дужках
 function normalizeLocation(location, country) {
-  if (!location) return "";
-  // 1. Выдаляем УСЕ дужкі і тое, што ў іх (прыбіраем старыя краіны)
+  if (!location) return "Польща";
+
+  const lowLoc = location.toLowerCase().trim();
+
+  // Апрацоўка спецыфічных кейсаў
+  if (lowLoc.includes("уточнюється") || lowLoc === "") return "Польща";
+  if (lowLoc.includes("маршрути по єс") || lowLoc.includes("маршруты по ес"))
+    return "Європа (інші країни)";
+  if (
+    lowLoc.includes("різні локалізації") ||
+    lowLoc.includes("разные локализации")
+  )
+    return "Польща";
+
+  // 1. Выдаляем УСЕ дужкі і тое, што ў іх
   let clean = location.replace(/\s*\([^)]+\)/gi, "").trim();
 
-  // 2. Прыбіраем дублікаты гарадоў, калі яны ідуць праз коску (напр. "Warszawa, Warszawa")
+  // 2. Прыбіраем дублікаты гарадоў
   if (clean.includes(",")) {
     clean = [...new Set(clean.split(",").map((s) => s.trim()))].join(", ");
   }
 
-  // 3. Вызначаем эталонную назву краіны
+  // 3. Вызначаем краіну
   const normalizedCountry = country
     ? COUNTRY_MAP[country.toLowerCase()] || country
     : "Polska";
 
-  // 4. Дадаем краіну толькі калі гэта не Польшча
   if (normalizedCountry !== "Polska") {
     return `${clean} (${normalizedCountry})`;
   }
+
+  // Калі гэта назва ваяводства замест горада (памылка парсінгу)
+  if (VOIVODESHIP_MAP[clean.toLowerCase()]) return "Польща";
+
   return clean;
 }
 // Функцыя нармалізацыі агенцыі
@@ -227,13 +243,32 @@ function normalizeAgency(raw) {
 // Функцыя валідацыі брэнда
 function validateBrand(raw) {
   if (!raw) return null;
-  const upper = raw.toUpperCase().trim();
+
+  // Прымусова ў UPPERCASE і Latin (прыбіраем кірыліцу, калі гэта магчыма)
+  let brand = raw.toUpperCase().trim();
+
+  // Калі ў назве ёсць кірыліца — гэта альбо апісанне, альбо трэба транслітараваць
+  const hasCyrillic = /[А-ЯЁІЎ]/.test(brand);
+
+  if (hasCyrillic) {
+    // Калі гэта апісальная фраза (больш за 2 словы або ёсць у блэклісце) — гэта не брэнд
+    if (
+      brand.split(" ").length > 2 ||
+      BRAND_BLACKLIST.some((b) => brand.toLowerCase().includes(b))
+    ) {
+      return null;
+    }
+    // Тут можна дадаць транслітарацыю, але пакуль проста вернем як ёсць,
+    // AI ў промпце атрымае загад перакладаць у Latin.
+  }
+
   if (
-    BRAND_BLACKLIST.some((b) => upper.toLowerCase().includes(b.toLowerCase()))
+    BRAND_BLACKLIST.some((b) => brand.toLowerCase().includes(b.toLowerCase()))
   )
     return null;
-  if (upper.length < 2) return null;
-  return upper;
+  if (brand.length < 2) return null;
+
+  return brand;
 }
 const LANGUAGE_GUARD = `
 !!! UKRAINIAN ONLY. Geography: Polish (Latin). Input is already UA, do not translate.
@@ -816,7 +851,10 @@ PRIVACY & FORMATTING:
   • STRICT RULE: Choose ONLY from this list: [APOLO, BISAR, EST, EWL, FOLGA, FWS, GLOBAL, INTRASERVICE, KONO, KREON, MANPOWER, MRÓWKI, NIDEN, OTTO, PERSONEL SERVICE, PROGRES, RALEN, SG, SOLANO, STAFF POWER, VEKOS, MANUAL].
   • TRANSLATION RULE: If the agency name is in Cyrillic, TRANSLATE it to the Latin equivalent from the list above (e.g., "Прогрес" -> "PROGRES", "Коно" -> "KONO").
   • If no match from the list is found -> output null.
-- brand: Extract ONLY the exact factory/brand name in Polish or Latin script (e.g., "Amazon", "CCC").
+• brand: Extract ONLY the exact factory/brand name in Latin script (e.g., "AMAZON", "ZARA").
+  • STRICT RULE: If the brand name is descriptive (e.g., "Брендовий одяг", "Склад електроніки") -> return null.
+  • STRICT RULE: Brand must be in UPPERCASE and Latin characters only.
+  • If no clear brand name is mentioned -> null.
   • STRICT: If no clear brand name is mentioned -> null.
 - templateName: brand + city (Polish spelling).
 - vacancydescription: PUBLIC TITLE in Ukrainian.

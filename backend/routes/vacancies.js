@@ -23,9 +23,21 @@ const BRAND_BLACKLIST = [
   "фабрика",
   "завод",
   "підприємство",
-  "company",
-  "factory",
-  "warehouse",
+  "предприятие",
+  "теплиця",
+  "птахофабрика",
+  "птицефабрика",
+  "комбінат",
+  "комбинат",
+  "магазин",
+  "брендовий одяг",
+  "брендовая одежда",
+  "одяг",
+  "одежда",
+  "виробництво",
+  "производство",
+  "логістика",
+  "логистика",
 ];
 
 // ============================================================
@@ -321,7 +333,10 @@ router.post("/", async (req, res) => {
 // Фільтры (Выпраўлена для v2.1)
 router.get("/filters-data", async (req, res) => {
   try {
-    const vacancies = await Vacancy.find({ status: "active" });
+    // Бярэм дадзеныя з усіх вакансій (active і closed), каб фільтры бачылі ўсё
+    const vacancies = await Vacancy.find({
+      status: { $in: ["active", "closed"] },
+    });
 
     const cities = new Set();
     const agencies = new Set();
@@ -329,17 +344,19 @@ router.get("/filters-data", async (req, res) => {
     const nuances = new Set();
 
     vacancies.forEach((v) => {
-      // 1. Гарады (Разбіваем спісы праз коску і чысцім ад дубляў краіны)
+      // 1. Гарады (Разбіваем спісы праз коску, прыбіраем краіны ў дужках)
       if (v.location) {
-        if (v.location.includes(",")) {
-          // Калі гарадоў некалькі (напр. "Pasym, Ryn"), дадаем кожны асобна ў фільтр
-          v.location.split(",").forEach((city) => {
-            const trimmedCity = city.trim();
-            if (trimmedCity) cities.add(trimmedCity);
-          });
-        } else {
-          cities.add(v.location);
-        }
+        v.location.split(",").forEach((cityPart) => {
+          // Выдаляем краіну ў дужках, напр. "Berlin (Germany)" -> "Berlin"
+          let cleanCity = cityPart.split("(")[0].trim();
+          if (
+            cleanCity &&
+            cleanCity !== "Польща" &&
+            cleanCity !== "уточнюється"
+          ) {
+            cities.add(cleanCity);
+          }
+        });
       }
 
       // 2. Агенцыі
@@ -398,10 +415,18 @@ router.get("/", async (req, res) => {
       city,
       agency,
       category,
-      status = "active",
+      status, // Дастаем статус з запыту
     } = req.query;
 
-    let query = { status };
+    let query = {};
+
+    // Калі статус перададзены (напр. "active,closed"), разбіваем яго ў масіў
+    if (status) {
+      query.status = { $in: status.split(",") };
+    } else {
+      // Па змаўчанні паказваем і актыўныя, і закрытыя (акрамя архіўных)
+      query.status = { $in: ["active", "closed"] };
+    }
 
     // Фільтр па абраных
     if (isFavorite === "true") query.isFavorite = true;
