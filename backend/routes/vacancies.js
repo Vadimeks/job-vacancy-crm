@@ -533,81 +533,41 @@ router.post("/system/cleanup-locations", async (req, res) => {
     for (const v of vacancies) {
       let isChanged = false;
 
-      // Бярэм сырыя даныя наўпрост з MongoDB, каб абысці валідацыю Mongoose на гэтым этапе
-      const rawSalary = v._doc.salary || {};
-      const rawRequirements = v._doc.requirements || {};
-
-      // 1. МІГРАЦЫЯ ЗАРПЛАТЫ (baseNetto)
-      if (typeof rawSalary.baseNetto === "string") {
-        v.salary.rawSalaryDisplay = rawSalary.baseNetto;
-        const match = rawSalary.baseNetto.match(/(\d+[.,]?\d*)/);
-        v.salary.baseNetto = match
-          ? parseFloat(match[1].replace(",", "."))
-          : null;
-        isChanged = true;
-      }
-
-      // 2. МІГРАЦЫЯ ЗАРПЛАТЫ (studentNetto)
-      if (typeof rawSalary.studentNetto === "string") {
-        const match = rawSalary.studentNetto.match(/(\d+[.,]?\d*)/);
-        v.salary.studentNetto = match
-          ? parseFloat(match[1].replace(",", "."))
-          : null;
-        isChanged = true;
-      }
-
-      // 3. ФІКС PHYSICAL LOAD (Boolean)
-      if (typeof rawRequirements.physicalLoad !== "boolean") {
-        v.requirements.physicalLoad = !!rawRequirements.physicalLoad; // "" -> false, "Так" -> true
-        isChanged = true;
-      }
-
-      // 4. МІГРАЦЫЯ ЎЗРОСТУ
-      if (
-        v.requirements?.ageMax &&
-        (!v.requirements?.age || !v.requirements?.age?.max)
-      ) {
-        v.requirements.age = {
-          min: 18,
-          max: parseInt(v.requirements.ageMax) || 60,
-          rawText: `до ${v.requirements.ageMax} років`,
-        };
-        isChanged = true;
-      }
-
-      // 5. ЛАКАЦЫЯ І АГЕНЦЫЯ (Стандартная нармалізацыя)
+      // 1. Нармалізацыя лакацыі (выкарыстоўваем нашу новую функцыю з ai.service)
       const newLoc = aiService.normalizeLocation(v.location, v.country);
       if (newLoc !== v.location) {
         v.location = newLoc;
         isChanged = true;
       }
 
-      const newAgency = aiService.normalizeAgency(v.agencyName);
-      if (v.agencyName !== newAgency) {
-        v.agencyName = newAgency;
+      // 2. Нармалізацыя брэнда
+      const newBrand = aiService.validateBrand(v.brand);
+      if (newBrand !== v.brand) {
+        v.brand = newBrand;
         isChanged = true;
       }
 
-      if (isChanged) {
-        // Абнаўляем загаловак
-        const baseTitle = v.vacancydescription || "Опис вакансії";
-        const titlePart = baseTitle.includes(" — ")
-          ? baseTitle.split(" — ")[0]
-          : baseTitle;
-        v.vacancydescription = `${titlePart.trim()} — ${v.location}`;
+      // 3. Нармалізацыя ваяводства (śląskie -> Śląskie)
+      if (v.voivodeship) {
+        let vov = v.voivodeship.trim();
+        vov = vov.charAt(0).toUpperCase() + vov.slice(1).toLowerCase();
+        if (vov !== v.voivodeship) {
+          v.voivodeship = vov;
+          isChanged = true;
+        }
+      }
 
-        // ЗАХАВАННЕ БЕЗ ВАЛІДАЦЫІ (толькі для гэтага скрыпта, каб прапіхнуць змены тыпаў)
+      if (isChanged) {
         await v.save({ validateBeforeSave: false });
         updatedCount++;
       }
     }
     res.json({
-      message: "✅ Міграцыя завершана паспяхова",
+      message: "✅ База ачышчана",
       total: vacancies.length,
       updated: updatedCount,
     });
   } catch (err) {
-    console.error("❌ Cleanup Error:", err);
     res.status(500).json({ message: err.message });
   }
 });
