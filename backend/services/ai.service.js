@@ -162,34 +162,35 @@ function normalizeLocation(location, country) {
 
   const lowLoc = location.toLowerCase().trim();
 
-  // Апрацоўка спецыфічных кейсаў
   if (lowLoc.includes("уточнюється") || lowLoc === "") return "Польща";
   if (lowLoc.includes("маршрути по єс") || lowLoc.includes("маршруты по ес"))
-    return "Європа (інші країни)";
+    return "Інші країни Європи";
   if (
     lowLoc.includes("різні локалізації") ||
     lowLoc.includes("разные локализации")
   )
     return "Польща";
 
-  // 1. Выдаляем УСЕ дужкі і тое, што ў іх
-  let clean = location.replace(/\s*\([^)]+\)/gi, "").trim();
-
-  // 2. Прыбіраем дублікаты гарадоў
-  if (clean.includes(",")) {
-    clean = [...new Set(clean.split(",").map((s) => s.trim()))].join(", ");
-  }
-
-  // 3. Вызначаем краіну
+  // 1. Вызначаем краіну
   const normalizedCountry = country
     ? COUNTRY_MAP[country.toLowerCase()] || country
     : "Polska";
 
+  // 2. Ачыстка назвы горада (прыбіраем толькі старыя дужкі, калі яны ёсць)
+  let clean = location.replace(/\s*\([^)]+\)/gi, "").trim();
+
+  // 3. Прыбіраем дублікаты гарадоў
+  if (clean.includes(",")) {
+    clean = [...new Set(clean.split(",").map((s) => s.trim()))].join(", ");
+  }
+
+  // 4. ВЯРТАЕМ КРАІНУ, калі гэта не Польшча
   if (normalizedCountry !== "Polska") {
+    // Калі ў назве ўжо ёсць краіна (напр. "Berlin (Germany)"), пакідаем як ёсць
+    if (clean.includes(`(${normalizedCountry})`)) return clean;
     return `${clean} (${normalizedCountry})`;
   }
 
-  // Калі гэта назва ваяводства замест горада (памылка парсінгу)
   if (VOIVODESHIP_MAP[clean.toLowerCase()]) return "Польща";
 
   return clean;
