@@ -65,13 +65,15 @@ function applyFilters(vacancies, filters) {
       if (!filters.voivodeship.includes(currentRegion)) return false;
     }
 
-    // --- 4. Лакацыя ---
+    // --- 4. Лакацыя (Разумны пошук у масіве) ---
     if (filters.location?.length > 0) {
-      const vLoc =
-        v.country && v.country !== "Polska"
-          ? `${v.location} (${v.country})`
-          : v.location;
-      if (!filters.location.includes(vLoc)) return false;
+      const vLocs = v.location
+        .split(",")
+        .map((l) => l.split("(")[0].trim().toLowerCase());
+      const match = filters.location.some((fl) =>
+        vLocs.includes(fl.toLowerCase()),
+      );
+      if (!match) return false;
     }
 
     // --- 5. Жыллё ---
@@ -306,38 +308,67 @@ export default function Vacancies() {
     const voivodeships = new Set();
     const nuances = new Set();
 
+    // Спіс ваяводстваў для адсеву з гарадоў
+    const VOIV_LIST = [
+      "Dolnośląskie",
+      "Kujawsko-pomorskie",
+      "Lubelskie",
+      "Lubuskie",
+      "Łódzkie",
+      "Małopolskie",
+      "Mazowieckie",
+      "Opolskie",
+      "Podkarpackie",
+      "Podlaskie",
+      "Pomorskie",
+      "Śląskie",
+      "Świętokrzyskie",
+      "Warmińsko-mazurskie",
+      "Wielkopolskie",
+      "Zachodniopomorskie",
+    ].map((v) => v.toLowerCase());
+
     vacancies.forEach((v) => {
       if (v.agencyName) agencies.add(v.agencyName);
-      // Замяніце радок if (v.brand) brands.add(v.brand); на гэты:
-      if (v.brand) {
-        brands.add(v.brand);
+
+      // 1. Брэнды (UPPERCASE + ачыстка)
+      if (v.brand && v.brand !== "БРЕНДОВИЙ ОДЯГ") {
+        brands.add(v.brand.toUpperCase().trim());
       } else {
         brands.add("Без бренду");
       }
 
-      // Геаграфія (Разумны збор)
-      const isEurope =
-        (v.country && v.country !== "Polska") ||
-        v.voivodeship === "Європа (інші країни)";
-
-      if (isEurope) {
-        voivodeships.add("Європа (інші країни)");
-        // Чысцім горад ад старых дужак перад дадаваннем у фільтр
-        const cityOnly = (v.location || "").split("(")[0].trim();
-        const locName =
-          v.country && v.country !== "Polska"
-            ? `${cityOnly} (${v.country})`
-            : cityOnly;
-        locations.add(locName);
-      } else {
-        if (v.voivodeship) voivodeships.add(v.voivodeship);
-        if (v.location) locations.add(v.location);
+      // 2. Ваяводствы (Нармалізацыя рэгістра: śląskie -> Śląskie)
+      if (v.voivodeship) {
+        let vov = v.voivodeship.trim();
+        if (vov.toLowerCase() === "польща") {
+          // ігнаруем агульнае "Польща", калі ёсць горад
+        } else {
+          vov = vov.charAt(0).toUpperCase() + vov.slice(1).toLowerCase();
+          voivodeships.add(vov);
+        }
       }
 
-      // Нюанси (Збираємо категорії для фільтра v2.2)
+      // 3. Гарады (Разбіваем па коскай + прыбіраем ваяводствы)
+      if (v.location) {
+        v.location.split(",").forEach((loc) => {
+          let clean = loc.split("(")[0].trim();
+          const lowClean = clean.toLowerCase();
+
+          if (
+            clean &&
+            lowClean !== "польща" &&
+            lowClean !== "уточнюється" &&
+            lowClean !== "різні локалізації" &&
+            !VOIV_LIST.includes(lowClean) // Прыбіраем ваяводствы са спіса гарадоў
+          ) {
+            locations.add(clean);
+          }
+        });
+      }
+
       if (v.conditions?.specificNuances) {
         v.conditions.specificNuances.forEach((n) => {
-          // Бярэм катэгорыю з аб'екта (v2.2) або выкарыстоўваем радок (legacy)
           const category = typeof n === "object" && n !== null ? n.category : n;
           if (category) nuances.add(category);
         });
