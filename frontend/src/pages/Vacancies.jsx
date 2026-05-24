@@ -341,45 +341,63 @@ export default function Vacancies() {
       if (v.voivodeship) {
         v.voivodeship.split(",").forEach((vovPart) => {
           let vov = vovPart.trim();
-          if (vov.toLowerCase() === "польща") return;
+          const lowVov = vov.toLowerCase();
+          if (lowVov === "польща" || !vov) return;
 
-          // Выпраўляем рэгістр, у тым ліку пасля дэфіса
-          vov = vov
-            .split("-")
-            .map(
-              (word) =>
-                word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
-            )
-            .join("-");
-
-          voivodeships.add(vov);
+          // Калі гэта Еўропа — заўсёды дадаем эталонны варыянт
+          if (lowVov.includes("європа") || lowVov.includes("країни європи")) {
+            voivodeships.add("Інші країни Європи");
+          } else {
+            // Для польскіх ваяводстваў (напр. Kujawsko-Pomorskie)
+            vov = vov
+              .split("-")
+              .map(
+                (word) =>
+                  word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
+              )
+              .join("-");
+            voivodeships.add(vov);
+          }
         });
       }
 
-      // 3. Гарады (Вяртаем краіны + Фільтруем кірыліцу і катэгорыю Еўропы)
+      // 3. Гарады (Вяртаем краіны + Жорсткі фільтр смецця)
       if (v.location) {
         v.location.split(",").forEach((loc) => {
           let clean = loc.trim();
+          const lowClean = clean.toLowerCase();
 
+          // Калі гэта замежжа і няма дужак — дадаем для фільтра
           if (v.country && v.country !== "Polska" && !clean.includes("(")) {
             clean = `${clean} (${v.country})`;
           }
 
-          const lowClean = clean.toLowerCase();
-          const hasCyrillic = /[А-ЯЁІЎ]/.test(clean);
-
-          // СПІС ЗАБАРОНЕНЫХ СЛОЎ ДЛЯ ГАРАДОЎ
-          const forbidden = [
+          // Выдаляем любыя згадкі Еўропы, Польшчы і "уточнюецца" з гарадоў
+          const isNoise = [
             "польща",
             "уточнюється",
             "різні локалізації",
             "інші країни європи",
-            "європа (інші країни)",
+            "європа",
+            "europe",
+          ].some((noise) => lowClean.includes(isNoise)); // <--- ПАМЫЛКА ТУТ, выпраўлена ніжэй
+
+          // ПРАВІЛЬНАЯ ПРАВЕРКА:
+          const noiseWords = [
+            "польща",
+            "уточнюється",
+            "різні локалізації",
+            "європа",
+            "europe",
           ];
+          const isActualNoise = noiseWords.some((word) =>
+            lowClean.includes(word),
+          );
+          const hasCyrillic = /[А-ЯЁІЎ]/.test(clean);
 
           if (
             clean &&
-            !forbidden.includes(lowClean) &&
+            !isActualNoise &&
             !hasCyrillic &&
             !VOIV_LIST.includes(lowClean)
           ) {
@@ -395,15 +413,6 @@ export default function Vacancies() {
         });
       }
     });
-
-    // Дадаем катэгорыю для замежжа, калі яна ёсць у базе
-    if (
-      vacancies.some(
-        (v) => v.voivodeship === "Інші країни Європи" || v.country !== "Polska",
-      )
-    ) {
-      voivodeships.add("Інші країни Європи");
-    }
 
     return {
       agencies: Array.from(agencies).sort(),
