@@ -54,22 +54,33 @@ function applyFilters(vacancies, filters) {
     if (filters.category?.length > 0 && !filters.category.includes(v.category))
       return false;
 
-    // --- 3. Ваяводства / Рэгіён (ФІКС: Еўропа) ---
+    // --- 3. Ваяводства / Рэгіён (ФІКС: Польшча і Еўропа) ---
     if (filters.voivodeship?.length > 0) {
       const vVoiv = v.voivodeship;
-      const isEurope =
-        (v.country && v.country !== "Polska") ||
-        vVoiv === "Європа (інші країни)";
-      const currentRegion = isEurope ? "Європа (інші країни)" : vVoiv;
+      const isEurope = v.country && v.country !== "Polska";
 
-      if (!filters.voivodeship.includes(currentRegion)) return false;
+      const match = filters.voivodeship.some((fv) => {
+        if (fv === "Інші країни Європи")
+          return isEurope || vVoiv === "Інші країни Європи";
+        if (fv === "Польща")
+          return v.country === "Polska" && (!vVoiv || vVoiv === "Польща");
+        return vVoiv === fv;
+      });
+
+      if (!match) return false;
     }
 
-    // --- 4. Лакацыя (Разумны пошук у масіве) ---
+    // --- 4. Лакацыя (ФІКС: Замежныя гарады з дужкамі) ---
     if (filters.location?.length > 0) {
-      const vLocs = v.location
-        .split(",")
-        .map((l) => l.split("(")[0].trim().toLowerCase());
+      const vLocs = v.location.split(",").map((loc) => {
+        let clean = loc.trim();
+        // Калі гэта замежжа, прыводзім да фармату "City (Country)" для супадзення з фільтрам
+        if (v.country && v.country !== "Polska" && !clean.includes("(")) {
+          return `${clean} (${v.country})`.toLowerCase();
+        }
+        return clean.toLowerCase();
+      });
+
       const match = filters.location.some((fl) =>
         vLocs.includes(fl.toLowerCase()),
       );
@@ -339,17 +350,23 @@ export default function Vacancies() {
         brands.add("NO BRAND");
       }
 
-      // 2. Ваяводствы (Разбіваем па коскай + Эталон для Еўропы)
+      // 2. Ваяводствы
+      if (
+        v.country === "Polska" &&
+        (!v.voivodeship || v.voivodeship.toLowerCase() === "польща")
+      ) {
+        voivodeships.add("Польща");
+      }
+
       if (v.voivodeship) {
         v.voivodeship.split(",").forEach((vovPart) => {
           const vov = vovPart.trim();
           const lowVov = vov.toLowerCase();
-          if (lowVov === "польща" || !vov) return;
+          if (!vov || lowVov === "польща") return;
 
           if (lowVov.includes("європа") || lowVov.includes("країни європи")) {
             voivodeships.add(EUROPE_LABEL);
           } else {
-            // Нармалізацыя польскіх назваў (напр. Kujawsko-Pomorskie)
             const normalizedVov = vov
               .split("-")
               .map(
@@ -362,18 +379,20 @@ export default function Vacancies() {
         });
       }
 
-      // 3. Гарады (Вяртаем краіны + Фільтруем смецце)
+      if (v.country && v.country !== "Polska") {
+        voivodeships.add(EUROPE_LABEL);
+      }
+
+      // 3. Гарады
       if (v.location) {
         v.location.split(",").forEach((loc) => {
           let clean = loc.trim();
           const lowClean = clean.toLowerCase();
 
-          // Калі гэта замежжа і няма дужак — дадаем краіну для фільтра
           if (v.country && v.country !== "Polska" && !clean.includes("(")) {
             clean = `${clean} (${v.country})`;
           }
 
-          // Спіс забароненых слоў (смецце ў гарадах)
           const noiseWords = [
             "польща",
             "уточнюється",

@@ -111,6 +111,7 @@ export const AGENCIES = [
 ].sort();
 
 export const VOIVODESHIPS = [
+  "Польща",
   "Dolnośląskie",
   "Kujawsko-Pomorskie",
   "Lubelskie",
