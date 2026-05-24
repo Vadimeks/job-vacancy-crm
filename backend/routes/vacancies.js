@@ -556,7 +556,18 @@ router.post("/system/cleanup-locations", async (req, res) => {
           isChanged = true;
         }
       }
+      // 4. Уніфікацыя Еўропы
+      const oldEurope = "Європа (інші країни)";
+      const newEurope = "Інші країни Європи";
 
+      if (v.voivodeship === oldEurope) {
+        v.voivodeship = newEurope;
+        isChanged = true;
+      }
+      if (v.location && v.location.includes(oldEurope)) {
+        v.location = v.location.replace(oldEurope, newEurope);
+        isChanged = true;
+      }
       if (isChanged) {
         await v.save({ validateBeforeSave: false });
         updatedCount++;
