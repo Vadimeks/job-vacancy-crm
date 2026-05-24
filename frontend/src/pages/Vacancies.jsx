@@ -356,12 +356,11 @@ export default function Vacancies() {
         });
       }
 
-      // 3. Гарады (Вяртаем краіны + Фільтруем кірыліцу)
+      // 3. Гарады (Вяртаем краіны + Фільтруем кірыліцу і катэгорыю Еўропы)
       if (v.location) {
         v.location.split(",").forEach((loc) => {
           let clean = loc.trim();
 
-          // Калі гэта замежжа і няма дужак — дадаем для фільтра
           if (v.country && v.country !== "Polska" && !clean.includes("(")) {
             clean = `${clean} (${v.country})`;
           }
@@ -369,12 +368,19 @@ export default function Vacancies() {
           const lowClean = clean.toLowerCase();
           const hasCyrillic = /[А-ЯЁІЎ]/.test(clean);
 
+          // СПІС ЗАБАРОНЕНЫХ СЛОЎ ДЛЯ ГАРАДОЎ
+          const forbidden = [
+            "польща",
+            "уточнюється",
+            "різні локалізації",
+            "інші країни європи",
+            "європа (інші країни)",
+          ];
+
           if (
             clean &&
-            lowClean !== "польща" &&
-            lowClean !== "уточнюється" &&
-            lowClean !== "різні локалізації" &&
-            !hasCyrillic && // Прыбіраем кірыліцу (напр. Нейвердал)
+            !forbidden.includes(lowClean) &&
+            !hasCyrillic &&
             !VOIV_LIST.includes(lowClean)
           ) {
             locations.add(clean);
