@@ -122,20 +122,50 @@ function cleanTelegramPost(text) {
     .trim();
 }
 
+/**
+ * Разумная ачыстка і валідацыя Markdown для Telegram (EDITION 2026)
+ * Выпраўляе незакрытыя тэгі і экрануе адзіночныя службовыя сімвалы.
+ */
 function sanitizeTelegramMarkdown(text) {
   if (!text) return "";
-  return (
-    text
-      // Выдаляем бітыя спасылкі Markdown, якія можа стварыць AI
-      .replace(/\[([^\]]*?)(?=\n|$)/g, "$1")
-      .replace(/`([^`\n]*?)(?=\n|$)/gm, "$1")
-      // Замяняем тлусты шрыфт ** на * (для Markdown V1)
-      .replace(/\*\*/g, "*")
-      // Прыбіраем сімвалы, якія часта ламаюць парсінг, калі яны адзіночныя
-      .replace(/[_`\[\]]/g, "")
-      .replace(/\n{3,}/g, "\n\n")
-      .trim()
-  );
+
+  let sanitized = text;
+
+  // 1. Экрануем падкрэсліванні ТОЛЬКІ ўнутры круглых дужак спасылак [тэкст](url)
+  // Гэта вырашае праблему з URL Google Docs, якія змяшчаюць "_"
+  sanitized = sanitized.replace(/\((https?:\/\/[^\)]+)\)/g, (match, url) => {
+    return "(" + url.replace(/_/g, "\\_") + ")";
+  });
+
+  // 2. Балансіроўка і праверка парнасці для тлустага тэксту (*) і курсіву (_)
+  // Мы выкарыстоўваем Markdown V1, таму ** замяняем на * для надзейнасці
+  sanitized = sanitized.replace(/\*\*/g, "*");
+
+  const charsToCheck = ["*", "_", "`"];
+  charsToCheck.forEach((char) => {
+    const regex = new RegExp("\\" + char, "g");
+    const count = (sanitized.match(regex) || []).length;
+    // Калі колькасць сімвалаў няцотная — выдаляем апошні неўраўнаважаны сімвал
+    if (count % 2 !== 0) {
+      const lastIndex = sanitized.lastIndexOf(char);
+      sanitized =
+        sanitized.substring(0, lastIndex) + sanitized.substring(lastIndex + 1);
+      console.log(
+        `⚠️ Выпраўлены няпарны сімвал фарматавання [ ${char} ] у тэксце вакансіі.`,
+      );
+    }
+  });
+
+  // 3. Праверка квадратных дужак [ ] (стыль спасылак)
+  const openBrackets = (sanitized.match(/\[/g) || []).length;
+  const closeBrackets = (sanitized.match(/\]/g) || []).length;
+  if (openBrackets !== closeBrackets) {
+    // Калі дужкі не збалансаваны, экрануем іх, каб не ламаць Markdown
+    sanitized = sanitized.replace(/\[/g, "\\[").replace(/\]/g, "\\]");
+  }
+
+  // 4. Фінальная ачыстка лішніх пераносаў
+  return sanitized.replace(/\n{3,}/g, "\n\n").trim();
 }
 
 // ============================================================
