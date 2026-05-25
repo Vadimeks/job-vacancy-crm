@@ -298,23 +298,15 @@ async function syncSheetVacancies(sourceId) {
 
       const rowString = JSON.stringify(rowDataObj);
       const rowHash = crypto.createHash("md5").update(rowString).digest("hex");
-      foundHashesInSheet.add(rowHash); // 👈 НОВАЕ: фіксуем, што гэтая вакансія ёсць у табліцы
-      // 1. ПРАВЕРКА Ў ЛАКАЛЬНЫМ СПІСЕ КРЫНІЦЫ (хуткая)
-      if (source.processedHashes.includes(rowHash)) {
-        stats.ignored++;
-        continue;
-      }
+      foundHashesInSheet.add(rowHash);
 
-      // 2. ГЛАБАЛЬНАЯ ПРАВЕРКА Ў БАЗЕ (абарона ад дубляў пасля 48 гадзін)
+      // ГЛАБАЛЬНАЯ ПРАВЕРКА Ў БАЗЕ (адзіная крыніца праўды — не залежыць ад processedHashes)
       const existingVacancy = await Vacancy.findOne({ sourceHash: rowHash });
       if (existingVacancy) {
         console.log(
           `🛡️ ГЛАБАЛЬНЫ ФІЛЬТР: Вакансія "${combinedTitle}" ужо ёсць у базе. Пропуск.`,
         );
         stats.ignored++;
-        // Сінхранізуем лакальны спіс хэшаў, каб больш не запытваць БД па гэтым радку
-        source.processedHashes.push(rowHash);
-
         continue;
       }
 
@@ -322,7 +314,6 @@ async function syncSheetVacancies(sourceId) {
 
       // 👈 НОВАЕ: Збіраем нататкі з усіх слупкоў для максімальнага кантэксту AI
 
-      // 1. Шукаем спасылку (мета-даныя або тэкст)
       // 1. Шукаем спасылку (мета-даныя або тэкст)
       const externalUrl =
         rowDataObj.link.link ||

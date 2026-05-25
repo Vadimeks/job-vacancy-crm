@@ -74,8 +74,8 @@ async function run() {
       }
 
       // Прымусовы скід для тэсту (раскаментуй калі трэба)
-      source.columnMap = {};
-      source.processedHashes = [];
+      source.columnMap = {}; // Скід маппінгу для паўторнага AI-аналізу загалоўкаў
+      // source.processedHashes = []; // ⚠️ ТОЛЬКІ ДЛЯ ПОЎНАГА ПЕРАСКАНАВАННЯ - НЕ ЎКЛЮЧАЦЬ У ПРАДАКШНЕ
       await source.save();
 
       console.log(
