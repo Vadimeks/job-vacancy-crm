@@ -132,7 +132,7 @@ async function syncSheetVacancies(sourceId) {
   // Новая структура для SyncHistory і справаздач
   const stats = { added: 0, updated: 0, closed: 0, ignored: 0 };
   const details = [];
-
+  const foundHashesInSheet = new Set(); // 👈 Новае: спіс усіх хэшаў, знойдзеных у табліцы
   try {
     const response = await sheets.spreadsheets.get({
       spreadsheetId: source.spreadsheetId,
@@ -245,7 +245,12 @@ async function syncSheetVacancies(sourceId) {
     for (let i = headerRowIndex + 1; i < rowData.length; i++) {
       const cells = rowData[i].values;
       if (!cells || cells.length === 0) continue;
-
+      if (
+        rowData[i].rowMetadata?.hiddenByUser ||
+        rowData[i].rowMetadata?.hiddenByFilter
+      ) {
+        continue;
+      }
       const rowDataObj = {};
       expectedKeys.forEach((key) => {
         const idx = colMap[key];
@@ -293,7 +298,7 @@ async function syncSheetVacancies(sourceId) {
 
       const rowString = JSON.stringify(rowDataObj);
       const rowHash = crypto.createHash("md5").update(rowString).digest("hex");
-
+      foundHashesInSheet.add(rowHash); // 👈 НОВАЕ: фіксуем, што гэтая вакансія ёсць у табліцы
       // 1. ПРАВЕРКА Ў ЛАКАЛЬНЫМ СПІСЕ КРЫНІЦЫ (хуткая)
       if (source.processedHashes.includes(rowHash)) {
         stats.ignored++;
@@ -315,8 +320,13 @@ async function syncSheetVacancies(sourceId) {
 
       console.log(`🆕 Новы радок ${i + 1}: ${combinedTitle}`);
 
-      let rawRowText = `Пасада: ${combinedTitle}\nЛокація: ${rowDataObj.location.value}\nСтавка: ${rowDataObj.salary.value}\nСтать: ${rowDataObj.gender.value}\nНаціональність: ${rowDataObj.nationality.value}\nДодатково: ${rowDataObj.details.value} ${rowDataObj.position.note} ${rowDataObj.details.note}`;
+      // 👈 НОВАЕ: Збіраем нататкі з усіх слупкоў для максімальнага кантэксту AI
+      const allNotes = Object.values(rowDataObj)
+        .map((obj) => obj.note)
+        .filter((note) => note && note.trim() !== "")
+        .join(" | ");
 
+      let rawRowText = `Пасада: ${combinedTitle}\nЛокація: ${rowDataObj.location.value}\nСтавка: ${rowDataObj.salary.value}\nСтать: ${rowDataObj.gender.value}\nНаціональність: ${rowDataObj.nationality.value}\nДодатково: ${rowDataObj.details.value}\nНАТАТКІ З ТАБЛІЦЫ: ${allNotes}`;
       // --- РАЗУМНЫ ПОШУК СПАСЫЛКІ (Агрэсіўны) ---
       // 1. Шукаем схаваную гіперспасылку (мета-даныя) у ключавых слупках
       // Мы правяраем .link, які запаўняецца ў extractCellData
@@ -408,7 +418,26 @@ async function syncSheetVacancies(sourceId) {
       await source.save();
       await new Promise((r) => setTimeout(r, 4000)); // Паўза 4 сек для стабільнасці
     }
+    // --- 👈 НОВАЕ: АЎТА-ЗАКРЫЦЦЁ ВАКАНСІЙ, ЯКІХ НЯМА Ў ТАБЛІЦЫ ---
+    if (foundHashesInSheet.size > 0) {
+      const closeResult = await Vacancy.updateMany(
+        {
+          agencyName: source.agencyName,
+          status: "active",
+          sourceHash: { $exists: true, $nin: Array.from(foundHashesInSheet) },
+        },
+        {
+          $set: { status: "closed" },
+        },
+      );
 
+      if (closeResult.modifiedCount > 0) {
+        console.log(
+          `✅ Аўта-закрыццё: ${closeResult.modifiedCount} вакансій агенцыі ${source.agencyName} больш не ў табліцы.`,
+        );
+        stats.closed += closeResult.modifiedCount;
+      }
+    }
     // --- ЗАПІС ГІСТОРЫІ Ў БАЗУ ---
     await SyncHistory.create({
       agencyName: source.agencyName,
