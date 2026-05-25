@@ -68,7 +68,7 @@ async function identifyColumnsWithAI(headers) {
     - position: "ПРОЕКТ", "Должность", "Назва", "вакансія укр. мовою". (If "Вакансія" contains a city, use "Проект" as position).
     - location: "Вакансія" (if it contains city names like Słubice, Stryków), "Lokalizacja", "Место работы", "Місто".
     - salary: "Wynagrodzenie", "Ставка", "Оплата", "stawka".
-    - link: "ОПИС", "link", "опис", "Фото житла", "link na strone", "CCЫЛКА".
+     - link: "ОПИС", "link", "опис", "Проект", "link na strone", "CCЫЛКА". IMPORTANT: NEVER use "Фото житла", "Фото", "photo" columns as link — those are accommodation photos only.
     - agency: "Агенція", "Назва ў CRM", "Офіс".
     - details: "Stan podopiecznego", "Dodatkowa notatka", "ЖИТЛО/ДОЇЗД", "Коментар", "Примітки".
     - status: "Status rekrutacji", "Статус", "Status", "Актуально", "АКТИВ".
