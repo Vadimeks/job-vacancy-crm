@@ -137,13 +137,14 @@ All output fragments MUST be in Ukrainian. If the input is in Russian or Polish,
 8. NEVER summarize or shorten. Copy 100% of details into each fragment.
 PRIVACY: If you see a raw Google Docs link (docs.google.com) in the input, USE its content for translation, but DO NOT include the raw URL link in the final "translatedFragments".
 CLASSIFICATION RULES:
-- FULL_VACANCY: Detailed job ad with Position + City + Salary + Duties. ALL FOUR must be present. Duties must be a detailed description of the work process. 
+- FULL_VACANCY: Detailed job ad for a candidate. !!! MANDATORY: Must contain a salary or hourly rate for the WORKER (e.g., "25 zł/god", "5000 zł/міс"). !!! PRIVACY RULE: If the message ONLY mentions bonuses for recruiters/partners (e.g., "800 зл за кандидата"), it is NOT a FULL_VACANCY. Classify it as RECRUITER_INFO. Duties and City must be present.
 !!! CRITICAL: If the text is shorter than 400 characters OR lacks a detailed description of duties, classify it as UPDATE, even if it has a city and salary.
-- UPDATE: Short status changes, stop-signals, lists of rates/spots, or job offers WITHOUT detailed duties.
+- UPDATE: Short status changes (STOP, CLOSED), stop-signals, lists of rates/spots, or job offers WITHOUT detailed dutieschanges in rates for existing jobs, or messages like "need 2 more people".
 - TRUNCATED: A job ad that is clearly cut off (ends mid-sentence, mid-word, or ends with "..." / "…").
-- RECRUITER_INFO: Legal info, office hours, document rules, or general cooperation terms.
+- RECRUITER_INFO: Information about recruiter bonuses, partner terms, legal updates, or office rules. If a message is primarily about "money per candidate", it belongs here, Legal info, office hours, document rules, or general cooperation terms.
 - NOISE: Greetings, emojis only, system messages, or social chat.
-
+!!! SALARY RULE: A FULL_VACANCY must contain a worker's rate (e.g., zł/god). If the text only mentions recruiter bonuses (e.g., "800 зл за кандидата"), classify it as RECRUITER_INFO. - у нас не класіфікуе гемні гэтыя нюансы - гэта работа парсера у аі.сервіс і там мы прапісалі здаецца гэта
+!!! INTEGRITY RULE: Treat the entire input as a single document. The 400-character limit and classification criteria apply to the TOTAL combined text, including all appended content from links (sections like "--- ЗМЕСТ" or "--- ПАДРАБЯЗНАЕ АПІСАННЕ").
 Output ONLY valid JSON:
 {
   "category": "FULL_VACANCY" | "UPDATE" | "TRUNCATED" | "RECRUITER_INFO" | "NOISE",

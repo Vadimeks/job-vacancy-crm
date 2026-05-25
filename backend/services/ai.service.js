@@ -910,7 +910,7 @@ SALARY:
 - bonusDetails: all bonuses in full.
 - salaryNotes: advances, overtime, housing allowance, and detailed rate explanations.
 - rawSalaryDisplay: STRICTLY SHORT. Only the rate range and currency. Example: "25.36 - 31.40 zł/god". NEVER put long explanations here. Put them in salaryNotes.
-  
+  !!! CRITICAL: NEVER use recruiter bonuses (e.g., "800 зл за людыну") to fill baseNetto or rawSalaryDisplay. These fields are for the WORKER'S pay only. Recruiter money goes ONLY to forRecruiter.internalNotes.
 REQUIREMENTS:
 - experienceRequired: true/false (check if "досвід" is mentioned as required).
 - polishLanguageLevel: one of "Не вимагається", "A1", "A2", "B1", "B2", "C1".

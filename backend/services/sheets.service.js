@@ -321,41 +321,39 @@ async function syncSheetVacancies(sourceId) {
       console.log(`🆕 Новы радок ${i + 1}: ${combinedTitle}`);
 
       // 👈 НОВАЕ: Збіраем нататкі з усіх слупкоў для максімальнага кантэксту AI
+      // 1. Збіраем нататкі з усіх слупкоў
       const allNotes = Object.values(rowDataObj)
         .map((obj) => obj.note)
         .filter((note) => note && note.trim() !== "")
         .join(" | ");
 
-      let rawRowText = `Пасада: ${combinedTitle}\nЛокація: ${rowDataObj.location.value}\nСтавка: ${rowDataObj.salary.value}\nСтать: ${rowDataObj.gender.value}\nНаціональність: ${rowDataObj.nationality.value}\nДодатково: ${rowDataObj.details.value}\nНАТАТКІ З ТАБЛІЦЫ: ${allNotes}`;
-      // --- РАЗУМНЫ ПОШУК СПАСЫЛКІ (Агрэсіўны) ---
-      // 1. Шукаем схаваную гіперспасылку (мета-даныя) у ключавых слупках
-      // Мы правяраем .link, які запаўняецца ў extractCellData
+      // 2. Шукаем спасылку (мета-даныя або тэкст)
       const externalUrl =
         rowDataObj.link.link ||
         rowDataObj.position.link ||
         rowDataObj.details.link ||
-        // 2. Калі мета-спасылкі няма, шукаем тэкст, які пачынаецца з http
         [
           rowDataObj.link.value,
           rowDataObj.position.value,
           rowDataObj.details.value,
         ].find((v) => v && String(v).trim().startsWith("http"));
 
+      // 3. Фармуем базавы тэкст з маркерам крыніцы
+      let rawRowText = `[SOURCE: SPREADSHEET_ROW]\nПасада: ${combinedTitle}\nЛокація: ${rowDataObj.location.value}\nСтавка: ${rowDataObj.salary.value}\nСтать: ${rowDataObj.gender.value}\nНаціональність: ${rowDataObj.nationality.value}\nДодатково: ${rowDataObj.details.value}\nНАТАТКІ З ТАБЛІЦЫ: ${allNotes}`;
+
+      // 4. Калі ёсць спасылка — дадаем яе змест
       if (externalUrl && String(externalUrl).startsWith("http")) {
         console.log(
           `🔗 Знойдзена спасылка для апрацоўкі: ${externalUrl.substring(0, 60)}...`,
         );
+        rawRowText += `\n\n--- ПАДРАБЯЗНАЕ АПІСАННЕ ПА СПАСЫЛЦЫ ---\n(Выкарыстоўвай гэты тэкст як асноўную крыніцу для FULL_VACANCY)\nСпасылка: ${externalUrl}`;
 
-        // Дадаем спасылку ў тэкст.
-        // analyzeAndCompareWithGemini -> enrichTextWithDocs аўтаматычна знойдзе яе і спампуе змест.
-        rawRowText += `\nСпасылка: ${externalUrl}`;
-
-        // Калі гэта НЕ Google Doc (напр. Telegraph), дадаткова скрапім яго тут
         if (!externalUrl.includes("google.com")) {
           const externalContent =
             await scraperService.getExternalContent(externalUrl);
-          if (externalContent)
-            rawRowText += `\n\n--- АПІСАННЕ З САЙТА ---\n${externalContent}`;
+          if (externalContent) {
+            rawRowText += `\n${externalContent}`;
+          }
         }
       }
 
