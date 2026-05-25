@@ -321,13 +321,9 @@ async function syncSheetVacancies(sourceId) {
       console.log(`🆕 Новы радок ${i + 1}: ${combinedTitle}`);
 
       // 👈 НОВАЕ: Збіраем нататкі з усіх слупкоў для максімальнага кантэксту AI
-      // 1. Збіраем нататкі з усіх слупкоў
-      const allNotes = Object.values(rowDataObj)
-        .map((obj) => obj.note)
-        .filter((note) => note && note.trim() !== "")
-        .join(" | ");
 
-      // 2. Шукаем спасылку (мета-даныя або тэкст)
+      // 1. Шукаем спасылку (мета-даныя або тэкст)
+      // 1. Шукаем спасылку (мета-даныя або тэкст)
       const externalUrl =
         rowDataObj.link.link ||
         rowDataObj.position.link ||
@@ -338,6 +334,12 @@ async function syncSheetVacancies(sourceId) {
           rowDataObj.details.value,
         ].find((v) => v && String(v).trim().startsWith("http"));
 
+      // 2. Збіраем нататкі з усіх слупкоў
+      const allNotes = Object.values(rowDataObj)
+        .map((obj) => obj.note)
+        .filter((note) => note && note.trim() !== "")
+        .join(" | ");
+
       // 3. Фармуем базавы тэкст з маркерам крыніцы
       let rawRowText = `[SOURCE: SPREADSHEET_ROW]\nПасада: ${combinedTitle}\nЛокація: ${rowDataObj.location.value}\nСтавка: ${rowDataObj.salary.value}\nСтать: ${rowDataObj.gender.value}\nНаціональність: ${rowDataObj.nationality.value}\nДодатково: ${rowDataObj.details.value}\nНАТАТКІ З ТАБЛІЦЫ: ${allNotes}`;
 
@@ -346,15 +348,16 @@ async function syncSheetVacancies(sourceId) {
         console.log(
           `🔗 Знойдзена спасылка для апрацоўкі: ${externalUrl.substring(0, 60)}...`,
         );
-        rawRowText += `\n\n--- ПАДРАБЯЗНАЕ АПІСАННЕ ПА СПАСЫЛЦЫ ---\n(Выкарыстоўвай гэты тэкст як асноўную крыніцу для FULL_VACANCY)\nСпасылка: ${externalUrl}`;
 
+        let externalContent = "";
+        // Калі гэта НЕ Google Doc/File, скрапім праз scraperService
         if (!externalUrl.includes("google.com")) {
-          const externalContent =
+          externalContent =
             await scraperService.getExternalContent(externalUrl);
-          if (externalContent) {
-            rawRowText += `\n${externalContent}`;
-          }
         }
+
+        // Дадаем змест (або пазнаку для Stage 0) у агульны тэкст
+        rawRowText += `\n\n--- ПАДРАБЯЗНАЕ АПІСАННЕ ПА СПАСЫЛЦЫ ---\n(Выкарыстоўвай гэты тэкст як асноўную крыніцу для FULL_VACANCY)\n${externalContent || "(Змест будзе загружаны праз Stage 0)"}\nСпасылка: ${externalUrl}`;
       }
 
       const analysis = await analyzeAndCompareWithGemini(

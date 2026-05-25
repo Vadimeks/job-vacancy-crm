@@ -50,7 +50,7 @@ async function fetchGoogleDriveFolderText(folderUrl) {
   }
 }
 async function fetchGoogleDocText(url) {
-  const match = url.match(/\/document\/d\/([a-zA-Z0-9_-]+)/);
+  const match = url.match(/\/(?:document|file)\/d\/([a-zA-Z0-9_-]+)/);
   if (!match) return null;
   const docId = match[1];
   const exportUrl = `https://docs.google.com/document/d/${docId}/export?format=txt`;
@@ -78,7 +78,7 @@ async function fetchGoogleDocText(url) {
 async function enrichTextWithDocs(rawText) {
   // Палепшаныя рэгексы, якія ігнаруюць лішнія элементы тыпу /u/0/
   const docRegex =
-    /docs\.google\.com\/document\/(?:u\/\d+\/)?d\/([a-zA-Z0-9_-]+)/g;
+    /(?:docs\.google\.com\/document|drive\.google\.com\/file)\/(?:u\/\d+\/)?d\/([a-zA-Z0-9_-]+)/g;
   const folderRegex =
     /drive\.google\.com\/(?:drive\/)?folders\/([a-zA-Z0-9_-]+)/g;
 
@@ -143,7 +143,7 @@ CLASSIFICATION RULES:
 - TRUNCATED: A job ad that is clearly cut off (ends mid-sentence, mid-word, or ends with "..." / "…").
 - RECRUITER_INFO: Information about recruiter bonuses, partner terms, legal updates, or office rules. If a message is primarily about "money per candidate", it belongs here, Legal info, office hours, document rules, or general cooperation terms.
 - NOISE: Greetings, emojis only, system messages, or social chat.
-!!! SALARY RULE: A FULL_VACANCY must contain a worker's rate (e.g., zł/god). If the text only mentions recruiter bonuses (e.g., "800 зл за кандидата"), classify it as RECRUITER_INFO. - у нас не класіфікуе гемні гэтыя нюансы - гэта работа парсера у аі.сервіс і там мы прапісалі здаецца гэта
+!!! SALARY RULE: A FULL_VACANCY must contain a worker's rate (e.g., zł/god). If the text only mentions recruiter bonuses (e.g., "800 зл за кандидата"), classify it as RECRUITER_INFO. 
 !!! INTEGRITY RULE: Treat the entire input as a single document. The 400-character limit and classification criteria apply to the TOTAL combined text, including all appended content from links (sections like "--- ЗМЕСТ" or "--- ПАДРАБЯЗНАЕ АПІСАННЕ").
 Output ONLY valid JSON:
 {
