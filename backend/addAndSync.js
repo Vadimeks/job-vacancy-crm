@@ -47,8 +47,8 @@ const CONFIG = {
 // КАНФІГУРАЦЫЯ: Калі хочаш апрацаваць УСЕ табліцы — пакінь null.
 // Калі адну канкрэтную — упішы яе spreadsheetId.
 
-const TARGET_SHEET_ID = "18x5KvkUglitqcpr69F0q6z08vfF2BTnjYBlRdMtv8bA";
-const TARGET_SHEET_NAME = "vekos";
+const TARGET_SHEET_ID = "1ajkfjO8v5FcaNl-NDydc_NwihGgFlvdEkh38ouPwmj4";
+const TARGET_SHEET_NAME = "WEEK 23";
 
 async function run() {
   try {

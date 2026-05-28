@@ -2,9 +2,9 @@ const { google } = require("googleapis");
 const path = require("path");
 const crypto = require("crypto");
 const SheetSource = require("../models/SheetSource");
-const Vacancy = require("../models/Vacancy"); // Дададзена
-const SyncHistory = require("../models/SyncHistory"); // Дададзена
-const UnprocessedMessage = require("../models/UnprocessedMessage"); // 👈 Дададзена для справаздач
+const Vacancy = require("../models/Vacancy");
+const SyncHistory = require("../models/SyncHistory");
+const UnprocessedMessage = require("../models/UnprocessedMessage");
 const aiService = require("./ai.service");
 const scraperService = require("./scraper.service");
 const { analyzeAndCompareWithGemini } = require("./gemini.service");
@@ -17,93 +17,156 @@ const auth = new google.auth.GoogleAuth({
 
 const sheets = google.sheets({ version: "v4", auth });
 
+// --- КЛЮЧАВЫЯ СЛОВЫ ДЛЯ ПОШУКУ РАДКА ЗАГАЛОЎКАЎ ---
+// Дадаем усе вядомыя загалоўкі з усіх табліц
+const HEADER_KEYWORDS = [
+  // Агульныя
+  "вакансія",
+  "вакансия",
+  "проект",
+  "статус",
+  "посада",
+  "ставка",
+  "оплата",
+  "пол",
+  "місто",
+  "city",
+  "klient",
+  "опис",
+  "назва",
+  "фірма",
+  // INTRASERVICE Польша
+  "место работы",
+  "выходы",
+  "количество мест",
+  "возраст",
+  // INTRASERVICE Голандія / Opiekunki
+  "rekrutacji",
+  "lokalizacja",
+  "wynagrodzenie",
+  "podopieczny",
+  "start pracy",
+  "dodatkowa",
+  "umowa",
+  "płeć",
+  "dokumenty",
+  // РАЛЕН
+  "локализация",
+  "гражданство",
+  "колво",
+  "кол-во",
+  "дата выхода",
+  "вознаг",
+  "комментарий",
+  // ОТТО
+  "стать",
+  "громадянство",
+  "офіс",
+  "функції",
+  "клієнта",
+  "контракту",
+  "recruitment",
+  "order",
+  // МРУВКІ
+  "должность",
+  "национальность",
+  "примечание",
+  "sanepid",
+  // ВЕКОС
+  "актуально",
+  "доїзд",
+  "доплата",
+  // БІСАР
+  "адреса",
+  "координатори",
+  "локації",
+  "житло",
+];
+
 /**
- * Вызначае вердыкт для статусу радка.
+ * Вызначае ці з'яўляецца колер ячэйкі "небелым" (для RALEN).
+ * Дэфолтны/белы фон = { red:1, green:1, blue:1 } або undefined.
+ * Любы іншы колер = вакансія актыўная.
  */
-function getStatusVerdict(statusText) {
-  if (!statusText) return "ACTIVE";
+function hasNonWhiteBackground(cell) {
+  if (!cell) return false;
+  const bg = cell.effectiveFormat?.backgroundColor;
+  if (!bg) return false;
+  // Калі ўсе каналы = 1 (або адсутнічаюць, бо дэфолт = 1) — гэта белы
+  const r = bg.red ?? 1;
+  const g = bg.green ?? 1;
+  const b = bg.blue ?? 1;
+  // Дапускаем невялікае адхіленне (0.99+) на выпадак float-акруглення
+  return !(r >= 0.99 && g >= 0.99 && b >= 0.99);
+}
 
-  const s = statusText.trim(); // Не робім toLowerCase адразу, каб не пашкодзіць некаторыя эмодзі
+/**
+ * Вызначае статус радка.
+ * Праглядае ВСЕ ячэйкі радка — шукае маркеры закрыцця.
+ * Для RALEN дадаткова правярае фон першай непустой ячэйкі.
+ */
+function getRowStatus(cells, agencyName) {
+  if (!cells || cells.length === 0) return "EMPTY";
 
-  // 1. Прыярытэтная праверка на іконкі (як у Personel Service / Bisar)
-  if (s.includes("❌") || s.includes("✖️")) return "STOP";
-  if (s.includes("✅") || s.includes("✔️")) return "ACTIVE";
+  // --- Для RALEN: вызначаем статус па колеры фону ---
+  if (agencyName === "RALEN") {
+    // Шукаем першую ячэйку з тэкстам і правяраем яе фон
+    const firstFilledCell = cells.find(
+      (c) => c && (c.formattedValue || "").trim() !== "",
+    );
+    if (firstFilledCell) {
+      return hasNonWhiteBackground(firstFilledCell) ? "ACTIVE" : "STOP";
+    }
+    return "EMPTY";
+  }
 
-  const lowerS = s.toLowerCase();
-
-  // 2. Апрацоўка лагічных значэнняў і лічбаў
-  if (lowerS === "false" || lowerS === "0" || lowerS === "nie") return "STOP";
-  if (lowerS === "true" || lowerS === "1" || lowerS === "tak") return "ACTIVE";
-
-  // 3. Спіс тэрмінальных тэкставых статусаў
-  const terminalKeywords = [
+  // --- Для астатніх табліц: праглядаем усе ячэйкі на тэкставыя маркеры ---
+  const STOP_MARKERS = [
+    "❌",
+    "✖️",
     "nieaktualne",
     "закрыто",
     "стоп",
+    "stop",
     "архив",
     "не актив",
     "не актуально",
     "wstrzymane",
     "zakończona",
     "brak",
+    "false",
+    "0",
   ];
+  const ACTIVE_MARKERS = ["✅", "✔️", "true", "1", "tak", "актив"];
 
-  if (terminalKeywords.some((kw) => lowerS.includes(kw))) return "STOP";
+  let hasActiveMarker = false;
+  let hasStopMarker = false;
+  let hasAnyText = false;
 
+  for (const cell of cells) {
+    if (!cell) continue;
+    const val = (cell.formattedValue || "").trim();
+    if (!val) continue;
+    hasAnyText = true;
+    const lower = val.toLowerCase();
+
+    if (ACTIVE_MARKERS.some((m) => lower === m || lower.includes(m))) {
+      hasActiveMarker = true;
+    }
+    if (STOP_MARKERS.some((m) => lower === m || lower.includes(m))) {
+      hasStopMarker = true;
+    }
+  }
+
+  if (!hasAnyText) return "EMPTY";
+  // Прыярытэт: STOP > ACTIVE > ACTIVE (па змаўчанні)
+  if (hasStopMarker && !hasActiveMarker) return "STOP";
   return "ACTIVE";
 }
 
 /**
- * Вызначае мапінг слупкоў праз AI
+ * Здабывае значэнне, спасылку і нататку з адной ячэйкі.
  */
-async function identifyColumnsWithAI(headers) {
-  console.log("📋 Загалоўкі, якія бачыць AI:", headers);
-
-  const prompt = `
-    ROLE: Expert Data Analyst.
-    TASK: Map Google Sheets headers to vacancy fields.
-    HEADERS: ${JSON.stringify(headers)}
-    
-    MAPPING RULES (Find the best index for each field):
-    - position: "ПРОЕКТ", "Должность", "Назва", "вакансія укр. мовою". (If "Вакансія" contains a city, use "Проект" as position).
-    - location: "Вакансія" (if it contains city names like Słubice, Stryków), "Lokalizacja", "Место работы", "Місто".
-    - salary: "Wynagrodzenie", "Ставка", "Оплата", "stawka".
-     - link: "ОПИС", "link", "опис", "Проект", "link na strone", "CCЫЛКА". IMPORTANT: NEVER use "Фото житла", "Фото", "photo" columns as link — those are accommodation photos only.
-    - agency: "Агенція", "Назва ў CRM", "Офіс".
-    - details: "Stan podopiecznego", "Dodatkowa notatka", "ЖИТЛО/ДОЇЗД", "Коментар", "Примітки".
-    - status: "Status rekrutacji", "Статус", "Status", "Актуально", "АКТИВ".
-    - gender: "Plec", "Пол", "Стать", "Хто потрібен".
-    - nationality: "Narodowość", "Гражданство", "Громадянство", "Національність".
-    
-    RETURN ONLY JSON:
-    {
-      "position": index,
-      "location": index,
-      "salary": index,
-      "link": index,
-      "agency": index,
-      "details": index,
-      "status": index,
-      "gender": index,
-      "nationality": index
-    }
-    (index is 0-based. If not found, use null)
-  `;
-
-  try {
-    const response = await aiService.executeAIRequest(
-      prompt,
-      "Identify columns",
-      true,
-    );
-
-    return JSON.parse(aiService.repairJson(response));
-  } catch (err) {
-    console.error("❌ AI Column Mapping Error:", err.message);
-    return null;
-  }
-}
-
 function extractCellData(cell) {
   if (!cell) return { value: "", link: "", note: "" };
   const value = cell.formattedValue || "";
@@ -119,6 +182,65 @@ function extractCellData(cell) {
 }
 
 /**
+ * Збірае поўны тэкст радка ў фармаце "Загаловак: Значэнне".
+ * Дадае cell note побач з ячэйкай.
+ * Спасылкі (акрамя фота жылля) дадаюцца як тэкст.
+ * Вяртае: { text, externalUrls, title }
+ */
+function buildRowText(cells, headers) {
+  const parts = [];
+  const externalUrls = [];
+  let title = "";
+
+  // Словы, якія сігналізуюць пра фота жылля — такія спасылкі ігнаруем як крыніцу кантэнту
+  const PHOTO_KEYWORDS = ["фото", "photo", "зображення", "image", "picture"];
+
+  for (let j = 0; j < headers.length; j++) {
+    const header = (headers[j] || "").trim();
+    if (!header) continue; // Прапускаем слупкі без загалоўка
+
+    const cell = cells[j] || null;
+    const { value, link, note } = extractCellData(cell);
+
+    if (!value && !link && !note) continue; // Пустая ячэйка — прапускаем
+
+    // Запамінаем першае непустое значэнне як назву радка (для справаздач і лагаў)
+    if (!title && value) title = value;
+
+    // Фармуем радок: "Загаловак: Значэнне"
+    let line = `${header}: ${value}`;
+
+    // Дадаем нататку (cell note) адразу пасля значэння
+    if (note) {
+      line += `\n  [Нататка да "${header}": ${note}]`;
+    }
+
+    parts.push(line);
+
+    // Апрацоўка спасылак
+    if (link && link.startsWith("http")) {
+      const headerLower = header.toLowerCase();
+      const isPhoto = PHOTO_KEYWORDS.some((kw) => headerLower.includes(kw));
+
+      if (isPhoto) {
+        // Фота жылля: дадаем толькі як тэкст, змест не спампоўваем
+        parts.push(`  [Фота/зображення: ${link}]`);
+      } else {
+        // Усе іншыя спасылкі — збіраем для спампоўкі кантэнту
+        externalUrls.push({ url: link, header });
+        parts.push(`  [Спасылка: ${link}]`);
+      }
+    }
+  }
+
+  return {
+    text: parts.join("\n"),
+    externalUrls,
+    title: title || "Без назви",
+  };
+}
+
+/**
  * Галоўная функцыя сінхранізацыі табліцы
  */
 async function syncSheetVacancies(sourceId) {
@@ -129,10 +251,10 @@ async function syncSheetVacancies(sourceId) {
     `📊 Пачатак сінхранізацыі: ${source.sheetName} (${source.agencyName})`,
   );
 
-  // Новая структура для SyncHistory і справаздач
   const stats = { added: 0, updated: 0, closed: 0, ignored: 0 };
   const details = [];
-  const foundHashesInSheet = new Set(); // 👈 Новае: спіс усіх хэшаў, знойдзеных у табліцы
+  const foundHashesInSheet = new Set();
+
   try {
     const response = await sheets.spreadsheets.get({
       spreadsheetId: source.spreadsheetId,
@@ -146,40 +268,15 @@ async function syncSheetVacancies(sourceId) {
       return;
     }
 
-    // --- КРОК 1: ПОШУК РАДКА ЗАГАЛОЎКАЎ (Пашыраны спіс) ---
+    // --- КРОК 1: ПОШУК РАДКА ЗАГАЛОЎКАЎ ---
     let headerRowIndex = -1;
-    const keywords = [
-      "вакансія",
-      "вакансия",
-      "проект",
-      "статус",
-      "посада",
-      "ставка",
-      "оплата",
-      "локализация",
-      "пол",
-      "місто",
-      "city",
-      "klient",
-      "опис",
-      "aktywna",
-      "назва",
-      "фірма",
-      "rekrutacji",
-      "lokalizacja",
-      "wynagrodzenie",
-      "opiekunki",
-      "podopieczny",
-      "start pracy", // 👈 Дададзена для Opiekunki
-    ];
 
     for (let i = 0; i < Math.min(rowData.length, 20); i++) {
-      // Павялічана да 20 радкоў
       const rowValues = (rowData[i].values || []).map((v) =>
         (v.formattedValue || "").toLowerCase(),
       );
       const matchCount = rowValues.filter((rv) =>
-        keywords.some((kw) => rv.includes(kw)),
+        HEADER_KEYWORDS.some((kw) => rv.includes(kw)),
       ).length;
       if (matchCount >= 2) {
         headerRowIndex = i;
@@ -193,33 +290,15 @@ async function syncSheetVacancies(sourceId) {
     }
 
     console.log(`✅ Загалоўкі знойдзены ў радку №${headerRowIndex + 1}`);
-    const headers = rowData[headerRowIndex].values.map(
+
+    // Захоўваем загалоўкі як масіў радкоў (індэкс = нумар слупка)
+    const headers = (rowData[headerRowIndex].values || []).map(
       (v) => v.formattedValue || "",
     );
+    console.log("📋 Загалоўкі:", headers.filter((h) => h.trim()).join(" | "));
 
-    // --- КРОК 2: МАПІНГ ---
-    let colMap =
-      source.columnMap instanceof Map
-        ? Object.fromEntries(source.columnMap)
-        : source.columnMap || {};
-
-    if (
-      !colMap ||
-      Object.keys(colMap).length === 0 ||
-      colMap.position === null
-    ) {
-      console.log("🧠 Мапінг адсутнічае. Запыт да AI...");
-      colMap = await identifyColumnsWithAI(headers);
-      if (colMap && colMap.position !== null) {
-        source.columnMap = colMap;
-        await source.save();
-      } else {
-        console.log("⚠️ AI не змог вызначыць структуру слупкоў.");
-        return;
-      }
-    }
-
-    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000); // Павялічана да 30 дзён
+    // --- КРОК 2: Загружаем апошнія вакансіі для кантэксту дэдуплікацыі ---
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const recentVacancies = await Vacancy.find({
       createdAt: { $gte: thirtyDaysAgo },
     })
@@ -228,161 +307,119 @@ async function syncSheetVacancies(sourceId) {
       )
       .limit(50);
 
-    let lastLocation = "";
-    const expectedKeys = [
-      "position",
-      "location",
-      "salary",
-      "link",
-      "agency",
-      "details",
-      "status",
-      "gender",
-      "nationality",
-    ];
-
-    // --- КРОК 4: ЦЫКЛ ПА РАДКАХ ---
+    // --- КРОК 3: ЦЫКЛ ПА РАДКАХ ---
     for (let i = headerRowIndex + 1; i < rowData.length; i++) {
       const cells = rowData[i].values;
-      if (!cells || cells.length === 0) continue;
+
+      // 1. Прапускаем схаваныя радкі
       if (
         rowData[i].rowMetadata?.hiddenByUser ||
         rowData[i].rowMetadata?.hiddenByFilter
       ) {
         continue;
       }
-      const rowDataObj = {};
-      expectedKeys.forEach((key) => {
-        const idx = colMap[key];
-        if (idx !== null && idx !== undefined && cells[idx]) {
-          rowDataObj[key] = extractCellData(cells[idx]);
-        } else {
-          rowDataObj[key] = { value: "", link: "", note: "" };
-        }
-      });
 
-      // --- ЛОГІКА "ЯКАРА" І ВАЛІДАЦЫЯ (BISAR Style) ---
+      // 2. Вызначаем статус радка
+      const rowStatus = getRowStatus(cells, source.agencyName);
 
-      // 1. Калі ў радку ёсць горад — запамінаем яго. Калі няма — бярэм стары "якар".
-      if (
-        rowDataObj.location.value &&
-        rowDataObj.location.value.trim() !== ""
-      ) {
-        lastLocation = rowDataObj.location.value.trim();
-      } else {
-        rowDataObj.location.value = lastLocation;
-      }
+      if (rowStatus === "EMPTY") continue;
 
-      // 2. Вызначаем, ці з'яўляецца радок вакансіяй.
-      // Калі няма ні назвы праекта, ні спасылкі на док — гэта пусты радок або смецце.
-      if (!rowDataObj.position.value && !rowDataObj.link.value) {
-        continue;
-      }
+      // 3. Збіраем тэкст радка: "Загаловак: Значэнне" для ўсіх слупкоў
+      const {
+        text: rowBodyText,
+        externalUrls,
+        title: rowTitle,
+      } = buildRowText(cells || [], headers);
 
-      const verdict = getStatusVerdict(rowDataObj.status?.value);
+      // Калі радок зусім пусты (няма тэксту) — прапускаем
+      if (!rowBodyText.trim()) continue;
 
-      // Збор назвы для справаздачы
-      const combinedTitle =
-        rowDataObj.position.value || rowDataObj.link.value || "Без назви";
+      // 4. Вызначаем хэш па поўным тэксце радка (усе слупкі)
+      const rowHash = crypto
+        .createHash("md5")
+        .update(`${source.agencyName}::${rowBodyText}`)
+        .digest("hex");
 
-      if (verdict === "STOP") {
-        const reportName = combinedTitle.toLowerCase().includes("nieaktualne")
-          ? rowDataObj.location.value || combinedTitle
-          : combinedTitle;
-
+      if (rowStatus === "STOP") {
+        // Радок закрыты: адзначаем у базе калі быў актыўным
+        foundHashesInSheet.add(rowHash); // 👈 Дадаем у Set нават закрытыя — для аўта-закрыцця
         stats.closed++;
-        details.push(`🛑 ${reportName}`); // Дададзена назва ў спіс дэталяў
+        details.push(`🛑 ${rowTitle}`);
         continue;
       }
-      if (verdict === "SKIP") continue;
 
-      const rowString = JSON.stringify(rowDataObj);
-      const rowHash = crypto.createHash("md5").update(rowString).digest("hex");
+      // rowStatus === "ACTIVE" далей
       foundHashesInSheet.add(rowHash);
 
-      // ГЛАБАЛЬНАЯ ПРАВЕРКА Ў БАЗЕ (адзіная крыніца праўды — не залежыць ад processedHashes)
+      // 5. Глабальная праверка на дублікат па sourceHash
       const existingVacancy = await Vacancy.findOne({ sourceHash: rowHash });
       if (existingVacancy) {
         console.log(
-          `🛡️ ГЛАБАЛЬНЫ ФІЛЬТР: Вакансія "${combinedTitle}" ужо ёсць у базе. Пропуск.`,
+          `🛡️ ГЛАБАЛЬНЫ ФІЛЬТР: Вакансія "${rowTitle}" ужо ёсць у базе. Пропуск.`,
         );
         stats.ignored++;
         continue;
       }
 
-      console.log(`🆕 Новы радок ${i + 1}: ${combinedTitle}`);
+      console.log(`🆕 Новы радок ${i + 1}: ${rowTitle}`);
 
-      // 👈 НОВАЕ: Збіраем нататкі з усіх слупкоў для максімальнага кантэксту AI
-
-      // 1. Шукаем спасылку (мета-даныя або тэкст)
-      const externalUrl =
-        rowDataObj.link.link ||
-        rowDataObj.position.link ||
-        rowDataObj.details.link ||
-        [
-          rowDataObj.link.value,
-          rowDataObj.position.value,
-          rowDataObj.details.value,
-        ].find((v) => v && String(v).trim().startsWith("http"));
-
-      // 2. Збіраем нататкі з усіх слупкоў
-      const allNotes = Object.values(rowDataObj)
-        .map((obj) => obj.note)
-        .filter((note) => note && note.trim() !== "")
-        .join(" | ");
-
-      // 3. Фармуем базавы тэкст з маркерам крыніцы
-      let rawRowText = `[SOURCE: SPREADSHEET_ROW]\nПасада: ${combinedTitle}\nЛокація: ${rowDataObj.location.value}\nСтавка: ${rowDataObj.salary.value}\nСтать: ${rowDataObj.gender.value}\nНаціональність: ${rowDataObj.nationality.value}\nДодатково: ${rowDataObj.details.value}\nНАТАТКІ З ТАБЛІЦЫ: ${allNotes}`;
-
-      // 4. Калі ёсць спасылка — дадаем яе змест
-      if (externalUrl && String(externalUrl).startsWith("http")) {
+      // 6. Збіраем знешні кантэнт па спасылках (акрамя фота)
+      let externalContent = "";
+      for (const { url, header } of externalUrls) {
         console.log(
-          `🔗 Знойдзена спасылка для апрацоўкі: ${externalUrl.substring(0, 60)}...`,
+          `🔗 Знойдзена спасылка (${header}): ${url.substring(0, 60)}...`,
         );
-
-        let externalContent = "";
-        // Калі гэта НЕ Google Doc/File, скрапім праз scraperService
-        if (!externalUrl.includes("google.com")) {
-          externalContent =
-            await scraperService.getExternalContent(externalUrl);
+        // Google Docs/Drive апрацоўваецца праз Stage 0 (enrichTextWithDocs у gemini.service)
+        // Для ўсіх іншых — скрапім зараз
+        if (!url.includes("google.com")) {
+          const scraped = await scraperService.getExternalContent(url);
+          if (scraped) {
+            externalContent += `\n\n--- ЗМЕСТ ПА СПАСЫЛЦЫ (${header}) ---\n${scraped}`;
+          }
         }
-
-        // Дадаем змест (або пазнаку для Stage 0) у агульны тэкст
-        rawRowText += `\n\n--- ПАДРАБЯЗНАЕ АПІСАННЕ ПА СПАСЫЛЦЫ ---\n(Выкарыстоўвай гэты тэкст як асноўную крыніцу для FULL_VACANCY)\n${externalContent || "(Змест будзе загружаны праз Stage 0)"}\nСпасылка: ${externalUrl}`;
+        // Google Docs спасылкі застануцца ў тэксце і будуць апрацаваны ў Stage 0
       }
 
+      // 7. Фармуем фінальны тэкст для AI
+      const rawRowText =
+        `[SOURCE: SPREADSHEET_ROW | AGENCY: ${source.agencyName}]\n` +
+        rowBodyText +
+        externalContent;
+
+      // 8. Stage 1: Класіфікацыя і пераклад
       const analysis = await analyzeAndCompareWithGemini(
         rawRowText,
         [],
         recentVacancies,
       );
 
-      if (!analysis) continue;
-      // --- НОВАЕ: Дыягностыка для адладкі ---
+      if (!analysis) {
+        // AI не адказаў — пакідаем радок для наступнага запуску
+        console.log(`⏳ AI не адказаў для "${rowTitle}". Пропуск.`);
+        continue;
+      }
+
       console.log(
-        `🧠 AI Verdict для "${combinedTitle}": Category=${analysis.category}, Comparison=${analysis.comparison?.verdict || "NEW"}`,
+        `🧠 AI Verdict для "${rowTitle}": Category=${analysis.category}, Comparison=${analysis.comparison?.verdict || "NEW"}`,
       );
-      // Апрацоўка дублікатаў і абнаўленняў
+
+      // 9. Апрацоўка вердыкту
       if (analysis.comparison?.verdict === "DUPLICATE") {
-        source.processedHashes.push(rowHash);
+        stats.ignored++;
         continue;
       }
 
       if (analysis.comparison?.verdict === "UPDATE") {
         stats.updated++;
-        details.push(`🔄 ${combinedTitle}`);
-        // Адпраўляем UPDATE у Inbox
+        details.push(`🔄 ${rowTitle}`);
         await new UnprocessedMessage({
           sender: "Google Sheets",
           agencyName: source.agencyName,
-          text: `Оновлення в табліці для: ${combinedTitle}\n\n${analysis.translatedFragments?.[0] || rawRowText}`,
+          text: `Оновлення в табліці для: ${rowTitle}\n\n${analysis.translatedFragments?.[0] || rawRowText}`,
           category: "update",
           source: "google_sheets",
           aiAnalyzed: true,
         }).save();
-
-        source.processedHashes.push(rowHash);
-
         continue;
       }
 
@@ -395,22 +432,18 @@ async function syncSheetVacancies(sourceId) {
             fragment,
             false,
             "FULL_VACANCY",
-            rowHash, // 👈 ПЕРАДАЕМ ХЭШ ДЛЯ ЗАХАВАННЯ
+            rowHash,
           );
           await new Promise((r) => setTimeout(r, 2000));
         }
         stats.added++;
-        details.push(`✨ ${combinedTitle}`);
+        details.push(`✨ ${rowTitle}`);
       }
 
-      source.processedHashes.push(rowHash);
-      if (source.processedHashes.length > 1000) {
-        source.processedHashes.splice(0, source.processedHashes.length - 1000);
-      }
-      await source.save();
-      await new Promise((r) => setTimeout(r, 4000)); // Паўза 4 сек для стабільнасці
+      await new Promise((r) => setTimeout(r, 4000)); // Паўза 4 сек паміж радкамі
     }
-    // --- 👈 НОВАЕ: АЎТА-ЗАКРЫЦЦЁ ВАКАНСІЙ, ЯКІХ НЯМА Ў ТАБЛІЦЫ ---
+
+    // --- АЎТА-ЗАКРЫЦЦЁ ВАКАНСІЙ, ЯКІХ НЯМА Ў ТАБЛІЦЫ ---
     if (foundHashesInSheet.size > 0) {
       const closeResult = await Vacancy.updateMany(
         {
@@ -418,9 +451,7 @@ async function syncSheetVacancies(sourceId) {
           status: "active",
           sourceHash: { $exists: true, $nin: Array.from(foundHashesInSheet) },
         },
-        {
-          $set: { status: "closed" },
-        },
+        { $set: { status: "closed" } },
       );
 
       if (closeResult.modifiedCount > 0) {
@@ -430,17 +461,17 @@ async function syncSheetVacancies(sourceId) {
         stats.closed += closeResult.modifiedCount;
       }
     }
+
     // --- ЗАПІС ГІСТОРЫІ Ў БАЗУ ---
     await SyncHistory.create({
       agencyName: source.agencyName,
       sheetName: source.sheetName,
-      stats: stats,
-      details: details,
+      stats,
+      details,
       status: "success",
     });
 
-    // --- ФІНАЛЬНАЯ СПРАВАЗДАЧА Ў INBOX ---
-    // Цяпер адпраўляем, нават калі былі толькі дублікаты (ignored)
+    // --- СПРАВАЗДАЧА Ў INBOX ---
     if (
       stats.added > 0 ||
       stats.updated > 0 ||
@@ -483,7 +514,6 @@ async function syncSheetVacancies(sourceId) {
     console.log(`🏁 Сінхранізацыя ${source.sheetName} завершана.`);
   } catch (err) {
     console.error(`❌ Sync Error (${source.sheetName}):`, err.message);
-    // Фіксуем памылку ў гісторыі
     await SyncHistory.create({
       agencyName: source.agencyName,
       sheetName: source.sheetName,
