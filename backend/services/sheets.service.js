@@ -108,6 +108,13 @@ function hasNonWhiteBackground(cell) {
 function getRowStatus(cells, agencyName) {
   if (!cells || cells.length === 0) return "EMPTY";
 
+  // --- ДЛЯ OTTO: мінімум 3 запоўненыя ячэйкі, ігнаруем STOP-маркеры ---
+  if (agencyName === "OTTO") {
+    const filledCount = cells.filter(
+      (c) => (c?.formattedValue || "").trim() !== "",
+    ).length;
+    return filledCount >= 3 ? "ACTIVE" : "EMPTY";
+  }
   // --- Для RALEN: вызначаем статус па колеры фону ---
   if (agencyName === "RALEN") {
     // Шукаем першую ячэйку з тэкстам і правяраем яе фон
@@ -204,8 +211,13 @@ function buildRowText(cells, headers) {
 
     if (!value && !link && !note) continue; // Пустая ячэйка — прапускаем
 
-    // Запамінаем першае непустое значэнне як назву радка (для справаздач і лагаў)
-    if (!title && value) title = value;
+    // Ігнаруем тэхнічныя ID пры выбары назвы (напр. 2026-79319 або хэшы)
+    const isTechnicalId =
+      /^\d{4}-\d+$/.test(value.trim()) ||
+      value.trim().toUpperCase().startsWith("ID") ||
+      (value.trim().length > 15 && /^[a-f0-9]+$/i.test(value.trim()));
+
+    if (!title && value && !isTechnicalId) title = value.trim();
 
     // Фармуем радок: "Загаловак: Значэнне"
     let line = `${header}: ${value}`;
@@ -437,7 +449,13 @@ async function syncSheetVacancies(sourceId) {
           await new Promise((r) => setTimeout(r, 2000));
         }
         stats.added++;
-        details.push(`✨ ${rowTitle}`);
+        // Зручны пошук створанай вакансіі ў базе па хэшы, каб атрымаць яе дакладны MongoDB ID
+        const createdVac = await Vacancy.findOne({
+          sourceHash: rowHash,
+        }).select("_id");
+        details.push(
+          `✨ [ID: ${createdVac ? createdVac._id : "NEW"}] ${rowTitle}`,
+        );
       }
 
       await new Promise((r) => setTimeout(r, 4000)); // Паўза 4 сек паміж радкамі
@@ -445,13 +463,22 @@ async function syncSheetVacancies(sourceId) {
 
     // --- АЎТА-ЗАКРЫЦЦЁ ВАКАНСІЙ, ЯКІХ НЯМА Ў ТАБЛІЦЫ ---
     if (foundHashesInSheet.size > 0) {
+      // Знаходзім вакансіі, якія будуць закрыты, каб захаваць іх ID для справаздачы
+      const vacanciesToClose = await Vacancy.find({
+        agencyName: source.agencyName,
+        status: "active",
+        sourceHash: { $exists: true, $nin: Array.from(foundHashesInSheet) },
+      }).select("_id vacancydescription position");
+
       const closeResult = await Vacancy.updateMany(
         {
           agencyName: source.agencyName,
           status: "active",
           sourceHash: { $exists: true, $nin: Array.from(foundHashesInSheet) },
         },
-        { $set: { status: "closed" } },
+        {
+          $set: { status: "closed" },
+        },
       );
 
       if (closeResult.modifiedCount > 0) {
@@ -459,6 +486,12 @@ async function syncSheetVacancies(sourceId) {
           `✅ Аўта-закрыццё: ${closeResult.modifiedCount} вакансій агенцыі ${source.agencyName} больш не ў табліцы.`,
         );
         stats.closed += closeResult.modifiedCount;
+        // Дадаем кожную аўтаматычна закрытую вакансію ў спіс дэталяў з яе айдзі і назвай
+        for (const vac of vacanciesToClose) {
+          details.push(
+            `🛑 [ID: ${vac._id}] ${vac.vacancydescription || vac.position || "Без назвы"}`,
+          );
+        }
       }
     }
 
@@ -484,19 +517,28 @@ async function syncSheetVacancies(sourceId) {
         const addedNames = details
           .filter((d) => d.startsWith("✨"))
           .map((d) => d.replace("✨ ", ""))
-          .join(", ");
-        reportText += `\n✨ **Нові (${stats.added}):** ${addedNames}\n`;
+          .join("\n"); // Перанос радка для лепшага чытання спісу з ID
+        reportText += `\n✨ **Нові (${stats.added}):**\n${addedNames}\n`;
       }
 
       if (stats.updated > 0) {
         const updatedNames = details
           .filter((d) => d.startsWith("🔄"))
           .map((d) => d.replace("🔄 ", ""))
-          .join(", ");
-        reportText += `\n🔄 **Оновлені (${stats.updated}):** ${updatedNames}\n`;
+          .join("\n");
+        reportText += `\n🔄 **Оновлені (${stats.updated}):**\n${updatedNames}\n`;
       }
 
-      reportText += `\n🛑 Закриті: ${stats.closed}\n⏭️ Ігноровано (дублі): ${stats.ignored}`;
+      if (stats.closed > 0) {
+        const closedNames = details
+          .filter((d) => d.startsWith("🛑"))
+          .map((d) => d.replace("🛑 ", ""))
+          .join("\n");
+        reportText += `\n🛑 **Закриті (${stats.closed}):**\n${closedNames}\n`;
+      } else {
+        reportText += `\n🛑 Закриті: 0\n`;
+      }
+      reportText += `\n⏭️ Ігноровано (дублі): ${stats.ignored}`;
 
       await new UnprocessedMessage({
         sender: "System",
