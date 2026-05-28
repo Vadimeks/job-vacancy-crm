@@ -56,15 +56,19 @@ function applyFilters(vacancies, filters) {
 
     // --- 3. Ваяводства / Рэгіён (ФІКС: Польшча і Еўропа) ---
     if (filters.voivodeship?.length > 0) {
-      const vVoiv = v.voivodeship;
-      const isEurope = v.country && v.country !== "Polska";
+      const vVoiv = v.voivodeship || "";
+      const vCountry = v.country || "Polska";
+      const isEurope = vCountry !== "Polska";
 
       const match = filters.voivodeship.some((fv) => {
-        if (fv === "Інші країни Європи")
-          return isEurope || vVoiv === "Інші країни Європи";
-        if (fv === "Польща")
-          return v.country === "Polska" && (!vVoiv || vVoiv === "Польща");
-        return vVoiv === fv;
+        // 1. Калі выбрана "Польшча" — паказваем усё, дзе краіна Polska
+        if (fv === "Польща") return vCountry === "Polska";
+
+        // 2. Калі выбрана "Еўропа" — паказваем усё, што не Polska
+        if (fv === "Інші країни Європи") return isEurope;
+
+        // 3. Для канкрэтных ваяводстваў правяраем уваходжанне ў радок (для спісаў праз коску)
+        return vVoiv.toLowerCase().includes(fv.toLowerCase());
       });
 
       if (!match) return false;
@@ -351,10 +355,8 @@ export default function Vacancies() {
       }
 
       // 2. Ваяводствы
-      if (
-        v.country === "Polska" &&
-        (!v.voivodeship || v.voivodeship.toLowerCase() === "польща")
-      ) {
+      // Калі краіна — Польшча, заўсёды дадаем пункт "Польшча" ў фільтр
+      if (v.country === "Polska") {
         voivodeships.add("Польща");
       }
 
