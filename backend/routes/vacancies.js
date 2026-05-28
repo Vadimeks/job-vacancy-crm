@@ -407,19 +407,28 @@ router.get("/filters-data", async (req, res) => {
         });
       }
 
-      // 5. ✅ СТРОГІ БЕЛЫ СПІС ВАЯВОДСТВАЎ
-      if (v.voivodeship) {
-        // Шукаем супадзенне ў нашым эталонным спісе (ігнаруючы рэгістр)
-        const matched = POLISH_VOIVODESHIPS.find(
-          (p) => p.toLowerCase() === v.voivodeship.toLowerCase().trim(),
-        );
+      // 5. ✅ РАЗУМНЫ ЗБОР ВАЯВОДСТВАЎ (v2.3)
+      // Калі краіна — Польшча, заўсёды дадаем агульны пункт
+      if (
+        v.country === "Polska" ||
+        (v.voivodeship && v.voivodeship.toLowerCase().includes("польща"))
+      ) {
+        voivodeships.add("Польща");
+      }
 
-        if (matched) {
-          voivodeships.add(matched);
-        } else if (v.voivodeship === "Інші країни Європи") {
+      if (v.voivodeship) {
+        const vovLower = v.voivodeship.toLowerCase();
+
+        // Правяраем кожнае эталоннае ваяводства на ўваходжанне ў радок
+        POLISH_VOIVODESHIPS.forEach((p) => {
+          if (vovLower.includes(p.toLowerCase())) {
+            voivodeships.add(p);
+          }
+        });
+
+        if (vovLower.includes("європ") || vovLower.includes("europe")) {
           voivodeships.add("Інші країни Європи");
         }
-        // Усё астатняе (як "Підляське") ігнаруецца і не трапляе на фронтэнд
       }
     });
 
@@ -495,21 +504,32 @@ router.get("/", async (req, res) => {
         query["requirements.age.max"].$lte = Number(maxAge);
     }
 
-    // Мульты-фільтры (масівы)
+    // Мульты-фільтры па рэгіёнах (v2.3)
     if (city) {
       const cityList = city.split(",");
-      if (cityList.includes("Польща")) {
-        // ✅ Цяпер мы шукаем УСЕ польскія ваяводствы + агульнае значэнне "Польща"
-        // Выкарыстоўваем рэгулярны выраз для ігнаравання рэгістра (case-insensitive)
-        const polishRegex = [...POLISH_VOIVODESHIPS, "Польща"].map(
-          (v) => new RegExp(`^${v}$`, "i"),
-        );
+      const isPolandSelected = cityList.includes("Польща");
 
-        query.voivodeship = { $in: polishRegex };
+      if (isPolandSelected) {
+        // Калі выбрана "Польшча", шукаем па краіне АБО па спісе ваяводстваў (частковае супадзенне)
+        const otherSelected = cityList.filter((c) => c !== "Польща");
+        const allPolishTerms = [
+          ...POLISH_VOIVODESHIPS,
+          "Польща",
+          ...otherSelected,
+        ];
+
+        // Выкарыстоўваем $or для максімальнага ахопу
+        query.$or = [
+          { country: "Polska" },
+          {
+            voivodeship: { $in: allPolishTerms.map((v) => new RegExp(v, "i")) },
+          },
+        ];
       } else {
-        // Для канкрэтных выбраных ваяводстваў таксама выкарыстоўваем рэгулярныя выразы
+        // Калі выбраны канкрэтныя ваяводствы (без агульнай Польшчы)
+        // Прыбіраем ^ і $, каб знаходзіць "Wielkopolskie" у радку "Wielkopolskie, Dolnośląskie"
         query.voivodeship = {
-          $in: cityList.map((v) => new RegExp(`^${v}$`, "i")),
+          $in: cityList.map((v) => new RegExp(v, "i")),
         };
       }
     }
