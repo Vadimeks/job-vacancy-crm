@@ -37,7 +37,7 @@ let chainFrozenUntil = 0; // Паўза 1 гадзіна пры адмове ў�
 
 const POLISH_VOIVODESHIPS = [
   "Dolnośląskie",
-  "Kujawsko-pomorskie",
+  "Kujawsko-Pomorskie",
   "Lubelskie",
   "Lubuskie",
   "Łódzkie",
@@ -49,7 +49,7 @@ const POLISH_VOIVODESHIPS = [
   "Pomorskie",
   "Śląskie",
   "Świętokrzyskie",
-  "Warmińsko-mazurskie",
+  "Warmińsko-Mazurskie",
   "Wielkopolskie",
   "Zachodniopomorskie",
 ];
@@ -1368,7 +1368,8 @@ module.exports = {
   normalizeAgency,
   validateBrand,
   normalizeLocation,
-  normalizeNuances, // <--- ДАДАДЗЕНА
+  normalizeNuances,
+  POLISH_VOIVODESHIPS, // <--- ДАДАДЗЕНА
   VOIVODESHIP_MAP, // <--- ДАДАДЗЕНА
   COMPARE_VACANCIES_PROMPT,
   compareVacanciesWithAI,

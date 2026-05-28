@@ -6,6 +6,7 @@ const Template = require("../models/Template");
 const Counter = require("../models/Counter");
 const UnprocessedMessage = require("../models/UnprocessedMessage");
 const aiService = require("../services/ai.service");
+const { POLISH_VOIVODESHIPS, VOIVODESHIP_MAP } = aiService;
 const { enrichTextWithDocs } = require("../services/gemini.service");
 const { getWhitelistedAgency } = require("../utils/messageFilters");
 const {
@@ -372,6 +373,7 @@ router.get("/filters-data", async (req, res) => {
     const agencies = new Set();
     const brands = new Set();
     const nuances = new Set();
+    const voivodeships = new Set(); // 👈 Дададзена
 
     vacancies.forEach((v) => {
       // 1. Гарады (Разбіваем спісы праз коску, прыбіраем краіны ў дужках)
@@ -399,7 +401,15 @@ router.get("/filters-data", async (req, res) => {
       ) {
         brands.add(v.brand);
       }
-
+      // 🆕 Дадай гэты блок для валідацыі ваяводстваў:
+      if (v.voivodeship) {
+        if (
+          POLISH_VOIVODESHIPS.includes(v.voivodeship) ||
+          v.voivodeship === "Інші країни Європи"
+        ) {
+          voivodeships.add(v.voivodeship);
+        }
+      }
       // 4. Нюансы (Абноўлена пад аб'екты v2.1)
       if (
         v.conditions?.specificNuances &&
@@ -419,6 +429,7 @@ router.get("/filters-data", async (req, res) => {
       agencies: Array.from(agencies).sort(),
       brands: Array.from(brands).sort(),
       nuances: Array.from(nuances).sort(),
+      voivodeships: Array.from(voivodeships).sort(), // 👈 Дададзена
       contractTypes: [
         "Umowa zlecenie",
         "Umowa o pracę",
@@ -489,8 +500,9 @@ router.get("/", async (req, res) => {
     if (city) {
       const cityList = city.split(",");
       if (cityList.includes("Польща")) {
-        // Калі абрана "Польшча" — паказваем усе ваяводствы, акрамя замежных
-        query.voivodeship = { $ne: "Інші країни Європи" };
+        // ✅ ВЫПРАЎЛЕНА: Цяпер выкарыстоўваем строгі спіс польскіх ваяводстваў
+        // Гэта пакажа ўсе вакансіі, якія ўваходзяць у POLISH_VOIVODESHIPS
+        query.voivodeship = { $in: POLISH_VOIVODESHIPS };
       } else {
         // Інакш шукаем па канкрэтных абраных ваяводствах
         query.voivodeship = { $in: cityList };
@@ -578,7 +590,7 @@ router.post("/system/cleanup-locations", async (req, res) => {
     for (const v of vacancies) {
       let isChanged = false;
 
-      // 1. Нармалізацыя лакацыі (выкарыстоўваем нашу новую функцыю з ai.service)
+      // 1. Нармалізацыя лакацыі
       const newLoc = aiService.normalizeLocation(v.location, v.country);
       if (newLoc !== v.location) {
         v.location = newLoc;
@@ -592,28 +604,34 @@ router.post("/system/cleanup-locations", async (req, res) => {
         isChanged = true;
       }
 
-      // 3. Нармалізацыя ваяводства (śląskie -> Śląskie)
+      // 3. 🆕 РАЗУМНАЯ НАРМАЛІЗАЦЫЯ ВАЯВОДСТВА (Выпраўляе "Підляське" -> "Podlaskie")
       if (v.voivodeship) {
-        let vov = v.voivodeship.trim();
-        vov = vov.charAt(0).toUpperCase() + vov.slice(1).toLowerCase();
-        if (vov !== v.voivodeship) {
-          v.voivodeship = vov;
+        const vovLower = v.voivodeship.toLowerCase().trim();
+        if (VOIVODESHIP_MAP[vovLower]) {
+          // Калі знайшлі ў мапе (напр. "підляське"), замяняем на эталон ("Podlaskie")
+          v.voivodeship = VOIVODESHIP_MAP[vovLower];
           isChanged = true;
+        } else {
+          // Калі ў мапе няма, проста робім Capitalize (напр. "mazowieckie" -> "Mazowieckie")
+          let vov = v.voivodeship.trim();
+          vov = vov.charAt(0).toUpperCase() + vov.slice(1).toLowerCase();
+          if (vov !== v.voivodeship) {
+            v.voivodeship = vov;
+            isChanged = true;
+          }
         }
       }
-      // 4. Уніфікацыя Еўропы (Разумная)
-      const europeRegex = /європа|інші країни європи/i;
-      const targetEurope = "Інші країни Європи";
 
+      // 4. Уніфікацыя Еўропы
+      const europeRegex = /європа|інші країни європи/i;
       if (v.voivodeship && europeRegex.test(v.voivodeship)) {
-        v.voivodeship = targetEurope;
+        v.voivodeship = "Інші країни Європи";
         isChanged = true;
       }
 
-      if (v.location && europeRegex.test(v.location)) {
-        // Калі ў лакацыі напісана "Еўропа" — гэта памылка, ставім "Польща" (бо горад невядомы)
-        v.location = "Польща";
-        isChanged = true;
+      if (isChanged) {
+        await v.save();
+        updatedCount++;
       }
     }
     res.json({
