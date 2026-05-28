@@ -629,29 +629,46 @@ router.post("/system/cleanup-locations", async (req, res) => {
         isChanged = true;
       }
 
-      // 3. АГРЭСІЎНАЯ НАРМАЛІЗАЦЫЯ ВАЯВОДСТВА
+      // 3. РАЗУМНАЯ НАРМАЛІЗАЦЫЯ МУЛЬТЫ-ВАЯВОДСТВАЎ (v2.3.2)
       if (v.voivodeship) {
-        const vovLower = v.voivodeship.toLowerCase().trim();
+        // Разбіваем радок па косках (на выпадак "Wielkopolskie, Dolnośląskie")
+        const parts = v.voivodeship
+          .split(",")
+          .map((p) => p.trim().toLowerCase());
+        const normalizedParts = new Set();
 
-        // Спрабуем знайсці ў мапе (напр. "підляське")
-        if (VOIVODESHIP_MAP[vovLower]) {
-          v.voivodeship = VOIVODESHIP_MAP[vovLower];
-          isChanged = true;
-        } else {
-          // Калі ў мапе няма, правяраем ці ёсць у POLISH_VOIVODESHIPS (ігнаруючы рэгістр)
-          const correctName = POLISH_VOIVODESHIPS.find(
-            (p) => p.toLowerCase() === vovLower,
-          );
-          if (correctName) {
-            if (v.voivodeship !== correctName) {
-              v.voivodeship = correctName; // Выпраўляем рэгістр (напр. "mazowieckie" -> "Mazowieckie")
-              isChanged = true;
+        parts.forEach((part) => {
+          if (!part) return;
+
+          // 1. Спрабуем знайсці ў мапе (напр. "підляське")
+          if (VOIVODESHIP_MAP[part]) {
+            normalizedParts.add(VOIVODESHIP_MAP[part]);
+          } else {
+            // 2. Правяраем ці ёсць у POLISH_VOIVODESHIPS (ігнаруючы рэгістр)
+            const correctName = POLISH_VOIVODESHIPS.find(
+              (p) => p.toLowerCase() === part,
+            );
+            if (correctName) {
+              normalizedParts.add(correctName);
+            } else if (
+              part === "інші країни європи" ||
+              part.includes("європ")
+            ) {
+              normalizedParts.add("Інші країни Європи");
             }
-          } else if (
-            v.voivodeship !== "Інші країни Європи" &&
-            v.voivodeship !== "Польща"
-          ) {
-            // Калі гэта не Еўропа і не эталон — значыць гэта смецце, ставім "Польща"
+          }
+        });
+
+        // Калі мы знайшлі хоць адно валіднае ваяводства
+        if (normalizedParts.size > 0) {
+          const newVoivStr = Array.from(normalizedParts).sort().join(", ");
+          if (v.voivodeship !== newVoivStr) {
+            v.voivodeship = newVoivStr;
+            isChanged = true;
+          }
+        } else {
+          // Калі ў полі было смецце — ставім "Польща"
+          if (v.voivodeship !== "Польща") {
             v.voivodeship = "Польща";
             isChanged = true;
           }

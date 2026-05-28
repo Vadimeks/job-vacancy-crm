@@ -939,7 +939,10 @@ GEOGRAPHY RULES:
 - MULTI-CITY RULE: If the text lists multiple cities for the SAME job description (e.g., Biedronka: Pasym, Ryn, Pisz), DO NOT split into fragments. Instead, list ALL cities in the 'location' field separated by commas (e.g., "Pasym, Ryn, Pisz").
 - checkInCity: registration/оформлення city.
 - country: default Polska; if not Poland → English name.
-- voivodeship: if Poland → exact voivodeship; else "Європа (інші країни)".
+- voivodeship: 
+  • If Poland → exact voivodeship name in Latin (e.g., "Mazowieckie"). 
+  • MULTI-REGION RULE: If the vacancy lists multiple cities from DIFFERENT voivodeships (e.g., "Namysłów, Syców"), you MUST list ALL corresponding voivodeships separated by commas (e.g., "Opolskie, Dolnośląskie").
+  • If country is not Poland → "Інші країни Європи".
 - International: city + country in parentheses (e.g., "Droßdorf (Germany)").
 - STRICT: never Cyrillic for cities; never include "Polska" in location.
 
@@ -1219,9 +1222,27 @@ JSON STRUCTURE:
           finalBaseNetto = cleaned.salary.salaryNotes;
         }
       }
-      const vLower = cleaned.voivodeship?.toLowerCase().trim();
+      const rawVoiv = cleaned.voivodeship || "Польща";
+      const voivParts = rawVoiv.split(",").map((p) => p.trim().toLowerCase());
+      const finalVoivParts = new Set();
+
+      voivParts.forEach((p) => {
+        if (VOIVODESHIP_MAP[p]) {
+          finalVoivParts.add(VOIVODESHIP_MAP[p]);
+        } else {
+          const matched = POLISH_VOIVODESHIPS.find(
+            (pv) => pv.toLowerCase() === p,
+          );
+          if (matched) finalVoivParts.add(matched);
+          else if (p.includes("європ"))
+            finalVoivParts.add("Інші країни Європи");
+        }
+      });
+
       const finalVoivodeship =
-        VOIVODESHIP_MAP[vLower] || cleaned.voivodeship || "Польща";
+        finalVoivParts.size > 0
+          ? Array.from(finalVoivParts).sort().join(", ")
+          : "Польща";
       return {
         // === 1. СИСТЕМНІ ПОЛЯ ===
         ...cleaned,
