@@ -124,23 +124,119 @@ const COUNTRY_MAP = {
   czechia: "Czech Republic",
 };
 const VOIVODESHIP_MAP = {
-  "вармінсько-мазурське": "Warmińsko-mazurskie",
-  великопольське: "Wielkopolskie",
+  // Dolnośląskie
   нижньосілезьке: "Dolnośląskie",
-  "куявсько-поморське": "Kujawsko-pomorskie",
+  "нижньосілезьке воєводство": "Dolnośląskie",
+  нижнесилезское: "Dolnośląskie",
+  "нижнесилезское воеводство": "Dolnośląskie",
+  dolnośląskie: "Dolnośląskie",
+
+  // Kujawsko-Pomorskie
+  "куявсько-поморське": "Kujawsko-Pomorskie",
+  "куявсько-поморське воєводство": "Kujawsko-Pomorskie",
+  "куявско-поморское": "Kujawsko-Pomorskie",
+  "куявско-поморское воеводство": "Kujawsko-Pomorskie",
+  "kujawsko-pomorskie": "Kujawsko-Pomorskie",
+
+  // Lubelskie
   люблінське: "Lubelskie",
+  "люблінське воєводство": "Lubelskie",
+  люблинское: "Lubelskie",
+  "люблинское воеводство": "Lubelskie",
+  lubelskie: "Lubelskie",
+
+  // Lubuskie
   любуське: "Lubuskie",
+  "любуське воєводство": "Lubuskie",
+  любушское: "Lubuskie",
+  "любушское воеводство": "Lubuskie",
+  lubuskie: "Lubuskie",
+
+  // Łódzkie
   лодзинське: "Łódzkie",
+  "лодзинське воєводство": "Łódzkie",
+  лодзинское: "Łódzkie",
+  "лодзинское воеводство": "Łódzkie",
+  łódzkie: "Łódzkie",
+
+  // Małopolskie
   малопольське: "Małopolskie",
+  "малопольське воєводство": "Małopolskie",
+  малопольское: "Małopolskie",
+  "малопольское воеводство": "Małopolskie",
+  małopolskie: "Małopolskie",
+
+  // Mazowieckie
   мазовецьке: "Mazowieckie",
+  "мазовецьке воєводство": "Mazowieckie",
+  мазовецкое: "Mazowieckie",
+  "мазовецкое воеводство": "Mazowieckie",
+  mazowieckie: "Mazowieckie",
+
+  // Opolskie
   опольське: "Opolskie",
+  "опольське воєводство": "Opolskie",
+  опольское: "Opolskie",
+  "опольское воеводство": "Opolskie",
+  opolskie: "Opolskie",
+
+  // Podkarpackie
   підкарпатське: "Podkarpackie",
-  підляське: "Podlaskie",
-  поморське: "Pomorskie",
-  сілезьке: "Śląskie",
-  свентокшиське: "Świętokrzyskie",
-  західнопоморське: "Zachodniopomorskie",
   "підкарпатське воєводство": "Podkarpackie",
+  подкарпатское: "Podkarpackie",
+  "подкарпатское воеводство": "Podkarpackie",
+  podkarpackie: "Podkarpackie",
+
+  // Podlaskie
+  підляське: "Podlaskie",
+  "підляське воєводство": "Podlaskie",
+  пiдляське: "Podlaskie", // лацінская i
+  "пiдляське воєводство": "Podlaskie", // лацінская i
+  подляское: "Podlaskie",
+  "подляское воеводство": "Podlaskie",
+  podlaskie: "Podlaskie",
+
+  // Pomorskie
+  поморське: "Pomorskie",
+  "поморське воєводство": "Pomorskie",
+  поморское: "Pomorskie",
+  "поморское воеводство": "Pomorskie",
+  pomorskie: "Pomorskie",
+
+  // Śląskie
+  сілезьке: "Śląskie",
+  "сілезьке воєводство": "Śląskie",
+  силезское: "Śląskie",
+  "силезское воеводство": "Śląskie",
+  śląskie: "Śląskie",
+
+  // Świętokrzyskie
+  свентокшиське: "Świętokrzyskie",
+  "свентокшиське воєводство": "Świętokrzyskie",
+  свентокшиское: "Świętokrzyskie",
+  "свентокшиское воеводство": "Świętokrzyskie",
+  świętokrzyskie: "Świętokrzyskie",
+
+  // Warmińsko-Mazurskie
+  "вармінсько-мазурське": "Warmińsko-Mazurskie",
+  "вармінсько-мазурське воєводство": "Warmińsko-Mazurskie",
+  "варминско-мазурское": "Warmińsko-Mazurskie",
+  "варминско-мазурское воеводство": "Warmińsko-Mazurskie",
+  "warmińsko-mazurskie": "Warmińsko-Mazurskie",
+
+  // Wielkopolskie
+  великопольське: "Wielkopolskie",
+  "великопольське воєводство": "Wielkopolskie",
+  великопольское: "Wielkopolskie",
+  "великопольское воеводство": "Wielkopolskie",
+  wielkopolskie: "Wielkopolskie",
+
+  // Zachodniopomorskie
+  західнопоморське: "Zachodniopomorskie",
+  "західнопоморське воєводство": "Zachodniopomorskie",
+  западнопоморское: "Zachodniopomorskie",
+  "западнопоморское воеводство": "Zachodniopomorskie",
+  zachodniopomorskie: "Zachodniopomorskie",
 };
 
 const ALLOWED_NUANCE_CATEGORIES = [
