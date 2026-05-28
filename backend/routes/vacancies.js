@@ -445,7 +445,8 @@ router.get("/", async (req, res) => {
       city,
       agency,
       category,
-      status, // Дастаем статус з запыту
+      status,
+      housing, // Дадаем параметр жылля
     } = req.query;
 
     let query = {};
@@ -460,7 +461,12 @@ router.get("/", async (req, res) => {
 
     // Фільтр па абраных
     if (isFavorite === "true") query.isFavorite = true;
-
+    // Фільтр па жыллю: паказваем толькі калі надаецца (Безкоштовне/Платне/Надається)
+    if (housing === "true") {
+      query["accommodation.type"] = {
+        $in: ["Надається", "Надається (для пар)", "Безкоштовне", "Платне"],
+      };
+    }
     // Фільтр па зарплаце (baseNetto)
     if ((minSalary && minSalary !== "") || (maxSalary && maxSalary !== "")) {
       query["salary.baseNetto"] = { $ne: null };
@@ -480,7 +486,16 @@ router.get("/", async (req, res) => {
     }
 
     // Мульты-фільтры (масівы)
-    if (city) query.location = { $in: city.split(",") };
+    if (city) {
+      const cityList = city.split(",");
+      if (cityList.includes("Польща")) {
+        // Калі абрана "Польшча" — паказваем усе ваяводствы, акрамя замежных
+        query.voivodeship = { $ne: "Інші країни Європи" };
+      } else {
+        // Інакш шукаем па канкрэтных абраных ваяводствах
+        query.voivodeship = { $in: cityList };
+      }
+    }
     if (agency) query.agencyName = { $in: agency.split(",") };
     if (category) query.category = { $in: category.split(",") };
 
