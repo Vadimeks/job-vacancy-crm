@@ -163,5 +163,7 @@ const vacancySchema = new mongoose.Schema({
   // -----------------------------------------------------
   createdAt: { type: Date, default: Date.now },
 });
-
+// Індэксы для паскарэння сінхранізацыі і пошуку
+vacancySchema.index({ sourceHash: 1, status: 1 });
+vacancySchema.index({ agencyName: 1, status: 1 });
 module.exports = mongoose.model("Vacancy", vacancySchema);

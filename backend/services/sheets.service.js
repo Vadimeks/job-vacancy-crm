@@ -108,26 +108,23 @@ function hasNonWhiteBackground(cell) {
 function getRowStatus(cells, agencyName) {
   if (!cells || cells.length === 0) return "EMPTY";
 
-  // --- ДЛЯ OTTO: мінімум 3 запоўненыя ячэйкі, ігнаруем STOP-маркеры ---
-  if (agencyName === "OTTO") {
-    const filledCount = cells.filter(
-      (c) => (c?.formattedValue || "").trim() !== "",
-    ).length;
-    return filledCount >= 3 ? "ACTIVE" : "EMPTY";
-  }
-  // --- Для RALEN: вызначаем статус па колеры фону ---
+  // 1. Універсальны фільтр шуму: мінімум 3 запоўненыя ячэйкі
+  const filledCount = cells.filter(
+    (c) => (c?.formattedValue || "").trim() !== "",
+  ).length;
+  if (filledCount < 3) return "EMPTY";
+
+  // 2. Спецыяльнае правіла для RALEN (колер фону)
   if (agencyName === "RALEN") {
-    // Шукаем першую ячэйку з тэкстам і правяраем яе фон
     const firstFilledCell = cells.find(
       (c) => c && (c.formattedValue || "").trim() !== "",
     );
-    if (firstFilledCell) {
-      return hasNonWhiteBackground(firstFilledCell) ? "ACTIVE" : "STOP";
+    if (firstFilledCell && !hasNonWhiteBackground(firstFilledCell)) {
+      return "STOP";
     }
-    return "EMPTY";
   }
 
-  // --- Для астатніх табліц: праглядаем усе ячэйкі на тэкставыя маркеры ---
+  // 3. Адсякаем па STOP-маркерах
   const STOP_MARKERS = [
     "❌",
     "✖️",
@@ -137,37 +134,17 @@ function getRowStatus(cells, agencyName) {
     "stop",
     "архив",
     "не актив",
-    "не актуально",
-    "wstrzymane",
-    "zakończona",
-    "brak",
     "false",
     "0",
   ];
-  const ACTIVE_MARKERS = ["✅", "✔️", "true", "1", "tak", "актив"];
-
-  let hasActiveMarker = false;
-  let hasStopMarker = false;
-  let hasAnyText = false;
 
   for (const cell of cells) {
     if (!cell) continue;
-    const val = (cell.formattedValue || "").trim();
-    if (!val) continue;
-    hasAnyText = true;
-    const lower = val.toLowerCase();
-
-    if (ACTIVE_MARKERS.some((m) => lower === m || lower.includes(m))) {
-      hasActiveMarker = true;
-    }
-    if (STOP_MARKERS.some((m) => lower === m || lower.includes(m))) {
-      hasStopMarker = true;
-    }
+    const val = (cell.formattedValue || "").trim().toLowerCase();
+    if (STOP_MARKERS.some((m) => val.includes(m))) return "STOP";
   }
 
-  if (!hasAnyText) return "EMPTY";
-  // Прыярытэт: STOP > ACTIVE > ACTIVE (па змаўчанні)
-  if (hasStopMarker && !hasActiveMarker) return "STOP";
+  // 4. Калі не знайшлі STOP і дастаткова тэксту — вакансія АКТЫЎНАЯ
   return "ACTIVE";
 }
 
@@ -322,83 +299,67 @@ async function syncSheetVacancies(sourceId) {
     // --- КРОК 3: ЦЫКЛ ПА РАДКАХ ---
     for (let i = headerRowIndex + 1; i < rowData.length; i++) {
       const cells = rowData[i].values;
-
-      // 1. Прапускаем схаваныя радкі
       if (
         rowData[i].rowMetadata?.hiddenByUser ||
         rowData[i].rowMetadata?.hiddenByFilter
-      ) {
+      )
         continue;
-      }
 
-      // 2. Вызначаем статус радка
       const rowStatus = getRowStatus(cells, source.agencyName);
-
       if (rowStatus === "EMPTY") continue;
 
-      // 3. Збіраем тэкст радка: "Загаловак: Значэнне" для ўсіх слупкоў
       const {
         text: rowBodyText,
         externalUrls,
         title: rowTitle,
       } = buildRowText(cells || [], headers);
-
-      // Калі радок зусім пусты (няма тэксту) — прапускаем
       if (!rowBodyText.trim()) continue;
 
-      // 4. Вызначаем хэш па поўным тэксце радка (усе слупкі)
       const rowHash = crypto
         .createHash("md5")
         .update(`${source.agencyName}::${rowBodyText}`)
         .digest("hex");
 
+      // 1. Шукаем існуючую вакансію
+      const existingVacancy = await Vacancy.findOne({ sourceHash: rowHash });
+
+      // 2. Калі радок у табліцы STOP
       if (rowStatus === "STOP") {
-        // Радок закрыты: адзначаем у базе калі быў актыўным
-        foundHashesInSheet.add(rowHash); // 👈 Дадаем у Set нават закрытыя — для аўта-закрыцця
-        stats.closed++;
-        details.push(`🛑 ${rowTitle}`);
+        foundHashesInSheet.add(rowHash);
+        if (existingVacancy && existingVacancy.status === "active") {
+          existingVacancy.status = "closed";
+          await existingVacancy.save();
+          stats.closed++;
+          details.push(
+            `🛑 [${existingVacancy.vacancyCode || "N/A"}] ${rowTitle}`,
+          );
+        }
         continue;
       }
 
-      // rowStatus === "ACTIVE" далей
-      foundHashesInSheet.add(rowHash);
-
-      // 5. Глабальная праверка на дублікат па sourceHash
-      const existingVacancy = await Vacancy.findOne({ sourceHash: rowHash });
-      if (existingVacancy) {
-        console.log(
-          `🛡️ ГЛАБАЛЬНЫ ФІЛЬТР: Вакансія "${rowTitle}" ужо ёсць у базе. Пропуск.`,
-        );
+      // 3. Калі радок ACTIVE, і ў базе яна ўжо ACTIVE — пропуск
+      if (existingVacancy && existingVacancy.status === "active") {
+        foundHashesInSheet.add(rowHash);
         stats.ignored++;
         continue;
       }
 
-      console.log(`🆕 Новы радок ${i + 1}: ${rowTitle}`);
+      // 4. Апрацоўка (Новая або Рэанімацыя)
+      console.log(
+        `🚀 Апрацоўка: ${rowTitle} (${existingVacancy ? "Рэанімацыя" : "Новая"})`,
+      );
+      foundHashesInSheet.add(rowHash);
 
-      // 6. Збіраем знешні кантэнт па спасылках (акрамя фота)
       let externalContent = "";
       for (const { url, header } of externalUrls) {
-        console.log(
-          `🔗 Знойдзена спасылка (${header}): ${url.substring(0, 60)}...`,
-        );
-        // Google Docs/Drive апрацоўваецца праз Stage 0 (enrichTextWithDocs у gemini.service)
-        // Для ўсіх іншых — скрапім зараз
         if (!url.includes("google.com")) {
           const scraped = await scraperService.getExternalContent(url);
-          if (scraped) {
+          if (scraped)
             externalContent += `\n\n--- ЗМЕСТ ПА СПАСЫЛЦЫ (${header}) ---\n${scraped}`;
-          }
         }
-        // Google Docs спасылкі застануцца ў тэксце і будуць апрацаваны ў Stage 0
       }
 
-      // 7. Фармуем фінальны тэкст для AI
-      const rawRowText =
-        `[SOURCE: SPREADSHEET_ROW | AGENCY: ${source.agencyName}]\n` +
-        rowBodyText +
-        externalContent;
-
-      // 8. Stage 1: Класіфікацыя і пераклад
+      const rawRowText = `[SOURCE: SPREADSHEET_ROW | AGENCY: ${source.agencyName}]\n${rowBodyText}${externalContent}`;
       const analysis = await analyzeAndCompareWithGemini(
         rawRowText,
         [],
@@ -406,38 +367,26 @@ async function syncSheetVacancies(sourceId) {
       );
 
       if (!analysis) {
-        // AI не адказаў — пакідаем радок для наступнага запуску
-        console.log(`⏳ AI не адказаў для "${rowTitle}". Пропуск.`);
-        continue;
+        console.log(`⏳ AI Cooldown на радку ${i + 1}. Спыняем сінхранізацыю.`);
+        return "STOP_ALL";
       }
 
-      console.log(
-        `🧠 AI Verdict для "${rowTitle}": Category=${analysis.category}, Comparison=${analysis.comparison?.verdict || "NEW"}`,
-      );
-
-      // 9. Апрацоўка вердыкту
-      if (analysis.comparison?.verdict === "DUPLICATE") {
-        stats.ignored++;
-        continue;
-      }
-
-      if (analysis.comparison?.verdict === "UPDATE") {
+      if (existingVacancy && existingVacancy.status === "closed") {
+        // РЭАНІМАЦЫЯ
+        existingVacancy.status = "active";
+        if (analysis.translatedFragments?.[0]) {
+          existingVacancy.rawText = analysis.translatedFragments[0];
+        }
+        await existingVacancy.save();
         stats.updated++;
-        details.push(`🔄 ${rowTitle}`);
-        await new UnprocessedMessage({
-          sender: "Google Sheets",
-          agencyName: source.agencyName,
-          text: `Оновлення в табліці для: ${rowTitle}\n\n${analysis.translatedFragments?.[0] || rawRowText}`,
-          category: "update",
-          source: "google_sheets",
-          aiAnalyzed: true,
-        }).save();
-        continue;
-      }
-
-      if (analysis.category === "FULL_VACANCY") {
+        details.push(
+          `🔄 [${existingVacancy.vacancyCode}] ${rowTitle} (Адноўлена)`,
+        );
+      } else if (analysis.category === "FULL_VACANCY") {
+        // НОВАЯ
+        let lastCreatedCode = "NEW";
         for (const fragment of analysis.translatedFragments) {
-          await processVacancyMessage(
+          const savedVac = await processVacancyMessage(
             fragment,
             "Google Sheets",
             source.agencyName,
@@ -446,19 +395,15 @@ async function syncSheetVacancies(sourceId) {
             "FULL_VACANCY",
             rowHash,
           );
+          if (savedVac && savedVac.vacancyCode)
+            lastCreatedCode = savedVac.vacancyCode;
           await new Promise((r) => setTimeout(r, 2000));
         }
         stats.added++;
-        // Зручны пошук створанай вакансіі ў базе па хэшы, каб атрымаць яе дакладны MongoDB ID
-        const createdVac = await Vacancy.findOne({
-          sourceHash: rowHash,
-        }).select("_id");
-        details.push(
-          `✨ [ID: ${createdVac ? createdVac._id : "NEW"}] ${rowTitle}`,
-        );
+        details.push(`✨ [${lastCreatedCode}] ${rowTitle}`);
       }
 
-      await new Promise((r) => setTimeout(r, 4000)); // Паўза 4 сек паміж радкамі
+      await new Promise((r) => setTimeout(r, 5000));
     }
 
     // --- АЎТА-ЗАКРЫЦЦЁ ВАКАНСІЙ, ЯКІХ НЯМА Ў ТАБЛІЦЫ ---
@@ -468,7 +413,7 @@ async function syncSheetVacancies(sourceId) {
         agencyName: source.agencyName,
         status: "active",
         sourceHash: { $exists: true, $nin: Array.from(foundHashesInSheet) },
-      }).select("_id vacancydescription position");
+      }).select("_id vacancyCode vacancydescription position");
 
       const closeResult = await Vacancy.updateMany(
         {
@@ -489,7 +434,7 @@ async function syncSheetVacancies(sourceId) {
         // Дадаем кожную аўтаматычна закрытую вакансію ў спіс дэталяў з яе айдзі і назвай
         for (const vac of vacanciesToClose) {
           details.push(
-            `🛑 [ID: ${vac._id}] ${vac.vacancydescription || vac.position || "Без назвы"}`,
+            `🛑 [${vac.vacancyCode || "N/A"}] ${vac.vacancydescription || vac.position || "Без назвы"}`,
           );
         }
       }
@@ -568,8 +513,16 @@ async function syncSheetVacancies(sourceId) {
 async function syncAllSheets() {
   const sources = await SheetSource.find({ status: "active" });
   console.log(`🚀 Запуск сінхранізацыі для ${sources.length} табліц...`);
+
   for (const source of sources) {
-    await syncSheetVacancies(source._id);
+    const result = await syncSheetVacancies(source._id);
+
+    if (result === "STOP_ALL") {
+      console.error("🛑 Сінхранізацыя перарвана: AI Cooldown.");
+      break;
+    }
+    // Невялікая паўза паміж табліцамі для бяспекі
+    await new Promise((r) => setTimeout(r, 5000));
   }
 }
 
