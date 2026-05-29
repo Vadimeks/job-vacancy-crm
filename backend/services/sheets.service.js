@@ -108,13 +108,20 @@ function hasNonWhiteBackground(cell) {
 function getRowStatus(cells, agencyName) {
   if (!cells || cells.length === 0) return "EMPTY";
 
-  // 1. Універсальны фільтр шуму: мінімум 3 запоўненыя ячэйкі
   const filledCount = cells.filter(
     (c) => (c?.formattedValue || "").trim() !== "",
   ).length;
+  if (filledCount === 0) return "EMPTY";
+
+  // --- ДЛЯ OTTO: заўсёды ACTIVE, калі ёсць хоць 2 запоўненыя ячэйкі ---
+  // Мы не правяраем STOP-маркеры для OTTO, бо "0" часта сустракаецца ў іх ID
+  if (agencyName === "OTTO") {
+    return filledCount >= 3 ? "ACTIVE" : "EMPTY";
+  }
+
+  // Для астатніх агенцый (RALEN, INTRASERVICE і інш.)
   if (filledCount < 3) return "EMPTY";
 
-  // 2. Спецыяльнае правіла для RALEN (колер фону)
   if (agencyName === "RALEN") {
     const firstFilledCell = cells.find(
       (c) => c && (c.formattedValue || "").trim() !== "",
@@ -124,7 +131,6 @@ function getRowStatus(cells, agencyName) {
     }
   }
 
-  // 3. Адсякаем па STOP-маркерах
   const STOP_MARKERS = [
     "❌",
     "✖️",
@@ -134,17 +140,17 @@ function getRowStatus(cells, agencyName) {
     "stop",
     "архив",
     "не актив",
-    "false",
-    "0",
   ];
-
   for (const cell of cells) {
     if (!cell) continue;
     const val = (cell.formattedValue || "").trim().toLowerCase();
+    if (!val) continue;
+
     if (STOP_MARKERS.some((m) => val.includes(m))) return "STOP";
+    // Строгая праверка для лічбавых маркераў (каб не чапаць ID)
+    if (val === "false") return "STOP";
   }
 
-  // 4. Калі не знайшлі STOP і дастаткова тэксту — вакансія АКТЫЎНАЯ
   return "ACTIVE";
 }
 
@@ -176,46 +182,37 @@ function buildRowText(cells, headers) {
   const externalUrls = [];
   let title = "";
 
-  // Словы, якія сігналізуюць пра фота жылля — такія спасылкі ігнаруем як крыніцу кантэнту
   const PHOTO_KEYWORDS = ["фото", "photo", "зображення", "image", "picture"];
 
   for (let j = 0; j < headers.length; j++) {
     const header = (headers[j] || "").trim();
-    if (!header) continue; // Прапускаем слупкі без загалоўка
+    if (!header) continue;
 
     const cell = cells[j] || null;
     const { value, link, note } = extractCellData(cell);
+    if (!value && !link && !note) continue;
 
-    if (!value && !link && !note) continue; // Пустая ячэйка — прапускаем
-
-    // Ігнаруем тэхнічныя ID пры выбары назвы (напр. 2026-79319 або хэшы)
+    // --- САМЫ НАДЗЕЙНЫ ФІЛЬТР ТЭХНІЧНЫХ ID (v2.6) ---
+    // Калі ў ячэйцы няма ніводнай літары — гэта ID, мы яго не бярэм як назву.
+    const hasLetters = /[a-zA-Zа-яёіўА-ЯЁІЎ]/.test(value);
     const isTechnicalId =
-      /^\d{4}-\d+$/.test(value.trim()) ||
-      value.trim().toUpperCase().startsWith("ID") ||
-      (value.trim().length > 15 && /^[a-f0-9]+$/i.test(value.trim()));
+      !hasLetters || value.trim().toUpperCase().startsWith("ID");
 
-    if (!title && value && !isTechnicalId) title = value.trim();
-
-    // Фармуем радок: "Загаловак: Значэнне"
-    let line = `${header}: ${value}`;
-
-    // Дадаем нататку (cell note) адразу пасля значэння
-    if (note) {
-      line += `\n  [Нататка да "${header}": ${note}]`;
+    // Выбіраем назву для справаздачы: першае значэнне, дзе ёсць літары
+    if (!title && value && !isTechnicalId && value.trim().length > 2) {
+      title = value.trim();
     }
 
+    let line = `${header}: ${value}`;
+    if (note) line += `\n  [Нататка да "${header}": ${note}]`;
     parts.push(line);
 
-    // Апрацоўка спасылак
     if (link && link.startsWith("http")) {
       const headerLower = header.toLowerCase();
       const isPhoto = PHOTO_KEYWORDS.some((kw) => headerLower.includes(kw));
-
       if (isPhoto) {
-        // Фота жылля: дадаем толькі як тэкст, змест не спампоўваем
         parts.push(`  [Фота/зображення: ${link}]`);
       } else {
-        // Усе іншыя спасылкі — збіраем для спампоўкі кантэнту
         externalUrls.push({ url: link, header });
         parts.push(`  [Спасылка: ${link}]`);
       }
@@ -331,7 +328,7 @@ async function syncSheetVacancies(sourceId) {
           await existingVacancy.save();
           stats.closed++;
           details.push(
-            `🛑 [${existingVacancy.vacancyCode || "N/A"}] ${rowTitle}`,
+            `🛑 [${existingVacancy.vacancyCode || "N/A"}] ${rowTitle} (Row: ${i + 1})`,
           );
         }
         continue;
@@ -346,7 +343,7 @@ async function syncSheetVacancies(sourceId) {
 
       // 4. Апрацоўка (Новая або Рэанімацыя)
       console.log(
-        `🚀 Апрацоўка: ${rowTitle} (${existingVacancy ? "Рэанімацыя" : "Новая"})`,
+        `🚀 [Row ${i + 1}] Апрацоўка: ${rowTitle} (${existingVacancy ? "Рэанімацыя" : "Новая"})`,
       );
       foundHashesInSheet.add(rowHash);
 
@@ -367,12 +364,42 @@ async function syncSheetVacancies(sourceId) {
       );
 
       if (!analysis) {
-        console.log(`⏳ AI Cooldown на радку ${i + 1}. Спыняем сінхранізацыю.`);
-        return "STOP_ALL";
+        console.log(`⏳ AI не адказаў для радка ${i + 1}. Пропуск.`);
+        continue;
       }
 
+      console.log(
+        `🧠 AI Verdict [Row ${i + 1}]: Category=${analysis.category}, Verdict=${analysis.comparison?.verdict || "NEW"}`,
+      );
+
+      // 1. ЛОГІКА ДЛЯ UPDATE АБО RECRUITER_INFO (ІДУЦЬ У INBOX)
+      // Калі AI пазначыў як UPDATE (напрыклад, кароткі тэкст) або RECRUITER_INFO — заўсёды ў інбокс
+      if (
+        analysis.category === "UPDATE" ||
+        analysis.category === "RECRUITER_INFO" ||
+        analysis.comparison?.verdict === "UPDATE"
+      ) {
+        const vacCode = existingVacancy
+          ? `[${existingVacancy.vacancyCode}] `
+          : "";
+        const msgCategory =
+          analysis.category === "RECRUITER_INFO" ? "info" : "update";
+
+        await new UnprocessedMessage({
+          sender: "Google Sheets",
+          agencyName: source.agencyName,
+          text: `Дадзеныя з табліцы (Row: ${i + 1}) для: ${vacCode}${rowTitle}\n\n${analysis.translatedFragments?.[0] || rawRowText}`,
+          category: msgCategory,
+          source: "google_sheets",
+          aiAnalyzed: true,
+        }).save();
+
+        stats.updated++;
+        details.push(`🔄 ${vacCode}${rowTitle} (Row: ${i + 1}) -> Inbox`);
+        continue; // 👈 Абавязкова пераходзім да наступнага радка
+      }
+      // 2. ЛОГІКА ДЛЯ РЭАНІМАЦЫІ (Калі вакансія была CLOSED, а стала ACTIVE і яна FULL)
       if (existingVacancy && existingVacancy.status === "closed") {
-        // РЭАНІМАЦЫЯ
         existingVacancy.status = "active";
         if (analysis.translatedFragments?.[0]) {
           existingVacancy.rawText = analysis.translatedFragments[0];
@@ -380,10 +407,13 @@ async function syncSheetVacancies(sourceId) {
         await existingVacancy.save();
         stats.updated++;
         details.push(
-          `🔄 [${existingVacancy.vacancyCode}] ${rowTitle} (Адноўлена)`,
+          `🔄 [${existingVacancy.vacancyCode}] ${rowTitle} (Row: ${i + 1}) (Адноўлена)`,
         );
-      } else if (analysis.category === "FULL_VACANCY") {
-        // НОВАЯ
+        continue;
+      }
+
+      // 3. ЛОГІКА ДЛЯ НОВЫХ ПАЎНАВАЖНЫХ ВАКАНСІЙ
+      if (analysis.category === "FULL_VACANCY") {
         let lastCreatedCode = "NEW";
         for (const fragment of analysis.translatedFragments) {
           const savedVac = await processVacancyMessage(
@@ -400,7 +430,7 @@ async function syncSheetVacancies(sourceId) {
           await new Promise((r) => setTimeout(r, 2000));
         }
         stats.added++;
-        details.push(`✨ [${lastCreatedCode}] ${rowTitle}`);
+        details.push(`✨ [${lastCreatedCode}] ${rowTitle} (Row: ${i + 1})`);
       }
 
       await new Promise((r) => setTimeout(r, 5000));
@@ -459,17 +489,13 @@ async function syncSheetVacancies(sourceId) {
       let reportText = `📊 **Звіт: ${source.agencyName} (${source.sheetName})**\n`;
 
       if (stats.added > 0) {
-        const addedNames = details
-          .filter((d) => d.startsWith("✨"))
-          .map((d) => d.replace("✨ ", ""))
-          .join("\n"); // Перанос радка для лепшага чытання спісу з ID
+        const addedNames = details.filter((d) => d.startsWith("✨")).join("\n");
         reportText += `\n✨ **Нові (${stats.added}):**\n${addedNames}\n`;
       }
 
       if (stats.updated > 0) {
         const updatedNames = details
           .filter((d) => d.startsWith("🔄"))
-          .map((d) => d.replace("🔄 ", ""))
           .join("\n");
         reportText += `\n🔄 **Оновлені (${stats.updated}):**\n${updatedNames}\n`;
       }
@@ -477,7 +503,6 @@ async function syncSheetVacancies(sourceId) {
       if (stats.closed > 0) {
         const closedNames = details
           .filter((d) => d.startsWith("🛑"))
-          .map((d) => d.replace("🛑 ", ""))
           .join("\n");
         reportText += `\n🛑 **Закриті (${stats.closed}):**\n${closedNames}\n`;
       } else {

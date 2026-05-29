@@ -870,11 +870,26 @@ async function formatTelegramPost(vacancyData) {
     false,
   );
 
-  if (!text || text.startsWith("{") || text.length < 50) {
-    throw new Error("AI returned invalid format for Telegram post");
+  // --- ПАЛЕПШАНЫ JSON-ШЧЫТ (v2.4) ---
+  const trimmedText = (text || "").trim();
+
+  // Правяраем, ці не з'яўляецца адказ сырым JSON (у тым ліку ў Markdown блоках)
+  const isJson =
+    trimmedText.startsWith("{") ||
+    trimmedText.startsWith("```json") ||
+    trimmedText.includes('"vacancydescription":') ||
+    trimmedText.includes('"salary":');
+
+  if (!trimmedText || isJson || trimmedText.length < 50) {
+    console.error(
+      "⚠️ AI вярнуў JSON або занадта кароткі тэкст замест посту. Адмена адпраўкі.",
+    );
+    throw new Error(
+      "AI returned invalid format (JSON/Short) for Telegram post",
+    );
   }
 
-  return text.trim();
+  return trimmedText;
 }
 function normalizeNuances(nuances) {
   if (!Array.isArray(nuances)) return [];
