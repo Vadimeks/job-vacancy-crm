@@ -1,6 +1,7 @@
 // backend/services/gemini.service.js
 const aiService = require("./ai.service");
 const { google } = require("googleapis");
+const scraperService = require("./scraper.service");
 const path = require("path");
 
 const auth = new google.auth.GoogleAuth({
@@ -57,7 +58,10 @@ async function fetchGoogleDocText(url) {
   try {
     const res = await fetch(exportUrl, { redirect: "follow" });
     if (!res.ok) {
-      console.warn(`⚠️ Google Doc: Памылка HTTP ${res.status} (ID: ${docId})`);
+      if (res.status === 400) return null; // 👈 Ціха ігнаруем фота
+      console.warn(
+        `⚠️ Google Drive: Файл не з'яўляецца тэкстам (HTTP ${res.status}, ID: ${docId})`,
+      );
       return null;
     }
     const text = await res.text();
@@ -76,23 +80,46 @@ async function fetchGoogleDocText(url) {
 }
 
 async function enrichTextWithDocs(rawText) {
-  // Палепшаныя рэгексы, якія ігнаруюць лішнія элементы тыпу /u/0/
   const docRegex =
     /(?:docs\.google\.com\/document|drive\.google\.com\/file)\/(?:u\/\d+\/)?d\/([a-zA-Z0-9_-]+)/g;
   const folderRegex =
     /drive\.google\.com\/(?:drive\/)?folders\/([a-zA-Z0-9_-]+)/g;
+  const telegraphRegex = /https?:\/\/telegra\.ph\/[a-zA-Z0-9_-]+/g; // 👈 Новы рэгекс для Telegraph
 
   const docMatches = [...rawText.matchAll(docRegex)];
   const folderMatches = [...rawText.matchAll(folderRegex)];
+  const telegraphMatches = [...rawText.matchAll(telegraphRegex)];
 
-  if (docMatches.length === 0 && folderMatches.length === 0) return rawText;
+  if (
+    docMatches.length === 0 &&
+    folderMatches.length === 0 &&
+    telegraphMatches.length === 0
+  )
+    return rawText;
 
   console.log(
-    `🔗 Знойдзены спасылкі Google: Docs(${docMatches.length}), Folders(${folderMatches.length}). Загрузка...`,
+    `🔗 Знойдзены спасылкі: Google Docs(${docMatches.length}), Folders(${folderMatches.length}), Telegraph(${telegraphMatches.length}). Загрузка...`,
   );
+
   let enriched = rawText;
 
-  // 1. Апрацоўка папак
+  // 1. Апрацоўка Telegraph (новае!)
+  for (const match of telegraphMatches) {
+    const url = match[0];
+    // Ігнаруем, калі гэта відавочна фота жытла
+    if (
+      url.toLowerCase().includes("zhitlo") ||
+      url.toLowerCase().includes("foto")
+    )
+      continue;
+
+    const content = await scraperService.getExternalContent(url);
+    if (content) {
+      enriched = `${enriched}\n\n--- ЗМЕСТ TELEGRAPH ---\n${content}`;
+    }
+  }
+
+  // 2. Апрацоўка папак Drive
   for (const match of folderMatches) {
     const folderId = match[1];
     const folderUrl = `https://drive.google.com/drive/folders/${folderId}`;
@@ -101,7 +128,7 @@ async function enrichTextWithDocs(rawText) {
       enriched = `${enriched}\n\n--- ЗМЕСТ ПАПКІ DRIVE ---\n${folderText}`;
   }
 
-  // 2. Апрацоўка асобных дакументаў
+  // 3. Апрацоўка асобных дакументаў Google
   for (const match of docMatches) {
     const docId = match[1];
     const docUrl = `https://docs.google.com/document/d/${docId}/`;

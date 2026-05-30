@@ -188,8 +188,17 @@ function buildRowText(cells, headers) {
   const parts = [];
   const externalUrls = [];
   let title = "";
+  let city = ""; // 👈 Дадалі зменную для горада
 
   const PHOTO_KEYWORDS = ["фото", "photo", "зображення", "image", "picture"];
+  const CITY_KEYWORDS = [
+    "місто",
+    "місто приїзду",
+    "локалізація",
+    "місце роботи",
+    "city",
+    "lokalizacja",
+  ]; // 👈 Ключавыя словы для горада
 
   for (let j = 0; j < headers.length; j++) {
     const header = (headers[j] || "").trim();
@@ -199,15 +208,23 @@ function buildRowText(cells, headers) {
     const { value, link, note } = extractCellData(cell);
     if (!value && !link && !note) continue;
 
-    // --- САМЫ НАДЗЕЙНЫ ФІЛЬТР ТЭХНІЧНЫХ ID (v2.6) ---
-    // Калі ў ячэйцы няма ніводнай літары — гэта ID, мы яго не бярэм як назву.
+    const headerLower = header.toLowerCase();
+
+    // Вызначаем назву (першае паля з літарамі)
     const hasLetters = /[a-zA-Zа-яёіўА-ЯЁІЎ]/.test(value);
     const isTechnicalId =
       !hasLetters || value.trim().toUpperCase().startsWith("ID");
-
-    // Выбіраем назву для справаздачы: першае значэнне, дзе ёсць літары
     if (!title && value && !isTechnicalId && value.trim().length > 2) {
       title = value.trim();
+    }
+
+    // 👈 ВЫЗНАЧАЕМ ГОРАД (для семантычнага хэша)
+    if (
+      !city &&
+      value &&
+      CITY_KEYWORDS.some((kw) => headerLower.includes(kw))
+    ) {
+      city = value.trim();
     }
 
     let line = `${header}: ${value}`;
@@ -215,10 +232,17 @@ function buildRowText(cells, headers) {
     parts.push(line);
 
     if (link && link.startsWith("http")) {
-      const headerLower = header.toLowerCase();
-      const isPhoto = PHOTO_KEYWORDS.some((kw) => headerLower.includes(kw));
+      const linkLower = link.toLowerCase();
+      // 👈 Цяпер правяраем і загаловак, і саму спасылку на ключавыя словы фота
+      const isPhoto =
+        PHOTO_KEYWORDS.some((kw) => headerLower.includes(kw)) ||
+        linkLower.includes("zhitlo") ||
+        linkLower.includes("foto") ||
+        linkLower.includes("photo");
+
       if (isPhoto) {
         parts.push(`  [Фота/зображення: ${link}]`);
+        // Не дадаем у externalUrls, каб не спампоўваць "пусты" тэкст з фота-старонак
       } else {
         externalUrls.push({ url: link, header });
         parts.push(`  [Спасылка: ${link}]`);
@@ -230,6 +254,7 @@ function buildRowText(cells, headers) {
     text: parts.join("\n"),
     externalUrls,
     title: title || "Без назви",
+    city: city || "Польща", // 👈 Вяртаем горад
   };
 }
 
@@ -249,9 +274,14 @@ async function syncSheetVacancies(sourceId) {
   const foundHashesInSheet = new Set();
 
   try {
+    // Разумнае фармаванне назвы ліста: двукоссі патрэбны толькі калі ёсць прабелы
+    const safeSheetName = source.sheetName.includes(" ")
+      ? `'${source.sheetName}'`
+      : source.sheetName;
+
     const response = await sheets.spreadsheets.get({
       spreadsheetId: source.spreadsheetId,
-      ranges: [`${source.sheetName}!A1:Z150`],
+      ranges: [`${safeSheetName}!A1:Z150`],
       includeGridData: true,
     });
 
@@ -316,15 +346,17 @@ async function syncSheetVacancies(sourceId) {
         text: rowBodyText,
         externalUrls,
         title: rowTitle,
+        city: rowCity, // 👈 Абавязкова дастаем горад тут
       } = buildRowText(cells || [], headers);
       if (!rowBodyText.trim()) continue;
 
+      // 1. Ствараем СЕМАНТЫЧНЫ хэш (Агенцыя + Назва + Горад)
+      // Гэта дазваляе пазнаць вакансію, нават калі ў ёй змянілася стаўка ці апісанне
       const rowHash = crypto
         .createHash("md5")
-        .update(`${source.agencyName}::${rowBodyText}`)
+        .update(`${source.agencyName}::${rowTitle}::${rowCity}`)
         .digest("hex");
 
-      // 1. Шукаем існуючую вакансію
       const existingVacancy = await Vacancy.findOne({ sourceHash: rowHash });
 
       // 2. Калі радок у табліцы STOP
@@ -341,16 +373,27 @@ async function syncSheetVacancies(sourceId) {
         continue;
       }
 
-      // 3. Калі радок ACTIVE, і ў базе яна ўжо ACTIVE — пропуск
+      // 3. Калі вакансія ўжо ёсць і яна ACTIVE
       if (existingVacancy && existingVacancy.status === "active") {
         foundHashesInSheet.add(rowHash);
-        stats.ignored++;
-        continue;
+
+        // ПРАВЕРКА: Ці змяніўся тэкст радка?
+        // Калі тэкст супадае на 100% — ігнаруем (поўны дубль)
+        if (existingVacancy.originalText === rowBodyText) {
+          stats.ignored++;
+          continue;
+        }
+
+        // Калі тэкст розны — значыць гэта UPDATE (напрыклад, змянілася стаўка)
+        console.log(
+          `🔄 Абнаўленне дадзеных для ${existingVacancy.vacancyCode} (Row: ${i + 1})`,
+        );
+        // Код ідзе далей да AI-аналізу, які зробіць UPDATE
       }
 
-      // 4. Апрацоўка (Новая або Рэанімацыя)
+      // 4. Апрацоўка (Новая, Рэанімацыя або Абнаўленне)
       console.log(
-        `🚀 [Row ${i + 1}] Апрацоўка: ${rowTitle} (${existingVacancy ? "Рэанімацыя" : "Новая"})`,
+        `🚀 [Row ${i + 1}] Апрацоўка: ${rowTitle} (${existingVacancy ? (existingVacancy.status === "closed" ? "Рэанімацыя" : "Абнаўленне") : "Новая"})`,
       );
       foundHashesInSheet.add(rowHash);
 

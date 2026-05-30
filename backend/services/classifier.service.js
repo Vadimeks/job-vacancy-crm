@@ -28,7 +28,7 @@ TRANSLATION RULE:
 Output Format (JSON only):
 {
   "category": "FULL_VACANCY" | "UPDATE" | "RECRUITER_INFO" | "NOISE",
-  "agency": "Agency Name or UNKNOWN",
+  "agency": "Agency Name or MANUAL",
   "confidence": 0.0-1.0,
   "reasoning": "Brief explanation",
   "translatedText": "Ukrainian translation"
@@ -55,7 +55,7 @@ async function classifyMessage(text, chatTitle = "") {
     const isRateLimit = error.message?.includes("429");
     return {
       category: isRateLimit ? "RECRUITER_INFO" : "NOISE",
-      agency: "UNKNOWN",
+      agency: "MANUAL",
       confidence: 0.5,
       reasoning: `Error: ${error.message}`,
       translatedText: text,
