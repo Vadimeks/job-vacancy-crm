@@ -15,7 +15,7 @@ CATEGORIES:
 4. NOISE: Viber/TG system notifications ("New comment", "Joined group"), emojis only, or totally irrelevant chat.
 
 AGENCIES TO IDENTIFY:
-APOLO, Global, BISAR, EST, EWL, FWS, Intraservice, KONO, MANPOWER, MRÓWKI, NIDEN, OTTO, PERSONEL SERVICE, PROGRES, RALEN, FOLGA, KREON, SOLANO, VEKOS, MANUAL.
+APOLO, Global, BISAR, EST, EWL, FWS, Intraservice, KONO, MANPOWER, MRÓWKI, NIDEN, OTTO, PERSONEL SERVICE, PROGRES, RALEN, FOLGA, KREON, SOLANO, VEKOS, WORK&HUMAN, MANUAL.
 
 CRITICAL RULES:
 - If the Source Chat Title contains "тест" or "test", the agency is "MANUAL".

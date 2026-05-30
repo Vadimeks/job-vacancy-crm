@@ -47,8 +47,26 @@ const CONFIG = {
 // КАНФІГУРАЦЫЯ: Калі хочаш апрацаваць УСЕ табліцы — пакінь null.
 // Калі адну канкрэтную — упішы яе spreadsheetId.
 
-const TARGET_SHEET_ID = "1ajkfjO8v5FcaNl-NDydc_NwihGgFlvdEkh38ouPwmj4";
-const TARGET_SHEET_NAME = "WEEK 23";
+// const TARGET_SHEET_ID = "1ajkfjO8v5FcaNl-NDydc_NwihGgFlvdEkh38ouPwmj4";
+// const TARGET_SHEET_NAME = "WEEK 23"; //отто
+// const TARGET_SHEET_ID = "13PN6zOZiDLAL-iLm58NSbsig4h_inXp-GfmNWxc53y8";
+// const TARGET_SHEET_NAME = "Польша"; //інтрасервіс
+const TARGET_SHEET_ID = "13PN6zOZiDLAL-iLm58NSbsig4h_inXp-GfmNWxc53y8";
+const TARGET_SHEET_NAME = "Голандія"; //інтрасервіс
+// const TARGET_SHEET_ID = "13PN6zOZiDLAL-iLm58NSbsig4h_inXp-GfmNWxc53y8";
+// const TARGET_SHEET_NAME = "Opiekunki"; //інтрасервіс
+// const TARGET_SHEET_ID = "1qASi88Ihwdw3LpFLQECg-7YSGuv07lZ4pMqFNyTgk8E";
+// const TARGET_SHEET_NAME = "Вакансии 2026"; //Рален
+// const TARGET_SHEET_ID = "1hzA99T1oYP64BvIGww6zdZcs4iJjJQT80hm1LZimMiQ";
+// const TARGET_SHEET_NAME = "Вакансии"; //MRÓWKI
+// const TARGET_SHEET_ID = "1ajkfjO8v5FcaNl-NDydc_NwihGgFlvdEkh38ouPwmj4";
+// const TARGET_SHEET_NAME = "WEEK 23"; //OTTO
+// const TARGET_SHEET_ID = "18x5KvkUglitqcpr69F0q6z08vfF2BTnjYBlRdMtv8bA";
+// const TARGET_SHEET_NAME = "Лист 1"; //VEKOS
+// const TARGET_SHEET_ID = "1-tUarxzFET_NOSp5n0LDvgoUxIKM80iGM8Taear2WyM";
+// const TARGET_SHEET_NAME = "Вакансії"; //BISAR
+const TARGET_SHEET_ID = "1-qVX4cW1G8oIPiDZjEYG_0nhNOTYY2iI0k8sp-gguko";
+const TARGET_SHEET_NAME = "Лист 1"; //Work&Human
 
 async function run() {
   try {

@@ -77,6 +77,7 @@ const KNOWN_AGENCIES = [
   "SOLANO",
   "STAFF POWER",
   "VEKOS",
+  "WORK&HUMAN",
 ];
 
 const BRAND_BLACKLIST = [
@@ -329,6 +330,7 @@ function normalizeAgency(raw) {
     КРЕОНТ: "KREON",
     ФОЛЬГА: "FOLGA",
     ВЕКОС: "VEKOS",
+    WORKANDHUMAN: "WORK&HUMAN",
   };
   const translated = TRANSLATION_MAP[upper] || upper;
   const found = KNOWN_AGENCIES.find(
@@ -963,7 +965,7 @@ GEOGRAPHY RULES:
 
 PRIVACY & FORMATTING:
 - agencyName: recruitment agency only. 
-  • STRICT RULE: Choose ONLY from this list: [APOLO, BISAR, EST, EWL, FOLGA, FWS, GLOBAL, INTRASERVICE, KONO, KREON, MANPOWER, MRÓWKI, NIDEN, OTTO, PERSONEL SERVICE, PROGRES, RALEN, SG, SOLANO, STAFF POWER, VEKOS, MANUAL].
+  • STRICT RULE: Choose ONLY from this list: [APOLO, BISAR, EST, EWL, FOLGA, FWS, GLOBAL, INTRASERVICE, KONO, KREON, MANPOWER, MRÓWKI, NIDEN, OTTO, PERSONEL SERVICE, PROGRES, RALEN, SG, SOLANO, STAFF POWER, VEKOS, WORK&HUMAN, MANUAL].
   • TRANSLATION RULE: If the agency name is in Cyrillic, TRANSLATE it to the Latin equivalent from the list above (e.g., "Прогрес" -> "PROGRES", "Коно" -> "KONO").
   • If no match from the list is found -> output null.
 • brand: Extract ONLY the exact factory/brand name in Latin script (e.g., "AMAZON", "ZARA").
