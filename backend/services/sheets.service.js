@@ -81,6 +81,12 @@ const HEADER_KEYWORDS = [
   "координатори",
   "локації",
   "житло",
+  // WORK&HUMAN
+  "назва вакансії",
+  "опис вакансії",
+  "вікова категорія",
+  "оплата посередникам",
+  "контакт координатор",
 ];
 
 /**
@@ -140,6 +146,7 @@ function getRowStatus(cells, agencyName) {
     "stop",
     "архив",
     "не актив",
+    "не актуально", // Дададзена для WORK&HUMAN
   ];
   for (const cell of cells) {
     if (!cell) continue;
