@@ -220,7 +220,7 @@ function buildRowText(cells, headers, agencyName, sheetName) {
 
     // 1. Збіраем СЕМАНТЫЧНЫ ЯКАР (толькі значэнні ключавых слупкоў)
     if (agencyAnchors.some((a) => headerLower.includes(a.toLowerCase()))) {
-      anchorParts.push(value.trim());
+      anchorParts.push(value.replace(/\s+/g, " ").trim()); // 👈 Замяняе любыя падвойныя прабелы на адзін
     }
 
     // 2. Вызначаем назву для справаздачы (першае паля з літарамі, не "Активная")
