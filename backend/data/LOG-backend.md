@@ -92,3 +92,4 @@
 
 - **`Vacancy.js`**: Дададзена поле `sheetName` і абноўлены індэкс для ізаляванага аўта-закрыцця вакансій у межах аднаго ліста.
 - **`ai.service.js`**: Функцыя `parseVacancyWithAI` абноўлена для падтрымкі поля `sheetName`.
+- **`vacancies.js`**: Функцыя `processVacancyMessage` і маршрут `/auto` абноўлены для апрацоўкі поля `sheetName`.

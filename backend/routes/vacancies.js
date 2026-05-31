@@ -179,7 +179,8 @@ async function processVacancyMessage(
   originalText = "",
   isTruncated = false,
   parsingResultType = "FULL_VACANCY",
-  sourceHash = null, // 👈 Дададзена
+  sourceHash = null,
+  sheetName = "", // 👈 ДАДАДЗЕНА
 ) {
   console.log(
     `\n--- 🤖 Stage 2: Groq-парсінг для ${preDefinedAgency || "Manual"} ---`,
@@ -192,6 +193,7 @@ async function processVacancyMessage(
       enrichedText,
       preDefinedAgency,
       parsingResultType,
+      sheetName, // 👈 Перадаем назву ліста ў AI
     );
 
     const vacancyDataList = Array.isArray(result) ? result : [result];
@@ -203,6 +205,7 @@ async function processVacancyMessage(
       const newVacancy = new Vacancy({
         ...vData,
         agencyName: finalAgency,
+        sheetName: sheetName || vData.sheetName, // 👈 Захоўваем назву ліста ў базе
         templateName: constructVacancyDisplayName({
           ...vData,
           agencyName: finalAgency,
@@ -247,6 +250,8 @@ router.post("/auto", async (req, res) => {
       agencyName,
       isTruncated,
       parsingResultType,
+      sourceHash, // Калі перадаецца
+      sheetName, // 👈 Дадаем прыём назвы ліста
     } = req.body;
 
     const result = await processVacancyMessage(
@@ -256,6 +261,8 @@ router.post("/auto", async (req, res) => {
       rawText,
       isTruncated || false,
       parsingResultType || "FULL_VACANCY",
+      sourceHash || null,
+      sheetName || "", // 👈 Перадаем у апрацоўку
     );
 
     if (result && !result.error) {
