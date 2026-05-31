@@ -472,7 +472,7 @@ async function syncSheetVacancies(sourceId) {
         continue;
       }
 
-      // 3. ЛОГІКА ДЛЯ НОВЫХ ПАЎНАВАЖНЫХ ВАКАНСІЙ
+      // 3. ЛОГІКА ДЛЯ НОВЫХ ПАЎНАВАЖНЫХ ВАКАНСІЙ (АБО АБНАЎЛЕННЯЎ)
       if (analysis.category === "FULL_VACANCY") {
         let lastCreatedCode = "NEW";
         for (const fragment of analysis.translatedFragments) {
@@ -484,15 +484,22 @@ async function syncSheetVacancies(sourceId) {
             false,
             "FULL_VACANCY",
             rowHash,
-            source.sheetName, // 👈 ДАДАДЗЕНА
-            existingVacancy ? existingVacancy._id : null, // 👈 ПЕРАДАЕМ ID ДЛЯ АБНАЎЛЕННЯ
+            source.sheetName,
+            existingVacancy ? existingVacancy._id : null,
           );
           if (savedVac && savedVac.vacancyCode)
             lastCreatedCode = savedVac.vacancyCode;
           await new Promise((r) => setTimeout(r, 2000));
         }
-        stats.added++;
-        details.push(`✨ [${lastCreatedCode}] ${rowTitle} (Row: ${i + 1})`);
+
+        // 👈 ВЫПРАЎЛЕНА: Падзяляем статыстыку на стварэнне і абнаўленне
+        if (existingVacancy) {
+          stats.updated++;
+          details.push(`🔄 [${lastCreatedCode}] ${rowTitle} (Row: ${i + 1})`);
+        } else {
+          stats.added++;
+          details.push(`✨ [${lastCreatedCode}] ${rowTitle} (Row: ${i + 1})`);
+        }
       }
 
       await new Promise((r) => setTimeout(r, 5000));

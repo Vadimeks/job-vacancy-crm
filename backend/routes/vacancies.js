@@ -210,6 +210,11 @@ async function processVacancyMessage(
             agencyName: finalAgency,
             originalText: originalText || enrichedText,
             rawText: enrichedText,
+            sheetName: sheetName || vData.sheetName,
+            templateName: constructVacancyDisplayName({
+              ...vData,
+              agencyName: finalAgency,
+            }),
             sourceHash: sourceHash, // Абнаўляем хэш на новы семантычны
             status: "active",
           },
@@ -244,18 +249,19 @@ async function processVacancyMessage(
           sourceHash,
           status: "active",
         });
-      }
-      const saved = await newVacancy.save();
-      console.log(`✅ Вакансія створана: ${vacancyCode}`);
 
-      // Фармуем пост на аснове ЗАХАВАНАГА аб'екта (Privacy Shield)
-      const postText = await aiService.formatTelegramPost(saved);
-      saved.telegramPost = postText;
-      await saved.save();
+        const saved = await newVacancy.save();
+        console.log(`✅ Вакансія створана: ${vacancyCode}`);
 
-      await sendToTelegram(sanitizeTelegramMarkdown(postText));
-      return saved;
-    }
+        // Фармуем пост на аснове ЗАХАВАНАГА аб'екта
+        const postText = await aiService.formatTelegramPost(saved);
+        saved.telegramPost = postText;
+        await saved.save();
+
+        await sendToTelegram(sanitizeTelegramMarkdown(postText));
+        return saved;
+      } // 👈 Гэтая дужка цяпер закрывае блок ELSE
+    } // 👈 Гэтая дужка закрыва
 
     return savedVacancies.length > 0 ? savedVacancies[0] : null;
   } catch (err) {
