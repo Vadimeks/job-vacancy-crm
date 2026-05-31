@@ -113,51 +113,46 @@ function hasNonWhiteBackground(cell) {
  */
 function getRowStatus(cells, agencyName) {
   if (!cells || cells.length === 0) return "EMPTY";
-
   const filledCount = cells.filter(
     (c) => (c?.formattedValue || "").trim() !== "",
   ).length;
-  if (filledCount === 0) return "EMPTY";
+  if (filledCount < 3) return "EMPTY"; // Мінімум 3 запоўненыя ячэйкі для валіднага радка
 
-  // --- ДЛЯ OTTO: заўсёды ACTIVE, калі ёсць хоць 2 запоўненыя ячэйкі ---
-  // Мы не правяраем STOP-маркеры для OTTO, бо "0" часта сустракаецца ў іх ID
-  if (agencyName === "OTTO") {
-    return filledCount >= 3 ? "ACTIVE" : "EMPTY";
-  }
-
-  // Для астатніх агенцый (RALEN, INTRASERVICE і інш.)
-  if (filledCount < 3) return "EMPTY";
-
+  // 1. RALEN — па колеры фону (белы = STOP, любы іншы = ACTIVE)
   if (agencyName === "RALEN") {
-    const firstFilledCell = cells.find(
-      (c) => c && (c.formattedValue || "").trim() !== "",
+    const firstFilled = cells.find(
+      (c) => (c?.formattedValue || "").trim() !== "",
     );
-    if (firstFilledCell && !hasNonWhiteBackground(firstFilledCell)) {
-      return "STOP";
-    }
+    return hasNonWhiteBackground(firstFilled) ? "ACTIVE" : "STOP";
   }
 
-  const STOP_MARKERS = [
-    "❌",
-    "✖️",
-    "nieaktualne",
+  // 2. OTTO — заўсёды ACTIVE (прыхаваныя радкі адсякаюцца раней у цыкле)
+  if (agencyName === "OTTO") return "ACTIVE";
+
+  // 3. VEKOS — шукаем FALSE у любым слупку (звычайна "Актуально")
+  if (agencyName === "VEKOS") {
+    const hasFalse = cells.some(
+      (c) => (c?.formattedValue || "").trim().toUpperCase() === "FALSE",
+    );
+    if (hasFalse) return "STOP";
+  }
+
+  // 4. Універсальныя СТОП-маркеры (толькі па ПЕРШАЙ ячэйцы радка)
+  const firstCell = (cells[0]?.formattedValue || "").trim().toLowerCase();
+  const STOP_WORDS = [
     "закрыто",
+    "nieaktualne",
+    "не актуально",
     "стоп",
-    "stop",
-    "архив",
-    "не актив",
-    "не актуально", // Дададзена для WORK&HUMAN
+    "❌",
+    "rezerwa",
+    "brak",
+    "wstrzymane",
   ];
-  for (const cell of cells) {
-    if (!cell) continue;
-    const val = (cell.formattedValue || "").trim().toLowerCase();
-    if (!val) continue;
 
-    if (STOP_MARKERS.some((m) => val.includes(m))) return "STOP";
-    // Строгая праверка для лічбавых маркераў (каб не чапаць ID)
-    if (val === "false") return "STOP";
-  }
+  if (STOP_WORDS.some((word) => firstCell.includes(word))) return "STOP";
 
+  // Калі радок запоўнены і няма стоп-маркераў — ён актыўны
   return "ACTIVE";
 }
 
@@ -184,29 +179,34 @@ function extractCellData(cell) {
  * Спасылкі (акрамя фота жылля) дадаюцца як тэкст.
  * Вяртае: { text, externalUrls, title }
  */
-function buildRowText(cells, headers) {
+function buildRowText(cells, headers, agencyName, sheetName) {
   const parts = [];
   const externalUrls = [];
   let title = "";
-  let city = ""; // 👈 Дадалі зменную для горада
-  let crmName = ""; // 👈 ДАДАДЗЕНА
+  let anchorParts = [];
 
-  const PHOTO_KEYWORDS = ["фото", "photo", "зображення", "image", "picture"];
-  const CITY_KEYWORDS = [
-    "місто",
-    "місто приїзду",
-    "локалізація",
-    "місце роботи",
-    "city",
-    "lokalizacja",
-  ]; // 👈 Ключавыя словы для горада
-  const CRM_KEYWORDS = [
-    "название в crm",
-    "назва в crm",
-    "проект",
-    "klient",
-    "crm",
-  ]; // 👈 Ключы для праекта
+  // Твае ключавыя палі для ідэнтыфікацыі вакансіі
+  const ANCHOR_MAP = {
+    BISAR: ["місто приїзду", "проект", "локації місця роботи"],
+    VEKOS: ["вакансія", "проект", "місто приїзду"],
+    OTTO: ["офіс отто", "функції", "назва клієнта"],
+    MRÓWKI: ["№", "должность", "место работы"],
+    RALEN: [
+      "Нажмите на название вакансии,появится ссылка с описанием вакансии",
+      "локализация",
+    ],
+    INTRASERVICE:
+      sheetName === "Opiekunki"
+        ? ["lokalizacja/ podopieczny"]
+        : sheetName === "Голандія"
+          ? ["вакансия/ опис", "название в crm"]
+          : sheetName === "Польша"
+            ? ["вакансия", "название в crm", "место работы"]
+            : [],
+    "WORK&HUMAN": ["назва вакансії", "опис вакансії", "локалізація"],
+  };
+
+  const agencyAnchors = ANCHOR_MAP[agencyName] || [];
 
   for (let j = 0; j < headers.length; j++) {
     const header = (headers[j] || "").trim();
@@ -218,49 +218,39 @@ function buildRowText(cells, headers) {
 
     const headerLower = header.toLowerCase();
 
-    // Вызначаем назву (першае паля з літарамі)
+    // 1. Збіраем СЕМАНТЫЧНЫ ЯКАР (толькі значэнні ключавых слупкоў)
+    if (agencyAnchors.some((a) => headerLower.includes(a.toLowerCase()))) {
+      anchorParts.push(value.trim());
+    }
+
+    // 2. Вызначаем назву для справаздачы (першае паля з літарамі, не "Активная")
     const hasLetters = /[a-zA-Zа-яёіўА-ЯЁІЎ]/.test(value);
-    const isTechnicalId =
-      !hasLetters || value.trim().toUpperCase().startsWith("ID");
-    if (!title && value && !isTechnicalId && value.trim().length > 2) {
+    const isStatusWord = [
+      "активная",
+      "приоритет",
+      "акция",
+      "активна",
+      "закрыто",
+    ].includes(value.trim().toLowerCase());
+    if (!title && value && hasLetters && value.length > 2 && !isStatusWord) {
       title = value.trim();
     }
 
-    // 👈 ВЫЗНАЧАЕМ ГОРАД (для семантычнага хэша)
-    if (
-      !city &&
-      value &&
-      CITY_KEYWORDS.some((kw) => headerLower.includes(kw))
-    ) {
-      city = value.trim();
-    }
-    // 👈 ВЫЗНАЧАЕМ НАЗВУ ПРАЕКТА (для ўнікальнасці хэша)
-    if (
-      !crmName &&
-      value &&
-      CRM_KEYWORDS.some((kw) => headerLower.includes(kw))
-    ) {
-      crmName = value.trim();
-    }
     let line = `${header}: ${value}`;
-    if (note) line += `\n  [Нататка да "${header}": ${note}]`;
+    if (note) line += `\n  [Нататка: ${note}]`;
     parts.push(line);
 
     if (link && link.startsWith("http")) {
       const linkLower = link.toLowerCase();
-      // 👈 Цяпер правяраем і загаловак, і саму спасылку на ключавыя словы фота
       const isPhoto =
-        PHOTO_KEYWORDS.some((kw) => headerLower.includes(kw)) ||
         linkLower.includes("zhitlo") ||
         linkLower.includes("foto") ||
         linkLower.includes("photo");
-
-      if (isPhoto) {
-        parts.push(`  [Фота/зображення: ${link}]`);
-        // Не дадаем у externalUrls, каб не спампоўваць "пусты" тэкст з фота-старонак
-      } else {
+      if (!isPhoto) {
         externalUrls.push({ url: link, header });
         parts.push(`  [Спасылка: ${link}]`);
+      } else {
+        parts.push(`  [Фота: ${link}]`);
       }
     }
   }
@@ -269,8 +259,7 @@ function buildRowText(cells, headers) {
     text: parts.join("\n"),
     externalUrls,
     title: title || "Без назви",
-    city: city || "Польща", // 👈 Вяртаем горад
-    crmName: crmName || "", // 👈 Вяртаем назву праекта
+    anchorText: anchorParts.join("::") || title, // Калі якар не сабраўся — выкарыстоўваем назву
   };
 }
 
@@ -362,20 +351,26 @@ async function syncSheetVacancies(sourceId) {
         text: rowBodyText,
         externalUrls,
         title: rowTitle,
-        city: rowCity, // 👈 Абавязкова дастаем горад тут
-        crmName: rowCrmName, // 👈 Дастаем CRM Name
-      } = buildRowText(cells || [], headers);
+        anchorText: rowAnchor, // 👈 Атрымліваем якар
+      } = buildRowText(
+        cells || [],
+        headers,
+        source.agencyName,
+        source.sheetName,
+      );
+
       if (!rowBodyText.trim()) continue;
 
-      // 1. Ствараем СУПЕР-УНІКАЛЬНЫ хэш (Агенцыя + Назва + Горад + Праект)
+      // 2. Ствараем СЕМАНТЫЧНЫ ХЭШ (Агенцыя + Ліст + Якар)
+      // Гэта дазваляе вакансіі "пераязджаць" па табліцы без стварэння дублікатаў
       const rowHash = crypto
         .createHash("md5")
-        .update(`${source.agencyName}::${rowTitle}::${rowCity}::${rowCrmName}`)
+        .update(`${source.agencyName}::${source.sheetName}::${rowAnchor}`)
         .digest("hex");
 
       const existingVacancy = await Vacancy.findOne({ sourceHash: rowHash });
 
-      // 2. Калі радок у табліцы STOP
+      // 3. Калі радок у табліцы STOP
       if (rowStatus === "STOP") {
         foundHashesInSheet.add(rowHash);
         if (existingVacancy && existingVacancy.status === "active") {
@@ -389,19 +384,23 @@ async function syncSheetVacancies(sourceId) {
         continue;
       }
 
-      // 3. Калі вакансія ўжо ёсць і яна ACTIVE
+      // 4. Калі вакансія ўжо ёсць і яна ACTIVE
       if (existingVacancy && existingVacancy.status === "active") {
         foundHashesInSheet.add(rowHash);
+
+        // ПРАВЕРКА: Ці змяніўся поўны тэкст радка?
+        // Калі тэкст супадае на 100% — ігнаруем (поўны дублікат)
         if (existingVacancy.originalText === rowBodyText) {
           stats.ignored++;
           continue;
         }
+        // Калі тэкст розны — ідзем далей на AI-абнаўленне (UPDATE)
         console.log(
           `🔄 Абнаўленне дадзеных для ${existingVacancy.vacancyCode} (Row: ${i + 1})`,
         );
       }
 
-      // 4. Апрацоўка (Новая, Рэанімацыя або Абнаўленне)
+      // 5. Апрацоўка (Новая, Рэанімацыя або Абнаўленне)
       console.log(
         `🚀 [Row ${i + 1}] Апрацоўка: ${rowTitle} (${existingVacancy ? (existingVacancy.status === "closed" ? "Рэанімацыя" : "Абнаўленне") : "Новая"})`,
       );
@@ -485,7 +484,7 @@ async function syncSheetVacancies(sourceId) {
             "FULL_VACANCY",
             rowHash,
             source.sheetName,
-            existingVacancy ? existingVacancy._id : null,
+            existingVacancy ? existingVacancy._id : null, // 👈 ПЕРАДАЕМ ID ДЛЯ АБНАЎЛЕННЯ
           );
           if (savedVac && savedVac.vacancyCode)
             lastCreatedCode = savedVac.vacancyCode;
