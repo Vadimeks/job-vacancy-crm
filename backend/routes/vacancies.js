@@ -181,6 +181,7 @@ async function processVacancyMessage(
   parsingResultType = "FULL_VACANCY",
   sourceHash = null,
   sheetName = "", // 👈 ДАДАДЗЕНА
+  existingId = null, // 👈 ДАДАДЗЕНА: ID для абнаўлення
 ) {
   console.log(
     `\n--- 🤖 Stage 2: Groq-парсінг для ${preDefinedAgency || "Manual"} ---`,
@@ -200,25 +201,50 @@ async function processVacancyMessage(
 
     for (const vData of vacancyDataList) {
       const finalAgency = preDefinedAgency || vData.agencyName || "Manual";
-      const vacancyCode = await generateVacancyCode();
+      if (existingId) {
+        // 🔄 ЛОГІКА АБНАЎЛЕННЯ
+        const updated = await Vacancy.findByIdAndUpdate(
+          existingId,
+          {
+            ...vData,
+            agencyName: finalAgency,
+            originalText: originalText || enrichedText,
+            rawText: enrichedText,
+            sourceHash: sourceHash, // Абнаўляем хэш на новы семантычны
+            status: "active",
+          },
+          { new: true },
+        );
 
-      const newVacancy = new Vacancy({
-        ...vData,
-        agencyName: finalAgency,
-        sheetName: sheetName || vData.sheetName, // 👈 Захоўваем назву ліста ў базе
-        templateName: constructVacancyDisplayName({
+        console.log(`✅ Вакансія абноўлена: ${updated.vacancyCode}`);
+
+        // Абнаўляем пост у Тэлеграм
+        const postText = await aiService.formatTelegramPost(updated);
+        updated.telegramPost = postText;
+        await updated.save();
+
+        // Можна адправіць у ТГ паметку "Абноўлена", але пакуль проста захаваем
+        return updated;
+      } else {
+        // ✨ ЛОГІКА СТВАРЭННЯ НОВАЙ
+        const vacancyCode = await generateVacancyCode();
+        const newVacancy = new Vacancy({
           ...vData,
           agencyName: finalAgency,
-        }),
-        vacancyCode,
-        originalText: originalText || enrichedText, // 👈 Выправілі rawText на enrichedText
-        rawText: enrichedText,
-        isTruncated: isTruncated,
-        parsingResultType: parsingResultType,
-        sourceHash: sourceHash,
-        status: "active",
-      });
-
+          sheetName: sheetName || vData.sheetName,
+          templateName: constructVacancyDisplayName({
+            ...vData,
+            agencyName: finalAgency,
+          }),
+          vacancyCode,
+          originalText: originalText || enrichedText,
+          rawText: enrichedText,
+          isTruncated,
+          parsingResultType,
+          sourceHash,
+          status: "active",
+        });
+      }
       const saved = await newVacancy.save();
       console.log(`✅ Вакансія створана: ${vacancyCode}`);
 
@@ -228,7 +254,7 @@ async function processVacancyMessage(
       await saved.save();
 
       await sendToTelegram(sanitizeTelegramMarkdown(postText));
-      savedVacancies.push(saved);
+      return saved;
     }
 
     return savedVacancies.length > 0 ? savedVacancies[0] : null;
@@ -252,6 +278,7 @@ router.post("/auto", async (req, res) => {
       parsingResultType,
       sourceHash, // Калі перадаецца
       sheetName, // 👈 Дадаем прыём назвы ліста
+      existingId, // 👈 Прымаем ID
     } = req.body;
 
     const result = await processVacancyMessage(
@@ -263,6 +290,7 @@ router.post("/auto", async (req, res) => {
       parsingResultType || "FULL_VACANCY",
       sourceHash || null,
       sheetName || "", // 👈 Перадаем у апрацоўку
+      existingId || null, // 👈 Перадаем у працэсар
     );
 
     if (result && !result.error) {

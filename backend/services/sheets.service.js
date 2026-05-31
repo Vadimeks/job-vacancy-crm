@@ -189,6 +189,7 @@ function buildRowText(cells, headers) {
   const externalUrls = [];
   let title = "";
   let city = ""; // 👈 Дадалі зменную для горада
+  let crmName = ""; // 👈 ДАДАДЗЕНА
 
   const PHOTO_KEYWORDS = ["фото", "photo", "зображення", "image", "picture"];
   const CITY_KEYWORDS = [
@@ -199,6 +200,13 @@ function buildRowText(cells, headers) {
     "city",
     "lokalizacja",
   ]; // 👈 Ключавыя словы для горада
+  const CRM_KEYWORDS = [
+    "название в crm",
+    "назва в crm",
+    "проект",
+    "klient",
+    "crm",
+  ]; // 👈 Ключы для праекта
 
   for (let j = 0; j < headers.length; j++) {
     const header = (headers[j] || "").trim();
@@ -226,7 +234,14 @@ function buildRowText(cells, headers) {
     ) {
       city = value.trim();
     }
-
+    // 👈 ВЫЗНАЧАЕМ НАЗВУ ПРАЕКТА (для ўнікальнасці хэша)
+    if (
+      !crmName &&
+      value &&
+      CRM_KEYWORDS.some((kw) => headerLower.includes(kw))
+    ) {
+      crmName = value.trim();
+    }
     let line = `${header}: ${value}`;
     if (note) line += `\n  [Нататка да "${header}": ${note}]`;
     parts.push(line);
@@ -255,6 +270,7 @@ function buildRowText(cells, headers) {
     externalUrls,
     title: title || "Без назви",
     city: city || "Польща", // 👈 Вяртаем горад
+    crmName: crmName || "", // 👈 Вяртаем назву праекта
   };
 }
 
@@ -347,14 +363,14 @@ async function syncSheetVacancies(sourceId) {
         externalUrls,
         title: rowTitle,
         city: rowCity, // 👈 Абавязкова дастаем горад тут
+        crmName: rowCrmName, // 👈 Дастаем CRM Name
       } = buildRowText(cells || [], headers);
       if (!rowBodyText.trim()) continue;
 
-      // 1. Ствараем СЕМАНТЫЧНЫ хэш (Агенцыя + Назва + Горад)
-      // Гэта дазваляе пазнаць вакансію, нават калі ў ёй змянілася стаўка ці апісанне
+      // 1. Ствараем СУПЕР-УНІКАЛЬНЫ хэш (Агенцыя + Назва + Горад + Праект)
       const rowHash = crypto
         .createHash("md5")
-        .update(`${source.agencyName}::${rowTitle}::${rowCity}`)
+        .update(`${source.agencyName}::${rowTitle}::${rowCity}::${rowCrmName}`)
         .digest("hex");
 
       const existingVacancy = await Vacancy.findOne({ sourceHash: rowHash });
@@ -376,19 +392,13 @@ async function syncSheetVacancies(sourceId) {
       // 3. Калі вакансія ўжо ёсць і яна ACTIVE
       if (existingVacancy && existingVacancy.status === "active") {
         foundHashesInSheet.add(rowHash);
-
-        // ПРАВЕРКА: Ці змяніўся тэкст радка?
-        // Калі тэкст супадае на 100% — ігнаруем (поўны дубль)
         if (existingVacancy.originalText === rowBodyText) {
           stats.ignored++;
           continue;
         }
-
-        // Калі тэкст розны — значыць гэта UPDATE (напрыклад, змянілася стаўка)
         console.log(
           `🔄 Абнаўленне дадзеных для ${existingVacancy.vacancyCode} (Row: ${i + 1})`,
         );
-        // Код ідзе далей да AI-аналізу, які зробіць UPDATE
       }
 
       // 4. Апрацоўка (Новая, Рэанімацыя або Абнаўленне)
@@ -475,6 +485,7 @@ async function syncSheetVacancies(sourceId) {
             "FULL_VACANCY",
             rowHash,
             source.sheetName, // 👈 ДАДАДЗЕНА
+            existingVacancy ? existingVacancy._id : null, // 👈 ПЕРАДАЕМ ID ДЛЯ АБНАЎЛЕННЯ
           );
           if (savedVac && savedVac.vacancyCode)
             lastCreatedCode = savedVac.vacancyCode;
