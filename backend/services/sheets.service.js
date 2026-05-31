@@ -474,6 +474,7 @@ async function syncSheetVacancies(sourceId) {
             false,
             "FULL_VACANCY",
             rowHash,
+            source.sheetName, // 👈 ДАДАДЗЕНА
           );
           if (savedVac && savedVac.vacancyCode)
             lastCreatedCode = savedVac.vacancyCode;
@@ -491,6 +492,7 @@ async function syncSheetVacancies(sourceId) {
       // Знаходзім вакансіі, якія будуць закрыты, каб захаваць іх ID для справаздачы
       const vacanciesToClose = await Vacancy.find({
         agencyName: source.agencyName,
+        sheetName: source.sheetName, // 👈 ДАДАДЗЕНА: шукаем толькі ў межах гэтага ліста
         status: "active",
         sourceHash: { $exists: true, $nin: Array.from(foundHashesInSheet) },
       }).select("_id vacancyCode vacancydescription position");
@@ -498,6 +500,7 @@ async function syncSheetVacancies(sourceId) {
       const closeResult = await Vacancy.updateMany(
         {
           agencyName: source.agencyName,
+          sheetName: source.sheetName, // 👈 ДАДАДЗЕНА: закрываем толькі свае
           status: "active",
           sourceHash: { $exists: true, $nin: Array.from(foundHashesInSheet) },
         },
