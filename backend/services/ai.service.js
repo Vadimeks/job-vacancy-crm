@@ -916,6 +916,7 @@ async function parseVacancyWithAI(
   rawText,
   forcedAgency = null,
   parsingResultType = "FULL_VACANCY",
+  sheetName = null,
 ) {
   try {
     console.log(
@@ -1264,6 +1265,7 @@ JSON STRUCTURE:
         // === 1. СИСТЕМНІ ПОЛЯ ===
         ...cleaned,
         agencyName: normalizedAgency,
+        sheetName: sheetName,
         brand: validatedBrand,
         templateName: cleaned.templateName || "",
         vacancydescription: finalTitle,
