@@ -6,6 +6,7 @@ const vacancySchema = new mongoose.Schema({
   vacancydescription: { type: String, default: "" }, // Кароткі опіс суці (укр)
   brand: { type: String, default: "" }, // Назва прадпрыемства/завода (напр. LG, Amazon)
   agencyName: { type: String, default: "Manual" },
+  sheetName: { type: String, default: "" }, // 👈 ДАДАДЗЕНА: Назва ліста ў Google Sheets (напр. "Польша", "Opiekunki")
   templateId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Template",
@@ -165,5 +166,5 @@ const vacancySchema = new mongoose.Schema({
 });
 // Індэксы для паскарэння сінхранізацыі і пошуку
 vacancySchema.index({ sourceHash: 1, status: 1 });
-vacancySchema.index({ agencyName: 1, status: 1 });
+vacancySchema.index({ agencyName: 1, sheetName: 1, status: 1 }); // 👈 Аптымізацыя для ізаляванага закрыцця
 module.exports = mongoose.model("Vacancy", vacancySchema);
