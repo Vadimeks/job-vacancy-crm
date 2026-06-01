@@ -84,7 +84,7 @@ async function enrichTextWithDocs(rawText) {
     /(?:docs\.google\.com\/document|drive\.google\.com\/file)\/(?:u\/\d+\/)?d\/([a-zA-Z0-9_-]+)/g;
   const folderRegex =
     /drive\.google\.com\/(?:drive\/)?folders\/([a-zA-Z0-9_-]+)/g;
-  const telegraphRegex = /https?:\/\/telegra\.ph\/[a-zA-Z0-9_-]+/g; // 👈 Новы рэгекс для Telegraph
+  const telegraphRegex = /https?:\/\/telegra\.ph\/[^\s\)]+/g;
 
   const docMatches = [...rawText.matchAll(docRegex)];
   const folderMatches = [...rawText.matchAll(folderRegex)];
