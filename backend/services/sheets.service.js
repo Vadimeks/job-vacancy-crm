@@ -112,6 +112,7 @@ function hasNonWhiteBackground(cell) {
  * Для RALEN дадаткова правярае фон першай непустой ячэйкі.
  */
 /**
+/**
  * Вызначае статус радка на аснове агенцыі і загалоўкаў.
  */
 function getRowStatus(cells, agencyName, headers = []) {
@@ -134,7 +135,7 @@ function getRowStatus(cells, agencyName, headers = []) {
 
   // 3. Мапінг слупкоў статусу паводле патрабаванняў
   const statusHeadersMap = {
-    BISAR: ["актив.✅не актив.❌"],
+    BISAR: ["актив", "не актив"], // 👈 Спрошчана: знойдзе і "актив.✅", і "не актив.❌"
     VEKOS: ["актуально"],
     "WORK&HUMAN": ["статус"],
     MRÓWKI: ["статус"],
@@ -143,12 +144,17 @@ function getRowStatus(cells, agencyName, headers = []) {
 
   const targetHeaders = statusHeadersMap[agencyName] || [];
   let statusValue = "";
+  let foundHeaderName = "";
 
   // Шукаем значэнне ў патрэбным слупку
   for (let j = 0; j < headers.length; j++) {
     const h = (headers[j] || "").toLowerCase().trim();
-    if (targetHeaders.some((th) => h.includes(th.toLowerCase()))) {
+    // Выдаляем пераносы радкоў і лішнія прабелы для параўнання
+    const cleanH = h.replace(/\s+/g, " ");
+
+    if (targetHeaders.some((th) => cleanH.includes(th.toLowerCase()))) {
       statusValue = (cells[j]?.formattedValue || "").trim().toLowerCase();
+      foundHeaderName = cleanH;
       break;
     }
   }
@@ -166,11 +172,19 @@ function getRowStatus(cells, agencyName, headers = []) {
     "brak",
   ];
 
+  // 🔍 ДЭБАГ-ЛОГ (дапаможа зразумець, чаму не спрацавала)
+  if (foundHeaderName) {
+    const isStop = STOP_MARKERS.some((m) => statusValue.includes(m));
+    console.log(
+      `[Status Debug] Agency: ${agencyName} | Column: "${foundHeaderName}" | Value: "${statusValue}" | Result: ${isStop ? "STOP" : "ACTIVE"}`,
+    );
+  }
+
   // Калі знайшлі слупок статусу — правяраем яго
   if (statusValue && STOP_MARKERS.some((m) => statusValue.includes(m)))
     return "STOP";
 
-  // Fallback: калі слупок не знойдзены, правяраем першую ячэйку (як было раней)
+  // Fallback: калі слупок не знойдзены, правяраем першую ячэйку
   if (!statusValue) {
     const firstCell = (cells[0]?.formattedValue || "").trim().toLowerCase();
     if (STOP_MARKERS.some((word) => firstCell.includes(word))) return "STOP";
