@@ -499,6 +499,7 @@ async function syncSheetVacancies(sourceId) {
       // 2. ЛОГІКА ДЛЯ РЭАНІМАЦЫІ (Калі вакансія была CLOSED, а стала ACTIVE і яна FULL)
       if (existingVacancy && existingVacancy.status === "closed") {
         existingVacancy.status = "active";
+        existingVacancy.originalText = rowBodyText; // 👈 ДАДАЕМ ГЭТА
         if (analysis.translatedFragments?.[0]) {
           existingVacancy.rawText = analysis.translatedFragments[0];
         }
@@ -518,7 +519,7 @@ async function syncSheetVacancies(sourceId) {
             fragment,
             "Google Sheets",
             source.agencyName,
-            fragment,
+            rowBodyText, // 👈 ЦЯПЕР ПЕРАДАЕМ СЫРЫ ТЭКСТ РАДКА
             false,
             "FULL_VACANCY",
             rowHash,
