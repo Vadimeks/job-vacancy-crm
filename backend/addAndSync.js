@@ -55,9 +55,9 @@ const CONFIG = {
 // const TARGET_SHEET_NAME = "Голандія";
 // const TARGET_AGENCY_NAME = "INTRASERVICE";
 //---
-const TARGET_SHEET_ID = "13PN6zOZiDLAL-iLm58NSbsig4h_inXp-GfmNWxc53y8";
-const TARGET_SHEET_NAME = "Opiekunki";
-const TARGET_AGENCY_NAME = "INTRASERVICE";
+// const TARGET_SHEET_ID = "13PN6zOZiDLAL-iLm58NSbsig4h_inXp-GfmNWxc53y8";
+// const TARGET_SHEET_NAME = "Opiekunki";
+// const TARGET_AGENCY_NAME = "INTRASERVICE";
 //---
 // const TARGET_SHEET_ID = "1qASi88Ihwdw3LpFLQECg-7YSGuv07lZ4pMqFNyTgk8E";
 // const TARGET_SHEET_NAME = "Вакансии 2026";
@@ -75,9 +75,9 @@ const TARGET_AGENCY_NAME = "INTRASERVICE";
 // const TARGET_SHEET_NAME = "vekos";
 // const TARGET_AGENCY_NAME = "VEKOS";
 //---
-// const TARGET_SHEET_ID = "1-tUarxzFET_NOSp5n0LDvgoUxIKM80iGM8Taear2WyM";
-// const TARGET_SHEET_NAME = "Вакансії";
-// const TARGET_AGENCY_NAME = "BISAR";
+const TARGET_SHEET_ID = "1-tUarxzFET_NOSp5n0LDvgoUxIKM80iGM8Taear2WyM";
+const TARGET_SHEET_NAME = "Вакансії";
+const TARGET_AGENCY_NAME = "BISAR";
 //---
 // const TARGET_SHEET_ID = "1-qVX4cW1G8oIPiDZjEYG_0nhNOTYY2iI0k8sp-gguko";
 // const TARGET_SHEET_NAME = "Лист1";

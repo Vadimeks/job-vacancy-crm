@@ -111,12 +111,15 @@ function hasNonWhiteBackground(cell) {
  * Праглядае ВСЕ ячэйкі радка — шукае маркеры закрыцця.
  * Для RALEN дадаткова правярае фон першай непустой ячэйкі.
  */
-function getRowStatus(cells, agencyName) {
+/**
+ * Вызначае статус радка на аснове агенцыі і загалоўкаў.
+ */
+function getRowStatus(cells, agencyName, headers = []) {
   if (!cells || cells.length === 0) return "EMPTY";
   const filledCount = cells.filter(
     (c) => (c?.formattedValue || "").trim() !== "",
   ).length;
-  if (filledCount < 3) return "EMPTY"; // Мінімум 3 запоўненыя ячэйкі для валіднага радка
+  if (filledCount < 3) return "EMPTY";
 
   // 1. RALEN — па колеры фону (белы = STOP, любы іншы = ACTIVE)
   if (agencyName === "RALEN") {
@@ -126,33 +129,53 @@ function getRowStatus(cells, agencyName) {
     return hasNonWhiteBackground(firstFilled) ? "ACTIVE" : "STOP";
   }
 
-  // 2. OTTO — заўсёды ACTIVE (прыхаваныя радкі адсякаюцца раней у цыкле)
+  // 2. OTTO — заўсёды ACTIVE (прыхаваныя радкі адсякаюцца раней)
   if (agencyName === "OTTO") return "ACTIVE";
 
-  // 3. VEKOS — шукаем FALSE у любым слупку (звычайна "Актуально")
-  if (agencyName === "VEKOS") {
-    const hasFalse = cells.some(
-      (c) => (c?.formattedValue || "").trim().toUpperCase() === "FALSE",
-    );
-    if (hasFalse) return "STOP";
+  // 3. Мапінг слупкоў статусу паводле патрабаванняў
+  const statusHeadersMap = {
+    BISAR: ["актив.✅не актив.❌"],
+    VEKOS: ["актуально"],
+    "WORK&HUMAN": ["статус"],
+    MRÓWKI: ["статус"],
+    INTRASERVICE: ["статус вакансии", "status rekrutacji"],
+  };
+
+  const targetHeaders = statusHeadersMap[agencyName] || [];
+  let statusValue = "";
+
+  // Шукаем значэнне ў патрэбным слупку
+  for (let j = 0; j < headers.length; j++) {
+    const h = (headers[j] || "").toLowerCase().trim();
+    if (targetHeaders.some((th) => h.includes(th.toLowerCase()))) {
+      statusValue = (cells[j]?.formattedValue || "").trim().toLowerCase();
+      break;
+    }
   }
 
-  // 4. Універсальныя СТОП-маркеры (толькі па ПЕРШАЙ ячэйцы радка)
-  const firstCell = (cells[0]?.formattedValue || "").trim().toLowerCase();
-  const STOP_WORDS = [
+  // Універсальныя СТОП-маркеры
+  const STOP_MARKERS = [
+    "❌",
+    "false",
+    "стоп",
+    "stop",
     "закрыто",
     "nieaktualne",
     "не актуально",
-    "стоп",
-    "❌",
     "rezerwa",
     "brak",
-    "wstrzymane",
   ];
 
-  if (STOP_WORDS.some((word) => firstCell.includes(word))) return "STOP";
+  // Калі знайшлі слупок статусу — правяраем яго
+  if (statusValue && STOP_MARKERS.some((m) => statusValue.includes(m)))
+    return "STOP";
 
-  // Калі радок запоўнены і няма стоп-маркераў — ён актыўны
+  // Fallback: калі слупок не знойдзены, правяраем першую ячэйку (як было раней)
+  if (!statusValue) {
+    const firstCell = (cells[0]?.formattedValue || "").trim().toLowerCase();
+    if (STOP_MARKERS.some((word) => firstCell.includes(word))) return "STOP";
+  }
+
   return "ACTIVE";
 }
 
@@ -344,7 +367,9 @@ async function syncSheetVacancies(sourceId) {
       )
         continue;
 
-      const rowStatus = getRowStatus(cells, source.agencyName);
+      // Перадаем headers для дакладнага вызначэння статусу (Bug A fix)
+      const rowStatus = getRowStatus(cells, source.agencyName, headers);
+      Status = getRowStatus(cells, source.agencyName);
       if (rowStatus === "EMPTY") continue;
 
       const {
