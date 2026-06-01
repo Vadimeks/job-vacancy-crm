@@ -369,7 +369,7 @@ async function syncSheetVacancies(sourceId) {
 
       // Перадаем headers для дакладнага вызначэння статусу (Bug A fix)
       const rowStatus = getRowStatus(cells, source.agencyName, headers);
-      Status = getRowStatus(cells, source.agencyName);
+
       if (rowStatus === "EMPTY") continue;
 
       const {
@@ -498,7 +498,7 @@ async function syncSheetVacancies(sourceId) {
 
       // 3. ЛОГІКА ДЛЯ НОВЫХ ПАЎНАВАЖНЫХ ВАКАНСІЙ (АБО АБНАЎЛЕННЯЎ)
       if (analysis.category === "FULL_VACANCY") {
-        let lastCreatedCode = "NEW";
+        let fragmentIndex = 0;
         for (const fragment of analysis.translatedFragments) {
           const savedVac = await processVacancyMessage(
             fragment,
@@ -509,20 +509,28 @@ async function syncSheetVacancies(sourceId) {
             "FULL_VACANCY",
             rowHash,
             source.sheetName,
-            existingVacancy ? existingVacancy._id : null, // 👈 ПЕРАДАЕМ ID ДЛЯ АБНАЎЛЕННЯ
+            fragmentIndex === 0
+              ? existingVacancy
+                ? existingVacancy._id
+                : null
+              : null,
           );
-          if (savedVac && savedVac.vacancyCode)
-            lastCreatedCode = savedVac.vacancyCode;
-          await new Promise((r) => setTimeout(r, 2000));
-        }
 
-        // 👈 ВЫПРАЎЛЕНА: Падзяляем статыстыку на стварэнне і абнаўленне
-        if (existingVacancy) {
-          stats.updated++;
-          details.push(`🔄 [${lastCreatedCode}] ${rowTitle} (Row: ${i + 1})`);
-        } else {
-          stats.added++;
-          details.push(`✨ [${lastCreatedCode}] ${rowTitle} (Row: ${i + 1})`);
+          if (savedVac && savedVac.vacancyCode) {
+            if (fragmentIndex === 0 && existingVacancy) {
+              stats.updated++;
+              details.push(
+                `🔄 [${savedVac.vacancyCode}] ${rowTitle} (Row: ${i + 1})`,
+              );
+            } else {
+              stats.added++;
+              details.push(
+                `✨ [${savedVac.vacancyCode}] ${rowTitle} (Row: ${i + 1}${fragmentIndex > 0 ? " - ч." + (fragmentIndex + 1) : ""})`,
+              );
+            }
+          }
+          fragmentIndex++;
+          await new Promise((r) => setTimeout(r, 2000));
         }
       }
 

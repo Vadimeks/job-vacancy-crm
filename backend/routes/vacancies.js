@@ -198,13 +198,15 @@ async function processVacancyMessage(
     );
 
     const vacancyDataList = Array.isArray(result) ? result : [result];
+    // 💡 Precision Fix: толькі першы фрагмент абнаўляе існуючую вакансію
+    let currentExistingId = existingId;
 
     for (const vData of vacancyDataList) {
       const finalAgency = preDefinedAgency || vData.agencyName || "Manual";
-      if (existingId) {
+      if (currentExistingId) {
         // 🔄 ЛОГІКА АБНАЎЛЕННЯ
         const updated = await Vacancy.findByIdAndUpdate(
-          existingId,
+          currentExistingId,
           {
             ...vData,
             agencyName: finalAgency,
@@ -228,6 +230,7 @@ async function processVacancyMessage(
         await updated.save();
 
         savedVacancies.push(updated); // 👈 Замянілі return на push
+        currentExistingId = null; // Наступныя фрагменты пойдуць як новыя
       } else {
         // ✨ ЛОГІКА СТВАРЭННЯ НОВАЙ
         const vacancyCode = await generateVacancyCode();

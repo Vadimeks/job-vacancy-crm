@@ -851,7 +851,9 @@ async function linkTemplateToVacancy(vacancyData, template) {
 }
 
 async function formatTelegramPost(vacancyData) {
-  console.log(`🤖 Форматаванне Telegram-посту...`);
+  console.log(
+    `🤖 Форматаванне Telegram-посту для ${vacancyData.vacancyCode}...`,
+  );
 
   // 🛡️ Technical Privacy Shield
   const rawObj = vacancyData.toObject ? vacancyData.toObject() : vacancyData;
@@ -866,29 +868,40 @@ async function formatTelegramPost(vacancyData) {
     ...publicData
   } = rawObj;
 
+  // Дадаем жорсткае патрабаванне ў промпт, каб паменшыць верагоднасць атрымання JSON
+  const strictPrompt =
+    FORMAT_PROMPT +
+    "\n\n!!! CRITICAL: Return ONLY the formatted Ukrainian text. NO JSON, NO explanations, NO markdown code blocks (```json).";
+
   const text = await executeAIRequest(
-    FORMAT_PROMPT,
+    strictPrompt,
     `DATA:\n${JSON.stringify(publicData, null, 2)}`,
-    false,
+    false, // jsonMode = false
   );
 
-  // --- ПАЛЕПШАНЫ JSON-ШЧЫТ (v2.4) ---
-  const trimmedText = (text || "").trim();
+  let trimmedText = (text || "").trim();
 
-  // Правяраем, ці не з'яўляецца адказ сырым JSON (у тым ліку ў Markdown блоках)
+  // --- ПАЛЕПШАНЫ JSON-ШЧЫТ (v3.0) ---
+  // Правяраем, ці не з'яўляецца адказ сырым JSON
   const isJson =
     trimmedText.startsWith("{") ||
-    trimmedText.startsWith("```json") ||
-    trimmedText.includes('"vacancydescription":') ||
-    trimmedText.includes('"salary":');
+    trimmedText.includes('"vacancydescription":');
 
-  if (!trimmedText || isJson || trimmedText.length < 50) {
-    console.error(
-      "⚠️ AI вярнуў JSON або занадта кароткі тэкст замест посту. Адмена адпраўкі.",
-    );
-    throw new Error(
-      "AI returned invalid format (JSON/Short) for Telegram post",
-    );
+  if (isJson) {
+    console.warn("⚠️ AI вярнуў JSON замест тэксту. Спрабуем аднавіць пост...");
+    try {
+      const parsed = JSON.parse(repairJson(trimmedText));
+      // Калі AI вярнуў JSON, мы не падаем, а збіраем пост уручную (Fallback)
+      // Гэта гарантуе, што вакансія будзе апублікавана ў любым выпадку
+      return `*${parsed.vacancydescription || "Вакансія"}*\n\n📍 Місто: ${parsed.location || "уточнюється"}\n💰 Оплата: ${parsed.salary?.rawSalaryDisplay || "відповідно до ставки"}\n\n🛠 Обов'язки:\n${parsed.description || "Докладніше при розмові"}\n\n📝 Додатково: ${parsed.additionalNotes || "уточнюйте у координатора"}`;
+    } catch (e) {
+      // Калі нават распарсіць не ўдалося — кідаем памылку, каб спрацаваў AI_CHAIN (retry з іншай мадэллю)
+      throw new Error("AI returned corrupted JSON instead of text post");
+    }
+  }
+
+  if (!trimmedText || trimmedText.length < 50) {
+    throw new Error("AI returned too short post text");
   }
 
   return trimmedText;
