@@ -84,7 +84,7 @@ async function enrichTextWithDocs(rawText) {
     /(?:docs\.google\.com\/document|drive\.google\.com\/file)\/(?:u\/\d+\/)?d\/([a-zA-Z0-9_-]+)/g;
   const folderRegex =
     /drive\.google\.com\/(?:drive\/)?folders\/([a-zA-Z0-9_-]+)/g;
-  const telegraphRegex = /https?:\/\/telegra\.ph\/[^\s\)]+/g;
+  const telegraphRegex = /https?:\/\/telegra\.ph\/[^\s\]\)]+/g;
 
   const docMatches = [...rawText.matchAll(docRegex)];
   const folderMatches = [...rawText.matchAll(folderRegex)];
@@ -105,7 +105,7 @@ async function enrichTextWithDocs(rawText) {
 
   // 1. Апрацоўка Telegraph (новае!)
   for (const match of telegraphMatches) {
-    const url = match[0];
+    let url = match[0].replace(/[\]\)]+$/, ""); // 👈 Выдаляе любыя дужкі ў самым канцы URL
     // Ігнаруем, калі гэта відавочна фота жытла
     if (
       url.toLowerCase().includes("zhitlo") ||
