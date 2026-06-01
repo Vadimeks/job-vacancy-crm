@@ -30,7 +30,7 @@ const AI_CHAIN = [
   { provider: "vertex", name: "gemini-2.5-flash-lite" },
   { provider: "vertex", name: "gemini-3.1-flash-lite" },
   { provider: "groq", name: "llama-3.3-70b-versatile" },
-  { provider: "groq", name: "llama-3.1-8b-instant" },
+  { provider: "groq", name: "llama-3.1-8b-instant", maxChars: 5000 }, // 👈 Абмежаванне для малой мадэлі
 ];
 
 let chainFrozenUntil = 0; // Паўза 1 гадзіна пры адмове ўсіх мадэляў
@@ -623,6 +623,13 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true) {
   }
 
   for (const model of AI_CHAIN) {
+    // 🆕 КРОК: Фільтрацыя па памеры тэксту
+    if (model.maxChars && safeContent.length > model.maxChars) {
+      console.log(
+        `⏩ Пропуск ${model.name}: тэкст занадта вялікі (${safeContent.length} сімв.) для гэтай мадэлі.`,
+      );
+      continue;
+    }
     let retries = 1; // Для кожнай мадэлі робім 1 паўтор пры сеткавых памылках
 
     while (retries >= 0) {
