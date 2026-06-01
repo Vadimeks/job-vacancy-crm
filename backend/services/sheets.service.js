@@ -519,7 +519,7 @@ async function syncSheetVacancies(sourceId) {
             fragment,
             "Google Sheets",
             source.agencyName,
-            rowBodyText, // 👈 ЦЯПЕР ПЕРАДАЕМ СЫРЫ ТЭКСТ РАДКА
+            rowBodyText, // 👈 Гэта запіша сыры тэкст у базу
             false,
             "FULL_VACANCY",
             rowHash,
