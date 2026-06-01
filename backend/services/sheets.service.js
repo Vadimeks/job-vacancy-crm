@@ -122,12 +122,30 @@ function getRowStatus(cells, agencyName, headers = []) {
   ).length;
   if (filledCount < 3) return "EMPTY";
 
-  // 1. RALEN — па колеры фону (белы = STOP, любы іншы = ACTIVE)
+  // 1. RALEN — па колеры фону першай ячэйкі (Слупок А)
   if (agencyName === "RALEN") {
-    const firstFilled = cells.find(
-      (c) => (c?.formattedValue || "").trim() !== "",
+    const firstCell = cells[0];
+    const bg = firstCell?.effectiveFormat?.backgroundColor;
+
+    // Калі аб'ект bg адсутнічае — гэта дакладна белы (дэфолт)
+    if (!bg || Object.keys(bg).length === 0) {
+      return "STOP";
+    }
+
+    const r = bg.red ?? 1;
+    const g = bg.green ?? 1;
+    const b = bg.blue ?? 1;
+
+    // Вызначаем, ці з'яўляецца колер небелым
+    // Мы робім праверку больш адчувальнай: калі хоць адзін канал менш за 0.98
+    const isColor = r < 0.98 || g < 0.98 || b < 0.98;
+
+    // 🔍 ДЭБАГ: Лог для ўсіх радкоў RALEN, каб зразумець "зялёны"
+    console.log(
+      `[Color Debug] Row: ${cells[0]?.formattedValue?.substring(0, 15)} | R:${r.toFixed(3)} G:${g.toFixed(3)} B:${b.toFixed(3)} | Result: ${isColor ? "ACTIVE" : "STOP"}`,
     );
-    return hasNonWhiteBackground(firstFilled) ? "ACTIVE" : "STOP";
+
+    return isColor ? "ACTIVE" : "STOP";
   }
 
   // 2. OTTO — заўсёды ACTIVE (прыхаваныя радкі адсякаюцца раней)

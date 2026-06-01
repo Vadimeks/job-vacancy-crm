@@ -59,13 +59,13 @@ const CONFIG = {
 // const TARGET_SHEET_NAME = "Opiekunki";
 // const TARGET_AGENCY_NAME = "INTRASERVICE";
 //---
-// const TARGET_SHEET_ID = "1qASi88Ihwdw3LpFLQECg-7YSGuv07lZ4pMqFNyTgk8E";
-// const TARGET_SHEET_NAME = "Вакансии 2026";
-// const TARGET_AGENCY_NAME = "RALEN";
+const TARGET_SHEET_ID = "1qASi88Ihwdw3LpFLQECg-7YSGuv07lZ4pMqFNyTgk8E";
+const TARGET_SHEET_NAME = "Вакансии 2026";
+const TARGET_AGENCY_NAME = "RALEN";
 //---
-const TARGET_SHEET_ID = "1hzA99T1oYP64BvIGww6zdZcs4iJjJQT80hm1LZimMiQ";
-const TARGET_SHEET_NAME = "Вакансии";
-const TARGET_AGENCY_NAME = "MRÓWKI";
+// const TARGET_SHEET_ID = "1hzA99T1oYP64BvIGww6zdZcs4iJjJQT80hm1LZimMiQ";
+// const TARGET_SHEET_NAME = "Вакансии";
+// const TARGET_AGENCY_NAME = "MRÓWKI";
 //---
 // const TARGET_SHEET_ID = "1ajkfjO8v5FcaNl-NDydc_NwihGgFlvdEkh38ouPwmj4";
 // const TARGET_SHEET_NAME = "WEEK 23";
