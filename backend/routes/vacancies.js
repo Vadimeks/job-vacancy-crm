@@ -215,7 +215,7 @@ async function processVacancyMessage(
               ...vData,
               agencyName: finalAgency,
             }),
-            sourceHash: sourceHash, // Абнаўляем хэш на новы семантычны
+            sourceHash: sourceHash,
             status: "active",
           },
           { new: true },
@@ -223,13 +223,11 @@ async function processVacancyMessage(
 
         console.log(`✅ Вакансія абноўлена: ${updated.vacancyCode}`);
 
-        // Абнаўляем пост у Тэлеграм
         const postText = await aiService.formatTelegramPost(updated);
         updated.telegramPost = postText;
         await updated.save();
 
-        // Можна адправіць у ТГ паметку "Абноўлена", але пакуль проста захаваем
-        return updated;
+        savedVacancies.push(updated); // 👈 Замянілі return на push
       } else {
         // ✨ ЛОГІКА СТВАРЭННЯ НОВАЙ
         const vacancyCode = await generateVacancyCode();
@@ -253,15 +251,14 @@ async function processVacancyMessage(
         const saved = await newVacancy.save();
         console.log(`✅ Вакансія створана: ${vacancyCode}`);
 
-        // Фармуем пост на аснове ЗАХАВАНАГА аб'екта
         const postText = await aiService.formatTelegramPost(saved);
         saved.telegramPost = postText;
         await saved.save();
 
         await sendToTelegram(sanitizeTelegramMarkdown(postText));
-        return saved;
-      } // 👈 Гэтая дужка цяпер закрывае блок ELSE
-    } // 👈 Гэтая дужка закрыва
+        savedVacancies.push(saved); // 👈 Замянілі return на push
+      }
+    }
 
     return savedVacancies.length > 0 ? savedVacancies[0] : null;
   } catch (err) {
