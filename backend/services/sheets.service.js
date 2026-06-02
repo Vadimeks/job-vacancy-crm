@@ -150,14 +150,19 @@ function getRowStatus(cells, agencyName, headers = [], rowIndex = 0) {
     const sb = rgbStyle?.blue ?? 0;
 
     // Вызначаем, ці з'яўляецца колер небелым — праверяем абодва крыніцы
-    const isThemeColor =
-      bgStyle?.themeColor &&
-      !["BACKGROUND", "TEXT"].includes(bgStyle.themeColor);
-    const isCustomColor = r < 0.98 || g < 0.98 || b < 0.98;
-    // Новы пікер: хаця б адзін канал у rgbColor адрозніваецца ад белага
-    const isStyleColor = sr < 0.98 || sg < 0.98 || sb < 0.98;
+    // Вызначаем колер па абодвух крыніцах (берам максімум з кожнага канала)
+    const fr = Math.min(r, sr);
+    const fg = Math.max(g, sg);
+    const fb = Math.min(b, sb);
 
-    const isColor = isCustomColor || isThemeColor || isStyleColor;
+    // Толькі зялёны і аранжавы лічацца актыўнымі.
+    // Зялёны:   R≈0, G≈1, B≈0  → {"green":1}
+    // Аранжавы: R≈1, G≈0.6, B≈0
+    // Шэры, белы і любы іншы — STOP
+    const isGreen = fg > 0.8 && fr < 0.2 && fb < 0.2;
+    const isOrange = fr > 0.8 && fg > 0.4 && fg < 0.8 && fb < 0.2;
+
+    const isColor = isGreen || isOrange;
 
     // 🔍 ДЭБАГ: Цяпер з нумарам радка і тыпам колеру
     console.log(
