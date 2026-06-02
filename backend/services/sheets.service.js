@@ -115,17 +115,21 @@ function hasNonWhiteBackground(cell) {
 /**
  * Вызначае статус радка на аснове агенцыі і загалоўкаў.
  */
-function getRowStatus(cells, agencyName, headers = []) {
+function getRowStatus(cells, agencyName, headers = [], rowIndex = 0) {
   if (!cells || cells.length === 0) return "EMPTY";
   const filledCount = cells.filter(
     (c) => (c?.formattedValue || "").trim() !== "",
   ).length;
   if (filledCount < 3) return "EMPTY";
 
+  const rowNum = rowIndex + 1;
+
   // 1. RALEN — па колеры фону першай ячэйкі (Слупок А)
   if (agencyName === "RALEN") {
     const firstCell = cells[0];
-    const bg = firstCell?.effectiveFormat?.backgroundColor;
+    const format = firstCell?.effectiveFormat;
+    const bg = format?.backgroundColor;
+    const bgStyle = format?.backgroundColorStyle;
 
     // Калі аб'ект bg адсутнічае — гэта дакладна белы (дэфолт)
     if (!bg || Object.keys(bg).length === 0) {
@@ -137,12 +141,17 @@ function getRowStatus(cells, agencyName, headers = []) {
     const b = bg.blue ?? 1;
 
     // Вызначаем, ці з'яўляецца колер небелым
-    // Мы робім праверку больш адчувальнай: калі хоць адзін канал менш за 0.98
-    const isColor = r < 0.98 || g < 0.98 || b < 0.98;
+    // Праверка на кастомны колер (RGB) АБО на тэмавы колер (акрамя стандартнага фону/тэксту)
+    const isThemeColor =
+      bgStyle?.themeColor &&
+      !["BACKGROUND", "TEXT"].includes(bgStyle.themeColor);
+    const isCustomColor = r < 0.98 || g < 0.98 || b < 0.98;
 
-    // 🔍 ДЭБАГ: Лог для ўсіх радкоў RALEN, каб зразумець "зялёны"
+    const isColor = isCustomColor || isThemeColor;
+
+    // 🔍 ДЭБАГ: Цяпер з нумарам радка і тыпам колеру
     console.log(
-      `[Color Debug] Row: ${cells[0]?.formattedValue?.substring(0, 15)} | R:${r.toFixed(3)} G:${g.toFixed(3)} B:${b.toFixed(3)} | Result: ${isColor ? "ACTIVE" : "STOP"}`,
+      `[Color Debug] Row: ${rowNum} | Title: ${cells[0]?.formattedValue?.substring(0, 15)} | R:${r.toFixed(3)} G:${g.toFixed(3)} B:${b.toFixed(3)} | Theme: ${bgStyle?.themeColor || "NONE"} | Result: ${isColor ? "ACTIVE" : "STOP"}`,
     );
 
     return isColor ? "ACTIVE" : "STOP";
@@ -153,7 +162,7 @@ function getRowStatus(cells, agencyName, headers = []) {
 
   // 3. Мапінг слупкоў статусу паводле патрабаванняў
   const statusHeadersMap = {
-    BISAR: ["актив", "не актив"], // 👈 Спрошчана: знойдзе і "актив.✅", і "не актив.❌"
+    BISAR: ["актив", "не актив"],
     VEKOS: ["актуально"],
     "WORK&HUMAN": ["статус"],
     MRÓWKI: ["статус"],
@@ -167,8 +176,7 @@ function getRowStatus(cells, agencyName, headers = []) {
   // Шукаем значэнне ў патрэбным слупку
   for (let j = 0; j < headers.length; j++) {
     const h = (headers[j] || "").toLowerCase().trim();
-    // Выдаляем пераносы радкоў і лішнія прабелы для параўнання
-    const cleanH = h.replace(/\s+/g, " ");
+    const cleanH = h.replace(/\s+/g, " "); // Ачыстка загалоўка ад пераносаў
 
     if (targetHeaders.some((th) => cleanH.includes(th.toLowerCase()))) {
       statusValue = (cells[j]?.formattedValue || "").trim().toLowerCase();
@@ -177,7 +185,6 @@ function getRowStatus(cells, agencyName, headers = []) {
     }
   }
 
-  // Універсальныя СТОП-маркеры
   const STOP_MARKERS = [
     "❌",
     "false",
@@ -190,19 +197,16 @@ function getRowStatus(cells, agencyName, headers = []) {
     "brak",
   ];
 
-  // 🔍 ДЭБАГ-ЛОГ (дапаможа зразумець, чаму не спрацавала)
   if (foundHeaderName) {
     const isStop = STOP_MARKERS.some((m) => statusValue.includes(m));
     console.log(
-      `[Status Debug] Agency: ${agencyName} | Column: "${foundHeaderName}" | Value: "${statusValue}" | Result: ${isStop ? "STOP" : "ACTIVE"}`,
+      `[Status Debug] Row: ${rowNum} | Agency: ${agencyName} | Column: "${foundHeaderName}" | Value: "${statusValue}" | Result: ${isStop ? "STOP" : "ACTIVE"}`,
     );
   }
 
-  // Калі знайшлі слупок статусу — правяраем яго
   if (statusValue && STOP_MARKERS.some((m) => statusValue.includes(m)))
     return "STOP";
 
-  // Fallback: калі слупок не знойдзены, правяраем першую ячэйку
   if (!statusValue) {
     const firstCell = (cells[0]?.formattedValue || "").trim().toLowerCase();
     if (STOP_MARKERS.some((word) => firstCell.includes(word))) return "STOP";
@@ -240,15 +244,15 @@ function buildRowText(cells, headers, agencyName, sheetName) {
   let title = "";
   let anchorParts = [];
 
-  // Твае ключавыя палі для ідэнтыфікацыі вакансіі
   const ANCHOR_MAP = {
     BISAR: ["місто приїзду", "проект", "локації місця роботи"],
     VEKOS: ["вакансія", "проект", "місто приїзду"],
     OTTO: ["офіс отто", "функції", "назва клієнта"],
     MRÓWKI: ["№", "должность", "место работы"],
     RALEN: [
-      "Нажмите на название вакансии,появится ссылка с описанием вакансии",
+      "название вакансии", // 👈 Цяпер знойдзе нават з пераносам радка
       "локализация",
+      "комментарий", // 👈 Дадаем для ўнікальнасці хэша (Row 8 vs Row 9)
     ],
     INTRASERVICE:
       sheetName === "Opiekunki"
@@ -258,7 +262,7 @@ function buildRowText(cells, headers, agencyName, sheetName) {
           : sheetName === "Польша"
             ? ["вакансия", "название в crm", "место работы"]
             : [],
-    "WORK&HUMAN": ["назва вакансії", "опис вакансії", "локалізація"],
+    "WORK&HUMAN": ["назва вакансії", "опис вакансії", "локалізалізація"],
   };
 
   const agencyAnchors = ANCHOR_MAP[agencyName] || [];
@@ -267,18 +271,19 @@ function buildRowText(cells, headers, agencyName, sheetName) {
     const header = (headers[j] || "").trim();
     if (!header) continue;
 
+    // 🆕 Ачыстка загалоўка ад пераносаў радкоў і лішніх прабелаў для параўнання
+    const headerLower = header.toLowerCase().replace(/\s+/g, " ");
+
     const cell = cells[j] || null;
     const { value, link, note } = extractCellData(cell);
     if (!value && !link && !note) continue;
 
-    const headerLower = header.toLowerCase();
-
-    // 1. Збіраем СЕМАНТЫЧНЫ ЯКАР (толькі значэнні ключавых слупкоў)
+    // 1. Збіраем СЕМАНТЫЧНЫ ЯКАР
     if (agencyAnchors.some((a) => headerLower.includes(a.toLowerCase()))) {
-      anchorParts.push(value.replace(/\s+/g, " ").trim()); // 👈 Замяняе любыя падвойныя прабелы на адзін
+      anchorParts.push(value.replace(/\s+/g, " ").trim());
     }
 
-    // 2. Вызначаем назву для справаздачы (першае паля з літарамі, не "Активная")
+    // 2. Вызначаем назву для справаздачы
     const hasLetters = /[a-zA-Zа-яёіўА-ЯЁІЎ]/.test(value);
     const isStatusWord = [
       "активная",
@@ -314,7 +319,7 @@ function buildRowText(cells, headers, agencyName, sheetName) {
     text: parts.join("\n"),
     externalUrls,
     title: title || "Без назви",
-    anchorText: anchorParts.join("::") || title, // Калі якар не сабраўся — выкарыстоўваем назву
+    anchorText: anchorParts.join("::") || title,
   };
 }
 
@@ -399,8 +404,8 @@ async function syncSheetVacancies(sourceId) {
       )
         continue;
 
-      // Перадаем headers для дакладнага вызначэння статусу (Bug A fix)
-      const rowStatus = getRowStatus(cells, source.agencyName, headers);
+      // Перадаем headers і індэкс i для дакладнага вызначэння статусу і логаў
+      const rowStatus = getRowStatus(cells, source.agencyName, headers, i);
 
       if (rowStatus === "EMPTY") continue;
 
