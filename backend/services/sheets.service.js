@@ -321,11 +321,20 @@ function buildRowText(cells, headers, agencyName, sheetName) {
         linkLower.includes("zhitlo") ||
         linkLower.includes("foto") ||
         linkLower.includes("photo");
-      if (!isPhoto) {
+
+      // 🆕 Новая праверка: ігнаруем пэўныя калонкі для скрапінгу, каб не блытаць AI
+      const isIgnoredForScraping =
+        headerLower.includes("link na strone") ||
+        headerLower.includes("фото видео") ||
+        headerLower.includes("оплата для партнера");
+
+      if (!isPhoto && !isIgnoredForScraping) {
         externalUrls.push({ url: link, header });
         parts.push(`  [Спасылка: ${link}]`);
       } else {
-        parts.push(`  [Фота: ${link}]`);
+        // Пакідаем у тэксце для рэкрутэра, але не адпраўляем на скрапінг
+        const label = isPhoto ? "Фота" : "Спасылка";
+        parts.push(`  [${label}: ${link}]`);
       }
     }
   }

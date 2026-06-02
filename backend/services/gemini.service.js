@@ -80,6 +80,10 @@ async function fetchGoogleDocText(url) {
 }
 
 async function enrichTextWithDocs(rawText) {
+  // 1. Абарона ад паўторнага ўзбагачэння
+  if (rawText.includes("--- ЗМЕСТ")) return rawText;
+
+  // 2. Палепшаныя Regex (дадаем ігнараванне дужак у канцы)
   const docRegex =
     /(?:docs\.google\.com\/document|drive\.google\.com\/file)\/(?:u\/\d+\/)?d\/([a-zA-Z0-9_-]+)/g;
   const folderRegex =
@@ -94,19 +98,19 @@ async function enrichTextWithDocs(rawText) {
     docMatches.length === 0 &&
     folderMatches.length === 0 &&
     telegraphMatches.length === 0
-  )
+  ) {
     return rawText;
+  }
 
   console.log(
-    `🔗 Знойдзены спасылкі: Google Docs(${docMatches.length}), Folders(${folderMatches.length}), Telegraph(${telegraphMatches.length}). Загрузка...`,
+    `🔗 Узбагачэнне: Google Docs(${docMatches.length}), Folders(${folderMatches.length}), Telegraph(${telegraphMatches.length})`,
   );
 
   let enriched = rawText;
 
-  // 1. Апрацоўка Telegraph (новае!)
+  // Апрацоўка Telegraph
   for (const match of telegraphMatches) {
-    let url = match[0].replace(/[\]\)]+$/, ""); // 👈 Выдаляе любыя дужкі ў самым канцы URL
-    // Ігнаруем, калі гэта відавочна фота жытла
+    const url = match[0].replace(/[\]\)]+$/, ""); // Чысцім ад зачыняючых дужак
     if (
       url.toLowerCase().includes("zhitlo") ||
       url.toLowerCase().includes("foto")
@@ -119,19 +123,21 @@ async function enrichTextWithDocs(rawText) {
     }
   }
 
-  // 2. Апрацоўка папак Drive
+  // Апрацоўка папак Drive
   for (const match of folderMatches) {
     const folderId = match[1];
     const folderUrl = `https://drive.google.com/drive/folders/${folderId}`;
+    console.log(`📂 Загрузка папкі Drive: ${folderId}`);
     const folderText = await fetchGoogleDriveFolderText(folderUrl);
     if (folderText)
       enriched = `${enriched}\n\n--- ЗМЕСТ ПАПКІ DRIVE ---\n${folderText}`;
   }
 
-  // 3. Апрацоўка асобных дакументаў Google
+  // Апрацоўка асобных дакументаў
   for (const match of docMatches) {
     const docId = match[1];
     const docUrl = `https://docs.google.com/document/d/${docId}/`;
+    console.log(`📄 Загрузка дакумента Drive: ${docId}`);
     const docText = await fetchGoogleDocText(docUrl);
     if (docText)
       enriched = `${enriched}\n\n--- ЗМЕСТ ДОКУМЕНТА ---\n${docText}`;

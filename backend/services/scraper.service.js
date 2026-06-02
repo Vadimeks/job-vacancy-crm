@@ -10,16 +10,23 @@ const cheerio = require("cheerio");
  */
 async function scrapeTelegraph(url) {
   try {
-    const { data } = await axios.get(url, { timeout: 10000 });
-    const $ = cheerio.load(data);
+    // 🆕 Дадаем validateStatus і больш кароткі таймаўт
+    const { data, status } = await axios.get(url, {
+      timeout: 8000,
+      validateStatus: (s) => s === 200,
+    });
 
-    // У Telegraph асноўны кантэнт ляжыць у артыкуле (article)
+    const $ = cheerio.load(data);
     const title = $("header h1").text().trim();
     const content = $("article").text().trim();
 
+    // 🆕 Калі артыкул амаль пусты — ігнаруем
+    if (!content || content.length < 50) return null;
+
     return title ? `--- ${title} ---\n${content}` : content;
   } catch (err) {
-    console.error(`❌ Scrape Telegraph Error (${url}):`, err.message);
+    // 🆕 Цяпер памылка 404 проста логаецца, але не спыняе працэс
+    console.warn(`⚠️ Scrape Telegraph Skip (${url}): ${err.message}`);
     return null;
   }
 }
@@ -29,19 +36,23 @@ async function scrapeTelegraph(url) {
  */
 async function scrapeGenericHtml(url) {
   try {
-    const { data } = await axios.get(url, { timeout: 10000 });
-    const $ = cheerio.load(data);
+    const { data, status } = await axios.get(url, {
+      timeout: 8000,
+      validateStatus: (s) => s === 200,
+    });
 
-    // Прыбіраем скрыпты, стылі і навігацыю, каб не забіваць AI смеццем
+    const $ = cheerio.load(data);
     $("script, style, nav, footer, header, noscript").remove();
 
-    // Бярэм тэкст з асноўных тэгаў кантэнту
     const content = $("main, #content, .content, article, body").text().trim();
+    const cleanContent = content.replace(/\s\s+/g, " ");
 
-    // Чысцім ад лішніх прабелаў і пустых радкоў
-    return content.replace(/\s\s+/g, " ").substring(0, 10000);
+    // 🆕 Калі тэксту вельмі мала, хутчэй за ўсё гэта старонка памылкі або "Заглушка"
+    if (!cleanContent || cleanContent.length < 150) return null;
+
+    return cleanContent.substring(0, 10000);
   } catch (err) {
-    console.error(`❌ Scrape Generic HTML Error (${url}):`, err.message);
+    console.warn(`⚠️ Scrape Generic Skip (${url}): ${err.message}`);
     return null;
   }
 }
