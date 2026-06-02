@@ -136,22 +136,32 @@ function getRowStatus(cells, agencyName, headers = [], rowIndex = 0) {
       return "STOP";
     }
 
-    const r = bg.red ?? 1;
-    const g = bg.green ?? 1;
-    const b = bg.blue ?? 1;
+    // Адсутны канал = 0 (не 1!), бо {"green":1} азначае чысты зялёны
+    const r = bg.red ?? 0;
+    const g = bg.green ?? 0;
+    const b = bg.blue ?? 0;
 
-    // Вызначаем, ці з'яўляецца колер небелым
-    // Праверка на кастомны колер (RGB) АБО на тэмавы колер (акрамя стандартнага фону/тэксту)
+    // --- ДАДАТКОВА: чытаем backgroundColorStyle.rgbColor ---
+    // Калі колер выстаўлены праз новы пікер Google Sheets,
+    // ён трапляе ў bgStyle.rgbColor, а bg застаецца {1,1,1}
+    const rgbStyle = bgStyle?.rgbColor;
+    const sr = rgbStyle?.red ?? 0;
+    const sg = rgbStyle?.green ?? 0;
+    const sb = rgbStyle?.blue ?? 0;
+
+    // Вызначаем, ці з'яўляецца колер небелым — праверяем абодва крыніцы
     const isThemeColor =
       bgStyle?.themeColor &&
       !["BACKGROUND", "TEXT"].includes(bgStyle.themeColor);
     const isCustomColor = r < 0.98 || g < 0.98 || b < 0.98;
+    // Новы пікер: хаця б адзін канал у rgbColor адрозніваецца ад белага
+    const isStyleColor = sr < 0.98 || sg < 0.98 || sb < 0.98;
 
-    const isColor = isCustomColor || isThemeColor;
+    const isColor = isCustomColor || isThemeColor || isStyleColor;
 
     // 🔍 ДЭБАГ: Цяпер з нумарам радка і тыпам колеру
     console.log(
-      `[Color Debug] Row: ${rowNum} | Title: ${cells[0]?.formattedValue?.substring(0, 15)} | R:${r.toFixed(3)} G:${g.toFixed(3)} B:${b.toFixed(3)} | Theme: ${bgStyle?.themeColor || "NONE"} | Result: ${isColor ? "ACTIVE" : "STOP"}`,
+      `[Color Debug] Row: ${rowNum} | Title: ${cells[0]?.formattedValue?.substring(0, 15)} | R:${r.toFixed(3)} G:${g.toFixed(3)} B:${b.toFixed(3)} | StyleRGB: ${sr.toFixed(3)}/${sg.toFixed(3)}/${sb.toFixed(3)} | Theme: ${bgStyle?.themeColor || "NONE"} | Result: ${isColor ? "ACTIVE" : "STOP"}`,
     );
 
     return isColor ? "ACTIVE" : "STOP";
