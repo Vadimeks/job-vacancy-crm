@@ -509,8 +509,10 @@ async function syncSheetVacancies(sourceId) {
       );
 
       if (!analysis) {
-        console.log(`⏳ AI не адказаў для радка ${i + 1}. Пропуск.`);
-        continue;
+        console.log(
+          `⏳ AI не адказаў для радка ${i + 1}. Спыняем сінхранізацыю гэтай табліцы, каб пазбегнуць памылковага закрыцця вакансій.`,
+        );
+        return "STOP_ALL"; // 👈 Замянілі continue на return
       }
 
       console.log(
@@ -708,8 +710,8 @@ async function syncAllSheets() {
     const result = await syncSheetVacancies(source._id);
 
     if (result === "STOP_ALL") {
-      console.error("🛑 Сінхранізацыя перарвана: AI Cooldown.");
-      break;
+      console.error("🛑 Сінхранізацыя перарвана: AI Cooldown або памылка.");
+      break; // 👈 Спыняем перабор усіх астатніх табліц
     }
     // Невялікая паўза паміж табліцамі для бяспекі
     await new Promise((r) => setTimeout(r, 5000));
