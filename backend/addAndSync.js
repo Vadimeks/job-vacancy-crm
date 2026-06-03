@@ -47,13 +47,13 @@ const CONFIG = {
 // КАНФІГУРАЦЫЯ: Калі хочаш апрацаваць УСЕ табліцы — пакінь null.
 // Калі адну канкрэтную — упішы яе spreadsheetId.
 
-// const TARGET_SHEET_ID = "13PN6zOZiDLAL-iLm58NSbsig4h_inXp-GfmNWxc53y8";
-// const TARGET_SHEET_NAME = "Польша";
-// const TARGET_AGENCY_NAME = "INTRASERVICE";
-//---
 const TARGET_SHEET_ID = "13PN6zOZiDLAL-iLm58NSbsig4h_inXp-GfmNWxc53y8";
-const TARGET_SHEET_NAME = "Голандія";
+const TARGET_SHEET_NAME = "Польша";
 const TARGET_AGENCY_NAME = "INTRASERVICE";
+//---
+// const TARGET_SHEET_ID = "13PN6zOZiDLAL-iLm58NSbsig4h_inXp-GfmNWxc53y8";
+// const TARGET_SHEET_NAME = "Голандія";
+// const TARGET_AGENCY_NAME = "INTRASERVICE";
 //---
 // const TARGET_SHEET_ID = "13PN6zOZiDLAL-iLm58NSbsig4h_inXp-GfmNWxc53y8";
 // const TARGET_SHEET_NAME = "Opiekunki";
