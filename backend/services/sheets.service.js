@@ -562,6 +562,20 @@ async function syncSheetVacancies(sourceId) {
 
       // 3. ЛОГІКА ДЛЯ НОВЫХ ПАЎНАВАЖНЫХ ВАКАНСІЙ (АБО АБНАЎЛЕННЯЎ)
       if (analysis.category === "FULL_VACANCY") {
+        // Правяраем, ці пазнаў AI гэтую вакансію (дублікат або абнаўленне),
+        // пры гэтым у базе няма супадзення па хэшы (старая вакансія)
+        const isRecognizedOld =
+          (analysis.comparison?.verdict === "DUPLICATE" ||
+            analysis.comparison?.verdict === "UPDATE") &&
+          !existingVacancy;
+
+        if (isRecognizedOld) {
+          console.log(
+            `⏭️ AI пазнаў старую вакансію (Verdict: ${analysis.comparison?.verdict}). Пропуск стварэння новага ID.`,
+          );
+          stats.ignored++;
+          continue; // Пераходзім да наступнага радка
+        }
         let fragmentIndex = 0;
         for (const fragment of analysis.translatedFragments) {
           const savedVac = await processVacancyMessage(

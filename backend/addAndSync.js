@@ -47,9 +47,9 @@ const CONFIG = {
 // КАНФІГУРАЦЫЯ: Калі хочаш апрацаваць УСЕ табліцы — пакінь null.
 // Калі адну канкрэтную — упішы яе spreadsheetId.
 
-const TARGET_SHEET_ID = "13PN6zOZiDLAL-iLm58NSbsig4h_inXp-GfmNWxc53y8";
-const TARGET_SHEET_NAME = "Польша";
-const TARGET_AGENCY_NAME = "INTRASERVICE";
+// const TARGET_SHEET_ID = "13PN6zOZiDLAL-iLm58NSbsig4h_inXp-GfmNWxc53y8";
+// const TARGET_SHEET_NAME = "Польша";
+// const TARGET_AGENCY_NAME = "INTRASERVICE";
 //---
 // const TARGET_SHEET_ID = "13PN6zOZiDLAL-iLm58NSbsig4h_inXp-GfmNWxc53y8";
 // const TARGET_SHEET_NAME = "Голандія";
@@ -79,9 +79,14 @@ const TARGET_AGENCY_NAME = "INTRASERVICE";
 // const TARGET_SHEET_NAME = "Вакансії";
 // const TARGET_AGENCY_NAME = "BISAR";
 //---
-// const TARGET_SHEET_ID = "1-qVX4cW1G8oIPiDZjEYG_0nhNOTYY2iI0k8sp-gguko";
-// const TARGET_SHEET_NAME = "Лист1";
-// const TARGET_AGENCY_NAME = "WORK&HUMAN";
+const TARGET_SHEET_ID = "1-qVX4cW1G8oIPiDZjEYG_0nhNOTYY2iI0k8sp-gguko";
+const TARGET_SHEET_NAME = "Лист1";
+const TARGET_AGENCY_NAME = "WORK&HUMAN";
+//---
+// Калі хочаш апрацаваць УСЕ табліцы — пастаў null
+// const TARGET_SHEET_ID = null;
+// const TARGET_SHEET_NAME = "";
+// const TARGET_AGENCY_NAME = "";
 
 async function run() {
   try {
