@@ -600,6 +600,7 @@ async function syncSheetVacancies(sourceId) {
                 ? existingVacancy._id
                 : null
               : null,
+            "spreadsheet", // 👈 ДАДАДЗЕНА: пазначаем крыніцу як табліцу
           );
 
           if (savedVac && savedVac.vacancyCode) {

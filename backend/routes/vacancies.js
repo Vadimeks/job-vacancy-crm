@@ -182,6 +182,7 @@ async function processVacancyMessage(
   sourceHash = null,
   sheetName = "", // 👈 ДАДАДЗЕНА
   existingId = null, // 👈 ДАДАДЗЕНА: ID для абнаўлення
+  sourceType = "manual", // 👈 ДАДАДЗЕНА
 ) {
   console.log(
     `\n--- 🤖 Stage 2: Groq-парсінг для ${preDefinedAgency || "Manual"} ---`,
@@ -210,6 +211,7 @@ async function processVacancyMessage(
           {
             ...vData,
             agencyName: finalAgency,
+            sourceType: sourceType, // 👈 ДАДАДЗЕНА
             originalText: originalText || enrichedText,
             rawText: enrichedText,
             sheetName: sheetName || vData.sheetName,
@@ -237,6 +239,7 @@ async function processVacancyMessage(
         const newVacancy = new Vacancy({
           ...vData,
           agencyName: finalAgency,
+          sourceType: sourceType, // 👈 ДАДАДЗЕНА
           sheetName: sheetName || vData.sheetName,
           templateName: constructVacancyDisplayName({
             ...vData,
@@ -285,6 +288,7 @@ router.post("/auto", async (req, res) => {
       sourceHash, // Калі перадаецца
       sheetName, // 👈 Дадаем прыём назвы ліста
       existingId, // 👈 Прымаем ID
+      sourceType, // 👈 ДАДАДЗЕНА
     } = req.body;
 
     const result = await processVacancyMessage(
@@ -297,6 +301,7 @@ router.post("/auto", async (req, res) => {
       sourceHash || null,
       sheetName || "", // 👈 Перадаем у апрацоўку
       existingId || null, // 👈 Перадаем у працэсар
+      sourceType || "manual", // 👈 ПЕРАДАЕМ У ПРАЦЭСАР
     );
 
     if (result && !result.error) {

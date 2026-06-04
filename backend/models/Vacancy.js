@@ -7,6 +7,20 @@ const vacancySchema = new mongoose.Schema({
   brand: { type: String, default: "" }, // Назва прадпрыемства/завода (напр. LG, Amazon)
   agencyName: { type: String, default: "Manual" },
   sheetName: { type: String, default: "" }, // 👈 ДАДАДЗЕНА: Назва ліста ў Google Sheets (напр. "Польша", "Opiekunki")
+  sourceType: {
+    type: String,
+    enum: [
+      "spreadsheet",
+      "viber",
+      "telegram",
+      "site",
+      "trello",
+      "airtable",
+      "manual",
+    ],
+    default: "manual",
+    index: true,
+  }, // 👈 ДАДАДЗЕНА: Тып крыніцы паходжання вакансіі
   templateId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Template",
