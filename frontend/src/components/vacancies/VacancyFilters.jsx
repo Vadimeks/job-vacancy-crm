@@ -135,9 +135,6 @@ export default function VacancyFilters({
         // --- 7. Крыніца (v4.4 - Сінхранізацыя manual/spreadsheet) ---
         if (fieldName === "sourceType") {
           const s = v.sourceType || "manual";
-          // Калі мы правяраем "Табліцу", лічым і spreadsheet, і manual
-          if (value === "spreadsheet")
-            return s === "spreadsheet" || s === "manual";
           return s === value;
         }
 
@@ -193,26 +190,23 @@ export default function VacancyFilters({
         </button>
       </Section>
       <Section>
-        {/* КРЫНІЦЫ */}
+        {/* КРЫНІЦЫ (v4.5 - 4 кнопкі ў 2 калонкі) */}
         <div>
           <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
             🌐 Джерело вакансії
           </label>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 gap-2">
             {[
-              { id: "spreadsheet", label: "📊 Таблиця" },
               { id: "viber", label: "📱 Viber" },
               { id: "telegram", label: "✈️ Telegram" },
+              { id: "spreadsheet", label: "📊 Таблиця" },
+              { id: "manual", label: "📝 Ручне" },
             ].map((src) => {
               const isSelected = draft.sourceType?.includes(src.id);
-
-              // ВЫПРАЎЛЕНЫ ПАДЛІК:
-              const count = vacancies.filter((v) => {
-                const s = v.sourceType || "manual";
-                if (src.id === "spreadsheet")
-                  return s === "spreadsheet" || s === "manual";
-                return s === src.id;
-              }).length;
+              // Падлік: калі sourceType няма, лічым як manual
+              const count = vacancies.filter(
+                (v) => (v.sourceType || "manual") === src.id,
+              ).length;
 
               return (
                 <button
@@ -225,16 +219,16 @@ export default function VacancyFilters({
                       : [...current, src.id];
                     updateField("sourceType", next);
                   }}
-                  className={`py-2 px-1 text-center rounded-xl text-[10px] font-bold transition-all border ${
+                  className={`py-2 px-2 flex items-center justify-between rounded-xl text-[10px] font-bold transition-all border ${
                     isSelected
                       ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 shadow-lg shadow-emerald-500/5"
                       : "bg-slate-900/60 text-slate-400 border-slate-800 hover:border-slate-700 hover:text-slate-200"
                   }`}
                 >
-                  <div className="flex flex-col items-center">
-                    <span>{src.label}</span>
-                    <span className="text-[9px] opacity-60">({count})</span>
-                  </div>
+                  <span>{src.label}</span>
+                  <span className="text-[9px] opacity-60 bg-slate-800 px-1.5 py-0.5 rounded-md">
+                    {count}
+                  </span>
                 </button>
               );
             })}

@@ -226,7 +226,28 @@ function applyFilters(vacancies, filters) {
 export default function Vacancies() {
   const location = useLocation(); // Дадалі
   const [selectedIds, setSelectedIds] = useState([]);
+  // --- Рэгуляваны сайдбар (v4.5) ---
+  const [sidebarWidth, setSidebarWidth] = useState(320); // Пачатковая шырыня 320px (w-80)
+  const handleMouseDown = (e) => {
+    const startX = e.clientX;
+    const startWidth = sidebarWidth;
 
+    const onMouseMove = (moveEvent) => {
+      const newWidth = startWidth + (moveEvent.clientX - startX);
+      // Абмежаванні: мінімум 280px, максімум 450px
+      if (newWidth >= 280 && newWidth <= 450) {
+        setSidebarWidth(newWidth);
+      }
+    };
+
+    const onMouseUp = () => {
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+    };
+
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
+  };
   const toggleSelect = (id) => {
     setSelectedIds((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
@@ -584,8 +605,11 @@ export default function Vacancies() {
 
   return (
     <div className="flex min-h-screen bg-slate-950">
-      {/* САЙДБАР */}
-      <aside className="hidden lg:flex flex-col w-96 shrink-0 border-r border-slate-800 bg-slate-900/50 sticky top-16 h-[calc(100vh-4rem)]">
+      {/* САЙДБАР З РЭГУЛЯВАННЕМ ШЫРЫНІ */}
+      <aside
+        style={{ width: `${sidebarWidth}px` }}
+        className="hidden lg:flex flex-col shrink-0 border-r border-slate-800 bg-slate-900/50 sticky top-16 h-[calc(100vh-4rem)] group"
+      >
         <VacancyFilters
           filters={draft}
           setFilters={setDraft}
@@ -594,7 +618,13 @@ export default function Vacancies() {
           locations={dynamicData.locations}
           voivodeships={dynamicData.voivodeships}
           nuances={dynamicData.nuances}
-          vacancies={vacancies} // 👈 Перадаем масіў з useState старонкі
+          vacancies={vacancies}
+        />
+        {/* Рэйка для перацягвання (Resize Handle) - тонкая лінія справа */}
+        <div
+          onMouseDown={handleMouseDown}
+          className="absolute top-0 -right-1 w-2 h-full cursor-col-resize z-10 hover:bg-emerald-500/40 transition-colors"
+          title="Пацягніце, каб змяніць шырыню"
         />
       </aside>
 
@@ -885,9 +915,8 @@ export default function Vacancies() {
                           )}
                       </span>
 
-                      {/* Крыніца і Даты (v3.7) */}
+                      {/* Крыніца і Даты (v4.5 - Фікс Invalid Date і іконак) */}
                       <div className="flex items-center gap-3 ml-auto">
-                        {/* Іконка крыніцы */}
                         <span
                           className="text-base"
                           title={`Джерело: ${v.sourceType || "manual"}`}
@@ -898,28 +927,31 @@ export default function Vacancies() {
                               ? "✈️"
                               : v.sourceType === "spreadsheet"
                                 ? "📊"
-                                : v.sourceType === "site"
-                                  ? "🌐"
-                                  : "👤"}
+                                : "📝"}{" "}
+                          {/* 📝 замест 👤 для ручнога ўводу */}
                         </span>
 
-                        {/* Разумная дата */}
                         <div className="flex flex-col items-end leading-none">
                           <span className="text-[10px] text-slate-500 font-mono">
-                            {new Date(v.createdAt).toLocaleDateString("uk-UA")}
+                            {v.createdAt
+                              ? new Date(v.createdAt).toLocaleDateString(
+                                  "uk-UA",
+                                )
+                              : "---"}
                           </span>
-                          {new Date(v.updatedAt).toLocaleDateString("uk-UA") !==
-                            new Date(v.createdAt).toLocaleDateString(
-                              "uk-UA",
-                            ) && (
-                            <span className="text-[9px] text-emerald-500 font-bold font-mono mt-0.5">
-                              (upd:{" "}
-                              {new Date(v.updatedAt).toLocaleDateString(
-                                "uk-UA",
-                              )}
-                              )
-                            </span>
-                          )}
+                          {/* Паказваем UPD толькі калі дата рэальна адрозніваецца больш чым на 5 сек */}
+                          {v.updatedAt &&
+                            v.createdAt &&
+                            new Date(v.updatedAt).getTime() >
+                              new Date(v.createdAt).getTime() + 5000 && (
+                              <span className="text-[9px] text-emerald-500 font-bold font-mono mt-0.5">
+                                (upd:{" "}
+                                {new Date(v.updatedAt).toLocaleDateString(
+                                  "uk-UA",
+                                )}
+                                )
+                              </span>
+                            )}
                         </div>
                       </div>
                     </div>
