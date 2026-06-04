@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Copy, Check, X, Factory, Tag } from "lucide-react";
+import { Copy, Check, X, Factory, Tag, Building2 } from "lucide-react";
 const formatText = (text) => {
   if (!text || typeof text !== "string") return "";
 
@@ -100,9 +100,13 @@ export default function VacancyViewModal({
                     ? "bg-red-500/10 text-red-400 border-red-500/20"
                     : "bg-slate-500/10 text-slate-400 border-slate-500/20"
               }`}
-            >
-              {STATUS_LABELS[v.status] || v.status}
-            </span>
+            ></span>
+            {STATUS_LABELS[v.status] || v.status}
+            {v.agencyName && (
+              <span className="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-bold border border-slate-700 uppercase tracking-wider">
+                <Building2 size={9} className="inline mr-1" /> {v.agencyName}
+              </span>
+            )}
             {v.category && (
               <span className="text-[10px] bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded font-bold border border-blue-500/20 uppercase tracking-wider">
                 <Tag size={9} className="inline mr-1" /> {v.category}

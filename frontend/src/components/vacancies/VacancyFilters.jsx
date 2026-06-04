@@ -18,8 +18,7 @@ export default function VacancyFilters({
   vacancies = [], // 👈 Прымаем прамы масіў vacancies з бацькоўскага кампанента
 }) {
   const draft = filters || EMPTY_FILTERS;
-  // 🔍 Дэбаг: паглядзім у кансолі, ці прыходзяць вакансіі для падліку
-  console.log("Доўжыня масіва вакансій у фільтрах:", vacancies?.length);
+
   const updateField = (key, val) => {
     setFilters({ ...draft, [key]: val });
   };
