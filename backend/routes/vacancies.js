@@ -204,6 +204,36 @@ async function processVacancyMessage(
 
     for (const vData of vacancyDataList) {
       const finalAgency = preDefinedAgency || vData.agencyName || "Manual";
+
+      // 🔍 ЛОГІКА ПОШУКУ ДУБЛІКАТАЎ (v3.6)
+      // Калі ID не перададзены напрамую, спрабуем знайсці існуючую вакансію
+      if (!currentExistingId) {
+        if (sourceHash) {
+          // 1. Пошук для табліц (строга па хэшы)
+          const byHash = await Vacancy.findOne({
+            sourceHash,
+            status: "active",
+          });
+          if (byHash) currentExistingId = byHash._id;
+        } else if (["viber", "telegram"].includes(sourceType)) {
+          // 2. Пошук для чатаў (семантычны па 4 параметрах)
+          const semanticMatch = await Vacancy.findOne({
+            agencyName: finalAgency,
+            location: vData.location,
+            brand: vData.brand || "",
+            vacancydescription: vData.vacancydescription,
+            sourceType: { $in: ["viber", "telegram"] },
+            status: "active",
+          });
+          if (semanticMatch) {
+            console.log(
+              `🎯 Знойдзена семантычнае супадзенне ў чатах: ${semanticMatch.vacancyCode}`,
+            );
+            currentExistingId = semanticMatch._id;
+          }
+        }
+      }
+
       if (currentExistingId) {
         // 🔄 ЛОГІКА АБНАЎЛЕННЯ
         const updated = await Vacancy.findByIdAndUpdate(
@@ -211,7 +241,7 @@ async function processVacancyMessage(
           {
             ...vData,
             agencyName: finalAgency,
-            sourceType: sourceType, // 👈 ДАДАДЗЕНА
+            sourceType: sourceType,
             originalText: originalText || enrichedText,
             rawText: enrichedText,
             sheetName: sheetName || vData.sheetName,
@@ -219,7 +249,7 @@ async function processVacancyMessage(
               ...vData,
               agencyName: finalAgency,
             }),
-            sourceHash: sourceHash,
+            sourceHash: sourceHash || undefined,
             status: "active",
           },
           { new: true },
@@ -231,15 +261,15 @@ async function processVacancyMessage(
         updated.telegramPost = postText;
         await updated.save();
 
-        savedVacancies.push(updated); // 👈 Замянілі return на push
-        currentExistingId = null; // Наступныя фрагменты пойдуць як новыя
+        savedVacancies.push(updated);
+        currentExistingId = null; // 💡 ВАЖНА: Наступныя фрагменты паведамлення пойдуць як новыя
       } else {
         // ✨ ЛОГІКА СТВАРЭННЯ НОВАЙ
         const vacancyCode = await generateVacancyCode();
         const newVacancy = new Vacancy({
           ...vData,
           agencyName: finalAgency,
-          sourceType: sourceType, // 👈 ДАДАДЗЕНА
+          sourceType: sourceType,
           sheetName: sheetName || vData.sheetName,
           templateName: constructVacancyDisplayName({
             ...vData,
@@ -262,7 +292,7 @@ async function processVacancyMessage(
         await saved.save();
 
         await sendToTelegram(sanitizeTelegramMarkdown(postText));
-        savedVacancies.push(saved); // 👈 Замянілі return на push
+        savedVacancies.push(saved);
       }
     }
 
@@ -512,6 +542,8 @@ router.get("/", async (req, res) => {
       category,
       status,
       housing, // Дадаем параметр жылля
+      startDate, // 👈 ДАДАДЗЕНА
+      endDate, // 👈 ДАДАДЗЕНА
     } = req.query;
 
     let query = {};
@@ -555,33 +587,39 @@ router.get("/", async (req, res) => {
       const cityList = city.split(",");
       const isPolandSelected = cityList.includes("Польща");
 
-      if (isPolandSelected) {
-        // Калі выбрана "Польшча", шукаем па краіне АБО па спісе ваяводстваў (частковае супадзенне)
-        const otherSelected = cityList.filter((c) => c !== "Польща");
-        const allPolishTerms = [
-          ...POLISH_VOIVODESHIPS,
-          "Польща",
-          ...otherSelected,
-        ];
+      // Функцыя для стварэння строгага Regex (каб Śląskie не чапляла Dolnośląskie)
+      const strictRegex = (v) => new RegExp(`(^|,)\\s*${v}\\s*(,|$)`, "i");
 
-        // Выкарыстоўваем $or для максімальнага ахопу
+      if (isPolandSelected) {
+        const otherSelected = cityList.filter((c) => c !== "Польща");
+        // Для агульнай Польшчы пакідаем шырокі пошук, але для астатніх — строгі
         query.$or = [
           { country: "Polska" },
           {
-            voivodeship: { $in: allPolishTerms.map((v) => new RegExp(v, "i")) },
+            voivodeship: { $in: otherSelected.map((v) => strictRegex(v)) },
           },
         ];
       } else {
-        // Калі выбраны канкрэтныя ваяводствы (без агульнай Польшчы)
-        // Прыбіраем ^ і $, каб знаходзіць "Wielkopolskie" у радку "Wielkopolskie, Dolnośląskie"
+        // Строгі пошук па канкрэтных ваяводствах
         query.voivodeship = {
-          $in: cityList.map((v) => new RegExp(v, "i")),
+          $in: cityList.map((v) => strictRegex(v)),
         };
       }
     }
     if (agency) query.agencyName = { $in: agency.split(",") };
     if (category) query.category = { $in: category.split(",") };
-
+    // Фільтр па датах (v3.7)
+    if (startDate || endDate) {
+      query.createdAt = {};
+      if (startDate) {
+        query.createdAt.$gte = new Date(startDate);
+      }
+      if (endDate) {
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999); // Уключаем увесь дзень цалкам
+        query.createdAt.$lte = end;
+      }
+    }
     const vacancies = await Vacancy.find(query).sort({ createdAt: -1 });
     res.json(vacancies);
   } catch (err) {
