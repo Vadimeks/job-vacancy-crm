@@ -41,6 +41,11 @@ export default function VacancyFilters({
   });
   // SMART-ПАДЛІК (v4.2): Функція для дадання лічільнікаў да опцій
   const getSmartOptions = (rawItems, fieldName, isMasterData = false) => {
+    // 🔍 ТЭСТ: выведзем адну вакансію ў кансоль, каб паглядзець яе рэальныя ключы
+    if (vacancies && vacancies.length > 0 && fieldName === "accommodation") {
+      console.log("=== РЭАЛЬНАЯ СТРУКТУРА ВАКАНСІІ З БАЗЫ ===", vacancies[0]);
+    }
+
     if (!rawItems) return [];
     return rawItems.map((item) => {
       const value = isMasterData ? item.value : item;
