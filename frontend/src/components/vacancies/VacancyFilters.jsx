@@ -39,56 +39,110 @@ export default function VacancyFilters({
     const found = MD.CHECKLIST_ITEMS.find((item) => item.value === key);
     return found ? found : { value: key, label: key };
   });
-  // SMART-ПАДЛІК (v4.2): Функція для дадання лічільнікаў да опцій
+  // SMART-ПАДЛІК (v4.3): Функцыя для дадання лічільнікаў, якая цалкам паўтарае логіку applyFilters
   const getSmartOptions = (rawItems, fieldName, isMasterData = false) => {
-    // 🔍 ТЭСТ: выведзем усе ключы першай вакансіі ў тэкставым выглядзе
-    if (vacancies && vacancies.length > 0 && fieldName === "accommodation") {
-      console.log("👉 КЛЮЧЫ ВАКАНСІІ:", Object.keys(vacancies[0]));
-      console.log(
-        "👉 CONDITIONS:",
-        vacancies[0].conditions ? Object.keys(vacancies[0].conditions) : "няма",
-      );
-      console.log(
-        "👉 REQUIREMENTS:",
-        vacancies[0].requirements
-          ? Object.keys(vacancies[0].requirements)
-          : "няма",
-      );
-    }
-
     if (!rawItems) return [];
     return rawItems.map((item) => {
       const value = isMasterData ? item.value : item;
       const baseLabel = isMasterData ? item.label : item;
 
       const count = vacancies.filter((v) => {
-        // 1. Калі правяраем жытло (знаходзіцца на верхнім узроўні v.accommodation як радок/аб'ект)
-        if (fieldName === "accommodation") return v.accommodation === value;
+        // --- 1. Статус, Катэгорыя, Агенцыя, Брэнд (Простыя палі) ---
+        if (["status", "category", "agencyName", "brand"].includes(fieldName)) {
+          if (fieldName === "brand" && value === "NO BRAND") {
+            return !v.brand || v.brand === "БРЕНДОВИЙ ОДЯГ";
+          }
+          return v[fieldName] === value;
+        }
 
-        // 2. Калі правяраем давоз (знаходзіцца на верхнім узроўні v.transport)
-        if (fieldName === "transport") return v.transport === value;
+        // --- 2. Рэгіён і Горад (Улік Польшчы/Еўропы і масіваў) ---
+        if (fieldName === "voivodeship") {
+          if (value === "Польща") return v.country === "Polska";
+          if (value === "Інші країни Європи")
+            return v.country && v.country !== "Polska";
+          return (v.voivodeship || "")
+            .toLowerCase()
+            .includes(value.toLowerCase());
+        }
 
-        // 3. Калі правяраем патрабаванні (пол, мова, нацыя, дакументы — у арыгінале былі ў requirements)
-        if (fieldName === "gender") return v.requirements?.gender === value;
-        if (fieldName === "language")
-          return v.requirements?.polishLanguageLevel === value; // Праверка па дакладным ключы з кансолі
-        if (fieldName === "nationality")
-          return v.requirements?.nationalities?.includes(value); // Масіў нацый у базе
-        if (fieldName === "docs")
-          return v.requirements?.standardDocs?.includes(value); // Дакладны ключ дакументаў з кансолі
+        if (fieldName === "location") {
+          const vLocs = (v.location || "").split(",").map((loc) => {
+            let clean = loc.trim();
+            if (v.country && v.country !== "Polska" && !clean.includes("(")) {
+              return `${clean} (${v.country})`.toLowerCase();
+            }
+            return clean.toLowerCase();
+          });
+          return vLocs.includes(value.toLowerCase());
+        }
 
-        // 4. Калі правяраем крыніцу (sourceType)
-        if (fieldName === "sourceType")
-          return (v.sourceType || "spreadsheet") === value;
+        // --- 3. Жытло (Складаная логіка з applyFilters) ---
+        if (fieldName === "accommodation") {
+          const accType = (v.accommodation?.type || "").toLowerCase();
+          const isCouples = !!v.accommodation?.forCouples;
+          if (value === "provided")
+            return (
+              accType &&
+              !accType.includes("власн") &&
+              !accType.includes("не надаєт")
+            );
+          if (value === "couples") return isCouples;
+          if (value === "none")
+            return accType.includes("власн") || accType.includes("не надаєт");
+        }
 
-        // Базавая праверка для астатніх палёў на верхнім узроўні (статус, горад, ваяводства, агенцыя, брэнд)
-        if (Array.isArray(v[fieldName])) return v[fieldName].includes(value);
-        return v[fieldName] === value;
+        // --- 4. Транспарт ---
+        if (fieldName === "transport") {
+          const hasTransport = !!v.transport?.provided;
+          return value === "provided" ? hasTransport : !hasTransport;
+        }
+
+        // --- 5. Патрабаванні (Gender, Language, Nationality, Docs) ---
+        if (fieldName === "gender") {
+          const vGenders = v.requirements?.gender || [];
+          return vGenders.includes(value);
+        }
+
+        if (fieldName === "language") {
+          const vLang = v.requirements?.polishLanguageLevel || "Не вимагається";
+          return vLang === value;
+        }
+
+        if (fieldName === "nationality") {
+          const vNats =
+            Array.isArray(v.requirements?.nationalities) &&
+            v.requirements.nationalities.length > 0
+              ? v.requirements.nationalities
+              : ["Україна"];
+          return vNats.includes(value);
+        }
+
+        if (fieldName === "docs") {
+          const vDocs = v.requirements?.standardDocs || [];
+          return vDocs.includes(value);
+        }
+
+        // --- 6. Нюансы (Чэк-ліст) ---
+        if (fieldName === "nuances") {
+          const vNuances = v.conditions?.specificNuances || [];
+          return vNuances.some((vn) => {
+            const vnCat =
+              typeof vn === "object" && vn !== null ? vn.category : vn;
+            return vnCat === value;
+          });
+        }
+
+        // --- 7. Крыніца ---
+        if (fieldName === "sourceType") {
+          return (v.sourceType || "manual") === value;
+        }
+
+        return false;
       }).length;
 
       return {
         value: value,
-        label: count === 0 ? `${baseLabel} (0)` : `${baseLabel} (${count})`,
+        label: `${baseLabel} (${count})`,
       };
     });
   };
@@ -147,6 +201,11 @@ export default function VacancyFilters({
               { id: "telegram", label: "✈️ Telegram" },
             ].map((src) => {
               const isSelected = draft.sourceType?.includes(src.id);
+              // Дадаем падлік для кожнай кнопкі
+              const count = vacancies.filter(
+                (v) => (v.sourceType || "spreadsheet") === src.id,
+              ).length;
+
               return (
                 <button
                   key={src.id}
@@ -158,13 +217,16 @@ export default function VacancyFilters({
                       : [...current, src.id];
                     updateField("sourceType", next);
                   }}
-                  className={`py-2 px-1 text-center rounded-xl text-xs font-bold transition-all border ${
+                  className={`py-2 px-1 text-center rounded-xl text-[10px] font-bold transition-all border ${
                     isSelected
                       ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 shadow-lg shadow-emerald-500/5"
                       : "bg-slate-900/60 text-slate-400 border-slate-800 hover:border-slate-700 hover:text-slate-200"
                   }`}
                 >
-                  {src.label}
+                  <div className="flex flex-col items-center">
+                    <span>{src.label}</span>
+                    <span className="text-[9px] opacity-60">({count})</span>
+                  </div>
                 </button>
               );
             })}
