@@ -46,11 +46,24 @@ export default function VacancyFilters({
       const baseLabel = isMasterData ? item.label : item;
 
       const count = filteredVacancies.filter((v) => {
-        // Якщо поле у вакансії є масивом (наприклад, нюанси або документи)
-        if (Array.isArray(v[fieldName])) {
-          return v[fieldName].includes(value);
-        }
-        // Якщо це звичайне текстове поле
+        // 1. Калі правяраем жытло або давоз (яны ляжаць у conditions)
+        if (fieldName === "accommodation")
+          return v.conditions?.accommodation?.type === value;
+        if (fieldName === "transport") return v.conditions?.transport === value;
+
+        // 2. Калі правяраем патрабаванні (пол, мова, нацыя, дакументы ў requirements)
+        if (fieldName === "gender") return v.requirements?.gender === value;
+        if (fieldName === "language") return v.requirements?.language === value;
+        if (fieldName === "nationality")
+          return v.requirements?.nationality === value;
+        if (fieldName === "docs") return v.requirements?.docs?.includes(value);
+
+        // 3. Калі правяраем крыніцу (sourceType)
+        if (fieldName === "sourceType")
+          return (v.sourceType || "spreadsheet") === value;
+
+        // Базавая праверка для астатніх палёў на верхнім узроўні (статус, горад, агенцыя і г.д.)
+        if (Array.isArray(v[fieldName])) return v[fieldName].includes(value);
         return v[fieldName] === value;
       }).length;
 

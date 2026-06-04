@@ -585,7 +585,7 @@ export default function Vacancies() {
   return (
     <div className="flex min-h-screen bg-slate-950">
       {/* САЙДБАР */}
-      <aside className="hidden lg:flex flex-col w-72 shrink-0 border-r border-slate-800 bg-slate-900/50 sticky top-16 h-[calc(100vh-4rem)]">
+      <aside className="hidden lg:flex flex-col w-96 shrink-0 border-r border-slate-800 bg-slate-900/50 sticky top-16 h-[calc(100vh-4rem)]">
         <VacancyFilters
           filters={draft}
           setFilters={setDraft}
