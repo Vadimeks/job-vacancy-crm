@@ -15,6 +15,7 @@ export default function VacancyFilters({
   locations = [],
   voivodeships = [],
   nuances = [],
+  filteredVacancies = [], // 🆕 ДАДАДЗЕНА ДЛЯ SMART-ПАДЛІКУ (v4.2)
 }) {
   const draft = filters || EMPTY_FILTERS;
 
@@ -22,10 +23,14 @@ export default function VacancyFilters({
     setFilters({ ...draft, [key]: val });
   };
 
-  // Підрахунок активних фільтрів (крім пошуку)
+  // Підрахунок активних фільтрів (v4.2 - З улікам дат і крыніц)
   const activeCount = Object.entries(draft).reduce((acc, [key, val]) => {
     if (key === "search") return acc;
+    if (key === "startDate" || key === "endDate") {
+      return val ? acc + 1 : acc;
+    }
     if (Array.isArray(val) && val.length > 0) return acc + 1;
+    if (typeof val === "boolean" && val === true) return acc + 1; // Для Favorites
     return acc;
   }, 0);
   // Мапінг тэхнічных ключоў нюансаў у прыгожыя лэйблы з masterData
@@ -33,6 +38,28 @@ export default function VacancyFilters({
     const found = MD.CHECKLIST_ITEMS.find((item) => item.value === key);
     return found ? found : { value: key, label: key };
   });
+  // SMART-ПАДЛІК (v4.2): Функція для дадання лічільнікаў да опцій
+  const getSmartOptions = (rawItems, fieldName, isMasterData = false) => {
+    if (!rawItems) return [];
+    return rawItems.map((item) => {
+      const value = isMasterData ? item.value : item;
+      const baseLabel = isMasterData ? item.label : item;
+
+      const count = filteredVacancies.filter((v) => {
+        // Якщо поле у вакансії є масивом (наприклад, нюанси або документи)
+        if (Array.isArray(v[fieldName])) {
+          return v[fieldName].includes(value);
+        }
+        // Якщо це звичайне текстове поле
+        return v[fieldName] === value;
+      }).length;
+
+      return {
+        value: value,
+        label: count === 0 ? `${baseLabel} (0)` : `${baseLabel} (${count})`,
+      };
+    });
+  };
   return (
     <div className="bg-slate-900/60 p-5 rounded-2xl border border-slate-800 h-full overflow-y-auto custom-scrollbar">
       <div className="flex items-center justify-between mb-6">
@@ -75,15 +102,75 @@ export default function VacancyFilters({
           {draft.isFavorite ? "★ ТІЛЬКИ ОБРАНІ" : "☆ ПОКАЗАТИ ВСІ"}
         </button>
       </Section>
-
+      <Section>
+        {/* КРЫНІЦЫ */}
+        <div>
+          <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
+            🌐 Джерело вакансії
+          </label>
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { id: "spreadsheet", label: "📊 Таблиця" },
+              { id: "viber", label: "📱 Viber" },
+              { id: "telegram", label: "✈️ Telegram" },
+            ].map((src) => {
+              const isSelected = draft.sourceType?.includes(src.id);
+              return (
+                <button
+                  key={src.id}
+                  type="button"
+                  onClick={() => {
+                    const current = draft.sourceType || [];
+                    const next = isSelected
+                      ? current.filter((x) => x !== src.id)
+                      : [...current, src.id];
+                    updateField("sourceType", next);
+                  }}
+                  className={`py-2 px-1 text-center rounded-xl text-xs font-bold transition-all border ${
+                    isSelected
+                      ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 shadow-lg shadow-emerald-500/5"
+                      : "bg-slate-900/60 text-slate-400 border-slate-800 hover:border-slate-700 hover:text-slate-200"
+                  }`}
+                >
+                  {src.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </Section>
+      <Section>
+        {/* ДЫЯПАЗОН ДАТ */}
+        <div>
+          <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
+            📆 Період оновлення (З / ПО)
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="date"
+              value={draft.startDate || ""}
+              onChange={(e) => updateField("startDate", e.target.value)}
+              className="w-1/2 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500/50 color-scheme-dark"
+              style={{ colorScheme: "dark" }}
+            />
+            <input
+              type="date"
+              value={draft.endDate || ""}
+              onChange={(e) => updateField("endDate", e.target.value)}
+              className="w-1/2 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500/50 color-scheme-dark"
+              style={{ colorScheme: "dark" }}
+            />
+          </div>
+        </div>
+      </Section>
       {/* СТАТУС */}
       <Section>
         <MultiSelect
           label="Статус"
-          options={MD.STATUSES}
+          options={getSmartOptions(MD.STATUSES, "status", true)} // 👈 Заменена
           selected={draft.status}
           onChange={(v) => updateField("status", v)}
-          placeholder="Усі статуси"
+          placeholder="Будь-який status"
         />
       </Section>
 
@@ -91,7 +178,7 @@ export default function VacancyFilters({
       <Section>
         <MultiSelect
           label="Категорія"
-          options={MD.CATEGORIES}
+          options={getSmartOptions(MD.CATEGORIES, "category", true)} // 👈 Заменена
           selected={draft.category}
           onChange={(v) => updateField("category", v)}
           placeholder="Усі категорії"
@@ -102,7 +189,7 @@ export default function VacancyFilters({
       <Section>
         <MultiSelect
           label="Регіон (Воєводство)"
-          options={voivodeships}
+          options={getSmartOptions(voivodeships, "voivodeship")} // 👈 Заменена
           selected={draft.voivodeship}
           onChange={(v) => updateField("voivodeship", v)}
           placeholder="Усі регіони"
@@ -113,7 +200,7 @@ export default function VacancyFilters({
       <Section>
         <MultiSelect
           label="Місто"
-          options={locations}
+          options={getSmartOptions(locations, "location")} // 👈 Заменена
           selected={draft.location}
           onChange={(v) => updateField("location", v)}
           placeholder="Усі міста"
@@ -124,7 +211,11 @@ export default function VacancyFilters({
       <Section>
         <MultiSelect
           label="Житло"
-          options={MD.ACCOMMODATION_OPTIONS}
+          options={getSmartOptions(
+            MD.ACCOMMODATION_OPTIONS,
+            "accommodation",
+            true,
+          )} // 👈 Оновлено
           selected={draft.accommodation}
           onChange={(v) => updateField("accommodation", v)}
           placeholder="Будь-які умови"
@@ -135,7 +226,7 @@ export default function VacancyFilters({
       <Section>
         <MultiSelect
           label="Довіз до роботи"
-          options={MD.TRANSPORT_OPTIONS}
+          options={getSmartOptions(MD.TRANSPORT_OPTIONS, "transport", true)} // 👈 Оновлено
           selected={draft.transport}
           onChange={(v) => updateField("transport", v)}
           placeholder="Не важливо"
@@ -146,7 +237,7 @@ export default function VacancyFilters({
       <Section>
         <MultiSelect
           label="Хто їде"
-          options={MD.GENDERS}
+          options={getSmartOptions(MD.GENDERS, "gender", true)} // 👈 Оновлено
           selected={draft.gender}
           onChange={(v) => updateField("gender", v)}
           placeholder="Будь-хто"
@@ -178,7 +269,7 @@ export default function VacancyFilters({
       <Section>
         <MultiSelect
           label="Рівень польської"
-          options={MD.LANGUAGES}
+          options={getSmartOptions(MD.LANGUAGES, "language", true)} // 👈 Оновлено
           selected={draft.language}
           onChange={(v) => updateField("language", v)}
           placeholder="Будь-який рівень"
@@ -189,7 +280,7 @@ export default function VacancyFilters({
       <Section>
         <MultiSelect
           label="Національність"
-          options={MD.NATIONALITIES}
+          options={getSmartOptions(MD.NATIONALITIES, "nationality", true)} // 👈 Оновлено
           selected={draft.nationality}
           onChange={(v) => updateField("nationality", v)}
           placeholder="Усі нації"
@@ -221,7 +312,7 @@ export default function VacancyFilters({
       <Section>
         <MultiSelect
           label="Документи"
-          options={MD.DOCS}
+          options={getSmartOptions(MD.DOCS, "docs", true)} // 👈 Оновлено (масив рядків/об'єктів у базі перевіряється як елемент)
           selected={draft.docs}
           onChange={(v) => updateField("docs", v)}
           placeholder="Будь-які документи"
@@ -232,7 +323,7 @@ export default function VacancyFilters({
       <Section>
         <MultiSelect
           label="Особливості (Чек-лист)"
-          options={mappedNuances} // Замянілі тут
+          options={getSmartOptions(mappedNuances, "nuances", true)} // 👈 Заменена
           selected={draft.nuances}
           onChange={(v) => updateField("nuances", v)}
           placeholder="Вибрати нюанси..."
@@ -243,7 +334,7 @@ export default function VacancyFilters({
       <Section>
         <MultiSelect
           label="Агенція"
-          options={agencies}
+          options={getSmartOptions(agencies, "agencyName")} // 👈 Заменена
           selected={draft.agencyName}
           onChange={(v) => updateField("agencyName", v)}
           placeholder="Усі агенції"
@@ -253,8 +344,8 @@ export default function VacancyFilters({
       {/* БРЕНД */}
       <Section>
         <MultiSelect
-          label="Бренд / Завод"
-          options={brands}
+          label="Бренд"
+          options={getSmartOptions(brands, "brand")} // 👈 Заменена
           selected={draft.brand}
           onChange={(v) => updateField("brand", v)}
           placeholder="Усі бренди"

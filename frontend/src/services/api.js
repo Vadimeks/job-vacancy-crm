@@ -9,9 +9,12 @@ const api = axios.create({
   baseURL: API_URL,
 });
 
-// --- ВАКАНСІІ ---
-export const getVacancies = (status) =>
-  api.get("/vacancies", { params: { status } });
+// --- ВАКАНСІІ (v3.7 - Падтримка фільтрацыі па датах і параметрах) ---
+export const getVacancies = (params) => {
+  // Калі перададзены проста радок (старая логіка), трансфармуем у аб'ект
+  const queryParams = typeof params === "string" ? { status: params } : params;
+  return api.get("/vacancies", { params: queryParams });
+};
 export const createVacancy = (data) => api.post("/vacancies", data);
 
 // Дадалі messageId для аўтаматычнай ачысткі інбокса

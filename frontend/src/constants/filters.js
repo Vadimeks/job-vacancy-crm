@@ -21,6 +21,9 @@ export const EMPTY_FILTERS = {
   agencyName: [],
   brand: [],
   nuances: [],
+  sourceType: [], // Масіў для мульцівыбару крыніц (viber, telegram, spreadsheet)
+  startDate: "", // Пачатковая дата фільтра
+  endDate: "", // Канчатковая дата фільтра
 };
 
 export const EMPTY_CANDIDATE_FILTERS = {

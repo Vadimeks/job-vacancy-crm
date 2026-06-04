@@ -170,6 +170,12 @@ function applyFilters(vacancies, filters) {
       });
       if (!match) return false;
     }
+    // 🆕 КРОПКАВАЕ ДАДАННЕ (v4.1): Фільтр па крыніцах (sourceType)
+    if (
+      filters.sourceType?.length &&
+      !filters.sourceType.includes(v.sourceType || "manual")
+    )
+      return false;
     // --- 13. Зарплата (Лічбавы фільтр) ---
     const fMinSal =
       filters.minSalary !== "" ? parseFloat(filters.minSalary) : null;
@@ -187,6 +193,17 @@ function applyFilters(vacancies, filters) {
     // --- 14. Узрост (Лічбавы фільтр па maxAge) ---
     const fMinAge = filters.minAge !== "" ? parseFloat(filters.minAge) : null;
     const fMaxAge = filters.maxAge !== "" ? parseFloat(filters.maxAge) : null;
+    // 🆕 КРОПКАВАЕ ДАДАННЕ (v4.1): Фільтрацыя па датах абнаўлення (updatedAt)
+    if (filters.startDate) {
+      const start = new Date(filters.startDate).setHours(0, 0, 0, 0);
+      const vDate = new Date(v.updatedAt || v.createdAt).getTime();
+      if (vDate < start) return false;
+    }
+    if (filters.endDate) {
+      const end = new Date(filters.endDate).setHours(23, 59, 59, 999);
+      const vDate = new Date(v.updatedAt || v.createdAt).getTime();
+      if (vDate > end) return false;
+    }
     const vAge = v.requirements?.age?.max; // Можа быць лічбай або null
 
     if (fMinAge !== null || fMaxAge !== null) {
@@ -194,6 +211,13 @@ function applyFilters(vacancies, filters) {
       if (vAge === null || vAge === undefined || isNaN(vAge)) return false;
       if (fMinAge !== null && vAge < fMinAge) return false;
       if (fMaxAge !== null && vAge > fMaxAge) return false;
+    }
+    // --- 15. Крыніца (Source Type) ---
+    if (
+      filters.sourceType?.length > 0 &&
+      !filters.sourceType.includes(v.sourceType)
+    ) {
+      return false;
     }
     return true;
   });
@@ -269,19 +293,17 @@ export default function Vacancies() {
     }
   }, [location.state]);
 
-  const fetchVacancies = useCallback(async () => {
+  const fetchVacancies = useCallback(async (params = {}) => {
     try {
-      const statusParam =
-        applied.status?.length > 0 ? applied.status.join(",") : "active,closed";
-
-      const res = await getVacancies(statusParam);
-      setVacancies(res.data);
-    } catch {
-      console.error("Памылка загрузкі вакансій");
+      setLoading(true);
+      const res = await getVacancies(params);
+      setVacancies(res.data || []);
+    } catch (err) {
+      console.error("Помилка при завантаженні вакансій:", err);
     } finally {
       setLoading(false);
     }
-  }, [applied.status]); // Функцыя будзе абнаўляцца толькі пры змене статусаў
+  }, []);
 
   useEffect(() => {
     // Калі ўсе фільтры пустыя (скінуты), аўтаматычна прымяняем іх
@@ -289,9 +311,14 @@ export default function Vacancies() {
       setApplied(EMPTY_FILTERS);
     }
   }, [draft]);
+  // Калі змяняюцца актыўныя зафіксаваныя фільтры — адпраўляем даты на сервер для аптымізацыі
   useEffect(() => {
-    fetchVacancies();
-  }, [fetchVacancies]); // Цяпер залежым ад мемаізаванай функцыі // Перазагружаем дадзеныя з сервера, калі змяніўся набор статусаў
+    const params = {
+      startDate: applied.startDate || undefined,
+      endDate: applied.endDate || undefined,
+    };
+    fetchVacancies(params);
+  }, [fetchVacancies, applied]);
 
   useEffect(() => {
     if (showAutoForm && formMode === "template" && templates.length === 0) {
@@ -302,6 +329,7 @@ export default function Vacancies() {
         .finally(() => setTemplatesLoading(false));
     }
   }, [showAutoForm, formMode, templates.length]);
+
   const handleToggleFavorite = async (id) => {
     try {
       const res = await toggleFavoriteVacancy(id);
@@ -343,10 +371,10 @@ export default function Vacancies() {
     ].map((v) => v.toLowerCase());
 
     const EUROPE_LABEL = "Інші країни Європи";
-
+    const sourceTypes = new Set(); // 👈 Дададзена
     vacancies.forEach((v) => {
       if (v.agencyName) agencies.add(v.agencyName);
-
+      if (v.sourceType) sourceTypes.add(v.sourceType); // 👈 Дададзена
       // 1. Брэнды
       if (v.brand && v.brand !== "БРЕНДОВИЙ ОДЯГ") {
         brands.add(v.brand.toUpperCase().trim());
@@ -566,6 +594,7 @@ export default function Vacancies() {
           locations={dynamicData.locations}
           voivodeships={dynamicData.voivodeships}
           nuances={dynamicData.nuances}
+          filteredVacancies={vacancies} // 🆕 ПРАКІДВАЕМ АДФІЛЬТРАВАНЫЯ ДЛЯ СМАРТ-ПАДЛІКУ
         />
       </aside>
 
@@ -856,10 +885,43 @@ export default function Vacancies() {
                           )}
                       </span>
 
-                      {/* Дата стварэння (Справа) */}
-                      <span className="text-[10px] text-slate-600 ml-auto font-mono italic">
-                        {new Date(v.createdAt).toLocaleDateString("uk-UA")}
-                      </span>
+                      {/* Крыніца і Даты (v3.7) */}
+                      <div className="flex items-center gap-3 ml-auto">
+                        {/* Іконка крыніцы */}
+                        <span
+                          className="text-base"
+                          title={`Джерело: ${v.sourceType || "manual"}`}
+                        >
+                          {v.sourceType === "viber"
+                            ? "📱"
+                            : v.sourceType === "telegram"
+                              ? "✈️"
+                              : v.sourceType === "spreadsheet"
+                                ? "📊"
+                                : v.sourceType === "site"
+                                  ? "🌐"
+                                  : "👤"}
+                        </span>
+
+                        {/* Разумная дата */}
+                        <div className="flex flex-col items-end leading-none">
+                          <span className="text-[10px] text-slate-500 font-mono">
+                            {new Date(v.createdAt).toLocaleDateString("uk-UA")}
+                          </span>
+                          {new Date(v.updatedAt).toLocaleDateString("uk-UA") !==
+                            new Date(v.createdAt).toLocaleDateString(
+                              "uk-UA",
+                            ) && (
+                            <span className="text-[9px] text-emerald-500 font-bold font-mono mt-0.5">
+                              (upd:{" "}
+                              {new Date(v.updatedAt).toLocaleDateString(
+                                "uk-UA",
+                              )}
+                              )
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </div>
                     {/* ЗАГАЛОВАК */}
                     <h3 className="font-semibold text-slate-100 leading-snug mb-2">
