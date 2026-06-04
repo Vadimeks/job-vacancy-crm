@@ -212,16 +212,24 @@ function getRowStatus(cells, agencyName, headers = [], rowIndex = 0) {
     "brak",
   ];
 
+  // --- АБНОЎЛЕНАЯ ЛОГІКА СТАТУСУ ---
   if (foundHeaderName) {
-    const isStop = STOP_MARKERS.some((m) => statusValue.includes(m));
+    // Для MRÓWKI: калі слупок знойдзены, але ячэйка пустая — гэта STOP (вырашае праблему аб'яднаных ячэек)
+    // Для астатніх: пустая ячэйка пакуль не з'яўляецца STOP (ідзе далей на фолбэк)
+    const isStop =
+      STOP_MARKERS.some((m) => statusValue.includes(m)) ||
+      (agencyName === "MRÓWKI" && !statusValue);
+
     console.log(
       `[Status Debug] Row: ${rowNum} | Agency: ${agencyName} | Column: "${foundHeaderName}" | Value: "${statusValue}" | Result: ${isStop ? "STOP" : "ACTIVE"}`,
     );
+
+    if (isStop) return "STOP";
   }
 
   if (statusValue && STOP_MARKERS.some((m) => statusValue.includes(m)))
     return "STOP";
-
+  // Фолбэк: калі значэнне статусу не знойдзена (пустое), правяраем першую ячэйку радка на наяўнасць маркераў STOP
   if (!statusValue) {
     const firstCell = (cells[0]?.formattedValue || "").trim().toLowerCase();
     if (STOP_MARKERS.some((word) => firstCell.includes(word))) return "STOP";

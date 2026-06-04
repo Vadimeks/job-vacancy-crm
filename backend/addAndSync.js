@@ -63,9 +63,9 @@ const CONFIG = {
 // const TARGET_SHEET_NAME = "Вакансии 2026";
 // const TARGET_AGENCY_NAME = "RALEN";
 //---
-// const TARGET_SHEET_ID = "1hzA99T1oYP64BvIGww6zdZcs4iJjJQT80hm1LZimMiQ";
-// const TARGET_SHEET_NAME = "Вакансии";
-// const TARGET_AGENCY_NAME = "MRÓWKI";
+const TARGET_SHEET_ID = "1hzA99T1oYP64BvIGww6zdZcs4iJjJQT80hm1LZimMiQ";
+const TARGET_SHEET_NAME = "Вакансии";
+const TARGET_AGENCY_NAME = "MRÓWKI";
 //---
 // const TARGET_SHEET_ID = "1ajkfjO8v5FcaNl-NDydc_NwihGgFlvdEkh38ouPwmj4";
 // const TARGET_SHEET_NAME = "WEEK 23";
@@ -79,9 +79,9 @@ const CONFIG = {
 // const TARGET_SHEET_NAME = "Вакансії";
 // const TARGET_AGENCY_NAME = "BISAR";
 //---
-const TARGET_SHEET_ID = "1-qVX4cW1G8oIPiDZjEYG_0nhNOTYY2iI0k8sp-gguko";
-const TARGET_SHEET_NAME = "Лист1";
-const TARGET_AGENCY_NAME = "WORK&HUMAN";
+// const TARGET_SHEET_ID = "1-qVX4cW1G8oIPiDZjEYG_0nhNOTYY2iI0k8sp-gguko";
+// const TARGET_SHEET_NAME = "Лист1";
+// const TARGET_AGENCY_NAME = "WORK&HUMAN";
 //---
 // Калі хочаш апрацаваць УСЕ табліцы — пастаў null
 // const TARGET_SHEET_ID = null;
