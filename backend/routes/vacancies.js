@@ -586,38 +586,40 @@ router.get("/", async (req, res) => {
     if (city) {
       const cityList = city.split(",");
       const isPolandSelected = cityList.includes("Польща");
-
-      // Функцыя для стварэння строгага Regex (каб Śląskie не чапляла Dolnośląskie)
       const strictRegex = (v) => new RegExp(`(^|,)\\s*${v}\\s*(,|$)`, "i");
+
+      let regionConditions = [];
 
       if (isPolandSelected) {
         const otherSelected = cityList.filter((c) => c !== "Польща");
-        // Для агульнай Польшчы пакідаем шырокі пошук, але для астатніх — строгі
-        query.$or = [
+        regionConditions = [
           { country: "Polska" },
-          {
-            voivodeship: { $in: otherSelected.map((v) => strictRegex(v)) },
-          },
+          ...otherSelected.map((v) => ({ voivodeship: strictRegex(v) })),
         ];
       } else {
-        // Строгі пошук па канкрэтных ваяводствах
-        query.voivodeship = {
-          $in: cityList.map((v) => strictRegex(v)),
-        };
+        regionConditions = cityList.map((v) => ({
+          voivodeship: strictRegex(v),
+        }));
+      }
+
+      // Бяспечнае даданне ў запыт праз $and, каб не зламаць іншыя $or
+      if (regionConditions.length > 0) {
+        if (!query.$and) query.$and = [];
+        query.$and.push({ $or: regionConditions });
       }
     }
     if (agency) query.agencyName = { $in: agency.split(",") };
     if (category) query.category = { $in: category.split(",") };
     // Фільтр па датах (v3.7)
     if (startDate || endDate) {
-      query.createdAt = {};
+      query.updatedAt = {}; // Выкарыстоўваем дату абнаўлення/актуалізацыі
       if (startDate) {
-        query.createdAt.$gte = new Date(startDate);
+        query.updatedAt.$gte = new Date(startDate);
       }
       if (endDate) {
         const end = new Date(endDate);
-        end.setHours(23, 59, 59, 999); // Уключаем увесь дзень цалкам
-        query.createdAt.$lte = end;
+        end.setHours(23, 59, 59, 999);
+        query.updatedAt.$lte = end;
       }
     }
     const vacancies = await Vacancy.find(query).sort({ createdAt: -1 });
