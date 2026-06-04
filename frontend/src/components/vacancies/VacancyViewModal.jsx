@@ -100,8 +100,9 @@ export default function VacancyViewModal({
                     ? "bg-red-500/10 text-red-400 border-red-500/20"
                     : "bg-slate-500/10 text-slate-400 border-slate-500/20"
               }`}
-            ></span>
-            {STATUS_LABELS[v.status] || v.status}
+            >
+              {STATUS_LABELS[v.status] || v.status}
+            </span>
             {v.agencyName && (
               <span className="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-bold border border-slate-700 uppercase tracking-wider">
                 <Building2 size={9} className="inline mr-1" /> {v.agencyName}
