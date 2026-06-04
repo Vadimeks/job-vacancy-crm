@@ -594,7 +594,7 @@ export default function Vacancies() {
           locations={dynamicData.locations}
           voivodeships={dynamicData.voivodeships}
           nuances={dynamicData.nuances}
-          filteredVacancies={vacancies} // 🆕 ПРАКІДВАЕМ АДФІЛЬТРАВАНЫЯ ДЛЯ СМАРТ-ПАДЛІКУ
+          vacancies={vacancies} // 👈 Перадаем масіў з useState старонкі
         />
       </aside>
 

@@ -15,10 +15,11 @@ export default function VacancyFilters({
   locations = [],
   voivodeships = [],
   nuances = [],
-  filteredVacancies = [], // 🆕 ДАДАДЗЕНА ДЛЯ SMART-ПАДЛІКУ (v4.2)
+  vacancies = [], // 👈 Прымаем прамы масіў vacancies з бацькоўскага кампанента
 }) {
   const draft = filters || EMPTY_FILTERS;
-
+  // 🔍 Дэбаг: паглядзім у кансолі, ці прыходзяць вакансіі для падліку
+  console.log("Доўжыня масіва вакансій у фільтрах:", vacancies?.length);
   const updateField = (key, val) => {
     setFilters({ ...draft, [key]: val });
   };
@@ -45,7 +46,7 @@ export default function VacancyFilters({
       const value = isMasterData ? item.value : item;
       const baseLabel = isMasterData ? item.label : item;
 
-      const count = filteredVacancies.filter((v) => {
+      const count = vacancies.filter((v) => {
         // 1. Калі правяраем жытло або давоз (яны ляжаць у conditions)
         if (fieldName === "accommodation")
           return v.conditions?.accommodation?.type === value;
