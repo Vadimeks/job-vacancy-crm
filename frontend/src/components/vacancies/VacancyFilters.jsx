@@ -132,9 +132,13 @@ export default function VacancyFilters({
           });
         }
 
-        // --- 7. Крыніца ---
+        // --- 7. Крыніца (v4.4 - Сінхранізацыя manual/spreadsheet) ---
         if (fieldName === "sourceType") {
-          return (v.sourceType || "manual") === value;
+          const s = v.sourceType || "manual";
+          // Калі мы правяраем "Табліцу", лічым і spreadsheet, і manual
+          if (value === "spreadsheet")
+            return s === "spreadsheet" || s === "manual";
+          return s === value;
         }
 
         return false;
@@ -201,10 +205,14 @@ export default function VacancyFilters({
               { id: "telegram", label: "✈️ Telegram" },
             ].map((src) => {
               const isSelected = draft.sourceType?.includes(src.id);
-              // Дадаем падлік для кожнай кнопкі
-              const count = vacancies.filter(
-                (v) => (v.sourceType || "spreadsheet") === src.id,
-              ).length;
+
+              // ВЫПРАЎЛЕНЫ ПАДЛІК:
+              const count = vacancies.filter((v) => {
+                const s = v.sourceType || "manual";
+                if (src.id === "spreadsheet")
+                  return s === "spreadsheet" || s === "manual";
+                return s === src.id;
+              }).length;
 
               return (
                 <button
