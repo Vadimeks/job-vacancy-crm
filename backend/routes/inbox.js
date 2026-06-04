@@ -266,6 +266,10 @@ async function processPendingMessages() {
               msg.text,
               msg.isTruncated,
               analysis.category,
+              null, // sourceHash (для паведамленняў з чатаў не выкарыстоўваецца)
+              "",   // sheetName (пуста для чатаў)
+              null, // existingId
+              msg.source === "telegram_userbot" ? "telegram" : "viber" // 👈 ДАДАДЗЕНА: мапінг крыніцы
             );
             if (!result || result.error) allProcessed = false;
           }
