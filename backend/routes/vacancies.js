@@ -219,11 +219,16 @@ async function processVacancyMessage(
         // 2. Калі па хэшы не знайшлі АБО гэта паведамленне з чата — робім семантычны пошук.
         // Гэта дазваляе звязаць старыя "ручныя" вакансіі з новымі радкамі ў табліцах.
         if (!currentExistingId) {
+          // Выкарыстоўваем Regex для ігнаравання рэгістра (v4.3)
           const semanticMatch = await Vacancy.findOne({
             agencyName: finalAgency,
-            location: vData.location,
-            brand: vData.brand || "",
-            vacancydescription: vData.vacancydescription,
+            location: { $regex: new RegExp(`^${vData.location}$`, "i") },
+            brand: vData.brand
+              ? { $regex: new RegExp(`^${vData.brand}$`, "i") }
+              : vData.brand || "",
+            vacancydescription: {
+              $regex: new RegExp(`^${vData.vacancydescription}$`, "i"),
+            },
             status: "active",
           });
 
