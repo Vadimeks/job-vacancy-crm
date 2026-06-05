@@ -67,9 +67,9 @@ const CONFIG = {
 // const TARGET_SHEET_NAME = "Вакансии";
 // const TARGET_AGENCY_NAME = "MRÓWKI";
 //---
-const TARGET_SHEET_ID = "1ajkfjO8v5FcaNl-NDydc_NwihGgFlvdEkh38ouPwmj4";
-const TARGET_SHEET_NAME = "WEEK 23";
-const TARGET_AGENCY_NAME = "OTTO";
+// const TARGET_SHEET_ID = "1ajkfjO8v5FcaNl-NDydc_NwihGgFlvdEkh38ouPwmj4";
+// const TARGET_SHEET_NAME = "WEEK 23";
+// const TARGET_AGENCY_NAME = "OTTO";
 //---
 // const TARGET_SHEET_ID = "18x5KvkUglitqcpr69F0q6z08vfF2BTnjYBlRdMtv8bA";
 // const TARGET_SHEET_NAME = "vekos";
@@ -84,9 +84,9 @@ const TARGET_AGENCY_NAME = "OTTO";
 // const TARGET_AGENCY_NAME = "WORK&HUMAN";
 //---
 // Калі хочаш апрацаваць УСЕ табліцы — пастаў null
-// const TARGET_SHEET_ID = null;
-// const TARGET_SHEET_NAME = "";
-// const TARGET_AGENCY_NAME = "";
+const TARGET_SHEET_ID = null;
+const TARGET_SHEET_NAME = "";
+const TARGET_AGENCY_NAME = "";
 
 async function run() {
   try {

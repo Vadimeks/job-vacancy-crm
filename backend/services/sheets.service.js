@@ -456,16 +456,18 @@ async function syncSheetVacancies(sourceId) {
       if (!rowBodyText.trim()) continue;
 
       // 2. Ствараем СЕМАНТЫЧНЫ ХЭШ (Агенцыя + Ліст + Якар)
-      // Нармалізуем якар (ніжні рэгістр, выдаленне ЎСІХ прабелаў), каб хэш быў стабільным
-      // нават пры змене фарматавання ў табліцы (v3.1)
+      // Нармалізуем якар і назву ліста (ніжні рэгістр, выдаленне прабелаў), каб хэш быў стабільным
+      // нават пры змене рэгістра назвы ўкладкі ў Google Sheets (v3.2)
       const normalizedAnchor = String(rowAnchor)
         .toLowerCase()
         .replace(/\s+/g, "")
         .trim();
+      const normalizedSheetName = String(source.sheetName).toLowerCase().trim();
+
       const rowHash = crypto
         .createHash("md5")
         .update(
-          `${source.agencyName}::${source.sheetName}::${normalizedAnchor}`,
+          `${source.agencyName}::${normalizedSheetName}::${normalizedAnchor}`,
         )
         .digest("hex");
 

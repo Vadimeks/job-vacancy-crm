@@ -613,18 +613,33 @@ router.get("/", async (req, res) => {
     if (agency) query.agencyName = { $in: agency.split(",") };
     if (category) query.category = { $in: category.split(",") };
     // Фільтр па датах (v3.7)
+    // Фільтр па датах (v4.2 - Гібрыдная праверка)
     if (startDate || endDate) {
-      query.updatedAt = {}; // Выкарыстоўваем дату абнаўлення/актуалізацыі
-      if (startDate) {
-        query.updatedAt.$gte = new Date(startDate);
-      }
+      const dateRange = {};
+      if (startDate) dateRange.$gte = new Date(startDate);
       if (endDate) {
         const end = new Date(endDate);
         end.setHours(23, 59, 59, 999);
-        query.updatedAt.$lte = end;
+        dateRange.$lte = end;
       }
+
+      // Шукаем супадзенне АБО ў даце стварэння, АБО ў даце абнаўлення
+      if (!query.$and) query.$and = [];
+      query.$and.push({
+        $or: [{ updatedAt: dateRange }, { createdAt: dateRange }],
+      });
     }
-    const vacancies = await Vacancy.find(query).sort({ createdAt: -1 });
+
+    // 🆕 Фільтр па крыніцах (sourceType)
+    if (req.query.sourceType) {
+      query.sourceType = { $in: req.query.sourceType.split(",") };
+    }
+
+    // Сартуем па даце абнаўлення (самыя свежыя зверху)
+    const vacancies = await Vacancy.find(query).sort({
+      updatedAt: -1,
+      createdAt: -1,
+    });
     res.json(vacancies);
   } catch (err) {
     res.status(500).json({ message: err.message });
