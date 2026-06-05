@@ -456,10 +456,17 @@ async function syncSheetVacancies(sourceId) {
       if (!rowBodyText.trim()) continue;
 
       // 2. Ствараем СЕМАНТЫЧНЫ ХЭШ (Агенцыя + Ліст + Якар)
-      // Гэта дазваляе вакансіі "пераязджаць" па табліцы без стварэння дублікатаў
+      // Нармалізуем якар (ніжні рэгістр, выдаленне ЎСІХ прабелаў), каб хэш быў стабільным
+      // нават пры змене фарматавання ў табліцы (v3.1)
+      const normalizedAnchor = String(rowAnchor)
+        .toLowerCase()
+        .replace(/\s+/g, "")
+        .trim();
       const rowHash = crypto
         .createHash("md5")
-        .update(`${source.agencyName}::${source.sheetName}::${rowAnchor}`)
+        .update(
+          `${source.agencyName}::${source.sheetName}::${normalizedAnchor}`,
+        )
         .digest("hex");
 
       const existingVacancy = await Vacancy.findOne({ sourceHash: rowHash });

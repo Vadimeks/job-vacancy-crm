@@ -205,29 +205,31 @@ async function processVacancyMessage(
     for (const vData of vacancyDataList) {
       const finalAgency = preDefinedAgency || vData.agencyName || "Manual";
 
-      // 🔍 ЛОГІКА ПОШУКУ ДУБЛІКАТАЎ (v3.6)
-      // Калі ID не перададзены напрамую, спрабуем знайсці існуючую вакансію
+      // 🔍 ЛОГІКА ПОШУКУ ДУБЛІКАТАЎ (v3.8 - Smart Hybrid Search)
       if (!currentExistingId) {
+        // 1. Спрабуем знайсці па строгім хэшы (для табліц)
         if (sourceHash) {
-          // 1. Пошук для табліц (строга па хэшы)
           const byHash = await Vacancy.findOne({
             sourceHash,
             status: "active",
           });
           if (byHash) currentExistingId = byHash._id;
-        } else if (["viber", "telegram"].includes(sourceType)) {
-          // 2. Пошук для чатаў (семантычны па 4 параметрах)
+        }
+
+        // 2. Калі па хэшы не знайшлі АБО гэта паведамленне з чата — робім семантычны пошук.
+        // Гэта дазваляе звязаць старыя "ручныя" вакансіі з новымі радкамі ў табліцах.
+        if (!currentExistingId) {
           const semanticMatch = await Vacancy.findOne({
             agencyName: finalAgency,
             location: vData.location,
             brand: vData.brand || "",
             vacancydescription: vData.vacancydescription,
-            sourceType: { $in: ["viber", "telegram"] },
             status: "active",
           });
+
           if (semanticMatch) {
             console.log(
-              `🎯 Знойдзена семантычнае супадзенне ў чатах: ${semanticMatch.vacancyCode}`,
+              `🎯 Знойдзена семантычнае супадзенне (${sourceType}): ${semanticMatch.vacancyCode}`,
             );
             currentExistingId = semanticMatch._id;
           }
