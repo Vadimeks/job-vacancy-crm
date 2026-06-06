@@ -368,6 +368,7 @@ async function syncSheetVacancies(sourceId) {
 
   const stats = { added: 0, updated: 0, closed: 0, ignored: 0 };
   const details = [];
+  const hotUpdates = []; // 👈 Акумулятар для групавання паведамленняў у Inbox
   const foundHashesInSheet = new Set();
 
   try {
@@ -483,6 +484,13 @@ async function syncSheetVacancies(sourceId) {
           details.push(
             `🛑 [${existingVacancy.vacancyCode || "N/A"}] ${rowTitle} (Row: ${i + 1})`,
           );
+          // 👈 Дадаем у гарачыя апдэйты
+          hotUpdates.push({
+            row: i + 1,
+            title: rowTitle,
+            code: existingVacancy.vacancyCode,
+            type: "STOP/CLOSED",
+          });
         }
         continue;
       }
@@ -546,27 +554,21 @@ async function syncSheetVacancies(sourceId) {
         const vacCode = existingVacancy
           ? `[${existingVacancy.vacancyCode}] `
           : "";
-
-        // 👈 ЗМЕНА: дадаткова правяраем ці ёсць прыкметы вакансіі (зарплата або пасада)
-        // Было: толькі праверка даўжыні — службовыя радкі (каардынатары і г.д.) таксама траплялі ў Inbox
         const hasVacancySignal =
           /\d+[\s,.]?\d*\s*(zł|zlot|€|eur|pln|год|час|\/h)/i.test(rawRowText) ||
           /вакансі|посад|робот|праця|работ|завод|склад|виробництв/i.test(
             rawRowText,
           );
 
+        // Замест стварэння паведамлення — дадаем у масіў
         if (rawRowText.length < 400 && hasVacancySignal) {
-          const msgCategory =
-            analysis.category === "RECRUITER_INFO" ? "info" : "update";
-
-          await new UnprocessedMessage({
-            sender: "Google Sheets",
-            agencyName: source.agencyName,
-            text: `Дадзеныя з табліцы (Row: ${i + 1}) для: ${vacCode}${rowTitle}\n\n${analysis.translatedFragments?.[0] || rawRowText}`,
-            category: msgCategory,
-            source: "google_sheets",
-            aiAnalyzed: true,
-          }).save();
+          hotUpdates.push({
+            row: i + 1,
+            title: rowTitle,
+            code: existingVacancy?.vacancyCode,
+            content: analysis.translatedFragments?.[0] || rawRowText,
+            type: analysis.category === "RECRUITER_INFO" ? "INFO" : "UPDATE",
+          });
         }
 
         stats.updated++;
@@ -740,7 +742,41 @@ async function syncSheetVacancies(sourceId) {
         aiAnalyzed: true,
       }).save();
     }
+    // --- АДПРАЎКА ГАРАЧЫХ АПДЭЙТАЎ АДЗІНЫМ БЛОКАМ ---
+    if (hotUpdates.length > 0) {
+      let hotText = `🔥 **ГАРЫЧЫЯ АПДЭЙТЫ: ${source.agencyName} (${source.sheetName})**\n`;
+      hotText += `-----------------------------------------\n`;
 
+      hotUpdates.forEach((upd) => {
+        const icon =
+          upd.type === "STOP/CLOSED" ? "🛑" : upd.type === "INFO" ? "ℹ️" : "📝";
+        const codePart = upd.code ? `[${upd.code}] ` : "";
+        hotText += `${icon} **Радок ${upd.row}**: ${codePart}${upd.title}\n`;
+        if (upd.content) {
+          // Абмяжоўваем тэкст фрагмента для чытальнасці
+          const shortContent =
+            upd.content.length > 150
+              ? upd.content.substring(0, 150) + "..."
+              : upd.content;
+          hotText += `└ _${shortContent.replace(/\n/g, " ")}_\n\n`;
+        }
+      });
+
+      // Захоўваем адно агульнае паведамленне (абмяжоўваем 4000 сімвалаў)
+      await new UnprocessedMessage({
+        sender: "System",
+        agencyName: source.agencyName,
+        text: hotText.substring(0, 4000),
+        category: "update",
+        source: "google_sheets",
+        processed: false,
+        aiAnalyzed: true,
+      }).save();
+
+      console.log(
+        `📦 Згрупавана ${hotUpdates.length} апдэйтаў у адно паведамленне Inbox.`,
+      );
+    }
     source.lastProcessedAt = new Date();
     await source.save();
     console.log(`🏁 Сінхранізацыя ${source.sheetName} завершана.`);
