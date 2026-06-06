@@ -200,7 +200,7 @@ async function analyzeAndCompareWithGemini(
   // --- ВЫДАЛЕНА: "Жалезнае правіла 250 сімвалаў" (цяпер перакладаем усё) ---
 
   // 3. Кэш
-  const cacheKey = enrichedText.substring(0, 250);
+  const cacheKey = enrichedText.substring(0, 400);
   if (geminiCache.has(cacheKey)) {
     const cached = geminiCache.get(cacheKey);
     if (Date.now() - cached.timestamp < CACHE_TTL) return cached.data;

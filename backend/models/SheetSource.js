@@ -11,7 +11,6 @@ const sheetSourceSchema = new mongoose.Schema(
     columnMap: { type: Map, of: Number },
 
     lastProcessedAt: { type: Date },
-    processedHashes: { type: [String], default: [] }, // Хэшы апрацаваных радкоў
   },
   { timestamps: true },
 );

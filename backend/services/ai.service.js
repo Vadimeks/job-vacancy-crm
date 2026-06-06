@@ -387,8 +387,6 @@ function cleanData(obj) {
         "не вказано",
         "null",
         "",
-        "99",
-        99,
         "none",
         "n/a",
         "unknown",

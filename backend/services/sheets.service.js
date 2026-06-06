@@ -547,10 +547,15 @@ async function syncSheetVacancies(sourceId) {
           ? `[${existingVacancy.vacancyCode}] `
           : "";
 
-        // 👇 ЗМЕНА: Толькі кароткія радкі (< 400 сімвалаў) ідуць у Inbox асобным запісам.
-        // Было: любы UPDATE/RECRUITER_INFO ствараў асобны запіс у Inbox.
-        // Цяпер: доўгія радкі проста фіксуюцца ў статыстыцы агульнай справаздачы.
-        if (rawRowText.length < 400) {
+        // 👈 ЗМЕНА: дадаткова правяраем ці ёсць прыкметы вакансіі (зарплата або пасада)
+        // Было: толькі праверка даўжыні — службовыя радкі (каардынатары і г.д.) таксама траплялі ў Inbox
+        const hasVacancySignal =
+          /\d+[\s,.]?\d*\s*(zł|zlot|€|eur|pln|год|час|\/h)/i.test(rawRowText) ||
+          /вакансі|посад|робот|праця|работ|завод|склад|виробництв/i.test(
+            rawRowText,
+          );
+
+        if (rawRowText.length < 400 && hasVacancySignal) {
           const msgCategory =
             analysis.category === "RECRUITER_INFO" ? "info" : "update";
 
@@ -600,12 +605,14 @@ async function syncSheetVacancies(sourceId) {
           continue; // Пераходзім да наступнага радка
         }
         let fragmentIndex = 0;
+        let firstSavedId = null; // 👈 ДАДАДЗЕНА: захоўваем ID першага фрагмента для наступных
+
         for (const fragment of analysis.translatedFragments) {
           const savedVac = await processVacancyMessage(
             fragment,
             "Google Sheets",
             source.agencyName,
-            rowBodyText, // 👈 Гэта запіша сыры тэкст у базу
+            rowBodyText,
             false,
             "FULL_VACANCY",
             rowHash,
@@ -614,22 +621,30 @@ async function syncSheetVacancies(sourceId) {
               ? existingVacancy
                 ? existingVacancy._id
                 : null
-              : null,
-            "spreadsheet", // 👈 ДАДАДЗЕНА: пазначаем крыніцу як табліцу
+              : firstSavedId, // 👈 ЗМЕНА: наступныя фрагменты абнаўляюць першы, не ствараюць новы
+            // Было: null — кожны фрагмент пачынаў пошук з нуля і мог стварыць новую вакансію
+            "spreadsheet",
           );
 
           if (savedVac && savedVac.vacancyCode) {
+            // 👈 ДАДАДЗЕНА: запамінаем ID першай створанай вакансіі
+            if (fragmentIndex === 0 && !firstSavedId) {
+              firstSavedId = savedVac._id;
+            }
+
             if (fragmentIndex === 0 && existingVacancy) {
               stats.updated++;
               details.push(
                 `🔄 [${savedVac.vacancyCode}] ${rowTitle} (Row: ${i + 1})`,
               );
-            } else {
+            } else if (fragmentIndex === 0) {
               stats.added++;
               details.push(
-                `✨ [${savedVac.vacancyCode}] ${rowTitle} (Row: ${i + 1}${fragmentIndex > 0 ? " - ч." + (fragmentIndex + 1) : ""})`,
+                `✨ [${savedVac.vacancyCode}] ${rowTitle} (Row: ${i + 1})`,
               );
             }
+            // 👈 ЗМЕНА: наступныя фрагменты не дублююцца ў справаздачу і не адпраўляюцца ў TG
+            // Было: fragmentIndex > 0 дадаваў асобны радок "(Row: X - ч.2)" у details
           }
           fragmentIndex++;
           await new Promise((r) => setTimeout(r, 2000));
@@ -737,6 +752,17 @@ async function syncSheetVacancies(sourceId) {
       status: "error",
       errorMessage: err.message,
     });
+
+    // 👈 ДАДАДЗЕНА: калі памылка звязана з AI — спыняем усю сінхранізацыю
+    // Было: catch заўжды вяртаў undefined, syncAllSheets працягваў цыкл нават пры AI Cooldown
+    const isAiError =
+      err.message?.includes("AI_COOLDOWN") ||
+      err.message?.includes("ALL_AI_MODELS_FAILED");
+
+    if (isAiError) {
+      console.error("🛑 AI недаступны. Спыняем сінхранізацыю ўсіх табліц.");
+      return "STOP_ALL";
+    }
   }
 }
 

@@ -47,7 +47,8 @@ const BRAND_BLACKLIST = [
 async function generateVacancyCode() {
   // Шукаем адну апошнюю вакансію з самым вялікім кодам
   const lastVacancy = await Vacancy.findOne({}, { vacancyCode: 1 }).sort({
-    vacancyCode: -1,
+    createdAt: -1, // 👈 ЗМЕНА: сартуем па даце, не па радку
+    // Было: vacancyCode: -1 — сартаванне як радок ("VAC-0099" > "VAC-0100" алфавітна)
   });
 
   let nextNum = 1;
