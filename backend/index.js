@@ -15,6 +15,7 @@ const cron = require("node-cron");
 const { syncAllSheets } = require("./services/sheets.service");
 const app = express();
 const CronLog = require("./models/CronLog");
+const { syncAllTrelloBoards } = require("./services/trello.service");
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -45,40 +46,34 @@ mongoose
  * нават калі сервер перазагружаўся або дэплоіўся.
  */
 async function runSyncWithInsurance() {
-  const taskName = "sheets-sync";
+  const taskName = "sheets-sync"; // Можна перайменаваць у "global-sync"
 
   try {
-    // 👇 ЗМЕНА: Праверка апошніх 6 гадзін замест "сёння з пачатку сутак".
-    // Было: log.lastRun >= today (пачатак бягучых сутак) — не абараняла ад паўторных дэплояў.
-    // Цяпер: пропуск калі сінхранізацыя была апошнія 6 гадзін.
+    const log = await CronLog.findOne({ taskName });
     const sixHoursAgo = new Date(Date.now() - 6 * 60 * 60 * 1000);
+
     if (log && log.lastRun >= sixHoursAgo) {
-      console.log(
-        `🛡️ INSURANCE: Сінхранізацыя ўжо была ${Math.round((Date.now() - log.lastRun) / 60000)} хв таму. Пропуск.`,
-      );
+      console.log(`🛡️ INSURANCE: Сінхранізацыя ўжо была нядаўна. Пропуск.`);
       return;
     }
 
-    console.log("⏰ CRON/STARTUP: Пачатак штодзённай сінхранізацыі табліц...");
+    console.log(
+      "⏰ CRON/STARTUP: Пачатак глабальнай сінхранізацыі (Sheets + Trello)...",
+    );
 
-    // Выклік асноўнага сэрвісу
+    // Запускаем абедзве сістэмы
     await syncAllSheets();
+    await syncAllTrelloBoards(); // <--- ДАДАДЗЕНА
 
-    // Фіксуем паспяховы запуск у базе
     await CronLog.findOneAndUpdate(
       { taskName },
       { lastRun: new Date() },
       { upsert: true, new: true },
     );
 
-    console.log(
-      "✅ CRON/STARTUP: Сінхранізацыя завершана і зафіксавана ў базе.",
-    );
+    console.log("✅ CRON/STARTUP: Усе крыніцы сінхранізаваны.");
   } catch (err) {
-    console.error(
-      "❌ INSURANCE ERROR: Памылка падчас выканання сінхранізацыі:",
-      err.message,
-    );
+    console.error("❌ INSURANCE ERROR:", err.message);
   }
 }
 

@@ -33,7 +33,8 @@ if (!process.env.GROQ_API_KEY || !process.env.MONGODB_URI) {
   );
   process.exit(1);
 }
-
+const TrelloSource = require("./models/TrelloSource");
+const trelloService = require("./services/trello.service");
 // 3. ТОЛЬКІ ЗАРАЗ ЗАГРУЖАЕМ МОДУЛІ
 const mongoose = require("mongoose");
 const SheetSource = require("./models/SheetSource");
@@ -125,7 +126,10 @@ async function run() {
       await sheetsService.syncSheetVacancies(source._id);
     } else {
       // Апрацоўка ўсіх актыўных табліц
-      await sheetsService.syncAllSheets();
+      // await sheetsService.syncAllSheets();
+      // Унутры функцыі run() пасля апрацоўкі Sheets:
+      console.log("🚀 Запуск сінхранізацыі Trello...");
+      await trelloService.syncAllTrelloBoards();
     }
 
     console.log("🏁 Працэдура завершана.");
