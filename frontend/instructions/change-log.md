@@ -170,6 +170,12 @@ if (!matchSearch) return false;
       });
       if (!match) return false;
     }
+    // 🆕 КРОПКАВАЕ ДАДАННЕ (v4.1): Фільтр па крыніцах (sourceType)
+    if (
+      filters.sourceType?.length &&
+      !filters.sourceType.includes(v.sourceType || "manual")
+    )
+      return false;
     // --- 13. Зарплата (Лічбавы фільтр) ---
     const fMinSal =
       filters.minSalary !== "" ? parseFloat(filters.minSalary) : null;
@@ -187,6 +193,17 @@ if (!matchSearch) return false;
     // --- 14. Узрост (Лічбавы фільтр па maxAge) ---
     const fMinAge = filters.minAge !== "" ? parseFloat(filters.minAge) : null;
     const fMaxAge = filters.maxAge !== "" ? parseFloat(filters.maxAge) : null;
+    // 🆕 КРОПКАВАЕ ДАДАННЕ (v4.1): Фільтрацыя па датах абнаўлення (updatedAt)
+    if (filters.startDate) {
+      const start = new Date(filters.startDate).setHours(0, 0, 0, 0);
+      const vDate = new Date(v.updatedAt || v.createdAt).getTime();
+      if (vDate < start) return false;
+    }
+    if (filters.endDate) {
+      const end = new Date(filters.endDate).setHours(23, 59, 59, 999);
+      const vDate = new Date(v.updatedAt || v.createdAt).getTime();
+      if (vDate > end) return false;
+    }
     const vAge = v.requirements?.age?.max; // Можа быць лічбай або null
 
     if (fMinAge !== null || fMaxAge !== null) {
@@ -194,6 +211,13 @@ if (!matchSearch) return false;
       if (vAge === null || vAge === undefined || isNaN(vAge)) return false;
       if (fMinAge !== null && vAge < fMinAge) return false;
       if (fMaxAge !== null && vAge > fMaxAge) return false;
+    }
+    // --- 15. Крыніца (Source Type) ---
+    if (
+      filters.sourceType?.length > 0 &&
+      !filters.sourceType.includes(v.sourceType)
+    ) {
+      return false;
     }
     return true;
 
@@ -203,7 +227,29 @@ if (!matchSearch) return false;
 export default function Vacancies() {
 const location = useLocation(); // Дадалі
 const [selectedIds, setSelectedIds] = useState([]);
+// --- Рэгуляваны сайдбар (v4.5) ---
+const [sidebarWidth, setSidebarWidth] = useState(320); // Пачатковая шырыня 320px (w-80)
+const handleMouseDown = (e) => {
+const startX = e.clientX;
+const startWidth = sidebarWidth;
 
+    const onMouseMove = (moveEvent) => {
+      const newWidth = startWidth + (moveEvent.clientX - startX);
+      // Абмежаванні: мінімум 280px, максімум 450px
+      if (newWidth >= 280 && newWidth <= 450) {
+        setSidebarWidth(newWidth);
+      }
+    };
+
+    const onMouseUp = () => {
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+    };
+
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
+
+};
 const toggleSelect = (id) => {
 setSelectedIds((prev) =>
 prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
@@ -270,20 +316,17 @@ window.history.replaceState({}, document.title);
 }
 }, [location.state]);
 
-const fetchVacancies = useCallback(async () => {
+const fetchVacancies = useCallback(async (params = {}) => {
 try {
-const statusParam =
-applied.status?.length > 0 ? applied.status.join(",") : "active,closed";
-
-      const res = await getVacancies(statusParam);
-      setVacancies(res.data);
-    } catch {
-      console.error("Памылка загрузкі вакансій");
-    } finally {
-      setLoading(false);
-    }
-
-}, [applied.status]); // Функцыя будзе абнаўляцца толькі пры змене статусаў
+setLoading(true);
+const res = await getVacancies(params);
+setVacancies(res.data || []);
+} catch (err) {
+console.error("Помилка при завантаженні вакансій:", err);
+} finally {
+setLoading(false);
+}
+}, []);
 
 useEffect(() => {
 // Калі ўсе фільтры пустыя (скінуты), аўтаматычна прымяняем іх
@@ -291,9 +334,14 @@ if (JSON.stringify(draft) === JSON.stringify(EMPTY_FILTERS)) {
 setApplied(EMPTY_FILTERS);
 }
 }, [draft]);
+// Калі змяняюцца актыўныя зафіксаваныя фільтры — адпраўляем даты на сервер для аптымізацыі
 useEffect(() => {
-fetchVacancies();
-}, [fetchVacancies]); // Цяпер залежым ад мемаізаванай функцыі // Перазагружаем дадзеныя з сервера, калі змяніўся набор статусаў
+const params = {
+startDate: applied.startDate || undefined,
+endDate: applied.endDate || undefined,
+};
+fetchVacancies(params);
+}, [fetchVacancies, applied]);
 
 useEffect(() => {
 if (showAutoForm && formMode === "template" && templates.length === 0) {
@@ -304,6 +352,7 @@ getTemplates()
 .finally(() => setTemplatesLoading(false));
 }
 }, [showAutoForm, formMode, templates.length]);
+
 const handleToggleFavorite = async (id) => {
 try {
 const res = await toggleFavoriteVacancy(id);
@@ -345,10 +394,10 @@ const nuances = new Set();
     ].map((v) => v.toLowerCase());
 
     const EUROPE_LABEL = "Інші країни Європи";
-
+    const sourceTypes = new Set(); // 👈 Дададзена
     vacancies.forEach((v) => {
       if (v.agencyName) agencies.add(v.agencyName);
-
+      if (v.sourceType) sourceTypes.add(v.sourceType); // 👈 Дададзена
       // 1. Брэнды
       if (v.brand && v.brand !== "БРЕНДОВИЙ ОДЯГ") {
         brands.add(v.brand.toUpperCase().trim());
@@ -560,8 +609,10 @@ prev.map((v) => (v.\_id === updated.\_id ? updated : v)),
 return (
 
 <div className="flex min-h-screen bg-slate-950">
-{/_ САЙДБАР _/}
-<aside className="hidden lg:flex flex-col w-72 shrink-0 border-r border-slate-800 bg-slate-900/50 sticky top-16 h-[calc(100vh-4rem)]">
+{/_ САЙДБАР З РЭГУЛЯВАННЕМ ШЫРЫНІ _/}
+<aside
+style={{ width: `${sidebarWidth}px` }}
+className="hidden lg:flex flex-col shrink-0 border-r border-slate-800 bg-slate-900/50 sticky top-16 h-[calc(100vh-4rem)] group" >
 <VacancyFilters
           filters={draft}
           setFilters={setDraft}
@@ -570,6 +621,13 @@ return (
           locations={dynamicData.locations}
           voivodeships={dynamicData.voivodeships}
           nuances={dynamicData.nuances}
+          vacancies={vacancies}
+        />
+{/_ Рэйка для перацягвання (Resize Handle) - тонкая лінія справа _/}
+<div
+          onMouseDown={handleMouseDown}
+          className="absolute top-0 -right-1 w-2 h-full cursor-col-resize z-10 hover:bg-emerald-500/40 transition-colors"
+          title="Пацягніце, каб змяніць шырыню"
         />
 </aside>
 
@@ -860,10 +918,45 @@ return (
                           )}
                       </span>
 
-                      {/* Дата стварэння (Справа) */}
-                      <span className="text-[10px] text-slate-600 ml-auto font-mono italic">
-                        {new Date(v.createdAt).toLocaleDateString("uk-UA")}
-                      </span>
+                      {/* Крыніца і Даты (v4.5 - Фікс Invalid Date і іконак) */}
+                      <div className="flex items-center gap-3 ml-auto">
+                        <span
+                          className="text-base"
+                          title={`Джерело: ${v.sourceType || "manual"}`}
+                        >
+                          {v.sourceType === "viber"
+                            ? "📱"
+                            : v.sourceType === "telegram"
+                              ? "✈️"
+                              : v.sourceType === "spreadsheet"
+                                ? "📊"
+                                : "📝"}{" "}
+                          {/* 📝 замест 👤 для ручнога ўводу */}
+                        </span>
+
+                        <div className="flex flex-col items-end leading-none">
+                          <span className="text-[10px] text-slate-500 font-mono">
+                            {v.createdAt
+                              ? new Date(v.createdAt).toLocaleDateString(
+                                  "uk-UA",
+                                )
+                              : "---"}
+                          </span>
+                          {/* Паказваем UPD толькі калі дата рэальна адрозніваецца больш чым на 5 сек */}
+                          {v.updatedAt &&
+                            v.createdAt &&
+                            new Date(v.updatedAt).getTime() >
+                              new Date(v.createdAt).getTime() + 5000 && (
+                              <span className="text-[9px] text-emerald-500 font-bold font-mono mt-0.5">
+                                (upd:{" "}
+                                {new Date(v.updatedAt).toLocaleDateString(
+                                  "uk-UA",
+                                )}
+                                )
+                              </span>
+                            )}
+                        </div>
+                      </div>
                     </div>
                     {/* ЗАГАЛОВАК */}
                     <h3 className="font-semibold text-slate-100 leading-snug mb-2">
@@ -1072,1222 +1165,7 @@ return (
 
 );
 }
-
-**---**
-import { useState } from "react";
-import { submitApplication } from "../../services/api";
-import Field from "../shared/Field";
-import Divider from "../shared/Divider";
-
-export default function ApplyModal({ vacancy, applyType, onClose }) {
-const [form, setForm] = useState({
-name: "",
-contactType: "telegram",
-telegram: "",
-phone: "",
-nationality: "",
-currentLocation: "",
-age: "",
-gender: "",
-jobPreferences: {
-location: "",
-locationFlexible: false,
-needsAccommodation: false,
-travelGroup: "alone",
-readyDate: "",
-schedule: [],
-contractType: "any",
-},
-});
-const [sending, setSending] = useState(false);
-const [sent, setSent] = useState(false);
-
-const setField = (path, value) => {
-const parts = path.split(".");
-setForm((prev) => {
-const next = { ...prev };
-if (parts.length === 1) {
-next[parts[0]] = value;
-} else {
-next[parts[0]] = { ...next[parts[0]], [parts[1]]: value };
-}
-return next;
-});
-};
-
-const toggleSchedule = (val) => {
-setForm((prev) => {
-// Абарона: калі schedule адсутнічае, выкарыстоўваем пусты масіў
-const cur = prev.jobPreferences.schedule || [];
-const next = cur.includes(val)
-? cur.filter((s) => s !== val)
-: [...cur, val];
-return {
-...prev,
-jobPreferences: { ...prev.jobPreferences, schedule: next },
-};
-});
-};
-
-const handleSubmit = async () => {
-// Лакалізацыя паведамленняў валідацыі
-if (!form.name.trim()) return alert("Введіть ім'я та прізвище");
-if (form.contactType === "telegram" && !form.telegram.trim())
-return alert("Введіть Telegram username");
-if (
-(form.contactType === "viber" || form.contactType === "phone") &&
-!form.phone.trim()
-)
-return alert("Введіть номер телефону");
-
-    setSending(true);
-    try {
-      await submitApplication({
-        vacancyId: vacancy._id,
-        applyType,
-        ...form,
-        age: form.age ? Number(form.age) : undefined,
-      });
-      setSent(true);
-    } catch {
-      alert("Помилка відправки заявки");
-    } finally {
-      setSending(false);
-    }
-
-};
-
-return (
-
-<div className="fixed inset-0 z-50 flex items-center justify-center">
-<div
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
-        onClick={onClose}
-      />
-<div className="relative bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto mx-4">
-<div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 sticky top-0 bg-slate-900 z-10">
-<div>
-<h2 className="font-semibold text-slate-100">
-{applyType === "want_work"
-? "🟢 Хочу тут працювати"
-: "💬 Дізнатися деталі"}
-</h2>
-<p className="text-xs text-slate-500 mt-0.5">{vacancy.title}</p>
-</div>
-<button
-            onClick={onClose}
-            className="p-2 text-slate-500 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition-colors"
-          >
-✕
-</button>
-</div>
-
-        {sent ? (
-          <div className="px-6 py-16 text-center">
-            <div className="text-4xl mb-4">✅</div>
-            <h3 className="font-semibold text-slate-100 mb-2">
-              Заявка відправлена!
-            </h3>
-            <p className="text-sm text-slate-500 mb-6">
-              Рекрутер зв'яжеться з вами найближчим часом.
-            </p>
-            <button
-              onClick={onClose}
-              className="px-5 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-medium text-sm rounded-lg transition-colors"
-            >
-              Закрити
-            </button>
-          </div>
-        ) : (
-          <>
-            <div className="px-6 py-5 space-y-4">
-              <Field
-                label="Ім'я та прізвище *"
-                value={form.name}
-                onChange={(v) => setField("name", v)}
-                placeholder="Іван Іванов"
-              />
-
-              <Divider label="📞 Спосіб зв'язку" />
-              <div>
-                <label className="block text-xs text-slate-500 mb-2">
-                  Як з вами зв'язатися? *
-                </label>
-                <div className="flex gap-2 mb-3">
-                  {["telegram", "viber", "phone"].map((ct) => (
-                    <button
-                      key={ct}
-                      onClick={() => setField("contactType", ct)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                        form.contactType === ct
-                          ? "bg-emerald-500 text-slate-900"
-                          : "bg-slate-800 text-slate-400 hover:bg-slate-700"
-                      }`}
-                    >
-                      {ct === "telegram"
-                        ? "✈️ Telegram"
-                        : ct === "viber"
-                          ? "📱 Viber"
-                          : "📞 Телефон"}
-                    </button>
-                  ))}
-                </div>
-                {form.contactType === "telegram" ? (
-                  <Field
-                    label="Telegram username *"
-                    value={form.telegram}
-                    onChange={(v) => setField("telegram", v)}
-                    placeholder="@username"
-                  />
-                ) : (
-                  <Field
-                    label="Номер телефону *"
-                    value={form.phone}
-                    onChange={(v) => setField("phone", v)}
-                    placeholder="+380XXXXXXXXX"
-                  />
-                )}
-              </div>
-
-              <Divider label="👤 Особисті дані" />
-              <div className="grid grid-cols-2 gap-4">
-                <Field
-                  label="Національність"
-                  value={form.nationality}
-                  onChange={(v) => setField("nationality", v)}
-                  placeholder="Україна"
-                />
-                <Field
-                  label="Де зараз перебуваєте"
-                  value={form.currentLocation}
-                  onChange={(v) => setField("currentLocation", v)}
-                  placeholder="Київ"
-                />
-                <Field
-                  label="Вік *"
-                  value={form.age}
-                  type="number"
-                  onChange={(v) => setField("age", v)}
-                  placeholder="25"
-                />
-                <div>
-                  <label className="block text-xs text-slate-500 mb-2">
-                    Стать
-                  </label>
-                  <div className="flex gap-2">
-                    {[
-                      ["male", "👨 Чоловік"],
-                      ["female", "👩 Жінка"],
-                    ].map(([val, lbl]) => (
-                      <button
-                        key={val}
-                        onClick={() => setField("gender", val)}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                          form.gender === val
-                            ? "bg-emerald-500 text-slate-900"
-                            : "bg-slate-800 text-slate-400 hover:bg-slate-700"
-                        }`}
-                      >
-                        {lbl}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <Divider label="🔍 Побажання до роботи" />
-              <div>
-                <label className="block text-xs text-slate-500 mb-2">
-                  Де шукаєте роботу?
-                </label>
-                <div className="flex gap-2 mb-3 flex-wrap">
-                  {[
-                    ["here", "Де зараз перебуваю"],
-                    ["specific", "У певному місці"],
-                    ["flexible", "Готовий до переїзду"],
-                  ].map(([val, lbl]) => (
-                    <button
-                      key={val}
-                      onClick={() => {
-                        setField(
-                          "jobPreferences.locationFlexible",
-                          val === "flexible",
-                        );
-                        if (val === "here")
-                          setField(
-                            "jobPreferences.location",
-                            form.currentLocation,
-                          );
-                        if (val !== "specific")
-                          setField("jobPreferences.location", "");
-                      }}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                        (val === "flexible" &&
-                          form.jobPreferences.locationFlexible) ||
-                        (val === "here" &&
-                          !form.jobPreferences.locationFlexible &&
-                          form.jobPreferences.location ===
-                            form.currentLocation) ||
-                        (val === "specific" &&
-                          !form.jobPreferences.locationFlexible &&
-                          form.jobPreferences.location &&
-                          form.jobPreferences.location !== form.currentLocation)
-                          ? "bg-emerald-500 text-slate-900"
-                          : "bg-slate-800 text-slate-400 hover:bg-slate-700"
-                      }`}
-                    >
-                      {lbl}
-                    </button>
-                  ))}
-                </div>
-                {!form.jobPreferences.locationFlexible && (
-                  <Field
-                    label="Місто"
-                    value={form.jobPreferences.location}
-                    onChange={(v) => setField("jobPreferences.location", v)}
-                    placeholder="напр. Варшава"
-                  />
-                )}
-              </div>
-
-              <Field
-                label="Коли готові приступити"
-                value={form.jobPreferences.readyDate}
-                onChange={(v) => setField("jobPreferences.readyDate", v)}
-                placeholder="напр. 01.05.2026"
-              />
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs text-slate-500 mb-2">
-                    Потрібне житло?
-                  </label>
-                  <div className="flex gap-2">
-                    {[
-                      ["true", "Так"],
-                      ["false", "Ні"],
-                    ].map(([val, lbl]) => (
-                      <button
-                        key={val}
-                        onClick={() =>
-                          setField(
-                            "jobPreferences.needsAccommodation",
-                            val === "true",
-                          )
-                        }
-                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                          String(form.jobPreferences.needsAccommodation) === val
-                            ? "bg-emerald-500 text-slate-900"
-                            : "bg-slate-800 text-slate-400 hover:bg-slate-700"
-                        }`}
-                      >
-                        {lbl}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-xs text-slate-500 mb-2">
-                    Їду
-                  </label>
-                  <div className="flex gap-2 flex-wrap">
-                    {[
-                      ["alone", "Один/одна"],
-                      ["couple", "Пара"],
-                      ["family", "З сім'єю"],
-                    ].map(([val, lbl]) => (
-                      <button
-                        key={val}
-                        onClick={() =>
-                          setField("jobPreferences.travelGroup", val)
-                        }
-                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                          form.jobPreferences.travelGroup === val
-                            ? "bg-emerald-500 text-slate-900"
-                            : "bg-slate-800 text-slate-400 hover:bg-slate-700"
-                        }`}
-                      >
-                        {lbl}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs text-slate-500 mb-2">
-                  Графік роботи
-                </label>
-                <div className="flex gap-2">
-                  {[
-                    ["1_shift", "1 зміна"],
-                    ["2_shifts", "2 зміни"],
-                    ["3_shifts", "3 зміни"],
-                  ].map(([val, lbl]) => (
-                    <button
-                      key={val}
-                      onClick={() => toggleSchedule(val)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                        (form.jobPreferences.schedule || []).includes(val)
-                          ? "bg-emerald-500 text-slate-900"
-                          : "bg-slate-800 text-slate-400 hover:bg-slate-700"
-                      }`}
-                    >
-                      {lbl}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs text-slate-500 mb-2">
-                  Тип договору
-                </label>
-                <div className="flex gap-2 flex-wrap">
-                  {[
-                    ["zlecenie", "Umowa zlecenie"],
-                    ["o_prace", "Umowa o pracę"],
-                    ["any", "Будь-який"],
-                  ].map(([val, lbl]) => (
-                    <button
-                      key={val}
-                      onClick={() =>
-                        setField("jobPreferences.contractType", val)
-                      }
-                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                        form.jobPreferences.contractType === val
-                          ? "bg-emerald-500 text-slate-900"
-                          : "bg-slate-800 text-slate-400 hover:bg-slate-700"
-                      }`}
-                    >
-                      {lbl}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex gap-3 px-6 py-4 border-t border-slate-800 sticky bottom-0 bg-slate-900">
-              <button
-                onClick={handleSubmit}
-                disabled={sending}
-                className="px-5 py-2 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-slate-900 font-medium text-sm rounded-lg transition-colors"
-              >
-                {sending ? "Відправка..." : "Відправити заявку"}
-              </button>
-              <button
-                onClick={onClose}
-                className="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm rounded-lg transition-colors"
-              >
-                Скасувати
-              </button>
-            </div>
-          </>
-        )}
-      </div>
-    </div>
-
-);
-}
-**---**
-import { useState } from "react";
-import { updateVacancy } from "../../services/api";
-import Field from "../shared/Field";
-import Divider from "../shared/Divider";
-import \* as MD from "../../constants/masterData";
-
-const CONTRACT_OPTIONS = [
-{ value: "Umowa zlecenie", label: "Umowa zlecenie" },
-{ value: "Umowa o pracę", label: "Umowa o pracę" },
-{ value: "other", label: "Інше (ввести вручну)" },
-];
-
-const COUNT_OPTIONS = [
-{ value: "Чоловік", label: "Чоловік" },
-{ value: "Жінка", label: "Жінка" },
-{ value: "Пара", label: "Пара" },
-{ value: "Сім'я", label: "Сім'я" },
-];
-
-const FOOD_OPTIONS = ["Власне", "Обіди", "Субсидоване"];
-
-const ACCOMMODATION_TYPE_OPTIONS = [
-{ value: "Надається", label: "Надається" },
-{ value: "Надається (для пар)", label: "Надається (для пар)" },
-{ value: "Не надається", label: "Не надається" },
-];
-
-export default function EditVacancyModal({ vacancy, onClose, onSave }) {
-const [form, setForm] = useState({
-...vacancy,
-brand: vacancy.brand || "",
-voivodeship: vacancy.voivodeship || "",
-category: vacancy.category || "",
-keywords: Array.isArray(vacancy.keywords)
-? vacancy.keywords.join(", ")
-: vacancy.keywords || "",
-requirements: {
-...vacancy.requirements,
-ageMax: vacancy.requirements?.ageMax || "",
-physicalLoad: !!vacancy.requirements?.physicalLoad,
-gender: Array.isArray(vacancy.requirements?.gender)
-? vacancy.requirements.gender
-: [],
-standardDocs: Array.isArray(vacancy.requirements?.standardDocs)
-? vacancy.requirements.standardDocs
-: [],
-nationalities: Array.isArray(vacancy.requirements?.nationalities)
-? vacancy.requirements.nationalities
-: [],
-},
-conditions: {
-...vacancy.conditions,
-specificNuances: Array.isArray(vacancy.conditions?.specificNuances)
-? vacancy.conditions.specificNuances
-.map((n) => (typeof n === "object" ? n.text : n))
-.join(", ")
-: vacancy.conditions?.specificNuances || "",
-},
-});
-
-// Для поля contractType: якщо значення не зі списку — режим "other"
-const isCustomContract = !["Umowa zlecenie", "Umowa o pracę", ""].includes(
-form.contractType || "",
-);
-const [contractMode, setContractMode] = useState(
-isCustomContract ? "other" : form.contractType || "",
-);
-
-const [saving, setSaving] = useState(false);
-
-const setField = (path, value) => {
-const parts = path.split(".");
-setForm((prev) => {
-const next = { ...prev };
-if (parts.length === 1) {
-next[parts[0]] = value;
-} else if (parts.length === 2) {
-next[parts[0]] = { ...next[parts[0]], [parts[1]]: value };
-} else if (parts.length === 3) {
-next[parts[0]] = {
-...next[parts[0]],
-[parts[1]]: { ...next[parts[0]]?.[parts[1]], [parts[2]]: value },
-};
-}
-return next;
-});
-};
-
-const toggleArrayItem = (path, value) => {
-const parts = path.split(".");
-setForm((prev) => {
-const next = { ...prev };
-if (parts.length === 1) {
-const arr = Array.isArray(next[parts[0]]) ? next[parts[0]] : [];
-next[parts[0]] = arr.includes(value)
-? arr.filter((v) => v !== value)
-: [...arr, value];
-} else {
-const parent = { ...next[parts[0]] };
-const arr = Array.isArray(parent[parts[1]]) ? parent[parts[1]] : [];
-parent[parts[1]] = arr.includes(value)
-? arr.filter((v) => v !== value)
-: [...arr, value];
-next[parts[0]] = parent;
-}
-return next;
-});
-};
-
-const handleContractSelect = (val) => {
-setContractMode(val);
-if (val !== "other") setField("contractType", val);
-else setField("contractType", "");
-};
-
-const handleSave = async () => {
-setSaving(true);
-try {
-const data = {
-...form,
-requirements: {
-...form.requirements,
-// ageMax залишається рядком зі стану form
-},
-keywords:
-typeof form.keywords === "string"
-? form.keywords
-.split(",")
-.map((k) => k.trim())
-.filter(Boolean)
-: form.keywords,
-conditions: {
-...form.conditions,
-specificNuances:
-typeof form.conditions.specificNuances === "string"
-? form.conditions.specificNuances
-.split(",")
-.map((txt) => {
-const trimmed = txt.trim();
-// Бяспечны пошук арыгінальнай катэгорыі нюансу
-const originalNuances = Array.isArray(
-vacancy.conditions?.specificNuances,
-)
-? vacancy.conditions.specificNuances
-: [];
-
-                    const original = originalNuances.find(
-                      (on) =>
-                        (typeof on === "object" ? on.text : on) === trimmed,
-                    );
-                    return {
-                      category: original?.category || "Інше",
-                      text: trimmed,
-                    };
-                  })
-                  .filter((n) => n.text)
-              : form.conditions.specificNuances,
-        },
-      };
-      const res = await updateVacancy(vacancy._id, data);
-      onSave(res.data);
-      onClose();
-    } catch (err) {
-      console.error("Save Error:", err.response?.data || err.message);
-      alert(
-        "Помилка збереження: " +
-          (err.response?.data?.message || "перевірте поля"),
-      );
-    } finally {
-      setSaving(false);
-    }
-
-};
-
-// --- UI КОМПОНЕНТИ ---
-
-const SingleBtnGroup = ({
-label,
-options,
-selectedValue,
-onSelect,
-small,
-}) => (
-<div className="mb-4">
-{label && (
-<label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">
-{label}
-</label>
-)}
-<div
-className={`flex flex-wrap gap-2 p-2 bg-slate-800/30 rounded-xl border border-slate-800`} >
-{options.map((opt) => {
-const val = opt.value ?? opt;
-const lbl = opt.label ?? opt;
-const isActive = selectedValue === val;
-return (
-<button
-key={val}
-type="button"
-onClick={() => onSelect(val)}
-className={`px-3 py-1.5 rounded-lg transition-all border font-medium ${
-                small ? "text-[10px]" : "text-[11px]"
-              } ${
-                isActive
-                  ? "bg-emerald-500 border-emerald-500 text-slate-900"
-                  : "bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-500"
-              }`} >
-{lbl}
-</button>
-);
-})}
-</div>
-</div>
-);
-
-const MultiBtnGroup = ({ label, options, selectedValues, onToggle }) => (
-<div className="mb-4">
-{label && (
-<label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">
-{label}
-</label>
-)}
-<div className="flex flex-wrap gap-2 p-2 bg-slate-800/30 rounded-xl border border-slate-800">
-{options.map((opt) => {
-const val = opt.value ?? opt;
-const lbl = opt.label ?? opt;
-const isActive = selectedValues?.includes(val);
-return (
-<button
-key={val}
-type="button"
-onClick={() => onToggle(val)}
-className={`px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all border ${
-                isActive
-                  ? "bg-emerald-500 border-emerald-500 text-slate-900"
-                  : "bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-500"
-              }`} >
-{lbl}
-</button>
-);
-})}
-</div>
-</div>
-);
-
-// Dropdown для агенції
-const AgencyDropdown = () => (
-<div className="mb-0">
-<label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">
-Агенція
-</label>
-<select
-value={form.agencyName || "MANUAL"}
-onChange={(e) => setField("agencyName", e.target.value)}
-className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500" >
-{MD.AGENCIES.map((a) => (
-<option key={a} value={a}>
-{a}
-</option>
-))}
-</select>
-</div>
-);
-
-return (
-<div className="fixed inset-0 z-50 flex items-center justify-center">
-<div
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
-        onClick={onClose}
-      />
-<div className="relative bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto mx-4 custom-scrollbar">
-{/_ ШАПКА _/}
-<div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 sticky top-0 bg-slate-900 z-10">
-<div>
-<h2 className="font-semibold text-slate-100">
-Редагування вакансії
-</h2>
-<div className="flex items-center gap-3 mt-1 text-xs font-mono">
-<span className="text-slate-500">{vacancy.vacancyCode}</span>
-<span className="bg-slate-800 text-emerald-400 px-2 py-0.5 rounded">
-{vacancy.agencyName}
-</span>
-</div>
-</div>
-<button
-            onClick={onClose}
-            className="p-2 text-slate-500 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition-colors"
-          >
-✕
-</button>
-</div>
-
-        <div className="px-6 py-5 space-y-8">
-          {/* СТАТУС */}
-          <SingleBtnGroup
-            label="Статус"
-            options={MD.STATUSES}
-            selectedValue={form.status}
-            onSelect={(v) => setField("status", v)}
-          />
-
-          <Divider label="⚙️ Системні поля" />
-          <div className="grid grid-cols-2 gap-4">
-            <div className="col-span-2">
-              <Field
-                label="Назва для адмінки (внутрішня)"
-                value={form.templateName}
-                onChange={(v) => setField("templateName", v)}
-              />
-            </div>
-            <div className="col-span-2">
-              <Field
-                label="Публічний заголовок (для Telegram)"
-                value={form.vacancydescription}
-                onChange={(v) => setField("vacancydescription", v)}
-              />
-            </div>
-            {/* Агенція — dropdown */}
-            <AgencyDropdown />
-            <div className="col-span-2">
-              <Field
-                label="Коментар щодо набору (напр. 2 пари + 1 жінка)"
-                value={form.requirements?.genderDescription}
-                onChange={(v) => setField("requirements.genderDescription", v)}
-              />
-            </div>
-            <Field
-              label="Бренд / Завод"
-              value={form.brand}
-              onChange={(v) => setField("brand", v)}
-            />
-            <Field
-              label="Дата приїзду"
-              value={form.arrivalDate}
-              onChange={(v) => setField("arrivalDate", v)}
-            />
-            <Field
-              label="Ключові слова"
-              value={form.keywords}
-              onChange={(v) => setField("keywords", v)}
-            />
-          </div>
-
-          {/* КІЛЬКІСТЬ — кнопки */}
-          <SingleBtnGroup
-            label="Хто їде / Категорія"
-            options={COUNT_OPTIONS}
-            selectedValue={form.count}
-            onSelect={(v) => setField("count", v)}
-          />
-
-          {/* Тип договору — кнопки + поле для custom */}
-          <div className="mb-4">
-            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">
-              Тип договору
-            </label>
-            <div className="flex flex-wrap gap-2 p-2 bg-slate-800/30 rounded-xl border border-slate-800 mb-2">
-              {CONTRACT_OPTIONS.map((opt) => {
-                const isActive = contractMode === opt.value;
-                return (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => handleContractSelect(opt.value)}
-                    className={`px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all border ${
-                      isActive
-                        ? "bg-emerald-500 border-emerald-500 text-slate-900"
-                        : "bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-500"
-                    }`}
-                  >
-                    {opt.label}
-                  </button>
-                );
-              })}
-            </div>
-            {contractMode === "other" && (
-              <Field
-                label="Введіть тип договору"
-                value={form.contractType || ""}
-                onChange={(v) => setField("contractType", v)}
-              />
-            )}
-          </div>
-
-          {/* Категорія */}
-          <SingleBtnGroup
-            label="Категорія"
-            options={MD.CATEGORIES}
-            selectedValue={form.category}
-            onSelect={(v) => setField("category", v)}
-            small
-          />
-
-          <Divider label="📍 Локація" />
-          <SingleBtnGroup
-            label="Воєводство / Регіон"
-            options={MD.VOIVODESHIPS}
-            selectedValue={form.voivodeship}
-            onSelect={(v) => setField("voivodeship", v)}
-            small
-          />
-          <div className="grid grid-cols-2 gap-4">
-            <Field
-              label="Місто (польською)"
-              value={form.location}
-              onChange={(v) => setField("location", v)}
-            />
-            <Field
-              label="Місто оформлення"
-              value={form.checkInCity}
-              onChange={(v) => setField("checkInCity", v)}
-            />
-            <div className="col-span-2">
-              <Field
-                label="Повна адреса"
-                value={form.locationDescription}
-                onChange={(v) => setField("locationDescription", v)}
-              />
-            </div>
-            <Field
-              label="Країна"
-              value={form.country}
-              onChange={(v) => setField("country", v)}
-            />
-          </div>
-
-          <Divider label="💰 Оплата" />
-          <div className="grid grid-cols-2 gap-4">
-            <Field
-              label="Базова ставка"
-              value={form.salary?.baseNetto}
-              onChange={(v) => setField("salary.baseNetto", v)}
-            />
-            <Field
-              label="Студентська ставка"
-              value={form.salary?.studentNetto}
-              onChange={(v) => setField("salary.studentNetto", v)}
-            />
-            <Field
-              label="Годин на місяць"
-              value={form.salary?.hoursRange}
-              onChange={(v) => setField("salary.hoursRange", v)}
-            />
-            <Field
-              label="Дати виплат"
-              value={form.salary?.payoutDates}
-              onChange={(v) => setField("salary.payoutDates", v)}
-            />
-            <div className="col-span-2">
-              <Field
-                label="Бонуси"
-                value={form.salary?.bonusDetails}
-                onChange={(v) => setField("salary.bonusDetails", v)}
-              />
-            </div>
-            <div className="col-span-2">
-              <Field
-                label="Нотатки щодо оплати"
-                value={form.salary?.salaryNotes}
-                onChange={(v) => setField("salary.salaryNotes", v)}
-              />
-            </div>
-          </div>
-
-          <Divider label="🕒 Графік" />
-          <div className="grid grid-cols-2 gap-4">
-            <div className="col-span-2">
-              <Field
-                label="Опис графіка"
-                value={form.schedule?.description}
-                onChange={(v) => setField("schedule.description", v)}
-              />
-            </div>
-            <Field
-              label="Кількість змін"
-              value={form.schedule?.shiftsCount}
-              onChange={(v) => setField("schedule.shiftsCount", v)}
-            />
-            <Field
-              label="Годин за зміну"
-              value={form.schedule?.hoursPerShift}
-              onChange={(v) => setField("schedule.hoursPerShift", v)}
-            />
-            <Field
-              label="Дні тижня"
-              value={form.schedule?.workDaysWeek}
-              onChange={(v) => setField("schedule.workDaysWeek", v)}
-            />
-            <Field
-              label="Перерва"
-              value={form.schedule?.breakDuration}
-              onChange={(v) => setField("schedule.breakDuration", v)}
-            />
-          </div>
-
-          <Divider label="🛠 Обов'язки" />
-          <textarea
-            value={form.description || ""}
-            onChange={(e) => setField("description", e.target.value)}
-            rows={4}
-            placeholder="Обов'язки через крапку з комою (;)"
-            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500 resize-none"
-          />
-
-          <Divider label="📋 Вимоги" />
-          <MultiBtnGroup
-            label="Набір (Стать)"
-            options={MD.GENDERS}
-            selectedValues={form.requirements.gender}
-            onToggle={(v) => toggleArrayItem("requirements.gender", v)}
-          />
-          <MultiBtnGroup
-            label="Національності"
-            options={MD.NATIONALITIES}
-            selectedValues={form.requirements.nationalities}
-            onToggle={(v) => toggleArrayItem("requirements.nationalities", v)}
-          />
-          <MultiBtnGroup
-            label="Документи"
-            options={MD.DOCS}
-            selectedValues={form.requirements.standardDocs}
-            onToggle={(v) => toggleArrayItem("requirements.standardDocs", v)}
-          />
-
-          {/* РІВЕНЬ ПОЛЬСЬКОЇ — кнопки */}
-          <SingleBtnGroup
-            label="Рівень польської"
-            options={MD.LANGUAGES}
-            selectedValue={form.requirements?.polishLanguageLevel}
-            onSelect={(v) => setField("requirements.polishLanguageLevel", v)}
-          />
-
-          <div className="grid grid-cols-2 gap-4">
-            <Field
-              label="Вік (напр. 18-55, до 60 років)"
-              value={form.requirements?.ageMax || ""}
-              onChange={(v) => setField("requirements.ageMax", v)}
-              type="text"
-            />
-
-            <label className="flex items-center gap-3 cursor-pointer p-3 bg-slate-800/50 rounded-xl border border-slate-700">
-              <input
-                type="checkbox"
-                checked={!!form.requirements?.physicalLoad}
-                onChange={(e) =>
-                  setField("requirements.physicalLoad", e.target.checked)
-                }
-                className="w-4 h-4 accent-emerald-500"
-              />
-              <span className="text-xs text-slate-300 font-medium">
-                Фізично важка праця (Так/Ні)
-              </span>
-            </label>
-            <div className="col-span-2">
-              <Field
-                label="Додаткові документи (текст)"
-                value={form.requirements?.additionalDocsDetails}
-                onChange={(v) =>
-                  setField("requirements.additionalDocsDetails", v)
-                }
-              />
-            </div>
-          </div>
-
-          <Divider label="🏠 Житло" />
-
-          {/* ТИП ЖИТЛА — кнопки */}
-          <SingleBtnGroup
-            label="Тип житла"
-            options={ACCOMMODATION_TYPE_OPTIONS}
-            selectedValue={form.accommodation?.type}
-            onSelect={(v) => {
-              setField("accommodation.type", v);
-              setField("accommodation.forCouples", v === "Надається (для пар)");
-            }}
-          />
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="col-span-2">
-              <Field
-                label="Деталі житла"
-                value={form.accommodation?.details}
-                onChange={(v) => setField("accommodation.details", v)}
-              />
-            </div>
-            <label className="flex items-center gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={!!form.accommodation?.withChildren}
-                onChange={(e) =>
-                  setField("accommodation.withChildren", e.target.checked)
-                }
-                className="accent-emerald-500"
-              />
-              <span className="text-xs text-slate-400">З дітьми</span>
-            </label>
-            <label className="flex items-center gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={!!form.accommodation?.withPets}
-                onChange={(e) =>
-                  setField("accommodation.withPets", e.target.checked)
-                }
-                className="accent-emerald-500"
-              />
-              <span className="text-xs text-slate-400">З тваринами</span>
-            </label>
-          </div>
-
-          <Divider label="🚌 Транспорт" />
-          <div className="grid grid-cols-2 gap-4">
-            <label className="flex items-center gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={!!form.transport?.provided}
-                onChange={(e) =>
-                  setField("transport.provided", e.target.checked)
-                }
-                className="accent-emerald-500"
-              />
-              <span className="text-xs text-slate-400">Надається</span>
-            </label>
-            <Field
-              label="Вартість транспорту"
-              value={form.transport?.costRaw}
-              onChange={(v) => setField("transport.costRaw", v)}
-            />
-            <div className="col-span-2">
-              <Field
-                label="Деталі транспорту"
-                value={form.transport?.details}
-                onChange={(v) => setField("transport.details", v)}
-              />
-            </div>
-          </div>
-
-          <Divider label="🌡 Умови праці" />
-
-          {/* ХАРЧУВАННЯ — кнопки */}
-          <SingleBtnGroup
-            label="Тип харчування"
-            options={FOOD_OPTIONS}
-            selectedValue={form.conditions?.foodType}
-            onSelect={(v) => setField("conditions.foodType", v)}
-          />
-
-          <div className="grid grid-cols-2 gap-4">
-            <label className="flex items-center gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={!!form.conditions?.workwearFree}
-                onChange={(e) =>
-                  setField("conditions.workwearFree", e.target.checked)
-                }
-                className="accent-emerald-500"
-              />
-              <span className="text-xs text-slate-400">Одяг безкоштовно</span>
-            </label>
-            <div className="col-span-2">
-              <Field
-                label="Деталі харчування"
-                value={form.conditions?.foodDetails}
-                onChange={(v) => setField("conditions.foodDetails", v)}
-              />
-            </div>
-            <div className="col-span-2">
-              <Field
-                label="Специфічні нюанси (через кому)"
-                value={form.conditions?.specificNuances}
-                onChange={(v) => setField("conditions.specificNuances", v)}
-              />
-            </div>
-            <div className="col-span-2">
-              <Field
-                label="Деталі умов"
-                value={form.conditions?.specificConditionsDetails}
-                onChange={(v) =>
-                  setField("conditions.specificConditionsDetails", v)
-                }
-              />
-            </div>
-          </div>
-
-          <Divider label="💸 Витрати та відповідальність" />
-          <div className="grid grid-cols-2 gap-4">
-            <label className="flex items-center gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={!!form.startExpenses?.hasStartExpenses}
-                onChange={(e) =>
-                  setField("startExpenses.hasStartExpenses", e.target.checked)
-                }
-                className="accent-emerald-500"
-              />
-              <span className="text-xs text-slate-400">Витрати на старті</span>
-            </label>
-            <div className="col-span-2">
-              <Field
-                label="Деталі витрат"
-                value={form.startExpenses?.details}
-                onChange={(v) => setField("startExpenses.details", v)}
-              />
-            </div>
-            <label className="flex items-center gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={!!form.earlyTerminationLiability?.hasLiability}
-                onChange={(e) =>
-                  setField(
-                    "earlyTerminationLiability.hasLiability",
-                    e.target.checked,
-                  )
-                }
-                className="accent-emerald-500"
-              />
-              <span className="text-xs text-slate-400">
-                Штраф за звільнення
-              </span>
-            </label>
-            <div className="col-span-2">
-              <Field
-                label="Деталі штрафу"
-                value={form.earlyTerminationLiability?.details}
-                onChange={(v) =>
-                  setField("earlyTerminationLiability.details", v)
-                }
-              />
-            </div>
-          </div>
-
-          <Divider label="🎁 Компенсації" />
-          <div className="grid grid-cols-2 gap-4">
-            <label className="flex items-center gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={!!form.employerCompensations?.hasCompensations}
-                onChange={(e) =>
-                  setField(
-                    "employerCompensations.hasCompensations",
-                    e.target.checked,
-                  )
-                }
-                className="accent-emerald-500"
-              />
-              <span className="text-xs text-slate-400">Є компенсації</span>
-            </label>
-            <div className="col-span-2">
-              <Field
-                label="Деталі компенсацій"
-                value={form.employerCompensations?.details}
-                onChange={(v) => setField("employerCompensations.details", v)}
-              />
-            </div>
-          </div>
-
-          <Divider label="📝 Додатково" />
-          <textarea
-            value={form.additionalNotes || ""}
-            onChange={(e) => setField("additionalNotes", e.target.value)}
-            rows={3}
-            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500 resize-none"
-            placeholder="Додаткові нотатки..."
-          />
-
-          <Divider label="🔒 Для рекрутера" />
-          <textarea
-            value={form.forRecruiter?.internalNotes || ""}
-            onChange={(e) =>
-              setField("forRecruiter.internalNotes", e.target.value)
-            }
-            rows={2}
-            placeholder="Внутрішні нотатки для рекрутера (не відображаються в ТГ)..."
-            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500 resize-none"
-          />
-        </div>
-
-        {/* КНОПКИ */}
-        <div className="flex gap-3 px-6 py-4 border-t border-slate-800 sticky bottom-0 bg-slate-900 z-10">
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="px-5 py-2 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-slate-900 font-bold text-sm rounded-lg transition-colors"
-          >
-            {saving ? "Збереження..." : "Зберегти зміни"}
-          </button>
-          <button
-            onClick={onClose}
-            className="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm rounded-lg transition-colors"
-          >
-            Скасувати
-          </button>
-        </div>
-      </div>
-    </div>
-
-);
-}
-**---**
+//----
 // frontend/src/components/vacancies/VacancyFilters.jsx
 import { EMPTY_FILTERS } from "../../constants/filters";
 import \* as MD from "../../constants/masterData";
@@ -2305,6 +1183,7 @@ brands = [],
 locations = [],
 voivodeships = [],
 nuances = [],
+vacancies = [], // 👈 Прымаем прамы масіў vacancies з бацькоўскага кампанента
 }) {
 const draft = filters || EMPTY_FILTERS;
 
@@ -2312,10 +1191,14 @@ const updateField = (key, val) => {
 setFilters({ ...draft, [key]: val });
 };
 
-// Підрахунок активних фільтрів (крім пошуку)
+// Підрахунок активних фільтрів (v4.2 - З улікам дат і крыніц)
 const activeCount = Object.entries(draft).reduce((acc, [key, val]) => {
 if (key === "search") return acc;
+if (key === "startDate" || key === "endDate") {
+return val ? acc + 1 : acc;
+}
 if (Array.isArray(val) && val.length > 0) return acc + 1;
+if (typeof val === "boolean" && val === true) return acc + 1; // Для Favorites
 return acc;
 }, 0);
 // Мапінг тэхнічных ключоў нюансаў у прыгожыя лэйблы з masterData
@@ -2323,7 +1206,117 @@ const mappedNuances = nuances.map((key) => {
 const found = MD.CHECKLIST_ITEMS.find((item) => item.value === key);
 return found ? found : { value: key, label: key };
 });
+// SMART-ПАДЛІК (v4.3): Функцыя для дадання лічільнікаў, якая цалкам паўтарае логіку applyFilters
+const getSmartOptions = (rawItems, fieldName, isMasterData = false) => {
+if (!rawItems) return [];
+return rawItems.map((item) => {
+const value = isMasterData ? item.value : item;
+const baseLabel = isMasterData ? item.label : item;
+
+      const count = vacancies.filter((v) => {
+        // --- 1. Статус, Катэгорыя, Агенцыя, Брэнд (Простыя палі) ---
+        if (["status", "category", "agencyName", "brand"].includes(fieldName)) {
+          if (fieldName === "brand" && value === "NO BRAND") {
+            return !v.brand || v.brand === "БРЕНДОВИЙ ОДЯГ";
+          }
+          return v[fieldName] === value;
+        }
+
+        // --- 2. Рэгіён і Горад (Улік Польшчы/Еўропы і масіваў) ---
+        if (fieldName === "voivodeship") {
+          if (value === "Польща") return v.country === "Polska";
+          if (value === "Інші країни Європи")
+            return v.country && v.country !== "Polska";
+          return (v.voivodeship || "")
+            .toLowerCase()
+            .includes(value.toLowerCase());
+        }
+
+        if (fieldName === "location") {
+          const vLocs = (v.location || "").split(",").map((loc) => {
+            let clean = loc.trim();
+            if (v.country && v.country !== "Polska" && !clean.includes("(")) {
+              return `${clean} (${v.country})`.toLowerCase();
+            }
+            return clean.toLowerCase();
+          });
+          return vLocs.includes(value.toLowerCase());
+        }
+
+        // --- 3. Жытло (Складаная логіка з applyFilters) ---
+        if (fieldName === "accommodation") {
+          const accType = (v.accommodation?.type || "").toLowerCase();
+          const isCouples = !!v.accommodation?.forCouples;
+          if (value === "provided")
+            return (
+              accType &&
+              !accType.includes("власн") &&
+              !accType.includes("не надаєт")
+            );
+          if (value === "couples") return isCouples;
+          if (value === "none")
+            return accType.includes("власн") || accType.includes("не надаєт");
+        }
+
+        // --- 4. Транспарт ---
+        if (fieldName === "transport") {
+          const hasTransport = !!v.transport?.provided;
+          return value === "provided" ? hasTransport : !hasTransport;
+        }
+
+        // --- 5. Патрабаванні (Gender, Language, Nationality, Docs) ---
+        if (fieldName === "gender") {
+          const vGenders = v.requirements?.gender || [];
+          return vGenders.includes(value);
+        }
+
+        if (fieldName === "language") {
+          const vLang = v.requirements?.polishLanguageLevel || "Не вимагається";
+          return vLang === value;
+        }
+
+        if (fieldName === "nationality") {
+          const vNats =
+            Array.isArray(v.requirements?.nationalities) &&
+            v.requirements.nationalities.length > 0
+              ? v.requirements.nationalities
+              : ["Україна"];
+          return vNats.includes(value);
+        }
+
+        if (fieldName === "docs") {
+          const vDocs = v.requirements?.standardDocs || [];
+          return vDocs.includes(value);
+        }
+
+        // --- 6. Нюансы (Чэк-ліст) ---
+        if (fieldName === "nuances") {
+          const vNuances = v.conditions?.specificNuances || [];
+          return vNuances.some((vn) => {
+            const vnCat =
+              typeof vn === "object" && vn !== null ? vn.category : vn;
+            return vnCat === value;
+          });
+        }
+
+        // --- 7. Крыніца (v4.4 - Сінхранізацыя manual/spreadsheet) ---
+        if (fieldName === "sourceType") {
+          const s = v.sourceType || "manual";
+          return s === value;
+        }
+
+        return false;
+      }).length;
+
+      return {
+        value: value,
+        label: `${baseLabel} (${count})`,
+      };
+    });
+
+};
 return (
+
 <div className="bg-slate-900/60 p-5 rounded-2xl border border-slate-800 h-full overflow-y-auto custom-scrollbar">
 <div className="flex items-center justify-between mb-6">
 <h3 className="text-lg font-black text-emerald-400 tracking-tight italic">
@@ -2364,15 +1357,84 @@ className="text-[10px] font-bold text-slate-500 hover:text-red-400 transition-co
           {draft.isFavorite ? "★ ТІЛЬКИ ОБРАНІ" : "☆ ПОКАЗАТИ ВСІ"}
         </button>
       </Section>
+      <Section>
+        {/* КРЫНІЦЫ (v4.5 - 4 кнопкі ў 2 калонкі) */}
+        <div>
+          <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
+            🌐 Джерело вакансії
+          </label>
+          <div className="grid grid-cols-2 gap-2">
+            {[
+              { id: "viber", label: "📱 Viber" },
+              { id: "telegram", label: "✈️ Telegram" },
+              { id: "spreadsheet", label: "📊 Таблиця" },
+              { id: "manual", label: "📝 Ручне" },
+            ].map((src) => {
+              const isSelected = draft.sourceType?.includes(src.id);
+              // Падлік: калі sourceType няма, лічым як manual
+              const count = vacancies.filter(
+                (v) => (v.sourceType || "manual") === src.id,
+              ).length;
 
+              return (
+                <button
+                  key={src.id}
+                  type="button"
+                  onClick={() => {
+                    const current = draft.sourceType || [];
+                    const next = isSelected
+                      ? current.filter((x) => x !== src.id)
+                      : [...current, src.id];
+                    updateField("sourceType", next);
+                  }}
+                  className={`py-2 px-2 flex items-center justify-between rounded-xl text-[10px] font-bold transition-all border ${
+                    isSelected
+                      ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 shadow-lg shadow-emerald-500/5"
+                      : "bg-slate-900/60 text-slate-400 border-slate-800 hover:border-slate-700 hover:text-slate-200"
+                  }`}
+                >
+                  <span>{src.label}</span>
+                  <span className="text-[9px] opacity-60 bg-slate-800 px-1.5 py-0.5 rounded-md">
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </Section>
+      <Section>
+        {/* ДЫЯПАЗОН ДАТ */}
+        <div>
+          <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
+            📆 Період оновлення (З / ПО)
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="date"
+              value={draft.startDate || ""}
+              onChange={(e) => updateField("startDate", e.target.value)}
+              className="w-1/2 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500/50 color-scheme-dark"
+              style={{ colorScheme: "dark" }}
+            />
+            <input
+              type="date"
+              value={draft.endDate || ""}
+              onChange={(e) => updateField("endDate", e.target.value)}
+              className="w-1/2 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500/50 color-scheme-dark"
+              style={{ colorScheme: "dark" }}
+            />
+          </div>
+        </div>
+      </Section>
       {/* СТАТУС */}
       <Section>
         <MultiSelect
           label="Статус"
-          options={MD.STATUSES}
+          options={getSmartOptions(MD.STATUSES, "status", true)} // 👈 Заменена
           selected={draft.status}
           onChange={(v) => updateField("status", v)}
-          placeholder="Усі статуси"
+          placeholder="Будь-який status"
         />
       </Section>
 
@@ -2380,7 +1442,7 @@ className="text-[10px] font-bold text-slate-500 hover:text-red-400 transition-co
       <Section>
         <MultiSelect
           label="Категорія"
-          options={MD.CATEGORIES}
+          options={getSmartOptions(MD.CATEGORIES, "category", true)} // 👈 Заменена
           selected={draft.category}
           onChange={(v) => updateField("category", v)}
           placeholder="Усі категорії"
@@ -2391,7 +1453,7 @@ className="text-[10px] font-bold text-slate-500 hover:text-red-400 transition-co
       <Section>
         <MultiSelect
           label="Регіон (Воєводство)"
-          options={voivodeships}
+          options={getSmartOptions(voivodeships, "voivodeship")} // 👈 Заменена
           selected={draft.voivodeship}
           onChange={(v) => updateField("voivodeship", v)}
           placeholder="Усі регіони"
@@ -2402,7 +1464,7 @@ className="text-[10px] font-bold text-slate-500 hover:text-red-400 transition-co
       <Section>
         <MultiSelect
           label="Місто"
-          options={locations}
+          options={getSmartOptions(locations, "location")} // 👈 Заменена
           selected={draft.location}
           onChange={(v) => updateField("location", v)}
           placeholder="Усі міста"
@@ -2413,7 +1475,11 @@ className="text-[10px] font-bold text-slate-500 hover:text-red-400 transition-co
       <Section>
         <MultiSelect
           label="Житло"
-          options={MD.ACCOMMODATION_OPTIONS}
+          options={getSmartOptions(
+            MD.ACCOMMODATION_OPTIONS,
+            "accommodation",
+            true,
+          )} // 👈 Оновлено
           selected={draft.accommodation}
           onChange={(v) => updateField("accommodation", v)}
           placeholder="Будь-які умови"
@@ -2424,7 +1490,7 @@ className="text-[10px] font-bold text-slate-500 hover:text-red-400 transition-co
       <Section>
         <MultiSelect
           label="Довіз до роботи"
-          options={MD.TRANSPORT_OPTIONS}
+          options={getSmartOptions(MD.TRANSPORT_OPTIONS, "transport", true)} // 👈 Оновлено
           selected={draft.transport}
           onChange={(v) => updateField("transport", v)}
           placeholder="Не важливо"
@@ -2435,7 +1501,7 @@ className="text-[10px] font-bold text-slate-500 hover:text-red-400 transition-co
       <Section>
         <MultiSelect
           label="Хто їде"
-          options={MD.GENDERS}
+          options={getSmartOptions(MD.GENDERS, "gender", true)} // 👈 Оновлено
           selected={draft.gender}
           onChange={(v) => updateField("gender", v)}
           placeholder="Будь-хто"
@@ -2467,7 +1533,7 @@ className="text-[10px] font-bold text-slate-500 hover:text-red-400 transition-co
       <Section>
         <MultiSelect
           label="Рівень польської"
-          options={MD.LANGUAGES}
+          options={getSmartOptions(MD.LANGUAGES, "language", true)} // 👈 Оновлено
           selected={draft.language}
           onChange={(v) => updateField("language", v)}
           placeholder="Будь-який рівень"
@@ -2478,7 +1544,7 @@ className="text-[10px] font-bold text-slate-500 hover:text-red-400 transition-co
       <Section>
         <MultiSelect
           label="Національність"
-          options={MD.NATIONALITIES}
+          options={getSmartOptions(MD.NATIONALITIES, "nationality", true)} // 👈 Оновлено
           selected={draft.nationality}
           onChange={(v) => updateField("nationality", v)}
           placeholder="Усі нації"
@@ -2510,7 +1576,7 @@ className="text-[10px] font-bold text-slate-500 hover:text-red-400 transition-co
       <Section>
         <MultiSelect
           label="Документи"
-          options={MD.DOCS}
+          options={getSmartOptions(MD.DOCS, "docs", true)} // 👈 Оновлено (масив рядків/об'єктів у базі перевіряється як елемент)
           selected={draft.docs}
           onChange={(v) => updateField("docs", v)}
           placeholder="Будь-які документи"
@@ -2521,7 +1587,7 @@ className="text-[10px] font-bold text-slate-500 hover:text-red-400 transition-co
       <Section>
         <MultiSelect
           label="Особливості (Чек-лист)"
-          options={mappedNuances} // Замянілі тут
+          options={getSmartOptions(mappedNuances, "nuances", true)} // 👈 Заменена
           selected={draft.nuances}
           onChange={(v) => updateField("nuances", v)}
           placeholder="Вибрати нюанси..."
@@ -2532,7 +1598,7 @@ className="text-[10px] font-bold text-slate-500 hover:text-red-400 transition-co
       <Section>
         <MultiSelect
           label="Агенція"
-          options={agencies}
+          options={getSmartOptions(agencies, "agencyName")} // 👈 Заменена
           selected={draft.agencyName}
           onChange={(v) => updateField("agencyName", v)}
           placeholder="Усі агенції"
@@ -2542,8 +1608,8 @@ className="text-[10px] font-bold text-slate-500 hover:text-red-400 transition-co
       {/* БРЕНД */}
       <Section>
         <MultiSelect
-          label="Бренд / Завод"
-          options={brands}
+          label="Бренд"
+          options={getSmartOptions(brands, "brand")} // 👈 Заменена
           selected={draft.brand}
           onChange={(v) => updateField("brand", v)}
           placeholder="Усі бренди"
@@ -2553,193 +1619,9 @@ className="text-[10px] font-bold text-slate-500 hover:text-red-400 transition-co
 
 );
 }
-**---**
-// frontend/src/components/vacancies/VacancyMatchModal.jsx
-import { useEffect, useState } from "react";
-import { matchCandidatesForVacancy } from "../../services/api";
-
-const STATUS_COLORS = {
-new: "bg-blue-500/10 text-blue-400",
-active: "bg-emerald-500/10 text-emerald-400",
-waiting: "bg-yellow-500/10 text-yellow-400",
-employed: "bg-purple-500/10 text-purple-400",
-left: "bg-slate-500/10 text-slate-400",
-blacklist: "bg-red-500/10 text-red-400",
-};
-
-const STATUS_LABELS = {
-new: "Новий",
-active: "Активний",
-waiting: "Очікує",
-employed: "Працює",
-left: "Звільнився", // Было "Пішов"
-blacklist: "Чорний список", // Было "Блекліст"
-};
-
-export default function VacancyMatchModal({ vacancy, onClose }) {
-const [candidates, setCandidates] = useState([]);
-const [loading, setLoading] = useState(true);
-
-useEffect(() => {
-const load = async () => {
-try {
-const res = await matchCandidatesForVacancy(vacancy.\_id);
-setCandidates(res.data);
-} catch {
-console.error("Помилка матчингу");
-} finally {
-setLoading(false);
-}
-};
-load();
-}, [vacancy._id]);
-
-return (
-<div className="fixed inset-0 z-50 flex items-center justify-center">
-<div
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
-        onClick={onClose}
-      />
-<div className="relative bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto mx-4">
-{/_ Заголовок _/}
-<div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 sticky top-0 bg-slate-900 z-10">
-<div>
-<h2 className="font-semibold text-slate-100">
-🎯 Відповідні кандидати
-</h2>
-<p className="text-xs text-slate-500 mt-0.5">
-{vacancy.title}
-{vacancy.vacancyCode && (
-<span className="font-mono ml-2">({vacancy.vacancyCode})</span>
-)}
-</p>
-</div>
-<button
-            onClick={onClose}
-            className="p-2 text-slate-500 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition-colors"
-          >
-✕
-</button>
-</div>
-
-        {/* Зміст */}
-        <div className="px-6 py-5">
-          {loading ? (
-            <div className="text-center py-8 text-slate-500 text-sm">
-              Пошук кандидатів...
-            </div>
-          ) : candidates.length === 0 ? (
-            <div className="text-center py-8 text-slate-600">
-              <div className="text-3xl mb-2">🔍</div>
-              <p className="text-sm">Відповідних кандидатів не знайдено</p>
-              <p className="text-xs text-slate-700 mt-1">
-                Переконайтеся, що в базі є кандидати зі статусами
-                new/active/waiting
-              </p>
-            </div>
-          ) : (
-            <>
-              <p className="text-xs text-slate-500 mb-4">
-                Знайдено {candidates.length} кандидатів
-              </p>
-              <div className="space-y-3">
-                {candidates.map((c) => (
-                  <div
-                    key={c._id}
-                    className="bg-slate-800 border border-slate-700 rounded-xl p-4"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-medium text-slate-100 text-sm">
-                            {c.name}
-                          </span>
-                          <span
-                            className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLORS[c.status]}`}
-                          >
-                            {STATUS_LABELS[c.status]}
-                          </span>
-                        </div>
-
-                        <div className="flex flex-wrap gap-3 text-xs text-slate-500">
-                          {c.contactType === "telegram" && c.telegram && (
-                            <span>✈️ {c.telegram}</span>
-                          )}
-                          {(c.contactType === "viber" ||
-                            c.contactType === "phone") &&
-                            c.phone && <span>📞 {c.phone}</span>}
-                          {c.nationality && <span>🌍 {c.nationality}</span>}
-                          {c.currentLocation && (
-                            <span>📍 {c.currentLocation}</span>
-                          )}
-                          {c.age && <span>🎂 {c.age} р.</span>}
-                          {c.gender && (
-                            <span>{c.gender === "female" ? "👩" : "👨"}</span>
-                          )}
-                        </div>
-
-                        {/* Побажання */}
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {c.jobPreferences?.locationFlexible && (
-                            <span className="text-xs bg-slate-700 text-slate-400 px-2 py-0.5 rounded">
-                              🗺 Готовий до переїзду
-                            </span>
-                          )}
-                          {c.jobPreferences?.needsAccommodation && (
-                            <span className="text-xs bg-slate-700 text-slate-400 px-2 py-0.5 rounded">
-                              🏠 Потрібне житло
-                            </span>
-                          )}
-                          {c.jobPreferences?.readyDate && (
-                            <span className="text-xs bg-slate-700 text-slate-400 px-2 py-0.5 rounded">
-                              📅 Готовий з: {c.jobPreferences.readyDate}
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Документи */}
-                        <div className="flex gap-2 mt-2">
-                          {[
-                            [c.documents?.hasVisa, "Віза"],
-                            [c.documents?.hasSanepid, "Санепід"],
-                            [c.documents?.hasUDT, "UDT"],
-                          ].map(([has, label]) => (
-                            <span
-                              key={label}
-                              className={`text-xs px-2 py-0.5 rounded ${
-                                has
-                                  ? "bg-emerald-500/10 text-emerald-400"
-                                  : "bg-slate-700 text-slate-600"
-                              }`}
-                            >
-                              {has ? "✅" : "❌"} {label}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Оцінка */}
-                      <div className="shrink-0 text-center">
-                        <div className="text-lg font-bold text-emerald-400">
-                          {c.matchScore}
-                        </div>
-                        <div className="text-xs text-slate-600">балів</div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-      </div>
-    </div>
-
-);
-}
-**---**
+//---
 import React, { useState } from "react";
-import { Copy, Check, X, Factory, Tag } from "lucide-react";
+import { Copy, Check, X, Factory, Tag, Building2 } from "lucide-react";
 const formatText = (text) => {
 if (!text || typeof text !== "string") return "";
 
@@ -2826,7 +1708,7 @@ return (
         className="absolute inset-0 bg-black/80 backdrop-blur-md"
         onClick={onClose}
       />
-<div className="relative bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl custom-scrollbar">
+<div className="relative bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl custom-scrollbar">
 {/_ ШАПКА _/}
 <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 sticky top-0 bg-slate-900 z-10">
 <div className="flex flex-wrap gap-2 items-center">
@@ -2843,6 +1725,11 @@ className={`text-[10px] px-2 py-0.5 rounded font-bold border uppercase tracking-
               }`} >
 {STATUS_LABELS[v.status] || v.status}
 </span>
+{v.agencyName && (
+<span className="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-bold border border-slate-700 uppercase tracking-wider">
+<Building2 size={9} className="inline mr-1" /> {v.agencyName}
+</span>
+)}
 {v.category && (
 <span className="text-[10px] bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded font-bold border border-blue-500/20 uppercase tracking-wider">
 <Tag size={9} className="inline mr-1" /> {v.category}

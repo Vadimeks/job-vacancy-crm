@@ -927,8 +927,11 @@ export default function Vacancies() {
                               ? "✈️"
                               : v.sourceType === "spreadsheet"
                                 ? "📊"
-                                : "📝"}{" "}
-                          {/* 📝 замест 👤 для ручнога ўводу */}
+                                : v.sourceType === "trello"
+                                  ? "🔵"
+                                  : v.sourceType === "airtable"
+                                    ? "🗄️"
+                                    : "📝"}{" "}
                         </span>
 
                         <div className="flex flex-col items-end leading-none">

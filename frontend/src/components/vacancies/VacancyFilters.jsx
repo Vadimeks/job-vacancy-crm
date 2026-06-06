@@ -199,6 +199,8 @@ export default function VacancyFilters({
               { id: "viber", label: "📱 Viber" },
               { id: "telegram", label: "✈️ Telegram" },
               { id: "spreadsheet", label: "📊 Таблиця" },
+              { id: "trello", label: "🔵 Trello" }, // 👈 ДАДАДЗЕНА
+              { id: "airtable", label: "🗄️ Airtable" }, // 👈 ДАДАДЗЕНА
               { id: "manual", label: "📝 Ручне" },
             ].map((src) => {
               const isSelected = draft.sourceType?.includes(src.id);
