@@ -546,21 +546,27 @@ async function syncSheetVacancies(sourceId) {
         const vacCode = existingVacancy
           ? `[${existingVacancy.vacancyCode}] `
           : "";
-        const msgCategory =
-          analysis.category === "RECRUITER_INFO" ? "info" : "update";
 
-        await new UnprocessedMessage({
-          sender: "Google Sheets",
-          agencyName: source.agencyName,
-          text: `Дадзеныя з табліцы (Row: ${i + 1}) для: ${vacCode}${rowTitle}\n\n${analysis.translatedFragments?.[0] || rawRowText}`,
-          category: msgCategory,
-          source: "google_sheets",
-          aiAnalyzed: true,
-        }).save();
+        // 👇 ЗМЕНА: Толькі кароткія радкі (< 400 сімвалаў) ідуць у Inbox асобным запісам.
+        // Было: любы UPDATE/RECRUITER_INFO ствараў асобны запіс у Inbox.
+        // Цяпер: доўгія радкі проста фіксуюцца ў статыстыцы агульнай справаздачы.
+        if (rawRowText.length < 400) {
+          const msgCategory =
+            analysis.category === "RECRUITER_INFO" ? "info" : "update";
+
+          await new UnprocessedMessage({
+            sender: "Google Sheets",
+            agencyName: source.agencyName,
+            text: `Дадзеныя з табліцы (Row: ${i + 1}) для: ${vacCode}${rowTitle}\n\n${analysis.translatedFragments?.[0] || rawRowText}`,
+            category: msgCategory,
+            source: "google_sheets",
+            aiAnalyzed: true,
+          }).save();
+        }
 
         stats.updated++;
-        details.push(`🔄 ${vacCode}${rowTitle} (Row: ${i + 1}) -> Inbox`);
-        continue; // 👈 Абавязкова пераходзім да наступнага радка
+        details.push(`🔄 ${vacCode}${rowTitle} (Row: ${i + 1})`);
+        continue;
       }
       // 2. ЛОГІКА ДЛЯ РЭАНІМАЦЫІ (Калі вакансія была CLOSED, а стала ACTIVE і яна FULL)
       if (existingVacancy && existingVacancy.status === "closed") {

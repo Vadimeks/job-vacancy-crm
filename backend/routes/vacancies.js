@@ -229,6 +229,7 @@ async function processVacancyMessage(
             vacancydescription: {
               $regex: new RegExp(`^${vData.vacancydescription}$`, "i"),
             },
+            sourceType: sourceType, // 👈 ДАДАДЗЕНА: шукаем толькі сярод сваёй крыніцы
             status: "active",
           });
 

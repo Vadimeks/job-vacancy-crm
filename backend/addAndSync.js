@@ -75,13 +75,13 @@ const CONFIG = {
 // const TARGET_SHEET_NAME = "vekos";
 // const TARGET_AGENCY_NAME = "VEKOS";
 //---
-// const TARGET_SHEET_ID = "1-tUarxzFET_NOSp5n0LDvgoUxIKM80iGM8Taear2WyM";
-// const TARGET_SHEET_NAME = "Вакансії";
-// const TARGET_AGENCY_NAME = "BISAR";
+const TARGET_SHEET_ID = "1-tUarxzFET_NOSp5n0LDvgoUxIKM80iGM8Taear2WyM";
+const TARGET_SHEET_NAME = "Вакансії";
+const TARGET_AGENCY_NAME = "BISAR";
 //---
-const TARGET_SHEET_ID = "1-qVX4cW1G8oIPiDZjEYG_0nhNOTYY2iI0k8sp-gguko";
-const TARGET_SHEET_NAME = "Лист1";
-const TARGET_AGENCY_NAME = "WORK&HUMAN";
+// const TARGET_SHEET_ID = "1-qVX4cW1G8oIPiDZjEYG_0nhNOTYY2iI0k8sp-gguko";
+// const TARGET_SHEET_NAME = "Лист1";
+// const TARGET_AGENCY_NAME = "WORK&HUMAN";
 //---
 // Калі хочаш апрацаваць УСЕ табліцы — пастаў null
 // const TARGET_SHEET_ID = null;

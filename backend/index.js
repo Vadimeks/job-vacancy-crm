@@ -46,16 +46,15 @@ mongoose
  */
 async function runSyncWithInsurance() {
   const taskName = "sheets-sync";
-  const today = new Date();
-  today.setHours(0, 0, 0, 0); // Скідваем час да пачатку сутак для параўнання
 
   try {
-    // Шукаем запіс аб апошнім запуску гэтай задачы
-    const log = await CronLog.findOne({ taskName });
-
-    if (log && log.lastRun >= today) {
+    // 👇 ЗМЕНА: Праверка апошніх 6 гадзін замест "сёння з пачатку сутак".
+    // Было: log.lastRun >= today (пачатак бягучых сутак) — не абараняла ад паўторных дэплояў.
+    // Цяпер: пропуск калі сінхранізацыя была апошнія 6 гадзін.
+    const sixHoursAgo = new Date(Date.now() - 6 * 60 * 60 * 1000);
+    if (log && log.lastRun >= sixHoursAgo) {
       console.log(
-        `🛡️ INSURANCE: Сінхранізацыя за сёння (${today.toLocaleDateString()}) ужо была выканана. Пропуск.`,
+        `🛡️ INSURANCE: Сінхранізацыя ўжо была ${Math.round((Date.now() - log.lastRun) / 60000)} хв таму. Пропуск.`,
       );
       return;
     }
