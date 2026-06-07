@@ -354,7 +354,32 @@ function buildRowText(cells, headers, agencyName, sheetName) {
     anchorText: anchorParts.join("::") || title,
   };
 }
+/**
+ * Вяртае масіў ячэек для радка rowIndex,
+ * падстаўляючы значэнні з першых радкоў аб'яднанняў.
+ * Вырашае праблему пустых ячэек у аб'яднаных блоках (напр. BISAR).
+ */
+function resolveMergedCells(rowIndex, rowData, merges) {
+  const originalCells = rowData[rowIndex]?.values || [];
+  if (!merges || merges.length === 0) return originalCells;
 
+  // Капіруем масіў каб не мутаваць арыгінал
+  const resolved = [...originalCells];
+
+  for (const merge of merges) {
+    // Ці трапляе бягучы радок у гэтае аб'яднанне (акрамя першага радка — у яго ёсць значэнне)
+    if (rowIndex > merge.startRowIndex && rowIndex < merge.endRowIndex) {
+      const col = merge.startColumnIndex;
+      const sourceCell = rowData[merge.startRowIndex]?.values?.[col];
+      if (sourceCell && (!resolved[col] || !resolved[col].formattedValue)) {
+        // 👈 Падстаўляем значэнне з першага радка аб'яднання
+        resolved[col] = sourceCell;
+      }
+    }
+  }
+
+  return resolved;
+}
 /**
  * Галоўная функцыя сінхранізацыі табліцы
  */
@@ -384,6 +409,8 @@ async function syncSheetVacancies(sourceId) {
     });
 
     const rowData = response.data.sheets[0].data[0].rowData;
+    // 👈 ДАДАДЗЕНА: здабываем інфармацыю аб аб'яднаных ячэйках (для BISAR і падобных)
+    const merges = response.data.sheets[0].merges || [];
     if (!rowData || rowData.length < 1) {
       console.log("⚠️ Табліца пустая.");
       return;
@@ -430,7 +457,7 @@ async function syncSheetVacancies(sourceId) {
 
     // --- КРОК 3: ЦЫКЛ ПА РАДКАХ ---
     for (let i = headerRowIndex + 1; i < rowData.length; i++) {
-      const cells = rowData[i].values;
+      const cells = resolveMergedCells(i, rowData, merges);
       if (
         rowData[i].rowMetadata?.hiddenByUser ||
         rowData[i].rowMetadata?.hiddenByFilter
