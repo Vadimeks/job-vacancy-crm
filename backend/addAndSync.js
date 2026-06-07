@@ -126,7 +126,7 @@ async function run() {
       await sheetsService.syncSheetVacancies(source._id);
     } else {
       // Апрацоўка ўсіх актыўных табліц
-      // await sheetsService.syncAllSheets();
+      await sheetsService.syncAllSheets();
       // Унутры функцыі run() пасля апрацоўкі Sheets:
       console.log("🚀 Запуск сінхранізацыі Trello...");
       await trelloService.syncAllTrelloBoards();
