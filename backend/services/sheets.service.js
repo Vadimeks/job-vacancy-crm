@@ -218,7 +218,8 @@ function getRowStatus(cells, agencyName, headers = [], rowIndex = 0) {
     // Для астатніх: пустая ячэйка пакуль не з'яўляецца STOP (ідзе далей на фолбэк)
     const isStop =
       STOP_MARKERS.some((m) => statusValue.includes(m)) ||
-      (agencyName === "MRÓWKI" && !statusValue);
+      (agencyName === "MRÓWKI" && !statusValue) ||
+      (agencyName === "BISAR" && !statusValue); // 👈 ДАДАДЗЕНА: пустая ячэйка BISAR = STOP
 
     console.log(
       `[Status Debug] Row: ${rowNum} | Agency: ${agencyName} | Column: "${foundHeaderName}" | Value: "${statusValue}" | Result: ${isStop ? "STOP" : "ACTIVE"}`,
@@ -296,7 +297,8 @@ function buildRowText(cells, headers, agencyName, sheetName) {
 
     // 🆕 Ачыстка загалоўка ад пераносаў радкоў і лішніх прабелаў для параўнання
     const headerLower = header.toLowerCase().replace(/\s+/g, " ");
-
+    // 👈 ДАДАДЗЕНА: ігнаруем слупок каардынатараў для BISAR — інфа для рэкрутэра, не для вакансіі
+    if (agencyName === "BISAR" && headerLower.includes("координатор")) continue;
     const cell = cells[j] || null;
     const { value, link, note } = extractCellData(cell);
     if (!value && !link && !note) continue;
@@ -460,7 +462,8 @@ async function syncSheetVacancies(sourceId) {
       const cells = resolveMergedCells(i, rowData, merges);
       if (
         rowData[i].rowMetadata?.hiddenByUser ||
-        rowData[i].rowMetadata?.hiddenByFilter
+        rowData[i].rowMetadata?.hiddenByFilter ||
+        rowData[i].rowMetadata?.hiddenByParent // 👈 ДАДАДЗЕНА: групоўка радкоў (напр. MRÓWKI)
       )
         continue;
 
