@@ -70,7 +70,7 @@ async function syncTrelloBoard(sourceId) {
     `\n🗂️ [Trello] Пачатак сінхранізацыі: ${source.boardName} (${source.agencyName})`,
   );
 
-  const stats = { added: 0, updated: 0, closed: 0, info: 0 };
+  const stats = { added: 0, updated: 0, closed: 0, ignored: 0, info: 0 }; // 👈 ЗМЕНА: дададзены ignored
   const details = []; // Для справаздачы
   const hotUpdates = []; // 👈 Акумулятар для групавання паведамленняў у Inbox
   const foundCardIds = new Set();
@@ -135,10 +135,14 @@ ${comments ? `--- АПОШНІЯ КАМЕНТАРЫ ---\n${comments}` : ""}
           });
 
           // 🛡️ ПРАВЕРКА НА ЗМЕНЫ (Каб не спаліць AI дарма)
+          // Ідэнтычна табліцам: калі тэкст не змяніўся — ігнаруем
           if (existingVacancy && existingVacancy.originalText === fullText) {
-            stats.ignored++;
+            stats.ignored++; // 👈 ЗМЕНА: ignored цяпер ёсць у stats (дададзена ніжэй)
             continue;
           }
+
+          // 👈 ЗМЕНА: firstSavedId — як у табліцах, для сплітавання картак
+          let firstSavedId = null;
 
           const result = await processVacancyMessage(
             fullText,
@@ -149,11 +153,14 @@ ${comments ? `--- АПОШНІЯ КАМЕНТАРЫ ---\n${comments}` : ""}
             "FULL_VACANCY",
             card.id,
             list.name,
-            null,
+            existingVacancy ? existingVacancy._id : null, // 👈 ЗМЕНА: было null заўсёды
             "trello",
           );
 
           if (result && !result.error) {
+            // 👈 ЗМЕНА: запамінаем ID першай вакансіі (для сплітавання)
+            if (!firstSavedId) firstSavedId = result._id;
+
             if (existingVacancy) {
               stats.updated++;
               details.push(`🔄 [${result.vacancyCode}] ${card.name}`);
@@ -230,7 +237,7 @@ ${comments ? `--- АПОШНІЯ КАМЕНТАРЫ ---\n${comments}` : ""}
     await source.save();
 
     console.log(
-      `🏁 [Trello] Сінхранізацыя завершана: +${stats.added} вакансій, +${stats.info} інфа, 🛑 ${stats.closed} закрыта.`,
+      `🏁 [Trello] Сінхранізацыя завершана: +${stats.added} вакансій, 🔄 ${stats.updated} абноўлена, ⏭️ ${stats.ignored} ігнаравана, +${stats.info} інфа, 🛑 ${stats.closed} закрыта.`, // 👈 ЗМЕНА: дададзены updated і ignored
     );
   } catch (err) {
     console.error(`❌ [Trello] Sync Error (${source.boardName}):`, err.message);
