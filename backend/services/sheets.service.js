@@ -166,14 +166,20 @@ function getRowStatus(cells, agencyName, headers = [], rowIndex = 0) {
 
     // 🔍 ДЭБАГ: Цяпер з нумарам радка і тыпам колеру
     console.log(
-      `[Color Debug] Row: ${rowNum} | Title: ${cells[0]?.formattedValue?.substring(0, 15)} | R:${r.toFixed(3)} G:${g.toFixed(3)} B:${b.toFixed(3)} | StyleRGB: ${sr.toFixed(3)}/${sg.toFixed(3)}/${sb.toFixed(3)} | Theme: ${bgStyle?.themeColor || "NONE"} | Result: ${isColor ? "ACTIVE" : "STOP"}`,
+      `[Color Debug] Row: ${rowNum} | Agency: RALEN | Title: ${cells[0]?.formattedValue?.substring(0, 15)} | R:${r.toFixed(3)} G:${g.toFixed(3)} B:${b.toFixed(3)} | StyleRGB: ${sr.toFixed(3)}/${sg.toFixed(3)}/${sb.toFixed(3)} | Theme: ${bgStyle?.themeColor || "NONE"} | Result: ${isColor ? "ACTIVE" : "STOP"}`,
     );
 
     return isColor ? "ACTIVE" : "STOP";
   }
 
   // 2. OTTO — заўсёды ACTIVE (прыхаваныя радкі адсякаюцца раней)
-  if (agencyName === "OTTO") return "ACTIVE";
+  if (agencyName === "OTTO") {
+    // 👈 ДАДАДЗЕНА: лог для уніфікацыі з іншымі агенцыямі
+    console.log(
+      `[Status Debug] Row: ${rowNum} | Agency: OTTO | Column: "auto" | Value: "always active" | Result: ACTIVE`,
+    );
+    return "ACTIVE";
+  }
 
   // 3. Мапінг слупкоў статусу паводле патрабаванняў
   const statusHeadersMap = {

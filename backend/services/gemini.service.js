@@ -171,7 +171,9 @@ All output fragments MUST be in Ukrainian. If the input is in Russian or Polish,
 PRIVACY: If you see a raw Google Docs link (docs.google.com) in the input, USE its content for translation, but DO NOT include the raw URL link in the final "translatedFragments".
 CLASSIFICATION RULES:
 - FULL_VACANCY: Detailed job ad for a candidate. !!! MANDATORY: Must contain a salary or hourly rate for the WORKER (e.g., "25 zł/god", "5000 zł/міс"). !!! PRIVACY RULE: If the message ONLY mentions bonuses for recruiters/partners (e.g., "800 зл за кандидата"), it is NOT a FULL_VACANCY. Classify it as RECRUITER_INFO. Duties and City must be present.
-!!! CRITICAL: If the text is shorter than 400 characters OR lacks a detailed description of duties, classify it as UPDATE, even if it has a city and salary.
+!!! CRITICAL: If the text is shorter than 400 characters, classify it as UPDATE.
+If the text is 400 characters or longer, classify it as FULL_VACANCY (even if duties are not explicitly listed).
+
 - UPDATE: Short status changes (STOP, CLOSED), stop-signals, lists of rates/spots, or job offers WITHOUT detailed dutieschanges in rates for existing jobs, or messages like "need 2 more people".
 - TRUNCATED: A job ad that is clearly cut off (ends mid-sentence, mid-word, or ends with "..." / "…").
 - RECRUITER_INFO: Information about recruiter bonuses, partner terms, legal updates, or office rules. If a message is primarily about "money per candidate", it belongs here, Legal info, office hours, document rules, or general cooperation terms.
