@@ -526,11 +526,20 @@ export default function Vacancies() {
     () => applyFilters(vacancies, draft).length,
     [vacancies, draft],
   );
-  const filtered = useMemo(
-    () => applyFilters(vacancies, applied),
-    [vacancies, applied],
-  );
-  const isDirty = JSON.stringify(draft) !== JSON.stringify(applied);
+  const filtered = useMemo(() => {
+    const instantFilters = {
+      ...applied,
+      search: draft.search,
+      startDate: draft.startDate,
+      endDate: draft.endDate,
+    };
+    return applyFilters(vacancies, instantFilters);
+  }, [vacancies, applied, draft.search, draft.startDate, draft.endDate]);
+  const isDirty = useMemo(() => {
+    const { search, startDate, endDate, ...restDraft } = draft;
+    const { search: s, startDate: sd, endDate: ed, ...restApplied } = applied;
+    return JSON.stringify(restDraft) !== JSON.stringify(restApplied);
+  }, [draft, applied]);
 
   const handleApplyFilters = () => {
     setApplied(draft);
@@ -687,7 +696,7 @@ export default function Vacancies() {
                 Вакансії
               </h1>
               <p className="text-sm text-slate-500">
-                {filtered.length} з {vacancies.length}
+                Знайдено: {filtered.length}
               </p>
             </div>
           </div>
