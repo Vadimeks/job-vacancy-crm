@@ -206,9 +206,8 @@ async function processVacancyMessage(
     for (const vData of vacancyDataList) {
       const finalAgency = preDefinedAgency || vData.agencyName || "Manual";
 
-      // 🔍 ЛОГІКА ПОШУКУ ДУБЛІКАТАЎ (v3.8 - Smart Hybrid Search)
+      // 🔍 ЛОГІКА ПОШУКУ ДУБЛІКАТАЎ (v4.5 - Smart Hybrid Search)
       if (!currentExistingId) {
-        // 1. Спрабуем знайсці па строгім хэшы (для табліц)
         if (sourceHash) {
           const byHash = await Vacancy.findOne({
             sourceHash,
@@ -217,10 +216,7 @@ async function processVacancyMessage(
           if (byHash) currentExistingId = byHash._id;
         }
 
-        // 2. Калі па хэшы не знайшлі АБО гэта паведамленне з чата — робім семантычны пошук.
-        // Гэта дазваляе звязаць старыя "ручныя" вакансіі з новымі радкамі ў табліцах.
         if (!currentExistingId) {
-          // Выкарыстоўваем Regex для ігнаравання рэгістра (v4.3)
           const semanticMatch = await Vacancy.findOne({
             agencyName: finalAgency,
             location: { $regex: new RegExp(`^${vData.location}$`, "i") },
@@ -230,28 +226,40 @@ async function processVacancyMessage(
             vacancydescription: {
               $regex: new RegExp(`^${vData.vacancydescription}$`, "i"),
             },
-            sourceType: sourceType, // 👈 ДАДАДЗЕНА: шукаем толькі сярод сваёй крыніцы
+            sourceType: sourceType,
             status: "active",
           });
-
-          if (semanticMatch) {
-            console.log(
-              `🎯 Знойдзена семантычнае супадзенне (${sourceType}): ${semanticMatch.vacancyCode}`,
-            );
-            currentExistingId = semanticMatch._id;
-          }
+          if (semanticMatch) currentExistingId = semanticMatch._id;
         }
       }
 
       if (currentExistingId) {
-        // 🔄 ЛОГІКА АБНАЎЛЕННЯ
+        // 🛡️ АБАРОНА АД ФАЛЬШЫВЫХ АПДЭЙТАЎ (v4.6)
+        const existing = await Vacancy.findById(currentExistingId);
+        const newOriginalText = originalText || enrichedText;
+
+        // Калі тэкст не змяніўся і вакансія актыўная — нічога не робім, каб не псаваць updatedAt
+        if (
+          existing &&
+          existing.originalText === newOriginalText &&
+          existing.status === "active"
+        ) {
+          console.log(
+            `⏭️ Пропуск абнаўлення для ${existing.vacancyCode} — зменаў няма.`,
+          );
+          savedVacancies.push(existing);
+          currentExistingId = null;
+          continue;
+        }
+
+        // 🔄 РЭАЛЬНАЕ АБНАЎЛЕННЕ
         const updated = await Vacancy.findByIdAndUpdate(
           currentExistingId,
           {
             ...vData,
             agencyName: finalAgency,
             sourceType: sourceType,
-            originalText: originalText || enrichedText,
+            originalText: newOriginalText,
             rawText: enrichedText,
             sheetName: sheetName || vData.sheetName,
             templateName: constructVacancyDisplayName({
@@ -264,14 +272,13 @@ async function processVacancyMessage(
           { new: true },
         );
 
-        console.log(`✅ Вакансія абноўлена: ${updated.vacancyCode}`);
-
+        console.log(`✅ Вакансія рэальна абноўлена: ${updated.vacancyCode}`);
         const postText = await aiService.formatTelegramPost(updated);
         updated.telegramPost = postText;
         await updated.save();
 
         savedVacancies.push(updated);
-        currentExistingId = null; // 💡 ВАЖНА: Наступныя фрагменты паведамлення пойдуць як новыя
+        currentExistingId = null;
       } else {
         // ✨ ЛОГІКА СТВАРЭННЯ НОВАЙ
         const vacancyCode = await generateVacancyCode();
@@ -620,21 +627,21 @@ router.get("/", async (req, res) => {
     if (agency) query.agencyName = { $in: agency.split(",") };
     if (category) query.category = { $in: category.split(",") };
     // Фільтр па датах (v3.7)
-    // Фільтр па датах (v4.2 - Гібрыдная праверка)
     if (startDate || endDate) {
       const dateRange = {};
-      if (startDate) dateRange.$gte = new Date(startDate);
+      if (startDate) {
+        const start = new Date(startDate);
+        start.setHours(0, 0, 0, 0); // Пачатак дня
+        dateRange.$gte = start;
+      }
       if (endDate) {
         const end = new Date(endDate);
-        end.setHours(23, 59, 59, 999);
+        end.setHours(23, 59, 59, 999); // Канец дня
         dateRange.$lte = end;
       }
 
-      // Шукаем супадзенне АБО ў даце стварэння, АБО ў даце абнаўлення
-      if (!query.$and) query.$and = [];
-      query.$and.push({
-        $or: [{ updatedAt: dateRange }, { createdAt: dateRange }],
-      });
+      // Выкарыстоўваем толькі updatedAt, бо яна заўсёды актуальная
+      query.updatedAt = dateRange;
     }
 
     // 🆕 Фільтр па крыніцах (sourceType)

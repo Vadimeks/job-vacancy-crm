@@ -50,9 +50,9 @@ async function runSyncWithInsurance() {
 
   try {
     const log = await CronLog.findOne({ taskName });
-    const sixHoursAgo = new Date(Date.now() - 6 * 60 * 60 * 1000);
+    const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
 
-    if (log && log.lastRun >= sixHoursAgo) {
+    if (log && log.lastRun >= twelveHoursAgo) {
       console.log(`🛡️ INSURANCE: Сінхранізацыя ўжо была нядаўна. Пропуск.`);
       return;
     }
