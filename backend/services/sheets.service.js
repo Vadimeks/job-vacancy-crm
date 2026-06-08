@@ -253,6 +253,7 @@ function extractCellData(cell) {
   const value = cell.formattedValue || "";
   const note = cell.note || "";
   let link = cell.hyperlink || "";
+
   if (!link && cell.textFormatRuns) {
     const runWithLink = cell.textFormatRuns.find(
       (run) => run.format && run.format.link,
@@ -379,9 +380,13 @@ function resolveMergedCells(rowIndex, rowData, merges) {
     if (rowIndex > merge.startRowIndex && rowIndex < merge.endRowIndex) {
       const col = merge.startColumnIndex;
       const sourceCell = rowData[merge.startRowIndex]?.values?.[col];
-      if (sourceCell && (!resolved[col] || !resolved[col].formattedValue)) {
-        // 👈 Падстаўляем значэнне з першага радка аб'яднання
-        resolved[col] = sourceCell;
+      if (sourceCell) {
+        if (!resolved[col] || !resolved[col].formattedValue) {
+          resolved[col] = sourceCell;
+        }
+        if (sourceCell.note && !resolved[col].note) {
+          resolved[col].note = sourceCell.note;
+        }
       }
     }
   }
