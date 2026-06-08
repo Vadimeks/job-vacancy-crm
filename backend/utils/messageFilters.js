@@ -81,9 +81,6 @@ const RECRUITER_CHAT_NOISE = [
   /можу подати (жінку|чоловіка|людину|кандидат)/i,
   /є (вільна\s+)?жінка на/i,
   /є (вільний\s+)?чоловік на/i,
-  /є актуальні дати/i,
-  /актуальна вакансія/i,
-  /чи є (ще|місця|вільні)/i,
   /пока нет набора/i,
   /набора нет/i,
   /підтвердили (всі|приїзди)/i,
@@ -375,9 +372,21 @@ function shouldIgnorePostAI(text) {
 
   return POST_AI_NOISE_UA.some((p) => p.test(trimmed));
 }
-
+// Шукае, які менавіта Regex спрацаваў (для дэбагу логаў)
+function getMatchingIgnoreRegex(text) {
+  if (!text) return null;
+  const cleaned = text.trim();
+  for (const regex of GLOBAL_NOISE) {
+    if (regex.test(cleaned)) return `GLOBAL_NOISE: ${regex.toString()}`;
+  }
+  for (const regex of RECRUITER_CHAT_NOISE) {
+    if (regex.test(cleaned)) return `RECRUITER_CHAT_NOISE: ${regex.toString()}`;
+  }
+  return null;
+}
 module.exports = {
   shouldIgnoreMessage,
+  getMatchingIgnoreRegex,
   getWhitelistedAgency,
   isTruncated,
   getPrefixHash,

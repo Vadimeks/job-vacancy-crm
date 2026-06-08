@@ -10,6 +10,7 @@ const {
 const { processVacancyMessage } = require("./vacancies");
 const {
   shouldIgnoreMessage,
+  getMatchingIgnoreRegex,
   getWhitelistedAgency,
   isTruncated,
   getPrefixHash,
@@ -267,9 +268,9 @@ async function processPendingMessages() {
               msg.isTruncated,
               analysis.category,
               null, // sourceHash (для паведамленняў з чатаў не выкарыстоўваецца)
-              "",   // sheetName (пуста для чатаў)
+              "", // sheetName (пуста для чатаў)
               null, // existingId
-              msg.source === "telegram_userbot" ? "telegram" : "viber" // 👈 ДАДАДЗЕНА: мапінг крыніцы
+              msg.source === "telegram_userbot" ? "telegram" : "viber", // 👈 ДАДАДЗЕНА: мапінг крыніцы
             );
             if (!result || result.error) allProcessed = false;
           }
@@ -347,8 +348,15 @@ router.post("/cleanup", async (req, res) => {
     let deleted = 0;
     for (const msg of all) {
       if (shouldIgnoreMessage(msg.text)) {
-        await msg.deleteOne();
-        deleted++;
+        const matchingRegex =
+          getMatchingIgnoreRegex(msg.text) || "Unknown Regex";
+        console.log(
+          `🗑️ ... Адхілена (Noise/Regex): "${msg.text ? msg.text.substring(0, 50) : ""}..." | Спрацаваў: ${matchingRegex}`,
+        );
+        msg.status = "ignored";
+        msg.archiveReason = `Noise/Regex: ${matchingRegex}`;
+        await msg.save();
+        continue;
       }
     }
     res.json({ deleted });
