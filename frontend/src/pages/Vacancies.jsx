@@ -378,7 +378,32 @@ export default function Vacancies() {
       console.error("Памылка пераключэння абранага:", err);
     }
   };
-  // Абноўлены dynamicData
+  // 1. Вакансіі, адфільтраваныя ТОЛЬКІ па датах і пошуку (Кантэкст для фільтраў)
+  const instantFiltered = useMemo(() => {
+    return vacancies.filter((v) => {
+      // Пошук
+      if (draft.search) {
+        const s = draft.search.toLowerCase();
+        const match =
+          v.templateName?.toLowerCase().includes(s) ||
+          v.vacancydescription?.toLowerCase().includes(s) ||
+          v.vacancyCode?.toLowerCase().includes(s);
+        if (!match) return false;
+      }
+      // Даты
+      const vDate = new Date(v.updatedAt || v.createdAt).getTime();
+      if (draft.startDate) {
+        const start = new Date(draft.startDate).setHours(0, 0, 0, 0);
+        if (vDate < start) return false;
+      }
+      if (draft.endDate) {
+        const end = new Date(draft.endDate).setHours(23, 59, 59, 999);
+        if (vDate > end) return false;
+      }
+      return true;
+    });
+  }, [vacancies, draft.startDate, draft.endDate, draft.search]);
+  // 2. Абнаўляем dynamicData: цяпер яно глядзіць толькі на instantFiltered
   const dynamicData = useMemo(() => {
     const agencies = new Set();
     const brands = new Set();
@@ -407,18 +432,17 @@ export default function Vacancies() {
 
     const EUROPE_LABEL = "Інші країни Європи";
     const sourceTypes = new Set(); // 👈 Дададзена
-    vacancies.forEach((v) => {
+    // ВАЖНА: Цяпер бярэм дадзеныя з instantFiltered замест vacancies
+    instantFiltered.forEach((v) => {
       if (v.agencyName) agencies.add(v.agencyName);
-      if (v.sourceType) sourceTypes.add(v.sourceType); // 👈 Дададзена
-      // 1. Брэнды
+      if (v.sourceType) sourceTypes.add(v.sourceType);
+
       if (v.brand && v.brand !== "БРЕНДОВИЙ ОДЯГ") {
         brands.add(v.brand.toUpperCase().trim());
       } else {
         brands.add("NO BRAND");
       }
 
-      // 2. Ваяводствы
-      // Калі краіна — Польшча, заўсёды дадаем пункт "Польшча" ў фільтр
       if (v.country === "Polska") {
         voivodeships.add("Польща");
       }
@@ -448,16 +472,13 @@ export default function Vacancies() {
         voivodeships.add(EUROPE_LABEL);
       }
 
-      // 3. Гарады
       if (v.location) {
         v.location.split(",").forEach((loc) => {
           let clean = loc.trim();
           const lowClean = clean.toLowerCase();
-
           if (v.country && v.country !== "Polska" && !clean.includes("(")) {
             clean = `${clean} (${v.country})`;
           }
-
           const noiseWords = [
             "польща",
             "уточнюється",
@@ -495,8 +516,9 @@ export default function Vacancies() {
       locations: Array.from(locations).sort(),
       voivodeships: Array.from(voivodeships).sort(),
       nuances: Array.from(nuances).sort(),
+      sourceTypes: Array.from(sourceTypes).sort(),
     };
-  }, [vacancies]);
+  }, [instantFiltered]); // 👈 Залежым ад instantFiltered
 
   const filteredTemplates = useMemo(() => {
     return templates.filter((t) => {
@@ -526,15 +548,12 @@ export default function Vacancies() {
     () => applyFilters(vacancies, draft).length,
     [vacancies, draft],
   );
+  // 3. Фінальны спіс: прымяняем "цяжкія" фільтры (агенцыя, статус і г.д.) да ўжо адфільтраваных па даце вакансій
   const filtered = useMemo(() => {
-    const instantFilters = {
-      ...applied,
-      search: draft.search,
-      startDate: draft.startDate,
-      endDate: draft.endDate,
-    };
-    return applyFilters(vacancies, instantFilters);
-  }, [vacancies, applied, draft.search, draft.startDate, draft.endDate]);
+    // Мы перадаем applied, але даты і пошук у ім цяпер не важныя,
+    // бо яны ўжо апрацаваны ў instantFiltered
+    return applyFilters(instantFiltered, applied);
+  }, [instantFiltered, applied]);
   const isDirty = useMemo(() => {
     const { search, startDate, endDate, ...restDraft } = draft;
     const { search: s, startDate: sd, endDate: ed, ...restApplied } = applied;
@@ -668,6 +687,7 @@ export default function Vacancies() {
                 locations={dynamicData.locations}
                 voivodeships={dynamicData.voivodeships}
                 nuances={dynamicData.nuances}
+                vacancies={instantFiltered} // 👈 ПЕРАДАЕМ ІМГНЕННЫ КАНТЭКСТ ДЛЯ ЛІЧЫЛЬНІКАЎ
               />
             </div>
             <div className="p-4 border-t border-slate-800">
