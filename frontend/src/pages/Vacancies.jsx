@@ -193,16 +193,18 @@ function applyFilters(vacancies, filters) {
     // --- 14. Узрост (Лічбавы фільтр па maxAge) ---
     const fMinAge = filters.minAge !== "" ? parseFloat(filters.minAge) : null;
     const fMaxAge = filters.maxAge !== "" ? parseFloat(filters.maxAge) : null;
-    // 🆕 КРОПКАВАЕ ДАДАННЕ (v4.1): Фільтрацыя па датах абнаўлення (updatedAt)
+    // 🆕 КРОПКАВАЕ ДАДАННЕ (v4.6): Строгая фільтрацыя па updatedAt
     if (filters.startDate) {
-      const start = new Date(filters.startDate).setHours(0, 0, 0, 0);
+      const start = new Date(filters.startDate);
+      start.setHours(0, 0, 0, 0);
       const vDate = new Date(v.updatedAt || v.createdAt).getTime();
-      if (vDate < start) return false;
+      if (vDate < start.getTime()) return false;
     }
     if (filters.endDate) {
-      const end = new Date(filters.endDate).setHours(23, 59, 59, 999);
+      const end = new Date(filters.endDate);
+      end.setHours(23, 59, 59, 999);
       const vDate = new Date(v.updatedAt || v.createdAt).getTime();
-      if (vDate > end) return false;
+      if (vDate > end.getTime()) return false;
     }
     const vAge = v.requirements?.age?.max; // Можа быць лічбай або null
 
@@ -335,11 +337,23 @@ export default function Vacancies() {
   // Калі змяняюцца актыўныя зафіксаваныя фільтры — адпраўляем даты на сервер для аптымізацыі
   useEffect(() => {
     const params = {
-      startDate: applied.startDate || undefined,
-      endDate: applied.endDate || undefined,
+      // Бярэм даты з draft, каб previewCount заўсёды меў свежыя дадзеныя з сервера
+      startDate: draft.startDate || undefined,
+      endDate: draft.endDate || undefined,
+      // Астатнія фільтры бярэм з applied (па націску кнопкі)
+      status: applied.status?.join(","),
+      agency: applied.agencyName?.join(","),
+      category: applied.category?.join(","),
     };
     fetchVacancies(params);
-  }, [fetchVacancies, applied]);
+  }, [
+    fetchVacancies,
+    applied.status,
+    applied.agencyName,
+    applied.category,
+    draft.startDate,
+    draft.endDate,
+  ]);
 
   useEffect(() => {
     if (showAutoForm && formMode === "template" && templates.length === 0) {
