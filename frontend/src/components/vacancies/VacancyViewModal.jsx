@@ -87,7 +87,7 @@ export default function VacancyViewModal({
       />
       <div className="relative bg-white border border-slate-200 rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl custom-scrollbar">
         {/* ШАПКА */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 sticky top-0 bg-white z-10">
+        <div className="flex items-center justify-between px-8 py-5 border-b border-slate-100 sticky top-0 bg-white/95 backdrop-blur-md z-10">
           <div className="flex flex-wrap gap-2 items-center">
             <span className="text-[10px] font-mono bg-slate-800 text-slate-500 px-2 py-0.5 rounded border border-slate-700">
               {v.vacancyCode}
@@ -278,7 +278,7 @@ export default function VacancyViewModal({
             />
             <div className="space-y-1.5">
               {v.schedule?.description && (
-                <p className="text-sm text-slate-500 leading-relaxed bg-slate-800/30 p-3 rounded-xl border border-slate-800 mb-2 whitespace-pre-wrap">
+                <p className="text-sm text-slate-500 leading-relaxed bg-slate-50 p-4 rounded-2xl border border-slate-100 mb-2 whitespace-pre-wrap">
                   {formatText(v.schedule.description)}
                 </p>
               )}
@@ -419,7 +419,7 @@ export default function VacancyViewModal({
                           className={`px-4 py-3 rounded-xl border flex flex-col gap-1 transition-all hover:bg-slate-800/50 ${
                             isUrgent
                               ? "bg-red-500/5 text-red-400 border-red-500/10"
-                              : "bg-slate-800/30 text-slate-500 border-slate-800"
+                              : "bg-slate-50 text-slate-500 border-slate-800"
                           }`}
                         >
                           <span className="text-[10px] font-black uppercase opacity-60 tracking-widest">
@@ -441,7 +441,7 @@ export default function VacancyViewModal({
           {(v.startExpenses?.hasStartExpenses ||
             v.earlyTerminationLiability?.hasLiability ||
             v.employerCompensations?.hasCompensations) && (
-            <section className="bg-slate-800/30 p-5 rounded-2xl border border-slate-800 space-y-4">
+            <section className="bg-slate-50 p-5 rounded-2xl border border-slate-800 space-y-4">
               {v.startExpenses?.hasStartExpenses &&
                 v.startExpenses?.details && (
                   <div>
@@ -525,7 +525,7 @@ export default function VacancyViewModal({
         </div>
 
         {/* КНОПКИ ДІЙ */}
-        <div className="flex flex-wrap gap-3 px-8 py-5 border-t border-slate-800 sticky bottom-0 bg-slate-900 z-10">
+        <div className="flex flex-wrap gap-4 px-8 py-6 border-t border-slate-100 sticky bottom-0 bg-white/95 backdrop-blur-md z-10">
           <button
             onClick={() => onMatch(v)}
             className="px-8 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-black text-sm rounded-xl transition-all shadow-lg shadow-emerald-500/10"

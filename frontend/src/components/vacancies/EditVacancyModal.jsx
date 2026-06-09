@@ -182,7 +182,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
   }) => (
     <div className="mb-4">
       {label && (
-        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">
+        <label className="block text-sm font-semibold text-slate-700 mb-1.5 ml-1">
           {label}
         </label>
       )}
@@ -217,7 +217,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
   const MultiBtnGroup = ({ label, options, selectedValues, onToggle }) => (
     <div className="mb-4">
       {label && (
-        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">
+        <label className="block text-sm font-semibold text-slate-700 mb-1.5 ml-1">
           {label}
         </label>
       )}
@@ -248,7 +248,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
   // Dropdown для агенції
   const AgencyDropdown = () => (
     <div className="mb-0">
-      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">
+      <label className="block text-sm font-semibold text-slate-700 mb-1.5 ml-1">
         Агенція
       </label>
       <select
@@ -354,7 +354,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
 
           {/* Тип договору — кнопки + поле для custom */}
           <div className="mb-4">
-            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">
+            <label className="block text-sm font-semibold text-slate-700 mb-1.5 ml-1">
               Тип договору
             </label>
             <div className="flex flex-wrap gap-2 p-2.5 bg-slate-50 rounded-2xl border border-slate-100 mb-2">
