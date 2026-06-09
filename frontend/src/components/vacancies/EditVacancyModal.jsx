@@ -187,7 +187,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
         </label>
       )}
       <div
-        className={`flex flex-wrap gap-2 p-2 bg-slate-800/30 rounded-xl border border-slate-800`}
+        className={`flex flex-wrap gap-2 p-2.5 bg-slate-50 rounded-2xl border border-slate-100`}
       >
         {options.map((opt) => {
           const val = opt.value ?? opt;
@@ -198,12 +198,12 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
               key={val}
               type="button"
               onClick={() => onSelect(val)}
-              className={`px-3 py-1.5 rounded-lg transition-all border font-medium ${
-                small ? "text-[10px]" : "text-[11px]"
+              className={`px-4 py-2 rounded-xl transition-all border font-bold ${
+                small ? "text-xs" : "text-sm"
               } ${
                 isActive
-                  ? "bg-emerald-500 border-emerald-500 text-slate-900"
-                  : "bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-500"
+                  ? "bg-emerald-600 border-emerald-600 text-white shadow-md shadow-emerald-100"
+                  : "bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50"
               }`}
             >
               {lbl}
@@ -221,7 +221,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
           {label}
         </label>
       )}
-      <div className="flex flex-wrap gap-2 p-2 bg-slate-800/30 rounded-xl border border-slate-800">
+      <div className="flex flex-wrap gap-2 p-2.5 bg-slate-50 rounded-2xl border border-slate-100">
         {options.map((opt) => {
           const val = opt.value ?? opt;
           const lbl = opt.label ?? opt;
@@ -231,10 +231,10 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
               key={val}
               type="button"
               onClick={() => onToggle(val)}
-              className={`px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all border ${
+              className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
                 isActive
-                  ? "bg-emerald-500 border-emerald-500 text-slate-900"
-                  : "bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-500"
+                  ? "bg-emerald-600 border-emerald-600 text-white shadow-md shadow-emerald-100"
+                  : "bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50"
               }`}
             >
               {lbl}
@@ -254,7 +254,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
       <select
         value={form.agencyName || "MANUAL"}
         onChange={(e) => setField("agencyName", e.target.value)}
-        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500"
+        className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-base font-medium text-slate-900 shadow-sm focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 transition-all"
       >
         {MD.AGENCIES.map((a) => (
           <option key={a} value={a}>
@@ -271,9 +271,9 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
         className="absolute inset-0 bg-black/70 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="relative bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto mx-4 custom-scrollbar">
+      <div className="relative bg-white border border-slate-200 rounded-3xl w-full max-w-3xl max-h-[90vh] overflow-y-auto mx-4 shadow-2xl custom-scrollbar">
         {/* ШАПКА */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 sticky top-0 bg-slate-900 z-10">
+        <div className="flex items-center justify-between px-8 py-5 border-b border-slate-100 sticky top-0 bg-white/95 backdrop-blur-md z-10">
           <div>
             <h2 className="font-semibold text-slate-100">
               Редагування вакансії
@@ -357,7 +357,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
             <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">
               Тип договору
             </label>
-            <div className="flex flex-wrap gap-2 p-2 bg-slate-800/30 rounded-xl border border-slate-800 mb-2">
+            <div className="flex flex-wrap gap-2 p-2.5 bg-slate-50 rounded-2xl border border-slate-100 mb-2">
               {CONTRACT_OPTIONS.map((opt) => {
                 const isActive = contractMode === opt.value;
                 return (
@@ -365,7 +365,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
                     key={opt.value}
                     type="button"
                     onClick={() => handleContractSelect(opt.value)}
-                    className={`px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all border ${
+                    className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
                       isActive
                         ? "bg-emerald-500 border-emerald-500 text-slate-900"
                         : "bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-500"
@@ -502,7 +502,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
             onChange={(e) => setField("description", e.target.value)}
             rows={4}
             placeholder="Обов'язки через крапку з комою (;)"
-            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500 resize-none"
+            className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-base font-medium text-slate-900 shadow-sm focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 transition-all resize-none"
           />
 
           <Divider label="📋 Вимоги" />
@@ -761,7 +761,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
             value={form.additionalNotes || ""}
             onChange={(e) => setField("additionalNotes", e.target.value)}
             rows={3}
-            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500 resize-none"
+            className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-base font-medium text-slate-900 shadow-sm focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 transition-all resize-none"
             placeholder="Додаткові нотатки..."
           />
 
@@ -773,16 +773,16 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
             }
             rows={2}
             placeholder="Внутрішні нотатки для рекрутера (не відображаються в ТГ)..."
-            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500 resize-none"
+            className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-base font-medium text-slate-900 shadow-sm focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 transition-all resize-none"
           />
         </div>
 
         {/* КНОПКИ */}
-        <div className="flex gap-3 px-6 py-4 border-t border-slate-800 sticky bottom-0 bg-slate-900 z-10">
+        <div className="flex gap-4 px-8 py-5 border-t border-slate-100 sticky bottom-0 bg-white/95 backdrop-blur-md z-10">
           <button
             onClick={handleSave}
             disabled={saving}
-            className="px-5 py-2 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-slate-900 font-bold text-sm rounded-lg transition-colors"
+            className="px-8 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-black text-base rounded-2xl transition-all shadow-lg shadow-emerald-100 active:scale-95"
           >
             {saving ? "Збереження..." : "Зберегти зміни"}
           </button>

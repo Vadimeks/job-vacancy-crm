@@ -674,11 +674,11 @@ export default function Vacancies() {
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-950">
+    <div className="flex min-h-screen bg-slate-50">
       {/* САЙДБАР З РЭГУЛЯВАННЕМ ШЫРЫНІ */}
       <aside
         style={{ width: `${sidebarWidth}px` }}
-        className="hidden lg:flex flex-col shrink-0 border-r border-slate-800 bg-slate-900/50 sticky top-16 h-[calc(100vh-4rem)] group"
+        className="hidden lg:flex flex-col shrink-0 border-r border-slate-200 bg-white sticky top-16 h-[calc(100vh-4rem)] group shadow-sm"
       >
         <VacancyFilters
           filters={draft}
@@ -740,9 +740,7 @@ export default function Vacancies() {
               ⚙️ Фільтри {isDirty && "●"}
             </button>
             <div>
-              <h1 className="text-2xl font-semibold text-slate-100">
-                Вакансії
-              </h1>
+              <h1 className="text-2xl font-bold text-slate-900">Вакансії</h1>
               <p className="text-sm text-slate-500">
                 Знайдено: {filtered.length}
               </p>
@@ -750,7 +748,7 @@ export default function Vacancies() {
           </div>
           <button
             onClick={() => setShowAutoForm(!showAutoForm)}
-            className="px-4 py-2 bg-emerald-500 text-slate-900 font-medium rounded-lg"
+            className="px-5 py-2.5 bg-emerald-600 text-white font-bold rounded-xl shadow-md shadow-emerald-100 hover:bg-emerald-700 transition-all"
           >
             ＋ Додати
           </button>
@@ -758,7 +756,7 @@ export default function Vacancies() {
 
         {/* ФОРМА ДАДАВАННЯ */}
         {showAutoForm && (
-          <div className="mb-6 bg-slate-900 border border-slate-800 rounded-xl p-5">
+          <div className="mb-8 bg-white border border-slate-200 rounded-2xl p-6 shadow-xl">
             <div className="flex gap-2 mb-4">
               {["auto", "template", "update"].map((m) => (
                 <button
@@ -832,7 +830,7 @@ export default function Vacancies() {
               onChange={(e) => setAutoText(e.target.value)}
               placeholder="Вставте текст вакансії..."
               rows={4}
-              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-sm text-slate-100 resize-none"
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-base text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 transition-all resize-none"
             />
 
             <div className="flex gap-3 mt-3">
@@ -845,7 +843,7 @@ export default function Vacancies() {
                       : handleAutoCreate
                 }
                 disabled={autoLoading || !autoText.trim()}
-                className="px-4 py-2 bg-emerald-500 text-slate-900 font-medium rounded-lg disabled:opacity-50"
+                className="px-5 py-2.5 bg-emerald-600 text-white font-bold rounded-xl shadow-md shadow-emerald-100 hover:bg-emerald-700 transition-all disabled:opacity-50"
               >
                 {autoLoading ? "Обробка..." : "Обробити та додати"}
               </button>
@@ -859,7 +857,7 @@ export default function Vacancies() {
           </div>
         )}
         {/* ПАНЭЛЬ МАСАВЫХ ДЗЕЯННЯЎ */}
-        <div className="flex items-center justify-between bg-slate-900/50 border border-slate-800 rounded-xl px-4 py-3 mb-4">
+        <div className="flex items-center justify-between bg-white border border-slate-200 rounded-2xl px-5 py-4 mb-6 shadow-sm">
           <div className="flex items-center gap-3">
             <input
               type="checkbox"
@@ -905,10 +903,10 @@ export default function Vacancies() {
             return (
               <div
                 key={v._id}
-                className={`bg-slate-900 border rounded-xl p-5 transition-all ${
+                className={`bg-white border rounded-2xl p-6 transition-all shadow-sm hover:shadow-md ${
                   selectedIds.includes(v._id)
-                    ? "border-emerald-500/50 ring-1 ring-emerald-500/20"
-                    : "border-slate-800 hover:border-slate-700"
+                    ? "border-emerald-500 ring-2 ring-emerald-500/10"
+                    : "border-slate-200"
                 }`}
               >
                 <div className="flex items-start justify-between gap-4">
@@ -919,7 +917,7 @@ export default function Vacancies() {
                         type="checkbox"
                         checked={selectedIds.includes(v._id)}
                         onChange={() => toggleSelect(v._id)}
-                        className="w-4 h-4 rounded border-slate-700 bg-slate-800 text-emerald-500 focus:ring-emerald-500/20 focus:ring-offset-0"
+                        className="w-5 h-5 rounded-md border-slate-300 bg-white text-emerald-600 focus:ring-emerald-500/20"
                       />
 
                       <div className="flex items-center gap-2">
@@ -936,7 +934,7 @@ export default function Vacancies() {
                         >
                           {v.isFavorite ? "★" : "☆"}
                         </button>
-                        <span className="text-[10px] font-mono bg-slate-800 text-slate-400 px-2 py-0.5 rounded flex items-center gap-1 border border-slate-700">
+                        <span className="text-[11px] font-bold font-mono bg-slate-100 text-slate-600 px-2 py-1 rounded-lg flex items-center gap-1 border border-slate-200">
                           {v.vacancyCode}
                           {v.isTruncated && (
                             <span
@@ -957,7 +955,7 @@ export default function Vacancies() {
                       </span>
 
                       {/* Агенція */}
-                      <span className="text-[10px] uppercase tracking-wider font-bold bg-slate-800 text-slate-300 border border-slate-700 px-2 py-0.5 rounded">
+                      <span className="text-[10px] uppercase tracking-wider font-black bg-slate-100 text-slate-700 border border-slate-200 px-2 py-1 rounded-md">
                         🏢 {v.agencyName}
                       </span>
 
@@ -976,7 +974,7 @@ export default function Vacancies() {
                       )}
 
                       {/* Лакацыя + Ваяводства (толькі для Польшчы) */}
-                      <span className="text-[10px] font-bold bg-slate-800 text-slate-200 px-2 py-0.5 rounded flex items-center gap-1 border border-slate-700">
+                      <span className="text-[11px] font-bold bg-blue-50 text-blue-700 px-2.5 py-1 rounded-lg flex items-center gap-1 border border-blue-100 shadow-sm">
                         📍 {locationDisplay}
                         {v.voivodeship &&
                           v.voivodeship !== "Європа (інші країни)" && (
@@ -1030,14 +1028,14 @@ export default function Vacancies() {
                       </div>
                     </div>
                     {/* ЗАГАЛОВАК */}
-                    <h3 className="font-semibold text-slate-100 leading-snug mb-2">
+                    <h3 className="text-lg font-bold text-slate-900 leading-tight mb-3">
                       {v.vacancydescription || v.templateName}
                     </h3>
 
                     {/* РАДОК 2: БАЗАВЫЯ ЎМОВЫ (Гендэр, Жытло, Давоз, Мова) + ЗАРПЛАТА */}
                     <div className="flex flex-wrap gap-4 text-xs items-center mb-3">
                       {/* ГЕНДАР / НАБОР */}
-                      <div className="flex items-center gap-1.5 bg-slate-800/40 px-2 py-1 rounded-lg border border-slate-800">
+                      <div className="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100">
                         <span className="text-slate-500">👥</span>
 
                         <span className="text-slate-200 font-bold uppercase tracking-tight text-[10px]">
@@ -1051,7 +1049,7 @@ export default function Vacancies() {
                       </div>
                       {/* Узрост (Дададзена для зручнасці рэкрутэра) */}
                       {v.requirements?.age?.max && (
-                        <div className="flex items-center gap-1.5 bg-slate-800/40 px-2 py-1 rounded-lg border border-slate-800">
+                        <div className="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100">
                           <span className="text-slate-500 text-[10px]">🎂</span>
                           <span className="text-slate-300 font-bold text-[10px]">
                             {v.requirements.age.min || 18}-
@@ -1098,8 +1096,8 @@ export default function Vacancies() {
                       </div>
                       {/* ЗАРПЛАТА (Кампактны вывад v2.3) */}
                       {(v.salary?.rawSalaryDisplay || v.salary?.baseNetto) && (
-                        <div className="flex items-center gap-1.5 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20 ml-auto">
-                          <span className="text-emerald-400 font-black text-sm">
+                        <div className="flex items-center gap-2 bg-emerald-50 px-4 py-2 rounded-2xl border border-emerald-100 ml-auto shadow-sm">
+                          <span className="text-emerald-700 font-black text-base">
                             💰{" "}
                             {v.salary.rawSalaryDisplay
                               ? v.salary.rawSalaryDisplay.split(";")[0]
@@ -1113,7 +1111,7 @@ export default function Vacancies() {
                     <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-slate-800/50">
                       {/* НАЦІОНАЛЬНІСТЬ */}
                       {(v.requirements?.nationalities || []).length > 0 && (
-                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 font-bold uppercase tracking-tighter">
+                        <span className="text-[10px] px-2 py-1 rounded-lg bg-blue-50 text-blue-700 border border-blue-100 font-bold uppercase tracking-tight shadow-sm">
                           🌍 {v.requirements.nationalities.join(", ")}
                         </span>
                       )}
@@ -1151,7 +1149,7 @@ export default function Vacancies() {
                         return (
                           <span
                             key={idx}
-                            className="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/5 text-amber-500/80 border border-amber-500/10 font-bold uppercase tracking-tighter"
+                            className="text-[10px] px-2 py-1 rounded-lg bg-amber-50 text-amber-700 border border-amber-100 font-bold uppercase tracking-tight shadow-sm"
                           >
                             {icons[category] || "✨"} {category}
                           </span>
@@ -1164,19 +1162,19 @@ export default function Vacancies() {
                   <div className="flex flex-col gap-1.5 shrink-0">
                     <button
                       onClick={() => setViewVacancy(v)}
-                      className="px-3 py-1.5 text-slate-400 hover:bg-slate-800 rounded-lg text-xs transition-colors"
+                      className="px-3 py-1.5 text-slate-500 hover:bg-slate-100 rounded-lg text-xs font-bold transition-colors"
                     >
                       👁 Переглянути
                     </button>
                     <button
                       onClick={() => setMatchVacancy(v)}
-                      className="px-3 py-1.5 text-emerald-400 hover:bg-emerald-500/10 rounded-lg text-xs transition-colors"
+                      className="px-3 py-1.5 text-slate-500 hover:bg-slate-100 rounded-lg text-xs font-bold transition-colors"
                     >
                       🎯 Кандидати
                     </button>
                     <button
                       onClick={() => setEditVacancy(v)}
-                      className="px-3 py-1.5 text-slate-400 hover:bg-slate-800 rounded-lg text-xs transition-colors"
+                      className="px-3 py-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg text-xs font-bold transition-colors"
                     >
                       ✏️ Ред.
                     </button>
@@ -1193,7 +1191,7 @@ export default function Vacancies() {
         <div className="hidden lg:block fixed bottom-6 right-6 z-30">
           <button
             onClick={handleApplyFilters}
-            className="px-5 py-3 bg-emerald-500 text-slate-900 font-bold rounded-xl shadow-lg"
+            className="px-6 py-4 bg-emerald-600 text-white font-black rounded-2xl shadow-2xl shadow-emerald-200 hover:bg-emerald-700 transition-all active:scale-95"
           >
             Показати {previewCount} вакансій ✓
           </button>

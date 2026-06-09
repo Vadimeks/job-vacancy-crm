@@ -86,7 +86,7 @@ export default function ApplyModal({ vacancy, applyType, onClose }) {
         className="absolute inset-0 bg-black/70 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="relative bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto mx-4">
+      <div className="relative bg-white border border-slate-200 rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto mx-4 shadow-2xl">
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 sticky top-0 bg-slate-900 z-10">
           <div>
             <h2 className="font-semibold text-slate-100">
@@ -140,10 +140,10 @@ export default function ApplyModal({ vacancy, applyType, onClose }) {
                     <button
                       key={ct}
                       onClick={() => setField("contactType", ct)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                      className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
                         form.contactType === ct
-                          ? "bg-emerald-500 text-slate-900"
-                          : "bg-slate-800 text-slate-400 hover:bg-slate-700"
+                          ? "bg-emerald-600 border-emerald-600 text-white shadow-md"
+                          : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
                       }`}
                     >
                       {ct === "telegram"
@@ -204,10 +204,10 @@ export default function ApplyModal({ vacancy, applyType, onClose }) {
                       <button
                         key={val}
                         onClick={() => setField("gender", val)}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                        className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
                           form.gender === val
-                            ? "bg-emerald-500 text-slate-900"
-                            : "bg-slate-800 text-slate-400 hover:bg-slate-700"
+                            ? "bg-emerald-600 border-emerald-600 text-white shadow-md"
+                            : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
                         }`}
                       >
                         {lbl}
@@ -243,7 +243,7 @@ export default function ApplyModal({ vacancy, applyType, onClose }) {
                         if (val !== "specific")
                           setField("jobPreferences.location", "");
                       }}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                      className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
                         (val === "flexible" &&
                           form.jobPreferences.locationFlexible) ||
                         (val === "here" &&
@@ -254,8 +254,8 @@ export default function ApplyModal({ vacancy, applyType, onClose }) {
                           !form.jobPreferences.locationFlexible &&
                           form.jobPreferences.location &&
                           form.jobPreferences.location !== form.currentLocation)
-                          ? "bg-emerald-500 text-slate-900"
-                          : "bg-slate-800 text-slate-400 hover:bg-slate-700"
+                          ? "bg-emerald-600 border-emerald-600 text-white shadow-md"
+                          : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
                       }`}
                     >
                       {lbl}
@@ -297,10 +297,10 @@ export default function ApplyModal({ vacancy, applyType, onClose }) {
                             val === "true",
                           )
                         }
-                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                        className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
                           String(form.jobPreferences.needsAccommodation) === val
-                            ? "bg-emerald-500 text-slate-900"
-                            : "bg-slate-800 text-slate-400 hover:bg-slate-700"
+                            ? "bg-emerald-600 border-emerald-600 text-white shadow-md"
+                            : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
                         }`}
                       >
                         {lbl}
@@ -323,10 +323,10 @@ export default function ApplyModal({ vacancy, applyType, onClose }) {
                         onClick={() =>
                           setField("jobPreferences.travelGroup", val)
                         }
-                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                        className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
                           form.jobPreferences.travelGroup === val
-                            ? "bg-emerald-500 text-slate-900"
-                            : "bg-slate-800 text-slate-400 hover:bg-slate-700"
+                            ? "bg-emerald-600 border-emerald-600 text-white shadow-md"
+                            : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
                         }`}
                       >
                         {lbl}
@@ -349,10 +349,10 @@ export default function ApplyModal({ vacancy, applyType, onClose }) {
                     <button
                       key={val}
                       onClick={() => toggleSchedule(val)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                      className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
                         (form.jobPreferences.schedule || []).includes(val)
-                          ? "bg-emerald-500 text-slate-900"
-                          : "bg-slate-800 text-slate-400 hover:bg-slate-700"
+                          ? "bg-emerald-600 border-emerald-600 text-white shadow-md"
+                          : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
                       }`}
                     >
                       {lbl}
@@ -376,10 +376,10 @@ export default function ApplyModal({ vacancy, applyType, onClose }) {
                       onClick={() =>
                         setField("jobPreferences.contractType", val)
                       }
-                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                      className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
                         form.jobPreferences.contractType === val
-                          ? "bg-emerald-500 text-slate-900"
-                          : "bg-slate-800 text-slate-400 hover:bg-slate-700"
+                          ? "bg-emerald-600 border-emerald-600 text-white shadow-md"
+                          : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
                       }`}
                     >
                       {lbl}

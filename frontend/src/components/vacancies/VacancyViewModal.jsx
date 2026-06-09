@@ -85,7 +85,7 @@ export default function VacancyViewModal({
         className="absolute inset-0 bg-black/80 backdrop-blur-md"
         onClick={onClose}
       />
-      <div className="relative bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl custom-scrollbar">
+      <div className="relative bg-white border border-slate-200 rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl custom-scrollbar">
         {/* ШАПКА */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 sticky top-0 bg-slate-900 z-10">
           <div className="flex flex-wrap gap-2 items-center">
@@ -138,7 +138,7 @@ export default function VacancyViewModal({
         <div className="px-8 py-6 space-y-7">
           {/* ГАЛОЎНЫ ЗАГАЛОВАК І ЛАКАЦЫЯ */}
           <div>
-            <h2 className="text-xl font-black text-white leading-tight mb-3">
+            <h2 className="text-2xl font-black text-slate-900 leading-tight mb-4">
               {v.vacancydescription}
             </h2>
             <div className="space-y-1">
@@ -206,7 +206,7 @@ export default function VacancyViewModal({
               color="text-blue-400"
               border="border-blue-500/20"
             />
-            <div className="bg-slate-800/20 p-4 rounded-xl border border-slate-800/50">
+            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 shadow-inner">
               {v.description ? (
                 <div className="text-sm text-slate-200 leading-relaxed whitespace-pre-wrap">
                   {formatText(v.description)}

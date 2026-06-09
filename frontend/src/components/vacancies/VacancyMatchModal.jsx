@@ -44,7 +44,7 @@ export default function VacancyMatchModal({ vacancy, onClose }) {
         className="absolute inset-0 bg-black/70 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="relative bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto mx-4">
+      <div className="relative bg-white border border-slate-200 rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto mx-4 shadow-2xl">
         {/* Заголовок */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 sticky top-0 bg-slate-900 z-10">
           <div>
@@ -90,7 +90,7 @@ export default function VacancyMatchModal({ vacancy, onClose }) {
                 {candidates.map((c) => (
                   <div
                     key={c._id}
-                    className="bg-slate-800 border border-slate-700 rounded-xl p-4"
+                    className="bg-slate-50 border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1">
@@ -164,7 +164,7 @@ export default function VacancyMatchModal({ vacancy, onClose }) {
 
                       {/* Оцінка */}
                       <div className="shrink-0 text-center">
-                        <div className="text-lg font-bold text-emerald-400">
+                        <div className="text-2xl font-black text-emerald-600">
                           {c.matchScore}
                         </div>
                         <div className="text-xs text-slate-600">балів</div>

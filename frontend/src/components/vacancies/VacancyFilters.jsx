@@ -169,9 +169,9 @@ export default function VacancyFilters({
     });
   };
   return (
-    <div className="bg-slate-900/60 p-5 rounded-2xl border border-slate-800 h-full overflow-y-auto custom-scrollbar">
+    <div className="bg-white p-6 rounded-2xl border border-slate-200 h-full overflow-y-auto custom-scrollbar shadow-sm">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-black text-emerald-400 tracking-tight italic">
+        <h3 className="text-xl font-black text-emerald-600 tracking-tight uppercase">
           ФІЛЬТРИ
         </h3>
         {activeCount > 0 && (
@@ -187,10 +187,10 @@ export default function VacancyFilters({
       <Section>
         <button
           onClick={() => updateField("isFavorite", !draft.isFavorite)}
-          className={`w-full flex items-center justify-center gap-2 py-2 rounded-xl border transition-all font-bold text-xs ${
+          className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl border transition-all font-bold text-sm ${
             draft.isFavorite
-              ? "bg-amber-500/20 border-amber-500/50 text-amber-400"
-              : "bg-slate-800/30 border-slate-700 text-slate-400 hover:border-slate-600"
+              ? "bg-amber-50 border-amber-200 text-amber-600 shadow-sm"
+              : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
           }`}
         >
           {draft.isFavorite ? "★ ТІЛЬКИ ОБРАНІ" : "☆ ПОКАЗАТИ ВСІ"}
@@ -198,7 +198,7 @@ export default function VacancyFilters({
       </Section>
       {/* ПОШУК */}
       <Section>
-        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">
+        <label className="block text-sm font-semibold text-slate-700 mb-1.5 ml-1">
           Пошук
         </label>
         <input
@@ -206,13 +206,13 @@ export default function VacancyFilters({
           value={draft.search || ""}
           onChange={(e) => setFilters({ ...draft, search: e.target.value })}
           placeholder="Назва, опис..."
-          className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500/50 transition-all"
+          className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-base text-slate-900 placeholder-slate-400 shadow-sm focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 transition-all"
         />
       </Section>
       {/* ДЫЯПАЗОН ДАТ */}
       <Section>
         <div>
-          <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
+          <label className="text-sm font-semibold text-slate-700 mb-1.5 ml-1">
             📆 Період оновлення (З / ПО)
           </label>
           <div className="flex gap-2">
@@ -220,14 +220,14 @@ export default function VacancyFilters({
               type="date"
               value={draft.startDate || ""}
               onChange={(e) => updateField("startDate", e.target.value)}
-              className="w-1/2 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500/50 color-scheme-dark"
+              className="w-1/2 bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-900 shadow-sm focus:outline-none focus:border-emerald-500 transition-all"
               style={{ colorScheme: "dark" }}
             />
             <input
               type="date"
               value={draft.endDate || ""}
               onChange={(e) => updateField("endDate", e.target.value)}
-              className="w-1/2 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500/50 color-scheme-dark"
+              className="w-1/2 bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-900 shadow-sm focus:outline-none focus:border-emerald-500 transition-all"
               style={{ colorScheme: "dark" }}
             />
           </div>
@@ -245,7 +245,7 @@ export default function VacancyFilters({
       </Section>
       {/* ЗАРПЛАТА */}
       <Section>
-        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">
+        <label className="block text-sm font-semibold text-slate-700 mb-1.5 ml-1">
           Зарплата (Netto)
         </label>
         <div className="flex gap-2">
@@ -254,14 +254,14 @@ export default function VacancyFilters({
             value={draft.minSalary || ""}
             onChange={(e) => updateField("minSalary", e.target.value)}
             placeholder="Від"
-            className="w-1/2 bg-slate-800/50 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500/50"
+            className="w-1/2 bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-base text-slate-900 shadow-sm focus:outline-none focus:border-emerald-500 transition-all"
           />
           <input
             type="number"
             value={draft.maxSalary || ""}
             onChange={(e) => updateField("maxSalary", e.target.value)}
             placeholder="До"
-            className="w-1/2 bg-slate-800/50 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500/50"
+            className="w-1/2 bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-base text-slate-900 shadow-sm focus:outline-none focus:border-emerald-500 transition-all"
           />
         </div>
       </Section>
@@ -321,7 +321,7 @@ export default function VacancyFilters({
       </Section>
       {/* ВІК */}
       <Section>
-        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">
+        <label className="block text-sm font-semibold text-slate-700 mb-1.5 ml-1">
           Вік (до)
         </label>
         <div className="flex gap-2">
@@ -330,14 +330,14 @@ export default function VacancyFilters({
             value={draft.minAge || ""}
             onChange={(e) => updateField("minAge", e.target.value)}
             placeholder="Від"
-            className="w-1/2 bg-slate-800/50 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500/50"
+            className="w-1/2 bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-base text-slate-900 shadow-sm focus:outline-none focus:border-emerald-500 transition-all"
           />
           <input
             type="number"
             value={draft.maxAge || ""}
             onChange={(e) => updateField("maxAge", e.target.value)}
             placeholder="До"
-            className="w-1/2 bg-slate-800/50 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500/50"
+            className="w-1/2 bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-base text-slate-900 shadow-sm focus:outline-none focus:border-emerald-500 transition-all"
           />
         </div>
       </Section>
@@ -414,7 +414,7 @@ export default function VacancyFilters({
       {/* КРЫНІЦЫ (v4.5 - 4 кнопкі ў 2 калонкі) */}
       <Section>
         <div>
-          <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
+          <label className="text-sm font-semibold text-slate-700 mb-1.5 ml-1">
             🌐 Джерело вакансії
           </label>
           <div className="grid grid-cols-2 gap-2">
@@ -443,14 +443,16 @@ export default function VacancyFilters({
                       : [...current, src.id];
                     updateField("sourceType", next);
                   }}
-                  className={`py-2 px-2 flex items-center justify-between rounded-xl text-[10px] font-bold transition-all border ${
+                  className={`py-2.5 px-3 flex items-center justify-between rounded-xl text-xs font-bold transition-all border ${
                     isSelected
-                      ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 shadow-lg shadow-emerald-500/5"
-                      : "bg-slate-900/60 text-slate-400 border-slate-800 hover:border-slate-700 hover:text-slate-200"
+                      ? "bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-200"
+                      : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100 hover:border-slate-300"
                   }`}
                 >
                   <span>{src.label}</span>
-                  <span className="text-[9px] opacity-60 bg-slate-800 px-1.5 py-0.5 rounded-md">
+                  <span
+                    className={`text-[10px] px-1.5 py-0.5 rounded-md ${isSelected ? "bg-white/20 text-white" : "bg-slate-200 text-slate-500"}`}
+                  >
                     {count}
                   </span>
                 </button>

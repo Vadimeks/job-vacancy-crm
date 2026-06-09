@@ -12,15 +12,15 @@ import {
 const CATEGORY_LABELS = {
   vacancy: {
     label: "Вакансія",
-    color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
+    color: "text-emerald-700 bg-emerald-50 border-emerald-200",
   },
   update: {
     label: "Оновлення",
-    color: "text-amber-400 bg-amber-500/10 border-amber-500/20",
+    color: "text-amber-700 bg-amber-50 border-amber-200",
   },
   info: {
-    label: "Інфа",
-    color: "text-blue-400 bg-blue-500/10 border-blue-500/20",
+    label: "Інфо",
+    color: "text-blue-700 bg-blue-50 border-blue-200",
   },
 };
 
@@ -165,7 +165,7 @@ export default function Inbox() {
     <div className="max-w-6xl mx-auto px-4 py-8">
       <div className="flex items-start justify-between mb-6 flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-100">
+          <h1 className="text-2xl font-bold text-slate-900">
             Пісочниця (Inbox)
           </h1>
           <p className="text-sm text-slate-500 mt-1">
@@ -226,16 +226,20 @@ export default function Inbox() {
           <button
             key={key}
             onClick={() => key !== "pending" && setCategoryFilter(key)}
-            className={`bg-slate-900 border rounded-xl p-3 text-left transition-all ${categoryFilter === key ? "border-emerald-500/40 bg-emerald-500/5" : "border-slate-800"}`}
+            className={`bg-white border rounded-2xl p-4 text-left transition-all shadow-sm ${categoryFilter === key ? "border-emerald-500 ring-2 ring-emerald-500/10 bg-emerald-50/30" : "border-slate-200 hover:border-slate-300"}`}
           >
-            <div className={`text-2xl font-bold ${color}`}>{count}</div>
+            <div
+              className={`text-3xl font-black ${color.replace("400", "600")}`}
+            >
+              {count}
+            </div>
             <div className="text-xs text-slate-500">{label}</div>
           </button>
         ))}
       </div>
 
-      <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
-        <div className="grid grid-cols-[40px_1fr_150px_100px_80px] gap-3 px-4 py-2 text-[10px] uppercase tracking-wider text-slate-500 border-b border-slate-800 bg-slate-950">
+      <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+        <div className="grid grid-cols-[40px_1fr_150px_100px_80px] gap-3 px-5 py-3 text-[11px] font-bold uppercase tracking-widest text-slate-500 border-b border-slate-200 bg-slate-50/50">
           <input
             type="checkbox"
             checked={selected.size > 0 && selected.size === filtered.length}
@@ -259,9 +263,9 @@ export default function Inbox() {
             return (
               <div
                 key={msg._id}
-                className={`${selected.has(msg._id) ? "bg-emerald-500/5" : ""} ${!isAnalyzed ? "opacity-70" : ""}`}
+                className={`${selected.has(msg._id) ? "bg-emerald-50/50" : ""} ${!isAnalyzed ? "opacity-60" : ""} border-b border-slate-100 last:border-0`}
               >
-                <div className="grid grid-cols-[40px_1fr_150px_100px_80px] gap-3 px-4 py-3 items-center hover:bg-slate-800/30 transition-colors">
+                <div className="grid grid-cols-[40px_1fr_150px_100px_80px] gap-3 px-5 py-4 items-center hover:bg-slate-50 transition-colors">
                   <input
                     type="checkbox"
                     checked={selected.has(msg._id)}
@@ -281,7 +285,7 @@ export default function Inbox() {
 
                       {/* СТАТУС AI */}
                       {isAnalyzed ? (
-                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">
+                        <span className="text-[10px] px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-700 border border-emerald-200 font-bold">
                           ✨ Оброблено
                         </span>
                       ) : (
@@ -302,7 +306,7 @@ export default function Inbox() {
                       )}
                     </div>
                     <p
-                      className={`text-sm ${isExpanded ? "text-slate-100" : "text-slate-400 truncate"}`}
+                      className={`text-sm font-medium  ${isExpanded ? "text-slate-900" : "text-slate-500 truncate"}`}
                     >
                       {/* Паказваем пераклад, калі ён ёсць, інакш арыгінал */}
                       {isAnalyzed ? msg.rawText || msg.text : msg.text}
@@ -339,7 +343,7 @@ export default function Inbox() {
 
                 {isExpanded && (
                   <div className="px-14 pb-4 animate-in fade-in slide-in-from-top-1">
-                    <div className="bg-slate-950 border border-slate-800 rounded-lg p-4 text-sm text-slate-100 whitespace-pre-wrap leading-relaxed">
+                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 text-base text-slate-800 whitespace-pre-wrap leading-relaxed shadow-inner">
                       {isAnalyzed ? msg.rawText || msg.text : msg.text}
                     </div>
 
@@ -361,7 +365,7 @@ export default function Inbox() {
                     )}
 
                     {isAnalyzed && isPicking && (
-                      <div className="mt-4 p-4 bg-slate-800 rounded-lg border border-amber-500/30">
+                      <div className="mt-6 p-6 bg-white rounded-2xl border border-amber-200 shadow-xl ring-1 ring-amber-500/10">
                         <div className="flex justify-between items-center mb-3">
                           <h4 className="text-xs font-bold text-amber-400 uppercase tracking-wider">
                             Оберить вакансію:

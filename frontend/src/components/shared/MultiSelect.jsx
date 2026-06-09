@@ -31,20 +31,22 @@ export default function MultiSelect({
   return (
     <div className="relative w-full" ref={containerRef}>
       {label && (
-        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">
+        <label className="block text-sm font-semibold text-slate-700 mb-1.5 ml-1">
           {label}
         </label>
       )}
 
       <div
         onClick={() => setIsOpen(!isOpen)}
-        className={`min-h-[38px] w-full bg-slate-800/50 border ${
-          isOpen ? "border-emerald-500/50" : "border-slate-700"
-        } rounded-xl px-3 py-1.5 flex items-center justify-between cursor-pointer transition-all hover:bg-slate-800`}
+        className={`min-h-[44px] w-full bg-white border ${
+          isOpen
+            ? "border-emerald-500/50 ring-4 ring-emerald-500/5"
+            : "border-slate-200"
+        } rounded-xl px-4 py-2 flex items-center justify-between cursor-pointer transition-all shadow-sm hover:border-slate-300`}
       >
         <div className="flex flex-wrap gap-1">
           {selected.length === 0 ? (
-            <span className="text-slate-500 text-xs">{placeholder}</span>
+            <span className="text-slate-400 text-sm">{placeholder}</span>
           ) : (
             selected.map((val) => {
               // Шукаем аб'ект опцыі або выкарыстоўваем само значэнне
@@ -54,7 +56,7 @@ export default function MultiSelect({
               return (
                 <span
                   key={val}
-                  className="bg-emerald-500/20 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-500/30 flex items-center gap-1"
+                  className="bg-emerald-50 text-emerald-700 text-xs font-bold px-2.5 py-1 rounded-lg border border-emerald-100 flex items-center gap-1.5 shadow-sm"
                 >
                   {displayLabel}
                   <X
@@ -77,7 +79,7 @@ export default function MultiSelect({
       </div>
 
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl z-[100] max-h-60 overflow-y-auto custom-scrollbar p-1">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-200 rounded-2xl shadow-2xl z-[100] max-h-72 overflow-y-auto custom-scrollbar p-1.5">
           {options.length === 0 ? (
             <div className="px-3 py-2 text-xs text-slate-500 italic">
               Няма варыянтаў
@@ -92,21 +94,21 @@ export default function MultiSelect({
                 <div
                   key={val}
                   onClick={() => toggleOption(val)}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs cursor-pointer transition-colors ${
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm cursor-pointer transition-colors ${
                     isSelected
-                      ? "bg-emerald-500/10 text-emerald-400"
-                      : "text-slate-300 hover:bg-slate-700"
+                      ? "bg-emerald-50 text-emerald-700 font-semibold"
+                      : "text-slate-700 hover:bg-slate-50"
                   }`}
                 >
                   <div
-                    className={`w-3.5 h-3.5 border rounded flex items-center justify-center transition-colors ${
+                    className={`w-4 h-4 border rounded-md flex items-center justify-center transition-colors ${
                       isSelected
                         ? "bg-emerald-500 border-emerald-500"
-                        : "border-slate-600"
+                        : "border-slate-300"
                     }`}
                   >
                     {isSelected && (
-                      <span className="text-slate-900 text-[10px]">✓</span>
+                      <span className="text-white text-[10px]">✓</span>
                     )}
                   </div>
                   <span className="truncate">{lbl}</span>
