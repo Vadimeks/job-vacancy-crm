@@ -280,14 +280,14 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
             </h2>
             <div className="flex items-center gap-3 mt-1 text-xs font-mono">
               <span className="text-slate-500">{vacancy.vacancyCode}</span>
-              <span className="bg-slate-800 text-emerald-400 px-2 py-0.5 rounded">
+              <span className="bg-slate-300 text-emerald-400 px-2 py-0.5 rounded">
                 {vacancy.agencyName}
               </span>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-slate-500 hover:text-slate-500 hover:bg-slate-800 rounded-lg transition-colors"
+            className="p-2 text-slate-500 hover:text-slate-500 hover:bg-slate-300 rounded-lg transition-colors"
           >
             ✕
           </button>
@@ -368,7 +368,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
                     className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
                       isActive
                         ? "bg-emerald-500 border-emerald-500 text-slate-900"
-                        : "bg-slate-800 border-slate-700 text-slate-500 hover:border-slate-500"
+                        : "bg-slate-300 border-slate-700 text-slate-500 hover:border-slate-500"
                     }`}
                   >
                     {opt.label}
@@ -541,7 +541,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
               type="text"
             />
 
-            <label className="flex items-center gap-3 cursor-pointer p-3 bg-slate-800/50 rounded-xl border border-slate-700">
+            <label className="flex items-center gap-3 cursor-pointer p-3 bg-slate-300/50 rounded-xl border border-slate-700">
               <input
                 type="checkbox"
                 checked={!!form.requirements?.physicalLoad}
@@ -788,7 +788,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
           </button>
           <button
             onClick={onClose}
-            className="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-500 text-sm rounded-lg transition-colors"
+            className="px-5 py-2 bg-slate-300 hover:bg-slate-300 text-slate-500 text-sm rounded-lg transition-colors"
           >
             Скасувати
           </button>
