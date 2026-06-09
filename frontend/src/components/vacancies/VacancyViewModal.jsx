@@ -87,7 +87,7 @@ export default function VacancyViewModal({
       />
       <div className="relative bg-white border border-slate-200 rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl custom-scrollbar">
         {/* ШАПКА */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 sticky top-0 bg-slate-900 z-10">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 sticky top-0 bg-white z-10">
           <div className="flex flex-wrap gap-2 items-center">
             <span className="text-[10px] font-mono bg-slate-800 text-slate-500 px-2 py-0.5 rounded border border-slate-700">
               {v.vacancyCode}
@@ -509,7 +509,7 @@ export default function VacancyViewModal({
                 </span>
                 Текст повідомлення (Оригінал)
               </summary>
-              <div className="mt-4 p-4 bg-black/40 rounded-xl border border-slate-800 text-[11px] text-slate-500 font-mono leading-relaxed whitespace-pre-wrap overflow-x-auto">
+              <div className="mt-4 p-4 bg-white rounded-xl border border-slate-800 text-[11px] text-slate-500 font-mono leading-relaxed whitespace-pre-wrap overflow-x-auto">
                 {v.rawText || "Текст повідомлення відсутній"}
               </div>
             </details>
