@@ -89,7 +89,7 @@ export default function VacancyViewModal({
         {/* ШАПКА */}
         <div className="flex items-center justify-between px-8 py-5 border-b border-slate-100 sticky top-0 bg-white/95 backdrop-blur-md z-10">
           <div className="flex flex-wrap gap-2 items-center">
-            <span className="text-[10px] font-mono bg-slate-300 text-slate-700 px-2 py-0.5 rounded border border-slate-700">
+            <span className="text-[10px] font-mono bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-100">
               {v.vacancyCode}
             </span>
             <span
@@ -104,17 +104,17 @@ export default function VacancyViewModal({
               {STATUS_LABELS[v.status] || v.status}
             </span>
             {v.agencyName && (
-              <span className="text-[10px] bg-slate-300 text-slate-700 px-2 py-0.5 rounded font-bold border border-slate-700 uppercase tracking-wider">
+              <span className="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-bold border border-slate-100 uppercase tracking-wider">
                 <Building2 size={9} className="inline mr-1" /> {v.agencyName}
               </span>
             )}
             {v.category && (
-              <span className="text-[10px] bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded font-bold border border-blue-500/20 uppercase tracking-wider">
+              <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-bold border border-blue-100 uppercase tracking-wider">
                 <Tag size={9} className="inline mr-1" /> {v.category}
               </span>
             )}
             {v.brand && (
-              <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded font-bold border border-emerald-500/20 uppercase tracking-wider">
+              <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-bold border border-emerald-100 uppercase tracking-wider">
                 <Factory size={9} className="inline mr-1" /> {v.brand}
               </span>
             )}
