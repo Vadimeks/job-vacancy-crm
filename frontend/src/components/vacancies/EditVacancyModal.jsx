@@ -275,7 +275,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
         {/* ШАПКА */}
         <div className="flex items-center justify-between px-8 py-5 border-b border-slate-100 sticky top-0 bg-white/95 backdrop-blur-md z-10">
           <div>
-            <h2 className="font-semibold text-slate-100">
+            <h2 className="font-semibold text-slate-500">
               Редагування вакансії
             </h2>
             <div className="flex items-center gap-3 mt-1 text-xs font-mono">
@@ -287,7 +287,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-slate-500 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition-colors"
+            className="p-2 text-slate-500 hover:text-slate-500 hover:bg-slate-800 rounded-lg transition-colors"
           >
             ✕
           </button>
@@ -368,7 +368,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
                     className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
                       isActive
                         ? "bg-emerald-500 border-emerald-500 text-slate-900"
-                        : "bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-500"
+                        : "bg-slate-800 border-slate-700 text-slate-500 hover:border-slate-500"
                     }`}
                   >
                     {opt.label}
@@ -550,7 +550,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
                 }
                 className="w-4 h-4 accent-emerald-500"
               />
-              <span className="text-xs text-slate-300 font-medium">
+              <span className="text-xs text-slate-500 font-medium">
                 Фізично важка праця (Так/Ні)
               </span>
             </label>
@@ -595,7 +595,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
                 }
                 className="accent-emerald-500"
               />
-              <span className="text-xs text-slate-400">З дітьми</span>
+              <span className="text-xs text-slate-500">З дітьми</span>
             </label>
             <label className="flex items-center gap-3 cursor-pointer">
               <input
@@ -606,7 +606,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
                 }
                 className="accent-emerald-500"
               />
-              <span className="text-xs text-slate-400">З тваринами</span>
+              <span className="text-xs text-slate-500">З тваринами</span>
             </label>
           </div>
 
@@ -621,7 +621,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
                 }
                 className="accent-emerald-500"
               />
-              <span className="text-xs text-slate-400">Надається</span>
+              <span className="text-xs text-slate-500">Надається</span>
             </label>
             <Field
               label="Вартість транспорту"
@@ -657,7 +657,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
                 }
                 className="accent-emerald-500"
               />
-              <span className="text-xs text-slate-400">Одяг безкоштовно</span>
+              <span className="text-xs text-slate-500">Одяг безкоштовно</span>
             </label>
             <div className="col-span-2">
               <Field
@@ -695,7 +695,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
                 }
                 className="accent-emerald-500"
               />
-              <span className="text-xs text-slate-400">Витрати на старті</span>
+              <span className="text-xs text-slate-500">Витрати на старті</span>
             </label>
             <div className="col-span-2">
               <Field
@@ -716,7 +716,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
                 }
                 className="accent-emerald-500"
               />
-              <span className="text-xs text-slate-400">
+              <span className="text-xs text-slate-500">
                 Штраф за звільнення
               </span>
             </label>
@@ -745,7 +745,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
                 }
                 className="accent-emerald-500"
               />
-              <span className="text-xs text-slate-400">Є компенсації</span>
+              <span className="text-xs text-slate-500">Є компенсації</span>
             </label>
             <div className="col-span-2">
               <Field
@@ -788,7 +788,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
           </button>
           <button
             onClick={onClose}
-            className="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm rounded-lg transition-colors"
+            className="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-500 text-sm rounded-lg transition-colors"
           >
             Скасувати
           </button>

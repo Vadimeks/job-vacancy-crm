@@ -36,15 +36,15 @@ const SectionTitle = ({
 
 const Note = ({ children }) =>
   children ? (
-    <p className="text-xs text-slate-400 italic mt-1 leading-relaxed">
+    <p className="text-xs text-slate-500 italic mt-1 leading-relaxed">
       {children}
     </p>
   ) : null;
 
 const Row = ({ label, value }) =>
   value ? (
-    <p className="text-sm text-slate-200 leading-snug">
-      • <span className="font-semibold text-slate-300">{label}:</span>{" "}
+    <p className="text-sm text-slate-500 leading-snug">
+      • <span className="font-semibold text-slate-500">{label}:</span>{" "}
       <span>{value}</span>
     </p>
   ) : null;
@@ -89,7 +89,7 @@ export default function VacancyViewModal({
         {/* ШАПКА */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 sticky top-0 bg-slate-900 z-10">
           <div className="flex flex-wrap gap-2 items-center">
-            <span className="text-[10px] font-mono bg-slate-800 text-slate-400 px-2 py-0.5 rounded border border-slate-700">
+            <span className="text-[10px] font-mono bg-slate-800 text-slate-500 px-2 py-0.5 rounded border border-slate-700">
               {v.vacancyCode}
             </span>
             <span
@@ -98,13 +98,13 @@ export default function VacancyViewModal({
                   ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
                   : v.status === "closed"
                     ? "bg-red-500/10 text-red-400 border-red-500/20"
-                    : "bg-slate-500/10 text-slate-400 border-slate-500/20"
+                    : "bg-slate-500/10 text-slate-500 border-slate-500/20"
               }`}
             >
               {STATUS_LABELS[v.status] || v.status}
             </span>
             {v.agencyName && (
-              <span className="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-bold border border-slate-700 uppercase tracking-wider">
+              <span className="text-[10px] bg-slate-800 text-slate-500 px-2 py-0.5 rounded font-bold border border-slate-700 uppercase tracking-wider">
                 <Building2 size={9} className="inline mr-1" /> {v.agencyName}
               </span>
             )}
@@ -122,7 +122,7 @@ export default function VacancyViewModal({
           <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={handleCopyTelegram}
-              className="p-2 text-slate-400 hover:text-emerald-400 transition-all"
+              className="p-2 text-slate-500 hover:text-emerald-400 transition-all"
             >
               {copied ? <Check size={18} /> : <Copy size={18} />}
             </button>
@@ -142,17 +142,17 @@ export default function VacancyViewModal({
               {v.vacancydescription}
             </h2>
             <div className="space-y-1">
-              <p className="text-base text-slate-200">
+              <p className="text-base text-slate-500">
                 📍 <span className="font-semibold">Місто:</span>{" "}
                 <span className="text-white font-bold">{locationDisplay}</span>
               </p>
               {v.checkInCity && (
-                <p className="text-sm text-slate-300">
+                <p className="text-sm text-slate-500">
                   🏢 <span className="font-semibold">Оформлення:</span> м.{" "}
                   {v.checkInCity}
                 </p>
               )}
-              <p className="text-sm text-slate-300">
+              <p className="text-sm text-slate-500">
                 👥 <span className="font-semibold">Набір:</span>{" "}
                 <span className="text-white font-bold">
                   {v.gender ||
@@ -161,7 +161,7 @@ export default function VacancyViewModal({
                       : "Будь-хто")}
                 </span>
                 {v.requirements?.genderDescription && (
-                  <span className="text-slate-400 ml-1 italic">
+                  <span className="text-slate-500 ml-1 italic">
                     ({v.requirements.genderDescription})
                   </span>
                 )}
@@ -208,7 +208,7 @@ export default function VacancyViewModal({
             />
             <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 shadow-inner">
               {v.description ? (
-                <div className="text-sm text-slate-200 leading-relaxed whitespace-pre-wrap">
+                <div className="text-sm text-slate-500 leading-relaxed whitespace-pre-wrap">
                   {formatText(v.description)}
                 </div>
               ) : (
@@ -278,7 +278,7 @@ export default function VacancyViewModal({
             />
             <div className="space-y-1.5">
               {v.schedule?.description && (
-                <p className="text-sm text-slate-200 leading-relaxed bg-slate-800/30 p-3 rounded-xl border border-slate-800 mb-2 whitespace-pre-wrap">
+                <p className="text-sm text-slate-500 leading-relaxed bg-slate-800/30 p-3 rounded-xl border border-slate-800 mb-2 whitespace-pre-wrap">
                   {formatText(v.schedule.description)}
                 </p>
               )}
@@ -309,7 +309,7 @@ export default function VacancyViewModal({
               />
               <div className="space-y-1">
                 {v.accommodation?.type ? (
-                  <p className="text-sm text-slate-200 font-semibold">
+                  <p className="text-sm text-slate-500 font-semibold">
                     {v.accommodation.type}
                     {v.accommodation?.forCouples && " (можливо для пар 👫)"}
                   </p>
@@ -328,7 +328,7 @@ export default function VacancyViewModal({
                     <span>✓</span> Можна з тваринами
                   </p>
                 )}
-                <div className="text-xs text-slate-400 whitespace-pre-wrap mt-2">
+                <div className="text-xs text-slate-500 whitespace-pre-wrap mt-2">
                   {v.accommodation?.details}
                 </div>
               </div>
@@ -341,7 +341,7 @@ export default function VacancyViewModal({
                 border="border-cyan-500/20"
               />
               <div className="space-y-1">
-                <p className="text-sm text-slate-200 font-semibold">
+                <p className="text-sm text-slate-500 font-semibold">
                   {v.transport?.provided
                     ? "Надається роботодавцем"
                     : "Власний / Не надається"}
@@ -419,7 +419,7 @@ export default function VacancyViewModal({
                           className={`px-4 py-3 rounded-xl border flex flex-col gap-1 transition-all hover:bg-slate-800/50 ${
                             isUrgent
                               ? "bg-red-500/5 text-red-400 border-red-500/10"
-                              : "bg-slate-800/30 text-slate-300 border-slate-800"
+                              : "bg-slate-800/30 text-slate-500 border-slate-800"
                           }`}
                         >
                           <span className="text-[10px] font-black uppercase opacity-60 tracking-widest">
@@ -448,7 +448,7 @@ export default function VacancyViewModal({
                     <p className="text-[10px] font-black text-orange-400 uppercase tracking-widest mb-1.5">
                       💸 Витрати на старті
                     </p>
-                    <p className="text-sm text-slate-300 leading-relaxed">
+                    <p className="text-sm text-slate-500 leading-relaxed">
                       {v.startExpenses.details}
                     </p>
                   </div>
@@ -459,7 +459,7 @@ export default function VacancyViewModal({
                     <p className="text-[10px] font-black text-red-400 uppercase tracking-widest mb-1.5">
                       ⚠️ При достроковому звільненні
                     </p>
-                    <p className="text-sm text-slate-300 leading-relaxed">
+                    <p className="text-sm text-slate-500 leading-relaxed">
                       {v.earlyTerminationLiability.details}
                     </p>
                   </div>
@@ -470,7 +470,7 @@ export default function VacancyViewModal({
                     <p className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-1.5">
                       🎁 Компенсації та бонуси
                     </p>
-                    <p className="text-sm text-slate-300 leading-relaxed">
+                    <p className="text-sm text-slate-500 leading-relaxed">
                       {v.employerCompensations.details}
                     </p>
                   </div>
@@ -484,7 +484,7 @@ export default function VacancyViewModal({
               <p className="text-[10px] text-amber-500 font-black uppercase tracking-widest mb-2">
                 📝 Додаткова інформація
               </p>
-              <p className="text-sm text-slate-300 whitespace-pre-wrap leading-relaxed">
+              <p className="text-sm text-slate-500 whitespace-pre-wrap leading-relaxed">
                 {formatText(v.additionalNotes)}
               </p>
             </div>
@@ -503,13 +503,13 @@ export default function VacancyViewModal({
             )}
 
             <details className="group">
-              <summary className="text-[10px] font-black text-slate-500 uppercase tracking-widest cursor-pointer hover:text-slate-300 transition-colors list-none flex items-center gap-2">
+              <summary className="text-[10px] font-black text-slate-500 uppercase tracking-widest cursor-pointer hover:text-slate-500 transition-colors list-none flex items-center gap-2">
                 <span className="group-open:rotate-90 transition-transform inline-block">
                   ▶
                 </span>
                 Текст повідомлення (Оригінал)
               </summary>
-              <div className="mt-4 p-4 bg-black/40 rounded-xl border border-slate-800 text-[11px] text-slate-400 font-mono leading-relaxed whitespace-pre-wrap overflow-x-auto">
+              <div className="mt-4 p-4 bg-black/40 rounded-xl border border-slate-800 text-[11px] text-slate-500 font-mono leading-relaxed whitespace-pre-wrap overflow-x-auto">
                 {v.rawText || "Текст повідомлення відсутній"}
               </div>
             </details>
@@ -534,7 +534,7 @@ export default function VacancyViewModal({
           </button>
           <button
             onClick={() => onEdit(v)}
-            className="px-8 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-bold rounded-xl border border-slate-700 transition-all"
+            className="px-8 py-3 bg-slate-800 hover:bg-slate-700 text-slate-500 text-sm font-bold rounded-xl border border-slate-700 transition-all"
           >
             ✏️ РЕДАГУВАТИ
           </button>

@@ -89,7 +89,7 @@ export default function ApplyModal({ vacancy, applyType, onClose }) {
       <div className="relative bg-white border border-slate-200 rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto mx-4 shadow-2xl">
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 sticky top-0 bg-slate-900 z-10">
           <div>
-            <h2 className="font-semibold text-slate-100">
+            <h2 className="font-semibold text-slate-500">
               {applyType === "want_work"
                 ? "🟢 Хочу тут працювати"
                 : "💬 Дізнатися деталі"}
@@ -98,7 +98,7 @@ export default function ApplyModal({ vacancy, applyType, onClose }) {
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-slate-500 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition-colors"
+            className="p-2 text-slate-500 hover:text-slate-500 hover:bg-slate-800 rounded-lg transition-colors"
           >
             ✕
           </button>
@@ -107,7 +107,7 @@ export default function ApplyModal({ vacancy, applyType, onClose }) {
         {sent ? (
           <div className="px-6 py-16 text-center">
             <div className="text-4xl mb-4">✅</div>
-            <h3 className="font-semibold text-slate-100 mb-2">
+            <h3 className="font-semibold text-slate-500 mb-2">
               Заявка відправлена!
             </h3>
             <p className="text-sm text-slate-500 mb-6">
@@ -399,7 +399,7 @@ export default function ApplyModal({ vacancy, applyType, onClose }) {
               </button>
               <button
                 onClick={onClose}
-                className="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm rounded-lg transition-colors"
+                className="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-500 text-sm rounded-lg transition-colors"
               >
                 Скасувати
               </button>

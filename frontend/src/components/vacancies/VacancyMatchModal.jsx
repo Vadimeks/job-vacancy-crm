@@ -7,7 +7,7 @@ const STATUS_COLORS = {
   active: "bg-emerald-500/10 text-emerald-400",
   waiting: "bg-yellow-500/10 text-yellow-400",
   employed: "bg-purple-500/10 text-purple-400",
-  left: "bg-slate-500/10 text-slate-400",
+  left: "bg-slate-500/10 text-slate-500",
   blacklist: "bg-red-500/10 text-red-400",
 };
 
@@ -48,7 +48,7 @@ export default function VacancyMatchModal({ vacancy, onClose }) {
         {/* Заголовок */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 sticky top-0 bg-slate-900 z-10">
           <div>
-            <h2 className="font-semibold text-slate-100">
+            <h2 className="font-semibold text-slate-500">
               🎯 Відповідні кандидати
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
@@ -60,7 +60,7 @@ export default function VacancyMatchModal({ vacancy, onClose }) {
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-slate-500 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition-colors"
+            className="p-2 text-slate-500 hover:text-slate-500 hover:bg-slate-800 rounded-lg transition-colors"
           >
             ✕
           </button>
@@ -95,7 +95,7 @@ export default function VacancyMatchModal({ vacancy, onClose }) {
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="font-medium text-slate-100 text-sm">
+                          <span className="font-medium text-slate-500 text-sm">
                             {c.name}
                           </span>
                           <span
@@ -125,17 +125,17 @@ export default function VacancyMatchModal({ vacancy, onClose }) {
                         {/* Побажання */}
                         <div className="flex flex-wrap gap-2 mt-2">
                           {c.jobPreferences?.locationFlexible && (
-                            <span className="text-xs bg-slate-700 text-slate-400 px-2 py-0.5 rounded">
+                            <span className="text-xs bg-slate-700 text-slate-500 px-2 py-0.5 rounded">
                               🗺 Готовий до переїзду
                             </span>
                           )}
                           {c.jobPreferences?.needsAccommodation && (
-                            <span className="text-xs bg-slate-700 text-slate-400 px-2 py-0.5 rounded">
+                            <span className="text-xs bg-slate-700 text-slate-500 px-2 py-0.5 rounded">
                               🏠 Потрібне житло
                             </span>
                           )}
                           {c.jobPreferences?.readyDate && (
-                            <span className="text-xs bg-slate-700 text-slate-400 px-2 py-0.5 rounded">
+                            <span className="text-xs bg-slate-700 text-slate-500 px-2 py-0.5 rounded">
                               📅 Готовий з: {c.jobPreferences.readyDate}
                             </span>
                           )}
