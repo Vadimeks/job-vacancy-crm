@@ -40,7 +40,7 @@ export default function Layout({ children }) {
   }, [fetchUnread]);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-['IBM_Plex_Sans']">
+    <div className="min-h-screen bg-white text-slate-900 font-['IBM_Plex_Sans']">
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -120,7 +120,7 @@ export default function Layout({ children }) {
                     `flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-bold transition-colors ${
                       isActive
                         ? "bg-emerald-50 text-emerald-700"
-                        : "text-slate-600 hover:bg-slate-50"
+                        : "text-slate-600 hover:bg-white"
                     }`
                   }
                 >
