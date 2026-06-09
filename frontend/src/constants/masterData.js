@@ -131,3 +131,17 @@ export const VOIVODESHIPS = [
   "Zachodniopomorskie",
   "Інші країни Європи",
 ];
+// 👈 ДАДАДЗЕНА: Тыпы дагавору (case-insensitive фільтрацыя на фронце)
+export const CONTRACT_TYPES = [
+  { value: "zlecenie", label: "📋 Umowa zlecenie" },
+  { value: "oprace", label: "💼 Umowa o pracę" },
+  { value: "null", label: "❓ Не вказано" },
+];
+
+// 👈 ДАДАДЗЕНА: Buckets гадзін у месяц
+export const HOURS_RANGE_OPTIONS = [
+  { value: "low", label: "⏱️ До 170 год/міс" },
+  { value: "mid", label: "⏱️ 170–220 год/міс" },
+  { value: "high", label: "⏱️ 220+ год/міс" },
+  { value: "unknown", label: "❓ Не вказано" },
+];

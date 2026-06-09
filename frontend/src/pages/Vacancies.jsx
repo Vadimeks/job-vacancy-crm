@@ -176,6 +176,34 @@ function applyFilters(vacancies, filters) {
       !filters.sourceType.includes(v.sourceType || "manual")
     )
       return false;
+    // 👈 ДАДАДЗЕНА: Фільтр па тыпу дагавору (case-insensitive)
+    if (filters.contractType?.length > 0) {
+      const ct = (v.contractType || "").toLowerCase();
+      const match = filters.contractType.some((fc) => {
+        if (fc === "zlecenie") return ct.includes("zlecenie");
+        if (fc === "oprace") return ct.includes("o prac");
+        if (fc === "null") return !v.contractType;
+        return false;
+      });
+      if (!match) return false;
+    }
+
+    // 👈 ДАДАДЗЕНА: Фільтр па гадзінах у месяц (парсінг hoursRange)
+    if (filters.hoursRange?.length > 0) {
+      // Парсім першую лічбу з радка: "210-270"→210, "240+"→240, "170–220"→170
+      const raw = v.salary?.hoursRange || "";
+      const parsed = raw.replace("–", "-").match(/(\d+)/);
+      const minH = parsed ? parseInt(parsed[1]) : null;
+
+      const match = filters.hoursRange.some((fh) => {
+        if (fh === "low") return minH !== null && minH < 170;
+        if (fh === "mid") return minH !== null && minH >= 170 && minH <= 220;
+        if (fh === "high") return minH !== null && minH > 220;
+        if (fh === "unknown") return minH === null;
+        return false;
+      });
+      if (!match) return false;
+    }
     // --- 13. Зарплата (Лічбавы фільтр) ---
     const fMinSal =
       filters.minSalary !== "" ? parseFloat(filters.minSalary) : null;

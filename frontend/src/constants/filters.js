@@ -24,6 +24,8 @@ export const EMPTY_FILTERS = {
   sourceType: [], // Масіў для мульцівыбару крыніц (viber, telegram, spreadsheet)
   startDate: "", // Пачатковая дата фільтра
   endDate: "", // Канчатковая дата фільтра
+  contractType: [], // 👈 ДАДАДЗЕНА: Фільтр па тыпу дагавору
+  hoursRange: [], // 👈 ДАДАДЗЕНА: Фільтр па гадзінах у месяц
 };
 
 export const EMPTY_CANDIDATE_FILTERS = {
