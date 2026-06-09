@@ -144,7 +144,9 @@ export default function VacancyViewModal({
             <div className="space-y-1">
               <p className="text-base text-slate-700">
                 📍 <span className="font-semibold">Місто:</span>{" "}
-                <span className="text-white font-bold">{locationDisplay}</span>
+                <span className="text-slate-700 font-bold">
+                  {locationDisplay}
+                </span>
               </p>
               {v.checkInCity && (
                 <p className="text-sm text-slate-700">
@@ -154,7 +156,7 @@ export default function VacancyViewModal({
               )}
               <p className="text-sm text-slate-700">
                 👥 <span className="font-semibold">Набір:</span>{" "}
-                <span className="text-white font-bold">
+                <span className="text-slate-700 font-bold">
                   {v.gender ||
                     (Array.isArray(v.requirements?.gender)
                       ? v.requirements.gender.join(", ")
