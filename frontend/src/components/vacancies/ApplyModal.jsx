@@ -389,7 +389,7 @@ export default function ApplyModal({ vacancy, applyType, onClose }) {
               </div>
             </div>
 
-            <div className="flex gap-3 px-6 py-4 border-t border-slate-800 sticky bottom-0 bg-slate-900">
+            <div className="flex gap-3 px-6 py-4 border-t border-slate-800 sticky bottom-0 bg-slate-100">
               <button
                 onClick={handleSubmit}
                 disabled={sending}
@@ -399,7 +399,7 @@ export default function ApplyModal({ vacancy, applyType, onClose }) {
               </button>
               <button
                 onClick={onClose}
-                className="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-500 text-sm rounded-lg transition-colors"
+                className="px-5 py-2 bg-slate-100 hover:bg-slate-700 text-slate-500 text-sm rounded-lg transition-colors"
               >
                 Скасувати
               </button>

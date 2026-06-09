@@ -20,7 +20,7 @@ import { EMPTY_FILTERS } from "../constants/filters";
 const STATUS_COLORS = {
   active: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
   closed: "bg-red-500/10 text-red-400 border border-red-500/20",
-  archived: "bg-slate-500/10 text-slate-500 border border-slate-500/20",
+  archived: "bg-slate-500/10 text-slate-500 border border-slate-100/20",
 };
 
 const STATUS_LABELS = {
@@ -705,7 +705,7 @@ export default function Vacancies() {
             className="absolute inset-0 bg-black/60"
             onClick={() => setSidebarOpen(false)}
           />
-          <div className="relative w-80 bg-slate-900 border-r border-slate-800 flex flex-col h-full">
+          <div className="relative w-80 bg-slate-900 border-r border-slate-100 flex flex-col h-full">
             <div className="flex-1 overflow-y-auto">
               <VacancyFilters
                 filters={draft}
@@ -718,7 +718,7 @@ export default function Vacancies() {
                 vacancies={instantFiltered} // 👈 ПЕРАДАЕМ ІМГНЕННЫ КАНТЭКСТ ДЛЯ ЛІЧЫЛЬНІКАЎ
               />
             </div>
-            <div className="p-4 border-t border-slate-800">
+            <div className="p-4 border-t border-slate-100">
               <button
                 onClick={handleApplyFilters}
                 className="w-full py-2.5 bg-emerald-500 text-slate-900 font-bold rounded-lg"
@@ -780,9 +780,9 @@ export default function Vacancies() {
                   value={templateSearch}
                   onChange={(e) => setTemplateSearch(e.target.value)}
                   placeholder="Пошук шаблона (назва, горад)..."
-                  className="w-full bg-slate-100 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-500"
+                  className="w-full bg-slate-100 border border-slate-100 rounded-lg px-3 py-2 text-sm text-slate-500"
                 />
-                <div className="max-h-48 overflow-y-auto border border-slate-800 rounded-lg p-1 bg-slate-900/50">
+                <div className="max-h-48 overflow-y-auto border border-slate-100 rounded-lg p-1 bg-slate-900/50">
                   {filteredTemplates.map((t) => (
                     <button
                       key={t._id}
@@ -805,9 +805,9 @@ export default function Vacancies() {
                   value={vacancySearch}
                   onChange={(e) => setVacancySearch(e.target.value)}
                   placeholder="Пошук вакансії (код, назва, горад)..."
-                  className="w-full bg-slate-100 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-500"
+                  className="w-full bg-slate-100 border border-slate-100 rounded-lg px-3 py-2 text-sm text-slate-500"
                 />
-                <div className="max-h-48 overflow-y-auto border border-slate-800 rounded-lg p-1 bg-slate-900/50">
+                <div className="max-h-48 overflow-y-auto border border-slate-100 rounded-lg p-1 bg-slate-900/50">
                   {filteredVacanciesForUpdate.map((v) => (
                     <button
                       key={v._id}
@@ -911,7 +911,7 @@ export default function Vacancies() {
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-2 flex-wrap border-b border-slate-800/50 pb-2">
+                    <div className="flex items-center gap-2 mb-2 flex-wrap border-b border-slate-100/50 pb-2">
                       {/* ЧЭКБОКС ДЛЯ ВЫБАРУ */}
                       <input
                         type="checkbox"
@@ -1108,7 +1108,7 @@ export default function Vacancies() {
                     </div>
 
                     {/* ХМАРА ТЕГІВ v2.2 (Спецыфічныя патрабаванні: Нацыі, Дакументы, Нюансы) */}
-                    <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-slate-800/50">
+                    <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-slate-100/50">
                       {/* НАЦІОНАЛЬНІСТЬ */}
                       {(v.requirements?.nationalities || []).length > 0 && (
                         <span className="text-[10px] px-2 py-1 rounded-lg bg-blue-50 text-blue-700 border border-blue-100 font-bold uppercase tracking-tight shadow-sm">
@@ -1118,7 +1118,7 @@ export default function Vacancies() {
 
                       {/* ДОКУМЕНТИ */}
                       {(v.requirements?.standardDocs || []).length > 0 && (
-                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 border border-slate-700 font-bold uppercase tracking-tighter">
+                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 border border-slate-100 font-bold uppercase tracking-tighter">
                           📄 {v.requirements.standardDocs.join(" / ")}
                         </span>
                       )}
