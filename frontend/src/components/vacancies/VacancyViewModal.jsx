@@ -536,7 +536,7 @@ export default function VacancyViewModal({
           </button>
           <button
             onClick={() => onEdit(v)}
-            className="px-8 py-3 bg-slate-300 hover:bg-slate-300 text-slate-700 text-sm font-bold rounded-xl border border-slate-700 transition-all"
+            className="px-8 py-3 bg-slate-100 hover:bg-slate-300 text-slate-700 text-sm font-bold rounded-xl border border-slate-700 transition-all"
           >
             ✏️ РЕДАГУВАТИ
           </button>

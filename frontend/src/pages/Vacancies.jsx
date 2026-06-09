@@ -735,7 +735,7 @@ export default function Vacancies() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="lg:hidden px-3 py-2 bg-slate-800 text-slate-500 rounded-lg"
+              className="lg:hidden px-3 py-2 bg-slate-100 text-slate-500 rounded-lg"
             >
               ⚙️ Фільтри {isDirty && "●"}
             </button>
@@ -762,7 +762,7 @@ export default function Vacancies() {
                 <button
                   key={m}
                   onClick={() => setFormMode(m)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium ${formMode === m ? "bg-emerald-500 text-slate-900" : "bg-slate-800 text-slate-500"}`}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium ${formMode === m ? "bg-emerald-500 text-slate-900" : "bg-slate-100 text-slate-500"}`}
                 >
                   {m === "auto"
                     ? "🤖 Авто (AI)"
@@ -780,14 +780,14 @@ export default function Vacancies() {
                   value={templateSearch}
                   onChange={(e) => setTemplateSearch(e.target.value)}
                   placeholder="Пошук шаблона (назва, горад)..."
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-500"
+                  className="w-full bg-slate-100 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-500"
                 />
                 <div className="max-h-48 overflow-y-auto border border-slate-800 rounded-lg p-1 bg-slate-900/50">
                   {filteredTemplates.map((t) => (
                     <button
                       key={t._id}
                       onClick={() => setSelectedTemplate(t)}
-                      className={`w-full text-left px-3 py-2 rounded-lg text-sm mb-1 ${selectedTemplate?._id === t._id ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" : "text-slate-500 hover:bg-slate-800"}`}
+                      className={`w-full text-left px-3 py-2 rounded-lg text-sm mb-1 ${selectedTemplate?._id === t._id ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" : "text-slate-500 hover:bg-slate-100"}`}
                     >
                       <span className="font-bold">{t.templateName}</span>
                       <span className="text-slate-500 ml-2 text-xs">
@@ -805,16 +805,16 @@ export default function Vacancies() {
                   value={vacancySearch}
                   onChange={(e) => setVacancySearch(e.target.value)}
                   placeholder="Пошук вакансії (код, назва, горад)..."
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-500"
+                  className="w-full bg-slate-100 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-500"
                 />
                 <div className="max-h-48 overflow-y-auto border border-slate-800 rounded-lg p-1 bg-slate-900/50">
                   {filteredVacanciesForUpdate.map((v) => (
                     <button
                       key={v._id}
                       onClick={() => setSelectedVacancyForUpdate(v)}
-                      className={`w-full text-left px-3 py-2 rounded-lg text-sm mb-1 ${selectedVacancyForUpdate?._id === v._id ? "bg-blue-500/20 text-blue-400 border border-blue-500/30" : "text-slate-500 hover:bg-slate-800"}`}
+                      className={`w-full text-left px-3 py-2 rounded-lg text-sm mb-1 ${selectedVacancyForUpdate?._id === v._id ? "bg-blue-500/20 text-blue-400 border border-blue-500/30" : "text-slate-500 hover:bg-slate-100"}`}
                     >
-                      <span className="font-mono text-xs bg-slate-800 px-1 rounded mr-2">
+                      <span className="font-mono text-xs bg-slate-100 px-1 rounded mr-2">
                         {v.vacancyCode}
                       </span>
                       <span className="font-medium">
@@ -849,7 +849,7 @@ export default function Vacancies() {
               </button>
               <button
                 onClick={handleCloseForm}
-                className="px-4 py-2 bg-slate-800 text-slate-500 rounded-lg"
+                className="px-4 py-2 bg-slate-100 text-slate-500 rounded-lg"
               >
                 Скасувати
               </button>
@@ -865,7 +865,7 @@ export default function Vacancies() {
                 filtered.length > 0 && selectedIds.length === filtered.length
               }
               onChange={toggleSelectAll}
-              className="w-4 h-4 rounded border-slate-700 bg-slate-800 text-emerald-500 focus:ring-emerald-500/20"
+              className="w-4 h-4 rounded border-slate-100 bg-slate-100 text-emerald-500 focus:ring-emerald-500/20"
             />
             <span className="text-sm text-slate-500 font-medium">
               {selectedIds.length > 0
@@ -1118,7 +1118,7 @@ export default function Vacancies() {
 
                       {/* ДОКУМЕНТИ */}
                       {(v.requirements?.standardDocs || []).length > 0 && (
-                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-500 border border-slate-700 font-bold uppercase tracking-tighter">
+                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 border border-slate-700 font-bold uppercase tracking-tighter">
                           📄 {v.requirements.standardDocs.join(" / ")}
                         </span>
                       )}
