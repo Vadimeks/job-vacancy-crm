@@ -1118,7 +1118,7 @@ export default function Vacancies() {
 
                       {/* ДОКУМЕНТИ */}
                       {(v.requirements?.standardDocs || []).length > 0 && (
-                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 border border-slate-100 font-bold uppercase tracking-tighter">
+                        <span className="text-[10px] px-2 py-1 rounded-lg bg-slate-100 text-slate-700  font-bold uppercase tracking-tighter">
                           📄 {v.requirements.standardDocs.join(" / ")}
                         </span>
                       )}
