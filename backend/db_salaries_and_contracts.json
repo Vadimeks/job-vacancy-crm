@@ -1,0 +1,5252 @@
+[
+  {
+    "_id": "6a226f8334c36265e90f9f8a",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.36 - 33.90 zł/god (нетто)",
+      "hoursRange": "210-270",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Доплата за власне житло: 2 zł за кожну відпрацьовану годину, але не більше 250 годин/місяць (максимум 500 zł). Ставка 25,36 zł за годину (нетто); 31.40 зл/год нетто для студентів до 26 років. Для працівників з UDT: 27,50 zł за годину (нетто); 33,90 zł за годину (нетто) для студентів з UDT."
+    }
+  },
+  {
+    "_id": "6a22702b34c36265e90f9fac",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.36 - 31.40 zł/god (нетто)",
+      "hoursRange": "240-288",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "для студентів 31,40 злотих нетто, за наявності довідки студента!"
+    }
+  },
+  {
+    "_id": "6a22709634c36265e90f9fc6",
+    "contractType": "umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.36 - 31.40 zł/god (нетто)",
+      "hoursRange": "160-288",
+      "payoutDates": "з 15 до 22 числа кожного наступного місяця за попередній відпрацьований",
+      "bonusDetails": "до 800 зл/брутто за виконання норм.",
+      "salaryNotes": "Доплата за власне житло: 2 zł за кожну відпрацьовану годину, але не більше 250 годин/місяць (максимум 500 zł)."
+    }
+  },
+  {
+    "_id": "6a2282e334c36265e90fa454",
+    "contractType": null,
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 17.55,
+      "currency": "EUR",
+      "rawSalaryDisplay": "17.55 €/год (брутто)",
+      "hoursRange": "160-200",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a2282f534c36265e90fa461",
+    "contractType": null,
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 17.55,
+      "currency": "EUR",
+      "rawSalaryDisplay": "17.55 €/год (брутто)",
+      "hoursRange": "160-200",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a229a8234c36265e90fcfbb",
+    "contractType": "Umowa zlecenia",
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.36 - 31.40 zł/год (нетто)",
+      "hoursRange": "210-270",
+      "payoutDates": "20 - 22 числа за попередній пропрацьований місяць",
+      "bonusDetails": "Премії за виконання норми від 240 зл брутто до 1200 зл брутто",
+      "salaryNotes": "Доплата за своє житло +1 зл/год нетто"
+    }
+  },
+  {
+    "_id": "6a22bfdc34c36265e90fe628",
+    "contractType": null,
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 17.55,
+      "currency": "EUR",
+      "rawSalaryDisplay": "17.55 €/год (брутто)",
+      "hoursRange": "160-180",
+      "payoutDates": "виплата заробітної плати одним переказом",
+      "bonusDetails": "надбавка 150% за понаднормові години та роботу в суботу",
+      "salaryNotes": "14,71 € базова ставка + 2,84 € доплати"
+    }
+  },
+  {
+    "_id": "6a22c2c3bc72c76126581a08",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 31.86,
+      "studentNetto": 37.9,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "31.86 - 37.90 zł/god (нетто)",
+      "hoursRange": "200-260",
+      "payoutDates": "",
+      "bonusDetails": "До 5500 зл премія \"приведи друга\"; Подарунки на Різдво для працівників та їхніх сімей, в осінньо-зимовий період - вітаміни; Додаткова премія від складу за рекомендацію (приведи друга) до 5000,00 zł",
+      "salaryNotes": "Ставка 31,86 нетто (базова ставка + гарантована премія); Для кандидатів до 26 років зі статусом студента (допомагаємо оформити) ставка 37,90 чистими; Без нічних змін; Премії виплачуються лише якщо ти працюєш. Якщо ти тимчасово не працюєш, премія буде виплачена після повернення."
+    }
+  },
+  {
+    "_id": "6a22f0e4971f91a1d4a84efb",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.36 - 31.40 zł/god (нетто)",
+      "hoursRange": "200-250",
+      "payoutDates": "",
+      "bonusDetails": "доплата за власне житло - 2 zł за кожну відпрацьовану годину, але не більше 250 годин/місяць (максимум 500 zł)",
+      "salaryNotes": "працівник проходить мед комісію та техніку безпеки (вираховуємо 120 зл з першої ЗП)"
+    }
+  },
+  {
+    "_id": "6a22f12a971f91a1d4a84f05",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.36 - 34.80 zł/год (нетто)",
+      "hoursRange": "280-300",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "UDT: 28,15 zł/год; UDT + студент: 34,80 zł/год"
+    }
+  },
+  {
+    "_id": "6a22f19d971f91a1d4a84f22",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.36 - 31.40 zł/god (нетто)",
+      "hoursRange": "160-288",
+      "payoutDates": "З 15го по 22 число за попередній пропрацьований місяць",
+      "bonusDetails": "Премії за виконання норми",
+      "salaryNotes": "Доплата за власне житло - 2 zł за кожну відпрацьовану годину, але не більше 250 годин/місяць (максимум 500 zł)."
+    }
+  },
+  {
+    "_id": "6a22f2553636e842bc340391",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.36 - 31.40 zł/год (нетто)",
+      "hoursRange": "170-260",
+      "payoutDates": "Щомісяця з 15 по 22 число за попередній місяць",
+      "bonusDetails": "Премії до 800 zł брутто за виконання норм!",
+      "salaryNotes": "Якщо своє житло — доплата 2zl/год, але не більше 250 годин, тобто 500zl."
+    }
+  },
+  {
+    "_id": "6a2333b7e69ec7fd46f8525c",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 30,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "30 zł/god (нетто)",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Для студентів ставка вища; Все залежить від досвіду роботи кандидата; Стабільна та своєчасна виплата заробітної плати"
+    }
+  },
+  {
+    "_id": "6a2333eee69ec7fd46f85265",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.00 - 31.40 zł/god (нетто)",
+      "hoursRange": "140-220",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Для бажаючих є можливість брати додаткові години — до 220 годин на місяць."
+    }
+  },
+  {
+    "_id": "6a23341fe69ec7fd46f8526f",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25 zł/год (нетто)",
+      "hoursRange": "180-216",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Стабільна та своєчасна виплата заробітної плати"
+    }
+  },
+  {
+    "_id": "6a233459e69ec7fd46f85278",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25 zł/god (нетто)",
+      "hoursRange": "180-216",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Стабільна та своєчасна виплата заробітної плати."
+    }
+  },
+  {
+    "_id": "6a233490e69ec7fd46f85281",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 28,
+      "studentNetto": 32,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "28 - 32 zł/год (нетто)",
+      "hoursRange": "200-240",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a2334c6e69ec7fd46f8528b",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 24,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "24-25 zł/god (нетто)",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "перші три дні оплата погодинно (24-25 злотих), далі оплата на акорд: • Виїзд (коли виселяються) 14,70 зл • Апартамент (більший номер) 17,30 зл • Побут (поселені в номері) 11,20 зл (якщо ще є заселення в номері). Норма: В середньому 2 номери за годину. Площа номера: ~25 м²."
+    }
+  },
+  {
+    "_id": "6a2334ffe69ec7fd46f85296",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 25,
+      "studentNetto": 32,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.00 - 32.00 zł/god (нетто)",
+      "hoursRange": "160-216",
+      "payoutDates": "",
+      "bonusDetails": "+1 зл/год за проживання у власному житлі",
+      "salaryNotes": "Житло 600 зл/місяць вираховується із зарплати."
+    }
+  },
+  {
+    "_id": "6a2338cd0d751348a9628ec9",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.36 - 31.40 zł/год (нетто)",
+      "hoursRange": "168-300",
+      "payoutDates": "",
+      "bonusDetails": "до 15% премії за виконання норм та відсутність пропусків",
+      "salaryNotes": "Доплата на обіди по 9 zł / день."
+    }
+  },
+  {
+    "_id": "6a2338fe0d751348a962952c",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 27.95,
+      "studentNetto": 34.6,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "27.95 - 34.60 zł/год (нетто)",
+      "hoursRange": "190–220",
+      "payoutDates": "Виплата одним банківським переказом",
+      "bonusDetails": "",
+      "salaryNotes": "5 310 – 6 150 zł нетто / місяць; Для студентів до 26 років: 6 575 – 7 610 zł нетто / місяць"
+    }
+  },
+  {
+    "_id": "6a2339340d751348a962953b",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.36 - 31.40 zł/god (нетто)",
+      "hoursRange": "168-270",
+      "payoutDates": "",
+      "bonusDetails": "щомісячна премія 150–300 zł",
+      "salaryNotes": "заробітна плата виплачується одним переказом"
+    }
+  },
+  {
+    "_id": "6a2339830d751348a9629875",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 25.71,
+      "studentNetto": 31.84,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.71 - 31.84 zł/god (нетто)",
+      "hoursRange": "168-200",
+      "payoutDates": "",
+      "bonusDetails": "премія (300-700 зл)",
+      "salaryNotes": "Для студентів до 26 років: ставка 31,84 zł чистими за годину."
+    }
+  },
+  {
+    "_id": "6a2339c80d751348a9629eea",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 28.26,
+      "studentNetto": 35,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "28.26 - 35.00 zł/год (нетто)",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Виплата зарплати одним банківським переказом; 5 050 – 6 720 zł нетто/місяць (залежно від кількості годин); 5 814 - 8 306 (зі довідкою студента до 26 років)"
+    }
+  },
+  {
+    "_id": "6a233a3d0d751348a962a8aa",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 26.5,
+      "studentNetto": 32.81,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "26.50 - 32.81 PLN/год (нетто)",
+      "hoursRange": "168-240",
+      "payoutDates": "",
+      "bonusDetails": "премія за продуктивність (300–700 PLN/місяць)",
+      "salaryNotes": "Орієнтовна місячна зарплата: 4600 - 5300 PLN нетто (для звичайних працівників); Орієнтовна місячна зарплата: 5550 - 6550 PLN нетто (для студентів до 26 років)."
+    }
+  },
+  {
+    "_id": "6a233a790d751348a962af28",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": 30.5,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.36 - 30.50 zł/год (нетто)",
+      "hoursRange": "180-250",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Місячна зарплата: 4560 – 6340 zł нетто; Для студентів до 26 років: 5650 – 7850 zł нетто/міс."
+    }
+  },
+  {
+    "_id": "6a233ab40d751348a962b268",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.7,
+      "studentNetto": 31.83,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.70 - 31.83 zł/год (нетто)",
+      "hoursRange": "180-250",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "4620–6420 zł нетто / місяць; Для студентів до 26 років: 5730–7950 zł нетто / місяць"
+    }
+  },
+  {
+    "_id": "6a233ae50d751348a962b270",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.36 - 31.40 zł/god (нетто)",
+      "hoursRange": "180-200",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Приблизно 4430–4920 PLN нетто/міс; Для студентів до 26 років: приблизно 5490–6100 PLN нетто/міс"
+    }
+  },
+  {
+    "_id": "6a233b210d751348a962b27a",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 30.19,
+      "studentNetto": 37.38,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "30.19 - 37.38 zł/god (нетто)",
+      "hoursRange": "168-200",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Для працівників: PIT-30 — 30,19 zł нетто/год (5071–6038 zł нетто на місяць). Для студентів до 26 років: 37,38 zł нетто/год (6279–7476 zł нетто на місяць)."
+    }
+  },
+  {
+    "_id": "6a233b610d751348a962b5bc",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.36 - 31.40 zł/god (нетто)",
+      "hoursRange": "168–200",
+      "payoutDates": "",
+      "bonusDetails": "Можлива премія за рішенням керівника виробництва",
+      "salaryNotes": "приблизно 4300 – 4900 зл нетто на місяць; Для студентів до 26 років: приблизно 5120 – 6100 зл нетто на місяць"
+    }
+  },
+  {
+    "_id": "6a233bbd0d751348a962b5c9",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.36 - 31.40 zł/год (нетто)",
+      "hoursRange": "220+",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "25,36 zł від 5 580 на місяць; 31,40 zł — для студентів від 6 908 на місяць."
+    }
+  },
+  {
+    "_id": "6a233bf90d751348a962b5d7",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 27.95,
+      "studentNetto": 34.61,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "27.95 - 34.61 zł/год нетто",
+      "hoursRange": "220-260",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "на місяць: 6150–7260 zł нетто; для студентів до 26 років: на місяць: 7600–8990 zł нетто."
+    }
+  },
+  {
+    "_id": "6a233c4b0d751348a962b5e2",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 27.95,
+      "studentNetto": 34.61,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "27.95 - 34.61 zł/god (нетто)",
+      "hoursRange": "168-200",
+      "payoutDates": "",
+      "bonusDetails": "Бонуси за продуктивність",
+      "salaryNotes": "Місячна зарплата: 4 696 – 6 920 PLN нетто; Зарплата виплачується одним банківським переказом"
+    }
+  },
+  {
+    "_id": "6a233c960d751348a962b5ec",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 25.37,
+      "studentNetto": 31.42,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.37 - 31.42 zł/год (нетто)",
+      "hoursRange": "170–240",
+      "payoutDates": "",
+      "bonusDetails": "можливе підвищення ставки з ростом кваліфікації та стажу",
+      "salaryNotes": "Стандартна ставка: 4260 – 6080 zł нетто/міс; Для студентів до 26 років: 5270 – 7540 zł нетто/міс"
+    }
+  },
+  {
+    "_id": "6a233c9fdfa25ff528f21e9d",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "4000-8000 zł/міс нетто",
+      "hoursRange": "210-270",
+      "payoutDates": "",
+      "bonusDetails": "500 zł брутто щоквартально після 6 місяців роботи (за умови відсутності лікарняних).; 1 додатковий оплачуваний вихідний в кінці року при повній відсутності лікарняних.",
+      "salaryNotes": "Пробний місяць: Ставка 31,40 zł/год брутто (≈ 4000–4500 zł нетто при виконанні норми).; Після переходу на UMOWA O PRACĘ: Стабільна зарплата 4806 zł брутто.; Можливість заробляти 7000–8000 zł нетто/міс при роботі у вихідні та понаднормові."
+    }
+  },
+  {
+    "_id": "6a233cd00d751348a962b5f7",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 30.17,
+      "studentNetto": 38.48,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "30.17 - 38.48 zł/god (нетто)",
+      "hoursRange": "182-240",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "На місяць 5 490 - 7 240 zł нетто. (182 - 240 годин)\n\nДля студентів до 26 років: ставка за годину 38,48 zł нетто. 7 000 - 9 235 на місяць нетто."
+    }
+  },
+  {
+    "_id": "6a233d060d751348a962b602",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 32.42,
+      "studentNetto": 40.15,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "32.42 - 40.15 zł/год (нетто)",
+      "hoursRange": "168–200",
+      "payoutDates": "Виплата одним платежем",
+      "bonusDetails": "",
+      "salaryNotes": "5446–6480 zł/міс нетто (для звичайних працівників); 6740–8030 zł/міс нетто (для студентів до 26 років)"
+    }
+  },
+  {
+    "_id": "6a233d400d751348a962b60d",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 30.18,
+      "studentNetto": 37.37,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "30.18 - 37.37 zł/god (нетто)",
+      "hoursRange": "182-240",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Ставка нетто: 31,75 - 39,32 НЕТТО (загальний діапазон); На місяць 5 500 - 7240 zł нетто; Для студентів до 26 років: На місяць 6800 - 8900 zł нетто."
+    }
+  },
+  {
+    "_id": "6a233d880d751348a962b619",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": 3500,
+      "studentNetto": null,
+      "baseBrutto": 4806,
+      "currency": "PLN",
+      "rawSalaryDisplay": "3 500 - 4 500 zł/міс (нетто)",
+      "hoursRange": "168-200",
+      "payoutDates": "",
+      "bonusDetails": "+50% за роботу понад 8 год/день; +20% за роботу в нічні зміни; +100% за роботу у вихідні/святкові дні без відгулу; Для працівників до 26 років доплата 12%; Премії за результативність (~300 zł); +1 zł/год, якщо орендуєте власне житло",
+      "salaryNotes": "Оплачувана відпустка 20 або 26 днів на рік; Оплачуваний лікарняний 80% від зарплати"
+    }
+  },
+  {
+    "_id": "6a233dd40d751348a962b623",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.36 - 31.40 zł/год (нетто)",
+      "hoursRange": "168–200",
+      "payoutDates": "",
+      "bonusDetails": "премія до 10%",
+      "salaryNotes": "Виплата одним банківським переказом"
+    }
+  },
+  {
+    "_id": "6a233df2dfa25ff528f21ede",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.36 - 31.40 zł/год (нетто)",
+      "hoursRange": "240-288",
+      "payoutDates": "Регулярно, з 15 по 20 число кожного місяця",
+      "bonusDetails": "",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a233e050d751348a962b62d",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 27.95,
+      "studentNetto": 34.61,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "27.95 - 34.61 zł/год (нетто)",
+      "hoursRange": "168-200",
+      "payoutDates": "1 раз на місяць до 15 числа",
+      "bonusDetails": "до 10% премія",
+      "salaryNotes": "4695 – 5590 zł нетто / місяць (для звичайних працівників); 5810 – 6920 zł нетто / місяць (для студентів до 26 років)"
+    }
+  },
+  {
+    "_id": "6a233e35dfa25ff528f21ee8",
+    "contractType": "umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.36 - 31.40 zł/год (нетто)",
+      "hoursRange": "200-288",
+      "payoutDates": "з 15 по 20 число кожного місяця",
+      "bonusDetails": "Додатково передбачені бонуси.",
+      "salaryNotes": "Виплати: Регулярно, з 15 по 20 число кожного місяця. Доплата за оренду власного житла: 1 zł за кожну відпрацьовану годину."
+    }
+  },
+  {
+    "_id": "6a233e510d751348a962b639",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.36 - 31.40 zł/год (нетто)",
+      "hoursRange": "168–280",
+      "payoutDates": "",
+      "bonusDetails": "Оплата залежить від кількості відпрацьованих годин та продуктивності.",
+      "salaryNotes": "Заробітна плата виплачується одним перерахуванням."
+    }
+  },
+  {
+    "_id": "6a233e930d751348a962b649",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.36 - 30.86 PLN/год (нетто); 31.40 - 38.28 PLN/год (нетто для студентів)",
+      "hoursRange": "200–240",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Залежить від продуктивності. Для студентів до 26 років підвищена ставка. Зарплата 5000 – 7400 PLN нетто/міс. Для студентів 6100 – 9180 PLN нетто/міс."
+    }
+  },
+  {
+    "_id": "6a233ed20d751348a962b655",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 24,
+      "studentNetto": 33.22,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "24.00 - 33.22 zł/год (нетто)",
+      "hoursRange": "160-200",
+      "payoutDates": "",
+      "bonusDetails": "можлива премія за рішенням керівника виробництва",
+      "salaryNotes": "25.50 PLN/год — з поданим PIT-2; 26.83 PLN/год — PIT-30; До 26 років, не студент: 26,83 zł нетто"
+    }
+  },
+  {
+    "_id": "6a233f140d751348a962b660",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 25.72,
+      "studentNetto": 31.85,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.36 - 31.85 zł/god (нетто)",
+      "hoursRange": "220-300",
+      "payoutDates": "",
+      "bonusDetails": "премії",
+      "salaryNotes": "На період випробувального терміну (1-й місяць роботи) ставка за годину 25,36 zł нетто. Після випробувального терміну ставка за годину 25,72 zł нетто. На місяць 5570 - 7700 zł нетто.\nДля студентів до 26 років: у 1-й міс. роботи ставка за годину 31,40 zł нетто, після випробувального терміну - 31,85 zł нетто. На місяць 6900 - 9550 zł нетто."
+    }
+  },
+  {
+    "_id": "6a233f680d751348a962b66b",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 27.95,
+      "studentNetto": 34.61,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "27.95 - 34.61 zł/год (нетто)",
+      "hoursRange": "168–200",
+      "payoutDates": "",
+      "bonusDetails": "Бонус за рекомендацію працівника — 500 zł*",
+      "salaryNotes": "Виплата одним банківським переказом"
+    }
+  },
+  {
+    "_id": "6a233fb20d751348a962b67a",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 27.95,
+      "studentNetto": 34.61,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "27,95 - 34,61 zł/год (нетто)",
+      "hoursRange": "171-224",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Зарплата на місяць: 4779,60 – 6259,00 zł нетто (залежно від годин та змін)"
+    }
+  },
+  {
+    "_id": "6a233ff00d751348a962b689",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 32.3,
+      "studentNetto": null,
+      "baseBrutto": 40,
+      "currency": "PLN",
+      "rawSalaryDisplay": "32.30 zł/год (нетто)",
+      "hoursRange": "200-220",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "На місяць: 6 460 – 7 100 zł чистими. Додатково +1 zł до ставки для тих, хто орендує житло самостійно."
+    }
+  },
+  {
+    "_id": "6a2340290d751348a962b692",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 42.8,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "42.80 zł/год (нетто)",
+      "hoursRange": "176",
+      "payoutDates": "Виплата одним перерахуванням",
+      "bonusDetails": "Премія за рекомендацію співробітника — 500 zł",
+      "salaryNotes": "7 530 zł нетто на місяць"
+    }
+  },
+  {
+    "_id": "6a2340610d751348a962b69c",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 33.54,
+      "studentNetto": 41.53,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "33.54 - 41.53 zł/год (нетто)",
+      "hoursRange": "170-200",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Для звичайних працівників: 5700–6700 zł нетто/місяць.\nДля студентів до 26 років: 7060–8300 zł на місяць (брутто = нетто)."
+    }
+  },
+  {
+    "_id": "6a2340960d751348a962b6aa",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 33.54,
+      "studentNetto": 41.53,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "33.54 - 41.53 zł/год (нетто)",
+      "hoursRange": "180-200",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "6030–6700 zł нетто на місяць (для звичайних працівників); 7470–8300 zł на місяць (для студентів до 26 років)."
+    }
+  },
+  {
+    "_id": "6a2340dc0d751348a962b6b6",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 30.74,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "30.74 - 33.54 zł/god (нетто)",
+      "hoursRange": "160-200",
+      "payoutDates": "",
+      "bonusDetails": "У водіїв, які працюватимуть на далеких маршрутах та продаватимуть квитки, можливі премії до 1000 зл за продаж квитків.",
+      "salaryNotes": "Ставка водія 1 категорії: 33,54 zł нетто. На місяць 6030 - 6700 zł нетто. Ставка водія 2 категорії (час навчання): 30,74 zł нетто. На місяць 5160 - 6140 zł нетто"
+    }
+  },
+  {
+    "_id": "6a23411d0d751348a962b6c3",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 26.83,
+      "studentNetto": 33.22,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "26.83 - 33.22 PLN/год (нетто)",
+      "hoursRange": "168–240",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Щомісячно 4500 – 6430 PLN нетто (для не студентів); щомісячно 5580 – 7970 PLN нетто (для студентів до 26 років); заробітна плата виплачується одним платежем."
+    }
+  },
+  {
+    "_id": "6a23415e0d751348a962b6cd",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.36 - 31.40 zł/god (нетто)",
+      "hoursRange": "168-230",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "зарплата виплачується раз на місяць банківським переказом"
+    }
+  },
+  {
+    "_id": "6a2341b90d751348a962b6d7",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 30.2,
+      "studentNetto": 37.39,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "30.20 - 37.39 PLN/год (нетто)",
+      "hoursRange": "168–260",
+      "payoutDates": "",
+      "bonusDetails": "+1 PLN/год для кандидатів, які самостійно організують своє проживання",
+      "salaryNotes": "Виплата здійснюється одним банківським переказом"
+    }
+  },
+  {
+    "_id": "6a2342080d751348a962b6e4",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 4806,
+      "currency": "PLN",
+      "rawSalaryDisplay": "4806 zł/місяць (брутто)",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "+20% за роботу в нічні години; +50% за понаднормову роботу в будні дні; +100% за роботу в неділю та святкові дні; Оплачувана відпустка — 2 дні за кожен відпрацьований місяць; Оплачуваний лікарняний",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a23424c0d751348a962b6ed",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.36 zł/god (нетто)",
+      "hoursRange": "220-270",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Зарплата: 4 250 – 6 000 zł нетто/місяць (залежно від кількості годин)"
+    }
+  },
+  {
+    "_id": "6a23428c0d751348a962b6f9",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 47,
+      "studentNetto": null,
+      "baseBrutto": 61,
+      "currency": "PLN",
+      "rawSalaryDisplay": "47.00 - 52.54 zł/god",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "Можлива премія до +50 зл нетто/день",
+      "salaryNotes": "420 зл нетто/день (база); 48,00 зл нетто/год (PIT-2); 52,54 зл нетто/год (PIT-30); 61 зл брутто/год (549 зл/день); Орієнтовно: 10 500 – 11 500 зл нетто/міс"
+    }
+  },
+  {
+    "_id": "6a2342c40d751348a962b702",
+    "contractType": null,
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "6 zł/ящик (нетто); до 5000 zł/міс (нетто)",
+      "hoursRange": "до 288",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Відрядна оплата: 6 zł нетто за 1 ящик. В 1 ящику - 51 пучок, в 1 пучку - 11 редисок. Середній заробіток до 5000 zł нетто на місяць (в середньому 1300 зл на тиждень)."
+    }
+  },
+  {
+    "_id": "6a2343620d751348a962b75c",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "EUR",
+      "rawSalaryDisplay": "17,55 € брутто/час",
+      "hoursRange": "160–180",
+      "payoutDates": "",
+      "bonusDetails": "доплата 150% за сверхурочные часы и работу по субботам",
+      "salaryNotes": "17,55 € брутто/час (14,71 € базовая ставка + 2,84 € доплаты); 2800–3150 € брутто в месяц"
+    }
+  },
+  {
+    "_id": "6a2344d30d751348a962b777",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": 14.5,
+      "studentNetto": null,
+      "baseBrutto": 17.57,
+      "currency": "EUR",
+      "rawSalaryDisplay": "14.50 €/год (нетто), 17.57 €/год (брутто)",
+      "hoursRange": "192-240",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Високий щомісячний дохід завдяки великій кількості годин."
+    }
+  },
+  {
+    "_id": "6a23450b0d751348a962b783",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 14.5,
+      "studentNetto": null,
+      "baseBrutto": 17.55,
+      "currency": "EUR",
+      "rawSalaryDisplay": "14.50 €/год (нетто)",
+      "hoursRange": "160-170",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Ставка: 17,55 € брутто/год (14,71 € базова ставка + доплати 2,84 €), близько 14,50 € нетто/год. Зарплата: 2800 – 2980 € брутто/місяць."
+    }
+  },
+  {
+    "_id": "6a2345720d751348a962b79a",
+    "contractType": null,
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 17.55,
+      "currency": "EUR",
+      "rawSalaryDisplay": "17.55 €/год (брутто)",
+      "hoursRange": "160-180",
+      "payoutDates": "Виплата одним платежем",
+      "bonusDetails": "Понаднормові: 135%",
+      "salaryNotes": "В місяць: €2800–€3150 брутто"
+    }
+  },
+  {
+    "_id": "6a2345a20d751348a962b7a5",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 14.5,
+      "studentNetto": null,
+      "baseBrutto": 17.55,
+      "currency": "EUR",
+      "rawSalaryDisplay": "14.50 €/год (нетто)",
+      "hoursRange": "152-180",
+      "payoutDates": "",
+      "bonusDetails": "понаднормові та суботи оплачуються 135%",
+      "salaryNotes": "17,55€ брутто/год (14,71€ + 2,84€ доплати); виплата одним платежем"
+    }
+  },
+  {
+    "_id": "6a2345d70d751348a962b7af",
+    "contractType": null,
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "EUR",
+      "rawSalaryDisplay": "18,56 - 18,70€ брутто/год",
+      "hoursRange": "170-220",
+      "payoutDates": "",
+      "bonusDetails": "оплачувані понаднормові — 125%",
+      "salaryNotes": "18,56–18,70€ брутто/год; від 2970 до 3170€ брутто/міс."
+    }
+  },
+  {
+    "_id": "6a2346040d751348a962b7b9",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 18.92,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "EUR",
+      "rawSalaryDisplay": "18,92€ брутто/год",
+      "hoursRange": "160–180",
+      "payoutDates": "",
+      "bonusDetails": "доплати за понаднормові: — 125% з 06:00 до 22:00; — 150% з 22:00 до 06:00",
+      "salaryNotes": "Ставка: 18,92€ брутто. Оплата: 18,92€ брутто/год; 3027–3405€ брутто на місяць."
+    }
+  },
+  {
+    "_id": "6a23480bdfa25ff528f21f22",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.36 - 31.40 zł/god (нетто)",
+      "hoursRange": "208-312",
+      "payoutDates": "з 15 по 20 число кожного місяця",
+      "bonusDetails": "",
+      "salaryNotes": "Виплати: Регулярно."
+    }
+  },
+  {
+    "_id": "6a234a2adfa25ff528f21fc2",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.36 - 31.40 zł/god (нетто)",
+      "hoursRange": "200-288",
+      "payoutDates": "з 15 по 20 число кожного місяця",
+      "bonusDetails": "Додатково передбачені бонуси.",
+      "salaryNotes": "Виплати: Регулярно, з 15 по 20 число кожного місяця."
+    }
+  },
+  {
+    "_id": "6a234a64dfa25ff528f21fd1",
+    "contractType": "umowa zlecenie",
+    "salary": {
+      "baseNetto": 26.65,
+      "studentNetto": 33,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "26.65 - 33.00 zł/год (нетто)",
+      "hoursRange": "200-240",
+      "payoutDates": "Регулярно, з 15 по 20 число кожного місяця.",
+      "bonusDetails": "",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a234b686a5309fbfbf1d05a",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 14.5,
+      "studentNetto": null,
+      "baseBrutto": 17.55,
+      "currency": "EUR",
+      "rawSalaryDisplay": "14.50 EUR/god (нетто)",
+      "hoursRange": "160-200",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "17,55 € брутто/год. (14,71 € + 2,84 € додаткові виплати), близько 14,50 € нетто (з усіма доплатами, якщо працювати повний місяць). Виплата одним переказом."
+    }
+  },
+  {
+    "_id": "6a234b9d6a5309fbfbf1d066",
+    "contractType": null,
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 19.84,
+      "currency": "EUR",
+      "rawSalaryDisplay": "19.84€ брутто/год; 3170–3570€ брутто на місяць",
+      "hoursRange": "160–180",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "базова ставка 17,00€ + доплати 2,84€"
+    }
+  },
+  {
+    "_id": "6a234bd46a5309fbfbf1d06f",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 14.5,
+      "studentNetto": null,
+      "baseBrutto": 17.55,
+      "currency": "EUR",
+      "rawSalaryDisplay": "14.50 €/год (нетто), 17.55 €/год (брутто), 2350-2640 €/міс (брутто)",
+      "hoursRange": "",
+      "payoutDates": "виплата зарплати одним платежем",
+      "bonusDetails": "",
+      "salaryNotes": "близько 14,50 нетто (з усіма доплатами, якщо працювати повний місяць); базова ставка 14,71€ + доплати 2,84€"
+    }
+  },
+  {
+    "_id": "6a234c2a6a5309fbfbf1d09e",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 4300,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "4300 PLN netto",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a234c796a5309fbfbf1d0af",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 4300,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "4300 PLN netto",
+      "hoursRange": "",
+      "payoutDates": "Своєчасна виплата",
+      "bonusDetails": "",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a234cc06a5309fbfbf1d0ba",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 4500,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "4500 PLN/міс",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Винагорода опікунки: 4500 PLN на місяць. Легальне працевлаштування та своєчасні виплати."
+    }
+  },
+  {
+    "_id": "6a234d006a5309fbfbf1d0c9",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 4825,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "4825 zł/міс",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a234d466a5309fbfbf1d0d5",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 4375,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "4375 PLN/міс",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a234d706a5309fbfbf1d0e1",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 4375,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "4375 PLN нетто",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a234da36a5309fbfbf1d0f0",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 4000,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "4000 PLN netto",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "своєчасна виплата зарплати"
+    }
+  },
+  {
+    "_id": "6a234de76a5309fbfbf1d0fd",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 4000,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "4000 PLN netto",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Договір підписується до початку роботи — це гарантія офіційного працевлаштування та своєчасної виплати зарплати."
+    }
+  },
+  {
+    "_id": "6a234e2e6a5309fbfbf1d10a",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 4000,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "4000 PLN/міс",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "своєчасних виплатах"
+    }
+  },
+  {
+    "_id": "6a234e656a5309fbfbf1d115",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 4000,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "4000 PLN/місяць (нетто)",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Своєчасна виплата зарплати."
+    }
+  },
+  {
+    "_id": "6a23511a01b5a12ed5efe53f",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 4000,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "4000 zł/міс (нетто)",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Заробітна плата становить 4000 злотих нетто."
+    }
+  },
+  {
+    "_id": "6a23517101b5a12ed5efe55b",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 27.3,
+      "studentNetto": 34,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "27.30 - 34.00 PLN/год (нетто)",
+      "hoursRange": "180-220",
+      "payoutDates": "з 15 по 18 число за попередній відпрацьований місяць",
+      "bonusDetails": "+1 зл / год доплата за власне житло",
+      "salaryNotes": "27,30 PLN НЕТТО / год ставка за законом новий польський лад (Polski Ład); 30,30 PLN НЕТТО / год ставка для кандидатів до 26 років; 34 PLN НЕТТО / год до 26 років + статус студента (знання польської на рівні В1); Виплата заробітної плати на банківський рахунок з 15 по 18 число за попередній відпрацьований місяць."
+    }
+  },
+  {
+    "_id": "6a2351ac01b5a12ed5efe568",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 25.5,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.50 - 31.40 zł/god (нетто)",
+      "hoursRange": "160-200",
+      "payoutDates": "з 15 по 18 число за попередній відпрацьований місяць",
+      "bonusDetails": "+1 zł / год доплата за власне житло",
+      "salaryNotes": "28,33 PLN NETTO / год ставка для кандидатів до 26 років; ставка згідно із законом \"Новий польський лад\" (Polski Ład)"
+    }
+  },
+  {
+    "_id": "6a2351ee01b5a12ed5efe57f",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 26,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "26.00 - 31.40 zł/год (нетто)",
+      "hoursRange": "200-300+",
+      "payoutDates": "з 15 по 18 число за попередній відпрацьований місяць",
+      "bonusDetails": "+1zł / година доплата за власне житло",
+      "salaryNotes": "Виплата заробітної плати на банківський рахунок з 15 по 18 число за попередній відпрацьований місяць"
+    }
+  },
+  {
+    "_id": "6a23522a01b5a12ed5efe589",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 26,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "26-27 zł/год (нетто)",
+      "hoursRange": "220-264",
+      "payoutDates": "",
+      "bonusDetails": "Премії за виконання виробничих показників",
+      "salaryNotes": "Дуже приваблива заробітна плата, що залежить від досвіду та компетенцій."
+    }
+  },
+  {
+    "_id": "6a23526b01b5a12ed5efe598",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.00 - 31.40 zł/god (нетто)",
+      "hoursRange": "200-300",
+      "payoutDates": "з 15 по 18 число за попередній відпрацьований місяць",
+      "bonusDetails": "",
+      "salaryNotes": "+1 злотий / год доплата за власне житло; З другого місяця акорд (ставка буде вищою, менше 25 злотих бути не може); Виплата заробітної плати на банківський рахунок"
+    }
+  },
+  {
+    "_id": "6a2352b501b5a12ed5efe5a3",
+    "contractType": "Umowa zlecenia",
+    "salary": {
+      "baseNetto": 26,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "26.00 - 31.40 zł/god (нетто)",
+      "hoursRange": "192-336",
+      "payoutDates": "до 15 числа кожного місяця",
+      "bonusDetails": "+ 1 PLN NETTO за кожну відпрацьовану годину за умови, якщо кандидат відпрацював повний місяць без пропусків.",
+      "salaryNotes": "Виплата винагороди на розрахунковий рахунок до 15 числа кожного місяця за попередній відпрацьований місяць. + 1 PLN NETTO - доплата за власне житло після відпрацьованих 6 місяців."
+    }
+  },
+  {
+    "_id": "6a23530a01b5a12ed5efe5af",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 26,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "26-28 zł/god (нетто)",
+      "hoursRange": "160-240",
+      "payoutDates": "",
+      "bonusDetails": "Премії за виконання виробничих показників",
+      "salaryNotes": "Дуже приваблива заробітна плата, що залежить від досвіду та компетенцій"
+    }
+  },
+  {
+    "_id": "6a23535c01b5a12ed5efe5c1",
+    "contractType": "umowa zlecenia",
+    "salary": {
+      "baseNetto": 26.5,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "26.50 - 28.00 zł/god (нетто)",
+      "hoursRange": "160-216",
+      "payoutDates": "з 15 по 18 число за попередній відпрацьований місяць",
+      "bonusDetails": "+додаткова премія",
+      "salaryNotes": "Зарплата за підвішування: 28,00 PLN NETTO / ставка згідно з новим польським ладом (Polski Ład). Зарплата за забій 1-2 етап: 26,50 PLN NETTO / ставка згідно з новим польським ладом (Polski Ład). Оплата на період навчання 25.50 PLN netto/год."
+    }
+  },
+  {
+    "_id": "6a23539701b5a12ed5efe5cc",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.00 - 26.00 zł/god (нетто)",
+      "hoursRange": "160-240",
+      "payoutDates": "з 15 по 18 число за попередній відпрацьований місяць",
+      "bonusDetails": "",
+      "salaryNotes": "Зарплата для fileciarka та ручного розбирання: 26,00 PLN NETTO / ставка згідно з новим польським ладом (Polski Ład); Зарплата для розбирання: 25,00 PLN NETTO / ставка згідно з новим польським ладом (Polski Ład)"
+    }
+  },
+  {
+    "_id": "6a2353ce01b5a12ed5efe5d9",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 26,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "26.00 - 31.40 zł/god (нетто)",
+      "hoursRange": "",
+      "payoutDates": "з 15 по 18 число за попередній відпрацьований місяць",
+      "bonusDetails": "+1 злотий / год доплата за власне житло",
+      "salaryNotes": "27 PLN NETTO / год ставка з другого місяця (за умови відсутності пропусків) - ставка згідно із законом \"Новий польський лад\" (Polski Ład); Виплата заробітної плати на банківський рахунок"
+    }
+  },
+  {
+    "_id": "6a23540c01b5a12ed5efe5e4",
+    "contractType": "umowa zlecenia",
+    "salary": {
+      "baseNetto": 23.8,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "23.80 - 31.40 PLN/год (нетто)",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "+1 PLN NETTO - доплата за власне житло.",
+      "salaryNotes": "26,60 PLN NETTO / за годину ставка згідно із законом \"Новий польський лад\" (Polski Ład); 26,60 PLN NETTO / година до 26 років; 23,80 PLN NETTO / година базова ставка"
+    }
+  },
+  {
+    "_id": "6a23544401b5a12ed5efe5f8",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 23.8,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "23.80 - 31.40 zł/god (нетто)",
+      "hoursRange": "160-220",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "26,60 PLN NETTO / година до 26 років (не студент); 23,80 PLN NETTO / година базова ставка (для осіб старше 26 років); +1 PLN NETTO - доплата за власне житло."
+    }
+  },
+  {
+    "_id": "6a23549d01b5a12ed5efe607",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "22.68 - 33.50 PLN/god (нетто)",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "+10% брутто від зарплати премія (для umowa zlecenia)",
+      "salaryNotes": "umowa zlecenia:\nМонтажник, Оператор:\n25,36 PLN НЕТТО / за годину ставка згідно із законом \"Новий польський лад\" (Polski Ład)\n25,36 PLN НЕТТО / година до 26 років\n22,68 PLN НЕТТО / година базова ставка\n31,40 PLN НЕТТО / година до 26 років зі статусом студента\n\nРозподільник:\n27,05 PLN НЕТТО / за годину ставка згідно із законом \"Новий польський лад\" (Polski Ład)\n27,05 PLN НЕТТО / година для працівників до 26 років\n22,68 PLN НЕТТО / година базова ставка з податком\n33,50 PLN НЕТТО / година ставка для працівників до 26 років зі статусом студента\n\numowa o pracę:\nМонтажник, Оператор: 4806 брутто на місяць плюс премія до 15%\nРозподільник: 5400 брутто на місяць плюс премія до 15%"
+    }
+  },
+  {
+    "_id": "6a2354e001b5a12ed5efe616",
+    "contractType": "umowa zlecenia",
+    "salary": {
+      "baseNetto": 22.68,
+      "studentNetto": 31.4,
+      "baseBrutto": 4806,
+      "currency": "PLN",
+      "rawSalaryDisplay": "22.68 - 31.40 zł/god (нетто)",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "Премія до 10% брутто від зарплати (umowa zlecenia) або до 15% (umowa o pracę).",
+      "salaryNotes": "2 форми працевлаштування:\numowa zlecenia:\n25,36 PLN NETTO / год ставка згідно із законом Новий польський лад (Polski Ład)\n25,36 PLN NETTO / год до 26 років\n22,68 PLN NETTO / год базова ставка\n31,40 PLN NETTO / год до 26 років зі статусом студента\numowa o pracę:\n4806 брутто на місяць.\nПерехід з umowa o pracę на umowa zlecenia неможливий."
+    }
+  },
+  {
+    "_id": "6a23552001b5a12ed5efe621",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 28,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "28.00 - 31.40 PLN/год (нетто)",
+      "hoursRange": "160-200",
+      "payoutDates": "з 15 по 18 число за попередній відпрацьований місяць",
+      "bonusDetails": "+1 zł / год доплата за власне житло",
+      "salaryNotes": "Виплата заробітної плати на банківський рахунок; ставка згідно із законом \"Новий польський лад\" (Polski Ład)"
+    }
+  },
+  {
+    "_id": "6a23555101b5a12ed5efe62c",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 26,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "26.00 - 31.40 zł/god (нетто)",
+      "hoursRange": "180-240",
+      "payoutDates": "з 15 по 18 число за попередній відпрацьований місяць",
+      "bonusDetails": "+1 zł / година доплата за власне житло",
+      "salaryNotes": "Виплата заробітної плати на банківський рахунок з 15 по 18 число за попередній відпрацьований місяць. Ставка згідно із законом \"Новий польський лад\" (Polski Ład)."
+    }
+  },
+  {
+    "_id": "6a2355bf01b5a12ed5efe639",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 28,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "28 zł/год (нетто)",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a2355f301b5a12ed5efe64c",
+    "contractType": "umowa zlecenia",
+    "salary": {
+      "baseNetto": 23.7,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "23.70 - 31.40 PLN/год (нетто)",
+      "hoursRange": "160-240",
+      "payoutDates": "до 15 числа кожного місяця за попередній відпрацьований місяць",
+      "bonusDetails": "",
+      "salaryNotes": "27,00 PLN NETTO / година ставка згідно із законом Новий польський лад (Polski Ład) для працівників до 26 років; 27,00 PLN NETTO / година – ставка для працівників до 26 років; 23,70 PLN NETTO / година – базова ставка для працівників старше 26 років; 31,40 PLN NETTO / година – ставка для працівників до 26 років зі статусом студента"
+    }
+  },
+  {
+    "_id": "6a23562e01b5a12ed5efe656",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 28,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "28.00 - 31.40 zł/god (нетто)",
+      "hoursRange": "230-280",
+      "payoutDates": "Виплата заробітної плати на банківський рахунок з 15 по 18 число за попередній відпрацьований місяць",
+      "bonusDetails": "",
+      "salaryNotes": "25 PLN NETTO / година ставка за законом новий польський лад (Polski Ład)"
+    }
+  },
+  {
+    "_id": "6a2356a301b5a12ed5efe66f",
+    "contractType": "umowa zlecenia",
+    "salary": {
+      "baseNetto": 25,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.00 - 31.40 zł/god (нетто)",
+      "hoursRange": "250-260",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "До 26 років + статус студента отримують 31,40 PLN NETTO / год."
+    }
+  },
+  {
+    "_id": "6a2356db01b5a12ed5efe679",
+    "contractType": "umowa zlecenia",
+    "salary": {
+      "baseNetto": 22.03,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "22.03 - 25.00 PLN NETTO / година",
+      "hoursRange": "180-240",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Зарплата 2025 кухарка: 25.00 PLN NETTO / година згідно із законом \"Новий польський лад\" (Polski Ład) - початкова ставка; Зарплата 2025 помічник кухаря: 22.03 PLN NETTO / година згідно із законом \"Новий польський лад\" (Polski Ład)"
+    }
+  },
+  {
+    "_id": "6a23571501b5a12ed5efe681",
+    "contractType": "Umowa zlecenia",
+    "salary": {
+      "baseNetto": 30,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "30 - 32 PLN NETTO/год",
+      "hoursRange": "160-288",
+      "payoutDates": "з 15 по 18 число за попередній відпрацьований місяць",
+      "bonusDetails": "Рівень: усі нові працівники починають з I рівня. Щоб перейти на II та III рівень, необхідно навчатися, підвищувати свої компетенції. Бригадир на заводі має чіткі параметри переходу на наступний рівень, кожен працівник знатиме свій рівень і що потрібно зробити, щоб його підвищити. Підвищення рівня можливе лише за умови підвищення кваліфікації (така можливість є у кожного).",
+      "salaryNotes": "Виплата заробітної плати на банківський рахунок з 15 по 18 число за попередній відпрацьований місяць; +1 зл / год доплата за власне житло."
+    }
+  },
+  {
+    "_id": "6a23574d01b5a12ed5efe68b",
+    "contractType": "Umowa zlecenia",
+    "salary": {
+      "baseNetto": 26,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "26.00 - 32.00 PLN/год (нетто)",
+      "hoursRange": "200-240",
+      "payoutDates": "з 15 - 18 число за попередній відпрацьований місяць",
+      "bonusDetails": "+1 zł / год доплата за власне житло",
+      "salaryNotes": "Ставка призначається після співбесіди (для кожного кандидата індивідуально, виходячи з досвіду кандидата). Виплата заробітної плати на банківський рахунок."
+    }
+  },
+  {
+    "_id": "6a23578a01b5a12ed5efe695",
+    "contractType": "Umowa zlecenia",
+    "salary": {
+      "baseNetto": 24,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "24.00 - 31.40 zł/год (нетто)",
+      "hoursRange": "160-288",
+      "payoutDates": "з 15 по 18 число за попередній відпрацьований місяць",
+      "bonusDetails": "+1 zł / година доплата за власне житло",
+      "salaryNotes": "Виплата заробітної плати на банківський рахунок з 15 по 18 число за попередній відпрацьований місяць. Рівень: Усі нові працівники починають з I рівня. Щоб перейти на II і III рівень необхідно вчитися, підвищувати свої компетенції, вміти працювати на різних машинах тощо. Бригадир на заводі має чіткі правила переходу на наступний рівень, кожен працівник знатиме, який у нього рівень і що потрібно зробити, щоб його підвищити. Підвищення рівня лише за умови підвищення кваліфікації (така можливість є у кожного)."
+    }
+  },
+  {
+    "_id": "6a235dddddb2c25da3bab525",
+    "contractType": "Umowa zlecenia",
+    "salary": {
+      "baseNetto": 33,
+      "studentNetto": 34,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "33.00 - 34.00 zł/god (нетто)",
+      "hoursRange": "160-240",
+      "payoutDates": "з 15 по 18 число за попередній відпрацьований місяць",
+      "bonusDetails": "+1 злотий / година доплата за власне житло",
+      "salaryNotes": "Виплата заробітної плати на банківський рахунок з 15 по 18 число за попередній відпрацьований місяць; 33 PLN НЕТТО / година ставка згідно із законом новий польський лад (Polski Ład); 34 PLN НЕТТО / година до 26 років + статус студента (знання польської на рівні В1)"
+    }
+  },
+  {
+    "_id": "6a235e2fddb2c25da3bab5ab",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 22.03,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "22.03 - 30.50 PLN/год (нетто)",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "У відділі прасування зарплата розраховується від виробітку (в день близько 200 зл.).",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a235e5eddb2c25da3bab5b6",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 28,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "28.00 - 31.40 zł/год (нетто)",
+      "hoursRange": "180-220",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Перші 2 дні – навчання, 28,00 PLN NETTO за годину; Потім зарплата розраховується за виробітком. За день виходить 200-250 зл. Щомісячна зарплата від 4500 зл. 31,40 PLN NETTO / година ставка для працівників до 26 років зі статусом студента."
+    }
+  },
+  {
+    "_id": "6a235e98ddb2c25da3bab5c4",
+    "contractType": "Umowa zlecenia",
+    "salary": {
+      "baseNetto": 30,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "30.00 - 31.40 PLN/год (нетто)",
+      "hoursRange": "160-240",
+      "payoutDates": "з 15 - 18 число за попередній відпрацьований місяць",
+      "bonusDetails": "",
+      "salaryNotes": "за законом новий польський лад (Polski Ład); Виплата заробітної плати на банківський рахунок."
+    }
+  },
+  {
+    "_id": "6a235ed6ddb2c25da3bab649",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 26,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "26 - 31.40 zł/god (нетто)",
+      "hoursRange": "190-240",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Аванси."
+    }
+  },
+  {
+    "_id": "6a235f02ddb2c25da3bab651",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 28.2,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "28.20 - 31.40 zł/god (нетто)",
+      "hoursRange": "240-250",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Аванси"
+    }
+  },
+  {
+    "_id": "6a235f37ddb2c25da3bab65a",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 28,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "28 - 31.40 zł/god (нетто)",
+      "hoursRange": "200-240",
+      "payoutDates": "",
+      "bonusDetails": "Після 6 місяців навчання та успішної оцінки керівником, ставка буде збільшена щонайменше на 5,00 злотих нетто/год.",
+      "salaryNotes": "Аванси"
+    }
+  },
+  {
+    "_id": "6a235f6eddb2c25da3bab665",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 27,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "27.00 - 31.40 zł/god (нетто)",
+      "hoursRange": "176-252",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Аванси"
+    }
+  },
+  {
+    "_id": "6a235f9fddb2c25da3bab672",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 26,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "26.00 - 31.40 zł/god (нетто)",
+      "hoursRange": "200-232",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Аванси"
+    }
+  },
+  {
+    "_id": "6a235fdcddb2c25da3bab67c",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 22,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "22.00 - 31.40 zł/god (нетто)",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Перший місяць 22 зл/год, з другого місяця 22,50 зл/год, з третього місяця 24,50 зл/год. За зміни з 22:00 до 6:00 – 30 зл/год. Аванси надаються."
+    }
+  },
+  {
+    "_id": "6a236027ddb2c25da3bab68c",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 24.5,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "24.50 - 31.40 zł/god (нетто)",
+      "hoursRange": "240-288",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Аванси."
+    }
+  },
+  {
+    "_id": "6a23605cddb2c25da3bab697",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 36.5,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "36.50 zł/god (нетто)",
+      "hoursRange": "180-260",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Аванси"
+    }
+  },
+  {
+    "_id": "6a236097ddb2c25da3bab6a1",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 29,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "29.00 - 31.40 zł/год (нетто)",
+      "hoursRange": "230-260",
+      "payoutDates": "",
+      "bonusDetails": "Через 3 місяці можливе підвищення ставки до 31,00 - 32,00 злотих/нетто/год за відмінну роботу, відповідно до вказівок.",
+      "salaryNotes": "Аванси"
+    }
+  },
+  {
+    "_id": "6a2360c7ddb2c25da3bab6ac",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 28,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "28.00 - 31.40 zł/god",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Аванси"
+    }
+  },
+  {
+    "_id": "6a2360f9ddb2c25da3bab6b6",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 35,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "35.00 zł/год (нетто); 31.40 zł/год (нетто, студенти до 26 років)",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Аванси"
+    }
+  },
+  {
+    "_id": "6a2367def14d8abae81791ee",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 36.5,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "36.50 zł/год (нетто)",
+      "hoursRange": "192-288",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Аванси"
+    }
+  },
+  {
+    "_id": "6a236819f14d8abae81791f9",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 25,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.00 - 27.50 zł/god (нетто)",
+      "hoursRange": "260",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Спеціаліст - 27,50 злотих/год (нетто). Помічник (працівник після 3-6 місяців роботи) - 26,50 злотих/год (нетто). Помічник (початківець) - 25,00 злотих/год (нетто). Аванси."
+    }
+  },
+  {
+    "_id": "6a23684cf14d8abae8179203",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 25,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.00 - 31.40 zł/god (нетто)",
+      "hoursRange": "220-240",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Аванси"
+    }
+  },
+  {
+    "_id": "6a23688af14d8abae8179287",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "35 - 37.70 zł/god (брутто)",
+      "hoursRange": "140-145",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Ставка: 35 zł брутто - день, 37,70 zł брутто - ніч. Тижневі виплати за бажанням."
+    }
+  },
+  {
+    "_id": "6a2368bcf14d8abae8179291",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 35,
+      "studentNetto": 35,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "35.00 - 37.70 zł/god (брутто)",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Ставка в день: 35.00 zł брутто; Ставка в ніч: 37.70 zł брутто; Для студентів ставка брутто=нетто. Для не студентів ставка вказана брутто, нетто буде нижче."
+    }
+  },
+  {
+    "_id": "6a2368e6f14d8abae817929b",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 5085,
+      "currency": "PLN",
+      "rawSalaryDisplay": "від 3900 zł/міс (нетто)",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "до 25% премії; 200 злотих/міс на харчування; доплати: нічні +20%, понаднормові +50%, свята/вихідні +100%",
+      "salaryNotes": "Місячна зарплата від 3900 злотих нетто. Місячна ставка 5085 злотих брутто."
+    }
+  },
+  {
+    "_id": "6a236931f14d8abae81792aa",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 31.4,
+      "currency": "PLN",
+      "rawSalaryDisplay": "31.40 zł/god (brutto)",
+      "hoursRange": "160-270",
+      "payoutDates": "Тижневі виплати (за бажанням)",
+      "bonusDetails": "LuxMed + MultiSport",
+      "salaryNotes": "Тижневі виплати (за бажанням)"
+    }
+  },
+  {
+    "_id": "6a236966f14d8abae81792b3",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 27.78,
+      "currency": "PLN",
+      "rawSalaryDisplay": "27.78 zł brutto/год",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "нічні зміни +20%; премія за 4-бригадну систему - 400 zł brutto; надгодини оплачуються 50% / 100% / 200%",
+      "salaryNotes": "Тижневі виплати за бажанням; Можливість оформлення Karta Pobytu; Доплата за власне житло - близько 350 zł netto"
+    }
+  },
+  {
+    "_id": "6a2369a0f14d8abae81792be",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 29.4,
+      "currency": "PLN",
+      "rawSalaryDisplay": "29,40 zł/god (брутто)",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "Премія виробнича: 0-1000 zł; Нічні: +20%; Вихідні: 100 zł (сб) / 200 zł (нд); Надгодини: +100%; Річна премія (пропорційно)",
+      "salaryNotes": "Місячний заробіток від 3800 до 4700 zł НЕТТО; Аванс - вже після першого відпрацьованого тижня."
+    }
+  },
+  {
+    "_id": "6a2369d9f14d8abae81792c9",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": 27.97,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "4700-5000 zł/міс",
+      "hoursRange": "",
+      "payoutDates": "Аванс вже після відпрацьованого тижня.",
+      "bonusDetails": "600 zł brutto премія за IV бригадову систему; 80 zł brutto за дотримання правил BHP; 200 zł brutto за відвідуваність; 20% до ставки за нічні зміни; 50%, 100%, 200% до ставки за надгодини.",
+      "salaryNotes": "Ставка: 31-33 zł brutto, залежно від кваліфікації або досвіду."
+    }
+  },
+  {
+    "_id": "6a236a15f14d8abae81792da",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 4800,
+      "currency": "PLN",
+      "rawSalaryDisplay": "4800 zł брутто",
+      "hoursRange": "",
+      "payoutDates": "Тижневі виплати за бажанням",
+      "bonusDetails": "300 zł премія за відвідуваність; Премія продукційна до 250 zł брутто; Доплати: за нічну зміну +20%, за понаднормові години +50% / +100%, за роботу у 6-7 день тижня +100%",
+      "salaryNotes": "до 189 zł повернення за проїздні; 5 zł/в день на карту Sodexo"
+    }
+  },
+  {
+    "_id": "6a236a42f14d8abae81792e4",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 28.61,
+      "currency": "PLN",
+      "rawSalaryDisplay": "28.61 zł/god (брутто)",
+      "hoursRange": "160-240",
+      "payoutDates": "",
+      "bonusDetails": "20% до ставки за нічні зміни; 50%, 100% до ставки за надгодини",
+      "salaryNotes": "Менший податок для працівників до 26 років; Приблизний дохід: мінімально: ~3800 zł нетто, середньо: ~4500 zł нетто (з понаднормовими: 1 субота + 1 неділя), максимально: 5500+ zł нетто (3 суботи + 3 неділі); Тижневі виплати"
+    }
+  },
+  {
+    "_id": "6a236a71f14d8abae81792ef",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": 31.4,
+      "baseBrutto": 31.4,
+      "currency": "PLN",
+      "rawSalaryDisplay": "31.40 zł/god (брутто)",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "Для навчених працівників можливі додатково оплачувані понаднормові години (+50% / +100%); Працівники до 26 років сплачують менше податків.",
+      "salaryNotes": "НЕТТО: від 3500 злотих нетто (місячно)"
+    }
+  },
+  {
+    "_id": "6a236aa6f14d8abae8179301",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": 29.4,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "29.40 zł/год брутто",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "+ 1,5 zł брутто/год (за відвідуваність і результати відділу); Додаткові нагороди «Orły» (результати/ініціативність) - 50 або 100 zł нетто; Знижки до 40% на продукцію + подарункові набори \"несподіванка\" (близько 50 шт. за 45 zł (10кг), а вартість пакета понад 500 zł)",
+      "salaryNotes": "Ставка 29.40 zł брутто. Оплачувана відпустка та лікарняні."
+    }
+  },
+  {
+    "_id": "6a2371c60061865232a51a46",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 31.4,
+      "currency": "PLN",
+      "rawSalaryDisplay": "31.40 zł/god (брутто)",
+      "hoursRange": "240-280",
+      "payoutDates": "Тижневі виплати за бажанням",
+      "bonusDetails": "Премія 200 - 400 zl брутто / місяць",
+      "salaryNotes": "Орієнтовна зарплата на місяць: студент - близько 7300 zł нетто; не студент (ZUS) - близько 5200 zł нетто"
+    }
+  },
+  {
+    "_id": "6a2371e70061865232a51a4f",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 5166,
+      "currency": "PLN",
+      "rawSalaryDisplay": "5166 zł брутто (0,75 ставки)",
+      "hoursRange": "",
+      "payoutDates": "Тижневі виплати за бажанням",
+      "bonusDetails": "Multisport; LuxMed",
+      "salaryNotes": "Тижневі виплати за бажанням"
+    }
+  },
+  {
+    "_id": "6a2372290061865232a51a58",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 5500,
+      "currency": "PLN",
+      "rawSalaryDisplay": "5500 - 8000 zł/mies (брутто)",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "Премія до 450 злотих брутто; Доплата за нічні зміни - 9 злотих брутто/год",
+      "salaryNotes": "Тижневі аванси (за бажанням); Загальна зарплата з доплатами близько 8000 злотих брутто"
+    }
+  },
+  {
+    "_id": "6a2372640061865232a51a65",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 31.4,
+      "currency": "PLN",
+      "rawSalaryDisplay": "31.40 zł/год (брутто), 4000-5000 zł/міс (нетто)",
+      "hoursRange": "180-240",
+      "payoutDates": "",
+      "bonusDetails": "нічні доплати; 100% оплата за надгодини у вихідні",
+      "salaryNotes": "Тижневі виплати (за бажанням); мінімально ~4000 zł нетто/міс; середньо ~4300 zł нетто/міс; максимально ~5000 zł нетто/міс"
+    }
+  },
+  {
+    "_id": "6a2372940061865232a51a6f",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.37,
+      "studentNetto": null,
+      "baseBrutto": 31.4,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.37 zł/год (нетто)",
+      "hoursRange": "",
+      "payoutDates": "тижневі виплати",
+      "bonusDetails": "+450 zł за своє житло",
+      "salaryNotes": "3700-4000 zł netto (місячно)"
+    }
+  },
+  {
+    "_id": "6a2372cd0061865232a51a7a",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 32,
+      "currency": "PLN",
+      "rawSalaryDisplay": "32 - 38 zł/god (brutto)",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Ставка для працівників з UDT: 38 zł brutto/год (~5000-6000 zł netto/міс). Ставка для працівників без UDT: 32 zł brutto/год (~4400-4800 zł netto/міс). Для студентів: ~5200-7000 zł netto/міс. Доплата за власне житло: +1 zł netto за кожну відпрацьовану годину."
+    }
+  },
+  {
+    "_id": "6a2373230061865232a51a88",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.36 - 31.40 zł/god (нетто)",
+      "hoursRange": "200-240",
+      "payoutDates": "",
+      "bonusDetails": "до 1600 zł премії",
+      "salaryNotes": "Ставка: 31,40 zł брутто. Зарплата: 4400 - 4900 zł, до 7200 zł нетто (з премією). Студенти: до 9200 zł нетто. Щотижневі виплати за бажанням."
+    }
+  },
+  {
+    "_id": "6a23735a0061865232a51a93",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "5700 - 6000 zł/місяць (брутто)",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "До 10% премії та бонуси; 50%, 100% до ставки за надгодини.",
+      "salaryNotes": "Заробітна плата: 5700 - 6000 zł brutto / місяць. Тижневі виплати за бажанням."
+    }
+  },
+  {
+    "_id": "6a2373890061865232a51a9f",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 5400,
+      "currency": "PLN",
+      "rawSalaryDisplay": "від 5400 zł брутто",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Тижневі аванси (за бажанням); 1/2 etatu → 2700 zł brutto; 3/4 etatu → 4050 zł brutto"
+    }
+  },
+  {
+    "_id": "6a2373d10061865232a51ab0",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "4800 - 5300 zł/міс (нетто)",
+      "hoursRange": "",
+      "payoutDates": "Щотижневі виплати",
+      "bonusDetails": "",
+      "salaryNotes": "Ставка: 32 zł брутто - день, 37.70 zł брутто - ніч (з 22:00 до 06:00). Чиста заробітна плата в місяць: від 4800 zł netto до 5300 zł netto. Для студентів: 5000 - 8300 zł netto."
+    }
+  },
+  {
+    "_id": "6a23740b0061865232a51aba",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "34.00 - 37.70 zł/god (brutto)",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Щотижневі виплати за бажанням. 37,70 злотих брутто/год - нічна зміна; 34,00 злотих брутто/год - денна зміна. Заробіток нетто: ZUS: ~ 2900-5900 злотих; Студенти: ~ 4300–7800 злотих."
+    }
+  },
+  {
+    "_id": "6a2374540061865232a51ac6",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "5500-7500 zł/міс (брутто)",
+      "hoursRange": "160-240",
+      "payoutDates": "",
+      "bonusDetails": "премія до 700 злотих брутто; доплати згідно з Кодексом Праці Польщі",
+      "salaryNotes": "5500-7500 злотих брутто на місяць; Щотижневі аванси (за бажанням)"
+    }
+  },
+  {
+    "_id": "6a23748e0061865232a51ad2",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 30.6,
+      "currency": "PLN",
+      "rawSalaryDisplay": "30.60 zł/god (брутто) + премії; 3800–6500 zł/міс (нетто)",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "25% премія; нічні +20%; неділя/свята +100%; надгодини +50%",
+      "salaryNotes": "Тижневі виплати за бажанням; NETTO: 3800–6500 zł"
+    }
+  },
+  {
+    "_id": "6a237b1db87c466bac40072b",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "32 - 37.70 zł/год (брутто)",
+      "hoursRange": "",
+      "payoutDates": "Тижневі виплати (за бажанням)",
+      "bonusDetails": "",
+      "salaryNotes": "32 zł/год брутто (денні); 37,70 zł/год брутто (нічні 22:00–06:00); Тижневі виплати (за бажанням)"
+    }
+  },
+  {
+    "_id": "6a237b91b87c466bac40073d",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "5800 - 6980 zł брутто",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "+300 zł - компенсаційна доплата; +до 200 zł - премія KPI; +до 530 zł - нічні; річна премія до 744 zł; премії до свят та подій",
+      "salaryNotes": "5800 zł брутто - досвід до 2 років; 5950 zł брутто - досвід від 2 років (ставка після співбесіди); наднормові години оплачуються додатково"
+    }
+  },
+  {
+    "_id": "6a237bd1b87c466bac400749",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 27,
+      "currency": "PLN",
+      "rawSalaryDisplay": "27,00 злотих брутто/год",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "+3 злотих/год за роботу в 4-бригадній системі; картка Edenred - до 550 злотих/квартал; Квартальна премія за якісну роботу та відсутність браку",
+      "salaryNotes": "Щотижневі виплати (500 злотих брутто) за бажанням"
+    }
+  },
+  {
+    "_id": "6a237c28b87c466bac400754",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": 3600,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "3600 - 5500 zł/міс (нетто)",
+      "hoursRange": "",
+      "payoutDates": "Щотижневі виплати за бажанням",
+      "bonusDetails": "премія до 699,50 zł brutto; +20% за нічні зміни; +85 zł brutto за суботу/неділю; +80-320 zł brutto за перевиконання норми",
+      "salaryNotes": "ставка: 5020 zł brutto; NETTO орієнтовно: 3600–5500 zł"
+    }
+  },
+  {
+    "_id": "6a237c6fb87c466bac40075e",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 33.5,
+      "currency": "PLN",
+      "rawSalaryDisplay": "33.50 zł/god (brutto)",
+      "hoursRange": "",
+      "payoutDates": "Тижневі виплати за бажанням",
+      "bonusDetails": "Карта Multisport та медичний пакет LuxMed",
+      "salaryNotes": "Тижневі виплати за бажанням"
+    }
+  },
+  {
+    "_id": "6a237ccfb87c466bac400768",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 38.5,
+      "currency": "PLN",
+      "rawSalaryDisplay": "38.50 zł/год (брутто)",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "Карта Multisport та медичний пакет LuxMed",
+      "salaryNotes": "Щотижневі виплати за бажанням"
+    }
+  },
+  {
+    "_id": "6a237d09b87c466bac400774",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 5355,
+      "currency": "PLN",
+      "rawSalaryDisplay": "5355 zł/міс (брутто)",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "доплата за нічні зміни; премія за продуктивність 1-40%",
+      "salaryNotes": "Щотижневі виплати за бажанням; 200 zł/місяць на харчування через спеціальний додаток"
+    }
+  },
+  {
+    "_id": "6a237d7db87c466bac400785",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 5300,
+      "currency": "PLN",
+      "rawSalaryDisplay": "5300 zł/міс (брутто)",
+      "hoursRange": "160-200",
+      "payoutDates": "",
+      "bonusDetails": "Премії; За нічні зміни: +20% до ставки; За понаднормові години: +50% до ставки; Оплачувана відпустка та лікарняні; Карта Multisport та медичний пакет LuxMed",
+      "salaryNotes": "Аванс - перша заробітна плата вже після тижня відпрацювання."
+    }
+  },
+  {
+    "_id": "6a237db4b87c466bac400791",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 4900,
+      "currency": "PLN",
+      "rawSalaryDisplay": "4900 zł brutto",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "премія до 10%",
+      "salaryNotes": "100 zł brutto доплата за доїзд"
+    }
+  },
+  {
+    "_id": "6a2384435488acdc30a89c80",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.36 - 34.40 zł/god (нетто)",
+      "hoursRange": "210-280",
+      "payoutDates": "",
+      "bonusDetails": "За роботу у святкові дні до 150 зл брутто; За виконання норм 1-3 зл/год брутто; За відвідуваність до 100 зл брутто; За продажі 500 зл брутто",
+      "salaryNotes": "Усі норми зробити реально після тижня!; Для студентів: БРУТТО=НЕТТО; Заробітна плата: 5000-7500 зл нетто, студенти до 8500 зл нетто"
+    }
+  },
+  {
+    "_id": "6a2384725488acdc30a89c8d",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 5000,
+      "currency": "PLN",
+      "rawSalaryDisplay": "4200-4700 zł/міс (нетто)",
+      "hoursRange": "",
+      "payoutDates": "Тижневі виплати (за бажанням)",
+      "bonusDetails": "Після 1 місяця - до 20% премії; Після 6 місяців - підвищення ~ 500 zł + 20% премії",
+      "salaryNotes": "Зарплата «на руки»: 4200-4700 zł нетто"
+    }
+  },
+  {
+    "_id": "6a2384dd5488acdc30a89d89",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 30,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "30 zł/god (нетто)",
+      "hoursRange": "180-216",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Все залежить від досвіду роботи кандидата; Стабільна та своєчасна виплата заробітної плати."
+    }
+  },
+  {
+    "_id": "6a2385065488acdc30a89d91",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.00 - 31.40 zł/god (нетто)",
+      "hoursRange": "140-220",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Для бажаючих є можливість брати додаткові години — до 220 годин на місяць."
+    }
+  },
+  {
+    "_id": "6a2385335488acdc30a89d9a",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25 zł/год (нетто)",
+      "hoursRange": "180-216",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Стабільна та своєчасна виплата заробітної плати."
+    }
+  },
+  {
+    "_id": "6a2385605488acdc30a89da2",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 1600,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "EUR",
+      "rawSalaryDisplay": "1600–2300 €/місяць",
+      "hoursRange": "140-192",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Аванси: Після відпрацьованого тижня — 100 €"
+    }
+  },
+  {
+    "_id": "6a2385825488acdc30a89dac",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25 zł/god (нетто)",
+      "hoursRange": "180-216",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Стабільна та своєчасна виплата заробітної плати"
+    }
+  },
+  {
+    "_id": "6a2385ac5488acdc30a89db4",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.00 - 31.40 zł/god (нетто)",
+      "hoursRange": "160-288",
+      "payoutDates": "",
+      "bonusDetails": "+300 zł доплата за своє житло",
+      "salaryNotes": "Середній заробіток: Від 5200 zł до 7500 zł netto / місяць (залежно від кількості годин та статусу студента); Оплата за проживання вираховується із зарплати"
+    }
+  },
+  {
+    "_id": "6a2385d75488acdc30a89dbe",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 28,
+      "studentNetto": 32,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "28 - 32 zł/год (нетто)",
+      "hoursRange": "200-240",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a2386175488acdc30a89dcd",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 24,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "24-25 zł/god (нетто) + акорд",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Перші три дні оплата погодинно (24-25 злотих), далі оплата на акорд:\n• Виїзд (коли виселяються): 14,70 зл\n• Апартамент (більший номер): 17,30 зл\n• Побит (поселені в номері): 11,20 зл (якщо ще є заселення в номері).\nВідпрацювання — 2 тижні."
+    }
+  },
+  {
+    "_id": "6a2386715488acdc30a89ddf",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 25,
+      "studentNetto": 32,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.00 - 32.00 zł/god (нетто)",
+      "hoursRange": "170-235",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "+1 зл/год за проживання у власному житлі"
+    }
+  },
+  {
+    "_id": "6a238c6b799225b31d005c26",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 28,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "28 zł/god (нетто)",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a23f44fd3100e631519e087",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 23.8,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "23.80 - 31.40 zł/god (нетто)",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "+1 PLN NETTO - доплата за власне житло.",
+      "salaryNotes": "26,60 PLN NETTO / год ставка за законом новий польський лад (Polski Ład); 26,60 PLN NETTO / год до 26 років; 23,80 PLN NETTO / год базова ставка"
+    }
+  },
+  {
+    "_id": "6a23f4ddd3100e631519e2fc",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.36 - 31.40 zł/god (нетто)",
+      "hoursRange": "160-288",
+      "payoutDates": "Регулярно, з 15 по 20 число кожного місяця.",
+      "bonusDetails": "",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a248a4956d3f2f9ecfb9324",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": 33,
+      "baseBrutto": 33,
+      "currency": "PLN",
+      "rawSalaryDisplay": "33.00 zł/год (брутто), 33.00 zł/год (нетто для студентів)",
+      "hoursRange": "",
+      "payoutDates": "Виплата зарплати до 10 числа кожного місяця на банківський рахунок",
+      "bonusDetails": "Премії 100–500 zł brutto за виконання понад норму",
+      "salaryNotes": "Можливість авансу після 10 робочих днів"
+    }
+  },
+  {
+    "_id": "6a248a6d56d3f2f9ecfb932d",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 31.4,
+      "currency": "PLN",
+      "rawSalaryDisplay": "31.40 - 34.11 zł/god brutto",
+      "hoursRange": "240-288",
+      "payoutDates": "стабільно до 10 числа кожного місяця",
+      "bonusDetails": "Доплати за норму: • 105% – 110% норми: + 0,60 zł/год; • 110% – 120% норми: + 1,20 zł/год; • 120% – 130% норми: + 2,11 zł/год; • 130% і вище: + 2,71 zł/год (максимальна ставка може досягати 34,11 zł/год brutto!)",
+      "salaryNotes": "Виплати на банківську картку."
+    }
+  },
+  {
+    "_id": "6a248a9256d3f2f9ecfb9336",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": 32.4,
+      "baseBrutto": 32.4,
+      "currency": "PLN",
+      "rawSalaryDisplay": "32.40 zł/god",
+      "hoursRange": "",
+      "payoutDates": "до 10 числа кожного місяця",
+      "bonusDetails": "+1,00 зл/год брутто до ставки за наявність власного житла",
+      "salaryNotes": "Виплати на банківський рахунок до 10 числа кожного місяця. Ставка 32,40 зл/год брутто. Для студентів до 26 років брутто = нетто."
+    }
+  },
+  {
+    "_id": "6a248abf56d3f2f9ecfb933e",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 31.4,
+      "currency": "PLN",
+      "rawSalaryDisplay": "31.40 zł/god (brutto)",
+      "hoursRange": "240-300",
+      "payoutDates": "до 10 числа каждого месяца",
+      "bonusDetails": "+ 2 зл/ч brutto (ставка от 155 часов), доплата начисляется со второго месяца работы; +1 зл/ч brutto — доплата за собственное жильё",
+      "salaryNotes": "Стабільні виплати на банківський рахунок до 10 числа кожного місяця"
+    }
+  },
+  {
+    "_id": "6a248ae256d3f2f9ecfb9348",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": 31.5,
+      "baseBrutto": 31.5,
+      "currency": "PLN",
+      "rawSalaryDisplay": "31.50 zł/god (brutto)",
+      "hoursRange": "",
+      "payoutDates": "Виплати щомісячно на банківську картку до 10 числа",
+      "bonusDetails": "",
+      "salaryNotes": "Ставка 31,50 zł/год brutto. Для студентів ставка brutto = netto."
+    }
+  },
+  {
+    "_id": "6a248b1056d3f2f9ecfb9350",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 32.4,
+      "currency": "PLN",
+      "rawSalaryDisplay": "32.40 zł/god (брутто)",
+      "hoursRange": "240-264",
+      "payoutDates": "Виплати до 10 числа кожного місяця на банківську картку.",
+      "bonusDetails": "",
+      "salaryNotes": "Виплати до 10 числа кожного місяця на банківську картку. Доплата +1,00 зл/год брутто за власне житло."
+    }
+  },
+  {
+    "_id": "6a248b2f56d3f2f9ecfb935d",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 33,
+      "currency": "PLN",
+      "rawSalaryDisplay": "33.00 zł/год (брутто)",
+      "hoursRange": "до 220",
+      "payoutDates": "до 10 числа на карту",
+      "bonusDetails": "",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a248b7b56d3f2f9ecfb9370",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": 31.4,
+      "baseBrutto": 31.4,
+      "currency": "PLN",
+      "rawSalaryDisplay": "31.40 zł/god",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Виплати на банківський рахунок до 10 числа кожного місяця. Для студентів до 26 років ставка брутто = нетто."
+    }
+  },
+  {
+    "_id": "6a248ba456d3f2f9ecfb937b",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 23.625,
+      "studentNetto": 31.5,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "23.62 - 25.12 zł/god (нетто)",
+      "hoursRange": "240-288",
+      "payoutDates": "до 10 числа кожного місяця",
+      "bonusDetails": "+2,00 zł/год брутто при відпрацюванні понад 155 годин/міс (доплата не діє для студентів)",
+      "salaryNotes": "Виплати на банківський рахунок"
+    }
+  },
+  {
+    "_id": "6a248bcc56d3f2f9ecfb9384",
+    "contractType": "umowa zlecenie",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "31.40 - 32.00 zł/god (брутто); 31.40 - 32.00 zł/god (нетто для студентів)",
+      "hoursRange": "192-288",
+      "payoutDates": "до 10 числа кожного місяця",
+      "bonusDetails": "Доплата за власне житло: +1,00 зл/год брутто (актуально лише для кандидатів, які проживають у м. Bielsko-Biała).",
+      "salaryNotes": "Для чоловіків (працівник виробництва): 32,00 зл/год брутто. Для жінок (пакувальник): 31,40 зл/год брутто. Студенти до 26 років отримують зазначені ставки нетто (чистими на руки)."
+    }
+  },
+  {
+    "_id": "6a248bf956d3f2f9ecfb9390",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "31.40 - 31.80 zł/год (брутто)",
+      "hoursRange": "240-260",
+      "payoutDates": "Виплати до 10 числа кожного місяця на банківську картку",
+      "bonusDetails": "",
+      "salaryNotes": "Жінки: 31,40 zł/год брутто; Чоловіки: 31,80 zł/год брутто. Для чоловіків: після 6 місяців ставка підвищується до 32,50 zł/год брутто."
+    }
+  },
+  {
+    "_id": "6a248c2856d3f2f9ecfb9399",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 32.9,
+      "currency": "PLN",
+      "rawSalaryDisplay": "32.90 zł/god (брутто)",
+      "hoursRange": "",
+      "payoutDates": "до 10 числа кожного місяця на карту",
+      "bonusDetails": "доплата 1,50 zł/год brutto за власне житло",
+      "salaryNotes": "Виплата: до 10 числа кожного місяця на карту."
+    }
+  },
+  {
+    "_id": "6a248c5956d3f2f9ecfb93a4",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 31.4,
+      "currency": "PLN",
+      "rawSalaryDisplay": "31.40 zł/god (брутто)",
+      "hoursRange": "160-220",
+      "payoutDates": "до 10 числа кожного місяця на банківський рахунок",
+      "bonusDetails": "Премії: від 100 до 1000 зл (залежно від виконання плану)",
+      "salaryNotes": "Виплати: до 10 числа кожного місяця на банківський рахунок"
+    }
+  },
+  {
+    "_id": "6a248c7d56d3f2f9ecfb93ae",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "5000 зл/міс брутто",
+      "hoursRange": "240-288",
+      "payoutDates": "",
+      "bonusDetails": "Премія: до 500 зл/міс брутто (за відвідуваність та відсутність прогулів); Доплата за нічні зміни: +40% до ставки",
+      "salaryNotes": "Оплачувана відпустка, лікарняні та повний соцпакет"
+    }
+  },
+  {
+    "_id": "6a248c9c56d3f2f9ecfb93b6",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 4806,
+      "currency": "PLN",
+      "rawSalaryDisplay": "4806 zł/mies (брутто)",
+      "hoursRange": "160-176",
+      "payoutDates": "",
+      "bonusDetails": "Щомісячна премія: до 450 зл/міс брутто (за результати роботи та відвідуваність).",
+      "salaryNotes": "Стабільні виплати на банківський рахунок."
+    }
+  },
+  {
+    "_id": "6a248cc356d3f2f9ecfb93bd",
+    "contractType": "umowa zlecenie",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 33,
+      "currency": "PLN",
+      "rawSalaryDisplay": "33.00 zł/god (брутто)",
+      "hoursRange": "160-192",
+      "payoutDates": "виплати до 10 числа",
+      "bonusDetails": "",
+      "salaryNotes": "Виплати до 10 числа."
+    }
+  },
+  {
+    "_id": "6a248cea56d3f2f9ecfb93c7",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.19,
+      "studentNetto": 34.5,
+      "baseBrutto": 34.5,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.19 - 34.50 zł/год (нетто)",
+      "hoursRange": "160-192",
+      "payoutDates": "",
+      "bonusDetails": "Нічні зміни: +6,00 zł/год brutto; Премія за відвідуваність: 200 zł brutto / місяць; Премія за продуктивність: до 1000 zł brutto (залежить від кількості та якості комплектації); Робота в суботу: 50 zł/год brutto",
+      "salaryNotes": "Зарплата стабільно та офіційно"
+    }
+  },
+  {
+    "_id": "6a24975a7cb9760fa33477f2",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 27,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "27.00 zł/god (нетто)",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "доплата 500 zł netto для кандидатів на власному житлі",
+      "salaryNotes": "Доплата 500 zł netto для кандидатів на власному житлі."
+    }
+  },
+  {
+    "_id": "6a2497747cb9760fa33477fd",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 28,
+      "studentNetto": 32,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "28.00 - 32.00 zł/god (нетто)",
+      "hoursRange": "160-260",
+      "payoutDates": "",
+      "bonusDetails": "Бонус 1020 зл. брутто після 60 робочих днів",
+      "salaryNotes": "Надгодини (до 260 годин на місяць, це реальна цифра на базі реальних годин працівників) заробітна плата для студентів в середньому 7000-8000 зл чистими (реальна, яка ми точно знаєм і платимо); Підвищення ставки після 100 днів — до 37 зл/год брутто"
+    }
+  },
+  {
+    "_id": "6a24978d7cb9760fa3347805",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25 - 31.4 zł/год (нетто)",
+      "hoursRange": "250–280",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Можливість отримати аванс після 1 відпрацьованого тижня"
+    }
+  },
+  {
+    "_id": "6a2497b17cb9760fa3347811",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.5,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.50 zł/god (нетто)",
+      "hoursRange": "160-280",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Можливі аванси після 1 тижня роботи — до 300 зл."
+    }
+  },
+  {
+    "_id": "6a2497d27cb9760fa334781c",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 28,
+      "studentNetto": 35,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "28 - 51 зл/нетто",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Для працівників: День: 28 зл/нетто; Ніч: 31 зл/нетто; Субота/неділя: 45 зл/нетто. Для студентів: День: 35 зл/нетто; Ніч: 37 зл/нетто; Субота/неділя: 51 зл/нетто."
+    }
+  },
+  {
+    "_id": "6a2497f67cb9760fa3347828",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.5,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.5 - 31.40 zł/god (нетто)",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "26 зл/год нетто нічні зміни."
+    }
+  },
+  {
+    "_id": "6a24980e7cb9760fa3347832",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 28,
+      "studentNetto": 35,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "28 - 51 зл/нетто",
+      "hoursRange": "200-280",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Працівники: День: 28 зл/нетто, Ніч: 31 зл/нетто, Субота/неділя: 45 зл/нетто. Студенти: День: 35 зл/нетто, Ніч: 37 зл/нетто, Субота/неділя: 51 зл/нетто."
+    }
+  },
+  {
+    "_id": "6a2498287cb9760fa334783d",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 30,
+      "studentNetto": 35,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "30.00 - 35.00 zł/год (нетто)",
+      "hoursRange": "160-192",
+      "payoutDates": "20–25 числа кожного місяця",
+      "bonusDetails": "",
+      "salaryNotes": "Аванс після першого тижня — 300 zł"
+    }
+  },
+  {
+    "_id": "6a2498467cb9760fa3347849",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25 - 31.4 zł/год (нетто)",
+      "hoursRange": "250-280",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Можливість отримати аванс після 1 відпрацьованого тижня."
+    }
+  },
+  {
+    "_id": "6a24986f7cb9760fa3347855",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 26,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "26 - 31.40 zł/god (нетто)",
+      "hoursRange": "160-200",
+      "payoutDates": "",
+      "bonusDetails": "28 нетто за нічні зміни; 30 нетто за суботи; 40 нетто за неділі і святкові дні.",
+      "salaryNotes": "Регулярні виплати без затримок; Є аванси після відпрацювання 7 днів (300 зл.)."
+    }
+  },
+  {
+    "_id": "6a2498917cb9760fa3347864",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 - 31.40 zł/год (нетто)",
+      "hoursRange": "160-288",
+      "payoutDates": "",
+      "bonusDetails": "Після першого місяця, якщо добре себе проявить плюс 1-2 зл до ставки",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a2498af7cb9760fa334786e",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 - 31.40 zł/god (нетто)",
+      "hoursRange": "200-240",
+      "payoutDates": "",
+      "bonusDetails": "Премії в розмірі 20% за роботу в нічні зміни.",
+      "salaryNotes": "Зарплата до 15 числа кожного місяця."
+    }
+  },
+  {
+    "_id": "6a2498d37cb9760fa334787b",
+    "contractType": "Umowa o Pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 4666,
+      "currency": "PLN",
+      "rawSalaryDisplay": "4666 zł брутто/місяць",
+      "hoursRange": "160-220",
+      "payoutDates": "до 10 числа кожного місяця",
+      "bonusDetails": "Премії до 15%",
+      "salaryNotes": "Додатково оплачуються надгодини. Додатково +20% до ставки за роботу в нічний час, +50% до ставки за надгодини, +100% до ставки за роботу у вихідні та святкові дні. Аванси не надаються!"
+    }
+  },
+  {
+    "_id": "6a249f327cb9760fa33478ac",
+    "contractType": "Umowa Zlecenia",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 - 31.40 zł/god (нетто)",
+      "hoursRange": "160-288",
+      "payoutDates": "до 15 кожного місяця",
+      "bonusDetails": "",
+      "salaryNotes": "Зарплата до 15 кожного місяця."
+    }
+  },
+  {
+    "_id": "6a249f537cb9760fa33478b6",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 28.61,
+      "currency": "PLN",
+      "rawSalaryDisplay": "28.61 zł/god (брутто)",
+      "hoursRange": "160-200+",
+      "payoutDates": "",
+      "bonusDetails": "Премії - до 250 зл брутто за відсутність прогулів, браку та нещасних випадків.",
+      "salaryNotes": "Зарплата до 10 числа кожного місяця."
+    }
+  },
+  {
+    "_id": "6a249f737cb9760fa33478c1",
+    "contractType": "Umowa zlecenia",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 - 31.40 zł/год (нетто)",
+      "hoursRange": "240-260",
+      "payoutDates": "кожного місяця до 15 числа",
+      "bonusDetails": "",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a249f947cb9760fa33478cd",
+    "contractType": "Umowa o Prace",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 5200,
+      "currency": "PLN",
+      "rawSalaryDisplay": "5200 brutto",
+      "hoursRange": "",
+      "payoutDates": "до 10 числа кожного місяця",
+      "bonusDetails": "300 brutto premia frekwencyjna; 150zl.netto security check",
+      "salaryNotes": "Доплата за власний доїзд 100zl.netto. Зарплата до 10 числа кожного місяця на банківський рахунок."
+    }
+  },
+  {
+    "_id": "6a249fb97cb9760fa33478d8",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 4806,
+      "currency": "PLN",
+      "rawSalaryDisplay": "4806 zł/міс (брутто)",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "Премія (реальна з 2-го місяця роботи): Зазвичай її розмір становить 400–600 (залежно від продуктивності). У випадку високої продуктивності та додаткових надгодин премія може досягати до 1000 злотих.",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a249fdc7cb9760fa33478e8",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": null,
+      "baseBrutto": 31.4,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 - 28.64 zł/god (нетто)",
+      "hoursRange": "160-240",
+      "payoutDates": "",
+      "bonusDetails": "Премія: 3,31 нетто/год.",
+      "salaryNotes": "Ставка 25,33 зл нетто + премія 3,31 зл нетто/год, що разом становить 28,64 зл нетто/год. Ставка брутто 31,40 зл/год. Можливі зміни по 8-12 годин."
+    }
+  },
+  {
+    "_id": "6a24a0007cb9760fa33478f3",
+    "contractType": "Umowa o Pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 4806,
+      "currency": "PLN",
+      "rawSalaryDisplay": "4806 zł/міс (брутто)",
+      "hoursRange": "160-240",
+      "payoutDates": "до 10 числа кожного місяця",
+      "bonusDetails": "Додатково +20% до ставки за роботу в нічний час, +50% до ставки за надчаси, +100% до ставки за роботу в вихідні та святкові дні. Премія: 500 злотих за відпрацювання 30 днів, а також 500 злотих за відпрацювання 60 днів. Премії до 15% залежно від продуктивності, 5S, дотримання норм безпеки та гігієни праці + до 300 зл брутто за виявлені в процесі виробництва помилки якості.",
+      "salaryNotes": "Аванси не надаються!"
+    }
+  },
+  {
+    "_id": "6a24a0207cb9760fa33478fd",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 - 31.40 zł/god (нетто)",
+      "hoursRange": "180-220",
+      "payoutDates": "до 15 числа кожного місяця",
+      "bonusDetails": "Премія до 10%",
+      "salaryNotes": "Ставка для молоді до 26 років - 31,40 нетто/год."
+    }
+  },
+  {
+    "_id": "6a24a03e7cb9760fa3347905",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 - 31.40 zł/god (нетто)",
+      "hoursRange": "160-288",
+      "payoutDates": "до 15 числа кожного місяця",
+      "bonusDetails": "доплата 1зл за годину за власний доїзд",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a24a0667cb9760fa3347914",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 26.54,
+      "studentNetto": 32.9,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "26.54 - 32.90 zł/год (нетто)",
+      "hoursRange": "240-288",
+      "payoutDates": "до 15 числа кожного місяця",
+      "bonusDetails": "Премія: 300 zł брутто за відвідуваність",
+      "salaryNotes": "Зарплата до 15 числа кожного місяця. Доплата за проїзд — 74 zł нетто в рахунок зарплати."
+    }
+  },
+  {
+    "_id": "6a24a08b7cb9760fa334791e",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 26.65,
+      "studentNetto": 34,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "26.65 - 34.00 zł/god (нетто)",
+      "hoursRange": "180-220",
+      "payoutDates": "до 15 числа кожного місяця",
+      "bonusDetails": "Бонус для працівників 50 грош нетто. За умов: Робота понад 168 годин, Відсутність прогулів за весь місяць, Відсутність розірвання договору в місяці, за який ми розраховуємо працівника, У формі премії.",
+      "salaryNotes": "Кандидати на програмі Support - 29,65 зл/нетто."
+    }
+  },
+  {
+    "_id": "6a24a0b17cb9760fa334792d",
+    "contractType": "Umowa Zlecenia",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": null,
+      "baseBrutto": 31.4,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 zł/god (нетто)",
+      "hoursRange": "210-270",
+      "payoutDates": "щомісяця до 15 числа",
+      "bonusDetails": "Премії: відсутні",
+      "salaryNotes": "Виплата: щомісяця до 15 числа."
+    }
+  },
+  {
+    "_id": "6a24a0cf7cb9760fa3347938",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 26.65,
+      "studentNetto": 33,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "26.65 - 33.00 zł/god (нетто)",
+      "hoursRange": "160-300",
+      "payoutDates": "Зарплата до 15 числа кожного місяця.",
+      "bonusDetails": "Премія до 1500 зл нетто за виконання норм.",
+      "salaryNotes": "Ставка для кандидатів за програмою Support 28,65 нетто/год."
+    }
+  },
+  {
+    "_id": "6a24a0f37cb9760fa3347942",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 - 31.40 zł/god (нетто)",
+      "hoursRange": "200-280",
+      "payoutDates": "до 15 числа кожного місяця",
+      "bonusDetails": "Премії за виконання норми. Система премій, за роботу: 10% вище від норми – 26,13 нетто/год; 20% вище від норми – 26,94 нетто/год; 30% вище від норми – 27,75 нетто/год",
+      "salaryNotes": "Ставка для молоді до 26 років - 31,40 нетто/год"
+    }
+  },
+  {
+    "_id": "6a24a1107cb9760fa334794c",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "27.79 zł/god (брутто)",
+      "hoursRange": "168-184",
+      "payoutDates": "до 10 числа кожного місяця",
+      "bonusDetails": "Премії 120 зл брутто (60 зл за дотримання норм праці та 60 зл, якщо немає скарг на роботу). Також 50 зл за роботу в суботу або неділю. +20% до ставки за роботу в нічний час, +50% до ставки за наднормові, +100% до ставки за роботу у вихідні та святкові дні",
+      "salaryNotes": "Ставка: 27.79 брутто/год."
+    }
+  },
+  {
+    "_id": "6a24a1367cb9760fa3347958",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 26.65,
+      "studentNetto": 34,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "26.65 - 34.00 zł/god (нетто)",
+      "hoursRange": "180–220",
+      "payoutDates": "до 15 числа кожного місяця",
+      "bonusDetails": "Бонус для працівників 50 грош нетто. За умов: Робота понад 168 годин, Відсутність прогулів за весь місяць, Відсутність розірвання договору в місяці, за який ми розраховуємо працівника, У формі премії.",
+      "salaryNotes": "Кандидати на програмі Support - 29,65 зл/нетто."
+    }
+  },
+  {
+    "_id": "6a24a1687cb9760fa3347968",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "27,80 zł brutto/год",
+      "hoursRange": "160-200",
+      "payoutDates": "до 10 числа кожного місяця",
+      "bonusDetails": "",
+      "salaryNotes": "Ставка: 27,80 zł brutto/год."
+    }
+  },
+  {
+    "_id": "6a24a18c7cb9760fa3347973",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 30.06,
+      "currency": "PLN",
+      "rawSalaryDisplay": "30.06 zł/god (брутто)",
+      "hoursRange": "",
+      "payoutDates": "До 10 числа кожного місяця",
+      "bonusDetails": "До 15% премії (5% за присутність на робочому місці і 10% за ефективність і якість роботи)",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a24a1bc7cb9760fa334797e",
+    "contractType": "Umowa o Pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 5036,
+      "currency": "PLN",
+      "rawSalaryDisplay": "5036 zł/міс (брутто)",
+      "hoursRange": "168",
+      "payoutDates": "Зарплата до 10 числа кожного місяця",
+      "bonusDetails": "Премії 480 зл./брутто за продуктивність та відсутність прогулів виплачуються через одну зарплату, за січень у березні.",
+      "salaryNotes": "Додатково +20% до ставки за роботу в нічний час, +50% до ставки за наднормові години, +100% до ставки за роботу у вихідні та святкові дні. Аванси не надаються!"
+    }
+  },
+  {
+    "_id": "6a24a1e77cb9760fa334798b",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 28.61,
+      "currency": "PLN",
+      "rawSalaryDisplay": "28.61 zł/god (brutto)",
+      "hoursRange": "160-200",
+      "payoutDates": "до 10 числа кожного місяця",
+      "bonusDetails": "Премії - до 250 зл брутто за відсутність прогулів, браку та нещасних випадків.",
+      "salaryNotes": "Зарплата до 10 числа кожного місяця. За 1 вихід в НЕДІЛЮ, яка оплачується 200%, можна заробити = 650 зл брутто."
+    }
+  },
+  {
+    "_id": "6a24a2157cb9760fa3347995",
+    "contractType": "Umowa Zlecenia",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": null,
+      "baseBrutto": 31.4,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 zł/god (нетто)",
+      "hoursRange": "200-240",
+      "payoutDates": "щомісяця до 15 числа",
+      "bonusDetails": "+25% до базової ставки за кожну додаткову годину, якщо в тижні більше 48 робочих годин.",
+      "salaryNotes": "450 зл за комунальні послуги утримується з зарплати."
+    }
+  },
+  {
+    "_id": "6a24a2567cb9760fa33479b1",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 - 31.40 zł/god (нетто)",
+      "hoursRange": "200-280",
+      "payoutDates": "До 15 числа кожного місяця",
+      "bonusDetails": "Премії за виконання норми. Система премій, за роботу: 10% вище від норми – 26,13 нетто/год | 32,40 брутто/год; 20% вище від норми – 26,94 нетто/год | 33,40 брутто/год; 30% вище від норми – 27,75 нетто/год | 34,40 брутто/год",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a24a2837cb9760fa33479bd",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 26.65,
+      "studentNetto": 34,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "26.65 - 34.00 zł/god (нетто)",
+      "hoursRange": "180-220",
+      "payoutDates": "до 15 числа кожного місяця",
+      "bonusDetails": "Бонус для працівників 50 грош нетто. За умов: Робота понад 168 годин, Відсутність прогулів за весь місяць, Відсутність розірвання договору в місяці, за який ми розраховуємо працівника, У формі премії.",
+      "salaryNotes": "Кандидати на програмі Support - 29,65 зл/нетто."
+    }
+  },
+  {
+    "_id": "6a24a2a77cb9760fa33479cc",
+    "contractType": "Umowa Zlecenia",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": null,
+      "baseBrutto": 31.4,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 zł/год (нетто)",
+      "hoursRange": "192-240",
+      "payoutDates": "щомісяця до 15 числа",
+      "bonusDetails": "",
+      "salaryNotes": "Виплата: щомісяця до 15 числа."
+    }
+  },
+  {
+    "_id": "6a24a2d17cb9760fa33479d7",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 26.65,
+      "studentNetto": 34,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "26.65 - 34.00 zł/год (нетто)",
+      "hoursRange": "180–220",
+      "payoutDates": "",
+      "bonusDetails": "Бонус для працівників 50 грош нетто. За умов: Робота понад 168 годин, Відсутність прогулів за весь місяць, Відсутність розірвання договору в місяці, за який ми розраховуємо працівника, У формі премії.",
+      "salaryNotes": "Виплата зарплати до 15 числа кожного місяця. Кандидати на програмі Support отримують 29,65 зл/нетто."
+    }
+  },
+  {
+    "_id": "6a24a2f57cb9760fa33479e5",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 26.65,
+      "studentNetto": 33,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "26.65 - 33.00 zł/god (нетто)",
+      "hoursRange": "160-300",
+      "payoutDates": "Зарплата до 15 числа кожного місяця.",
+      "bonusDetails": "Премія до 1500 зл нетто за виконання норм.",
+      "salaryNotes": "Доплата за своє житло - 1,50 zł netto/год, на окрему картку, якою можна здійснювати покупки в магазинах, видається вона безкоштовно за рахунок фірми."
+    }
+  },
+  {
+    "_id": "6a24a3187cb9760fa33479f0",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 - 31.40 zł/год (нетто)",
+      "hoursRange": "168-200",
+      "payoutDates": "до 10 числа кожного місяця",
+      "bonusDetails": "Премія 100 зл за 100 днів без пригод.",
+      "salaryNotes": "Вища ставка для кандидатів до 26 років - 31,40 нетто/год."
+    }
+  },
+  {
+    "_id": "6a24a3387cb9760fa33479fe",
+    "contractType": "Umowa o Pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "30.06 zł/god (брутто)",
+      "hoursRange": "",
+      "payoutDates": "До 10 числа кожного місяця",
+      "bonusDetails": "До 15% премії (5% за присутність на робочому місці і 10% за ефективність і якість роботи)",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a24a3597cb9760fa3347a07",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 - 31.40 zł/god (нетто)",
+      "hoursRange": "160-192",
+      "payoutDates": "до 15 числа на банківський рахунок",
+      "bonusDetails": "Для здобуття премій необхідно - виконання норм, праця без прогулів",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a24a37b7cb9760fa3347a13",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 27.79,
+      "currency": "PLN",
+      "rawSalaryDisplay": "27.79 zł/год (брутто)",
+      "hoursRange": "168-184",
+      "payoutDates": "до 10 числа кожного місяця",
+      "bonusDetails": "Премії 120 зл брутто (60 зл за дотримання норм праці та 60 зл, якщо немає скарг на роботу). Також 50 зл за роботу в суботу або неділю. Додатково +20% до ставки за роботу в нічний час, +50% до ставки за наднормові години, +100% до ставки за роботу у вихідні та святкові дні.",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a24a3977cb9760fa3347a1c",
+    "contractType": "Umowa zlecenia",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 - 31.40 zł/god (нетто)",
+      "hoursRange": "168-220",
+      "payoutDates": "Зарплата до 15 числа каждого месяца",
+      "bonusDetails": "",
+      "salaryNotes": "Ставка для молоді до 26 років - 31.40 нетто/год"
+    }
+  },
+  {
+    "_id": "6a24a3b77cb9760fa3347a26",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 26.65,
+      "studentNetto": 33,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "26.65 - 33.00 zł/god (нетто)",
+      "hoursRange": "160-300",
+      "payoutDates": "",
+      "bonusDetails": "Премія до 1500 зл нетто за виконання норм.",
+      "salaryNotes": "Зарплата до 15 числа кожного місяця."
+    }
+  },
+  {
+    "_id": "6a24a3d47cb9760fa3347a33",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 - 31.40 zł/god (нетто)",
+      "hoursRange": "180-220",
+      "payoutDates": "",
+      "bonusDetails": "Додатково премія до 10 %.",
+      "salaryNotes": "Зарплата до 15 числа кожного місяця."
+    }
+  },
+  {
+    "_id": "6a24a3f17cb9760fa3347a4b",
+    "contractType": "Umowa Zlecenia",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": null,
+      "baseBrutto": 31.4,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 zł/год (нетто)",
+      "hoursRange": "",
+      "payoutDates": "щомісяця до 15 числа",
+      "bonusDetails": "Відсутні",
+      "salaryNotes": "Виплата заробітної плати: щомісяця до 15 числа"
+    }
+  },
+  {
+    "_id": "6a24a4177cb9760fa3347a58",
+    "contractType": "Umowa o Pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 5036,
+      "currency": "PLN",
+      "rawSalaryDisplay": "5036 zł/міс (брутто)",
+      "hoursRange": "168",
+      "payoutDates": "Зарплата до 10 числа кожного місяця.",
+      "bonusDetails": "Премії 480зл./брутто за продуктивність та відсутність прогулів виплачуються через одну зарплату, за січень у березні.",
+      "salaryNotes": "Додатково +20% до ставки за роботу в нічний час, +50% до ставки за наднормові, +100% до ставки за роботу у вихідні та святкові дні. Аванси не надаються!"
+    }
+  },
+  {
+    "_id": "6a24a4397cb9760fa3347a66",
+    "contractType": "Umowa o Pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 4730,
+      "currency": "PLN",
+      "rawSalaryDisplay": "4730 - 4980 брутто / місяць",
+      "hoursRange": "160",
+      "payoutDates": "до 10 числа кожного місяця",
+      "bonusDetails": "Премії до 565зл. За результативність і за якість.",
+      "salaryNotes": "Ставка зависит от должности: 4730 брутто / місяць для Младшего работника продукции или же 4980 брутто / місяць для Конфекционера (выбирать нелья). +20% до ставки за роботу в нічний час, +50% до ставки за надгодини, + 200% до ставки за роботу у вихідні та святкові дні."
+    }
+  },
+  {
+    "_id": "6a24a45a7cb9760fa3347a71",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": null,
+      "baseBrutto": 31.4,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 zł/god (нетто)",
+      "hoursRange": "160-176",
+      "payoutDates": "Виплачується до 15 числа кожного місяця.",
+      "bonusDetails": "",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a24a47f7cb9760fa3347a7a",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 27.8,
+      "currency": "PLN",
+      "rawSalaryDisplay": "27.80 zł brutto/год",
+      "hoursRange": "160-200",
+      "payoutDates": "до 10 числа кожного місяця",
+      "bonusDetails": "",
+      "salaryNotes": "Зарплата до 10 числа кожного місяця."
+    }
+  },
+  {
+    "_id": "6a24a4c77cb9760fa3347a95",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": 31.4,
+      "baseBrutto": 31.4,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 - 31.40 zł/god (нетто)",
+      "hoursRange": "220",
+      "payoutDates": "до 15 числа кожного місяця",
+      "bonusDetails": "Премій немає",
+      "salaryNotes": "Для працівників до 26 років: 31,40 zł нетто/год"
+    }
+  },
+  {
+    "_id": "6a24a4e07cb9760fa3347a9f",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 - 31.40 zł/год (нетто)",
+      "hoursRange": "220-240",
+      "payoutDates": "Зарплата до 15 числа кожного місяця",
+      "bonusDetails": "Премії працівникам за продуктивну роботу до 10% від місячної зарплати.",
+      "salaryNotes": "Зарплата до 15 числа кожного місяця."
+    }
+  },
+  {
+    "_id": "6a24a4fd7cb9760fa3347aa8",
+    "contractType": "Umowa Zlecenia",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 - 31.40 zł/god (нетто)",
+      "hoursRange": "210-270",
+      "payoutDates": "до 15 кожного місяця",
+      "bonusDetails": "",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a24a51b7cb9760fa3347ab0",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 28.61,
+      "currency": "PLN",
+      "rawSalaryDisplay": "28.61 zł/god (брутто)",
+      "hoursRange": "",
+      "payoutDates": "до 10 числа кожного місяця",
+      "bonusDetails": "Премії - до 250 зл брутто за відсутність прогулів, браку та нещасних випадків. За 1 вихід у НЕДІЛЮ, яка оплачується 200%, можна заробити = 650 зл брутто.",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a24a53a7cb9760fa3347abb",
+    "contractType": "Umowa zlecenia",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 - 31.40 zł/god (нетто)",
+      "hoursRange": "240-260",
+      "payoutDates": "кожного місяця до 15 числа",
+      "bonusDetails": "",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a24a5807cb9760fa3347ad3",
+    "contractType": "Umowa o Pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 4806,
+      "currency": "PLN",
+      "rawSalaryDisplay": "4806 zł/міс (брутто)",
+      "hoursRange": "160-176",
+      "payoutDates": "до 10 числа кожного місяця",
+      "bonusDetails": "Додаткова премія 500 зл за відпрацювання 30 днів, а також 500 зл за відпрацювання 60 днів. Премії до 15% залежно від продуктивності, 5S, дотримання норм безпеки та гігієни праці. До 300 зл брутто за виявлені в процесі виробництва помилки якості.",
+      "salaryNotes": "Додатково оплачуються надгодини. +20% до ставки за роботу в нічний час, +50% до ставки за надгодини, +100% до ставки за роботу у вихідні та святкові дні. Аванси не надаються!"
+    }
+  },
+  {
+    "_id": "6a24a5a37cb9760fa3347adf",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 - 31.40 zł/god (нетто)",
+      "hoursRange": "180-220",
+      "payoutDates": "до 15 числа кожного місяця",
+      "bonusDetails": "Премія до 10%",
+      "salaryNotes": "Зарплата до 15 числа кожного місяця."
+    }
+  },
+  {
+    "_id": "6a24a5cb7cb9760fa3347ae9",
+    "contractType": "Umowa Zlecenia",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 - 31.40 zł/god (нетто)",
+      "hoursRange": "160-288",
+      "payoutDates": "до 15 числа кожного місяця",
+      "bonusDetails": "доплата 1зл за годину за власний доїзд",
+      "salaryNotes": "Виплата заробітної плати – до 15 числа кожного місяця."
+    }
+  },
+  {
+    "_id": "6a24a5f57cb9760fa3347af7",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 26.54,
+      "studentNetto": 32.9,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "26.54 - 32.90 zł/год (нетто)",
+      "hoursRange": "240-288",
+      "payoutDates": "Зарплата до 15 числа кожного місяця",
+      "bonusDetails": "Премія: 300 zł брутто за відвідуваність",
+      "salaryNotes": "Доплата за своє житло: 150 zł нетто, на карту, якою можна розплатитися в продуктових магазинах; Доплата за проїзд — 74 zł нетто в рахунок зарплати"
+    }
+  },
+  {
+    "_id": "6a24a61d7cb9760fa3347b03",
+    "contractType": "Umowa zlecenia",
+    "salary": {
+      "baseNetto": 26.5,
+      "studentNetto": null,
+      "baseBrutto": 33,
+      "currency": "PLN",
+      "rawSalaryDisplay": "26.50 - 30.25 zł/god (нетто)",
+      "hoursRange": "200-240",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Обивщики з мінімальним досвідом: 26,50 злотих нетто/год (33 зл брутто/год). Після досягнення 50% продуктивності на 5-й день та 80% на 10-й день, ставка підвищується до 30,25 злотих нетто/год (37,50 брутто/год). Якщо рівень продуктивності не досягнуто, ставка залишається 26,50 злотих нетто/год."
+    }
+  },
+  {
+    "_id": "6a24a63d7cb9760fa3347b14",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": 31.4,
+      "baseBrutto": 31.4,
+      "currency": "PLN",
+      "rawSalaryDisplay": "31.40 zł/год (брутто, нетто для студентів/до 26 років)",
+      "hoursRange": "160-180",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Ставка 31,40 zł брутто. Для студентів або осіб до 26 років ставка 31,40 zł є нетто."
+    }
+  },
+  {
+    "_id": "6a24a6677cb9760fa3347b1e",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 33.8,
+      "currency": "PLN",
+      "rawSalaryDisplay": "33,80 zł/god (brutto)",
+      "hoursRange": "160",
+      "payoutDates": "до 15 числа кожного місяця",
+      "bonusDetails": "Премії немає.",
+      "salaryNotes": "Ставка 33,80 зл брутто/год. Зарплата до 15 числа кожного місяця. Надчаси надаються за бажанням. Можна працювати у вихідні."
+    }
+  },
+  {
+    "_id": "6a24a6847cb9760fa3347b2b",
+    "contractType": "Umowa Zlecenia",
+    "salary": {
+      "baseNetto": 30.65,
+      "studentNetto": 38,
+      "baseBrutto": 38,
+      "currency": "PLN",
+      "rawSalaryDisplay": "30.65 - 38.00 zł/god (нетто)",
+      "hoursRange": "168-200",
+      "payoutDates": "до 15 числа кожного місяця",
+      "bonusDetails": "",
+      "salaryNotes": "Зарплата до 15 числа кожного місяця"
+    }
+  },
+  {
+    "_id": "6a24a6a07cb9760fa3347b36",
+    "contractType": "Umowa o Prace",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 34.5,
+      "currency": "PLN",
+      "rawSalaryDisplay": "34.50 zł/god (брутто)",
+      "hoursRange": "",
+      "payoutDates": "до 10 числа кожного місяця",
+      "bonusDetails": "добавка за нічні зміни 20% від заробітної плати, понаднормові години: 50% до ставки в робочі дні та +100% у вихідні. Бонус за роботу в суботу 250 зл брутто (якщо пропрацювали не менше 6 годин). Премії до 500 зл брутто. 2500 зл брутто премія Welcome Bonus - виплачується по 625 зл, якщо немає прогулів, UB, і інших типів відсутностей(урлоп випочинковий не впливає) протягом 4 місяців.",
+      "salaryNotes": "Зарплата до 10 числа кожного місяця"
+    }
+  },
+  {
+    "_id": "6a24a6c07cb9760fa3347b42",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 28.23,
+      "studentNetto": 35,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "28.23 - 35.00 zł/год (нетто)",
+      "hoursRange": "160-240",
+      "payoutDates": "Зарплата до 15 числа кожного місяця.",
+      "bonusDetails": "Премії немає.",
+      "salaryNotes": "Зарплата до 15 числа кожного місяця."
+    }
+  },
+  {
+    "_id": "6a24a6e27cb9760fa3347b4f",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": 32.8,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "32.80 zł/god (брутто), 32.80 zł/god (нетто для студентів)",
+      "hoursRange": "240-300",
+      "payoutDates": "до 15 числа кожного місяця",
+      "bonusDetails": "Премії немає.",
+      "salaryNotes": "Зарплата до 15 числа кожного місяця."
+    }
+  },
+  {
+    "_id": "6a24a6fc7cb9760fa3347b5a",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 29.84,
+      "studentNetto": 35,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "29.84 - 35.00 zł/god (нетто)",
+      "hoursRange": "240-280",
+      "payoutDates": "Зарплата до 10 числа кожного місяця",
+      "bonusDetails": "Премії в залежності від якості виконуваної роботи, до кожного індивідуальний підхід.",
+      "salaryNotes": "Доплата за своє житло - 150зл нетто, на карту якої можна розплатитися в продуктових магазинах."
+    }
+  },
+  {
+    "_id": "6a24a7157cb9760fa3347b65",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 28.23,
+      "studentNetto": 35,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "28.23 - 35.00 zł/год (нетто)",
+      "hoursRange": "160-280",
+      "payoutDates": "Зарплата до 15 числа кожного місяця.",
+      "bonusDetails": "Премії немає.",
+      "salaryNotes": "Зарплата до 15 числа кожного місяця."
+    }
+  },
+  {
+    "_id": "6a24a7357cb9760fa3347b71",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 27.18,
+      "studentNetto": 33.7,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "27.18 - 33.70 zł/god (нетто)",
+      "hoursRange": "від 220",
+      "payoutDates": "Зарплата до 15 числа кожного місяця",
+      "bonusDetails": "Премії немає. Можливий кар'єрний ріст при хороших показниках.",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a24a7537cb9760fa3347b7f",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 28.54,
+      "studentNetto": 32.9,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "28.54 - 32.90 zł/год (нетто)",
+      "hoursRange": "240-300",
+      "payoutDates": "до 15 числа кожного місяця",
+      "bonusDetails": "",
+      "salaryNotes": "Ставка для молоді до 26 років - 32,90 нетто/год."
+    }
+  },
+  {
+    "_id": "6a24a76b7cb9760fa3347b88",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 29.04,
+      "studentNetto": 36,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "29.04 - 36.00 zł/год (нетто)",
+      "hoursRange": "168-210",
+      "payoutDates": "Зарплата до 15 числа кожного місяця.",
+      "bonusDetails": "Премії: 140 злотих за 100 днів без пригод.",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a24a7877cb9760fa3347b93",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 30.4,
+      "studentNetto": null,
+      "baseBrutto": 37.82,
+      "currency": "PLN",
+      "rawSalaryDisplay": "30.40 zł/god (нетто)",
+      "hoursRange": "",
+      "payoutDates": "до 10 числа кожного місяця",
+      "bonusDetails": "Премії немає",
+      "salaryNotes": "Зарплата до 10 числа кожного місяця. Також пропонується Umowa o pracę зі ставкою 6355 зл брутто, без премій."
+    }
+  },
+  {
+    "_id": "6a24a7aa7cb9760fa3347b9e",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 4700,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "4700 PLN/міс (нетто)",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "Якщо кандидат працює в чотиризмінному режимі - Доплата за 12-годинні зміни; Якщо працівник відпрацював усі заплановані зміни протягом місяця - 4000 Kč; Бонус за сумлінну роботу 500 – 4000 Kč; Доплата за нічні зміни 20 Kč/год; Доплата за понаднормову роботу протягом тижня 25% середньої заробітної плати; Доплата за роботу у вихідні 70 % середньої заробітної плати; Доплата за роботу у святкові дні 100 % середньої заробітної плати.",
+      "salaryNotes": "Базова ставка: 25 292 Kč брутто. При роботі в чотиризмінному режимі початкова місячна заробітна плата за повний відпрацьований місяць + повні премії становить приблизно 32 000 крон БРУТТО – після вирахування податку і перерахунку в PLN заробіток становить приблизно 4700 PLN."
+    }
+  },
+  {
+    "_id": "6a2535faab4cc0fe61e864ca",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 26.5,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "26.50 - 31.40 zł/god (нетто)",
+      "hoursRange": "160-240",
+      "payoutDates": "з 15 по 18 число за попередній відпрацьований місяць",
+      "bonusDetails": "",
+      "salaryNotes": "+1 zł / година доплата за власне житло.\n29,33 PLN NETTO / година ставка для кандидатів до 26 років.\nСтавка згідно із законом \"Новий польський лад\" (Polski Ład)."
+    }
+  },
+  {
+    "_id": "6a253672ab4cc0fe61e867d2",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 24.8,
+      "currency": "PLN",
+      "rawSalaryDisplay": "24.80 zł/год (брутто)",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "Премія за роботу в графіку 4 бригад - 900 zł brutto. Премія за ефективність роботи лінії до 300 zł brutto (нараховується за виконання плану на місяць і відсутність повернень продукту від клієнта). Премія за відсутність прогулів до 330 zł brutto. Доплата за нічні зміни - 20% до ставки (200-320 zł в залежності від кількості нічних змін на місяць). Додатково +50% до ставки за надгодини, +100% до ставки за роботу у вихідні та святкові дні.",
+      "salaryNotes": "Середня заробітна плата працівника 6000 zł netto."
+    }
+  },
+  {
+    "_id": "6a253694ab4cc0fe61e867df",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 - 31.40 zł/god (нетто)",
+      "hoursRange": "200–250",
+      "payoutDates": "",
+      "bonusDetails": "Премії: відсутні",
+      "salaryNotes": "Зарплата виплачується до 15 числа кожного місяця."
+    }
+  },
+  {
+    "_id": "6a2536b1ab4cc0fe61e867e8",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 - 31.40 zł/год (нетто)",
+      "hoursRange": "200-280",
+      "payoutDates": "Зарплата до 15 числа кожного місяця.",
+      "bonusDetails": "Премії за виконання норми. Система премій за роботу: 10% вище від норми – 26,13 нетто/год | 32,40 брутто/год; 20% вище від норми – 26,94 нетто/год | 33,40 брутто/год; 30% вище від норми – 27,75 нетто/год | 34,40 брутто/год.",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a2536d3ab4cc0fe61e867f4",
+    "contractType": "Umowa Zlecenia",
+    "salary": {
+      "baseNetto": 26.65,
+      "studentNetto": 34,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "26.65 - 34.00 zł/год (нетто)",
+      "hoursRange": "180-220",
+      "payoutDates": "до 15 числа кожного місяця",
+      "bonusDetails": "Бонус для працівників 50 грош нетто. За умов: Робота понад 168 годин, Відсутність прогулів за весь місяць, Відсутність розірвання договору в місяці, за який ми розраховуємо працівника, У формі премії.",
+      "salaryNotes": "Кандидати на програмі Support - 29,65 зл/нетто."
+    }
+  },
+  {
+    "_id": "6a2536f0ab4cc0fe61e86804",
+    "contractType": "Umowa Zlecenia",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": null,
+      "baseBrutto": 31.4,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 zł/god (нетто)",
+      "hoursRange": "",
+      "payoutDates": "щомісяця до 15 числа",
+      "bonusDetails": "Премії: відсутні",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a253719ab4cc0fe61e86811",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 26.65,
+      "studentNetto": 34,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "26.65 - 34.00 zł/god (нетто)",
+      "hoursRange": "180-220",
+      "payoutDates": "до 15 числа кожного місяця",
+      "bonusDetails": "Бонус для працівників 50 грош нетто. За умов: Робота понад 168 годин, Відсутність прогулів за весь місяць, Відсутність розірвання договору в місяці, за який ми розраховуємо працівника, У формі премії.",
+      "salaryNotes": "Кандидати на програмі Support - 29,65 зл/нетто."
+    }
+  },
+  {
+    "_id": "6a25373aab4cc0fe61e86820",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 26.65,
+      "studentNetto": 33,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "26.65 - 33.00 zł/god (нетто)",
+      "hoursRange": "160-300",
+      "payoutDates": "",
+      "bonusDetails": "Премія до 1500 зл нетто за виконання норм.",
+      "salaryNotes": "Зарплата до 15 числа кожного місяця. Ставка для кандидатів за програмою Support 28,65 нетто/год."
+    }
+  },
+  {
+    "_id": "6a25375dab4cc0fe61e8682c",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 5200,
+      "currency": "PLN",
+      "rawSalaryDisplay": "4900 - 5200 zł/міс (брутто)",
+      "hoursRange": "160-176",
+      "payoutDates": "",
+      "bonusDetails": "+50% до ставки за надчаси, +100% до ставки за роботу в вихідні та святкові дні; 300 брутто премія",
+      "salaryNotes": "Кандидат отримує зарплату з першого дня роботи. Додатково +50% до ставки за надчаси, +100% до ставки за роботу в вихідні та святкові дні. Можливість взяти надгодини в суботу тільки після місяця роботи."
+    }
+  },
+  {
+    "_id": "6a25377dab4cc0fe61e86834",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 - 31.40 zł/год (нетто)",
+      "hoursRange": "240 і більше годин",
+      "payoutDates": "до 15 числа кожного місяця",
+      "bonusDetails": "Премії за роботу в святкові дні до 100 зл.",
+      "salaryNotes": "Зарплата до 15 числа кожного місяця."
+    }
+  },
+  {
+    "_id": "6a2537adab4cc0fe61e8683e",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 - 31.40 zł/god (нетто)",
+      "hoursRange": "168",
+      "payoutDates": "Зарплата до 10 числа кожного місяця.",
+      "bonusDetails": "Премії 100 зл за 100 днів без пригод.",
+      "salaryNotes": "Ставка для молоді до 26 років - 31,40 нетто/год."
+    }
+  },
+  {
+    "_id": "6a2537ceab4cc0fe61e8684b",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 - 31.40 zł/год (нетто)",
+      "hoursRange": "200-240",
+      "payoutDates": "Зарплата до 10 числа кожного місяця.",
+      "bonusDetails": "",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a2537edab4cc0fe61e86859",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 30.06,
+      "currency": "PLN",
+      "rawSalaryDisplay": "30.06 zł/god (брутто)",
+      "hoursRange": "",
+      "payoutDates": "До 10 числа кожного місяця",
+      "bonusDetails": "До 15% премії (5% за присутність на робочому місці і 10% за ефективність і якість роботи)",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a25380bab4cc0fe61e86864",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 - 31.40 zł/год (нетто)",
+      "hoursRange": "210-270",
+      "payoutDates": "до 15 числа на банківський рахунок",
+      "bonusDetails": "Для здобуття премій необхідно - виконання норм, праця без прогулів",
+      "salaryNotes": "Ставка для молоді до 26 років - 31,40 нетто/год"
+    }
+  },
+  {
+    "_id": "6a25383eab4cc0fe61e86870",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 27.79,
+      "currency": "PLN",
+      "rawSalaryDisplay": "27.79 zł/god (брутто)",
+      "hoursRange": "168-184",
+      "payoutDates": "до 10 числа кожного місяця",
+      "bonusDetails": "Премії 120 зл брутто (60 зл за дотримання норм праці та 60 зл, якщо немає скарг на роботу). Також 50 зл за роботу в суботу або неділю. +20% до ставки за роботу в нічний час, +50% до ставки за наднормові години, +100% до ставки за роботу у вихідні та святкові дні.",
+      "salaryNotes": "Ставка 27.79 брутто/год."
+    }
+  },
+  {
+    "_id": "6a253878ab4cc0fe61e86889",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": null,
+      "baseBrutto": 31.4,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 zł/год (нетто)",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Через два місяці підвищення ставки до 32.0 брутто; Ще через два місяці підвищення ставки до 32.5 брутто."
+    }
+  },
+  {
+    "_id": "6a253897ab4cc0fe61e86893",
+    "contractType": "Umowa zlecenia",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 - 31.40 zł/god (нетто)",
+      "hoursRange": "168-220",
+      "payoutDates": "до 15 числа кожного місяця",
+      "bonusDetails": "",
+      "salaryNotes": "Ставка для молоді до 26 років - 31.40 нетто/год."
+    }
+  },
+  {
+    "_id": "6a2538b4ab4cc0fe61e8689e",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 - 31.40 zł/god (нетто)",
+      "hoursRange": "160-288",
+      "payoutDates": "до 10 числа",
+      "bonusDetails": "",
+      "salaryNotes": "Зарплата до 10 числа на банківський рахунок"
+    }
+  },
+  {
+    "_id": "6a2538daab4cc0fe61e868ab",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 27.8,
+      "currency": "PLN",
+      "rawSalaryDisplay": "27.80 zł/god (брутто)",
+      "hoursRange": "",
+      "payoutDates": "до 10 числа кожного місяця",
+      "bonusDetails": "",
+      "salaryNotes": "Зарплата до 10 числа кожного місяця."
+    }
+  },
+  {
+    "_id": "6a253906ab4cc0fe61e868b6",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.36 - 31.40 zł/god (нетто)",
+      "hoursRange": "220+",
+      "payoutDates": "до 15 числа кожного місяця",
+      "bonusDetails": "Премії в вигляді доплати до ставки за роботу на різних процесах.",
+      "salaryNotes": "Ставка для молоді до 26 років - 31.40 нетто/год. Надбавка за подачу на карту побыту 1,24 брутто. Надбавка за стаж (6 місяців) 1,24 брутто."
+    }
+  },
+  {
+    "_id": "6a25392bab4cc0fe61e868c2",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 26.65,
+      "studentNetto": 33,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "26.65 - 33.00 zł/год (нетто)",
+      "hoursRange": "160-300",
+      "payoutDates": "до 15 числа кожного місяця",
+      "bonusDetails": "Премія до 1500 зл нетто за виконання норм.",
+      "salaryNotes": "Ставка для кандидатів за програмою Support 28,65 нетто/год. Доплата за власне житло - 1,5 zł netto/h, на окрему карту, якою можна здійснювати покупки в магазинах, видається вона безкоштовно за рахунок фірми."
+    }
+  },
+  {
+    "_id": "6a25394cab4cc0fe61e868ce",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 - 31.40 zł/год (нетто)",
+      "hoursRange": "180-220",
+      "payoutDates": "",
+      "bonusDetails": "Додатково премія до 10 %.",
+      "salaryNotes": "Зарплата до 15 числа кожного місяця."
+    }
+  },
+  {
+    "_id": "6a25396aab4cc0fe61e868e2",
+    "contractType": "Umowa o Pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 4806,
+      "currency": "PLN",
+      "rawSalaryDisplay": "4806 zł/місяць (брутто)",
+      "hoursRange": "",
+      "payoutDates": "до 10 числа кожного місяця",
+      "bonusDetails": "+20% до ставки за роботу в нічний час, +50% до ставки за надгодини, +100% до ставки за роботу у вихідні та святкові дні. Премії 50зл за вихід у вихідний день. Перший місяць премія 300 злотих брутто. Наступні місяці премія 15 % від виконання норм і відвідуваності.",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a2539d5ab4cc0fe61e86902",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": null,
+      "baseBrutto": 31.4,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 zł/год (нетто)",
+      "hoursRange": "190-240",
+      "payoutDates": "щомісяця до 15 числа",
+      "bonusDetails": "відсутні",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a253a20ab4cc0fe61e86919",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 5036,
+      "currency": "PLN",
+      "rawSalaryDisplay": "5036 zł/міс (брутто)",
+      "hoursRange": "168",
+      "payoutDates": "Зарплата до 10 числа кожного місяця.",
+      "bonusDetails": "Премії 480зл./брутто за продуктивність і відсутність прогулів виплачуються через одну зарплату, за січень у березні.",
+      "salaryNotes": "Додатково +20% до ставки за роботу в нічний час, +50% до ставки за наднормові, +100% до ставки за роботу у вихідні та святкові дні. Аванси не надаються!"
+    }
+  },
+  {
+    "_id": "6a253a43ab4cc0fe61e86928",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 - 31.40 zł/god (нетто)",
+      "hoursRange": "200-240",
+      "payoutDates": "до 15 числа кожного місяця",
+      "bonusDetails": "",
+      "salaryNotes": "Зарплата до 15 числа кожного місяця."
+    }
+  },
+  {
+    "_id": "6a253a61ab4cc0fe61e86932",
+    "contractType": "Umowa o Pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "4730 - 4980 PLN/місяць (брутто)",
+      "hoursRange": "",
+      "payoutDates": "до 10 числа кожного місяця",
+      "bonusDetails": "Премії до 565 зл. За результативність і за якість.",
+      "salaryNotes": "Ставка залежить від посади: 4730 брутто / місяць для Младшого працівника продукції або ж 4980 брутто / місяць для Конфекціонера. +20% до ставки за роботу в нічний час, +50% до ставки за надгодини, + 200% до ставки за роботу у вихідні та святкові дні. Доплата за своє житло – 150 зл брутто."
+    }
+  },
+  {
+    "_id": "6a253a7bab4cc0fe61e8693e",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 - 31.40 zł/год (нетто)",
+      "hoursRange": "200",
+      "payoutDates": "",
+      "bonusDetails": "Премії в розмірі відпрацьованих годин за відвідуваність без прогулів до 500 зл.",
+      "salaryNotes": "Зарплата до 15 числа кожного місяця."
+    }
+  },
+  {
+    "_id": "6a253a9cab4cc0fe61e86949",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 - 31.40 zł/год (нетто)",
+      "hoursRange": "160-288",
+      "payoutDates": "до 15 числа кожного місяця",
+      "bonusDetails": "При виконанні плану на тиждень виробництво робить солодкий бонус для працівників у вигляді пончиків та різних фруктів.",
+      "salaryNotes": "Зарплата до 15 числа кожного місяця."
+    }
+  },
+  {
+    "_id": "6a253b0dab4cc0fe61e86970",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": 31.4,
+      "baseBrutto": 31.4,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 - 31.40 zł/god (нетто)",
+      "hoursRange": "220",
+      "payoutDates": "Виплата зарплати — до 15 числа кожного місяця",
+      "bonusDetails": "Премій немає",
+      "salaryNotes": "Для працівників до 26 років: 31,40 zł нетто/год"
+    }
+  },
+  {
+    "_id": "6a253b2cab4cc0fe61e8697a",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 - 31.40 zł/год (нетто)",
+      "hoursRange": "220-240",
+      "payoutDates": "до 15 числа кожного місяця",
+      "bonusDetails": "Премії працівникам за продуктивну роботу до 10% від місячної зарплати.",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a25569d2d1f2b02d6ee6571",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 26,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "26.00 - 31.40 zł/god (нетто)",
+      "hoursRange": "230-260",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Аванси"
+    }
+  },
+  {
+    "_id": "6a2556e72d1f2b02d6ee657f",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 25.5,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.50 - 31.40 zł/god (нетто)",
+      "hoursRange": "192-288",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Зміни 22:00-6:00 - 30 зл/год. Студенти до 26 років 31,40 зл/год. Аванси."
+    }
+  },
+  {
+    "_id": "6a25571f2d1f2b02d6ee658c",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 25,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.00 - 31.40 zł/god",
+      "hoursRange": "240-288",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Зарплата 25 зл/год, з другого місяця 25,50 зл/год. Студенти до 26 років 31,40 зл/год. Надаються аванси."
+    }
+  },
+  {
+    "_id": "6a2557532d1f2b02d6ee65ad",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 36.5,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "36.50 zł/god",
+      "hoursRange": "192-288",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Аванси. По 12 годин зможете працювати після ознайомлення всіх процесів виробництва (з другого місяця)."
+    }
+  },
+  {
+    "_id": "6a25578b2d1f2b02d6ee6641",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.36 - 37.00 zł/год (нетто)",
+      "hoursRange": "200-288",
+      "payoutDates": "з 15 по 20 число кожного місяця",
+      "bonusDetails": "",
+      "salaryNotes": "Працівник з правами UDT: 29.88 zł нетто за годину; Для студентів з правами UDT: 37.00 zł нетто за годину."
+    }
+  },
+  {
+    "_id": "6a2557bc2d1f2b02d6ee664d",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.36 - 31.40 zł/год (нетто)",
+      "hoursRange": "240-288",
+      "payoutDates": "Регулярно, з 15 по 20 число кожного місяця.",
+      "bonusDetails": "",
+      "salaryNotes": "Працівник з правами UDT: 29.88 zł нетто за годину; Для студентів з правами UDT: 37.00 zł нетто за годину."
+    }
+  },
+  {
+    "_id": "6a2557e52d1f2b02d6ee665a",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 26.6,
+      "studentNetto": 32.94,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "26.60 - 35.00 zł/год (нетто)",
+      "hoursRange": "",
+      "payoutDates": "з 15 по 20 число кожного місяця",
+      "bonusDetails": "На складі кандидати працюють групами по 3-4 людини на Akord, з тих результатів вираховується ставка.",
+      "salaryNotes": "Перші два тижні ставка погодинна далі робота на акорд!; Працівник з правами UDT (1кат): 28.27 zł нетто за годину; Для студентів з правами UDT (1кат): 35.00 zł нетто за годину."
+    }
+  },
+  {
+    "_id": "6a25580d2d1f2b02d6ee6669",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.36 - 31.40 zł/god (нетто)",
+      "hoursRange": "200-240",
+      "payoutDates": "Регулярно, з 15 по 20 число кожного місяця.",
+      "bonusDetails": "Високі премії!",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a2558ef2d1f2b02d6ee66be",
+    "contractType": "umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.36 - 31.40 zł/god (нетто)",
+      "hoursRange": "",
+      "payoutDates": "з 15 по 20 число кожного місяця",
+      "bonusDetails": "Премії за відвідуваність: 200 zł/міс за умови 100% відвідуваності!",
+      "salaryNotes": "Виплати: Регулярно, з 15 по 20 число кожного місяця."
+    }
+  },
+  {
+    "_id": "6a25595a2d1f2b02d6ee66d8",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 27.05,
+      "studentNetto": 33.5,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "27.05 - 33.50 zł/god (нетто)",
+      "hoursRange": "",
+      "payoutDates": "Регулярно, з 15 по 20 число кожного місяця.",
+      "bonusDetails": "",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a2559902d1f2b02d6ee66e6",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 30.06,
+      "currency": "PLN",
+      "rawSalaryDisplay": "30.06 zł/god (брутто)",
+      "hoursRange": "170-210",
+      "payoutDates": "10 числа кожного місяця",
+      "bonusDetails": "За відвідуваність та ефективність роботи +15% від загальної суми; Нічні зміни + 30 zł брутто за кожен день; + 100 zł брутто за роботу у вихідний день; Подарункові карти — 140 зл/міс.",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a2559f82d1f2b02d6ee66fa",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.84,
+      "studentNetto": 32,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.84 - 32.00 zł/год (нетто)",
+      "hoursRange": "",
+      "payoutDates": "з 15 по 20 число кожного місяця",
+      "bonusDetails": "",
+      "salaryNotes": "Виплати: Регулярно, з 15 по 20 число кожного місяця."
+    }
+  },
+  {
+    "_id": "6a255a542d1f2b02d6ee671a",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.36 - 31.40 zł/god (нетто)",
+      "hoursRange": "160-288",
+      "payoutDates": "Регулярно, з 15 по 20 число кожного місяця.",
+      "bonusDetails": "",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a255a7e2d1f2b02d6ee672c",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 4806,
+      "currency": "PLN",
+      "rawSalaryDisplay": "4806 zł брутто",
+      "hoursRange": "",
+      "payoutDates": "10 числа кожного місяця",
+      "bonusDetails": "+15% премія. +20% за нічні зміни. +50% за додаткові години. +100% за святкові та вихідні.",
+      "salaryNotes": "Виплати: Регулярно, 10 числа кожного місяця."
+    }
+  },
+  {
+    "_id": "6a255aaa2d1f2b02d6ee6734",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 28.63,
+      "currency": "PLN",
+      "rawSalaryDisplay": "28.63 zł/god (брутто)",
+      "hoursRange": "",
+      "payoutDates": "10 числа кожного місяця",
+      "bonusDetails": "+100% святкові та вихідні; UDT: +400 zł брутто",
+      "salaryNotes": "Виплати: Регулярно."
+    }
+  },
+  {
+    "_id": "6a255adf2d1f2b02d6ee673f",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.36 - 31.40 zł/god (нетто)",
+      "hoursRange": "288-336",
+      "payoutDates": "Регулярно, з 15 по 20 число кожного місяця.",
+      "bonusDetails": "",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a255b452d1f2b02d6ee675c",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.36 - 31.40 zł/god (нетто)",
+      "hoursRange": "160-288",
+      "payoutDates": "з 15 по 20 число кожного місяця",
+      "bonusDetails": "",
+      "salaryNotes": "Виплати: Регулярно, з 15 по 20 число кожного місяця."
+    }
+  },
+  {
+    "_id": "6a255b7c2d1f2b02d6ee676a",
+    "contractType": "umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.36 - 31.40 zł/god (нетто)",
+      "hoursRange": "240-288",
+      "payoutDates": "Регулярно, з 15 по 20 число кожного місяця.",
+      "bonusDetails": "Доплата за оренду власного житла: 1 zł за кожну відпрацьовану годину.",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a255bae2d1f2b02d6ee6776",
+    "contractType": "umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.36 - 31.40 zł/god (нетто)",
+      "hoursRange": "160-312",
+      "payoutDates": "Регулярно, з 15 по 20 число кожного місяця.",
+      "bonusDetails": "Додатково передбачені бонуси.",
+      "salaryNotes": "Доплата за оренду власного житла: 1,5 zł за кожну відпрацьовану годину. (нараховується на окрему розрахункову карточку, якою можна оплачувати товари в магазинах і супермаркетах!)"
+    }
+  },
+  {
+    "_id": "6a255c592d1f2b02d6ee67b6",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.36 - 31.40 zł/god (нетто)",
+      "hoursRange": "",
+      "payoutDates": "з 15 по 20 число кожного місяця",
+      "bonusDetails": "Додатково передбачені бонуси.",
+      "salaryNotes": "Виплати: Регулярно."
+    }
+  },
+  {
+    "_id": "6a255cbd2d1f2b02d6ee67e0",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.36 - 31.40 zł/год (нетто)",
+      "hoursRange": "Близько 200",
+      "payoutDates": "Регулярно, з 15 по 20 число кожного місяця",
+      "bonusDetails": "",
+      "salaryNotes": "Для студентів: 31,40 zł нетто за годину; З досвідом роботи: ставка 32.50 zł брутто / 26.25 zł нетто"
+    }
+  },
+  {
+    "_id": "6a26645320cd495176820e33",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 12.02,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "EUR",
+      "rawSalaryDisplay": "12,02 € нетто/година",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Ставка нетто"
+    }
+  },
+  {
+    "_id": "6a26647520cd495176820e3b",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 13.5,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "EUR",
+      "rawSalaryDisplay": "13.50 €/год нетто",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "оплата на харчування: ~10,50 €/день",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a26649420cd495176820e41",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 10.12,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "EUR",
+      "rawSalaryDisplay": "10.12 €/год нетто",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a2664a820cd495176820e47",
+    "contractType": "umowa Zlecenia",
+    "salary": {
+      "baseNetto": 11,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "EUR",
+      "rawSalaryDisplay": "11.00 €/год (нетто)",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a2664bf20cd495176820e4d",
+    "contractType": "umowa Zlecenia",
+    "salary": {
+      "baseNetto": 10.5,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "EUR",
+      "rawSalaryDisplay": "10.50 €/год (нетто)",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a2690ce20cd495176826da5",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 11.5,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "EUR",
+      "rawSalaryDisplay": "11.50 €/год (нетто)",
+      "hoursRange": "160-180",
+      "payoutDates": "25-го числа кожного наступного місяця",
+      "bonusDetails": "",
+      "salaryNotes": "Є можливість брати аванси. Аванс можна взяти після двох відпрацьованих тижнів."
+    }
+  },
+  {
+    "_id": "6a26931f20cd495176826dbd",
+    "contractType": null,
+    "salary": {
+      "baseNetto": 22.63,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "22.63 zł/год (нетто)",
+      "hoursRange": "160-200",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Є можливість надгодин"
+    }
+  },
+  {
+    "_id": "6a26af976f9a496f5e9621e5",
+    "contractType": null,
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a26df171a6ca16d3785e956",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 27.95,
+      "studentNetto": 34.61,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "27.95 - 34.61 zł/год (нетто)",
+      "hoursRange": "180+",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "5590 - 6140 zł нетто / міс. (для базової ставки); 6500 - 7150 zł нетто / міс. (для студентів до 26 років)"
+    }
+  },
+  {
+    "_id": "6a26e06a1a6ca16d3785ea94",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 32,
+      "currency": "PLN",
+      "rawSalaryDisplay": "32.00 zł/god (брутто)",
+      "hoursRange": "160-288",
+      "payoutDates": "",
+      "bonusDetails": "премія в середньому близько 500 zł/міс.; максимальна премія може становити до 3000 zł брутто (залежить від продуктивності та кількості помилок)",
+      "salaryNotes": "Тижневі аванси за бажанням; Нічна ставка така ж, як денна; для студентів зарплата нетто значно вища; приблизно 4000-5100 zł нетто/міс."
+    }
+  },
+  {
+    "_id": "6a26e1141a6ca16d3785eb60",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 20,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "20-22 zł/god (нетто)",
+      "hoursRange": "160-240",
+      "payoutDates": "",
+      "bonusDetails": "Можливість отримання премій",
+      "salaryNotes": "залежить від досвіду та швидкості роботи"
+    }
+  },
+  {
+    "_id": "6a26e1761a6ca16d3785eb6c",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "7000-9000 злотих нетто на місяць",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Зарплата: 7000-9000 злотих нетто на місяць (залежить від досвіду та кількості рейсів)"
+    }
+  },
+  {
+    "_id": "6a26e1ae1a6ca16d3785eb75",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 20,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "20-22 zł/god (нетто)",
+      "hoursRange": "200-288",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Залежить від досвіду та ефективності. Можливі понаднормові години."
+    }
+  },
+  {
+    "_id": "6a26e1e11a6ca16d3785eb7e",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 22.5,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "22.50 zł/год (нетто)",
+      "hoursRange": "200-288",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a26e2211a6ca16d3785ecc0",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 26,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "26 - 31.40 zł/год (нетто)",
+      "hoursRange": "250",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": "Аванси."
+    }
+  },
+  {
+    "_id": "6a26e37e1a6ca16d3785f815",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 - 31.40 zł/god (нетто)",
+      "hoursRange": "192-240",
+      "payoutDates": "Зарплата до 15 числа кожного місяця",
+      "bonusDetails": "",
+      "salaryNotes": "Ставка для молоді до 26 років - 31,40 нетто/год"
+    }
+  },
+  {
+    "_id": "6a26e3a11a6ca16d3785f821",
+    "contractType": "Umowa o Pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 4730,
+      "currency": "PLN",
+      "rawSalaryDisplay": "4730 zł/міс (брутто)",
+      "hoursRange": "",
+      "payoutDates": "до 10 числа кожного місяця",
+      "bonusDetails": "+ 20% до ставки за роботу в нічний час, +50% до ставки за надгодини, +200% до ставки за роботу у вихідні та святкові дні. Премії до 565зл. за результативність і якість.",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a26e3df1a6ca16d3785f82d",
+    "contractType": "Umowa o Prace",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 5200,
+      "currency": "PLN",
+      "rawSalaryDisplay": "5200 zł/mies (брутто)",
+      "hoursRange": "176-208",
+      "payoutDates": "до 10 числа кожного місяця",
+      "bonusDetails": "Премії 250 brutto premia frekwencyjna",
+      "salaryNotes": "Аванси не надаються!"
+    }
+  },
+  {
+    "_id": "6a27afa8b5d78e71041b7a91",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 28.59,
+      "currency": "PLN",
+      "rawSalaryDisplay": "3900-4200 zł/міс (нетто)",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "доплата за робочу суботу; 20% за нічні зміни; 50, 100% за надгодини чи свята",
+      "salaryNotes": "28,59 zł brutto/год; Тижневі виплати за бажанням; NETTO: 3900-4200 zł/міс; з надгодинами: ~4800–5200 zł/міс; Доплата за транспорт (3 zł/1 km); ~42 zł netto за прання; Компенсація за власне житло: 477 zł brutto/міс"
+    }
+  },
+  {
+    "_id": "6a27afddb5d78e71041b7a9d",
+    "contractType": "Umowa o pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 32.82,
+      "currency": "PLN",
+      "rawSalaryDisplay": "32.82 zł/god (брутто)",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "400 zł брутто премія за IV бригадну систему; 20% до ставки за нічні зміни; 50%, 100%, 200% до ставки за понаднормові години; 3000 zł премія за програмою \"ZNAM WIĘC POLECAM\" (1500zł через 2 міс. і 1500 через 4 міс.)",
+      "salaryNotes": "Щотижневі виплати за бажанням"
+    }
+  },
+  {
+    "_id": "6a27b147b5d78e71041b7b2e",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": null,
+      "baseBrutto": 32,
+      "currency": "PLN",
+      "rawSalaryDisplay": "32 zł брутто/год",
+      "hoursRange": "160-240",
+      "payoutDates": "",
+      "bonusDetails": "Multisport + LuxMed",
+      "salaryNotes": "Тижневі аванси за бажанням"
+    }
+  },
+  {
+    "_id": "6a27b6c3b5d78e71041b80fc",
+    "contractType": "Umowa Zlecenie",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 - 31.40 zł/god (нетто)",
+      "hoursRange": "192-240",
+      "payoutDates": "Зарплата до 15 числа кожного місяця",
+      "bonusDetails": "",
+      "salaryNotes": "Ставка для молоді до 26 років - 31,40 нетто/год."
+    }
+  },
+  {
+    "_id": "6a27b6f8b5d78e71041b8112",
+    "contractType": "Umowa o Prace",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 5200,
+      "currency": "PLN",
+      "rawSalaryDisplay": "5200 brutto/міс",
+      "hoursRange": "160-192",
+      "payoutDates": "до 10 числа кожного місяця",
+      "bonusDetails": "250 brutto premia frekwencyjna",
+      "salaryNotes": "Аванси не надаються! Зарплата до 10 числа кожного місяця."
+    }
+  },
+  {
+    "_id": "6a27b71bb5d78e71041b811f",
+    "contractType": "Umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.33,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.33 - 31.40 zł/год (нетто)",
+      "hoursRange": "240+",
+      "payoutDates": "Зарплата до 15 числа кожного місяця",
+      "bonusDetails": "Премії немає",
+      "salaryNotes": "Ставка для молоді до 26 років - 31.40 нетто/год."
+    }
+  },
+  {
+    "_id": "6a27b748b5d78e71041b8130",
+    "contractType": "Umowa o Pracę",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 4730,
+      "currency": "PLN",
+      "rawSalaryDisplay": "4730 zł/міс (брутто)",
+      "hoursRange": "",
+      "payoutDates": "до 10 числа кожного місяця",
+      "bonusDetails": "Премії до 565зл. за результативність і якість. Додатково + 20% до ставки за роботу в нічний час, +50% до ставки за надгодини, +200% до ставки за роботу у вихідні та святкові дні.",
+      "salaryNotes": "Доплата за своє житло - 150 зл брутто."
+    }
+  },
+  {
+    "_id": "6a27b8afb5d78e71041b8241",
+    "contractType": "umowa zlecenie",
+    "salary": {
+      "baseNetto": 25.44,
+      "studentNetto": 31.5,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.44 - 31.50 zł/god (нетто)",
+      "hoursRange": "230-290",
+      "payoutDates": "20 - 22 числа за попередній місяць",
+      "bonusDetails": "Можлива премія за ефективність",
+      "salaryNotes": "Доплата за своє житло +1 зл/год брутто (0.80 нетто)"
+    }
+  },
+  {
+    "_id": "6a27b8e1b5d78e71041b8286",
+    "contractType": "Umowa Zlecenia",
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": 31.4,
+      "currency": "PLN",
+      "rawSalaryDisplay": "31,40 брутто/год.",
+      "hoursRange": "",
+      "payoutDates": "до 15 числа кожного місяця",
+      "bonusDetails": "",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a27b903b5d78e71041b82e1",
+    "contractType": "Umowa zlecenia",
+    "salary": {
+      "baseNetto": 25.44,
+      "studentNetto": 31.5,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.44 - 31.50 зл/год (нетто)",
+      "hoursRange": "170–220",
+      "payoutDates": "",
+      "bonusDetails": "+ премія 2 зл брутто (1.60 зл нетто) за кожну відпрацьовану годину без пропусків",
+      "salaryNotes": "Виплата зарплати: 20 - 22 числа за попередній пропрацьований місяць; 97 зл щомісяця за страхування (стосується лише осіб до 26 років зі статусом студента)"
+    }
+  },
+  {
+    "_id": "6a27b934b5d78e71041b82f4",
+    "contractType": "Umowa zlecenia",
+    "salary": {
+      "baseNetto": 25.44,
+      "studentNetto": 31.5,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.44 - 31.50 zł/god (нетто)",
+      "hoursRange": "200-280",
+      "payoutDates": "",
+      "bonusDetails": "+ премія 2 зл брутто (1.60 зл нетто) за кожну відпрацьовану годину без пропусків",
+      "salaryNotes": "Виплата зарплати: 20 - 22 числа за попередній пропрацьований місяць; 97 зл щомісяця за страхування (стосується лише осіб до 26 років зі статусом студента)"
+    }
+  },
+  {
+    "_id": "6a27b954b5d78e71041b82fd",
+    "contractType": null,
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a27b96eb5d78e71041b8303",
+    "contractType": null,
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": ""
+    }
+  },
+  {
+    "_id": "6a27b9a9b5d78e71041b830d",
+    "contractType": "Umowa zlecenia",
+    "salary": {
+      "baseNetto": 25.36,
+      "studentNetto": 31.4,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "25.36 - 31.40 zł/god (нетто)",
+      "hoursRange": "210-270",
+      "payoutDates": "20 - 22 числа за попередній пропрацьований місяць",
+      "bonusDetails": "Премії за виконання норми від 240 зл брутто до 1200 зл брутто. Стартовий бонус — 500 zł для нових працівників! Умови отримання бонусу: Розпочати роботу у травні або червні; Відпрацювати 2 місяці без пропусків. Чудова можливість не тільки отримати стабільну роботу, а й додатковий грошовий бонус уже на старті!",
+      "salaryNotes": "Доплата за своє житло +1 зл/год нетто"
+    }
+  },
+  {
+    "_id": "6a27e068b5d78e71041bab28",
+    "contractType": null,
+    "salary": {
+      "baseNetto": null,
+      "studentNetto": null,
+      "baseBrutto": null,
+      "currency": "PLN",
+      "rawSalaryDisplay": "",
+      "hoursRange": "",
+      "payoutDates": "",
+      "bonusDetails": "",
+      "salaryNotes": ""
+    }
+  }
+]
