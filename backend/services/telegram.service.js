@@ -9,60 +9,59 @@ const RECRUITER_CHAT_ID = process.env.RECRUITER_CHAT_ID;
  * Адпраўка паведамлення з падтрымкай спліцінгу для доўгіх тэкстаў
  */
 const sendToTelegram = async (postText, vacancyId = null) => {
-  const MAX_LENGTH = 4000; // Бяспечны ліміт (Telegram дазваляе 4096)
+  if (!postText) return;
 
-  try {
-    if (postText.length <= MAX_LENGTH) {
-      // Звычайная адпраўка, калі тэкст у межах ліміту
-      await bot.telegram.sendMessage(CHANNEL_ID, postText, {
-        parse_mode: "Markdown",
-        disable_web_page_preview: true,
-      });
-    } else {
-      // --- ЛОГІКА СПЛІЦІНГУ ---
-      console.log(
-        `📏 Пост занадта доўгі (${postText.length} сімв.). Разбіваем на часткі...`,
+  // 1. Разбіваем на асобныя пасты па маркеру
+  const posts = postText.includes("=== SPLIT ===")
+    ? postText.split("=== SPLIT ===").map(p => p.trim()).filter(p => p)
+    : [postText];
+
+  for (const content of posts) {
+    const MAX_LENGTH = 4000;
+
+    try {
+      if (content.length <= MAX_LENGTH) {
+        // Звычайная адпраўка
+        await bot.telegram.sendMessage(CHANNEL_ID, content, {
+          parse_mode: "Markdown",
+          disable_web_page_preview: true,
+        });
+      } else {
+        // --- ТВАЯ АРЫГІНАЛЬНАЯ ЛОГІКА СПЛІЦІНГУ (ЗАХАВАНА) ---
+        console.log(`📏 Пост занадта доўгі (${content.length} сімв.). Разбіваем на часткі...`);
+
+        const lines = content.split("\n");
+        const title = lines[0] || "Вакансія";
+
+        let splitIndex = content.lastIndexOf("\n", MAX_LENGTH);
+        if (splitIndex === -1) splitIndex = MAX_LENGTH;
+
+        const part1 = content.substring(0, splitIndex).trim();
+        const part2 = `*${title.replace(/\*/g, "")}* (продовження опису)\n\n${content.substring(splitIndex).trim()}`;
+
+        await bot.telegram.sendMessage(CHANNEL_ID, part1, {
+          parse_mode: "Markdown",
+          disable_web_page_preview: true,
+        });
+
+        await new Promise((r) => setTimeout(r, 1000));
+
+        await bot.telegram.sendMessage(CHANNEL_ID, part2, {
+          parse_mode: "Markdown",
+          disable_web_page_preview: true,
+        });
+        console.log("✅ Вакансія адпраўлена двума паведамленнямі");
+      }
+      
+      // Невялікая паўза паміж пастамі (Поўным і Кароткім)
+      await new Promise(r => setTimeout(r, 2000));
+
+    } catch (err) {
+      console.error("❌ Памылка Markdown. Спрабуем адправіць як звычайны тэкст...");
+      await bot.telegram.sendMessage(CHANNEL_ID, content).catch((e) =>
+        console.error("⚠️ Нават Plain Text не прайшоў:", e.message)
       );
-
-      // 1. Вызначаем загаловак (першы радок) для кантэксту другой часткі
-      const lines = postText.split("\n");
-      const title = lines[0] || "Вакансія";
-
-      // 2. Шукаем месца для разрэзу (апошні перанос радка перад 4000 сімвалаў)
-      let splitIndex = postText.lastIndexOf("\n", MAX_LENGTH);
-      if (splitIndex === -1) splitIndex = MAX_LENGTH; // Калі няма пераносаў, рэжам жорстка
-
-      const part1 = postText.substring(0, splitIndex).trim();
-      const part2 = `*${title.replace(/\*/g, "")}* (продовження опису)\n\n${postText.substring(splitIndex).trim()}`;
-
-      // 3. Адпраўляем першую частку
-      await bot.telegram.sendMessage(CHANNEL_ID, part1, {
-        parse_mode: "Markdown",
-        disable_web_page_preview: true,
-      });
-
-      // 4. Невялікая паўза, каб захаваць парадак паведамленняў
-      await new Promise((r) => setTimeout(r, 1000));
-
-      // 5. Адпраўляем другую частку
-      await bot.telegram.sendMessage(CHANNEL_ID, part2, {
-        parse_mode: "Markdown",
-        disable_web_page_preview: true,
-      });
-
-      console.log("✅ Вакансія адпраўлена двума паведамленнямі");
     }
-    console.log("✅ Вакансія адпраўлена ў Telegram (Markdown)");
-  } catch (err) {
-    console.error(
-      "❌ Памылка Markdown. Спрабуем адправіць як звычайны тэкст...",
-    );
-    // Калі Markdown не прайшоў, адпраўляем як Plain Text (без спліцінгу, бо Plain Text дазваляе больш сімвалаў, але лепш проста адправіць арыгінал)
-    await bot.telegram
-      .sendMessage(CHANNEL_ID, postText)
-      .catch((e) =>
-        console.error("⚠️ Нават Plain Text не прайшоў:", e.message),
-      );
   }
 };
 

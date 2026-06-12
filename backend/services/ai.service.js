@@ -463,6 +463,11 @@ CRITICAL RULE: If the factory and location match, but the JOB PROCESS (duties/pr
 const FORMAT_PROMPT = `
 ROLE: Professional HR content formatter.
 TASK: Format job data into a beautiful Telegram post in UKRAINIAN.
+!!! OUTPUT STRUCTURE !!!
+You MUST return exactly two versions of the post separated by "=== SPLIT ===".
+Version 1: Full detailed post.
+Version 2: Short concise post.
+
 
 !!! CRITICAL MODE SELECTION !!!
 - Use COMPACT MODE if the total length of the vacancy information (rawText) is less than 700 characters.
@@ -480,7 +485,8 @@ TASK: Format job data into a beautiful Telegram post in UKRAINIAN.
 - If a field is null, empty, or "Не вимагається" (for experience), skip the entire line.
 - Use Ukrainian for all labels.
 - NEVER include technical info like "KRAZ", "nr certyfikatu", or "Oferta pracy tymczasowej".
-
+- NO PAST DATES: Today is {{currentDate}}. If arrivalDate or any date in the text is before today, DO NOT include it in the post.
+- CONTACTS: At the end of BOTH posts (Full and Short), add this line: 📲 Контакт рекрутера: @InnaNovaWork
 - GEOGRAPHY: If country is NOT Polska, show it in parentheses ONCE. Example: "Stadtlohn (Germany)". NEVER "Stadtlohn (Germany) (Germany)".
 
 - TRANSPORT RULE:
@@ -496,7 +502,7 @@ TITLE RULE:
 - Location = place of work, not checkInCity.
 
 FULL MODE STRUCTURE (skip empty lines/sections):
-
+🆔 [vacancyCode] | 🏢 [agencyName] [| 🏭 brand]
 *[vacancydescription]*
 
 📍 Місто: [location][(country if not Polska)]
@@ -548,7 +554,17 @@ FULL MODE STRUCTURE (skip empty lines/sections):
 
 📝 *Додаткова інформація*
 [additionalNotes including навчання, адаптація, вихід на норму, координатор, банківський рахунок, карта побуту, можливість роботи в інших країнах, організаваны трансфер з Украіны]
-`;
+--- STRUCTURE FOR SHORT POST (after === SPLIT ===) ---
+🆔 [vacancyCode] | 🏢 [agencyName] [| 🏭 brand]
+
+🔥 *[vacancydescription]*
+📍 [location] | 💰 [salary.rawSalaryDisplay]
+👥 Набір: [requirements.gender] [| 🎂 Вік: [requirements.age.rawText]]
+🏠 Проживання: [accommodation.type]
+🗓 Графік: [schedule.hoursPerShift] год/зм [| ⏱ [salary.hoursRange] год/міс]
+
+📲 Контакт рекрутера: @InnaNovaWork`
+;
 
 const CREATE_TEMPLATE_PROMPT = `
 ROLE: Professional HR Dispatcher for the Polish job market.
@@ -872,7 +888,7 @@ async function formatTelegramPost(vacancyData) {
     `🤖 Форматаванне Telegram-посту для ${vacancyData.vacancyCode}...`,
   );
 
-  // 🛡️ Technical Privacy Shield
+  // 1. 🛡️ Technical Privacy Shield (Твой арыгінальны код - захавана)
   const rawObj = vacancyData.toObject ? vacancyData.toObject() : vacancyData;
   const {
     forRecruiter,
@@ -885,21 +901,25 @@ async function formatTelegramPost(vacancyData) {
     ...publicData
   } = rawObj;
 
-  // Дадаем жорсткае патрабаванне ў промпт, каб паменшыць верагоднасць атрымання JSON
-  const strictPrompt =
-    FORMAT_PROMPT +
-    "\n\n!!! CRITICAL: Return ONLY the formatted Ukrainian text. NO JSON, NO explanations, NO markdown code blocks (```json).";
+  // 2. Падрыхтоўка промпта з датай (Новае)
+  const currentDate = new Date().toLocaleDateString('uk-UA');
+  const dynamicPrompt = FORMAT_PROMPT.replace('{{currentDate}}', currentDate);
 
-  const text = await executeAIRequest(
+  const strictPrompt =
+    dynamicPrompt +
+    "\n\n!!! CRITICAL: Return TWO versions separated by === SPLIT ===. NO JSON, NO explanations.";
+
+  // 3. Запыт да AI (Абноўлена пад новы фармат executeAIRequest)
+  const result = await executeAIRequest(
     strictPrompt,
     `DATA:\n${JSON.stringify(publicData, null, 2)}`,
-    false, // jsonMode = false
+    false // jsonMode = false
   );
 
-  let trimmedText = (text || "").trim();
+  // Атрымліваем тэкст (улічваем, што executeAIRequest цяпер вяртае аб'ект)
+  let trimmedText = (result.data || result || "").trim();
 
-  // --- ПАЛЕПШАНЫ JSON-ШЧЫТ (v3.0) ---
-  // Правяраем, ці не з'яўляецца адказ сырым JSON
+  // 4. --- ПАЛЕПШАНЫ JSON-ШЧЫТ (v3.0) --- (Твой код + адаптацыя пад спліт)
   const isJson =
     trimmedText.startsWith("{") ||
     trimmedText.includes('"vacancydescription":');
@@ -908,15 +928,21 @@ async function formatTelegramPost(vacancyData) {
     console.warn("⚠️ AI вярнуў JSON замест тэксту. Спрабуем аднавіць пост...");
     try {
       const parsed = JSON.parse(repairJson(trimmedText));
-      // Калі AI вярнуў JSON, мы не падаем, а збіраем пост уручную (Fallback)
-      // Гэта гарантуе, што вакансія будзе апублікавана ў любым выпадку
-      return `*${parsed.vacancydescription || "Вакансія"}*\n\n📍 Місто: ${parsed.location || "уточнюється"}\n💰 Оплата: ${parsed.salary?.rawSalaryDisplay || "відповідно до ставки"}\n\n🛠 Обов'язки:\n${parsed.description || "Докладніше при розмові"}\n\n📝 Додатково: ${parsed.additionalNotes || "уточнюйте у координатора"}`;
+      const meta = `🆔 ${vacancyData.vacancyCode} | 🏢 ${vacancyData.agencyName}${vacancyData.brand ? ` | 🏭 ${vacancyData.brand}` : ""}`;
+      
+      // Збіраем поўную версію (твой арыгінальны фармат + метададзеныя і кантакты)
+      const fullFallback = `${meta}\n*${parsed.vacancydescription || "Вакансія"}*\n\n📍 Місто: ${parsed.location || "уточнюється"}\n💰 Оплата: ${parsed.salary?.rawSalaryDisplay || "відповідно да ставки"}\n\n🛠 Обов'язки:\n${parsed.description || "Докладніше пры розмові"}\n\n📝 Додатково: ${parsed.additionalNotes || "уточнюйте у координатора"}\n\n📲 Контакт рекрутера: @InnaNovaWork`;
+      
+      // Збіраем кароткую версію (Новае)
+      const shortFallback = `${meta}\n🔥 *${parsed.vacancydescription || "Вакансія"}*\n📍 ${parsed.location || "уточнюється"}\n💰 ${parsed.salary?.rawSalaryDisplay || "відповідно да ставки"}\n\n📲 Контакт рекрутера: @InnaNovaWork`;
+
+      return `${fullFallback}\n\n=== SPLIT ===\n\n${shortFallback}`;
     } catch (e) {
-      // Калі нават распарсіць не ўдалося — кідаем памылку, каб спрацаваў AI_CHAIN (retry з іншай мадэллю)
       throw new Error("AI returned corrupted JSON instead of text post");
     }
   }
 
+  // 5. Страхоўка на даўжыню (Твой арыгінальны код - захавана)
   if (!trimmedText || trimmedText.length < 50) {
     throw new Error("AI returned too short post text");
   }
