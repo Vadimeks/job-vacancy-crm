@@ -293,11 +293,32 @@ function getWhitelistedAgency(chatTitle, chatId = null) {
   return matchByTitle ? matchByTitle.agency : null;
 }
 
+/**
+ * Палепшаная функцыя фільтрацыі шуму.
+ * Вяртае аб'ект з вердыктам і прычынай для дэталёвага лагіравання.
+ */
 function shouldIgnoreMessage(text) {
-  if (!text) return true;
+  if (!text) return { ignore: true, reason: "EMPTY_TEXT" };
   const trimmed = text.trim();
-  if (trimmed.length < 15 || EMOJI_ONLY_RE.test(trimmed)) return true;
-  return NOISE_PATTERNS.some((p) => p.test(trimmed));
+
+  if (trimmed.length < 15) return { ignore: true, reason: "TOO_SHORT" };
+  if (EMOJI_ONLY_RE.test(trimmed)) return { ignore: true, reason: "EMOJI_ONLY" };
+
+  const noiseCategories = [
+    { name: "SYSTEM_NOISE", patterns: SYSTEM_NOISE },
+    { name: "RECRUITER_CHAT_NOISE", patterns: RECRUITER_CHAT_NOISE },
+    { name: "RECRUITER_CHAT_NOISE_EN", patterns: RECRUITER_CHAT_NOISE_EN },
+    { name: "CANDIDATE_FORM_NOISE", patterns: CANDIDATE_FORM_NOISE },
+    { name: "SOCIAL_NOISE", patterns: SOCIAL_NOISE }
+  ];
+
+  for (const category of noiseCategories) {
+    const matchedPattern = category.patterns.find(p => p.test(trimmed));
+    if (matchedPattern) {
+      return { ignore: true, reason: `${category.name} (${matchedPattern.toString()})` };
+    }
+  }
+  return { ignore: false, reason: null };
 }
 // Новая функцыя для дэтэкцыі маркетынгавых анонсаў з бонусамі
 function isMarketingBonus(text) {
@@ -365,11 +386,10 @@ const POST_AI_NOISE_UA = [
 function shouldIgnorePostAI(text) {
   if (!text) return false;
   const trimmed = text.trim();
-  // Калі тэкст вельмі кароткі або шмат спасылак (рэклама)
   if (trimmed.length < 40) return true;
   const linkCount = (trimmed.match(/https?:\/\/[^\s]+/g) || []).length;
   if (linkCount > 2) return true;
-
+  // Захоўваем арыгінальную праверку па масіве
   return POST_AI_NOISE_UA.some((p) => p.test(trimmed));
 }
 // Шукае, які менавіта Regex спрацаваў (для дэбагу логаў)

@@ -179,6 +179,7 @@ const vacancySchema = new mongoose.Schema(
     // --- ДАДАДЗЕНА ДЛЯ ГЛАБАЛЬНАЙ АБАРОНЫ АД ДУБЛІКАТАЎ ---
     // Хэш зыходнага радка з табліцы. Дазваляе ігнараваць дублікаты вечна.
     sourceHash: { type: String, index: true },
+    isLowQuality: { type: Boolean, default: false }, // 👈 Пазнака, што JSON быў біты або адрамантаваны
     // -----------------------------------------------------
   },
   { timestamps: true },

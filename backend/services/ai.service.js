@@ -406,24 +406,34 @@ function cleanData(obj) {
 /**
  * Супер-рамонтнік JSON: апрацоўвае Markdown, вісячыя коскі і нябачныя сімвалы
  */
+/**
+ * JSON Brute Force Repair: чысціць Markdown і спрабуе закрыць абрэзаныя дужкі/лапкі.
+ */
 function repairJson(text) {
   if (!text) return "{}";
-  // Выдаляем Markdown і лішнія прабелы
+  
   let cleaned = text
     .replace(/^```(?:json)?\s*/i, "")
     .replace(/\s*```$/i, "")
     .trim();
 
-  // Выдаляем нябачныя сімвалы кіравання, якія ламаюць JSON.parse
   cleaned = cleaned.replace(/[\u0000-\u001F\u007F-\u009F]/g, "");
 
-  try {
-    JSON.parse(cleaned);
-    return cleaned;
-  } catch (e) {
-    // Калі ўсё яшчэ не парсіцца, спрабуем экраніраваць пераносы радкоў унутры палёў
-    return cleaned.replace(/\n/g, "\\n").replace(/\r/g, "\\r");
+  if (!cleaned.endsWith("}")) {
+    if (cleaned.endsWith(",")) cleaned = cleaned.slice(0, -1);
+    
+    const lastChar = cleaned.slice(-1);
+    const needsQuote = /[a-zA-Zа-яёіўА-ЯЁІЎ0-9\s]$/.test(lastChar);
+    
+    if (needsQuote) cleaned += '"';
+
+    const openBraces = (cleaned.match(/\{/g) || []).length;
+    const closeBraces = (cleaned.match(/\}/g) || []).length;
+    if (openBraces > closeBraces) {
+      cleaned += "}".repeat(openBraces - closeBraces);
+    }
   }
+  return cleaned;
 }
 // --- PROMPTS ---
 
@@ -628,6 +638,7 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true) {
       );
       continue;
     }
+     console.log(`[AI Request] Model: ${model.name} | Provider: ${model.provider} | Input: ${safeContent.length} chars`);
     let retries = 1; // Для кожнай мадэлі робім 1 паўтор пры сеткавых памылках
 
     while (retries >= 0) {
@@ -707,17 +718,22 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true) {
         if (jsonMode) {
           try {
             const repaired = repairJson(fullText);
-            JSON.parse(repaired); // Пробны парсінг
-            return repaired; // Калі паспяхова — вяртаем адрамантаваны JSON
+            let isLowQuality = false;
+            
+            // Правяраем, ці патрабаваўся рамонт
+            try { JSON.parse(fullText); } catch (e) { isLowQuality = true; }
+
+            // Валідуем вынік
+            JSON.parse(repaired); 
+
+            return { data: repaired, isLowQuality };
           } catch (e) {
-            console.warn(
-              `⚠️ Мадэль ${model.name} вярнула біты JSON. Пераходзім да наступнай...`,
-            );
+            console.warn(`⚠️ Мадэль ${model.name} вярнула невылечны JSON.`);
             throw new Error("INVALID_JSON");
           }
         }
 
-        return fullText.trim();
+        return { data: fullText.trim(), isLowQuality: false };
       } catch (error) {
         const isRetryable =
           error.message.includes("SERVER_ERROR") || error.name === "AbortError";
@@ -743,18 +759,14 @@ async function mergeWithTemplate(rawText, template) {
   try {
     console.log(`🤖 Мерж шаблона "${template.templateName}"...`);
     const content = `TEMPLATE:\n${JSON.stringify(template, null, 2)}\n\nMESSAGE:\n${rawText}`;
-    const text = await executeAIRequest(MERGE_PROMPT, content, true);
+    
+    const result = await executeAIRequest(MERGE_PROMPT, content, true);
 
-    let cleanJson = text
-      .trim()
-      .replace(/```json\s*/g, "")
-      .replace(/```\s*/g, "");
-    const jsonMatch = cleanJson.match(/\{[\s\S]*\}/);
-    if (jsonMatch) cleanJson = jsonMatch[0];
-
-    const merged = JSON.parse(repairJson(text));
+    const merged = JSON.parse(result.data);
+    merged.isLowQuality = result.isLowQuality; // Захоўваем статус якасці
     merged.templateName = template.templateName;
     merged.agencyName = normalizeAgency(template.agencyName);
+    
     if (!merged.keywords?.length) merged.keywords = template.keywords;
     return merged;
   } catch (error) {
@@ -828,8 +840,8 @@ async function identifyTemplate(rawText, templates) {
     }));
 
     const content = `MESSAGE:\n${rawText}\n\nAVAILABLE TEMPLATES:\n${JSON.stringify(templateList)}`;
-    const responseText = await executeAIRequest(IDENTIFY_PROMPT, content, true);
-    const parsed = JSON.parse(repairJson(responseText));
+    const response = await executeAIRequest(IDENTIFY_PROMPT, content, true);
+    const parsed = JSON.parse(response.data);
 
     if (parsed.templateId) {
       const matched = templates.find(
@@ -1180,9 +1192,11 @@ JSON STRUCTURE:
   "parsingResultType": "FULL_VACANCY"
 }`;
 
-    const text = await executeAIRequest(SYSTEM_INSTRUCTION, rawText, true);
+    const currentDate = new Date().toLocaleDateString('uk-UA');
+const DATE_INSTRUCTION = `\n\n!!! CRITICAL DATE RULE !!!\nToday is ${currentDate}. If you see arrival dates or start dates from the PAST (e.g., 2024 or early 2025), IGNORE them. Set arrivalDate to null if the date in text is older than today.`;
+const result = await executeAIRequest(SYSTEM_INSTRUCTION + DATE_INSTRUCTION, rawText, true);
 
-    const parsedData = JSON.parse(repairJson(text));
+    const parsedData = JSON.parse(result.data);
 
     const processSingle = (parsed) => {
       // --- Страхоўка лакацыі: прыбіраем дубляванне "Polska"
@@ -1439,6 +1453,7 @@ JSON STRUCTURE:
 
         description: cleaned.description || "",
         additionalNotes: cleaned.additionalNotes || "",
+        isLowQuality: result.isLowQuality,
         rawText: rawText,
         parsingResultType: parsingResultType,
       };
@@ -1456,18 +1471,16 @@ JSON STRUCTURE:
 async function createTemplateFromVacancy(vacancyData) {
   try {
     console.log(`🤖 Стварэнне шаблона v2.0...`);
-    const text = await executeAIRequest(
+    
+    const result = await executeAIRequest(
       CREATE_TEMPLATE_PROMPT,
       `VACANCY DATA:\n${JSON.stringify(vacancyData, null, 2)}`,
       true,
     );
-    let cleanJson = text
-      .trim()
-      .replace(/```json\s*/g, "")
-      .replace(/```\s*/g, "");
-    const jsonMatch = cleanJson.match(/\{[\s\S]*\}/);
-    if (jsonMatch) cleanJson = jsonMatch[0];
-    return JSON.parse(repairJson(text));
+
+    // Увесь блок "let cleanJson = text..." выдаляем. 
+    // Проста парсім гатовыя дадзеныя:
+    return JSON.parse(result.data);
   } catch (error) {
     console.error("❌ Памылка стварэння шаблона:", error.message);
     return null;
@@ -1486,24 +1499,14 @@ async function testConnection() {
 async function updateVacancyWithAI(existingVacancy, newText) {
   console.log(`🤖 Абнаўленне вакансіі ${existingVacancy.vacancyCode}...`);
   const content = `CURRENT_VACANCY_JSON:\n${JSON.stringify(existingVacancy, null, 2)}\n\nNEW_MESSAGE_TEXT:\n${newText}`;
-  const responseText = await executeAIRequest(
-    UPDATE_VACANCY_PROMPT,
-    content,
-    true,
-  );
-
-  const cleanJson = repairJson(responseText); // 👈 Выкарыстоўваем repairJson
-  return JSON.parse(cleanJson);
+  const response = await executeAIRequest(UPDATE_VACANCY_PROMPT, content, true);
+  return JSON.parse(response.data);
 }
 async function compareVacanciesWithAI(newData, existingData) {
   try {
     const content = `NEW:\n${JSON.stringify(newData)}\n\nEXISTING:\n${JSON.stringify(existingData)}`;
-    const response = await executeAIRequest(
-      COMPARE_VACANCIES_PROMPT,
-      content,
-      true,
-    );
-    return JSON.parse(repairJson(response));
+    const response = await executeAIRequest(COMPARE_VACANCIES_PROMPT, content, true);
+    return JSON.parse(response.data);
   } catch (err) {
     console.error("❌ AI Comparison Error:", err.message);
     return { verdict: "NEW" }; // У выпадку памылкі лічым як новую

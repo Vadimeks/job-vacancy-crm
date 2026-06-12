@@ -148,7 +148,10 @@ const notifyRecruiter = async (text) => {
 
 const startBot = async () => {
   try {
-    await bot.telegram.deleteWebhook({ drop_pending_updates: true });
+    // Дадаем .catch, каб памылка выдалення вэбхука не блакавала запуск
+    await bot.telegram.deleteWebhook({ drop_pending_updates: true })
+      .catch(e => console.warn("⚠️ Webhook delete failed (non-critical):", e.message));
+    
     await bot.launch();
     console.log("✅ Бот запушчаны");
   } catch (err) {

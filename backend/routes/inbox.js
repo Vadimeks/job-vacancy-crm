@@ -81,11 +81,11 @@ router.post("/push", async (req, res) => {
   );
 
   // 3. Жорсткі фільтр шуму (Regex)
-  if (shouldIgnoreMessage(text)) {
-    console.log(`🗑️ Адхілена (Noise/Regex): "${logPreview(text)}..."`);
-    return res.status(200).json({ status: "ignored_noise" });
+  const noiseCheck = shouldIgnoreMessage(text);
+  if (noiseCheck.ignore) {
+    console.log(`🗑️ Адхілена (${noiseCheck.reason}): "${logPreview(text)}..."`);
+    return res.status(200).json({ status: "ignored_noise", reason: noiseCheck.reason });
   }
-
   try {
     console.log(
       `📥 Прынята: ${text.length} сімв. ад "${senderRaw}" (${agency}) [${source}]`,
@@ -346,16 +346,14 @@ router.post("/cleanup", async (req, res) => {
   try {
     const all = await UnprocessedMessage.find({ processed: false });
     let deleted = 0;
-    for (const msg of all) {
-      if (shouldIgnoreMessage(msg.text)) {
-        const matchingRegex =
-          getMatchingIgnoreRegex(msg.text) || "Unknown Regex";
-        console.log(
-          `🗑️ ... Адхілена (Noise/Regex): "${msg.text ? msg.text.substring(0, 50) : ""}..." | Спрацаваў: ${matchingRegex}`,
-        );
+   for (const msg of all) {
+      const noiseCheck = shouldIgnoreMessage(msg.text);
+      if (noiseCheck.ignore) {
+        console.log(`🗑️ Cleanup: Адхілена (${noiseCheck.reason}): "${logPreview(msg.text)}..."`);
         msg.status = "ignored";
-        msg.archiveReason = `Noise/Regex: ${matchingRegex}`;
+        msg.archiveReason = noiseCheck.reason;
         await msg.save();
+        deleted++;
         continue;
       }
     }

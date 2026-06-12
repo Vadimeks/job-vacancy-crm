@@ -262,6 +262,7 @@ async function processVacancyMessage(
             originalText: newOriginalText,
             rawText: enrichedText,
             sheetName: sheetName || vData.sheetName,
+            isLowQuality: vData.isLowQuality || false,
             templateName: constructVacancyDisplayName({
               ...vData,
               agencyName: finalAgency,
@@ -292,6 +293,7 @@ async function processVacancyMessage(
             agencyName: finalAgency,
           }),
           vacancyCode,
+          isLowQuality: vData.isLowQuality || false,
           originalText: originalText || enrichedText,
           rawText: enrichedText,
           isTruncated,
