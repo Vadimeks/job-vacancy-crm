@@ -219,13 +219,13 @@ NEW_MESSAGE: ${safeEnrichedText}
   try {
     console.log(`🔍 Stage 1: Класіфікацыя і спліцінг (Tier 1)...`);
 
-    const responseText = await aiService.executeAIRequest(
-      SYSTEM_PROMPT,
-      userContent,
-      true,
-    );
+    const result = await aiService.executeAIRequest(
+  SYSTEM_PROMPT,
+  userContent,
+  true,
+);
 
-    const parsed = JSON.parse(aiService.repairJson(responseText));
+    const parsed = JSON.parse(result.data);
 
     parsed.enrichedText = enrichedText;
 
