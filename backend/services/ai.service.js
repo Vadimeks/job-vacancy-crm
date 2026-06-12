@@ -888,7 +888,7 @@ async function formatTelegramPost(vacancyData) {
     `🤖 Форматаванне Telegram-посту для ${vacancyData.vacancyCode}...`,
   );
 
-  // 1. 🛡️ Technical Privacy Shield (Твой арыгінальны код - захавана)
+  // 1. 🛡️ Technical Privacy Shield (Вяртаем на самае пачатак!)
   const rawObj = vacancyData.toObject ? vacancyData.toObject() : vacancyData;
   const {
     forRecruiter,
@@ -901,7 +901,7 @@ async function formatTelegramPost(vacancyData) {
     ...publicData
   } = rawObj;
 
-  // 2. Падрыхтоўка промпта з датай (Новае)
+  // 2. Падрыхтоўка промпта з датай
   const currentDate = new Date().toLocaleDateString('uk-UA');
   const dynamicPrompt = FORMAT_PROMPT.replace('{{currentDate}}', currentDate);
 
@@ -909,20 +909,18 @@ async function formatTelegramPost(vacancyData) {
     dynamicPrompt +
     "\n\n!!! CRITICAL: Return TWO versions separated by === SPLIT ===. NO JSON, NO explanations.";
 
-  // 3. Запыт да AI (Абноўлена пад новы фармат executeAIRequest)
+  // 3. Запыт да AI
   const result = await executeAIRequest(
     strictPrompt,
     `DATA:\n${JSON.stringify(publicData, null, 2)}`,
     false // jsonMode = false
   );
 
-  // Атрымліваем тэкст (улічваем, што executeAIRequest цяпер вяртае аб'ект)
+  // Атрымліваем тэкст
   let trimmedText = (result.data || result || "").trim();
 
-  // 4. --- ПАЛЕПШАНЫ JSON-ШЧЫТ (v3.0) --- (Твой код + адаптацыя пад спліт)
-  const isJson =
-    trimmedText.startsWith("{") ||
-    trimmedText.includes('"vacancydescription":');
+  // 4. --- ПАЛЕПШАНЫ JSON-ШЧЫТ (v3.0) ---
+  const isJson = trimmedText.startsWith("{") || trimmedText.includes('"vacancydescription":');
 
   if (isJson) {
     console.warn("⚠️ AI вярнуў JSON замест тэксту. Спрабуем аднавіць пост...");
@@ -930,10 +928,8 @@ async function formatTelegramPost(vacancyData) {
       const parsed = JSON.parse(repairJson(trimmedText));
       const meta = `🆔 ${vacancyData.vacancyCode} | 🏢 ${vacancyData.agencyName}${vacancyData.brand ? ` | 🏭 ${vacancyData.brand}` : ""}`;
       
-      // Збіраем поўную версію (твой арыгінальны фармат + метададзеныя і кантакты)
       const fullFallback = `${meta}\n*${parsed.vacancydescription || "Вакансія"}*\n\n📍 Місто: ${parsed.location || "уточнюється"}\n💰 Оплата: ${parsed.salary?.rawSalaryDisplay || "відповідно да ставки"}\n\n🛠 Обов'язки:\n${parsed.description || "Докладніше пры розмові"}\n\n📝 Додатково: ${parsed.additionalNotes || "уточнюйте у координатора"}\n\n📲 Контакт рекрутера: @InnaNovaWork`;
       
-      // Збіраем кароткую версію (Новае)
       const shortFallback = `${meta}\n🔥 *${parsed.vacancydescription || "Вакансія"}*\n📍 ${parsed.location || "уточнюється"}\n💰 ${parsed.salary?.rawSalaryDisplay || "відповідно да ставки"}\n\n📲 Контакт рекрутера: @InnaNovaWork`;
 
       return `${fullFallback}\n\n=== SPLIT ===\n\n${shortFallback}`;
@@ -942,7 +938,7 @@ async function formatTelegramPost(vacancyData) {
     }
   }
 
-  // 5. Страхоўка на даўжыню (Твой арыгінальны код - захавана)
+  // 5. Страхоўка на даўжыню
   if (!trimmedText || trimmedText.length < 50) {
     throw new Error("AI returned too short post text");
   }
