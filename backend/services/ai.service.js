@@ -480,7 +480,7 @@ Version 2: Short concise post.
 - The post must be as compact as possible, looking like a natural text post, not a form.
 
 !!! CRITICAL RULES !!!
-- NEVER include Agency Name, internalNotes, or parsingResultType.
+- NEVER include internalNotes or parsingResultType. Agency Name and Brand are ONLY allowed in the Metadata Line at the very beginning.
 - NEVER include genderDescription (it is for internal use only).
 - If a field is null, empty, or "Не вимагається" (for experience), skip the entire line.
 - Use Ukrainian for all labels.
