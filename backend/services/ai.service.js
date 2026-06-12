@@ -562,7 +562,16 @@ FULL MODE STRUCTURE (skip empty lines/sections):
 👥 Набір: [requirements.gender] [| 🎂 Вік: [requirements.age.rawText]]
 🏠 Проживання: [accommodation.type]
 🗓 Графік: [schedule.hoursPerShift] год/зм [| ⏱ [salary.hoursRange] год/міс]
+📄 *Тип договору:* [contractType]
 
+🏠 *Проживання :* [accommodation.type]
+[• Для пар: Так (only if forCouples is true)]
+[• Можна з дітьми: Так (only if withChildren is true)]
+[• Можна з тваринами: Так (only if withPets is true)]
+[• Деталі: [accommodation.details]]
+
+🚌 *Транспорт (довіз) :* [transport.provided ? "надається" : "немає"]
+[• Деталі: [transport.details]]
 📲 Контакт рекрутера: @InnaNovaWork`
 ;
 
