@@ -572,6 +572,7 @@ FULL MODE STRUCTURE (skip empty lines/sections):
 
 🚌 *Транспорт (довіз) :* [transport.provided ? "надається" : "немає"]
 [• Деталі: [transport.details]]
+
 📲 Контакт рекрутера: @InnaNovaWork`
 ;
 
@@ -781,14 +782,14 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true) {
 }
 
 async function mergeWithTemplate(rawText, template) {
-  try {
+ try {
     console.log(`🤖 Мерж шаблона "${template.templateName}"...`);
     const content = `TEMPLATE:\n${JSON.stringify(template, null, 2)}\n\nMESSAGE:\n${rawText}`;
     
     const result = await executeAIRequest(MERGE_PROMPT, content, true);
 
     const merged = JSON.parse(result.data);
-    merged.isLowQuality = result.isLowQuality; // Захоўваем статус якасці
+    merged.isLowQuality = result.isLowQuality;
     merged.templateName = template.templateName;
     merged.agencyName = normalizeAgency(template.agencyName);
     
@@ -897,7 +898,7 @@ async function formatTelegramPost(vacancyData) {
     `🤖 Форматаванне Telegram-посту для ${vacancyData.vacancyCode}...`,
   );
 
-  // 1. 🛡️ Technical Privacy Shield (Вяртаем на самае пачатак!)
+  // 1. 🛡️ Technical Privacy Shield
   const rawObj = vacancyData.toObject ? vacancyData.toObject() : vacancyData;
   const {
     forRecruiter,
@@ -922,10 +923,9 @@ async function formatTelegramPost(vacancyData) {
   const result = await executeAIRequest(
     strictPrompt,
     `DATA:\n${JSON.stringify(publicData, null, 2)}`,
-    false // jsonMode = false
+    false
   );
 
-  // Атрымліваем тэкст
   let trimmedText = (result.data || result || "").trim();
 
   // 4. --- ПАЛЕПШАНЫ JSON-ШЧЫТ (v3.0) ---
@@ -947,7 +947,6 @@ async function formatTelegramPost(vacancyData) {
     }
   }
 
-  // 5. Страхоўка на даўжыню
   if (!trimmedText || trimmedText.length < 50) {
     throw new Error("AI returned too short post text");
   }
