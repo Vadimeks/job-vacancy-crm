@@ -563,9 +563,9 @@ FULL MODE STRUCTURE (skip empty lines/sections):
 🏠 Проживання: [accommodation.type] [([accommodation.details])]
 🗓 Графік: [schedule.hoursPerShift] год/зм [| ⏱ [salary.hoursRange] год/міс]
 📄 Тип договору: [contractType]
-[🚌 Транспорт: надається ([transport.details]) (ONLY if transport.provided is true)]
+🚌 *Транспорт (довіз) :* [transport.provided ? "надається" : "немає"][([transport.details])]
 
-📲 Контакт рекрутера: @InnaNovaWork`
+📲 Контактуйте: @InnaNovaWork +48 780 770 745 Інна`
 ;
 
 const CREATE_TEMPLATE_PROMPT = `
