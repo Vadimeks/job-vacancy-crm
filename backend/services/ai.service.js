@@ -488,6 +488,7 @@ Version 2: Short concise post.
 - NO PAST DATES: Today is {{currentDate}}. If arrivalDate or any date in the text is before today, DO NOT include it in the post.
 - CONTACTS: At the end of BOTH posts (Full and Short), add this line: 📲 Контакт рекрутера: @InnaNovaWork
 - GEOGRAPHY: If country is NOT Polska, show it in parentheses ONCE. Example: "Stadtlohn (Germany)". NEVER "Stadtlohn (Germany) (Germany)".
+- Contacts: Always include the contact line at the end of both posts (strogly this text "📲 Контактуйте: @InnaNovaWork +48 780 770 745 Інна")
 
 - TRANSPORT RULE:
    • If the text mentions "безкоштовний доїзд", "автобус від фірми", "довіз до роботи" -> provided MUST be true.
@@ -554,6 +555,8 @@ FULL MODE STRUCTURE (skip empty lines/sections):
 
 📝 *Додаткова інформація*
 [additionalNotes including навчання, адаптація, вихід на норму, координатор, банківський рахунок, карта побуту, можливість роботи в інших країнах, організаваны трансфер з Украіны]
+📲 Контактуйте: @InnaNovaWork +48 780 770 745 Інна
+
 --- STRUCTURE FOR SHORT POST (after === SPLIT ===) ---
 🆔 [vacancyCode] | 🏢 [agencyName] [| 🏭 brand]
 
@@ -563,7 +566,7 @@ FULL MODE STRUCTURE (skip empty lines/sections):
 🏠 Проживання: [accommodation.type] [([accommodation.details])]
 🗓 Графік: [schedule.hoursPerShift] год/зм [| ⏱ [salary.hoursRange] год/міс]
 📄 Тип договору: [contractType]
-🚌 *Транспорт (довіз) :* [transport.provided ? "надається" : "немає"][([transport.details])]
+🚌 Транспорт: [transport.provided ? "надається" : "немає"] [([transport.details])]
 
 📲 Контактуйте: @InnaNovaWork +48 780 770 745 Інна`
 ;
@@ -1094,6 +1097,10 @@ SCHEDULE:
 EXPENSES:
 - startExpenses: costs before work (medical, transfers).
 - earlyTerminationLiability: costs/penalties during or on exit.
+- onlyDayShifts: Boolean. 
+  • TRUE ONLY IF: the schedule is guaranteed to be day-only (e.g., "08:00-16:00", "06:00-18:00", or explicitly "без нічних змін"). 
+  • FALSE IF: mentions "night shift", "3 shifts", "nocki", "22:00-06:00", or if it says "1 зміна" WITHOUT specifying hours (we cannot guarantee it's not a night shift).
+  • FALSE IF: no schedule information is provided.
 
 LOCATION DESCRIPTION:
 - locationDescription: full address + distance (if given).
@@ -1146,6 +1153,7 @@ JSON STRUCTURE:
     "canChooseShiftOnStart": false,
     "shiftChoiceDetails": "",
     "description": ""
+    "onlyDayShifts": false
   },
   "accommodation": {
     "type": "",
@@ -1381,6 +1389,7 @@ const result = await executeAIRequest(SYSTEM_INSTRUCTION + DATE_INSTRUCTION, raw
           canChooseShiftOnStart: !!cleaned.schedule?.canChooseShiftOnStart,
           shiftChoiceDetails: cleaned.schedule?.shiftChoiceDetails || "",
           description: cleaned.schedule?.description || "",
+          onlyDayShifts: !!cleaned.schedule?.onlyDayShifts, 
         },
 
         // === 5. ПРАЖЫВАННЕ І ТРАНСПАРТ ===

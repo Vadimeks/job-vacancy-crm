@@ -73,6 +73,7 @@ const vacancySchema = new mongoose.Schema(
       canChooseShiftOnStart: { type: Boolean, default: false },
       shiftChoiceDetails: { type: String, default: "" },
       description: { type: String, default: "" },
+       onlyDayShifts: { type: Boolean, default: false },
     },
 
     // === 5. ПРАЖЫВАННЕ І ТРАНСПАРТ ===

@@ -562,6 +562,7 @@ router.get("/", async (req, res) => {
       housing, // Дадаем параметр жылля
       startDate, // 👈 ДАДАДЗЕНА
       endDate, // 👈 ДАДАДЗЕНА
+      onlyDayShifts, // 👈 ДАДАДЗЕНА
     } = req.query;
 
     let query = {};
@@ -590,7 +591,10 @@ router.get("/", async (req, res) => {
       if (maxSalary && maxSalary !== "")
         query["salary.baseNetto"].$lte = Number(maxSalary);
     }
-
+    // Фільтр па графіку (onlyDayShifts)
+if (onlyDayShifts === "true") {
+  query["schedule.onlyDayShifts"] = true;
+}
     // Фільтр па ўзросце (maxAge)
     if ((minAge && minAge !== "") || (maxAge && maxAge !== "")) {
       query["requirements.age.max"] = { $ne: null };
