@@ -187,7 +187,9 @@ function applyFilters(vacancies, filters) {
       });
       if (!match) return false;
     }
-
+  if (filters.onlyDayShifts && !v.schedule?.onlyDayShifts) {
+      return false;
+    }
     // 👈 ДАДАДЗЕНА: Фільтр па гадзінах у месяц (парсінг hoursRange)
     if (filters.hoursRange?.length > 0) {
       // Парсім першую лічбу з радка: "210-270"→210, "240+"→240, "170–220"→170
@@ -368,7 +370,7 @@ export default function Vacancies() {
       // Бярэм даты з draft, каб previewCount заўсёды меў свежыя дадзеныя з сервера
       startDate: draft.startDate || undefined,
       endDate: draft.endDate || undefined,
-      // Астатнія фільтры бярэм з applied (па націску кнопкі)
+     onlyDayShifts: draft.onlyDayShifts || undefined,
       status: applied.status?.join(","),
       agency: applied.agencyName?.join(","),
       category: applied.category?.join(","),
@@ -381,6 +383,7 @@ export default function Vacancies() {
     applied.category,
     draft.startDate,
     draft.endDate,
+    draft.onlyDayShifts,
   ]);
 
   useEffect(() => {

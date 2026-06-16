@@ -306,6 +306,25 @@ export default function VacancyFilters({
           placeholder="Будь-який договір"
         />
       </Section>
+      {/* ТОЛЬКІ ДЗЁННЫЯ ЗМЕНЫ */}
+      <Section>
+        <button
+          onClick={() => updateField("onlyDayShifts", !draft.onlyDayShifts)}
+          className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border transition-all font-bold text-sm ${
+            draft.onlyDayShifts
+              ? "bg-emerald-50 border-emerald-200 text-emerald-600 shadow-sm"
+              : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            <span>☀️</span>
+            <span>ТІЛЬКИ ДЕННІ ЗМІНИ</span>
+          </div>
+          <div className={`w-8 h-4 rounded-full relative transition-colors ${draft.onlyDayShifts ? 'bg-emerald-500' : 'bg-slate-300'}`}>
+            <div className={`absolute top-1 w-2 h-2 bg-white rounded-full transition-all ${draft.onlyDayShifts ? 'right-1' : 'left-1'}`} />
+          </div>
+        </button>
+      </Section>
       {/* ГОДИНИ НА МІСЯЦЬ */} 
       <Section>
         <MultiSelect

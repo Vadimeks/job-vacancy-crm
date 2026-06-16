@@ -26,6 +26,7 @@ export const EMPTY_FILTERS = {
   endDate: "", // Канчатковая дата фільтра
   contractType: [], // 👈 ДАДАДЗЕНА: Фільтр па тыпу дагавору
   hoursRange: [], // 👈 ДАДАДЗЕНА: Фільтр па гадзінах у месяц
+  onlyDayShifts: false,
 };
 
 export const EMPTY_CANDIDATE_FILTERS = {
