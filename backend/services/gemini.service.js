@@ -175,7 +175,7 @@ CLASSIFICATION RULES:
 If the text is 400 characters or longer, classify it as FULL_VACANCY (even if duties are not explicitly listed).
 !! LIST RULE: If the message contains a list of multiple short job summaries (like a digest), classify the WHOLE message as UPDATE and DO NOT split it.
 !!! MIXED MESSAGE: If a message contains one detailed vacancy (more than 400 characters) and several short ones (less than 400 characters each), extract ONLY the detailed one into translatedFragments and set category to FULL_VACANCY.
-
+!!! ANTI-CV RULE: If the text is a Job Application or CV from a candidate (e.g., "Шукаю роботу", "Ми працювали на складах", "Я водій", "2 сестри хочуть разом"), classify it as NOISE or UPDATE. NEVER classify a candidate's request as a FULL_VACANCY.
 - UPDATE: Short status changes (STOP, CLOSED), stop-signals, lists of rates/spots, or job offers WITHOUT detailed dutieschanges in rates for existing jobs, or messages like "need 2 more people".
 - TRUNCATED: A job ad that is clearly cut off (ends mid-sentence, mid-word, or ends with "..." / "…").
 - RECRUITER_INFO: Information about recruiter bonuses, partner terms, legal updates, or office rules. If a message is primarily about "money per candidate", it belongs here, Legal info, office hours, document rules, or general cooperation terms.
