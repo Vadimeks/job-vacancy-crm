@@ -156,7 +156,7 @@ All output fragments MUST be in Ukrainian. If the input is in Russian or Polish,
 !!! CRITICAL SPLITTING LOGIC !!!
 1. translatedFragments: This MUST be an ARRAY of strings.
 2. SPLIT only when the message contains 2 or more COMPLETE and INDEPENDENT job offers.
-   Each independent offer MUST have ALL FOUR: its own job title + its own city + its own salary + its own duties.
+   Each independent offer MUST have ALL FOUR: its own job title + its own city + its own salary + its own duties. DO NOT split lists of short summaries (less than 400 characters each); keep them as one fragment in the UPDATE category.
 3. DO NOT SPLIT if:
    - The message describes ONE vacancy broken into sections (💰 Оплата, ⚙️ Обов'язки, etc.).
    - The message contains multiple job titles (e.g., "Welder / Saw Operator" or "Helper / Machine Operator") that share the SAME city, SAME salary, and SAME accommodation. This is ONE vacancy with multiple duties.
@@ -173,6 +173,8 @@ CLASSIFICATION RULES:
 - FULL_VACANCY: Detailed job ad for a candidate. !!! MANDATORY: Must contain a salary or hourly rate for the WORKER (e.g., "25 zł/god", "5000 zł/міс"). !!! PRIVACY RULE: If the message ONLY mentions bonuses for recruiters/partners (e.g., "800 зл за кандидата"), it is NOT a FULL_VACANCY. Classify it as RECRUITER_INFO. Duties and City must be present.
 !!! CRITICAL: If the text is shorter than 400 characters, classify it as UPDATE.
 If the text is 400 characters or longer, classify it as FULL_VACANCY (even if duties are not explicitly listed).
+!! LIST RULE: If the message contains a list of multiple short job summaries (like a digest), classify the WHOLE message as UPDATE and DO NOT split it.
+!!! MIXED MESSAGE: If a message contains one detailed vacancy (more than 400 characters) and several short ones (less than 400 characters each), extract ONLY the detailed one into translatedFragments and set category to FULL_VACANCY.
 
 - UPDATE: Short status changes (STOP, CLOSED), stop-signals, lists of rates/spots, or job offers WITHOUT detailed dutieschanges in rates for existing jobs, or messages like "need 2 more people".
 - TRUNCATED: A job ad that is clearly cut off (ends mid-sentence, mid-word, or ends with "..." / "…").
