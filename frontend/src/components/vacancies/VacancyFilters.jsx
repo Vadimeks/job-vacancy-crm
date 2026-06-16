@@ -209,6 +209,16 @@ export default function VacancyFilters({
           className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-base text-slate-900 placeholder-slate-400 shadow-sm focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 transition-all"
         />
       </Section>
+      {/* СТАТУС */}
+      <Section>
+        <MultiSelect
+          label="Статус"
+          options={getSmartOptions(MD.STATUSES, "status", true)} // 👈 Заменена
+          selected={draft.status}
+          onChange={(v) => updateField("status", v)}
+          placeholder="Будь-який status"
+        />
+      </Section>
       {/* ДЫЯПАЗОН ДАТ */}
       <Section>
         <div>
@@ -243,6 +253,27 @@ export default function VacancyFilters({
           placeholder="Усі категорії"
         />
       </Section>
+      {/* РЕГІОН (Воєводство) */}
+      <Section>
+        <MultiSelect
+          label="Регіон (Воєводство)"
+          options={getSmartOptions(voivodeships, "voivodeship")} // 👈 Заменена
+          selected={draft.voivodeship}
+          onChange={(v) => updateField("voivodeship", v)}
+          placeholder="Усі регіони"
+        />
+      </Section>
+      {/* МІСТО */}
+      <Section>
+        <MultiSelect
+          label="Місто"
+          options={getSmartOptions(locations, "location")} // 👈 Заменена
+          selected={draft.location}
+          onChange={(v) => updateField("location", v)}
+          placeholder="Усі міста"
+        />
+      </Section>
+      
       {/* ЗАРПЛАТА */}
       <Section>
         <label className="block text-sm font-semibold text-slate-700 mb-1.5 ml-1">
@@ -265,7 +296,7 @@ export default function VacancyFilters({
           />
         </div>
       </Section>
-      {/* ТИП ДОГОВОРУ */} {/* 👈 ДАДАДЗЕНА */}
+      {/* ТИП ДОГОВОРУ */} 
       <Section>
         <MultiSelect
           label="Тип договору"
@@ -275,7 +306,7 @@ export default function VacancyFilters({
           placeholder="Будь-який договір"
         />
       </Section>
-      {/* ГОДИНИ НА МІСЯЦЬ */} {/* 👈 ДАДАДЗЕНА */}
+      {/* ГОДИНИ НА МІСЯЦЬ */} 
       <Section>
         <MultiSelect
           label="Години на місяць"
@@ -381,34 +412,24 @@ export default function VacancyFilters({
           placeholder="Вибрати нюанси..."
         />
       </Section>
-      {/* РЕГІОН (Воєводство) */}
+      {/* АГЕНЦІЯ */}
       <Section>
         <MultiSelect
-          label="Регіон (Воєводство)"
-          options={getSmartOptions(voivodeships, "voivodeship")} // 👈 Заменена
-          selected={draft.voivodeship}
-          onChange={(v) => updateField("voivodeship", v)}
-          placeholder="Усі регіони"
+          label="Агенція"
+          options={getSmartOptions(agencies, "agencyName")} // 👈 Заменена
+          selected={draft.agencyName}
+          onChange={(v) => updateField("agencyName", v)}
+          placeholder="Усі агенції"
         />
       </Section>
-      {/* МІСТО */}
+      {/* БРЕНД */}
       <Section>
         <MultiSelect
-          label="Місто"
-          options={getSmartOptions(locations, "location")} // 👈 Заменена
-          selected={draft.location}
-          onChange={(v) => updateField("location", v)}
-          placeholder="Усі міста"
-        />
-      </Section>
-      {/* СТАТУС */}
-      <Section>
-        <MultiSelect
-          label="Статус"
-          options={getSmartOptions(MD.STATUSES, "status", true)} // 👈 Заменена
-          selected={draft.status}
-          onChange={(v) => updateField("status", v)}
-          placeholder="Будь-який status"
+          label="Бренд"
+          options={getSmartOptions(brands, "brand")} // 👈 Заменена
+          selected={draft.brand}
+          onChange={(v) => updateField("brand", v)}
+          placeholder="Усі бренди"
         />
       </Section>
       {/* КРЫНІЦЫ (v4.5 - 4 кнопкі ў 2 калонкі) */}
@@ -461,26 +482,7 @@ export default function VacancyFilters({
           </div>
         </div>
       </Section>
-      {/* АГЕНЦІЯ */}
-      <Section>
-        <MultiSelect
-          label="Агенція"
-          options={getSmartOptions(agencies, "agencyName")} // 👈 Заменена
-          selected={draft.agencyName}
-          onChange={(v) => updateField("agencyName", v)}
-          placeholder="Усі агенції"
-        />
-      </Section>
-      {/* БРЕНД */}
-      <Section>
-        <MultiSelect
-          label="Бренд"
-          options={getSmartOptions(brands, "brand")} // 👈 Заменена
-          selected={draft.brand}
-          onChange={(v) => updateField("brand", v)}
-          placeholder="Усі бренди"
-        />
-      </Section>
+      
     </div>
   );
 }
