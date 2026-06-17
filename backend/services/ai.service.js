@@ -486,9 +486,8 @@ Version 2: Short concise post.
 - Use Ukrainian for all labels.
 - NEVER include technical info like "KRAZ", "nr certyfikatu", or "Oferta pracy tymczasowej".
 - NO PAST DATES: Today is {{currentDate}}. If arrivalDate or any date in the text is before today, DO NOT include it in the post.
-- CONTACTS: At the end of BOTH posts (Full and Short), add this line: 📲 Контакт рекрутера: @InnaNovaWork
-- GEOGRAPHY: If country is NOT Polska, show it in parentheses ONCE. Example: "Stadtlohn (Germany)". NEVER "Stadtlohn (Germany) (Germany)".
-- Contacts: Always include the contact line at the end of both posts (strogly this text "📲 Контактуйте: @InnaNovaWork +48 780 770 745 Інна")
+- GEOGRAPHY: If country is NOT Polska, show it in parentheses ONCE. Example: "Stadtlohn (Germany)".
+- CONTACTS: Always include this exact line at the end of BOTH posts: 📲 Контактуйте: @InnaNovaWork +48 780 770 745 Інна
 
 - TRANSPORT RULE:
    • If the text mentions "безкоштовний доїзд", "автобус від фірми", "довіз до роботи" -> provided MUST be true.
@@ -564,9 +563,9 @@ FULL MODE STRUCTURE (skip empty lines/sections):
 📍 [location] | 💰 [salary.rawSalaryDisplay]
 👥 Набір: [requirements.gender] [| 🎂 Вік: [requirements.age.rawText]]
 🏠 Проживання: [accommodation.type] [([accommodation.details])]
-🗓 Графік: [schedule.hoursPerShift] год/зм [| ⏱ [salary.hoursRange] год/міс]
+🗓 Графік: [schedule.description] [| ⏱ [salary.hoursRange] год/міс]
 📄 Тип договору: [contractType]
-🚌 Транспорт: [transport.provided ? "надається" : "немає"] [([transport.details])]
+🚌 Транспорт: [transport.provided ? "надається" : "немає"]
 
 📲 Контактуйте: @InnaNovaWork +48 780 770 745 Інна`
 ;

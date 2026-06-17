@@ -208,28 +208,33 @@ async function processVacancyMessage(
 
       // 🔍 ЛОГІКА ПОШУКУ ДУБЛІКАТАЎ (v4.5 - Smart Hybrid Search)
       if (!currentExistingId) {
+         // 1. Прыярытэт па хэшы (для табліц і трэла)
         if (sourceHash) {
-          const byHash = await Vacancy.findOne({
-            sourceHash,
-            status: "active",
-          });
+          const byHash = await Vacancy.findOne({ sourceHash, status: "active" });
           if (byHash) currentExistingId = byHash._id;
         }
 
+         // 2. Калі хэша няма (чаты), шукаем кандыдатаў і пытаемся ў AI
         if (!currentExistingId) {
-          const semanticMatch = await Vacancy.findOne({
+          const potentialMatches = await Vacancy.find({
             agencyName: finalAgency,
             location: { $regex: new RegExp(`^${vData.location}$`, "i") },
-            brand: vData.brand
-              ? { $regex: new RegExp(`^${vData.brand}$`, "i") }
-              : vData.brand || "",
-            vacancydescription: {
-              $regex: new RegExp(`^${vData.vacancydescription}$`, "i"),
-            },
-            sourceType: sourceType,
-            status: "active",
-          });
-          if (semanticMatch) currentExistingId = semanticMatch._id;
+            brand: vData.brand ? { $regex: new RegExp(`^${vData.brand}$`, "i") } : { $in: ["", null] },
+            status: "active"
+          }).sort({ updatedAt: -1 }).limit(3); // Бяром 3 апошнія для параўнання
+
+          for (const candidate of potentialMatches) {
+            try {
+              const comparison = await aiService.compareVacanciesWithAI(vData, candidate);
+              if (comparison.verdict === "DUPLICATE" || comparison.verdict === "UPDATE") {
+                console.log(`✅ AI пацвердзіў супадзенне з ${candidate.vacancyCode}`);
+                currentExistingId = candidate._id;
+                break; 
+              }
+            } catch (err) {
+              console.error(`⚠️ Памылка AI-параўнання з ${candidate.vacancyCode}:`, err.message);
+            }
+          }
         }
       }
 
