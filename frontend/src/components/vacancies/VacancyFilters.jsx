@@ -230,20 +230,6 @@ const [openSections, setOpenSections] = useState({
           </button>
         )}
       </div>
-      {/* АБРАНАЕ */}
-      <div className="mb-5">
-        <button
-          type="button"
-          onClick={() => updateField("isFavorite", !draft.isFavorite)}
-          className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl border transition-all font-bold text-sm ${
-            draft.isFavorite
-              ? "bg-amber-50 border-amber-200 text-amber-600 shadow-sm"
-              : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
-          }`}
-        >
-          {draft.isFavorite ? "★ ТІЛЬКИ ОБРАНІ" : "☆ ПОКАЗАТИ ВСІ"}
-        </button>
-      </div>
       {/* ПОШУК (Цяпер у акардэоне з лупай) */}
       <AccordionSection 
         label="Пошук" 
@@ -382,27 +368,7 @@ const [openSections, setOpenSections] = useState({
           placeholder="Будь-який договір"
         />
       </AccordionSection>
-       {/* ТОЛЬКІ ДЗЁННЫЯ ЗМЕНЫ (Стылізавана пад агульны спіс) */}
-      <div className="mb-2 border-b border-slate-100 pb-2">
-        <button
-          type="button"
-          onClick={() => updateField("onlyDayShifts", !draft.onlyDayShifts)}
-          className="w-full flex items-center justify-between py-2 px-1 hover:bg-slate-50 rounded-lg transition-colors"
-        >
-          <div className="flex items-center gap-2">
-            <span className={draft.onlyDayShifts ? 'text-emerald-600' : 'text-slate-400'}>
-              ☀️
-            </span>
-            <span className={`text-sm font-bold ${draft.onlyDayShifts ? 'text-emerald-600' : 'text-slate-700'}`}>
-              Тільки денні зміни
-            </span>
-          </div>
-          <div className={`w-7 h-4 rounded-full relative transition-colors ${draft.onlyDayShifts ? 'bg-emerald-500' : 'bg-slate-200'}`}>
-            <div className={`absolute top-0.5 w-2 h-2 bg-white rounded-full transition-all ${draft.onlyDayShifts ? 'right-0.5' : 'left-0.5'}`} />
-          </div>
-        </button>
-      </div>
-
+      
       {/* ГОДИНИ НА МІСЯЦЬ */} 
       <AccordionSection 
         label="Години на місяць" 

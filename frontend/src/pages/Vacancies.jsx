@@ -879,7 +879,7 @@ const [viewMode, setViewMode] = useState("list"); // Стан для перак�
         {/* ХУТКІЯ ФІЛЬТРЫ І ПЕРАКЛЮЧАЛЬНІК ВЫВАДУ */}
         <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
           <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
-            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-1">Час:</span>
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-1">ЗА:</span>
             {[
               { label: "Сьогодні", days: 0 },
               { label: "2 дні", days: 1 },
@@ -901,6 +901,44 @@ const [viewMode, setViewMode] = useState("list"); // Стан для перак�
                 </button>
               );
             })}
+
+            {/* ВІЗУАЛЬНЫ ПАДЗЯЛЯЛЬНІК */}
+            <div className="w-px h-6 bg-slate-200 mx-2 shrink-0" />
+
+            {/* КНОПКА АБРАНАЕ */}
+            <button
+              onClick={() => {
+                const newVal = !draft.isFavorite;
+                setDraft(prev => ({ ...prev, isFavorite: newVal }));
+                setApplied(prev => ({ ...prev, isFavorite: newVal }));
+              }}
+              className={`px-3 py-1.5 border rounded-full text-xs font-bold transition-all whitespace-nowrap shadow-sm flex items-center gap-1.5 ${
+                draft.isFavorite 
+                  ? "bg-amber-500 border-amber-500 text-white" 
+                  : "bg-white border-slate-200 text-slate-600 hover:border-amber-500 hover:text-amber-600"
+              }`}
+            >
+              <span>{draft.isFavorite ? "★" : "☆"}</span>
+              ОБРАНІ
+            </button>
+
+            {/* КНОПКА ДЗЁННЫЯ ЗМЕНЫ */}
+            <button
+              onClick={() => {
+                const newVal = !draft.onlyDayShifts;
+                setDraft(prev => ({ ...prev, onlyDayShifts: newVal }));
+                setApplied(prev => ({ ...prev, onlyDayShifts: newVal }));
+              }}
+              className={`px-3 py-1.5 border rounded-full text-xs font-bold transition-all whitespace-nowrap shadow-sm flex items-center gap-1.5 ${
+                draft.onlyDayShifts 
+                  ? "bg-blue-500 border-blue-500 text-white" 
+                  : "bg-white border-slate-200 text-slate-600 hover:border-blue-500 hover:text-blue-600"
+              }`}
+            >
+              <span>☀️</span>
+              ДЕННІ ЗМІНИ
+            </button>
+
             {(draft.startDate || draft.endDate) && (
               <button 
                 onClick={() => {
@@ -915,6 +953,7 @@ const [viewMode, setViewMode] = useState("list"); // Стан для перак�
             )}
           </div>
 
+          {/* ПЕРАКЛЮЧАЛЬНІК СПІС / МАПА */}
           <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200 shadow-inner">
             <button 
               onClick={() => setViewMode("list")}
