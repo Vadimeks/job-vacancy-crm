@@ -1035,13 +1035,12 @@ export default function Vacancies() {
                       {v.vacancydescription || v.templateName}
                     </h3>
 
-                    {/* РАДОК 2: БАЗАВЫЯ ЎМОВЫ (Гендэр, Жытло, Давоз, Мова) + ЗАРПЛАТА */}
-                    <div className="flex flex-wrap gap-4 text-xs items-center mb-3">
+                    {/* РАДОК 2: БАЗАВЫЯ ЎМОВЫ (Гендэр, Вік, Графік, Жытло, Давоз, Мова) + ЗАРПЛАТА */}
+                    <div className="flex flex-wrap gap-3 text-xs items-center mb-3">
                       {/* ГЕНДАР / НАБОР */}
                       <div className="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100">
-                        <span className="text-slate-500">👥</span>
-
-                        <span className="text-slate-500 font-bold uppercase tracking-tight text-[10px]">
+                        <span className="text-slate-500 text-[10px]">👥</span>
+                        <span className="text-slate-600 font-bold uppercase tracking-tight text-[10px]">
                           {Array.isArray(v.requirements?.gender)
                             ? v.requirements.gender.join(", ")
                             : v.gender || "Будь-хто"}
@@ -1050,61 +1049,60 @@ export default function Vacancies() {
                           )}
                         </span>
                       </div>
-                      {/* Узрост (Дададзена для зручнасці рэкрутэра) */}
+
+                      {/* ВІК (Захавана) */}
                       {v.requirements?.age?.max && (
                         <div className="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100">
                           <span className="text-slate-500 text-[10px]">🎂</span>
-                          <span className="text-slate-500 font-bold text-[10px]">
-                            {v.requirements.age.min || 18}-
-                            {v.requirements.age.max} р.
+                          <span className="text-slate-600 font-bold text-[10px]">
+                            {v.requirements.age.min || 18}-{v.requirements.age.max} р.
                           </span>
                         </div>
                       )}
-                      {/* ЖИТЛО + ПАРИ */}
-                      <div className="flex items-center gap-1.5 text-slate-500">
+
+                      {/* ГРАФІК І ГАДЗІНЫ (Новы яркі блок) */}
+                      <div className="flex items-center gap-2 bg-blue-50/50 px-3 py-1.5 rounded-xl border border-blue-100">
+                        <span className="text-blue-600 text-[10px]">{v.schedule?.onlyDayShifts ? "☀️" : "🔄"}</span>
+                        <span className="text-blue-700 font-bold uppercase tracking-tight text-[10px]">
+                          {v.schedule?.onlyDayShifts ? "Тільки день" : "Зміни"}
+                          {v.salary?.hoursRange && (
+                            <span className="ml-1.5 pl-1.5 border-l border-blue-200">
+                              ⏱️ {v.salary.hoursRange} год/міс
+                            </span>
+                          )}
+                        </span>
+                      </div>
+
+                      {/* ЖИТЛО (Захавана логіка "Без житла") */}
+                      <div className="flex items-center gap-1.5 text-slate-500 ml-1">
                         <span>🏠</span>
                         <span className="font-medium">
-                          {!v.accommodation?.type ||
-                          v.accommodation?.type === ""
-                            ? "Житло не вказано"
-                            : v.accommodation.type
-                                  .toLowerCase()
-                                  .includes("власн") ||
-                                v.accommodation.type
-                                  .toLowerCase()
-                                  .includes("не надаєт")
+                          {!v.accommodation?.type || v.accommodation?.type === ""
+                            ? "Не вказано"
+                            : v.accommodation.type.toLowerCase().includes("власн") || v.accommodation.type.toLowerCase().includes("не надаєт")
                               ? "Без житла"
-                              : "Житло надається"}
-                          {v.accommodation?.forCouples && (
-                            <span className="text-orange-400 ml-1">+ 👫</span>
-                          )}
+                              : "Житло є"}
+                          {v.accommodation?.forCouples && <span className="text-orange-400 ml-1">👫</span>}
                         </span>
                       </div>
 
                       {/* ДОВІЗ */}
                       <div className="flex items-center gap-1.5 text-slate-500">
                         <span>🚌</span>
-                        <span className="font-medium">
-                          {v.transport?.provided ? "Є довіз" : "Без довозу"}
-                        </span>
+                        <span className="font-medium">{v.transport?.provided ? "Є довіз" : "Немає"}</span>
                       </div>
 
                       {/* МОВА */}
                       <div className="flex items-center gap-1.5 text-slate-500">
                         <span>🗣️</span>
-                        <span className="font-medium">
-                          {v.requirements?.polishLanguageLevel ||
-                            "Любий рівень"}
-                        </span>
+                        <span className="font-medium">{v.requirements?.polishLanguageLevel || "—"}</span>
                       </div>
-                      {/* ЗАРПЛАТА (Кампактны вывад v2.3) */}
+
+                      {/* ЗАРПЛАТА (Зроблена яркай) */}
                       {(v.salary?.rawSalaryDisplay || v.salary?.baseNetto) && (
-                        <div className="flex items-center gap-2 bg-emerald-50 px-4 py-2 rounded-2xl border border-emerald-100 ml-auto shadow-sm">
-                          <span className="text-emerald-700 font-black text-base">
-                            💰{" "}
-                            {v.salary.rawSalaryDisplay
-                              ? v.salary.rawSalaryDisplay.split(";")[0]
-                              : `${v.salary.baseNetto} ${v.salary.currency || "PLN"}`}
+                        <div className="flex items-center gap-2 bg-emerald-600 px-4 py-2 rounded-2xl ml-auto shadow-sm shadow-emerald-100">
+                          <span className="text-white font-black text-base">
+                            💰 {v.salary.rawSalaryDisplay ? v.salary.rawSalaryDisplay.split(";")[0] : `${v.salary.baseNetto} PLN`}
                           </span>
                         </div>
                       )}
@@ -1161,25 +1159,25 @@ export default function Vacancies() {
                     </div>
                   </div>
 
-                  {/* КНОПКІ */}
-                  <div className="flex flex-col gap-1.5 shrink-0">
+                  {/* КНОПКІ ДЗЕЯННЯЎ */}
+                  <div className="flex flex-col gap-2 shrink-0">
                     <button
                       onClick={() => setViewVacancy(v)}
-                      className="px-3 py-1.5 text-slate-500 hover:bg-slate-100 rounded-lg text-xs font-bold transition-colors"
+                      className="w-32 px-3 py-2.5 bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-tight transition-all shadow-sm flex items-center gap-2"
                     >
-                      👁 Переглянути
+                      <span className="text-sm">👁️</span> ПЕРЕГЛЯД
                     </button>
                     <button
                       onClick={() => setMatchVacancy(v)}
-                      className="px-3 py-1.5 text-slate-500 hover:bg-slate-100 rounded-lg text-xs font-bold transition-colors"
+                      className="w-32 px-3 py-2.5 bg-indigo-600 text-white hover:bg-indigo-700 border border-indigo-700 rounded-xl text-[10px] font-black uppercase tracking-tight transition-all shadow-md shadow-indigo-100 flex items-center gap-2"
                     >
-                      🎯 Кандидати
+                      <span className="text-sm">🎯</span> КАНДИДАТИ
                     </button>
                     <button
                       onClick={() => setEditVacancy(v)}
-                      className="px-3 py-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg text-xs font-bold transition-colors"
+                      className="w-32 px-3 py-2.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 rounded-xl text-[10px] font-black uppercase tracking-tight transition-all flex items-center gap-2"
                     >
-                      ✏️ Ред.
+                      <span className="text-sm">✏️</span> РЕДАГУВАТИ
                     </button>
                   </div>
                 </div>

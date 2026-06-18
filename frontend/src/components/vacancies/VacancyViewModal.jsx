@@ -168,13 +168,26 @@ export default function VacancyViewModal({
                   </span>
                 )}
                 {v.arrivalDate && (
-                  <span className="text-emerald-400 font-bold">
+                  <span className="text-emerald-500 font-bold">
                     , приїзд {v.arrivalDate}
                   </span>
                 )}
               </p>
             </div>
           </div>
+
+          {/* АРЫГІНАЛЬНЫ ТЭКСТ (Перанесены сюды і стылізаваны) */}
+          <details className="group bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden">
+            <summary className="px-5 py-3 text-[10px] font-black text-slate-500 uppercase tracking-widest cursor-pointer hover:bg-slate-100 transition-colors list-none flex items-center gap-2">
+              <span className="group-open:rotate-90 transition-transform inline-block text-xs">
+                ▶
+              </span>
+              Оригінальний текст повідомлення
+            </summary>
+            <div className="px-5 pb-4 text-[11px] text-slate-600 font-mono leading-relaxed whitespace-pre-wrap border-t border-slate-100 pt-3">
+              {v.rawText || "Текст повідомлення відсутній"}
+            </div>
+          </details>
 
           {/* ОПЛАТА ПРАЦІ */}
           <section>
@@ -504,17 +517,7 @@ export default function VacancyViewModal({
               </div>
             )}
 
-            <details className="group">
-              <summary className="text-[10px] font-black text-slate-700 uppercase tracking-widest cursor-pointer hover:text-slate-700 transition-colors list-none flex items-center gap-2">
-                <span className="group-open:rotate-90 transition-transform inline-block">
-                  ▶
-                </span>
-                Текст повідомлення (Оригінал)
-              </summary>
-              <div className="mt-4 p-4 bg-white rounded-xl border border-slate-800 text-[11px] text-slate-700 font-mono leading-relaxed whitespace-pre-wrap overflow-x-auto">
-                {v.rawText || "Текст повідомлення відсутній"}
-              </div>
-            </details>
+            
           </section>
 
           {/* МЕТА-ДАНІ */}
