@@ -1060,19 +1060,6 @@ export default function Vacancies() {
                         </div>
                       )}
 
-                      {/* ГРАФІК І ГАДЗІНЫ (Новы яркі блок) */}
-                      <div className="flex items-center gap-2 bg-blue-200/50 px-3 py-1.5 rounded-xl border border-blue-500">
-                        <span className="text-blue-600 text-[10px]">{v.schedule?.onlyDayShifts ? "☀️" : "🔄"}</span>
-                        <span className="text-blue-700 font-bold uppercase tracking-tight text-[10px]">
-                          {v.schedule?.onlyDayShifts ? "Тільки день" : "Зміни"}
-                          {v.salary?.hoursRange && (
-                            <span className="ml-1.5 pl-1.5 border-l border-blue-200">
-                              ⏱️ {v.salary.hoursRange} год/міс
-                            </span>
-                          )}
-                        </span>
-                      </div>
-
                       {/* ЖИТЛО (Захавана логіка "Без житла") */}
                       <div className="flex items-center gap-1.5 text-slate-500 ml-1 bg-orange-200/50 px-3 py-1.5 rounded-xl border border-orange-500">
                         <span>🏠</span>
@@ -1097,10 +1084,21 @@ export default function Vacancies() {
                         <span>🗣️</span>
                         <span className="font-medium">{v.requirements?.polishLanguageLevel || "—"}</span>
                       </div>
-
+{/* ГРАФІК І ГАДЗІНЫ (Новы яркі блок) */}
+                      <div className="flex items-center gap-2 bg-blue-200/50 px-3 py-1.5 rounded-xl border border-blue-500">
+                        <span className="text-blue-600 text-[10px]">{v.schedule?.onlyDayShifts ? "☀️" : "🔄"}</span>
+                        <span className="text-blue-700 font-bold uppercase tracking-tight text-[10px]">
+                          {v.schedule?.onlyDayShifts ? "Тільки день" : "Зміни"}
+                          {v.salary?.hoursRange && (
+                            <span className="ml-1.5 pl-1.5 border-l border-blue-200">
+                              ⏱️ {v.salary.hoursRange} год/міс
+                            </span>
+                          )}
+                        </span>
+                      </div>
                       {/* ЗАРПЛАТА (Зроблена яркай) */}
                       {(v.salary?.rawSalaryDisplay || v.salary?.baseNetto) && (
-                        <div className="flex items-center gap-2 bg-emerald-200  px-4 py-2 rounded-2xl ml-auto shadow-sm shadow-emerald-100">
+                        <div className="flex items-center gap-2 bg-emerald-200/50  px-4 py-2 rounded-2xl ml-auto border border-emerald-500">
                           <span className="text-emerald-700 font-black text-base">
                             💰 {v.salary.rawSalaryDisplay ? v.salary.rawSalaryDisplay.split(";")[0] : `${v.salary.baseNetto} PLN`}
                           </span>
