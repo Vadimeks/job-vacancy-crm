@@ -785,7 +785,7 @@ export default function Vacancies() {
                   placeholder="Пошук шаблона (назва, горад)..."
                   className="w-full bg-slate-100 border border-slate-100 rounded-lg px-3 py-2 text-sm text-slate-500"
                 />
-                <div className="max-h-48 overflow-y-auto border border-slate-100 rounded-lg p-1 bg-slate-900/50">
+                <div className="max-h-48 overflow-y-auto border border-slate-100 rounded-lg p-1 bg-white">
                   {filteredTemplates.map((t) => (
                     <button
                       key={t._id}
@@ -810,7 +810,7 @@ export default function Vacancies() {
                   placeholder="Пошук вакансії (код, назва, горад)..."
                   className="w-full bg-slate-100 border border-slate-100 rounded-lg px-3 py-2 text-sm text-slate-500"
                 />
-                <div className="max-h-48 overflow-y-auto border border-slate-100 rounded-lg p-1 bg-slate-900/50">
+                <div className="max-h-48 overflow-y-auto border border-slate-100 rounded-lg p-1 bg-white">
                   {filteredVacanciesForUpdate.map((v) => (
                     <button
                       key={v._id}
