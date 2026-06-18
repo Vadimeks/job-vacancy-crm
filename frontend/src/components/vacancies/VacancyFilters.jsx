@@ -1,10 +1,36 @@
 // frontend/src/components/vacancies/VacancyFilters.jsx
+import React, { useState } from "react";
 import { EMPTY_FILTERS } from "../../constants/filters";
 import * as MD from "../../constants/masterData";
 import MultiSelect from "../shared/MultiSelect";
 
-function Section({ label, children }) {
-  return <div className="mb-5">{children}</div>;
+function AccordionSection({ label, isOpen, onToggle, hasActiveFilters, children }) {
+  return (
+    <div className="mb-2 border-b border-slate-100 pb-2">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="w-full flex items-center justify-between py-2 px-1 hover:bg-slate-50 rounded-lg transition-colors"
+      >
+        <div className="flex items-center gap-2">
+          <span className={`text-sm font-bold ${hasActiveFilters ? 'text-emerald-600' : 'text-slate-700'}`}>
+            {label}
+          </span>
+          {hasActiveFilters && (
+            <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full shadow-sm shadow-emerald-200" />
+          )}
+        </div>
+        <span className={`text-[10px] text-slate-400 transition-transform duration-200 ${isOpen || hasActiveFilters ? 'rotate-180' : ''}`}>
+          ▼
+        </span>
+      </button>
+      {(isOpen || hasActiveFilters) && (
+        <div className="mt-2 px-1 animate-in fade-in slide-in-from-top-1 duration-200">
+          {children}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default function VacancyFilters({
@@ -18,7 +44,25 @@ export default function VacancyFilters({
   vacancies = [], // 👈 Прымаем прамы масіў vacancies з бацькоўскага кампанента
 }) {
   const draft = filters || EMPTY_FILTERS;
+const [openSections, setOpenSections] = useState({
+    status: false,
+    category: false,
+    voivodeship: false,
+    location: false,
+    agencyName: false,
+    brand: false,
+    nuances: false,
+    sourceType: false,
+    contract: false,
+    hours: false,
+    dates: false,
+    salary: false,
+    age: false
+  });
 
+  const toggleSection = (section) => {
+    setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
+  };
   const updateField = (key, val) => {
     setFilters({ ...draft, [key]: val });
   };
@@ -210,75 +254,95 @@ export default function VacancyFilters({
         />
       </Section>
       {/* СТАТУС */}
-      <Section>
+      <AccordionSection 
+        label="Статус" 
+        isOpen={openSections.status} 
+        onToggle={() => toggleSection("status")}
+        hasActiveFilters={draft.status?.length > 0}
+      >
         <MultiSelect
-          label="Статус"
-          options={getSmartOptions(MD.STATUSES, "status", true)} // 👈 Заменена
+          options={getSmartOptions(MD.STATUSES, "status", true)}
           selected={draft.status}
           onChange={(v) => updateField("status", v)}
           placeholder="Будь-який status"
         />
-      </Section>
+      </AccordionSection>
       {/* ДЫЯПАЗОН ДАТ */}
-      <Section>
-        <div>
-          <label className="text-sm font-semibold text-slate-700 mb-1.5 ml-1">
-            📆 Період оновлення (З / ПО)
-          </label>
-          <div className="flex gap-2">
-            <input
-              type="date"
-              value={draft.startDate || ""}
-              onChange={(e) => updateField("startDate", e.target.value)}
-              className="w-1/2 bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-900 shadow-sm focus:outline-none focus:border-emerald-500 transition-all"
-              style={{ colorScheme: "dark" }}
-            />
-            <input
-              type="date"
-              value={draft.endDate || ""}
-              onChange={(e) => updateField("endDate", e.target.value)}
-              className="w-1/2 bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-900 shadow-sm focus:outline-none focus:border-emerald-500 transition-all"
-              style={{ colorScheme: "dark" }}
-            />
-          </div>
+      <AccordionSection 
+        label="Період оновлення" 
+        isOpen={openSections.dates} 
+        onToggle={() => toggleSection("dates")}
+        hasActiveFilters={!!(draft.startDate || draft.endDate)}
+      >
+        <div className="flex gap-2">
+          <input
+            type="date"
+            value={draft.startDate || ""}
+            onChange={(e) => updateField("startDate", e.target.value)}
+            className="w-1/2 bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-900 shadow-sm focus:outline-none focus:border-emerald-500 transition-all"
+            style={{ colorScheme: "light" }}
+          />
+          <input
+            type="date"
+            value={draft.endDate || ""}
+            onChange={(e) => updateField("endDate", e.target.value)}
+            className="w-1/2 bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-900 shadow-sm focus:outline-none focus:border-emerald-500 transition-all"
+            style={{ colorScheme: "light" }}
+          />
         </div>
-      </Section>
+      </AccordionSection>
       {/* КАТЕГОРІЯ */}
-      <Section>
+      <AccordionSection 
+        label="Категорія" 
+        isOpen={openSections.category} 
+        onToggle={() => toggleSection("category")}
+        hasActiveFilters={draft.category?.length > 0}
+      >
         <MultiSelect
-          label="Категорія"
-          options={getSmartOptions(MD.CATEGORIES, "category", true)} // 👈 Заменена
+          options={getSmartOptions(MD.CATEGORIES, "category", true)}
           selected={draft.category}
           onChange={(v) => updateField("category", v)}
           placeholder="Усі категорії"
         />
-      </Section>
+      </AccordionSection>
+
       {/* РЕГІОН (Воєводство) */}
-      <Section>
+      <AccordionSection 
+        label="Регіон (Воєводство)" 
+        isOpen={openSections.voivodeship} 
+        onToggle={() => toggleSection("voivodeship")}
+        hasActiveFilters={draft.voivodeship?.length > 0}
+      >
         <MultiSelect
-          label="Регіон (Воєводство)"
-          options={getSmartOptions(voivodeships, "voivodeship")} // 👈 Заменена
+          options={getSmartOptions(voivodeships, "voivodeship")}
           selected={draft.voivodeship}
           onChange={(v) => updateField("voivodeship", v)}
           placeholder="Усі регіони"
         />
-      </Section>
+      </AccordionSection>
+      
       {/* МІСТО */}
-      <Section>
+      <AccordionSection 
+        label="Місто" 
+        isOpen={openSections.location} 
+        onToggle={() => toggleSection("location")}
+        hasActiveFilters={draft.location?.length > 0}
+      >
         <MultiSelect
-          label="Місто"
-          options={getSmartOptions(locations, "location")} // 👈 Заменена
+          options={getSmartOptions(locations, "location")}
           selected={draft.location}
           onChange={(v) => updateField("location", v)}
           placeholder="Усі міста"
         />
-      </Section>
+      </AccordionSection>
       
       {/* ЗАРПЛАТА */}
-      <Section>
-        <label className="block text-sm font-semibold text-slate-700 mb-1.5 ml-1">
-          Зарплата (Netto)
-        </label>
+      <AccordionSection 
+        label="Зарплата (Netto)" 
+        isOpen={openSections.salary} 
+        onToggle={() => toggleSection("salary")}
+        hasActiveFilters={!!(draft.minSalary || draft.maxSalary)}
+      >
         <div className="flex gap-2">
           <input
             type="number"
@@ -295,19 +359,24 @@ export default function VacancyFilters({
             className="w-1/2 bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-base text-slate-900 shadow-sm focus:outline-none focus:border-emerald-500 transition-all"
           />
         </div>
-      </Section>
+      </AccordionSection>
+
       {/* ТИП ДОГОВОРУ */} 
-      <Section>
+      <AccordionSection 
+        label="Тип договору" 
+        isOpen={openSections.contract} 
+        onToggle={() => toggleSection("contract")}
+        hasActiveFilters={draft.contractType?.length > 0}
+      >
         <MultiSelect
-          label="Тип договору"
           options={getSmartOptions(MD.CONTRACT_TYPES, "contractType", true)}
           selected={draft.contractType}
           onChange={(v) => updateField("contractType", v)}
           placeholder="Будь-який договір"
         />
-      </Section>
-      {/* ТОЛЬКІ ДЗЁННЫЯ ЗМЕНЫ */}
-      <Section>
+      </AccordionSection>
+      {/* ТОЛЬКІ ДЗЁННЫЯ ЗМЕНЫ (Застаецца без акардэона) */}
+            <div className="mb-5">
         <button
           onClick={() => updateField("onlyDayShifts", !draft.onlyDayShifts)}
           className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border transition-all font-bold text-sm ${
@@ -324,56 +393,74 @@ export default function VacancyFilters({
             <div className={`absolute top-1 w-2 h-2 bg-white rounded-full transition-all ${draft.onlyDayShifts ? 'right-1' : 'left-1'}`} />
           </div>
         </button>
-      </Section>
+      </div>
+
       {/* ГОДИНИ НА МІСЯЦЬ */} 
-      <Section>
+      <AccordionSection 
+        label="Години на місяць" 
+        isOpen={openSections.hours} 
+        onToggle={() => toggleSection("hours")}
+        hasActiveFilters={draft.hoursRange?.length > 0}
+      >
         <MultiSelect
-          label="Години на місяць"
           options={getSmartOptions(MD.HOURS_RANGE_OPTIONS, "hoursRange", true)}
           selected={draft.hoursRange}
           onChange={(v) => updateField("hoursRange", v)}
           placeholder="Будь-яка кількість"
         />
-      </Section>
+      </AccordionSection>
+
       {/* ЖИТЛО */}
-      <Section>
+      <AccordionSection 
+        label="Житло" 
+        isOpen={openSections.accommodation} 
+        onToggle={() => toggleSection("accommodation")}
+        hasActiveFilters={draft.accommodation?.length > 0}
+      >
         <MultiSelect
-          label="Житло"
-          options={getSmartOptions(
-            MD.ACCOMMODATION_OPTIONS,
-            "accommodation",
-            true,
-          )} // 👈 Оновлено
+          options={getSmartOptions(MD.ACCOMMODATION_OPTIONS, "accommodation", true)}
           selected={draft.accommodation}
           onChange={(v) => updateField("accommodation", v)}
           placeholder="Будь-які умови"
         />
-      </Section>
+      </AccordionSection>
       {/* ДОВІЗ */}
-      <Section>
+      <AccordionSection 
+        label="Довіз до роботи" 
+        isOpen={openSections.transport} 
+        onToggle={() => toggleSection("transport")}
+        hasActiveFilters={draft.transport?.length > 0}
+      >
         <MultiSelect
-          label="Довіз до роботи"
-          options={getSmartOptions(MD.TRANSPORT_OPTIONS, "transport", true)} // 👈 Оновлено
+          options={getSmartOptions(MD.TRANSPORT_OPTIONS, "transport", true)}
           selected={draft.transport}
           onChange={(v) => updateField("transport", v)}
           placeholder="Не важливо"
         />
-      </Section>
+      </AccordionSection>
+
       {/* ХТО ЇДЕ */}
-      <Section>
+      <AccordionSection 
+        label="Хто їде" 
+        isOpen={openSections.gender} 
+        onToggle={() => toggleSection("gender")}
+        hasActiveFilters={draft.gender?.length > 0}
+      >
         <MultiSelect
-          label="Хто їде"
-          options={getSmartOptions(MD.GENDERS, "gender", true)} // 👈 Оновлено
+          options={getSmartOptions(MD.GENDERS, "gender", true)}
           selected={draft.gender}
           onChange={(v) => updateField("gender", v)}
           placeholder="Будь-хто"
         />
-      </Section>
+      </AccordionSection>
+
       {/* ВІК */}
-      <Section>
-        <label className="block text-sm font-semibold text-slate-700 mb-1.5 ml-1">
-          Вік (до)
-        </label>
+      <AccordionSection 
+        label="Вік" 
+        isOpen={openSections.age} 
+        onToggle={() => toggleSection("age")}
+        hasActiveFilters={!!(draft.minAge || draft.maxAge)}
+      >
         <div className="flex gap-2">
           <input
             type="number"
@@ -390,117 +477,142 @@ export default function VacancyFilters({
             className="w-1/2 bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-base text-slate-900 shadow-sm focus:outline-none focus:border-emerald-500 transition-all"
           />
         </div>
-      </Section>
+      </AccordionSection>
       {/* МОВА */}
-      <Section>
+      <AccordionSection 
+        label="Рівень польської" 
+        isOpen={openSections.language} 
+        onToggle={() => toggleSection("language")}
+        hasActiveFilters={draft.language?.length > 0}
+      >
         <MultiSelect
-          label="Рівень польської"
-          options={getSmartOptions(MD.LANGUAGES, "language", true)} // 👈 Оновлено
+          options={getSmartOptions(MD.LANGUAGES, "language", true)}
           selected={draft.language}
           onChange={(v) => updateField("language", v)}
           placeholder="Будь-який рівень"
         />
-      </Section>
+      </AccordionSection>
+
       {/* НАЦІОНАЛЬНІСТЬ */}
-      <Section>
+      <AccordionSection 
+        label="Національність" 
+        isOpen={openSections.nationality} 
+        onToggle={() => toggleSection("nationality")}
+        hasActiveFilters={draft.nationality?.length > 0}
+      >
         <MultiSelect
-          label="Національність"
-          options={getSmartOptions(MD.NATIONALITIES, "nationality", true)} // 👈 Оновлено
+          options={getSmartOptions(MD.NATIONALITIES, "nationality", true)}
           selected={draft.nationality}
           onChange={(v) => updateField("nationality", v)}
           placeholder="Усі нації"
         />
-      </Section>
+      </AccordionSection>
+
       {/* ДОКУМЕНТИ */}
-      <Section>
+      <AccordionSection 
+        label="Документи" 
+        isOpen={openSections.docs} 
+        onToggle={() => toggleSection("docs")}
+        hasActiveFilters={draft.docs?.length > 0}
+      >
         <MultiSelect
-          label="Документи"
-          options={getSmartOptions(MD.DOCS, "docs", true)} // 👈 Оновлено (масив рядків/об'єктів у базі перевіряється як елемент)
+          options={getSmartOptions(MD.DOCS, "docs", true)}
           selected={draft.docs}
           onChange={(v) => updateField("docs", v)}
           placeholder="Будь-які документи"
         />
-      </Section>
+      </AccordionSection>
       {/* ОСОБЛИВОСТІ (ЧЕК-ЛИСТ) */}
-      <Section>
+      <AccordionSection 
+        label="Особливості (Чек-лист)" 
+        isOpen={openSections.nuances} 
+        onToggle={() => toggleSection("nuances")}
+        hasActiveFilters={draft.nuances?.length > 0}
+      >
         <MultiSelect
-          label="Особливості (Чек-лист)"
-          options={getSmartOptions(mappedNuances, "nuances", true)} // 👈 Заменена
+          options={getSmartOptions(mappedNuances, "nuances", true)}
           selected={draft.nuances}
           onChange={(v) => updateField("nuances", v)}
           placeholder="Вибрати нюанси..."
         />
-      </Section>
+      </AccordionSection>
+
       {/* АГЕНЦІЯ */}
-      <Section>
+      <AccordionSection 
+        label="Агенція" 
+        isOpen={openSections.agencyName} 
+        onToggle={() => toggleSection("agencyName")}
+        hasActiveFilters={draft.agencyName?.length > 0}
+      >
         <MultiSelect
-          label="Агенція"
-          options={getSmartOptions(agencies, "agencyName")} // 👈 Заменена
+          options={getSmartOptions(agencies, "agencyName")}
           selected={draft.agencyName}
           onChange={(v) => updateField("agencyName", v)}
           placeholder="Усі агенції"
         />
-      </Section>
+      </AccordionSection>
+
       {/* БРЕНД */}
-      <Section>
+      <AccordionSection 
+        label="Бренд" 
+        isOpen={openSections.brand} 
+        onToggle={() => toggleSection("brand")}
+        hasActiveFilters={draft.brand?.length > 0}
+      >
         <MultiSelect
-          label="Бренд"
-          options={getSmartOptions(brands, "brand")} // 👈 Заменена
+          options={getSmartOptions(brands, "brand")}
           selected={draft.brand}
           onChange={(v) => updateField("brand", v)}
           placeholder="Усі бренди"
         />
-      </Section>
-      {/* КРЫНІЦЫ (v4.5 - 4 кнопкі ў 2 калонкі) */}
-      <Section>
-        <div>
-          <label className="text-sm font-semibold text-slate-700 mb-1.5 ml-1">
-            🌐 Джерело вакансії
-          </label>
-          <div className="grid grid-cols-2 gap-2">
-            {[
-              { id: "viber", label: "📱 Viber" },
-              { id: "telegram", label: "✈️ Telegram" },
-              { id: "spreadsheet", label: "📊 Таблиця" },
-              { id: "trello", label: "🔵 Trello" }, // 👈 ДАДАДЗЕНА
-              { id: "airtable", label: "🗄️ Airtable" }, // 👈 ДАДАДЗЕНА
-              { id: "manual", label: "📝 Ручне" },
-            ].map((src) => {
-              const isSelected = draft.sourceType?.includes(src.id);
-              // Падлік: калі sourceType няма, лічым як manual
-              const count = vacancies.filter(
-                (v) => (v.sourceType || "manual") === src.id,
-              ).length;
+      </AccordionSection>
+      {/* КРЫНІЦЫ */}
+      <AccordionSection 
+        label="Джерело вакансії" 
+        isOpen={openSections.sourceType} 
+        onToggle={() => toggleSection("sourceType")}
+        hasActiveFilters={draft.sourceType?.length > 0}
+      >
+        <div className="grid grid-cols-2 gap-2">
+          {[
+            { id: "viber", label: "📱 Viber" },
+            { id: "telegram", label: "✈️ Telegram" },
+            { id: "spreadsheet", label: "📊 Таблиця" },
+            { id: "trello", label: "🔵 Trello" },
+            { id: "airtable", label: "🗄️ Airtable" },
+            { id: "manual", label: "📝 Ручне" },
+          ].map((src) => {
+            const isSelected = draft.sourceType?.includes(src.id);
+            const count = vacancies.filter(
+              (v) => (v.sourceType || "manual") === src.id
+            ).length;
 
-              return (
-                <button
-                  key={src.id}
-                  type="button"
-                  onClick={() => {
-                    const current = draft.sourceType || [];
-                    const next = isSelected
-                      ? current.filter((x) => x !== src.id)
-                      : [...current, src.id];
-                    updateField("sourceType", next);
-                  }}
-                  className={`py-2.5 px-3 flex items-center justify-between rounded-xl text-xs font-bold transition-all border ${
-                    isSelected
-                      ? "bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-200"
-                      : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100 hover:border-slate-300"
-                  }`}
-                >
-                  <span>{src.label}</span>
-                  <span
-                    className={`text-[10px] px-1.5 py-0.5 rounded-md ${isSelected ? "bg-white/20 text-white" : "bg-slate-200 text-slate-500"}`}
-                  >
-                    {count}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+            return (
+              <button
+                key={src.id}
+                type="button"
+                onClick={() => {
+                  const current = draft.sourceType || [];
+                  const next = isSelected
+                    ? current.filter((x) => x !== src.id)
+                    : [...current, src.id];
+                  updateField("sourceType", next);
+                }}
+                className={`py-2.5 px-3 flex items-center justify-between rounded-xl text-xs font-bold transition-all border ${
+                  isSelected
+                    ? "bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-200"
+                    : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100 hover:border-slate-300"
+                }`}
+              >
+                <span>{src.label}</span>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-md ${isSelected ? "bg-white/20 text-white" : "bg-slate-200 text-slate-500"}`}>
+                  {count}
+                </span>
+              </button>
+            );
+          })}
         </div>
-      </Section>
+      </AccordionSection>
       
     </div>
   );
