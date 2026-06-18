@@ -252,12 +252,29 @@ const ALLOWED_NUANCE_CATEGORIES = [
   "Тести при вступі",
   "Інше",
 ];
-
+const LOCATION_FIX_MAP = {
+  "katy wroclawskie": "Kąty Wrocławskie",
+  "katy wrocławskie": "Kąty Wrocławskie",
+  "kostrzyn-nad-odrą": "Kostrzyn nad Odrą",
+  "kostrzyn nad odra": "Kostrzyn nad Odrą",
+  "niderlandy": "Netherlands",
+  "re america": "America",
+  "pakosc": "Pakość",
+  "gluchowo": "Głuchów",
+  "gluchow": "Głuchów"
+};
 // Функцыя для ачысткі назвы горада ад любых краін у дужках
 function normalizeLocation(location, country) {
   if (!location) return "Польща";
 
-  const lowLoc = location.toLowerCase().trim();
+  // 1. Ачыстка ад дужак і лішніх прабелаў
+  let clean = location.replace(/\s*\([^)]+\)/gi, "").trim();
+  
+  // 2. Прымусовая карэкцыя па мапе (Kąty, Kostrzyn і г.д.)
+  const lowLoc = clean.toLowerCase();
+  if (LOCATION_FIX_MAP[lowLoc]) {
+    clean = LOCATION_FIX_MAP[lowLoc];
+  }
 
   if (lowLoc.includes("уточнюється") || lowLoc === "") return "Польща";
   if (lowLoc.includes("маршрути по єс") || lowLoc.includes("маршруты по ес"))
