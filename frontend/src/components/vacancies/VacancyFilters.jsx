@@ -228,8 +228,9 @@ const [openSections, setOpenSections] = useState({
         )}
       </div>
       {/* АБРАНАЕ */}
-      <Section>
+      <div className="mb-5">
         <button
+          type="button"
           onClick={() => updateField("isFavorite", !draft.isFavorite)}
           className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl border transition-all font-bold text-sm ${
             draft.isFavorite
@@ -239,9 +240,9 @@ const [openSections, setOpenSections] = useState({
         >
           {draft.isFavorite ? "★ ТІЛЬКИ ОБРАНІ" : "☆ ПОКАЗАТИ ВСІ"}
         </button>
-      </Section>
+      </div>
       {/* ПОШУК */}
-      <Section>
+      <div className="mb-5">
         <label className="block text-sm font-semibold text-slate-700 mb-1.5 ml-1">
           Пошук
         </label>
@@ -252,7 +253,7 @@ const [openSections, setOpenSections] = useState({
           placeholder="Назва, опис..."
           className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-base text-slate-900 placeholder-slate-400 shadow-sm focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 transition-all"
         />
-      </Section>
+      </div>
       {/* СТАТУС */}
       <AccordionSection 
         label="Статус" 
