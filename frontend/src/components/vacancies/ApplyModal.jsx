@@ -87,9 +87,9 @@ export default function ApplyModal({ vacancy, applyType, onClose }) {
         onClick={onClose}
       />
       <div className="relative bg-white border border-slate-200 rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto mx-4 shadow-2xl">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 sticky top-0 bg-slate-900 z-10">
+        <div className="flex items-center justify-between px-8 py-5 border-b border-slate-100 sticky top-0 bg-white/95 backdrop-blur-md z-10">
           <div>
-            <h2 className="font-semibold text-slate-500">
+            <h2 className="text-xl font-black text-slate-900">
               {applyType === "want_work"
                 ? "🟢 Хочу тут працювати"
                 : "💬 Дізнатися деталі"}
@@ -98,7 +98,7 @@ export default function ApplyModal({ vacancy, applyType, onClose }) {
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-slate-500 hover:text-slate-500 hover:bg-slate-800 rounded-lg transition-colors"
+            className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-all"
           >
             ✕
           </button>
@@ -389,7 +389,7 @@ export default function ApplyModal({ vacancy, applyType, onClose }) {
               </div>
             </div>
 
-            <div className="flex gap-3 px-6 py-4 border-t border-slate-800 sticky bottom-0 bg-slate-100">
+            <div className="flex gap-4 px-8 py-5 border-t border-slate-100 sticky bottom-0 bg-white/95 backdrop-blur-md z-10">
               <button
                 onClick={handleSubmit}
                 disabled={sending}

@@ -46,9 +46,9 @@ export default function VacancyMatchModal({ vacancy, onClose }) {
       />
       <div className="relative bg-white border border-slate-200 rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto mx-4 shadow-2xl">
         {/* Заголовок */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 sticky top-0 bg-slate-900 z-10">
+        <div className="flex items-center justify-between px-8 py-5 border-b border-slate-100 sticky top-0 bg-white/95 backdrop-blur-md z-10">
           <div>
-            <h2 className="font-semibold text-slate-500">
+            <h2 className="text-xl font-black text-slate-900">
               🎯 Відповідні кандидати
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
@@ -125,17 +125,17 @@ export default function VacancyMatchModal({ vacancy, onClose }) {
                         {/* Побажання */}
                         <div className="flex flex-wrap gap-2 mt-2">
                           {c.jobPreferences?.locationFlexible && (
-                            <span className="text-xs bg-slate-700 text-slate-500 px-2 py-0.5 rounded">
+                            <span className="text-[10px] font-bold uppercase bg-white border border-slate-200 text-slate-600 px-2 py-1 rounded-lg shadow-sm">
                               🗺 Готовий до переїзду
                             </span>
                           )}
                           {c.jobPreferences?.needsAccommodation && (
-                            <span className="text-xs bg-slate-700 text-slate-500 px-2 py-0.5 rounded">
+                            <span className="text-[10px] font-bold uppercase bg-white border border-slate-200 text-slate-600 px-2 py-1 rounded-lg shadow-sm">
                               🏠 Потрібне житло
                             </span>
                           )}
                           {c.jobPreferences?.readyDate && (
-                            <span className="text-xs bg-slate-700 text-slate-500 px-2 py-0.5 rounded">
+                            <span className="text-[10px] font-bold uppercase bg-white border border-slate-200 text-slate-600 px-2 py-1 rounded-lg shadow-sm">
                               📅 Готовий з: {c.jobPreferences.readyDate}
                             </span>
                           )}
@@ -153,7 +153,7 @@ export default function VacancyMatchModal({ vacancy, onClose }) {
                               className={`text-xs px-2 py-0.5 rounded ${
                                 has
                                   ? "bg-emerald-500/10 text-emerald-400"
-                                  : "bg-slate-700 text-slate-600"
+                                  : "bg-slate-100 text-slate-400 border border-slate-200"
                               }`}
                             >
                               {has ? "✅" : "❌"} {label}

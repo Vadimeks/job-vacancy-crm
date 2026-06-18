@@ -280,7 +280,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
             </h2>
             <div className="flex items-center gap-3 mt-1 text-xs font-mono">
               <span className="text-slate-500">{vacancy.vacancyCode}</span>
-              <span className="bg-slate-300 text-emerald-400 px-2 py-0.5 rounded">
+              <span className="bg-emerald-50 text-emerald-600 border border-emerald-100 px-2 py-0.5 rounded-md font-bold">
                 {vacancy.agencyName}
               </span>
             </div>
@@ -368,7 +368,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
                     className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
                       isActive
                         ? "bg-emerald-500 border-emerald-500 text-slate-900"
-                        : "bg-slate-300 border-slate-700 text-slate-500 hover:border-slate-500"
+                        : "bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50"
                     }`}
                   >
                     {opt.label}
@@ -541,7 +541,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
               type="text"
             />
 
-            <label className="flex items-center gap-3 cursor-pointer p-3 bg-slate-300/50 rounded-xl border border-slate-700">
+            <label className="flex items-center gap-3 cursor-pointer p-3 bg-slate-50 rounded-xl border border-slate-200 hover:bg-slate-100 transition-colors">
               <input
                 type="checkbox"
                 checked={!!form.requirements?.physicalLoad}
@@ -788,7 +788,7 @@ export default function EditVacancyModal({ vacancy, onClose, onSave }) {
           </button>
           <button
             onClick={onClose}
-            className="px-5 py-2 bg-slate-300 hover:bg-slate-300 text-slate-500 text-sm rounded-lg transition-colors"
+            className="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-2xl transition-all"
           >
             Скасувати
           </button>

@@ -708,7 +708,7 @@ export default function Vacancies() {
             className="absolute inset-0 bg-black/60"
             onClick={() => setSidebarOpen(false)}
           />
-          <div className="relative w-80 bg-slate-900 border-r border-slate-100 flex flex-col h-full">
+          <div className="relative w-80 bg-slate-200 border-r border-slate-500 flex flex-col h-full">
             <div className="flex-1 overflow-y-auto">
               <VacancyFilters
                 filters={draft}
