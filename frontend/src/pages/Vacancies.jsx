@@ -1100,7 +1100,7 @@ export default function Vacancies() {
 
                       {/* ЗАРПЛАТА (Зроблена яркай) */}
                       {(v.salary?.rawSalaryDisplay || v.salary?.baseNetto) && (
-                        <div className="flex items-center gap-2 bg-emerald-600 px-4 py-2 rounded-2xl ml-auto shadow-sm shadow-emerald-100">
+                        <div className="flex items-center gap-2 bg-emerald-200 px-4 py-2 rounded-2xl ml-auto shadow-sm shadow-emerald-100">
                           <span className="text-white font-black text-base">
                             💰 {v.salary.rawSalaryDisplay ? v.salary.rawSalaryDisplay.split(";")[0] : `${v.salary.baseNetto} PLN`}
                           </span>
@@ -1163,13 +1163,13 @@ export default function Vacancies() {
                   <div className="flex flex-col gap-2 shrink-0">
                     <button
                       onClick={() => setViewVacancy(v)}
-                      className="w-32 px-3 py-2.5 bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-tight transition-all shadow-sm flex items-center gap-2"
+                      className="w-32 px-3 py-2.5 bg-orange-50 text-orange-700 hover:bg-orange-100 border border-orange-200 rounded-xl text-[10px] font-black uppercase tracking-tight transition-all shadow-sm flex items-center gap-2"
                     >
                       <span className="text-sm">👁️</span> ПЕРЕГЛЯД
                     </button>
                     <button
                       onClick={() => setMatchVacancy(v)}
-                      className="w-32 px-3 py-2.5 bg-indigo-600 text-white hover:bg-indigo-700 border border-indigo-700 rounded-xl text-[10px] font-black uppercase tracking-tight transition-all shadow-md shadow-indigo-100 flex items-center gap-2"
+                      className="w-32 px-3 py-2.5 bg-indigo-50 text-white hover:bg-indigo-700 border border-indigo-200 rounded-xl text-[10px] font-black uppercase tracking-tight transition-all shadow-md shadow-indigo-100 flex items-center gap-2"
                     >
                       <span className="text-sm">🎯</span> КАНДИДАТИ
                     </button>
