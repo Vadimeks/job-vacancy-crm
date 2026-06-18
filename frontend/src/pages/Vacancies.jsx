@@ -1100,8 +1100,8 @@ export default function Vacancies() {
 
                       {/* ЗАРПЛАТА (Зроблена яркай) */}
                       {(v.salary?.rawSalaryDisplay || v.salary?.baseNetto) && (
-                        <div className="flex items-center gap-2 bg-emerald-200 text-emerald-700 px-4 py-2 rounded-2xl ml-auto shadow-sm shadow-emerald-100">
-                          <span className="text-white font-black text-base">
+                        <div className="flex items-center gap-2 bg-emerald-200  px-4 py-2 rounded-2xl ml-auto shadow-sm shadow-emerald-100">
+                          <span className="text-emerald-700 font-black text-base">
                             💰 {v.salary.rawSalaryDisplay ? v.salary.rawSalaryDisplay.split(";")[0] : `${v.salary.baseNetto} PLN`}
                           </span>
                         </div>
