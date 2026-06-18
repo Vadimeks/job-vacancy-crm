@@ -1038,7 +1038,7 @@ export default function Vacancies() {
                     {/* РАДОК 2: БАЗАВЫЯ ЎМОВЫ (Гендэр, Вік, Графік, Жытло, Давоз, Мова) + ЗАРПЛАТА */}
                     <div className="flex flex-wrap gap-3 text-xs items-center mb-3">
                       {/* ГЕНДАР / НАБОР */}
-                      <div className="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100">
+                      <div className="flex items-center gap-2 bg-slate-200 px-3 py-1.5 rounded-xl border border-slate-500">
                         <span className="text-slate-500 text-[10px]">👥</span>
                         <span className="text-slate-600 font-bold uppercase tracking-tight text-[10px]">
                           {Array.isArray(v.requirements?.gender)
@@ -1052,7 +1052,7 @@ export default function Vacancies() {
 
                       {/* ВІК (Захавана) */}
                       {v.requirements?.age?.max && (
-                        <div className="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100">
+                        <div className="flex items-center gap-2 bg-slate-200 px-3 py-1.5 rounded-xl border border-slate-500">
                           <span className="text-slate-500 text-[10px]">🎂</span>
                           <span className="text-slate-600 font-bold text-[10px]">
                             {v.requirements.age.min || 18}-{v.requirements.age.max} р.
@@ -1061,7 +1061,7 @@ export default function Vacancies() {
                       )}
 
                       {/* ГРАФІК І ГАДЗІНЫ (Новы яркі блок) */}
-                      <div className="flex items-center gap-2 bg-blue-50/50 px-3 py-1.5 rounded-xl border border-blue-100">
+                      <div className="flex items-center gap-2 bg-blue-200/50 px-3 py-1.5 rounded-xl border border-blue-500">
                         <span className="text-blue-600 text-[10px]">{v.schedule?.onlyDayShifts ? "☀️" : "🔄"}</span>
                         <span className="text-blue-700 font-bold uppercase tracking-tight text-[10px]">
                           {v.schedule?.onlyDayShifts ? "Тільки день" : "Зміни"}
@@ -1074,7 +1074,7 @@ export default function Vacancies() {
                       </div>
 
                       {/* ЖИТЛО (Захавана логіка "Без житла") */}
-                      <div className="flex items-center gap-1.5 text-slate-500 ml-1">
+                      <div className="flex items-center gap-1.5 text-slate-500 ml-1 bg-orange-200/50 px-3 py-1.5 rounded-xl border border-orange-500">
                         <span>🏠</span>
                         <span className="font-medium">
                           {!v.accommodation?.type || v.accommodation?.type === ""
@@ -1087,20 +1087,20 @@ export default function Vacancies() {
                       </div>
 
                       {/* ДОВІЗ */}
-                      <div className="flex items-center gap-1.5 text-slate-500">
+                      <div className="flex items-center gap-1.5 text-slate-500 bg-green-200/50 px-3 py-1.5 rounded-xl border border-green-500">
                         <span>🚌</span>
                         <span className="font-medium">{v.transport?.provided ? "Є довіз" : "Немає"}</span>
                       </div>
 
                       {/* МОВА */}
-                      <div className="flex items-center gap-1.5 text-slate-500">
+                      <div className="flex items-center gap-1.5 text-slate-500 bg-amber-200/50 px-3 py-1.5 rounded-xl border border-amber-500">
                         <span>🗣️</span>
                         <span className="font-medium">{v.requirements?.polishLanguageLevel || "—"}</span>
                       </div>
 
                       {/* ЗАРПЛАТА (Зроблена яркай) */}
                       {(v.salary?.rawSalaryDisplay || v.salary?.baseNetto) && (
-                        <div className="flex items-center gap-2 bg-emerald-500 px-4 py-2 rounded-2xl ml-auto shadow-sm shadow-emerald-100">
+                        <div className="flex items-center gap-2 bg-emerald-200 px-4 py-2 rounded-2xl ml-auto shadow-sm shadow-emerald-100">
                           <span className="text-white font-black text-base">
                             💰 {v.salary.rawSalaryDisplay ? v.salary.rawSalaryDisplay.split(";")[0] : `${v.salary.baseNetto} PLN`}
                           </span>
@@ -1112,14 +1112,14 @@ export default function Vacancies() {
                     <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-slate-100/50">
                       {/* НАЦІОНАЛЬНІСТЬ */}
                       {(v.requirements?.nationalities || []).length > 0 && (
-                        <span className="text-[10px] px-2 py-1 rounded-lg bg-blue-50 text-blue-700 border border-blue-100 font-bold uppercase tracking-tight shadow-sm">
+                        <span className="text-[10px] px-2 py-1 rounded-lg bg-blue-200 text-blue-700 border border-blue-500 font-bold uppercase tracking-tight shadow-sm">
                           🌍 {v.requirements.nationalities.join(", ")}
                         </span>
                       )}
 
                       {/* ДОКУМЕНТИ */}
                       {(v.requirements?.standardDocs || []).length > 0 && (
-                        <span className="text-[10px] px-2 py-1 rounded-lg bg-slate-100 text-slate-700  font-bold uppercase tracking-tighter">
+                        <span className="text-[10px] px-2 py-1 rounded-lg bg-slate-200 text-slate-700  font-bold uppercase tracking-tighter">
                           📄 {v.requirements.standardDocs.join(" / ")}
                         </span>
                       )}
