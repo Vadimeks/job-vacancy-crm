@@ -545,7 +545,13 @@ export default function Vacancies() {
       agencies: Array.from(agencies).sort(),
       brands: Array.from(brands).sort(),
       locations: Array.from(locations).sort(),
-      voivodeships: Array.from(voivodeships).sort(),
+      voivodeships: Array.from(voivodeships).sort((a, b) => {
+        if (a === "Польща") return -1;
+        if (b === "Польща") return 1;
+        if (a === "Інші країни Європи") return 1;
+        if (b === "Інші країни Європи") return -1;
+        return a.localeCompare(b, 'uk-UA');
+      }),
       nuances: Array.from(nuances).sort(),
       sourceTypes: Array.from(sourceTypes).sort(),
     };
@@ -675,7 +681,18 @@ export default function Vacancies() {
       prev.map((v) => (v._id === updated._id ? updated : v)),
     );
   };
+const [viewMode, setViewMode] = useState("list"); // Стан для пераключэння Спіс/Мапа
 
+  const setQuickDate = (days) => {
+    const date = new Date();
+    date.setDate(date.getDate() - days);
+    const dateStr = date.toISOString().split('T')[0];
+    
+    // Абнаўляем і чарнавік, і прымененыя фільтры адразу
+    const newFilters = { ...draft, startDate: dateStr, endDate: "" };
+    setDraft(newFilters);
+    setApplied(newFilters);
+  };
   return (
     <div className="flex min-h-screen bg-slate-50">
       {/* САЙДБАР З РЭГУЛЯВАННЕМ ШЫРЫНІ */}
@@ -859,6 +876,60 @@ export default function Vacancies() {
             </div>
           </div>
         )}
+        {/* ХУТКІЯ ФІЛЬТРЫ І ПЕРАКЛЮЧАЛЬНІК ВЫВАДУ */}
+        <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-1">Час:</span>
+            {[
+              { label: "Сьогодні", days: 0 },
+              { label: "2 дні", days: 1 },
+              { label: "Тиждень", days: 6 },
+              { label: "2 тижні", days: 13 },
+            ].map((tag) => {
+              const isActive = draft.startDate === new Date(new Date().setDate(new Date().getDate() - tag.days)).toISOString().split('T')[0];
+              return (
+                <button
+                  key={tag.label}
+                  onClick={() => setQuickDate(tag.days)}
+                  className={`px-3 py-1.5 border rounded-full text-xs font-bold transition-all whitespace-nowrap shadow-sm ${
+                    isActive 
+                      ? "bg-emerald-600 border-emerald-600 text-white" 
+                      : "bg-white border-slate-200 text-slate-600 hover:border-emerald-500 hover:text-emerald-600"
+                  }`}
+                >
+                  {tag.label}
+                </button>
+              );
+            })}
+            {(draft.startDate || draft.endDate) && (
+              <button 
+                onClick={() => {
+                  const resetDates = { ...draft, startDate: "", endDate: "" };
+                  setDraft(resetDates);
+                  setApplied(resetDates);
+                }}
+                className="text-[10px] font-bold text-red-400 hover:text-red-600 ml-2 uppercase"
+              >
+                ✕ Скинути час
+              </button>
+            )}
+          </div>
+
+          <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200 shadow-inner">
+            <button 
+              onClick={() => setViewMode("list")}
+              className={`px-4 py-1.5 rounded-lg text-xs font-black transition-all ${viewMode === "list" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
+            >
+              СПИСОК
+            </button>
+            <button 
+              onClick={() => setViewMode("map")}
+              className={`px-4 py-1.5 rounded-lg text-xs font-black transition-all ${viewMode === "map" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
+            >
+              МАПА
+            </button>
+          </div>
+        </div>
         {/* ПАНЭЛЬ МАСАВЫХ ДЗЕЯННЯЎ */}
         <div className="flex items-center justify-between bg-white border border-slate-200 rounded-2xl px-5 py-4 mb-6 shadow-sm">
           <div className="flex items-center gap-3">

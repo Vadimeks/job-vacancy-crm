@@ -391,7 +391,7 @@ const [openSections, setOpenSections] = useState({
         >
           <div className="flex items-center gap-2">
             <span className={draft.onlyDayShifts ? 'text-emerald-600' : 'text-slate-400'}>
-              <Sun size={14} />
+              ☀️
             </span>
             <span className={`text-sm font-bold ${draft.onlyDayShifts ? 'text-emerald-600' : 'text-slate-700'}`}>
               Тільки денні зміни
