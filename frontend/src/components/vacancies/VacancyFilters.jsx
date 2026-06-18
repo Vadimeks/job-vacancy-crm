@@ -3,8 +3,9 @@ import React, { useState } from "react";
 import { EMPTY_FILTERS } from "../../constants/filters";
 import * as MD from "../../constants/masterData";
 import MultiSelect from "../shared/MultiSelect";
+import { Search, Sun } from "lucide-react";
 
-function AccordionSection({ label, isOpen, onToggle, hasActiveFilters, children }) {
+function AccordionSection({ label, isOpen, onToggle, hasActiveFilters, icon, children }) {
   return (
     <div className="mb-2 border-b border-slate-100 pb-2">
       <button
@@ -13,6 +14,7 @@ function AccordionSection({ label, isOpen, onToggle, hasActiveFilters, children 
         className="w-full flex items-center justify-between py-2 px-1 hover:bg-slate-50 rounded-lg transition-colors"
       >
         <div className="flex items-center gap-2">
+          {icon && <span className={hasActiveFilters ? 'text-emerald-600' : 'text-slate-400'}>{icon}</span>}
           <span className={`text-sm font-bold ${hasActiveFilters ? 'text-emerald-600' : 'text-slate-700'}`}>
             {label}
           </span>
@@ -45,6 +47,7 @@ export default function VacancyFilters({
 }) {
   const draft = filters || EMPTY_FILTERS;
 const [openSections, setOpenSections] = useState({
+   search: false,
     status: false,
     category: false,
     voivodeship: false,
@@ -241,19 +244,22 @@ const [openSections, setOpenSections] = useState({
           {draft.isFavorite ? "★ ТІЛЬКИ ОБРАНІ" : "☆ ПОКАЗАТИ ВСІ"}
         </button>
       </div>
-      {/* ПОШУК */}
-      <div className="mb-5">
-        <label className="block text-sm font-semibold text-slate-700 mb-1.5 ml-1">
-          Пошук
-        </label>
+      {/* ПОШУК (Цяпер у акардэоне з лупай) */}
+      <AccordionSection 
+        label="Пошук" 
+        icon={<Search size={14} />}
+        isOpen={openSections.search} 
+        onToggle={() => toggleSection("search")}
+        hasActiveFilters={!!draft.search}
+      >
         <input
           type="text"
           value={draft.search || ""}
           onChange={(e) => setFilters({ ...draft, search: e.target.value })}
-          placeholder="Назва, опис..."
-          className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-base text-slate-900 placeholder-slate-400 shadow-sm focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 transition-all"
+          placeholder="Назва, опис, код..."
+          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-500 transition-all"
         />
-      </div>
+      </AccordionSection>
       {/* СТАТУС */}
       <AccordionSection 
         label="Статус" 
@@ -376,22 +382,23 @@ const [openSections, setOpenSections] = useState({
           placeholder="Будь-який договір"
         />
       </AccordionSection>
-      {/* ТОЛЬКІ ДЗЁННЫЯ ЗМЕНЫ (Застаецца без акардэона) */}
-            <div className="mb-5">
+       {/* ТОЛЬКІ ДЗЁННЫЯ ЗМЕНЫ (Стылізавана пад агульны спіс) */}
+      <div className="mb-2 border-b border-slate-100 pb-2">
         <button
+          type="button"
           onClick={() => updateField("onlyDayShifts", !draft.onlyDayShifts)}
-          className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border transition-all font-bold text-sm ${
-            draft.onlyDayShifts
-              ? "bg-emerald-50 border-emerald-200 text-emerald-600 shadow-sm"
-              : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
-          }`}
+          className="w-full flex items-center justify-between py-2 px-1 hover:bg-slate-50 rounded-lg transition-colors"
         >
           <div className="flex items-center gap-2">
-            <span>☀️</span>
-            <span>ТІЛЬКИ ДЕННІ ЗМІНИ</span>
+            <span className={draft.onlyDayShifts ? 'text-emerald-600' : 'text-slate-400'}>
+              <Sun size={14} />
+            </span>
+            <span className={`text-sm font-bold ${draft.onlyDayShifts ? 'text-emerald-600' : 'text-slate-700'}`}>
+              Тільки денні зміни
+            </span>
           </div>
-          <div className={`w-8 h-4 rounded-full relative transition-colors ${draft.onlyDayShifts ? 'bg-emerald-500' : 'bg-slate-300'}`}>
-            <div className={`absolute top-1 w-2 h-2 bg-white rounded-full transition-all ${draft.onlyDayShifts ? 'right-1' : 'left-1'}`} />
+          <div className={`w-7 h-4 rounded-full relative transition-colors ${draft.onlyDayShifts ? 'bg-emerald-500' : 'bg-slate-200'}`}>
+            <div className={`absolute top-0.5 w-2 h-2 bg-white rounded-full transition-all ${draft.onlyDayShifts ? 'right-0.5' : 'left-0.5'}`} />
           </div>
         </button>
       </div>
