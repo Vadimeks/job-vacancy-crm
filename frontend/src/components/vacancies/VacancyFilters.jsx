@@ -345,7 +345,7 @@ const [openSections, setOpenSections] = useState({
       
       {/* ЗАРПЛАТА */}
       <AccordionSection 
-        label="Зарплата (Netto)" 
+        label="Зарплата" 
         isOpen={openSections.salary} 
         onToggle={() => toggleSection("salary")}
         hasActiveFilters={!!(draft.minSalary || draft.maxSalary)}
