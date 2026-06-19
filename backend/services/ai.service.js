@@ -258,10 +258,16 @@ const LOCATION_FIX_MAP = {
   "kostrzyn-nad-odrą": "Kostrzyn nad Odrą",
   "kostrzyn nad odra": "Kostrzyn nad Odrą",
   "niderlandy": "Netherlands",
+  "netherlands (netherlands)": "Netherlands",
+  "niderlandy (netherlands)": "Netherlands",
   "re america": "America",
   "pakosc": "Pakość",
   "gluchowo": "Głuchów",
-  "gluchow": "Głuchów"
+  "gluchow": "Głuchów",
+  "machecoul-saint-même": "Machecoul-Saint-Même",
+  "divatte-sur-loire": "Divatte-sur-Loire",
+  "zegerscappel": "Zegerscappel",
+  "isny im allgäu": "Isny im Allgäu"
 };
 // Функцыя для ачысткі назвы горада ад любых краін у дужках
 function normalizeLocation(location, country) {

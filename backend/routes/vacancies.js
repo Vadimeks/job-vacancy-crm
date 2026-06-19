@@ -14,7 +14,7 @@ const {
   notifyRecruiterAboutMatch,
 } = require("../services/telegram.service");
 const { matchCandidatesForVacancy } = require("../services/matching.service");
-
+const locationService = require("../services/location.service");
 // --- ДАПАМОЖНЫЯ ФУНКЦЫІ ---
 
 const BRAND_BLACKLIST = [
@@ -200,6 +200,17 @@ async function processVacancyMessage(
     );
 
     const vacancyDataList = Array.isArray(result) ? result : [result];
+    // 🌍 Аўтаматычнае атрыманне каардынат для кожнага фрагмента
+    for (const vData of vacancyDataList) {
+      try {
+        const coords = await locationService.getCoords(vData.location, vData.country);
+        if (coords) {
+          vData.locationCoords = coords;
+        }
+      } catch (coordErr) {
+        console.error("⚠️ Памылка атрымання каардынат:", coordErr.message);
+      }
+    }
     // 💡 Precision Fix: толькі першы фрагмент абнаўляе існуючую вакансію
     let currentExistingId = existingId;
 
@@ -443,7 +454,12 @@ router.post("/", async (req, res) => {
     }
     const vacancyCode = await generateVacancyCode();
 
-    const newVacancy = new Vacancy({ ...vacancyData, vacancyCode });
+     const coords = await locationService.getCoords(vacancyData.location, vacancyData.country);
+    const newVacancy = new Vacancy({ 
+      ...vacancyData, 
+      vacancyCode,
+      locationCoords: coords || undefined 
+    });
     const saved = await newVacancy.save();
 
     const postText = await aiService.formatTelegramPost(saved);
@@ -744,10 +760,15 @@ router.post("/system/cleanup-locations", async (req, res) => {
       let isChanged = false;
 
       // 1. Нармалізацыя лакацыі
-      const newLoc = aiService.normalizeLocation(v.location, v.country);
-      if (newLoc !== v.location) {
-        v.location = newLoc;
-        isChanged = true;
+// 1. Нармалізацыя праз асноўную функцыю
+      let newLoc = aiService.normalizeLocation(v.location, v.country);
+      
+      // 2. Калі краіна не Польшча, забяспечваем фармат "Full City Name (Country)"
+      if (v.country && v.country !== "Polska") {
+        const countryTag = `(${v.country})`;
+        // Прыбіраем ЛЮБЫЯ дужкі, якія маглі быць у назве, каб атрымаць чысты горад
+        const cityOnly = newLoc.replace(/\s*\([^)]+\)/gi, "").trim();
+        newLoc = `${cityOnly} ${countryTag}`;
       }
 
       // 2. Нармалізацыя брэнда
@@ -813,7 +834,12 @@ router.post("/system/cleanup-locations", async (req, res) => {
         v.voivodeship = "Інші країни Європи";
         isChanged = true;
       }
-
+ // 🌍 Аўта-атрыманне каардынат падчас ачысткі
+      const coords = await locationService.getCoords(newLoc, v.country);
+      if (coords) {
+        v.locationCoords = coords;
+        isChanged = true;
+      }
       if (isChanged) {
         await v.save();
         updatedCount++;

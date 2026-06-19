@@ -46,6 +46,10 @@ const vacancySchema = new mongoose.Schema(
 
     // === 2. ЛАКАЦЫІ І ГЕАГРАФІЯ ===
     location: { type: String, default: "" }, // Горад ПОЛЬСЬКАЮ
+    locationCoords: {
+  lat: { type: Number, default: null },
+  lng: { type: Number, default: null }
+},
     locationDescription: { type: String, default: "" },
     voivodeship: { type: String, default: "" },
     country: { type: String, default: "Polska" },
