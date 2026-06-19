@@ -301,22 +301,18 @@ function normalizeLocation(location, country) {
   )
     return "Польща";
 
-  // 1. Вызначаем краіну
+  // 3. Вызначаем краіну
   const normalizedCountry = country
     ? COUNTRY_MAP[country.toLowerCase()] || country
     : "Polska";
 
-  // 2. Ачыстка назвы горада (прыбіраем толькі старыя дужкі, калі яны ёсць)
-  let clean = location.replace(/\s*\([^)]+\)/gi, "").trim();
-
-  // 3. Прыбіраем дублікаты гарадоў
+  // 4. Прыбіраем дублікаты гарадоў (калі праз коску)
   if (clean.includes(",")) {
     clean = [...new Set(clean.split(",").map((s) => s.trim()))].join(", ");
   }
 
-  // 4. ВЯРТАЕМ КРАІНУ, калі гэта не Польшча
+  // 5. ВЯРТАЕМ КРАІНУ, калі гэта не Польшча
   if (normalizedCountry !== "Polska") {
-    // Калі ў назве ўжо ёсць краіна (напр. "Berlin (Germany)"), пакідаем як ёсць
     if (clean.includes(`(${normalizedCountry})`)) return clean;
     return `${clean} (${normalizedCountry})`;
   }
