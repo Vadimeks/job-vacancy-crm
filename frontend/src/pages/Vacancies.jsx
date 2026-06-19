@@ -16,7 +16,7 @@ import VacancyMatchModal from "../components/vacancies/VacancyMatchModal";
 import VacancyViewModal from "../components/vacancies/VacancyViewModal";
 import VacancyFilters from "../components/vacancies/VacancyFilters";
 import { EMPTY_FILTERS } from "../constants/filters";
-
+import VacancyMap from "../components/vacancies/VacancyMap";
 const STATUS_COLORS = {
   active: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
   closed: "bg-red-500/10 text-red-400 border border-red-500/20",
@@ -996,9 +996,10 @@ const [viewMode, setViewMode] = useState("list"); // Стан для перак�
             </button>
           )}
         </div>
-        {/* СПІС ВАКАНСІЙ */}
-        <div className="space-y-3">
-          {filtered.map((v) => {
+        {/* ВЫВАД: СПІС АБО МАПА */}
+        {viewMode === "list" ? (
+          <div className="space-y-3">
+            {filtered.map((v) => {
             // Разумная лакацыя: дадаем краіну толькі калі яе яшчэ няма ў назве горада
             const cityOnly = (v.location || "").split("(")[0].trim();
             const locationDisplay =
@@ -1293,6 +1294,14 @@ const [viewMode, setViewMode] = useState("list"); // Стан для перак�
             );
           })}
         </div>
+        ) : (
+          <div className="w-full h-[70vh] min-h-[500px] block relative z-0 animate-in fade-in duration-500">
+            <VacancyMap 
+              vacancies={filtered} 
+              onViewVacancy={(v) => setViewVacancy(v)} 
+            />
+          </div>
+        )}
       </div>
 
       {/* ПЛАВАЮЧАЯ КНОПКА */}
