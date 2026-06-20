@@ -1348,24 +1348,47 @@ const [viewMode, setViewMode] = useState("list"); // Стан для перак�
           onClose={() => setMatchVacancy(null)}
         />
       )}
-      {viewVacancy && (
-        <VacancyViewModal
-          vacancy={viewVacancy}
-          onClose={() => setViewVacancy(null)}
-          onEdit={(v) => {
-            setViewVacancy(null);
-            setEditVacancy(v);
-          }}
-          onDelete={(id) => {
-            setViewVacancy(null);
-            handleDelete(id);
-          }}
-          onMatch={(v) => {
-            setViewVacancy(null);
-            setMatchVacancy(v);
-          }}
-        />
-      )}
+      {/* МАДАЛКА ПРАГЛЯДУ З НАВІГАЦЫЯЙ (КАРУСЕЛЬ) */}
+      {viewVacancy && (() => {
+        // 1. Знаходзім, на якой пазіцыі зараз знаходзіцца адкрытая вакансія ў спісе filtered
+        const currentIndex = filtered.findIndex(v => v._id === viewVacancy._id);
+        
+        // 2. Правяраем, ці ёсць куды гартаць
+        const hasNext = currentIndex < filtered.length - 1;
+        const hasPrev = currentIndex > 0;
+
+        // 3. Функцыі для пераключэння
+        const handleNext = () => {
+          if (hasNext) setViewVacancy(filtered[currentIndex + 1]);
+        };
+
+        const handlePrev = () => {
+          if (hasPrev) setViewVacancy(filtered[currentIndex - 1]);
+        };
+
+        return (
+          <VacancyViewModal
+            vacancy={viewVacancy}
+            onClose={() => setViewVacancy(null)}
+            onNext={hasNext ? handleNext : null} // Перадаем функцыю, калі ёсць наступная
+            onPrev={hasPrev ? handlePrev : null} // Перадаем функцыю, калі ёсць папярэдняя
+            currentIndex={currentIndex + 1}      // Нумар для лічыльніка (напр. 5)
+            totalCount={filtered.length}         // Агульная колькасць (напр. 120)
+            onEdit={(v) => {
+              setViewVacancy(null);
+              setEditVacancy(v);
+            }}
+            onDelete={(id) => {
+              setViewVacancy(null);
+              handleDelete(id);
+            }}
+            onMatch={(v) => {
+              setViewVacancy(null);
+              setMatchVacancy(v);
+            }}
+          />
+        );
+      })()}
     </div>
   );
 }

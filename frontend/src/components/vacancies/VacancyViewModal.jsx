@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Copy, Check, X, Factory, Tag, Building2 } from "lucide-react";
+import React, { useState, useEffect } from "react"; // Дадалі useEffect
+import { Copy, Check, X, Factory, Tag, Building2, ChevronLeft, ChevronRight } from "lucide-react"; // Дадалі стрэлкі
 const formatText = (text) => {
   if (!text || typeof text !== "string") return "";
 
@@ -55,8 +55,29 @@ export default function VacancyViewModal({
   onEdit,
   onDelete,
   onMatch,
+   onNext,      // Новае
+  onPrev,      // Новае
+  currentIndex, // Новае
+  totalCount   // Новае
 }) {
   const [copied, setCopied] = useState(false);
+  // Скрол уверх пры змене вакансіі
+  useEffect(() => {
+    const modalElement = document.getElementById("vacancy-view-modal-content");
+    if (modalElement) modalElement.scrollTop = 0;
+  }, [vacancy?._id]);
+
+  // Кіраванне клавіятурай
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "ArrowRight" && onNext) onNext();
+      if (e.key === "ArrowLeft" && onPrev) onPrev();
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onNext, onPrev, onClose]);
+  
   if (!vacancy) return null;
   const v = vacancy;
 
@@ -81,17 +102,41 @@ export default function VacancyViewModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* КНОПКА НАЗАД (Desktop) */}
+      {onPrev && (
+        <button
+          onClick={onPrev}
+          className="hidden lg:flex absolute left-8 z-50 w-14 h-14 items-center justify-center bg-white/10 hover:bg-white/20 text-white rounded-full transition-all border border-white/20"
+        >
+          <ChevronLeft size={32} />
+        </button>
+      )}
+
+      {/* КНОПКА НАПЕРАД (Desktop) */}
+      {onNext && (
+        <button
+          onClick={onNext}
+          className="hidden lg:flex absolute right-8 z-50 w-14 h-14 items-center justify-center bg-white/10 hover:bg-white/20 text-white rounded-full transition-all border border-white/20"
+        >
+          <ChevronRight size={32} />
+        </button>
+      )}
       <div
         className="absolute inset-0 bg-black/80 backdrop-blur-md"
         onClick={onClose}
       />
-      <div className="relative bg-white border border-slate-200 rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl custom-scrollbar">
+      <div id="vacancy-view-modal-content" className="relative bg-white border border-slate-200 rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl custom-scrollbar">
         {/* ШАПКА */}
         <div className="flex items-center justify-between px-8 py-5 border-b border-slate-100 sticky top-0 bg-white/95 backdrop-blur-md z-10">
           <div className="flex flex-wrap gap-2 items-center">
-            <span className="text-[10px] font-mono bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-100">
-              {v.vacancyCode}
-            </span>
+            {currentIndex && totalCount && (
+  <span className="text-[10px] font-black bg-emerald-600 text-white px-2.5 py-1 rounded-full shadow-sm mr-2">
+    {currentIndex} / {totalCount}
+  </span>
+)}
+<span className="text-[10px] font-mono bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-100">
+  {v.vacancyCode}
+</span>
             <span
               className={`text-[10px] px-2 py-0.5 rounded font-bold border uppercase tracking-wider ${
                 v.status === "active"
