@@ -783,15 +783,12 @@ router.post("/system/cleanup-locations", async (req, res) => {
         isChanged = true;
       }
 
-// 🏠 ПРАВЕРКА БЯСПЛАТНАГА ЖЫТЛА
-      const accType = (v.accommodation?.type || "").toLowerCase();
-      const accDetails = (v.accommodation?.details || "").toLowerCase();
-      if (accType.includes("безкоштовн") || accDetails.includes("безкоштовн") || accDetails.includes(" 0 зл")) {
-        if (!v.accommodation.isFree) {
-          v.accommodation.isFree = true;
-          isChanged = true;
-        }
-      }
+// 🏠 ПРАВЕРКА БЯСПЛАТНАГА ЖЫТЛА (цяпер праз агульную функцыю isHousingFree)
+const correctIsFree = aiService.isHousingFree(v.accommodation?.type, v.accommodation?.details);
+if (v.accommodation.isFree !== correctIsFree) {
+  v.accommodation.isFree = correctIsFree;
+  isChanged = true;
+}
       // 3. РАЗУМНАЯ НАРМАЛІЗАЦЫЯ МУЛЬТЫ-ВАЯВОДСТВАЎ (v2.3.2)
       if (v.voivodeship) {
         // Разбіваем радок па косках (на выпадак "Wielkopolskie, Dolnośląskie")

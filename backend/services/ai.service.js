@@ -398,6 +398,63 @@ function validateBrand(raw) {
 
   return brand;
 }
+/**
+ * Вызначае, ці сапраўды бясплатнае жытло, зыходзячы з тэксту type/details.
+ * Улічвае: камунальныя паслугі, утрыманні з зарплаты, перыядычныя плацяжы.
+ * Застава (дэпазіт) лічыцца бясплатным, толькі калі яна вяртаемая.
+ */
+function isHousingFree(type, details) {
+  const t = (type || "").toLowerCase();
+  const d = (details || "").toLowerCase();
+
+  const hasFreeSignal =
+    t.includes("безкоштовн") ||
+    d.includes("безкоштовн") ||
+    d.includes("бесплатн") ||
+    d.includes(" 0 зл") ||
+    d.includes("0 zł") ||
+    d.includes("за рахунок робот");
+
+  if (!hasFreeSignal) return false;
+
+  // 1. Прамая згадка камунальных паслуг (комунальн / коммунальн) -> адразу платна
+  if (d.includes("мунальн")) return false;
+
+  // 2. Утрыманне з зарплаты / самастойная аплата -> адразу платна
+  const deductionPattern = /вираховує|вичитує|вычита|утриму|самостійно|за свій рахунок|із зарплати|из зарплаты/;
+  if (deductionPattern.test(d)) return false;
+
+  // 3. Любая ПЕРЫЯДЫЧНАЯ цана (X zł/міс, X zł/доба) -> гэта плата, не бясплатна
+  const recurringCostPattern = /\d{1,4}\s*(zł|зл|pln|€|eur)\s*\/?\s*(міс|мес|month|доба|день|тижд|сут)/;
+  if (recurringCostPattern.test(d)) return false;
+
+  // 4. Пошук сум грошай і аналіз іх прызначэння
+  const amountRegex = /(\d{2,4})\s*(zł|зл|pln|€|eur)/gi;
+  let match;
+  
+  while ((match = amountRegex.exec(d)) !== null) {
+    const amount = parseInt(match[1], 10);
+    if (amount === 0) continue;
+
+    // Бярэм кантэкст вакол сумы (50 сімвалаў да і пасля)
+    const contextStart = Math.max(0, match.index - 50);
+    const contextEnd = Math.min(d.length, match.index + 50);
+    const context = d.substring(contextStart, contextEnd);
+
+    const isDeposit = /застав|депозит|завдат|кауці|kaucja/.test(context);
+    const isRefundable = /поворотн|возвратн|вяртаем|повернення|возвращается/.test(context);
+
+    // Калі гэта застава І яна вяртаецца — ігнаруем гэтую суму (жытло ўсё яшчэ бясплатнае)
+    if (isDeposit && isRefundable) {
+      continue;
+    }
+
+    // Калі сума > 0 і гэта не вяртаемая застава — жытло платнае
+    if (amount > 0) return false;
+  }
+
+  return true;
+}
 const LANGUAGE_GUARD = `
 !!! UKRAINIAN ONLY. Geography: Polish (Latin). Input is already UA, do not translate.
 `;
@@ -1098,7 +1155,7 @@ GENDER & AGE ACCURACY:
 
 ACCOMMODATION:
 - type: "Надається (для пар)", "Надається", "Не надається", null.
-- isFree: Boolean. Set to true ONLY if the text explicitly mentions "безкоштовне", "бесплатное", "0 zł", or "за рахунок роботодавця".
+- isFree: Boolean. Set to true ONLY if the text explicitly mentions "безкоштовне", "бесплатное", "0 zł", or "за рахунок роботодавця", or it is a refundable deposit. If utilities (komunalka) or any non-refundable monthly fee is mentioned, isFree must be false.
 - forCouples/withChildren/withPets → true only if explicitly stated.
 - details: all housing info (cost, Wi-Fi, rules).
 - Do not use costRaw, write price directly in details.
@@ -1424,7 +1481,7 @@ const result = await executeAIRequest(SYSTEM_INSTRUCTION + DATE_INSTRUCTION, raw
         // === 5. ПРАЖЫВАННЕ І ТРАНСПАРТ ===
         accommodation: {
           type: cleaned.accommodation?.type || null,
-          isFree: !!cleaned.accommodation?.isFree, 
+          isFree: isHousingFree(cleaned.accommodation?.type, cleaned.accommodation?.details), // 👈 ЗМЕНЕНА: цяпер не давяраем AI наўпрост, а пераправяраем праз функцыю
           forCouples: !!cleaned.accommodation?.forCouples,
           withChildren: !!cleaned.accommodation?.withChildren,
           withPets: !!cleaned.accommodation?.withPets,
@@ -1591,4 +1648,5 @@ module.exports = {
   COMPARE_VACANCIES_PROMPT,
   compareVacanciesWithAI,
   repairJson,
+  isHousingFree,
 };
