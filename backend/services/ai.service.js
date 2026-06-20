@@ -1098,6 +1098,7 @@ GENDER & AGE ACCURACY:
 
 ACCOMMODATION:
 - type: "Надається (для пар)", "Надається", "Не надається", null.
+- isFree: Boolean. Set to true ONLY if the text explicitly mentions "безкоштовне", "бесплатное", "0 zł", or "за рахунок роботодавця".
 - forCouples/withChildren/withPets → true only if explicitly stated.
 - details: all housing info (cost, Wi-Fi, rules).
 - Do not use costRaw, write price directly in details.
@@ -1423,6 +1424,7 @@ const result = await executeAIRequest(SYSTEM_INSTRUCTION + DATE_INSTRUCTION, raw
         // === 5. ПРАЖЫВАННЕ І ТРАНСПАРТ ===
         accommodation: {
           type: cleaned.accommodation?.type || null,
+          isFree: !!cleaned.accommodation?.isFree, 
           forCouples: !!cleaned.accommodation?.forCouples,
           withChildren: !!cleaned.accommodation?.withChildren,
           withPets: !!cleaned.accommodation?.withPets,

@@ -83,11 +83,13 @@ const vacancySchema = new mongoose.Schema(
     // === 5. ПРАЖЫВАННЕ І ТРАНСПАРТ ===
     accommodation: {
       type: { type: String, default: "" }, // "Безкоштовне", "Платне", "Власне"
+       isFree: { type: Boolean, default: false }, // 👈 ДАДАЦЬ ГЭТА
       forCouples: { type: Boolean, default: false },
       withChildren: { type: Boolean, default: false },
       withPets: { type: Boolean, default: false },
       costRaw: { type: String, default: "" },
       details: { type: String, default: "" },
+      
     },
     transport: {
       provided: { type: Boolean, default: false },

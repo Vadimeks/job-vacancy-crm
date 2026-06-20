@@ -581,6 +581,7 @@ router.get("/", async (req, res) => {
       category,
       status,
       housing, // Дадаем параметр жылля
+      freeHousing, // 👈 ДАДАДЗЕНА
       startDate, // 👈 ДАДАДЗЕНА
       endDate, // 👈 ДАДАДЗЕНА
       onlyDayShifts, // 👈 ДАДАДЗЕНА
@@ -603,6 +604,10 @@ router.get("/", async (req, res) => {
       query["accommodation.type"] = {
         $in: ["Надається", "Надається (для пар)", "Безкоштовне", "Платне"],
       };
+    }
+    // Фільтр па бескаштоўнаму жыллю (v4.8)
+    if (freeHousing === "true") {
+      query["accommodation.isFree"] = true;
     }
     // Фільтр па зарплаце (baseNetto)
     if ((minSalary && minSalary !== "") || (maxSalary && maxSalary !== "")) {
@@ -854,6 +859,12 @@ router.post("/system/cleanup-locations", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+const accType = (v.accommodation?.type || "").toLowerCase();
+      const accDetails = (v.accommodation?.details || "").toLowerCase();
+      if (accType.includes("безкоштовн") || accDetails.includes("безкоштовн") || accDetails.includes(" 0 зл")) {
+        v.accommodation.isFree = true;
+        isChanged = true;
+      }
 // Пераключэнне статусу "Абранае"
 router.patch("/:id/favorite", async (req, res) => {
   try {
