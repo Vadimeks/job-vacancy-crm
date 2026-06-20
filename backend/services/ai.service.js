@@ -1539,7 +1539,6 @@ async function createTemplateFromVacancy(vacancyData) {
       true,
     );
 
-    // Увесь блок "let cleanJson = text..." выдаляем. 
     // Проста парсім гатовыя дадзеныя:
     return JSON.parse(result.data);
   } catch (error) {

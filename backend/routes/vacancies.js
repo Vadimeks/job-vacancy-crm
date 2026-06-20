@@ -783,6 +783,15 @@ router.post("/system/cleanup-locations", async (req, res) => {
         isChanged = true;
       }
 
+// 🏠 ПРАВЕРКА БЯСПЛАТНАГА ЖЫТЛА
+      const accType = (v.accommodation?.type || "").toLowerCase();
+      const accDetails = (v.accommodation?.details || "").toLowerCase();
+      if (accType.includes("безкоштовн") || accDetails.includes("безкоштовн") || accDetails.includes(" 0 зл")) {
+        if (!v.accommodation.isFree) {
+          v.accommodation.isFree = true;
+          isChanged = true;
+        }
+      }
       // 3. РАЗУМНАЯ НАРМАЛІЗАЦЫЯ МУЛЬТЫ-ВАЯВОДСТВАЎ (v2.3.2)
       if (v.voivodeship) {
         // Разбіваем радок па косках (на выпадак "Wielkopolskie, Dolnośląskie")
@@ -859,12 +868,7 @@ router.post("/system/cleanup-locations", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
-const accType = (v.accommodation?.type || "").toLowerCase();
-      const accDetails = (v.accommodation?.details || "").toLowerCase();
-      if (accType.includes("безкоштовн") || accDetails.includes("безкоштовн") || accDetails.includes(" 0 зл")) {
-        v.accommodation.isFree = true;
-        isChanged = true;
-      }
+
 // Пераключэнне статусу "Абранае"
 router.patch("/:id/favorite", async (req, res) => {
   try {
