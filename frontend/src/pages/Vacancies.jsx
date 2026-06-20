@@ -91,11 +91,8 @@ function applyFilters(vacancies, filters) {
       if (!match) return false;
     }
 // --- 5.0. Бяскоштаўнае жытло (Quick Toggle) ---
-    if (filters.freeHousing) {
-      const type = (v.accommodation?.type || "").toLowerCase();
-      const details = (v.accommodation?.details || "").toLowerCase();
-      const isFree = type.includes("безкоштовн") || details.includes("безкоштовн") || details.includes(" 0 зл");
-      if (!isFree) return false;
+    if (filters.freeHousing && !v.accommodation?.isFree) {
+      return false;
     }
     // --- 5. Жыллё ---
     if (filters.accommodation?.length > 0) {
