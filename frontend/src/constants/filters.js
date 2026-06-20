@@ -27,6 +27,7 @@ export const EMPTY_FILTERS = {
   contractType: [], // 👈 ДАДАДЗЕНА: Фільтр па тыпу дагавору
   hoursRange: [], // 👈 ДАДАДЗЕНА: Фільтр па гадзінах у месяц
   onlyDayShifts: false,
+  freeHousing: false,
 };
 
 export const EMPTY_CANDIDATE_FILTERS = {

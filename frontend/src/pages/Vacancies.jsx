@@ -90,7 +90,13 @@ function applyFilters(vacancies, filters) {
       );
       if (!match) return false;
     }
-
+// --- 5.0. Бяскоштаўнае жытло (Quick Toggle) ---
+    if (filters.freeHousing) {
+      const type = (v.accommodation?.type || "").toLowerCase();
+      const details = (v.accommodation?.details || "").toLowerCase();
+      const isFree = type.includes("безкоштовн") || details.includes("безкоштовн") || details.includes(" 0 зл");
+      if (!isFree) return false;
+    }
     // --- 5. Жыллё ---
     if (filters.accommodation?.length > 0) {
       const accType = (v.accommodation?.type || "").toLowerCase();
@@ -938,7 +944,22 @@ const [viewMode, setViewMode] = useState("list"); // Стан для перак�
               <span>☀️</span>
               ДЕННІ ЗМІНИ
             </button>
-
+{/* КНОПКА БЕЗКОШТОВНЕ ЖИТЛО */}
+            <button
+              onClick={() => {
+                const newVal = !draft.freeHousing;
+                setDraft(prev => ({ ...prev, freeHousing: newVal }));
+                setApplied(prev => ({ ...prev, freeHousing: newVal }));
+              }}
+              className={`px-3 py-1.5 border rounded-full text-xs font-bold transition-all whitespace-nowrap shadow-sm flex items-center gap-1.5 ${
+                draft.freeHousing 
+                  ? "bg-indigo-600 border-indigo-600 text-white" 
+                  : "bg-white border-slate-200 text-slate-600 hover:border-indigo-500 hover:text-indigo-600"
+              }`}
+            >
+              <span>🏠</span>
+              БЕЗКОШТОВНЕ ЖИТЛО
+            </button>
             {(draft.startDate || draft.endDate) && (
               <button 
                 onClick={() => {
