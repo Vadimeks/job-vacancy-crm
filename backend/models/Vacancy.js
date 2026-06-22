@@ -187,6 +187,7 @@ const vacancySchema = new mongoose.Schema(
     // Хэш зыходнага радка з табліцы. Дазваляе ігнараваць дублікаты вечна.
     sourceHash: { type: String, index: true },
     isLowQuality: { type: Boolean, default: false }, // 👈 Пазнака, што JSON быў біты або адрамантаваны
+     airtableId: { type: String, default: null, index: true }, // 👈 ДАДАЦЬ ГЭТА (ID запісу ў Airtable)
     // -----------------------------------------------------
   },
   { timestamps: true },
@@ -194,4 +195,5 @@ const vacancySchema = new mongoose.Schema(
 // Індэксы для паскарэння сінхранізацыі і пошуку
 vacancySchema.index({ sourceHash: 1, status: 1 });
 vacancySchema.index({ agencyName: 1, sheetName: 1, status: 1 }); // 👈 Аптымізацыя для ізаляванага закрыцця
+
 module.exports = mongoose.model("Vacancy", vacancySchema);
