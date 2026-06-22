@@ -1,30 +1,28 @@
 const axios = require("axios");
 const AirtableSource = require("../models/AirtableSource");
 const Vacancy = require("../models/Vacancy");
-const aiService = require("./ai.service");
 const { processVacancyMessage } = require("../routes/vacancies");
+const { analyzeAndCompareWithGemini } = require("./gemini.service"); // 👈 Дададзена для Stage 1
 
 /**
- * Сэрвіс для сінхранізацыі з Airtable (Manpower, Progres, Job Impulse)
+ * Сінхранізацыя Airtable з выкарыстаннем поўнага AI-пайплайна
  */
-
 async function syncAirtable() {
   const sources = await AirtableSource.find({ status: "active" });
-  console.log(`\n💎 [Airtable] Пачатак сінхранізацыі для ${sources.length} крыніц...`);
+  console.log(`\n💎 [Airtable] Пачатак сінхранізацыі для ${sources.length} агенцый...`);
 
   for (const source of sources) {
     try {
       await syncSingleSource(source);
     } catch (err) {
-      console.error(`❌ [Airtable] Памылка крыніцы ${source.agencyName}:`, err.message);
+      console.error(`❌ [Airtable] Памылка ў ${source.agencyName}:`, err.message);
     }
-    // Паўза паміж базамі
-    await new Promise(r => setTimeout(r, 3000));
+    await new Promise(r => setTimeout(r, 5000));
   }
 }
 
 async function syncSingleSource(source) {
-  console.log(`\n🚀 Сканаванне базы: ${source.boardName} (${source.agencyName})`);
+  console.log(`\n🚀 Сканаванне: ${source.boardName} (${source.agencyName})`);
   
   const url = `https://api.airtable.com/v0/${source.baseId}/${source.tableId}`;
   const response = await axios.get(url, {
@@ -32,80 +30,104 @@ async function syncSingleSource(source) {
   });
 
   const records = response.data.records;
-  console.log(`📦 Атрымана ${records.length} запісаў.`);
+  console.log(`📦 Атрымана запісаў: ${records.length}`);
 
-  let stats = { added: 0, updated: 0, closed: 0, ignored: 0 };
+  const stats = { added: 0, updated: 0, closed: 0, ignored: 0 };
   const foundAirtableIds = new Set();
 
-  for (let i = 0; i < records.length; i++) {
-    const record = records[i];
+  for (const record of records) {
     const fields = record.fields;
     const airtableId = record.id;
-    
-    // ДЭБАГ: Паглядзім, якія палі ёсць у першых запісах, каб зразумець структуру
-    if (i < 3) {
-      console.log(`🔍 Дэбаг палёў запісу ${i+1}:`, JSON.stringify(fields).substring(0, 200) + "...");
-    }
 
-    let currentColumn = null;
+    // 1. ВЫЗНАЧЭННЕ КАТЭГОРЫІ (КАНБАН-СЛУПКА)
+   let currentColumn = null;
     for (const key in fields) {
-      const value = String(fields[key]).trim();
-      // Шукаем супадзенне назвы калонкі (ігнаруючы прабелы па баках)
-      if (source.includedColumns.some(col => col.trim() === value)) {
-        currentColumn = value;
+      const val = fields[key];
+      const stringVal = Array.isArray(val) ? String(val[0]) : String(val);
+      const cleanVal = stringVal.trim().toLowerCase(); // 👈 прыводзім да ніжняга рэгістра
+
+      // Параўноўваем абедзве часткі ў ніжнім рэгістры
+      const found = source.includedColumns.find(col => col.trim().toLowerCase() === cleanVal);
+      if (found) {
+        currentColumn = found; // захоўваем арыгінальную назву з налад
         break;
       }
     }
 
-    if (!currentColumn) {
-      stats.ignored++;
-      continue;
-    }
-
+    if (!currentColumn) continue;
     foundAirtableIds.add(airtableId);
 
+    // 2. ВЫЗНАЧЭННЕ СТАТУСУ (БІЗНЕС-ЛОГІКА)
     let status = "active";
     if (source.agencyName === "MANPOWER" && currentColumn === "не активні тимчасово") {
       status = "closed";
     }
-
     if (source.agencyName === "JOB IMPULSE") {
-      const isActual = fields["Актуальность"] === "ДА";
+      // Шукаем любое поле, якое змяшчае слова "Актуальность"
+      const actKey = Object.keys(fields).find(k => k.includes("Актуальность"));
+      const actVal = actKey ? fields[actKey] : null;
+      const isActual = Array.isArray(actVal) ? actVal[0] === "ДА" : actVal === "ДА";
       if (!isActual) status = "closed";
     }
 
-    const fullText = Object.entries(fields)
-      .map(([key, val]) => `${key}: ${val}`)
+    // 3. ЗБОР СЫРЫХ ДАДЗЕНЫХ ДЛЯ AI (Stage 1)
+    // Проста робім дамп усіх палёў, Gemini сам разбярэцца
+    const rawAirtableDump = Object.entries(fields)
+      .filter(([key, val]) => typeof val !== 'object' || Array.isArray(val))
+      .map(([key, val]) => `${key}: ${Array.isArray(val) ? val.join(", ") : val}`)
       .join("\n");
 
-    const existingVacancy = await Vacancy.findOne({ airtableId: airtableId });
+    if (rawAirtableDump.length < 50) continue;
 
-    if (existingVacancy) {
-      if (existingVacancy.status !== status || existingVacancy.originalText !== fullText) {
-        existingVacancy.status = status;
-        if (existingVacancy.originalText !== fullText && status === "active") {
-          console.log(`🔄 Абнаўленне кантэнту для ${existingVacancy.vacancyCode}`);
-          await processVacancyMessage(
-            fullText, "Airtable", source.agencyName, fullText, false, "FULL_VACANCY",
-            airtableId, currentColumn, existingVacancy._id, "airtable"
-          );
-          stats.updated++;
-        } else {
-          await existingVacancy.save();
-          if (status === "closed") stats.closed++;
-        }
-      }
-    } else if (status === "active") {
-      console.log(`✨ Новая вакансія з Airtable: ${airtableId} (Калонка: ${currentColumn})`);
-      await processVacancyMessage(
-        fullText, "Airtable", source.agencyName, fullText, false, "FULL_VACANCY",
-        airtableId, currentColumn, null, "airtable"
-      );
-      stats.added++;
+    // 4. ПРАВЕРКА НА ЗМЕНЫ (Каб не мучыць AI дарма)
+    const existingVacancy = await Vacancy.findOne({ airtableId: airtableId });
+    
+    // Калі тэкст і статус не змяніліся — ігнаруем
+    if (existingVacancy && existingVacancy.originalText === rawAirtableDump && existingVacancy.status === status) {
+      stats.ignored++;
+      continue;
     }
-    await new Promise(r => setTimeout(r, 1500));
+
+    // 5. ЗАПУСК AI-ПАЙПЛАЙНА (Stage 1: Класіфікацыя і Пераклад)
+    console.log(`🧠 AI Stage 1 для Airtable ID: ${airtableId}...`);
+    const analysis = await analyzeAndCompareWithGemini(
+      `[SOURCE: AIRTABLE | AGENCY: ${source.agencyName}]\n${rawAirtableDump}`
+    );
+
+    if (!analysis || !analysis.translatedFragments) {
+      console.warn(`⚠️ AI не змог апрацаваць запіс ${airtableId}`);
+      continue;
+    }
+
+    // 6. ЗАХАВАННЕ ПРАЗ ПАРСЕР (Stage 2)
+    for (let idx = 0; i < analysis.translatedFragments.length; i++) {
+      const fragment = analysis.translatedFragments[i];
+      // Калі фрагментаў некалькі, дадаем індэкс да хэша, каб пазбегнуць дублікатаў
+      const fragmentHash = analysis.translatedFragments.length > 1 ? `${airtableId}_${i}` : airtableId;
+
+      const result = await processVacancyMessage(
+        fragment,
+        "Airtable",
+        source.agencyName,
+        rawAirtableDump,
+        false,
+        analysis.category,
+        fragmentHash, // 👈 выкарыстоўваем унікальны хэш фрагмента
+        currentColumn,
+        existingVacancy ? existingVacancy._id : null,
+        "airtable"
+      );
+
+      if (result && !result.error) {
+        if (existingVacancy) stats.updated++; else stats.added++;
+      }
+    }
+
+    // Паўза для стабільнасці AI
+    await new Promise(r => setTimeout(r, 2000));
   }
 
+  // 7. АЎТА-ЗАКРЫЦЦЁ
   const closeResult = await Vacancy.updateMany(
     {
       agencyName: source.agencyName,
@@ -115,9 +137,9 @@ async function syncSingleSource(source) {
     },
     { $set: { status: "closed" } }
   );
-  stats.closed += closeResult.modifiedCount;
+  stats.closed = closeResult.modifiedCount;
 
-  console.log(`🏁 Вынік для ${source.agencyName}: +${stats.added} новых, 🔄 ${stats.updated} абноўлена, 🛑 ${stats.closed} закрыта, ⏭️ ${stats.ignored} прапушчана.`);
+  console.log(`🏁 ${source.agencyName} завершана: +${stats.added} новых, 🔄 ${stats.updated} абноўлена, 🛑 ${stats.closed} закрыта.`);
   
   source.lastProcessedAt = new Date();
   await source.save();

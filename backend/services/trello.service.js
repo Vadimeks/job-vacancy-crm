@@ -3,6 +3,7 @@ const TrelloSource = require("../models/TrelloSource");
 const Vacancy = require("../models/Vacancy");
 const UnprocessedMessage = require("../models/UnprocessedMessage");
 const { processVacancyMessage } = require("../routes/vacancies");
+const { analyzeAndCompareWithGemini } = require("./gemini.service");
 
 /**
  * Нармалізацыя назвы: выдаленне эмодзі і лішніх прабелаў
@@ -117,14 +118,12 @@ async function syncTrelloBoard(sourceId) {
           source.token,
         );
 
-        // Фармуем поўны тэкст для AI
-        const fullText = `
-ЗАГАЛОВАК: ${card.name}
-МЕТКІ: ${labelsText}
-АПІСАННЕ:
+        // Фармуем сыры дамп для AI
+        const rawTrelloDump = `
+${card.name}
+${labelsText ? `Меткі: ${labelsText}` : ""}
 ${card.desc}
-
-${comments ? `--- АПОШНІЯ КАМЕНТАРЫ ---\n${comments}` : ""}
+${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
         `.trim();
 
         if (isVacancyList) {
@@ -134,39 +133,46 @@ ${comments ? `--- АПОШНІЯ КАМЕНТАРЫ ---\n${comments}` : ""}
             status: "active",
           });
 
-          // 🛡️ ПРАВЕРКА НА ЗМЕНЫ (Каб не спаліць AI дарма)
-          // Ідэнтычна табліцам: калі тэкст не змяніўся — ігнаруем
-          if (existingVacancy && existingVacancy.originalText === fullText) {
-            stats.ignored++; // 👈 ЗМЕНА: ignored цяпер ёсць у stats (дададзена ніжэй)
+          // 🛡️ ПРАВЕРКА НА ЗМЕНЫ
+          if (existingVacancy && existingVacancy.originalText === rawTrelloDump) {
+            stats.ignored++;
             continue;
           }
 
-          // 👈 ЗМЕНА: firstSavedId — як у табліцах, для сплітавання картак
-          let firstSavedId = null;
-
-          const result = await processVacancyMessage(
-            fullText,
-            "Trello",
-            source.agencyName,
-            fullText,
-            false,
-            "FULL_VACANCY",
-            card.id,
-            list.name,
-            existingVacancy ? existingVacancy._id : null, // 👈 ЗМЕНА: было null заўсёды
-            "trello",
+          // 🧠 Stage 1: Класіфікацыя і Пераклад
+          console.log(`🧠 AI Stage 1 для Trello: ${card.name}...`);
+          const analysis = await analyzeAndCompareWithGemini(
+            `[SOURCE: TRELLO | AGENCY: ${source.agencyName}]\n${rawTrelloDump}`
           );
 
-          if (result && !result.error) {
-            // 👈 ЗМЕНА: запамінаем ID першай вакансіі (для сплітавання)
-            if (!firstSavedId) firstSavedId = result._id;
+          if (!analysis || !analysis.translatedFragments) {
+            console.warn(`⚠️ AI не змог апрацаваць картку ${card.name}`);
+            continue;
+          }
 
-            if (existingVacancy) {
-              stats.updated++;
-              details.push(`🔄 [${result.vacancyCode}] ${card.name}`);
-            } else {
-              stats.added++;
-              details.push(`✨ [${result.vacancyCode}] ${card.name}`);
+          // Stage 2: Парсінг кожнага фрагмента
+          for (const fragment of analysis.translatedFragments) {
+            const result = await processVacancyMessage(
+              fragment,
+              "Trello",
+              source.agencyName,
+              rawTrelloDump,
+              false,
+              analysis.category,
+              card.id,
+              list.name,
+              existingVacancy ? existingVacancy._id : null,
+              "trello"
+            );
+
+            if (result && !result.error) {
+              if (existingVacancy) {
+                stats.updated++;
+                details.push(`🔄 [${result.vacancyCode}] ${card.name}`);
+              } else {
+                stats.added++;
+                details.push(`✨ [${result.vacancyCode}] ${card.name}`);
+              }
             }
           }
         } else if (isInfoList) {
@@ -174,7 +180,7 @@ ${comments ? `--- АПОШНІЯ КАМЕНТАРЫ ---\n${comments}` : ""}
           const textHash =
             card.id +
             "_" +
-            Buffer.from(fullText).toString("base64").substring(0, 20);
+            Buffer.from(rawTrelloDump).toString("base64").substring(0, 20);
           const existingInfo = await UnprocessedMessage.findOne({ textHash });
 
           if (!existingInfo) {

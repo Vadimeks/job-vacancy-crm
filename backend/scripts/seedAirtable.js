@@ -5,7 +5,7 @@ const AirtableSource = require("../models/AirtableSource");
 
 const AIRTABLE_DATA = [
   {
-    baseId: "appZ0hH5CERo0K4uE",
+    baseId: "appfNu2YwaNTcb3rj", // 👈 НОВЫ ID (Manpower)
     tableId: "tblTyT7NtUNZ1n2ek",
     boardName: "SK_Manpower",
     agencyName: "MANPOWER",
@@ -23,7 +23,7 @@ const AIRTABLE_DATA = [
     syncRules: { checkField: null, checkValue: null }
   },
   {
-    baseId: "appndPfIpwD349ovK",
+    baseId: "appndPfIpwD349ovK", // Progres (застаўся ранейшы)
     tableId: "tblz6LkEKD3mxCyhS",
     boardName: "Oferty pracy Grupa Progres",
     agencyName: "PROGRES",
@@ -37,8 +37,8 @@ const AIRTABLE_DATA = [
     syncRules: { checkField: null, checkValue: null }
   },
   {
-    baseId: "apppPRkm823aUVQCv",
-    tableId: "tblFIwc2PUVAREP3Q",
+    baseId: "appU1nbvHouII9Cwb", // 👈 НОВЫ ID (Job Impulse)
+    tableId: "tblhDJDWBLelwfE7g",
     boardName: "Job Impulse Oferty",
     agencyName: "JOB IMPULSE",
     includedColumns: [
@@ -62,18 +62,19 @@ const AIRTABLE_DATA = [
 async function seed() {
   try {
     await mongoose.connect(process.env.MONGODB_URI);
-    console.log("🔌 Падключана да MongoDB для налады Airtable...");
+    console.log("🔌 Падключана да базы для абнаўлення ID Airtable...");
 
     for (const data of AIRTABLE_DATA) {
+      // Шукаем па agencyName, каб абнавіць існуючыя запісы новымі ID
       await AirtableSource.findOneAndUpdate(
-        { baseId: data.baseId, tableId: data.tableId },
+        { agencyName: data.agencyName },
         data,
         { upsert: true, new: true }
       );
-      console.log(`✅ Налады для ${data.agencyName} запісаны.`);
+      console.log(`✅ Налады для ${data.agencyName} абноўлены.`);
     }
 
-    console.log("🏁 Засяванне завершана паспяхова.");
+    console.log("🏁 Абнаўленне завершана.");
     process.exit(0);
   } catch (err) {
     console.error("❌ Памылка:", err.message);
