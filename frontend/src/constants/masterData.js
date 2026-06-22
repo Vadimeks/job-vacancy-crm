@@ -109,6 +109,7 @@ export const AGENCIES = [
   "STAFF POWER",
   "VEKOS",
   "WORK&HUMAN",
+  "JOB IMPULSE",
 ].sort();
 
 export const VOIVODESHIPS = [
