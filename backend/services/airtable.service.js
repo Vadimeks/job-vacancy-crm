@@ -118,13 +118,19 @@ async function syncSingleSource(source) {
         "airtable"
       );
 
-      if (result && !result.error) {
+      if (result && result.error) {
+        // 🛑 Калі памылка крытычная (AI Cooldown), спыняем усю агенцыю
+        if (result.error.includes("AI_COOLDOWN") || result.error.includes("ALL_AI_MODELS_FAILED")) {
+          console.error("🛑 Спыняем Airtable: AI недаступны.");
+          return "STOP"; 
+        }
+      } else if (result) {
         if (existingVacancy) stats.updated++; else stats.added++;
       }
     }
 
     // Паўза для стабільнасці AI
-    await new Promise(r => setTimeout(r, 2000));
+    await new Promise(r => setTimeout(r, 5000));
   }
 
   // 7. АЎТА-ЗАКРЫЦЦЁ

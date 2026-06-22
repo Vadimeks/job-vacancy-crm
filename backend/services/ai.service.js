@@ -865,7 +865,7 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true, full
     }
   }
 
-  chainFrozenUntil = Date.now() + 2 * 60 * 1000; // Калі ўсё ляснула — адпачываем 2 хв
+  chainFrozenUntil = Date.now() + 5 * 60 * 1000; // Калі ўсё ляснула — адпачываем 2 хв
   throw new Error("ALL_AI_MODELS_FAILED");
 }
 

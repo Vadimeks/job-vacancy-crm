@@ -165,7 +165,12 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
               "trello"
             );
 
-            if (result && !result.error) {
+            if (result && result.error) {
+              if (result.error.includes("AI_COOLDOWN") || result.error.includes("ALL_AI_MODELS_FAILED")) {
+                console.error("🛑 Спыняем Trello: AI недаступны.");
+                return; // Выхад з функцыі сінхранізацыі дошкі
+              }
+            } else if (result) {
               if (existingVacancy) {
                 stats.updated++;
                 details.push(`🔄 [${result.vacancyCode}] ${card.name}`);
@@ -195,7 +200,7 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
         }
 
         // Паўза паміж карткамі для AI
-        await new Promise((r) => setTimeout(r, 3000));
+        await new Promise((r) => setTimeout(r, 5000));
       }
     }
 
