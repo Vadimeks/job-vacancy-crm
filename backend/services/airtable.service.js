@@ -100,7 +100,7 @@ async function syncSingleSource(source) {
     }
 
     // 6. ЗАХАВАННЕ ПРАЗ ПАРСЕР (Stage 2)
-    for (let idx = 0; i < analysis.translatedFragments.length; i++) {
+    for (let i = 0; i < analysis.translatedFragments.length; i++) {
       const fragment = analysis.translatedFragments[i];
       // Калі фрагментаў некалькі, дадаем індэкс да хэша, каб пазбегнуць дублікатаў
       const fragmentHash = analysis.translatedFragments.length > 1 ? `${airtableId}_${i}` : airtableId;
