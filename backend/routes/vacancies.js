@@ -184,22 +184,33 @@ async function processVacancyMessage(
   sheetName = "", // 👈 ДАДАДЗЕНА
   existingId = null, // 👈 ДАДАДЗЕНА: ID для абнаўлення
   sourceType = "manual", // 👈 ДАДАДЗЕНА
+   forceFull = false
 ) {
   console.log(
     `\n--- 🤖 Stage 2: Groq-парсінг для ${preDefinedAgency || "Manual"} ---`,
   );
   try {
     const savedVacancies = [];
+// 🛡️ Калі мы ведаем, што гэта рэтрай або вакансія ўжо ў чарзе — патрабуем Full мадэль
+    let needsFull = forceFull;
+    if (existingId) {
+      const current = await Vacancy.findById(existingId);
+      if (current?.status === "pending_ai") needsFull = true;
+    }
 
-    // ВАЖНА: Перадаем enrichedText першым аргументам!
     const result = await aiService.parseVacancyWithAI(
       enrichedText,
       preDefinedAgency,
       parsingResultType,
-      sheetName, // 👈 Перадаем назву ліста ў AI
+      sheetName,
+      needsFull // 👈 Перадаем флаг
     );
-
+   
+// 🧠 Вызначаем мадэль (працуе і для аб'екта, і для масіва)
     const vacancyDataList = Array.isArray(result) ? result : [result];
+    const modelUsed = vacancyDataList[0]?.modelUsed || ""; 
+    const isLite = modelUsed.toLowerCase().includes("lite");
+    const finalStatus = isLite ? "pending_ai" : "active";
     // 🌍 Аўтаматычнае атрыманне каардынат для кожнага фрагмента
     for (const vData of vacancyDataList) {
       try {
@@ -268,7 +279,7 @@ async function processVacancyMessage(
           continue;
         }
 
-        // 🔄 РЭАЛЬНАЕ АБНАЎЛЕННЕ
+       // 🔄 РЭАЛЬНАЕ АБНАЎЛЕННЕ
         const updated = await Vacancy.findByIdAndUpdate(
           currentExistingId,
           {
@@ -284,19 +295,25 @@ async function processVacancyMessage(
               agencyName: finalAgency,
             }),
             sourceHash: sourceHash || undefined,
-            status: "active",
+            status: finalStatus, // 👈 Выкарыстоўваем finalStatus
           },
           { new: true },
         );
 
-        console.log(`✅ Вакансія рэальна абноўлена: ${updated.vacancyCode}`);
-        const postText = await aiService.formatTelegramPost(updated);
-        updated.telegramPost = postText;
-        await updated.save();
+        console.log(`✅ Вакансія абноўлена: ${updated.vacancyCode} (Статус: ${finalStatus})`);
+
+        // Адпраўляем у ТГ толькі калі мадэль была Full
+        if (finalStatus === "active") {
+          const postText = await aiService.formatTelegramPost(updated);
+          updated.telegramPost = postText;
+          await updated.save();
+        } else {
+          console.log(`⏳ [Buffer] Вакансія ${updated.vacancyCode} чакае Full-мадэлі. ТГ пропуск.`);
+        }
 
         savedVacancies.push(updated);
         currentExistingId = null;
-      } else {
+      }  else {
         // ✨ ЛОГІКА СТВАРЭННЯ НОВАЙ
         const vacancyCode = await generateVacancyCode();
         const newVacancy = new Vacancy({
@@ -315,17 +332,22 @@ async function processVacancyMessage(
           isTruncated,
           parsingResultType,
           sourceHash,
-          status: "active",
+          status: finalStatus, // 👈 Выкарыстоўваем finalStatus
         });
 
         const saved = await newVacancy.save();
-        console.log(`✅ Вакансія створана: ${vacancyCode}`);
+        console.log(`✅ Вакансія створана: ${vacancyCode} (Статус: ${finalStatus})`);
 
-        const postText = await aiService.formatTelegramPost(saved);
-        saved.telegramPost = postText;
-        await saved.save();
+        // Адпраўляем у ТГ толькі калі мадэль была Full
+        if (finalStatus === "active") {
+          const postText = await aiService.formatTelegramPost(saved);
+          saved.telegramPost = postText;
+          await saved.save();
+          await sendToTelegram(sanitizeTelegramMarkdown(postText));
+        } else {
+          console.log(`⏳ [Buffer] Новая вакансія ${vacancyCode} у чарзе. ТГ пропуск.`);
+        }
 
-        await sendToTelegram(sanitizeTelegramMarkdown(postText));
         savedVacancies.push(saved);
       }
     }
@@ -894,4 +916,27 @@ router.post("/bulk-delete", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
-module.exports = { router, processVacancyMessage };
+async function retryPendingVacancies() {
+  console.log("🧹 [Queue] Спроба даапрацаваць вакансіі са статусам pending_ai...");
+  const pending = await Vacancy.find({ status: "pending_ai" });
+  if (pending.length === 0) return;
+
+  for (const vac of pending) {
+    console.log(`🔄 Рэтрай для ${vac.vacancyCode}...`);
+    await processVacancyMessage(
+      vac.rawText,
+      vac.sender || "System",
+      vac.agencyName,
+      vac.originalText,
+      vac.isTruncated,
+      vac.parsingResultType,
+      vac.sourceHash,
+      vac.sheetName,
+      vac._id,
+      vac.sourceType,
+      true // Прымусова Full
+    );
+    await new Promise(r => setTimeout(r, 5000));
+  }
+}
+module.exports = { router, processVacancyMessage, retryPendingVacancies };

@@ -125,11 +125,20 @@ async function run() {
       );
       await sheetsService.syncSheetVacancies(source._id);
     } else {
-      // Апрацоўка ўсіх актыўных табліц
+      // 1. Спачатку апрацоўваем "даўгі" ад Lite-мадэляў
+      await sheetsService.retryPendingVacancies(); 
+
+      // 2. Google Sheets
       await sheetsService.syncAllSheets();
-      // Унутры функцыі run() пасля апрацоўкі Sheets:
+      
+      // 3. Trello
       console.log("🚀 Запуск сінхранізацыі Trello...");
       await trelloService.syncAllTrelloBoards();
+
+      // 4. Airtable (Дадаем яго ў чаргу)
+      console.log("🚀 Запуск сінхранізацыі Airtable...");
+      const airtableService = require("./services/airtable.service");
+      await airtableService.syncAirtable();
     }
 
     console.log("🏁 Працэдура завершана.");
@@ -142,4 +151,5 @@ async function run() {
   }
 }
 
+setInterval(run, 4 * 60 * 60 * 1000);
 run();

@@ -178,7 +178,7 @@ const vacancySchema = new mongoose.Schema(
     parsingResultType: { type: String, default: "FULL_VACANCY" }, // 🆕 Вердыкт AI (FULL_VACANCY, UPDATE, TRUNCATED, INFO)
     status: {
       type: String,
-      enum: ["active", "closed", "archived"],
+      enum: ["active", "closed", "archived", "pending_ai"], // 👈 Дададзены статус чаргі
       default: "active",
     },
     isFavorite: { type: Boolean, default: false, index: true },

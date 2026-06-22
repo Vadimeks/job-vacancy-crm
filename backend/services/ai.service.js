@@ -731,7 +731,7 @@ Return ONLY JSON:
 `;
 // --- ДАПАМОЖНЫЯ ФУНКЦЫІ ---
 // ============================================================
-async function executeAIRequest(systemPrompt, userContent, jsonMode = true) {
+async function executeAIRequest(systemPrompt, userContent, jsonMode = true, fullModelOnly = false) {
   const safeContent = String(userContent).substring(0, 8000);
 
   if (Date.now() < chainFrozenUntil) {
@@ -740,6 +740,11 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true) {
   }
 
   for (const model of AI_CHAIN) {
+    // 🧠 Калі патрэбна толькі поўная мадэль — прапускаем Lite
+    if (fullModelOnly && model.name.toLowerCase().includes("lite")) {
+      console.log(`⏩ Пропуск ${model.name}: патрабуецца Full-мадэль для pending_ai.`);
+      continue;
+    }
     // 🆕 КРОК: Фільтрацыя па памеры тэксту
     if (model.maxChars && safeContent.length > model.maxChars) {
       console.log(
@@ -835,14 +840,14 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true) {
             // Валідуем вынік
             JSON.parse(repaired); 
 
-            return { data: repaired, isLowQuality };
+            return { data: repaired, isLowQuality, modelUsed: model.name }; // 👈 Дадалі modelUsed
           } catch (e) {
             console.warn(`⚠️ Мадэль ${model.name} вярнула невылечны JSON.`);
             throw new Error("INVALID_JSON");
           }
         }
 
-        return { data: fullText.trim(), isLowQuality: false };
+        return { data: fullText.trim(), isLowQuality: false, modelUsed: model.name }; // 👈 Дадалі modelUsed
       } catch (error) {
         const isRetryable =
           error.message.includes("SERVER_ERROR") || error.name === "AbortError";
@@ -1055,12 +1060,7 @@ function normalizeNuances(nuances) {
     .filter((n) => n && n.text); // Пакідаем толькі тыя, дзе ёсць тэкст
 }
 
-async function parseVacancyWithAI(
-  rawText,
-  forcedAgency = null,
-  parsingResultType = "FULL_VACANCY",
-  sheetName = null,
-) {
+async function parseVacancyWithAI(rawText, forcedAgency = null, parsingResultType = "FULL_VACANCY", sheetName = null, fullModelOnly = false) {
   try {
     console.log(
       `🤖 Парсінг v2.0 ... ${forcedAgency ? `(Forced Agency: ${forcedAgency})` : ""}`,
@@ -1313,7 +1313,7 @@ JSON STRUCTURE:
 
     const currentDate = new Date().toLocaleDateString('uk-UA');
 const DATE_INSTRUCTION = `\n\n!!! CRITICAL DATE RULE !!!\nToday is ${currentDate}. If you see arrival dates or start dates from the PAST (e.g., 2024 or early 2025), IGNORE them. Set arrivalDate to null if the date in text is older than today.`;
-const result = await executeAIRequest(SYSTEM_INSTRUCTION + DATE_INSTRUCTION, rawText, true);
+const result = await executeAIRequest(SYSTEM_INSTRUCTION + DATE_INSTRUCTION, rawText, true, fullModelOnly);
 
     const parsedData = JSON.parse(result.data);
 
@@ -1575,14 +1575,21 @@ const result = await executeAIRequest(SYSTEM_INSTRUCTION + DATE_INSTRUCTION, raw
         description: cleaned.description || "",
         additionalNotes: cleaned.additionalNotes || "",
         isLowQuality: result.isLowQuality,
+        modelUsed: result.modelUsed, // 👈 Дадалі перадачу мадэлі
         rawText: rawText,
         parsingResultType: parsingResultType,
       };
     }; // Закрываем функцыю processSingle
 
-    return Array.isArray(parsedData)
+    const finalResult = Array.isArray(parsedData)
       ? parsedData.map(processSingle)
       : processSingle(parsedData);
+
+    // Дадаем мета-даныя да ўсяго выніку
+    if (Array.isArray(finalResult)) {
+      finalResult.forEach(v => v.modelUsed = result.modelUsed);
+    }
+    return finalResult;
   } catch (error) {
     console.error("❌ Fatal Parsing Error:", error.message);
     throw error;
