@@ -119,6 +119,7 @@ async function syncTrelloBoard(sourceId) {
         );
 
         // Фармуем сыры дамп для AI
+        // Фармуем сыры дамп для AI
         const rawTrelloDump = `
 ${card.name}
 ${labelsText ? `Меткі: ${labelsText}` : ""}
@@ -126,15 +127,37 @@ ${card.desc}
 ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
         `.trim();
 
+        // 📏 ФІЛЬТР ДАЎЖЫНІ (Крок 3.1)
+        if (rawTrelloDump.length < 200) {
+          console.log(`⏭️ Пропуск карткі ${card.name}: занадта кароткая (${rawTrelloDump.length} сімв.)`);
+          stats.ignored++;
+          continue;
+        }
+
+        if (rawTrelloDump.length >= 200 && rawTrelloDump.length < 400) {
+          console.log(`📥 Кароткая картка (${rawTrelloDump.length} сімв.) -> Inbox`);
+          await new UnprocessedMessage({
+            sender: source.agencyName,
+            agencyName: source.agencyName,
+            text: `[Trello: ${list.name}]\n${rawTrelloDump}`,
+            source: "trello",
+            category: "update",
+            processed: false,
+            aiAnalyzed: true
+          }).save();
+          stats.ignored++;
+          continue;
+        }
+
         if (isVacancyList) {
           // --- ЛОГІКА ВАКАНСІЙ ---
           const existingVacancy = await Vacancy.findOne({
             sourceHash: card.id,
-            status: "active",
+            status: { $in: ["active", "pending_ai"] }, // 👈 Улічваем чаргу
           });
 
           // 🛡️ ПРАВЕРКА НА ЗМЕНЫ
-          if (existingVacancy && existingVacancy.originalText === rawTrelloDump) {
+          if (existingVacancy && existingVacancy.originalText === rawTrelloDump && existingVacancy.status !== "pending_ai") {
             stats.ignored++;
             continue;
           }
@@ -146,8 +169,8 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
           );
 
           if (!analysis || !analysis.translatedFragments) {
-            console.warn(`⚠️ AI не змог апрацаваць картку ${card.name}`);
-            continue;
+            console.error(`🛑 AI FATAL ERROR для Trello: ${card.name}. Спыняем дошку.`);
+            return; // 👈 Стоп-кран для Trello
           }
 
           // Stage 2: Парсінг кожнага фрагмента
@@ -168,7 +191,7 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
             if (result && result.error) {
               if (result.error.includes("AI_COOLDOWN") || result.error.includes("ALL_AI_MODELS_FAILED")) {
                 console.error("🛑 Спыняем Trello: AI недаступны.");
-                return; // Выхад з функцыі сінхранізацыі дошкі
+                return; // 👈 Стоп-кран
               }
             } else if (result) {
               if (existingVacancy) {
@@ -262,7 +285,7 @@ async function syncAllTrelloBoards() {
   const sources = await TrelloSource.find({ status: "active" });
   for (const source of sources) {
     await syncTrelloBoard(source._id);
-    await new Promise((r) => setTimeout(r, 5000));
+    await new Promise((r) => setTimeout(r, 6000));
   }
 }
 

@@ -3,6 +3,7 @@ const AirtableSource = require("../models/AirtableSource");
 const Vacancy = require("../models/Vacancy");
 const { processVacancyMessage } = require("../routes/vacancies");
 const { analyzeAndCompareWithGemini } = require("./gemini.service"); // 👈 Дададзена для Stage 1
+const UnprocessedMessage = require("../models/UnprocessedMessage"); // 👈 Дадаць гэты радок
 
 /**
  * Сінхранізацыя Airtable з выкарыстаннем поўнага AI-пайплайна
@@ -77,33 +78,50 @@ async function syncSingleSource(source) {
       .map(([key, val]) => `${key}: ${Array.isArray(val) ? val.join(", ") : val}`)
       .join("\n");
 
-    if (rawAirtableDump.length < 50) continue;
-
-    // 4. ПРАВЕРКА НА ЗМЕНЫ (Каб не мучыць AI дарма)
-    const existingVacancy = await Vacancy.findOne({ airtableId: airtableId });
-    
-    // Калі тэкст і статус не змяніліся — ігнаруем
-    if (existingVacancy && existingVacancy.originalText === rawAirtableDump && existingVacancy.status === status) {
+    // 📏 ФІЛЬТР ДАЎЖЫНІ (Крок 2.1)
+    if (rawAirtableDump.length < 200) {
+      console.log(`⏭️ Пропуск ${airtableId}: занадта кароткі запіс (${rawAirtableDump.length} сімв.)`);
       stats.ignored++;
       continue;
     }
 
-    // 5. ЗАПУСК AI-ПАЙПЛАЙНА (Stage 1: Класіфікацыя і Пераклад)
+    if (rawAirtableDump.length >= 200 && rawAirtableDump.length < 400) {
+      console.log(`📥 Кароткі запіс (${rawAirtableDump.length} сімв.) -> Inbox`);
+      await new UnprocessedMessage({
+        sender: source.agencyName,
+        agencyName: source.agencyName,
+        text: `[Airtable: ${currentColumn}]\n${rawAirtableDump}`,
+        source: "airtable",
+        category: "update",
+        processed: false,
+        aiAnalyzed: true
+      }).save();
+      stats.ignored++;
+      continue;
+    }
+
+    // 4. ПРАВЕРКА НА ЗМЕНЫ
+    const existingVacancy = await Vacancy.findOne({ airtableId: airtableId });
+    if (existingVacancy && existingVacancy.originalText === rawAirtableDump && existingVacancy.status !== "pending_ai") {
+      stats.ignored++;
+      continue;
+    }
+
+    // 5. ЗАПУСК AI-ПАЙПЛАЙНА
     console.log(`🧠 AI Stage 1 для Airtable ID: ${airtableId}...`);
     const analysis = await analyzeAndCompareWithGemini(
       `[SOURCE: AIRTABLE | AGENCY: ${source.agencyName}]\n${rawAirtableDump}`
     );
 
     if (!analysis || !analysis.translatedFragments) {
-      console.warn(`⚠️ AI не змог апрацаваць запіс ${airtableId}`);
-      continue;
+      console.error(`🛑 AI FATAL ERROR для ${airtableId}. Спыняем сінхранізацыю.`);
+      return "STOP"; 
     }
 
-    // 6. ЗАХАВАННЕ ПРАЗ ПАРСЕР (Stage 2)
-    for (let fIdx = 0; fIdx < analysis.translatedFragments.length; fIdx++) {
-      const fragment = analysis.translatedFragments[fIdx];
-      const fragmentHash = analysis.translatedFragments.length > 1 ? `${airtableId}_${fIdx}` : airtableId;
-      
+    // 6. ЗАХАВАННЕ ПРАЗ ПАРСЕР
+    for (let i = 0; i < analysis.translatedFragments.length; i++) {
+      const fragment = analysis.translatedFragments[i];
+      const fragmentHash = analysis.translatedFragments.length > 1 ? `${airtableId}_${i}` : airtableId;
 
       const result = await processVacancyMessage(
         fragment,
@@ -112,14 +130,13 @@ async function syncSingleSource(source) {
         rawAirtableDump,
         false,
         analysis.category,
-        fragmentHash, // 👈 выкарыстоўваем унікальны хэш фрагмента
+        fragmentHash,
         currentColumn,
         existingVacancy ? existingVacancy._id : null,
         "airtable"
       );
 
       if (result && result.error) {
-        // 🛑 Калі памылка крытычная (AI Cooldown), спыняем усю агенцыю
         if (result.error.includes("AI_COOLDOWN") || result.error.includes("ALL_AI_MODELS_FAILED")) {
           console.error("🛑 Спыняем Airtable: AI недаступны.");
           return "STOP"; 
@@ -130,7 +147,7 @@ async function syncSingleSource(source) {
     }
 
     // Паўза для стабільнасці AI
-    await new Promise(r => setTimeout(r, 5000));
+    await new Promise(r => setTimeout(r, 6000)); // 👈 6 секунд
   }
 
   // 7. АЎТА-ЗАКРЫЦЦЁ

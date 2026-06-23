@@ -232,7 +232,7 @@ async function processVacancyMessage(
       if (!currentExistingId) {
          // 1. Прыярытэт па хэшы (для табліц і трэла)
         if (sourceHash) {
-          const byHash = await Vacancy.findOne({ sourceHash, status: "active" });
+          const byHash = await Vacancy.findOne({ sourceHash, status: { $in: ["active", "pending_ai"] } });
           if (byHash) currentExistingId = byHash._id;
         }
 
@@ -242,7 +242,7 @@ async function processVacancyMessage(
             agencyName: finalAgency,
             location: { $regex: new RegExp(`^${vData.location}$`, "i") },
             brand: vData.brand ? { $regex: new RegExp(`^${vData.brand}$`, "i") } : { $in: ["", null] },
-            status: "active"
+            status: { $in: ["active", "pending_ai"] }
           }).sort({ updatedAt: -1 }).limit(3); // Бяром 3 апошнія для параўнання
 
           for (const candidate of potentialMatches) {

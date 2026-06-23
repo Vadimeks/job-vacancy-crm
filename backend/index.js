@@ -5,17 +5,23 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const path = require("path");
 const { spawn } = require("child_process");
+const cron = require("node-cron");
+
+// Сэрвісы і Роўты
 const { startBot } = require("./services/telegram.service");
-const { router: vacanciesRouter } = require("./routes/vacancies");
+const { router: vacanciesRouter, retryPendingVacancies } = require("./routes/vacancies");
+const { syncAllSheets } = require("./services/sheets.service");
+const { syncAllTrelloBoards } = require("./services/trello.service");
+const { syncAirtable } = require("./services/airtable.service");
+
 const inboxRouter = require("./routes/inbox");
 const templatesRouter = require("./routes/templates");
 const candidatesRouter = require("./routes/candidates");
 const applyRouter = require("./routes/apply");
-const cron = require("node-cron");
-const { syncAllSheets } = require("./services/sheets.service");
-const app = express();
+
 const CronLog = require("./models/CronLog");
-const { syncAllTrelloBoards } = require("./services/trello.service");
+
+const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -29,77 +35,84 @@ app.use((err, req, res, next) => {
   next();
 });
 
-// Маршруты
+// Маршруты API
 app.use("/api/vacancies", vacanciesRouter);
 app.use("/api/inbox", inboxRouter);
 app.use("/api/templates", templatesRouter);
 app.use("/api/candidates", candidatesRouter);
 app.use("/api/apply", applyRouter);
 
+// Падключэнне да БД
 mongoose
   .connect(process.env.MONGODB_URI)
-  .then(() => console.log("✅ MongoDB Connected"));
+  .then(() => console.log("✅ MongoDB Connected"))
+  .catch(err => console.error("❌ MongoDB Connection Error:", err));
+
 // --- БЛОК РАЗУМНАЙ СІНХРАНІЗАЦЫІ (CRON + INSURANCE) ---
 
 /**
- * Функцыя-абгортка, якая гарантуе, што сінхранізацыя выканаецца толькі 1 раз на суткі,
- * нават калі сервер перазагружаўся або дэплоіўся.
+ * Функцыя-абгортка для паслядоўнай сінхранізацыі ўсіх крыніц
  */
 async function runSyncWithInsurance() {
-  const taskName = "sheets-sync"; // Можна перайменаваць у "global-sync"
+  const taskName = "global-sync"; 
 
   try {
     const log = await CronLog.findOne({ taskName });
-    const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
+    // Дазваляем запуск, калі прайшло больш за 3.5 гадзіны (для цыкла ў 4 гадзіны)
+    const cooldownPeriod = new Date(Date.now() - 3.5 * 60 * 60 * 1000);
 
-    if (log && log.lastRun >= twelveHoursAgo) {
+    if (log && log.lastRun >= cooldownPeriod) {
       console.log(`🛡️ INSURANCE: Сінхранізацыя ўжо была нядаўна. Пропуск.`);
       return;
     }
 
-    console.log(
-      "⏰ CRON/STARTUP: Пачатак глабальнай сінхранізацыі (Sheets + Trello)...",
-    );
+    console.log("⏰ [Sync] Пачатак поўнай паслядоўнай сінхранізацыі...");
 
-    // Запускаем абедзве сістэмы
+    // 1. Спачатку чысцім чаргу (pending_ai) — даціскаем тое, што не зрабіў Lite
+    await retryPendingVacancies();
+    
+    // 2. Google Sheets
+    console.log("📊 Сканаванне Google Sheets...");
     await syncAllSheets();
-    await syncAllTrelloBoards(); // <--- ДАДАДЗЕНА
+    
+    // 3. Trello
+    console.log("🗂️ Сканаванне Trello...");
+    await syncAllTrelloBoards();
 
+    // 4. Airtable
+    console.log("💎 Сканаванне Airtable...");
+    await syncAirtable();
+
+    // Запісваем час паспяховага завяршэння
     await CronLog.findOneAndUpdate(
       { taskName },
       { lastRun: new Date() },
-      { upsert: true, new: true },
+      { upsert: true, new: true }
     );
 
-    console.log("✅ CRON/STARTUP: Усе крыніцы сінхранізаваны.");
+    console.log("✅ [Sync] Усе крыніцы паспяхова апрацаваны.");
   } catch (err) {
-    console.error("❌ INSURANCE ERROR:", err.message);
+    console.error("❌ [Sync] Памылка падчас глабальнай сінхранізацыі:", err.message);
   }
 }
 
-// Запуск Cron кожную раніцу а 05:00 UTC (08:00 па Кіеве)
-cron.schedule("0 5 * * *", async () => {
-  console.log("⏰ CRON: Трыгер спрацаваў (05:00 UTC).");
+// Запуск Cron кожныя 4 гадзіны (00:00, 04:00, 08:00 і г.д. па UTC)
+cron.schedule("0 */4 * * *", async () => {
+  console.log("⏰ CRON: Трыгер спрацаваў (цыкл 4 гадзіны).");
   await runSyncWithInsurance();
 });
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Server: http://localhost:${PORT}`);
   startBot();
   startUserbot();
 
-  // Разумная страхоўка пры старце:
-  // Калі сервер падняўся пасля дэплою і сёння яшчэ не было сінхранізацыі — яна запусціцца.
-  // Калі ўжо была — функцыя проста выведзе лог і нічога не прадублюе.
+  // Запуск пры старце (з улікам INSURANCE)
   runSyncWithInsurance();
 });
 
 // --- ЗАПУСК USERBOT У ДОЧАРНЫМ ПРАЦЭСЕ ---
-// Чаму child_process, а не просты require():
-//   userbot.js мае ўласны `await new Promise(() => {})` у канцы (бясконца),
-//   і `process.exit(1)` пры крытычнай памылцы — гэта заб'е ўвесь сервер,
-//   калі запускаць яго ўнутры таго ж працэсу.
-//   Дочарны працэс ізаляваны: яго крах не закранае Express.
 function startUserbot() {
   if (!process.env.TELEGRAM_SESSION) {
     console.log("ℹ️ TELEGRAM_SESSION не задана — userbot не запускаецца.");
@@ -117,18 +130,16 @@ function startUserbot() {
 
     child.on("exit", (code, signal) => {
       if (signal === "SIGTERM" || signal === "SIGKILL") {
-        console.log("🛑 Userbot спынены. Не перазапускаем.");
+        console.log("🛑 Userbot спынены.");
         return;
       }
-      console.warn(
-        `⚠️ Userbot завяршыўся (код: ${code}). Перазапуск праз 10с...`,
-      );
-      setTimeout(spawnUserbot, 10_000);
+      console.warn(`⚠️ Userbot завяршыўся (код: ${code}). Перазапуск праз 10с...`);
+      setTimeout(spawnUserbot, 10000);
     });
 
     child.on("error", (err) => {
       console.error("❌ Памылка запуску userbot:", err.message);
-      setTimeout(spawnUserbot, 10_000);
+      setTimeout(spawnUserbot, 10000);
     });
   }
 
