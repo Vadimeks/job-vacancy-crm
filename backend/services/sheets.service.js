@@ -536,19 +536,20 @@ async function syncSheetVacancies(sourceId) {
         continue;
       }
 
-      // 4. Калі вакансія ўжо ёсць і яна ACTIVE
-      if (existingVacancy && existingVacancy.status === "active") {
+      // 4. Калі вакансія ўжо ёсць і яна ACTIVE (або чакае якаснай апрацоўкі)
+      if (existingVacancy && (existingVacancy.status === "active" || existingVacancy.status === "pending_ai")) {
         foundHashesInSheet.add(rowHash);
 
         // ПРАВЕРКА: Ці змяніўся поўны тэкст радка?
-        // Калі тэкст супадае на 100% — ігнаруем (поўны дублікат)
-        if (existingVacancy.originalText === rowBodyText) {
+        // Пропуск (Resume) спрацуе ТОЛЬКІ калі тэкст супадае І статус ужо ACTIVE.
+        // Калі статус pending_ai — мы НЕ прапускаем, а ідзем далей на апрацоўку.
+        if (existingVacancy.originalText === rowBodyText && existingVacancy.status !== "pending_ai") {
           stats.ignored++;
           continue;
         }
-        // Калі тэкст розны — ідзем далей на AI-абнаўленне (UPDATE)
+        
         console.log(
-          `🔄 Абнаўленне дадзеных для ${existingVacancy.vacancyCode} (Row: ${i + 1})`,
+          `🔄 [Row ${i + 1}] ${existingVacancy.status === "pending_ai" ? "Даапрацоўка чаргі" : "Абнаўленне"}: ${existingVacancy.vacancyCode}`
         );
       }
 
