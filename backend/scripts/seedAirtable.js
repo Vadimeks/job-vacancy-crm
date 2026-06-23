@@ -9,6 +9,7 @@ const AIRTABLE_DATA = [
     tableId: "tblTyT7NtUNZ1n2ek",
     boardName: "SK_Manpower",
     agencyName: "MANPOWER",
+    shareId: "shrDFLZSZGKzeiBrM",
     includedColumns: [
       "Виплата 1500 brutto /900 netto",
       "топ оферти",
@@ -27,6 +28,7 @@ const AIRTABLE_DATA = [
     tableId: "tblz6LkEKD3mxCyhS",
     boardName: "Oferty pracy Grupa Progres",
     agencyName: "PROGRES",
+    shareId: null,
     includedColumns: [
       "Ж",
       "Ч",
@@ -41,6 +43,7 @@ const AIRTABLE_DATA = [
     tableId: "tblhDJDWBLelwfE7g",
     boardName: "Job Impulse Oferty",
     agencyName: "JOB IMPULSE",
+    shareId: "shr2m2g0K2zcZLpo0",
     includedColumns: [
       "актуальное",
       "варшава и мазовецкое",

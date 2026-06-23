@@ -3,6 +3,7 @@ const AirtableSource = require("../models/AirtableSource");
 const Vacancy = require("../models/Vacancy");
 const { processVacancyMessage } = require("../routes/vacancies");
 const { analyzeAndCompareWithGemini } = require("./gemini.service"); // 👈 Дададзена для Stage 1
+const airtableScraper = require("./airtableScraper.service");
 const UnprocessedMessage = require("../models/UnprocessedMessage"); // 👈 Дадаць гэты радок
 
 /**
@@ -25,12 +26,28 @@ async function syncAirtable() {
 async function syncSingleSource(source) {
   console.log(`\n🚀 Сканаванне: ${source.boardName} (${source.agencyName})`);
   
-  const url = `https://api.airtable.com/v0/${source.baseId}/${source.tableId}`;
-  const response = await axios.get(url, {
-    headers: { Authorization: `Bearer ${process.env.AIRTABLE_API_KEY}` }
-  });
+  let records = [];
 
-  const records = response.data.records;
+  if (source.shareId) {
+    // Метад для MANPOWER і JOB IMPULSE (без ключа)
+    records = await airtableScraper.fetchSharedData(source.shareId);
+  } else {
+    // Метад для PROGRES (афіцыйны API)
+    try {
+      const url = `https://api.airtable.com/v0/${source.baseId}/${source.tableId}`;
+      const response = await axios.get(url, {
+        headers: { Authorization: `Bearer ${process.env.AIRTABLE_API_KEY}` }
+      });
+      records = response.data.records;
+    } catch (apiErr) {
+      console.error(`❌ [Airtable API] Памылка ${source.agencyName}:`, apiErr.message);
+    }
+  }
+
+  if (!records || records.length === 0) {
+    console.log(`⚠️ Запісаў не знойдзена для ${source.agencyName}.`);
+    return;
+  }
   console.log(`📦 Атрымана запісаў: ${records.length}`);
 
   const stats = { added: 0, updated: 0, closed: 0, ignored: 0 };

@@ -2,6 +2,10 @@ const mongoose = require("mongoose");
 
 const airtableSourceSchema = new mongoose.Schema(
   {
+   // ID публічнай спасылкі (напр. shr2m2g0K2zcZLpo0)
+    // Калі запоўнена — выкарыстоўваем скрапер, калі null — афіцыйны API
+    shareId: { type: String, default: null },
+
     // Унікальны ID базы (пачынаецца на app...)
     baseId: { type: String, required: true },
     
