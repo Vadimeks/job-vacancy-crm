@@ -15,7 +15,7 @@ async function fetchSharedData(shareId) {
     if (!accessPolicyMatch || !appIdMatch) throw new Error("Airtable змяніў структуру старонкі.");
 
     // 2. Запыт да ўнутранага API за дадзенымі
-    const dataUrl = `https://airtable.com/remote/v1/shared/view/${shareId}/readSharedViewData?stringifiedObjectParams=%7B%22includeDataForTable%22%3Atrue%7D`;
+    const dataUrl = `https://airtable.com/remote/v1/shared/view/${shareId}/read?stringifiedObjectParams=%7B%22includeDataForTable%22%3Atrue%7D`;
     const dataRes = await axios.get(dataUrl, {
       headers: {
         'x-airtable-application-id': appIdMatch[1],
