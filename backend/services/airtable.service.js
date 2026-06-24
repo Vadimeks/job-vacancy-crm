@@ -2,15 +2,15 @@ const axios = require("axios");
 const AirtableSource = require("../models/AirtableSource");
 const Vacancy = require("../models/Vacancy");
 const { processVacancyMessage } = require("../routes/vacancies");
-const { analyzeAndCompareWithGemini } = require("./gemini.service"); // 👈 Дададзена для Stage 1
+const { analyzeAndCompareWithGemini } = require("./gemini.service");
 const airtableScraper = require("./airtableScraper.service");
-const UnprocessedMessage = require("../models/UnprocessedMessage"); // 👈 Дадаць гэты радок
 
 /**
  * Сінхранізацыя Airtable з выкарыстаннем поўнага AI-пайплайна
  */
 async function syncAirtable() {
-  const sources = await AirtableSource.find({ status: "active" });
+  // Прымусова сартуем так, каб JOB IMPULSE і MANPOWER (дзе ёсць shareId) заўжды ішлі ПЕРАД PROGRES
+  const sources = await AirtableSource.find({ status: "active" }).sort({ shareId: -1, agencyName: 1 });
   console.log(`\n💎 [Airtable] Пачатак сінхранізацыі для ${sources.length} агенцый...`);
 
   for (const source of sources) {
@@ -25,117 +25,91 @@ async function syncAirtable() {
 
 async function syncSingleSource(source) {
   console.log(`\n🚀 Сканаванне: ${source.boardName} (${source.agencyName})`);
-  
+
   let records = [];
 
   if (source.shareId) {
-    // Метад для MANPOWER і JOB IMPULSE (без ключа)
-    records = await airtableScraper.fetchSharedData(source.shareId);
+    // 1. ВАРЫЯНТ СКРАПЕРА (Для Job Impulse і Manpower)
+    const scraped = await airtableScraper.fetchSharedData(source.shareId);
+    if (!scraped || scraped.length === 0) {
+      console.log(`⚠️ Запісаў не знойдзена для ${source.agencyName}.`);
+      return;
+    }
+    records = scraped;
   } else {
-    // Метад для PROGRES (афіцыйны API)
+    // 2. ВАРЫЯНТ АФІЦЫЙНАГА API (Для Progres)
     try {
       const url = `https://api.airtable.com/v0/${source.baseId}/${source.tableId}`;
       const response = await axios.get(url, {
         headers: { Authorization: `Bearer ${process.env.AIRTABLE_API_KEY}` }
       });
-      records = response.data.records;
+      records = response.data.records || [];
     } catch (apiErr) {
-      console.error(`❌ [Airtable API] Памылка ${source.agencyName}:`, apiErr.message);
+      console.error(`❌ [API Error] ${source.agencyName}:`, apiErr.message);
+      return;
     }
   }
 
-  if (!records || records.length === 0) {
-    console.log(`⚠️ Запісаў не знойдзена для ${source.agencyName}.`);
-    return;
-  }
-  console.log(`📦 Атрымана запісаў: ${records.length}`);
+  console.log(`📦 Атрымана запісаў ад скрапера/API: ${records.length}`);
 
-  const stats = { added: 0, updated: 0, closed: 0, ignored: 0 };
   const foundAirtableIds = new Set();
+  const stats = { added: 0, updated: 0, ignored: 0, closed: 0 };
 
-  for (const record of records) {
-    const fields = record.fields;
-    const airtableId = record.id;
+  for (const row of records) {
+    const airtableId = row.id;
+    foundAirtableIds.add(airtableId);
 
-    // 1. ВЫЗНАЧЭННЕ КАТЭГОРЫІ (КАНБАН-СЛУПКА)
-   let currentColumn = null;
-    for (const key in fields) {
-      const val = fields[key];
-      const stringVal = Array.isArray(val) ? String(val[0]) : String(val);
-      const cleanVal = stringVal.trim().toLowerCase(); // 👈 прыводзім да ніжняга рэгістра
-
-      // Параўноўваем абедзве часткі ў ніжнім рэгістры
-      const found = source.includedColumns.find(col => col.trim().toLowerCase() === cleanVal);
-      if (found) {
-        currentColumn = found; // захоўваем арыгінальную назву з налад
-        break;
+    // Правяраем правілы валідацыі (напр. Актуальность === ДА), калі яны ёсць
+    if (source.syncRules && source.syncRules.checkField) {
+      const fName = source.syncRules.checkField;
+      const expected = source.syncRules.checkValue;
+      const actual = row.fields[fName];
+      if (actual && String(actual).toLowerCase().trim() !== String(expected).toLowerCase().trim()) {
+        stats.ignored++;
+        continue;
       }
     }
 
-    if (!currentColumn) continue;
-    foundAirtableIds.add(airtableId);
+    // Вызначаем калонку. Калі пуста — ставім "актуальное"
+    let currentColumn = row.fields["Название колонки"] || row.columnName || "актуальное";
 
-    // 2. ВЫЗНАЧЭННЕ СТАТУСУ (БІЗНЕС-ЛОГІКА)
-    let status = "active";
-    if (source.agencyName === "MANPOWER" && currentColumn === "не активні тимчасово") {
-      status = "closed";
+    // ПРАВЕРКА НАЗВАЎ КАЛОНАК (фільтрацыя гарадоў)
+    if (source.includedColumns && source.includedColumns.length > 0) {
+      const hasMatch = source.includedColumns.some(col => 
+        currentColumn.toLowerCase().trim() === col.toLowerCase().trim()
+      );
+      // Калі калонка яўна вызначана, але яе няма ў дазволеных — ігнаруем
+      if (!hasMatch && currentColumn !== "актуальное") {
+        stats.ignored++;
+        continue;
+      }
     }
-    if (source.agencyName === "JOB IMPULSE") {
-      // Шукаем любое поле, якое змяшчае слова "Актуальность"
-      const actKey = Object.keys(fields).find(k => k.includes("Актуальность"));
-      const actVal = actKey ? fields[actKey] : null;
-      const isActual = Array.isArray(actVal) ? actVal[0] === "ДА" : actVal === "ДА";
-      if (!isActual) status = "closed";
-    }
 
-    // 3. ЗБОР СЫРЫХ ДАДЗЕНЫХ ДЛЯ AI (Stage 1)
-    // Проста робім дамп усіх палёў, Gemini сам разбярэцца
-    const rawAirtableDump = Object.entries(fields)
-      .filter(([key, val]) => typeof val !== 'object' || Array.isArray(val))
-      .map(([key, val]) => `${key}: ${Array.isArray(val) ? val.join(", ") : val}`)
-      .join("\n");
+    // Збіраем увесь тэкст з палёў радка для AI
+    let rawAirtableDump = `[Airtable ID: ${airtableId}]\n`;
+    Object.entries(row.fields).forEach(([k, v]) => {
+      if (k !== "Название колонки" && k !== "ColumnName" && v) {
+        rawAirtableDump += `${k}: ${v}\n`;
+      }
+    });
 
-    // 📏 ФІЛЬТР ДАЎЖЫНІ (Крок 2.1)
-    if (rawAirtableDump.length < 200) {
-      console.log(`⏭️ Пропуск ${airtableId}: занадта кароткі запіс (${rawAirtableDump.length} сімв.)`);
+    console.log(`🧠 AI апрацоўка для ${source.agencyName} (ID: ${airtableId})...`);
+
+    // Шукаем існуючую вакансію ў нашай базе МАНГО
+    const existingVacancy = await Vacancy.findOne({
+      airtableId: airtableId,
+      agencyName: source.agencyName,
+      sourceType: "airtable"
+    });
+
+    // Адпраўляем у AI пайплайн
+    const analysis = await analyzeAndCompareWithGemini(rawAirtableDump, [], []);
+
+    if (!analysis || !analysis.translatedFragments || analysis.translatedFragments.length === 0) {
       stats.ignored++;
       continue;
     }
 
-    if (rawAirtableDump.length >= 200 && rawAirtableDump.length < 400) {
-      console.log(`📥 Кароткі запіс (${rawAirtableDump.length} сімв.) -> Inbox`);
-      await new UnprocessedMessage({
-        sender: source.agencyName,
-        agencyName: source.agencyName,
-        text: `[Airtable: ${currentColumn}]\n${rawAirtableDump}`,
-        source: "airtable",
-        category: "update",
-        processed: false,
-        aiAnalyzed: true
-      }).save();
-      stats.ignored++;
-      continue;
-    }
-
-    // 4. ПРАВЕРКА НА ЗМЕНЫ
-    const existingVacancy = await Vacancy.findOne({ airtableId: airtableId });
-    if (existingVacancy && existingVacancy.originalText === rawAirtableDump && existingVacancy.status !== "pending_ai") {
-      stats.ignored++;
-      continue;
-    }
-
-    // 5. ЗАПУСК AI-ПАЙПЛАЙНА
-    console.log(`🧠 AI Stage 1 для Airtable ID: ${airtableId}...`);
-    const analysis = await analyzeAndCompareWithGemini(
-      `[SOURCE: AIRTABLE | AGENCY: ${source.agencyName}]\n${rawAirtableDump}`
-    );
-
-    if (!analysis || !analysis.translatedFragments) {
-      console.error(`🛑 AI FATAL ERROR для ${airtableId}. Спыняем сінхранізацыю.`);
-      return "STOP"; 
-    }
-
-    // 6. ЗАХАВАННЕ ПРАЗ ПАРСЕР
     for (let i = 0; i < analysis.translatedFragments.length; i++) {
       const fragment = analysis.translatedFragments[i];
       const fragmentHash = analysis.translatedFragments.length > 1 ? `${airtableId}_${i}` : airtableId;
@@ -163,11 +137,11 @@ async function syncSingleSource(source) {
       }
     }
 
-    // Паўза для стабільнасці AI
-    await new Promise(r => setTimeout(r, 6000)); // 👈 6 секунд
+    // Паўза, каб не спаміць ліміты AI
+    await new Promise(r => setTimeout(r, 4000));
   }
 
-  // 7. АЎТА-ЗАКРЫЦЦЁ
+  // АЎТА-ЗАКРЫЦЦЁ СТАРЫХ ВАКАНСІЙ
   const closeResult = await Vacancy.updateMany(
     {
       agencyName: source.agencyName,
@@ -175,14 +149,20 @@ async function syncSingleSource(source) {
       status: "active",
       airtableId: { $exists: true, $nin: Array.from(foundAirtableIds) }
     },
-    { $set: { status: "closed" } }
+    {
+      $set: {
+        status: "closed",
+        closedAt: new Date(),
+        closingReason: "Выдалена або знікла з Airtable пры сінхранізацыі"
+      }
+    }
   );
-  stats.closed = closeResult.modifiedCount;
 
-  console.log(`🏁 ${source.agencyName} завершана: +${stats.added} новых, 🔄 ${stats.updated} абноўлена, 🛑 ${stats.closed} закрыта.`);
-  
-  source.lastProcessedAt = new Date();
-  await source.save();
+  if (closeResult.modifiedCount > 0) {
+    stats.closed = closeResult.modifiedCount;
+  }
+
+  console.log(`🏁 [${source.agencyName}] Сінхранізацыя завершана: +${stats.added} новых, 🔄 ${stats.updated} абноўлена, 🛑 ${stats.closed} закрыта. (Ігнаравана: ${stats.ignored})`);
 }
 
 module.exports = { syncAirtable };

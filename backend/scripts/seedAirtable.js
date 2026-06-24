@@ -9,7 +9,7 @@ const AIRTABLE_DATA = [
     tableId: "tblTyT7NtUNZ1n2ek",
     boardName: "SK_Manpower",
     agencyName: "MANPOWER",
-    shareId: "shrDFLZSZGKzeiBrM",
+    shareId: "appZ0hH5CERo0K4uE/shrDFLZSZGKzeiBrM",
     includedColumns: [
       "Виплата 1500 brutto /900 netto",
       "топ оферти",
@@ -24,26 +24,11 @@ const AIRTABLE_DATA = [
     syncRules: { checkField: null, checkValue: null }
   },
   {
-    baseId: "appndPfIpwD349ovK", // Progres (застаўся ранейшы)
-    tableId: "tblz6LkEKD3mxCyhS",
-    boardName: "Oferty pracy Grupa Progres",
-    agencyName: "PROGRES",
-    shareId: null,
-    includedColumns: [
-      "Ж",
-      "Ч",
-      "Ж/Ч/Сім.П",
-      "Для спеціалістів",
-      "Пропозіції роботи англійською мовою"
-    ],
-    syncRules: { checkField: null, checkValue: null }
-  },
-  {
     baseId: "appU1nbvHouII9Cwb", // 👈 НОВЫ ID (Job Impulse)
     tableId: "tblhDJDWBLelwfE7g",
     boardName: "Job Impulse Oferty",
     agencyName: "JOB IMPULSE",
-    shareId: "shr2m2g0K2zcZLpo0",
+    shareId: "apppPRkm823aUVQCv/shr2m2g0K2zcZLpo0",
     includedColumns: [
       "актуальное",
       "варшава и мазовецкое",
@@ -59,6 +44,21 @@ const AIRTABLE_DATA = [
       checkField: "Актуальность", 
       checkValue: "ДА" 
     }
+  },
+  {
+    baseId: "appndPfIpwD349ovK", // Progres (застаўся ранейшы)
+    tableId: "tblz6LkEKD3mxCyhS",
+    boardName: "Oferty pracy Grupa Progres",
+    agencyName: "PROGRES",
+    shareId: null,
+    includedColumns: [
+      "Ж",
+      "Ч",
+      "Ж/Ч/Сім.П",
+      "Для спеціалістів",
+      "Пропозіції роботи англійською мовою"
+    ],
+    syncRules: { checkField: null, checkValue: null }
   }
 ];
 

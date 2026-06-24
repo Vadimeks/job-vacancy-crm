@@ -986,61 +986,85 @@ async function formatTelegramPost(vacancyData) {
     `🤖 Форматаванне Telegram-посту для ${vacancyData.vacancyCode}...`,
   );
 
-  // 1. 🛡️ Technical Privacy Shield
-  const rawObj = vacancyData.toObject ? vacancyData.toObject() : vacancyData;
-  const {
-    forRecruiter,
-    originalText,
-    rawText,
-    textHash,
-    prefixHash,
-    __v,
-    _id,
-    ...publicData
-  } = rawObj;
+  try {
+    // 1. 🛡️ Technical Privacy Shield
+    const rawObj = vacancyData.toObject ? vacancyData.toObject() : vacancyData;
+    const {
+      forRecruiter,
+      originalText,
+      rawText,
+      textHash,
+      prefixHash,
+      __v,
+      _id,
+      ...publicData
+    } = rawObj;
 
-  // 2. Падрыхтоўка промпта з датай
-  const currentDate = new Date().toLocaleDateString('uk-UA');
-  const dynamicPrompt = FORMAT_PROMPT.replace('{{currentDate}}', currentDate);
+    // 2. Падрыхтоўка промпта з датай
+    const currentDate = new Date().toLocaleDateString('uk-UA');
+    const dynamicPrompt = FORMAT_PROMPT.replace('{{currentDate}}', currentDate);
 
-  const strictPrompt =
-    dynamicPrompt +
-    "\n\n!!! CRITICAL: Return TWO versions separated by === SPLIT ===. NO JSON, NO explanations.";
+    const strictPrompt =
+      dynamicPrompt +
+      "\n\n!!! CRITICAL: Return TWO versions separated by === SPLIT ===. NO JSON, NO explanations.";
 
-  // 3. Запыт да AI
-  const result = await executeAIRequest(
-    strictPrompt,
-    `DATA:\n${JSON.stringify(publicData, null, 2)}`,
-    false
-  );
+    // 3. Запыт да AI
+    const result = await executeAIRequest(
+      strictPrompt,
+      `DATA:\n${JSON.stringify(publicData, null, 2)}`,
+      false
+    );
 
-  let trimmedText = (result.data || result || "").trim();
+    // Выпраўлена: бяром з result, а не з response
+    let trimmedText = (result?.data || result || "").trim();
 
-  // 4. --- ПАЛЕПШАНЫ JSON-ШЧЫТ (v3.0) ---
-  const isJson = trimmedText.startsWith("{") || trimmedText.includes('"vacancydescription":');
-
-  if (isJson) {
-    console.warn("⚠️ AI вярнуў JSON замест тэксту. Спрабуем аднавіць пост...");
-    try {
-      const parsed = JSON.parse(repairJson(trimmedText));
-      const meta = `🆔 ${vacancyData.vacancyCode} | 🏢 ${vacancyData.agencyName}${vacancyData.brand ? ` | 🏭 ${vacancyData.brand}` : ""}`;
+    // Лакальная функцыя для жалезнага экраніравання спецсімвалаў Telegram
+    const escapeMarkdownV2 = (text) => {
+      if (!text) return "";
       
-      const fullFallback = `${meta}\n*${parsed.vacancydescription || "Вакансія"}*\n\n📍 Місто: ${parsed.location || "уточнюється"}\n💰 Оплата: ${parsed.salary?.rawSalaryDisplay || "відповідно да ставки"}\n\n🛠 Обов'язки:\n${parsed.description || "Докладніше пры розмові"}\n\n📝 Додатково: ${parsed.additionalNotes || "уточнюйте у координатора"}\n\n📲 Контакт рекрутера: @InnaNovaWork`;
+      // 1. Праверка парнасці зорачак (*) і ніжніх падкрэсліванняў (_)
+      const starCount = (text.match(/\*/g) || []).length;
+      const underCount = (text.match(/_/g) || []).length;
       
-      const shortFallback = `${meta}\n🔥 *${parsed.vacancydescription || "Вакансія"}*\n📍 ${parsed.location || "уточнюється"}\n💰 ${parsed.salary?.rawSalaryDisplay || "відповідно да ставки"}\n\n📲 Контакт рекрутера: @InnaNovaWork`;
+      let processed = text;
+      if (starCount % 2 !== 0) {
+        console.log(`⚠️ [AI Service] Няпарны сімвал [*] для ${vacancyData.vacancyCode}. Экрануем усе зорачкі.`);
+        processed = processed.replace(/\*/g, '\\*');
+      }
+      if (underCount % 2 !== 0) {
+        console.log(`⚠️ [AI Service] Няпарны сімвал [_] для ${vacancyData.vacancyCode}. Экрануем усе падкрэсліванні.`);
+        processed = processed.replace(/_/g, '\\_');
+      }
 
-      return `${fullFallback}\n\n=== SPLIT ===\n\n${shortFallback}`;
-    } catch (e) {
-      throw new Error("AI returned corrupted JSON instead of text post");
+      // 2. Экрануем тэхнічныя сімвалы (- + = ! . ( ) { } [ ] > # | ~)
+      // Выкарыстоўваем адмоўны прагляд (lookahead/lookbehind), каб НЕ зламаць раздзяляльнік === SPLIT ===
+      return processed.replace(/(?<!=== )(?<!=)([\+\-\=\!\.\(\)\{\}\[\]\>\|\#\~])(?!(?: ===)|(?:=))/g, '\\$1');
+    };
+
+    // Калі AI вярнуў сыры JSON замест фарматаванага тэксту (аварыйны шчыт)
+    const isJson = trimmedText.startsWith('{') && trimmedText.endsWith('}');
+    if (isJson) {
+      console.log("⚠️ AI вярнуў JSON замест гатовага паста. Уключаем аварыйны шчыт.");
+      const parsed = JSON.parse(trimmedText);
+      const fullFallback = parsed.fullPost || parsed.full || parsed.text || trimmedText;
+      const shortFallback = parsed.shortPost || parsed.short || "";
+      
+      // Бяспечна экрануем абедзве часткі асобна
+      return `${escapeMarkdownV2(fullFallback)}\n\n=== SPLIT ===\n\n${escapeMarkdownV2(shortFallback)}`;
     }
-  }
 
-  if (!trimmedText || trimmedText.length < 50) {
-    throw new Error("AI returned too short post text");
-  }
+    if (!trimmedText || trimmedText.length < 50) {
+      throw new Error("Фарматаванне вярнула занадта кароткі або пусты тэкст.");
+    }
 
-  return trimmedText;
+    // Прымяняем экраніраванне да гатовага паста
+    return escapeMarkdownV2(trimmedText);
+  } catch (err) {
+    console.error(`❌ Памылка фарматавання паста для ${vacancyData.vacancyCode}:`, err.message);
+    throw err;
+  }
 }
+
 function normalizeNuances(nuances) {
   if (!Array.isArray(nuances)) return [];
   return nuances

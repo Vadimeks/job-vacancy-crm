@@ -1,44 +1,146 @@
 const axios = require("axios");
 
-async function fetchSharedData(shareId) {
+async function fetchSharedData(sharePath) {
   try {
-    console.log(`🕵️ [Scraper] Атрыманне дадзеных для Share ID: ${shareId}`);
+    const cleanSharePath = sharePath.includes("/") ? sharePath.split("/")[1] : sharePath;
+    const baseUrl = `https://airtable.com/${sharePath}`;
+    console.log(`🕵️ [Scraper] Загрузка старонкі: ${baseUrl}`);
 
-    // 1. Загружаем старонку для атрымання Access Policy
-    const pageRes = await axios.get(`https://airtable.com/${shareId}`, {
-      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0' }
+    const pageRes = await axios.get(baseUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9,ru;q=0.8,be;q=0.6',
+      },
+      timeout: 20000
     });
 
-    const accessPolicyMatch = pageRes.data.match(/"accessPolicy":"([^"]+)"/);
-    const appIdMatch = pageRes.data.match(/"sharedApplicationId":"([^"]+)"/);
+    const html = pageRes.data;
 
-    if (!accessPolicyMatch || !appIdMatch) throw new Error("Airtable змяніў структуру старонкі.");
+    let appId = (html.match(/"(?:sharedApplicationId|applicationId)":"(app[^"]+)"/) || [])[1];
+    let viewId = (html.match(/"sharedViewId":"(viw[^"]+)"/) || [])[1];
+    
+    const policyMatch = html.match(/"accessPolicy":"((?:\\"|[^"])*?)"/);
+    if (!policyMatch) {
+      throw new Error("Не ўдалося знайсці AccessPolicy ў HTML кодэ.");
+    }
+    const accessPolicyRaw = policyMatch[1].replace(/\\"/g, '"');
 
-    // 2. Запыт да ўнутранага API за дадзенымі
-    const dataUrl = `https://airtable.com/remote/v1/shared/view/${shareId}/read?stringifiedObjectParams=%7B%22includeDataForTable%22%3Atrue%7D`;
-    const dataRes = await axios.get(dataUrl, {
+    if (!appId) appId = (accessPolicyRaw.match(/app[a-zA-Z0-9]{14,17}/) || [])[0];
+    if (!viewId) viewId = (accessPolicyRaw.match(/viw[a-zA-Z0-9]{14,17}/) || [])[0];
+
+    let tableId = (html.match(/"typedTableId":"(tbl[^"]+)"/) || [])[1];
+    if (!tableId) tableId = (accessPolicyRaw.match(/tbl[a-zA-Z0-9]{14,17}/) || [])[0];
+
+    let isApplicationShare = html.includes("includeDataForTableIds") || html.includes("/application/") || cleanSharePath.startsWith("shr") && !viewId || sharePath.includes("shrDFLZSZGKzeiBrM");
+
+    let finalUrl = "";
+    
+    if (isApplicationShare && appId) {
+      console.log(`ℹ️ [Scraper] Вызначаны тып: Application Read (Тып Manpower)`);
+      const finalTableId = tableId || "tblTyT7NtUNZ1n2ek";
+      const finalViewId = viewId || "viwdTRwLTq3yfYVc5";
+
+      finalUrl = `https://airtable.com/v0.3/application/${appId}/read?stringifiedObjectParams=${encodeURIComponent(JSON.stringify({
+        includeDataForTableIds: [finalTableId],
+        includeDataForViewIds: [finalViewId],
+        shouldIncludeSchemaChecksum: true,
+        mayExcludeCellDataForLargeViews: false,
+        allowMsgpackOfResult: false
+      }))}&accessPolicy=${encodeURIComponent(accessPolicyRaw)}`;
+      
+    } else if (viewId) {
+      console.log(`ℹ️ [Scraper] Вызначаны тып: Shared View Data (Тып Job Impulse)`);
+      finalUrl = `https://airtable.com/v0.3/view/${viewId}/readSharedViewData?stringifiedObjectParams=${encodeURIComponent(JSON.stringify({
+        shouldUseNestedResponseFormat: true,
+        allowMsgpackOfResult: false
+      }))}&accessPolicy=${encodeURIComponent(accessPolicyRaw)}`;
+    } else {
+      throw new Error("Не хапае дадзеных для стварэння запыту.");
+    }
+
+    const dataRes = await axios.get(finalUrl, {
       headers: {
-        'x-airtable-application-id': appIdMatch[1],
-        'x-airtable-access-policy': accessPolicyMatch[1],
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0',
-        'Referer': `https://airtable.com/${shareId}`
+        'accept': 'application/json, text/plain, */*',
+        'x-airtable-application-id': appId,
+        'x-airtable-access-policy': accessPolicyRaw,
+        'x-airtable-inter-service-client': 'webClient',
+        'x-requested-with': 'XMLHttpRequest',
+        'x-time-zone': 'Europe/Warsaw',
+        'x-user-locale': 'en',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Referer': baseUrl
       }
     });
 
-    const { columns, rows } = dataRes.data.data.table;
+    let rows = [];
+    let columns = [];
+    const rootData = dataRes.data;
     
-    // 3. Фарматаванне пад стандарт афіцыйнага API
-    return rows.map(row => ({
-      id: row.id,
-      fields: columns.reduce((acc, col) => {
-        const val = row.cellValuesByColumnId[col.id];
-        if (val !== undefined) acc[col.name] = val;
-        return acc;
-      }, {})
-    }));
+    let tableObj = rootData?.data?.table || rootData?.table;
+    if (!tableObj && (rootData?.application?.tables || rootData?.data?.application?.tables || rootData?.sharedApplication?.tables)) {
+      const tablesList = rootData?.application?.tables || rootData?.data?.application?.tables || rootData?.sharedApplication?.tables;
+      tableObj = tablesList[0];
+    }
+
+    if (tableObj) {
+      rows = tableObj.rows || [];
+      columns = tableObj.columns || [];
+    }
+
+    if (!rows || rows.length === 0) {
+      rows = rootData?.rows || rootData?.data?.rows || [];
+      columns = rootData?.columns || rootData?.data?.columns || [];
+    }
+
+    if (!rows || rows.length === 0) {
+      throw new Error("Airtable вярнуў структуру без радкоў (rows).");
+    }
+
+    console.log(`📦 [Scraper] Паспяхова атрымана запісаў: ${rows.length}`);
+
+    const viewName = "актуальное";
+
+    return rows.map(row => {
+      const fields = {};
+      fields["Название колонки"] = viewName;
+
+      (columns || []).forEach(col => {
+        let val = row.cellValuesByColumnId?.[col.id];
+        if (val === undefined && row.fields) {
+          val = row.fields[col.name] || row.fields[col.id];
+        }
+
+        if (val !== undefined) {
+          if (val && typeof val === 'object') {
+            if (Array.isArray(val)) {
+              fields[col.name] = val.map(v => v.displayValue || v.name || v).join(", ");
+            } else {
+              fields[col.name] = val.displayValue || val.name || JSON.stringify(val);
+            }
+          } else {
+            fields[col.name] = val;
+          }
+        }
+      });
+
+      if (row.groupValues && row.groupValues.length > 0) {
+        const groupVal = row.groupValues[0];
+        const extractedGroup = groupVal.displayValue || groupVal.value;
+        if (extractedGroup) {
+          fields["Название колонки"] = String(extractedGroup);
+        }
+      }
+
+      return {
+        id: row.id,
+        fields: fields,
+        columnName: fields["Название колонки"]
+      };
+    });
 
   } catch (err) {
-    console.error(`❌ [Scraper] Памылка:`, err.message);
+    console.error(`❌ [Scraper] Памылка для спасылкі ${sharePath}:`, err.message);
     return null;
   }
 }
