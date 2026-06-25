@@ -55,10 +55,23 @@ mongoose
  */
 async function runSyncWithInsurance() {
   const taskName = "global-sync"; 
+  const UnprocessedMessage = require("./models/UnprocessedMessage");
+  const SyncState = require("./models/SyncState");
 
   try {
+    // 1. ПРЫЯРЫТЭТ 1: Праверка Інбокса (Чаты)
+    // Калі ёсць неапрацаваныя паведамленні з чатаў, фонавая сінхранізацыя ставіцца на паўзу
+    const pendingInbox = await UnprocessedMessage.countDocuments({ 
+      processed: false, 
+      source: { $in: ["viber", "telegram_userbot"] } 
+    });
+    
+    if (pendingInbox > 0) {
+      console.log(`⏳ [Sync] Паўза: у Інбоксе ${pendingInbox} паведамленняў з чатаў. Чакаем апрацоўкі.`);
+      return;
+    }
+
     const log = await CronLog.findOne({ taskName });
-    // Дазваляем запуск, калі прайшло больш за 3.5 гадзіны (для цыкла ў 4 гадзіны)
     const cooldownPeriod = new Date(Date.now() - 3.5 * 60 * 60 * 1000);
 
     if (log && log.lastRun >= cooldownPeriod) {
@@ -66,36 +79,36 @@ async function runSyncWithInsurance() {
       return;
     }
 
-    console.log("⏰ [Sync] Пачатак поўнай паслядоўнай сінхранізацыі...");
+    console.log("⏰ [Sync] Пачатак цыклічнага канвеера...");
 
-    // 1. Спачатку чысцім чаргу (pending_ai) — даціскаем тое, што не зрабіў Lite
+    // 2. ПРЫЯРЫТЭТ 2: Дапрацоўка "даўгоў" (pending_ai)
+    // Гэта заўсёды ідзе першым, каб вызваліць чаргу
     await retryPendingVacancies();
     
-    // 2. Google Sheets
+    // 3. ПРЫЯРЫТЭТ 3: Цыклічная сінхранізацыя крыніц (Кола)
+    // Мы будзем паслядоўна выклікаць сэрвісы. 
+    // Кожны сэрвіс сам павінен умець пачынаць з патрэбнага месца (гэта зробім у наступных кроках)
+    
     console.log("📊 Сканаванне Google Sheets...");
     await syncAllSheets();
     
-    // 3. Trello
     console.log("🗂️ Сканаванне Trello...");
     await syncAllTrelloBoards();
 
-    // 4. Airtable
     console.log("💎 Сканаванне Airtable...");
     await syncAirtable();
 
-    // Запісваем час паспяховага завяршэння
     await CronLog.findOneAndUpdate(
       { taskName },
       { lastRun: new Date() },
       { upsert: true, new: true }
     );
 
-    console.log("✅ [Sync] Усе крыніцы паспяхова апрацаваны.");
+    console.log("✅ [Sync] Кола завершана.");
   } catch (err) {
-    console.error("❌ [Sync] Памылка падчас глабальнай сінхранізацыі:", err.message);
+    console.error("❌ [Sync] Памылка канвеера:", err.message);
   }
 }
-
 // Запуск Cron кожныя 4 гадзіны (00:00, 04:00, 08:00 і г.д. па UTC)
 cron.schedule("0 */4 * * *", async () => {
   console.log("⏰ CRON: Трыгер спрацаваў (цыкл 4 гадзіны).");

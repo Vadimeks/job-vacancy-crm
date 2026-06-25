@@ -184,7 +184,8 @@ async function processVacancyMessage(
   sheetName = "", // 👈 ДАДАДЗЕНА
   existingId = null, // 👈 ДАДАДЗЕНА: ID для абнаўлення
   sourceType = "manual", // 👈 ДАДАДЗЕНА
-   forceFull = false
+   forceFull = false,
+   forcedStatus = null // 👈 Новы параметр
 ) {
   console.log(
     `\n--- 🤖 Stage 2: Groq-парсінг для ${preDefinedAgency || "Manual"} ---`,
@@ -210,7 +211,9 @@ async function processVacancyMessage(
     const vacancyDataList = Array.isArray(result) ? result : [result];
     const modelUsed = vacancyDataList[0]?.modelUsed || ""; 
     const isLite = modelUsed.toLowerCase().includes("lite");
-    const finalStatus = isLite ? "pending_ai" : "active";
+    // Калі статус прымусова перададзены (напр. closed з Airtable), выкарыстоўваем яго
+    // Інакш: калі мадэль Lite — у чаргу, калі Full — актыўная.
+    const finalStatus = forcedStatus || (isLite ? "pending_ai" : "active");
     // 🌍 Аўтаматычнае атрыманне каардынат для кожнага фрагмента
     for (const vData of vacancyDataList) {
       try {
@@ -295,22 +298,13 @@ async function processVacancyMessage(
               agencyName: finalAgency,
             }),
             sourceHash: sourceHash || undefined,
-            status: finalStatus, // 👈 Выкарыстоўваем finalStatus
+            status: finalStatus,
+            // Пазначаем для рэдактара, толькі калі вакансія актыўная
+            postOutdated: finalStatus === "active" ? true : false,
           },
           { new: true },
         );
-
         console.log(`✅ Вакансія абноўлена: ${updated.vacancyCode} (Статус: ${finalStatus})`);
-
-        // Адпраўляем у ТГ толькі калі мадэль была Full
-        if (finalStatus === "active") {
-          const postText = await aiService.formatTelegramPost(updated);
-          updated.telegramPost = postText;
-          await updated.save();
-        } else {
-          console.log(`⏳ [Buffer] Вакансія ${updated.vacancyCode} чакае Full-мадэлі. ТГ пропуск.`);
-        }
-
         savedVacancies.push(updated);
         currentExistingId = null;
       }  else {
@@ -332,22 +326,12 @@ async function processVacancyMessage(
           isTruncated,
           parsingResultType,
           sourceHash,
-          status: finalStatus, // 👈 Выкарыстоўваем finalStatus
+          status: finalStatus,
+          postOutdated: finalStatus === "active" ? true : false,
         });
 
         const saved = await newVacancy.save();
         console.log(`✅ Вакансія створана: ${vacancyCode} (Статус: ${finalStatus})`);
-
-        // Адпраўляем у ТГ толькі калі мадэль была Full
-        if (finalStatus === "active") {
-          const postText = await aiService.formatTelegramPost(saved);
-          saved.telegramPost = postText;
-          await saved.save();
-          await sendToTelegram(sanitizeTelegramMarkdown(postText));
-        } else {
-          console.log(`⏳ [Buffer] Новая вакансія ${vacancyCode} у чарзе. ТГ пропуск.`);
-        }
-
         savedVacancies.push(saved);
       }
     }
@@ -443,19 +427,15 @@ router.post("/from-template/:templateId", async (req, res) => {
       status: "active",
     });
 
+    // Пазначаем для ручной публікацыі
+    newVacancy.postOutdated = true;
     const saved = await newVacancy.save();
-
-    // 🆕 Фармуем пост на аснове ЗАХАВАНАГА аб'екта
-    const postText = await aiService.formatTelegramPost(saved);
-    saved.telegramPost = postText;
-    await saved.save();
-
-    await sendToTelegram(sanitizeTelegramMarkdown(postText));
 
     if (messageId) {
       await markInboxMessageAsProcessed(messageId);
     }
 
+    console.log(`✅ Вакансія ${saved.vacancyCode} створана з шаблона. Чакае публікацыі.`);
     res.status(201).json(saved);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -482,15 +462,15 @@ router.post("/", async (req, res) => {
       vacancyCode,
       locationCoords: coords || undefined 
     });
+    // Пазначаем, што пост патрабуе генерацыі, і захоўваем без адпраўкі
+    newVacancy.postOutdated = true;
     const saved = await newVacancy.save();
-
-    const postText = await aiService.formatTelegramPost(saved);
-    await sendToTelegram(sanitizeTelegramMarkdown(postText));
 
     if (messageId) {
       await markInboxMessageAsProcessed(messageId);
     }
 
+    console.log(`✅ Вакансія ${saved.vacancyCode} створана ўручную. Чакае публікацыі.`);
     res.status(201).json(saved);
   } catch (err) {
     console.error("❌ Manual Create Error:", err.message);
@@ -750,21 +730,15 @@ router.patch("/:id/ai-update", async (req, res) => {
       rawText,
     );
 
-    const newPostText = await aiService.formatTelegramPost(updatedData);
-    const telegramUpdateNote = `🔄 **ОНОВЛЕНО** (Код: ${existingVacancy.vacancyCode})\n\n${newPostText}`;
-
-    updatedData.telegramPost = newPostText;
+    // Пазначаем, што пасля AI-абнаўлення пост трэба перагенераваць
+    updatedData.postOutdated = true;
     updatedData.rawText = `${existingVacancy.rawText}\n\n--- UPDATE ---\n${rawText}`;
 
     const saved = await Vacancy.findByIdAndUpdate(req.params.id, updatedData, {
       new: true,
     });
 
-    try {
-      await sendToTelegram(sanitizeTelegramMarkdown(telegramUpdateNote));
-    } catch (tgErr) {
-      console.error("⚠️ Telegram failed:", tgErr.message);
-    }
+    console.log(`✅ Вакансія ${saved.vacancyCode} абноўлена праз AI. Пост пазначаны як састарэлы.`);
 
     if (messageId) {
       await markInboxMessageAsProcessed(messageId);
@@ -939,4 +913,46 @@ async function retryPendingVacancies() {
     await new Promise(r => setTimeout(r, 5000));
   }
 }
+// Генерацыя прэв'ю для рэдактара
+router.post("/:id/generate-preview", async (req, res) => {
+  try {
+    const vacancy = await Vacancy.findById(req.params.id);
+    if (!vacancy) return res.status(404).json({ message: "Вакансія не знойдзена" });
+
+    const postText = await aiService.formatTelegramPost(vacancy);
+    const parts = postText.split("=== SPLIT ===");
+    
+    vacancy.telegramFull = parts[0]?.trim() || "";
+    vacancy.telegramShort = parts[1]?.trim() || "";
+    vacancy.postOutdated = false;
+    await vacancy.save();
+
+    res.json({ full: vacancy.telegramFull, short: vacancy.telegramShort });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Публікацыя адрэдагаванага паста
+router.post("/:id/publish", async (req, res) => {
+  try {
+    const { fullText, shortText, mode } = req.body;
+    const vacancy = await Vacancy.findById(req.params.id);
+    if (!vacancy) return res.status(404).json({ message: "Вакансія не знойдзена" });
+
+    if (mode === "full" || mode === "both") {
+      await sendToTelegram(fullText || vacancy.telegramFull);
+    }
+    if (mode === "short" || mode === "both") {
+      // Тут будзе адпраўка ў другі канал, калі спатрэбіцца
+      await sendToTelegram(shortText || vacancy.telegramShort);
+    }
+
+    vacancy.isPublished = true;
+    await vacancy.save();
+    res.json({ message: "✅ Апублікавана" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 module.exports = { router, processVacancyMessage, retryPendingVacancies };

@@ -38,15 +38,19 @@ async function fetchSharedData(sharePath) {
     
     if (isApplicationShare && appId) {
       console.log(`ℹ️ [Scraper] Вызначаны тып: Application Read (Тып Manpower)`);
-      const finalTableId = tableId || "tblTyT7NtUNZ1n2ek";
-      const finalViewId = viewId || "viwdTRwLTq3yfYVc5";
+      // Калі гэта Manpower (паводле sharePath), выкарыстоўваем правераныя ID
+      const isManpower = sharePath.includes("shrDFLZSZGKzeiBrM");
+      const finalTableId = isManpower ? "tblTyT7NtUNZ1n2ek" : (tableId || "tblTyT7NtUNZ1n2ek");
+      const finalViewId = isManpower ? "viwdTRwLTq3yfYVc5" : (viewId || "viwdTRwLTq3yfYVc5");
 
       finalUrl = `https://airtable.com/v0.3/application/${appId}/read?stringifiedObjectParams=${encodeURIComponent(JSON.stringify({
         includeDataForTableIds: [finalTableId],
         includeDataForViewIds: [finalViewId],
         shouldIncludeSchemaChecksum: true,
+        mayOnlyIncludeRowAndCellDataForIncludedViews: false, // 👈 ДАДАДЗЕНА: дазвол на чытанне радкоў
         mayExcludeCellDataForLargeViews: false,
-        allowMsgpackOfResult: false
+        allowMsgpackOfResult: false,
+        canClientSupportPreviewMode: true // 👈 ДАДАДЗЕНА: імітацыя рэжыму прагляду браўзера
       }))}&accessPolicy=${encodeURIComponent(accessPolicyRaw)}`;
       
     } else if (viewId) {
@@ -128,7 +132,7 @@ async function fetchSharedData(sharePath) {
         const groupVal = row.groupValues[0];
         const extractedGroup = groupVal.displayValue || groupVal.value;
         if (extractedGroup) {
-          fields["Название колонки"] = String(extractedGroup);
+          fields["Название колонки"] = String(extractedGroup).trim(); // 👈 ДАДАДЗЕНА: trim() для дакладнай фільтрацыі
         }
       }
 

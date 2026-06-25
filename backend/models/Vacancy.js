@@ -174,13 +174,17 @@ const vacancySchema = new mongoose.Schema(
     originalText: { type: String, default: "" }, // Арыгінал з MacroDroid (любая мова)
     rawText: { type: String, default: "" }, // Пераклад (украінская), з якім працуе парсер
     isTruncated: { type: Boolean, default: false }, // Ці было зыходнае паведамленне абрэзаным
-    telegramPost: { type: String, default: "" },
+    telegramFull: { type: String, default: "" }, // Поўная версія паста для ТГ
+    telegramShort: { type: String, default: "" }, // Кароткая версія паста для ТГ
+    isPublished: { type: Boolean, default: false, index: true }, // Ці апублікавана ў канале
+    postOutdated: { type: Boolean, default: false }, // Ці патрабуе пост перагенерацыі пасля абнаўлення
     parsingResultType: { type: String, default: "FULL_VACANCY" }, // 🆕 Вердыкт AI (FULL_VACANCY, UPDATE, TRUNCATED, INFO)
     status: {
       type: String,
       enum: ["active", "closed", "archived", "pending_ai"], // 👈 Дададзены статус чаргі
       default: "active",
     },
+    closingReason: { type: String, default: "" }, // Прычына закрыцця (напр. "Знікла з Airtable" або "STOP")
     isFavorite: { type: Boolean, default: false, index: true },
     vacancyCode: { type: String, unique: true, sparse: true },
     // --- ДАДАДЗЕНА ДЛЯ ГЛАБАЛЬНАЙ АБАРОНЫ АД ДУБЛІКАТАЎ ---
