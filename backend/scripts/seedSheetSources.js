@@ -20,10 +20,6 @@ const SOURCES = [
     url: "https://docs.google.com/spreadsheets/d/13PN6zOZiDLAL-iLm58NSbsig4h_inXp-GfmNWxc53y8/edit?gid=1537077073#gid=1537077073",
   },
   {
-    agency: "INTRASERVICE",
-    url: "https://docs.google.com/spreadsheets/d/13PN6zOZiDLAL-iLm58NSbsig4h_inXp-GfmNWxc53y8/edit?gid=1683186395#gid=1683186395",
-  },
-  {
     agency: "RALEN",
     url: "https://docs.google.com/spreadsheets/d/1qASi88Ihwdw3LpFLQECg-7YSGuv07lZ4pMqFNyTgk8E/edit?gid=1850018480#gid=1850018480",
   },

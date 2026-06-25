@@ -797,9 +797,15 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true, full
           clearTimeout(timeoutId);
 
           if (response.status === 429) throw new Error("RATE_LIMIT");
-          if (response.status >= 500)
-            throw new Error(`SERVER_ERROR_${response.status}`);
+          
+          if (!response.ok) {
+            // Калі статус не 200-299, чытаем тэкст (там будзе HTML памылкі)
+            const errorText = await response.text();
+            console.error(`❌ Vertex AI Error (${response.status}):`, errorText.substring(0, 200));
+            throw new Error(`VERTEX_ERROR_${response.status}`);
+          }
 
+          // Толькі калі response.ok — спрабуем парсіць JSON
           const data = await response.json();
           const chunks = Array.isArray(data) ? data : [data];
           for (const chunk of chunks) {

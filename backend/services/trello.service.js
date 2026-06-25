@@ -71,17 +71,22 @@ async function syncTrelloBoard(sourceId) {
     `\n🗂️ [Trello] Пачатак сінхранізацыі: ${source.boardName} (${source.agencyName})`,
   );
 
-  const stats = { added: 0, updated: 0, closed: 0, ignored: 0, info: 0 }; // 👈 ЗМЕНА: дададзены ignored
-  const details = []; // Для справаздачы
-  const hotUpdates = []; // 👈 Акумулятар для групавання паведамленняў у Inbox
+  const stats = { added: 0, updated: 0, closed: 0, ignored: 0, info: 0 };
+  const details = [];
+  const hotUpdates = [];
   const foundCardIds = new Set();
+
+  // 🔄 Чытаем стан "Кола" (Circular Sync)
+  const SyncState = require("../models/SyncState");
+  const syncState = await SyncState.findOne({ key: "circular_sync_position" }) || new SyncState();
+  const startIndex = (syncState.lastSourceId?.toString() === source._id.toString()) ? syncState.lastIndex : 0;
 
   try {
     // 1. Атрымліваем усе спісы дошкі
     const listsUrl = `https://api.trello.com/1/boards/${source.boardId}/lists?key=${source.apiKey}&token=${source.token}`;
     const listsRes = await axios.get(listsUrl);
     const lists = listsRes.data;
-
+let cardCounter = 0; // 👈 ДАДАЦЬ ГЭТА (ініцыялізацыя лічыльніка для ўсёй дошкі)
     for (const list of lists) {
       const normListName = normalizeName(list.name);
 
@@ -105,6 +110,14 @@ async function syncTrelloBoard(sourceId) {
       const cards = cardsRes.data;
 
       for (const card of cards) {
+        const currentCardIndex = cardCounter;
+        cardCounter++;
+
+        // Пропуск, калі мы яшчэ не дайшлі да патрэбнага індэкса
+        if (currentCardIndex < startIndex) {
+          foundCardIds.add(card.id);
+          continue;
+        }
         foundCardIds.add(card.id);
 
         // Збіраем тэкст метак
@@ -119,7 +132,7 @@ async function syncTrelloBoard(sourceId) {
         );
 
         // Фармуем сыры дамп для AI
-        // Фармуем сыры дамп для AI
+
         const rawTrelloDump = `
 ${card.name}
 ${labelsText ? `Меткі: ${labelsText}` : ""}
@@ -167,10 +180,19 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
           const analysis = await analyzeAndCompareWithGemini(
             `[SOURCE: TRELLO | AGENCY: ${source.agencyName}]\n${rawTrelloDump}`
           );
-
-          if (!analysis || !analysis.translatedFragments) {
+if (!analysis || !analysis.translatedFragments) {
             console.error(`🛑 AI FATAL ERROR для Trello: ${card.name}. Спыняем дошку.`);
-            return; // 👈 Стоп-кран для Trello
+            
+            await SyncState.findOneAndUpdate(
+              { key: "circular_sync_position" },
+              { 
+                lastSourceType: "trello", 
+                lastSourceId: source._id, 
+                lastIndex: currentCardIndex 
+              },
+              { upsert: true }
+            );
+            return; 
           }
 
           // Stage 2: Парсінг кожнага фрагмента
@@ -268,6 +290,11 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
       }).save();
       console.log(`📦 Згрупавана ${hotUpdates.length} інфа-картак Trello.`);
     }
+    // Калі прайшлі ўсю дошку — скідаем індэкс
+    await SyncState.findOneAndUpdate(
+      { key: "circular_sync_position" },
+      { lastIndex: 0 }
+    );
     await source.save();
 
     console.log(

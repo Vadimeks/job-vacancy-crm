@@ -406,6 +406,10 @@ async function syncSheetVacancies(sourceId) {
 
   const stats = { added: 0, updated: 0, closed: 0, ignored: 0 };
   const details = [];
+  // 🔄 Чытаем стан "Кола" (Circular Sync)
+  const SyncState = require("../models/SyncState");
+  const syncState = await SyncState.findOne({ key: "circular_sync_position" }) || new SyncState();
+  const startIndex = (syncState.lastSourceId?.toString() === source._id.toString()) ? syncState.lastIndex : 0;
   const hotUpdates = []; // 👈 Акумулятар для групавання паведамленняў у Inbox
   const foundHashesInSheet = new Set();
 
@@ -469,7 +473,10 @@ async function syncSheetVacancies(sourceId) {
       .limit(50);
 
     // --- КРОК 3: ЦЫКЛ ПА РАДКАХ ---
-    for (let i = headerRowIndex + 1; i < rowData.length; i++) {
+   for (let i = headerRowIndex + 1; i < rowData.length; i++) {
+      // Пропуск, калі мы яшчэ не дайшлі да патрэбнага індэкса ў гэтым коле
+      if (i < startIndex) continue;
+
       const cells = resolveMergedCells(i, rowData, merges);
       if (
         rowData[i].rowMetadata?.hiddenByUser ||
@@ -576,10 +583,18 @@ async function syncSheetVacancies(sourceId) {
       );
 
       if (!analysis) {
-        console.log(
-          `⏳ AI не адказаў для радка ${i + 1}. Спыняем сінхранізацыю гэтай табліцы, каб пазбегнуць памылковага закрыцця вакансій.`,
+        console.log(`⏳ AI не адказаў для радка ${i + 1}. Запамінаем індэкс і спыняемся.`);
+        
+        await SyncState.findOneAndUpdate(
+          { key: "circular_sync_position" },
+          { 
+            lastSourceType: "spreadsheet", 
+            lastSourceId: source._id, 
+            lastIndex: i 
+          },
+          { upsert: true }
         );
-        return "STOP_ALL"; // 👈 Замянілі continue на return
+        return "STOP_ALL"; 
       }
 
       console.log(
@@ -819,6 +834,11 @@ async function syncSheetVacancies(sourceId) {
         `📦 Згрупавана ${hotUpdates.length} апдэйтаў у адно паведамленне Inbox.`,
       );
     }
+    // Калі мы прайшлі ўсю табліцу да канца — скідаем індэкс для гэтай крыніцы
+    await SyncState.findOneAndUpdate(
+      { key: "circular_sync_position" },
+      { lastIndex: 0 }
+    );
     source.lastProcessedAt = new Date();
     await source.save();
     console.log(`🏁 Сінхранізацыя ${source.sheetName} завершана.`);
