@@ -651,3 +651,10 @@
 
 **Вынік:** Сінхранізацыя стартуе заўсёды. Калі канвеер чатаў заняты —
 сінхранізацыя чакае яго завяршэння і толькі потым працягваецца.
+### [2026-06-26] Фікс скрапера Manpower (Airtable)
+- **Праблема**: Скрапер вяртаў "0 радкоў" для Manpower, бо не мог знайсці табліцу ў складанай структуры JSON (Application Read).
+- **Змены ў `airtableScraper.service.js`**:
+  - Укаранёны прымусовы выбар `tableId` (`tblTyT7NtUNZ1n2ek`) і `viewId` для спасылак Manpower.
+  - Дададзены параметры `mayOnlyIncludeRowAndCellDataForIncludedViews` і `canClientSupportPreviewMode` для абыходу абароны Airtable.
+  - Перапісана логіка пошуку аб'екта табліцы: цяпер сістэма шукае патрэбны ID ва ўсіх магчымых галінах JSON (`sharedApplication`, `application`, `data`).
+- **Вынік**: Скрапер павінен паспяхова бачыць і здабываць радкі з публічнай дошкі Manpower.

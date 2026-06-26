@@ -81,10 +81,15 @@ async function fetchSharedData(sharePath) {
     let columns = [];
     const rootData = dataRes.data;
     
-    let tableObj = rootData?.data?.table || rootData?.table;
-    if (!tableObj && (rootData?.application?.tables || rootData?.data?.application?.tables || rootData?.sharedApplication?.tables)) {
-      const tablesList = rootData?.application?.tables || rootData?.data?.application?.tables || rootData?.sharedApplication?.tables;
-      tableObj = tablesList[0];
+    // 👈 ЗМЕНА: Дакладны пошук табліцы па ID для Manpower
+    let tableObj = null;
+    const tablesList = rootData?.application?.tables || 
+                       rootData?.data?.application?.tables || 
+                       rootData?.sharedApplication?.tables || 
+                       (rootData?.data?.table ? [rootData.data.table] : []);
+
+    if (tablesList.length > 0) {
+      tableObj = tablesList.find(t => t.id === (tableId || "tblTyT7NtUNZ1n2ek")) || tablesList[0];
     }
 
     if (tableObj) {
