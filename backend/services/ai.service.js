@@ -2,7 +2,8 @@ const Groq = require("groq-sdk");
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const { GoogleAuth } = require("google-auth-library");
 const path = require("path");
-
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY.trim());
 // Бяром толькі з env, без хардкоду
 const GOOGLE_PROJECT_ID = process.env.GOOGLE_PROJECT_ID;
 const LOCATION = process.env.LOCATION;
@@ -822,25 +823,18 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true, full
           }
         }
 // --- GEMINI AI STUDIO (бясплатны, не Vertex) ---
-         if (model.provider === "gemini_studio") {
-          const axios = require("axios");
-          console.log(`🤖 Запыт да Gemini AI Studio: ${model.name}`);
+          if (model.provider === "gemini_studio") {
+          console.log(`🤖 Запыт да Gemini AI Studio (SDK): ${model.name}`);
           
-          const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model.name}:generateContent?key=${process.env.GEMINI_API_KEY.trim()}`;
-
-          const response = await axios.post(
-            geminiUrl,
-            {
-              // Максімальна простая структура, як у тваім curl
-              contents: [{ parts: [{ text: `${systemPrompt}\n\n${safeContent}` }] }]
-            },
-            {
-              headers: { "Content-Type": "application/json" },
-              timeout: 60000
-            }
+          // Выкарыстоўваем v1beta, бо менавіта яна прыняла gemini-flash-latest у curl
+          const genModel = genAI.getGenerativeModel(
+            { model: model.name },
+            { apiVersion: "v1beta" }
           );
 
-          fullText = response.data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+          const result = await genModel.generateContent(systemPrompt + "\n\n" + safeContent);
+          const response = await result.response;
+          fullText = response.text().trim();
         }
         // --- GROQ ---
         if (model.provider === "groq") {
