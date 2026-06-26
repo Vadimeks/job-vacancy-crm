@@ -105,31 +105,18 @@ async function runSyncWithInsurance(forceRun = false) {
     // Гэта заўсёды ідзе першым, каб вызваліць чаргу
     await retryPendingVacancies();
     
-    // 3. ПРЫЯРЫТЭТ 3: Цыклічная сінхранізацыя крыніц (Кола)
-    // Мы будзем паслядоўна выклікаць сэрвісы. 
-    // Кожны сэрвіс сам павінен умець пачынаць з патрэбнага месца (гэта зробім у наступных кроках)
-    
+   // 3. ПРЫЯРЫТЭТ 3: Цыклічная сінхранізацыя крыніц (Кола)
     console.log("📊 Сканаванне Google Sheets...");
     const sheetsResult = await syncAllSheets();
-    // 👈 ДАДАДЗЕНА: глабальны стоп-кран пры AI збоі
-    if (sheetsResult === "STOP_ALL") {
-      console.error("🛑 [Sync] AI збой на Sheets. Trello і Airtable прапушчаны.");
-      return;
-    }
+    if (sheetsResult === "STOP_ALL") return; // 👈 Спыняем усё кола адразу
 
     console.log("🗂️ Сканаванне Trello...");
     const trelloResult = await syncAllTrelloBoards();
-    if (trelloResult === "STOP_ALL") {
-      console.error("🛑 [Sync] AI збой на Trello. Airtable прапушчаны.");
-      return;
-    }
+    if (trelloResult === "STOP_ALL") return; // 👈 Спыняем усё кола адразу
 
     console.log("💎 Сканаванне Airtable...");
     const airtableResult = await syncAirtable();
-    if (airtableResult === "STOP_ALL") {
-      console.error("🛑 [Sync] AI збой на Airtable.");
-      return;
-    }
+    if (airtableResult === "STOP_ALL") return; // 👈 Спыняем усё кола адразу
 
     // 👈 ЗМЕНА: CronLog і isComplete пішацца толькі пры поўным паспяховым завяршэнні
     const finalSyncState = await SyncState.findOne({ key: "circular_sync_position" });

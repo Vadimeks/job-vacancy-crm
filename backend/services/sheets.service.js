@@ -907,9 +907,8 @@ async function syncAllSheets() {
 
     if (result === "STOP_ALL") {
       console.error("🛑 Сінхранізацыя перарвана: AI Cooldown або памылка.");
-      break; // 👈 Спыняем перабор усіх астатніх табліц
+      return "STOP_ALL"; // 👈 ДАДАДЗЕНА: вяртаем сігнал у index.js
     }
-    // Невялікая паўза паміж табліцамі для бяспекі
     await new Promise((r) => setTimeout(r, 5000));
   }
 }
