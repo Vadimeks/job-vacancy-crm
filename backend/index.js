@@ -110,13 +110,26 @@ async function runSyncWithInsurance(forceRun = false) {
     // Кожны сэрвіс сам павінен умець пачынаць з патрэбнага месца (гэта зробім у наступных кроках)
     
     console.log("📊 Сканаванне Google Sheets...");
-    await syncAllSheets();
-    
+    const sheetsResult = await syncAllSheets();
+    // 👈 ДАДАДЗЕНА: глабальны стоп-кран пры AI збоі
+    if (sheetsResult === "STOP_ALL") {
+      console.error("🛑 [Sync] AI збой на Sheets. Trello і Airtable прапушчаны.");
+      return;
+    }
+
     console.log("🗂️ Сканаванне Trello...");
-    await syncAllTrelloBoards();
+    const trelloResult = await syncAllTrelloBoards();
+    if (trelloResult === "STOP_ALL") {
+      console.error("🛑 [Sync] AI збой на Trello. Airtable прапушчаны.");
+      return;
+    }
 
     console.log("💎 Сканаванне Airtable...");
-    await syncAirtable();
+    const airtableResult = await syncAirtable();
+    if (airtableResult === "STOP_ALL") {
+      console.error("🛑 [Sync] AI збой на Airtable.");
+      return;
+    }
 
     // 👈 ЗМЕНА: CronLog і isComplete пішацца толькі пры поўным паспяховым завяршэнні
     const finalSyncState = await SyncState.findOne({ key: "circular_sync_position" });

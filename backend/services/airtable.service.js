@@ -14,7 +14,12 @@ async function syncAirtable() {
 
   for (const source of sources) {
     try {
-      await syncSingleSource(source);
+      const result = await syncSingleSource(source);
+      // 👈 ДАДАДЗЕНА: калі AI недаступны — спыняем усе крыніцы
+      if (result === "STOP_ALL") {
+        console.error("🛑 [Airtable] AI недаступны. Спыняем усе крыніцы.");
+        return "STOP_ALL";
+      }
     } catch (err) {
       console.error(`❌ [Airtable] Памылка ў ${source.agencyName}:`, err.message);
     }
@@ -146,7 +151,7 @@ async function syncSingleSource(source) {
         { lastSourceType: "airtable", lastSourceId: source._id, lastIndex: i },
         { upsert: true }
       );
-      return; 
+      return "STOP_ALL";
     }
 
     for (const fragment of analysis.translatedFragments) {
@@ -167,7 +172,7 @@ async function syncSingleSource(source) {
           { lastSourceType: "airtable", lastSourceId: source._id, lastIndex: i },
           { upsert: true }
         );
-        return;
+        return "STOP_ALL";
       }
     }
     await new Promise(r => setTimeout(r, 4000));

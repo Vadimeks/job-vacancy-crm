@@ -192,7 +192,7 @@ if (!analysis || !analysis.translatedFragments) {
               },
               { upsert: true }
             );
-            return; 
+            return "STOP_ALL"; 
           }
 
           // Stage 2: Парсінг кожнага фрагмента
@@ -211,9 +211,9 @@ if (!analysis || !analysis.translatedFragments) {
             );
 
             if (result && result.error) {
-              if (result.error.includes("AI_COOLDOWN") || result.error.includes("ALL_AI_MODELS_FAILED")) {
+               if (result.error.includes("AI_COOLDOWN") || result.error.includes("ALL_AI_MODELS_FAILED")) {
                 console.error("🛑 Спыняем Trello: AI недаступны.");
-                return; // 👈 Стоп-кран
+                return "STOP_ALL"; // 👈 Стоп-кран
               }
             } else if (result) {
               if (existingVacancy) {
@@ -311,7 +311,12 @@ if (!analysis || !analysis.translatedFragments) {
 async function syncAllTrelloBoards() {
   const sources = await TrelloSource.find({ status: "active" });
   for (const source of sources) {
-    await syncTrelloBoard(source._id);
+    const result = await syncTrelloBoard(source._id);
+    // 👈 ДАДАДЗЕНА: калі дошка вярнула STOP_ALL — спыняем усе дошкі
+    if (result === "STOP_ALL") {
+      console.error("🛑 [Trello] AI недаступны. Спыняем усе дошкі.");
+      return "STOP_ALL";
+    }
     await new Promise((r) => setTimeout(r, 6000));
   }
 }
