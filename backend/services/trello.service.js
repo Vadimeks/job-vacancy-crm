@@ -341,14 +341,31 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
  * Запуск сінхранізацыі ўсіх дошак
  */
 async function syncAllTrelloBoards() {
-  const sources = await TrelloSource.find({ status: "active" });
+  const SyncState = require("../models/SyncState");
+  const syncState = await SyncState.findOne({ key: "circular_sync_position" });
+  const processedIds = syncState?.processedInCircle?.map(id => id.toString()) || [];
+
+  // Бяром толькі тыя дошкі, якіх НЯМА ў спісе апрацаваных у гэтым коле
+  const sources = await TrelloSource.find({ 
+    status: "active",
+    _id: { $nin: processedIds }
+  });
+
+  console.log(`🚀 Сінхранізацыя Trello: ${sources.length} дошак (прапушчана: ${processedIds.length})`);
+
   for (const source of sources) {
     const result = await syncTrelloBoard(source._id);
-    // 👈 ДАДАДЗЕНА: калі дошка вярнула STOP_ALL — спыняем усе дошкі
+    
     if (result === "STOP_ALL") {
-      console.error("🛑 [Trello] AI недаступны. Спыняем усе дошкі.");
       return "STOP_ALL";
     }
+
+    // Пазначаем дошку як пройдзеную ў гэтым коле
+    await SyncState.findOneAndUpdate(
+      { key: "circular_sync_position" },
+      { $addToSet: { processedInCircle: source._id } }
+    );
+
     await new Promise((r) => setTimeout(r, 6000));
   }
 }

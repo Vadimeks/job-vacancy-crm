@@ -9,17 +9,33 @@ const SyncState = require("../models/SyncState"); // 👈 Дадаць да ас
  * Сінхранізацыя Airtable з выкарыстаннем поўнага AI-пайплайна
  */
 async function syncAirtable() {
-  const sources = await AirtableSource.find({ status: "active" }).sort({ shareId: -1, agencyName: 1 });
-  console.log(`\n💎 [Airtable] Пачатак сінхранізацыі для ${sources.length} агенцый...`);
+  const SyncState = require("../models/SyncState");
+  const syncState = await SyncState.findOne({ key: "circular_sync_position" });
+  const processedIds = syncState?.processedInCircle?.map(id => id.toString()) || [];
+
+  // Бяром толькі тыя агенцыі, якіх НЯМА ў спісе апрацаваных
+  const sources = await AirtableSource.find({ 
+    status: "active",
+    _id: { $nin: processedIds }
+  }).sort({ shareId: -1, agencyName: 1 });
+
+  console.log(`\n💎 [Airtable] Сінхранізацыя: ${sources.length} агенцый (прапушчана: ${processedIds.length})`);
 
   for (const source of sources) {
     try {
       const result = await syncSingleSource(source);
-      // 👈 ДАДАДЗЕНА: калі AI недаступны — спыняем усе крыніцы
+      
       if (result === "STOP_ALL") {
         console.error("🛑 [Airtable] AI недаступны. Спыняем усе крыніцы.");
         return "STOP_ALL";
       }
+
+      // Пазначаем агенцыю як пройдзеную
+      await SyncState.findOneAndUpdate(
+        { key: "circular_sync_position" },
+        { $addToSet: { processedInCircle: source._id } }
+      );
+
     } catch (err) {
       console.error(`❌ [Airtable] Памылка ў ${source.agencyName}:`, err.message);
     }

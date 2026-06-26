@@ -94,10 +94,17 @@ async function runSyncWithInsurance(forceRun = false) {
 
     console.log("⏰ [Sync] Пачатак цыклічнага канвеера...");
 
-    // 👈 ДАДАДЗЕНА: адзначаем кола як незавершанае ў пачатку
+    // 👈 ЗМЕНА: Калі мінулае кола было завершана — пачынаем новае (чысцім спіс апрацаваных)
+    // Калі не было завершана — пакідаем спіс, каб прапусціць гатовыя табліцы
+    const updateData = { isComplete: false };
+    if (syncState && syncState.isComplete) {
+      updateData.processedInCircle = [];
+      console.log("🔄 [Sync] Пачынаем новае кола крыніц.");
+    }
+
     await SyncState.findOneAndUpdate(
       { key: "circular_sync_position" },
-      { isComplete: false },
+      updateData,
       { upsert: true }
     );
 

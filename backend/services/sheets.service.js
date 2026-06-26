@@ -899,16 +899,31 @@ async function syncSheetVacancies(sourceId) {
 }
 
 async function syncAllSheets() {
-  const sources = await SheetSource.find({ status: "active" });
-  console.log(`🚀 Запуск сінхранізацыі для ${sources.length} табліц...`);
+  const SyncState = require("../models/SyncState");
+  const syncState = await SyncState.findOne({ key: "circular_sync_position" });
+  const processedIds = syncState?.processedInCircle?.map(id => id.toString()) || [];
+
+  // Бяром толькі тыя табліцы, якіх НЯМА ў спісе апрацаваных у гэтым коле
+  const sources = await SheetSource.find({ 
+    status: "active", 
+    _id: { $nin: processedIds } 
+  });
+
+  console.log(`🚀 Запуск сінхранізацыі для ${sources.length} табліц (прапушчана: ${processedIds.length})...`);
 
   for (const source of sources) {
     const result = await syncSheetVacancies(source._id);
 
     if (result === "STOP_ALL") {
-      console.error("🛑 Сінхранізацыя перарвана: AI Cooldown або памылка.");
-      return "STOP_ALL"; // 👈 ДАДАДЗЕНА: вяртаем сігнал у index.js
+      return "STOP_ALL";
     }
+
+    // Калі табліца паспяхова пройдзена (lastIndex стаў 0), дадаем яе ў спіс апрацаваных
+    await SyncState.findOneAndUpdate(
+      { key: "circular_sync_position" },
+      { $addToSet: { processedInCircle: source._id } }
+    );
+
     await new Promise((r) => setTimeout(r, 5000));
   }
 }
