@@ -55,20 +55,22 @@ mongoose
  */
 async function runSyncWithInsurance() {
   const taskName = "global-sync"; 
-  const UnprocessedMessage = require("./models/UnprocessedMessage");
-  const SyncState = require("./models/SyncState");
+  
 
   try {
-    // 1. ПРЫЯРЫТЭТ 1: Праверка Інбокса (Чаты)
-    // Калі ёсць неапрацаваныя паведамленні з чатаў, фонавая сінхранізацыя ставіцца на паўзу
-    const pendingInbox = await UnprocessedMessage.countDocuments({ 
-      processed: false, 
-      source: { $in: ["viber", "telegram_userbot"] } 
-    });
-    
-    if (pendingInbox > 0) {
-      console.log(`⏳ [Sync] Паўза: у Інбоксе ${pendingInbox} паведамленняў з чатаў. Чакаем апрацоўкі.`);
-      return;
+    // 👈 ЗМЕНА: мяккі замок замест жорсткага return
+    // Сінхранізацыя стартуе заўсёды, але чакае калі канвеер чатаў заняты
+    if (global.isChatProcessing) {
+      console.log(`⏳ [Sync] Канвеер чатаў заняты. Чакаем завяршэння...`);
+      await new Promise(resolve => {
+        const check = setInterval(() => {
+          if (!global.isChatProcessing) {
+            clearInterval(check);
+            resolve();
+          }
+        }, 5000);
+      });
+      console.log(`✅ [Sync] Канвеер чатаў вызвалены. Працягваем сінхранізацыю.`);
     }
 
     const log = await CronLog.findOne({ taskName });

@@ -638,3 +638,16 @@
 
 **Вынік:** Vertex AI мадэлі (gemini-2.5-flash, gemini-2.5-flash-lite)
 зноў даступны на Render. Groq больш не нясе ўсю нагрузку адзін.
+## fix(sync): replace hard inbox lock with soft global.isChatProcessing flag
+
+**Праблема:** Сінхранізацыя ніколі не запускалася бо жорсткая праверка
+кол-васці паведамленняў у інбоксе заўсёды вяртала `return`.
+
+**Змены:**
+- `inbox.js` — дададзены `global.isChatProcessing` флаг які
+  выстаўляецца `true` падчас апрацоўкі канвеера і `false` у `finally`
+- `index.js` — жорсткі блок з `pendingInbox > 0` і `return` замененены
+  на мяккае чаканне праз `setInterval` пакуль `global.isChatProcessing === false`
+
+**Вынік:** Сінхранізацыя стартуе заўсёды. Калі канвеер чатаў заняты —
+сінхранізацыя чакае яго завяршэння і толькі потым працягваецца.

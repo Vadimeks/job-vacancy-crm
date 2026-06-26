@@ -21,6 +21,7 @@ const aiService = require("../services/ai.service");
 
 const AUTO_PROCESS_VACANCIES = true;
 let isProcessing = false;
+global.isChatProcessing = false; // 👈 ДАДАДЗЕНА: глабальны флаг для сінхранізацыі
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -173,7 +174,8 @@ async function processPendingMessages() {
 
     if (pending.length === 0) return;
 
-    isProcessing = true;
+     isProcessing = true;
+    global.isChatProcessing = true; // 👈 ДАДАДЗЕНА: паведамляем сінхранізацыі пра заняты канвеер
     console.log(`⚙️ КАНВЕЕР: Апрацоўка ${pending.length} паведамленняў...`);
 
     for (const msg of pending) {
@@ -293,8 +295,9 @@ async function processPendingMessages() {
     }
   } catch (globalErr) {
     console.error("❌ Global Error in processPendingMessages:", globalErr);
-  } finally {
+ } finally {
     isProcessing = false;
+    global.isChatProcessing = false; // 👈 ДADADЗЕНА: вызваляем флаг пасля апрацоўкі
   }
 }
 
