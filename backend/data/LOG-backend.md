@@ -625,3 +625,16 @@
 - **Крыніцы**:
   - Выпраўлены скрапер Manpower (прымусовыя ID табліц).
   - Выпраўлена памылка `cardCounter` у Trello.
+  ## fix(ai): resolve Vertex AI 403 by supporting Render Secret Files path
+
+**Праблема:** Vertex AI вяртаў 403 Forbidden на Render, бо `google-creds.json`
+захоўваецца ў `/etc/secrets/google-creds.json` (Render Secret Files),
+а код шукаў яго ў `process.cwd()`.
+
+**Змены:**
+- `ai_service.js` — `GoogleAuth.keyFile` цяпер выкарыстоўвае `/etc/secrets/google-creds.json`
+  калі файл існуе, інакш fallback на `process.cwd()` (лакальная распрацоўка)
+- `gemini.service.js` — тое самае для Google Drive auth
+
+**Вынік:** Vertex AI мадэлі (gemini-2.5-flash, gemini-2.5-flash-lite)
+зноў даступны на Render. Groq больш не нясе ўсю нагрузку адзін.

@@ -4,8 +4,13 @@ const { google } = require("googleapis");
 const scraperService = require("./scraper.service");
 const path = require("path");
 
+// 👈 ЗМЕНА: падтрымка Render Secret Files (/etc/secrets/) і лакальнага шляху
+const GOOGLE_CREDS_PATH = require("fs").existsSync("/etc/secrets/google-creds.json")
+  ? "/etc/secrets/google-creds.json"
+  : path.join(process.cwd(), "google-creds.json");
+
 const auth = new google.auth.GoogleAuth({
-  keyFile: path.join(process.cwd(), "google-creds.json"),
+  keyFile: GOOGLE_CREDS_PATH,
   scopes: ["https://www.googleapis.com/auth/drive.readonly"],
 });
 const drive = google.drive({ version: "v3", auth });

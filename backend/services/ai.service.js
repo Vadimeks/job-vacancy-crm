@@ -7,10 +7,13 @@ const path = require("path");
 const GOOGLE_PROJECT_ID = process.env.GOOGLE_PROJECT_ID;
 const LOCATION = process.env.LOCATION;
 
+// 👈 ЗМЕНА: падтрымка Render Secret Files (/etc/secrets/) і лакальнага шляху
+const GOOGLE_CREDS_PATH = require("fs").existsSync("/etc/secrets/google-creds.json")
+  ? "/etc/secrets/google-creds.json"
+  : path.join(process.cwd(), "google-creds.json");
+
 const auth = new GoogleAuth({
-  // process.cwd() — гэта корань праекта на Render.
-  // Гэта надзейней, чым лічыць кропкі ../..
-  keyFile: path.join(process.cwd(), "google-creds.json"),
+  keyFile: GOOGLE_CREDS_PATH,
   scopes: ["https://www.googleapis.com/auth/cloud-platform"],
 });
 
