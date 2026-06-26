@@ -36,7 +36,7 @@ const AI_CHAIN = [
   // { provider: "vertex", name: "gemini-2.5-flash" },
   // { provider: "vertex", name: "gemini-2.5-flash-lite" },
   // { provider: "vertex", name: "gemini-3.1-flash-lite" },
-  { provider: "gemini_studio", name: "gemini-2.0-flash" }, // 👈 ДАДАДЗЕНА: бясплатны AI Studio
+  { provider: "gemini_studio", name: "gemini-2.5-flash" }, // 👈 ДАДАДЗЕНА: бясплатны AI Studio
   { provider: "groq", name: "llama-3.3-70b-versatile" },
   { provider: "groq", name: "llama-3.1-8b-instant", maxChars: 5000 },
 ];
