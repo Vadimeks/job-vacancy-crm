@@ -11,7 +11,10 @@ const LOCATION = process.env.LOCATION;
 const GOOGLE_CREDS_PATH = require("fs").existsSync("/etc/secrets/google-creds.json")
   ? "/etc/secrets/google-creds.json"
   : path.join(process.cwd(), "google-creds.json");
-
+// 👈 ДЫЯГНОСТЫКА: лагіруем які шлях выкарыстоўваецца
+console.log(`🔑 [Auth] GOOGLE_CREDS_PATH: ${GOOGLE_CREDS_PATH}`);
+console.log(`🔑 [Auth] Файл існуе: ${require("fs").existsSync(GOOGLE_CREDS_PATH)}`);
+console.log(`🔑 [Auth] PROJECT_ID: ${GOOGLE_PROJECT_ID}, LOCATION: ${LOCATION}`);
 const auth = new GoogleAuth({
   keyFile: GOOGLE_CREDS_PATH,
   scopes: ["https://www.googleapis.com/auth/cloud-platform"],
