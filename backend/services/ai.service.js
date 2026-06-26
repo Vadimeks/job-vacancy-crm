@@ -38,7 +38,7 @@ const AI_CHAIN = [
   // { provider: "vertex", name: "gemini-3.1-flash-lite" },
   { provider: "gemini_studio", name: "gemini-flash-latest" }, // 👈 ДАДАДЗЕНА: бясплатны AI Studio
   { provider: "groq", name: "llama-3.3-70b-versatile" },
-  { provider: "groq", name: "llama-3.1-8b-instant", maxChars: 8000 },
+  { provider: "groq", name: "llama-3.1-8b-instant", maxChars: 5900 },
 ];
 
 let chainFrozenUntil = 0; // Паўза 1 гадзіна пры адмове ўсіх мадэляў
@@ -826,13 +826,13 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true, full
           const axios = require("axios");
           console.log(`🤖 Запыт да Gemini AI Studio: ${model.name}`);
           
-          // Ключ перадаем у URL, як у тваім паспяховым curl
           const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model.name}:generateContent?key=${process.env.GEMINI_API_KEY.trim()}`;
 
           const response = await axios.post(
             geminiUrl,
             {
-              contents: [{ role: "user", parts: [{ text: `${systemPrompt}\n\n${safeContent}` }] }]
+              // Максімальна простая структура, як у тваім curl
+              contents: [{ parts: [{ text: `${systemPrompt}\n\n${safeContent}` }] }]
             },
             {
               headers: { "Content-Type": "application/json" },

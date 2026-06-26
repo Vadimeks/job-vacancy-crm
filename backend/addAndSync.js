@@ -48,9 +48,9 @@ const CONFIG = {
 // КАНФІГУРАЦЫЯ: Калі хочаш апрацаваць УСЕ табліцы — пакінь null.
 // Калі адну канкрэтную — упішы яе spreadsheetId.
 
-// const TARGET_SHEET_ID = "13PN6zOZiDLAL-iLm58NSbsig4h_inXp-GfmNWxc53y8";
-// const TARGET_SHEET_NAME = "Польша";
-// const TARGET_AGENCY_NAME = "INTRASERVICE";
+const TARGET_SHEET_ID = "13PN6zOZiDLAL-iLm58NSbsig4h_inXp-GfmNWxc53y8";
+const TARGET_SHEET_NAME = "Польша";
+const TARGET_AGENCY_NAME = "INTRASERVICE";
 //---
 // const TARGET_SHEET_ID = "13PN6zOZiDLAL-iLm58NSbsig4h_inXp-GfmNWxc53y8";
 // const TARGET_SHEET_NAME = "Голандія";
@@ -68,9 +68,9 @@ const CONFIG = {
 // const TARGET_SHEET_NAME = "Вакансии";
 // const TARGET_AGENCY_NAME = "MRÓWKI";
 //---
-const TARGET_SHEET_ID = "1ajkfjO8v5FcaNl-NDydc_NwihGgFlvdEkh38ouPwmj4";
-const TARGET_SHEET_NAME = "WEEK 23";
-const TARGET_AGENCY_NAME = "OTTO";
+// const TARGET_SHEET_ID = "1ajkfjO8v5FcaNl-NDydc_NwihGgFlvdEkh38ouPwmj4";
+// const TARGET_SHEET_NAME = "WEEK 23";
+// const TARGET_AGENCY_NAME = "OTTO";
 //---
 // const TARGET_SHEET_ID = "18x5KvkUglitqcpr69F0q6z08vfF2BTnjYBlRdMtv8bA";
 // const TARGET_SHEET_NAME = "vekos";
