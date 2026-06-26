@@ -822,38 +822,31 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true, full
           }
         }
 // --- GEMINI AI STUDIO (бясплатны, не Vertex) ---
-        if (model.provider === "gemini_studio") {
+         if (model.provider === "gemini_studio") {
+          const axios = require("axios");
           console.log(`🤖 Запыт да Gemini AI Studio: ${model.name}`);
-          // Ключ выдалены з URL
+          
           const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model.name}:generateContent`;
 
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 60000);
-
-          const response = await fetch(geminiUrl, {
-            method: "POST",
-            headers: { 
-              "Content-Type": "application/json",
-              "X-goog-api-key": process.env.GEMINI_API_KEY // 👈 Ключ перадаем тут
-            },
-            signal: controller.signal,
-            body: JSON.stringify({
-              contents: [{ role: "user", parts: [{ text: `${systemPrompt}\n\n${safeContent}` }] }], // 👈 Дададзена role: "user"
+          const response = await axios.post(
+            geminiUrl,
+            {
+              contents: [{ role: "user", parts: [{ text: `${systemPrompt}\n\n${safeContent}` }] }],
               generationConfig: {
                 temperature: 0.1,
                 maxOutputTokens: 8192,
               },
-            }),
-          });
+            },
+            {
+              headers: {
+                "Content-Type": "application/json",
+                "x-goog-api-key": process.env.GEMINI_API_KEY.trim() // 👈 Жалезны trim()
+              },
+              timeout: 60000
+            }
+          );
 
-          clearTimeout(timeoutId);
-
-          if (response.status === 429) throw new Error("RATE_LIMIT");
-          if (response.status >= 500) throw new Error(`SERVER_ERROR_${response.status}`);
-          if (response.status === 403) throw new Error(`GEMINI_STUDIO_ERROR_403`);
-
-          const data = await response.json();
-          fullText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+          fullText = response.data.candidates?.[0]?.content?.parts?.[0]?.text || "";
         }
         // --- GROQ ---
         if (model.provider === "groq") {

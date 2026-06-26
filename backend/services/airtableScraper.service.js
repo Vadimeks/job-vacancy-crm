@@ -82,31 +82,26 @@ async function fetchSharedData(sharePath) {
     const rootData = dataRes.data;
     
     // 👈 ЗМЕНА: Дакладны пошук табліцы па ID для Manpower
-    let tableObj = null;
-    const tablesList = rootData?.application?.tables || 
-                       rootData?.data?.application?.tables || 
-                       rootData?.sharedApplication?.tables || 
-                       (rootData?.data?.table ? [rootData.data.table] : []);
+     let tableObj = null;
+    
+    // Спрабуем знайсці ў розных галінах JSON
+    const potentialTables = [
+      ...(rootData?.application?.tables || []),
+      ...(rootData?.data?.application?.tables || []),
+      ...(rootData?.sharedApplication?.tables || []),
+      ...(rootData?.data?.table ? [rootData.data.table] : [])
+    ];
 
-    if (tablesList.length > 0) {
-      tableObj = tablesList.find(t => t.id === (tableId || "tblTyT7NtUNZ1n2ek")) || tablesList[0];
+    if (potentialTables.length > 0) {
+      // Шукаем па ID, калі не знаходзім — бярэм першую
+      tableObj = potentialTables.find(t => t.id === (tableId || "tblTyT7NtUNZ1n2ek")) || potentialTables[0];
     }
 
     if (tableObj) {
       rows = tableObj.rows || [];
       columns = tableObj.columns || [];
+      console.log(`✅ [Scraper] Знойдзена табліца: ${tableObj.id}, радкоў: ${rows.length}`);
     }
-
-    if (!rows || rows.length === 0) {
-      rows = rootData?.rows || rootData?.data?.rows || [];
-      columns = rootData?.columns || rootData?.data?.columns || [];
-    }
-
-    if (!rows || rows.length === 0) {
-      throw new Error("Airtable вярнуў структуру без радкоў (rows).");
-    }
-
-    console.log(`📦 [Scraper] Паспяхова атрымана запісаў: ${rows.length}`);
 
     const viewName = "актуальное";
 
