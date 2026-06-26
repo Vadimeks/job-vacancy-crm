@@ -164,32 +164,64 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
 
         if (isVacancyList) {
           // --- ЛОГІКА ВАКАНСІЙ ---
-          const existingVacancy = await Vacancy.findOne({
-            sourceHash: card.id,
-            status: { $in: ["active", "pending_ai"] }, // 👈 Улічваем чаргу
-          });
+          let existingVacancy = await Vacancy.findOne({
+  sourceHash: card.id,
+  status: { $in: ["active", "pending_ai"] },
+});
 
-          // 🛡️ ПРАВЕРКА НА ЗМЕНЫ
-          if (existingVacancy && existingVacancy.originalText === rawTrelloDump && existingVacancy.status !== "pending_ai") {
-            stats.ignored++;
-            continue;
+          // --- ЭТАП 1: ЗБОР ДАДЗЕНЫХ ---
+          console.log(`Этап 1. [Trello] Апрацоўка: ${card.name}`);
+
+          let finalTrelloText = "";
+
+          // ПРАВЕРКА: Ці ёсць у нас ужо гатовы тэкст (пасля мінулага збою AI)?
+          if (existingVacancy && existingVacancy.rawText && existingVacancy.status === "pending_ai") {
+            console.log(`📦 Этап 4.5. Выкарыстоўваем захаваны тэкст Trello (Stage 0/1 пропуск)`);
+            finalTrelloText = existingVacancy.rawText;
+          } else {
+            // 🛡️ ПРАВЕРКА НА ЗМЕНЫ (калі вакансія актыўная і тэкст той жа — прапускаем)
+            if (existingVacancy && existingVacancy.originalText === rawTrelloDump && existingVacancy.status === "active") {
+              stats.ignored++;
+              continue;
+            }
+
+            finalTrelloText = `[SOURCE: TRELLO | AGENCY: ${source.agencyName}]\n${rawTrelloDump}`;
+
+            // 💾 ЗАХАВАННЕ ПРАГРЭСУ: Калі вакансія новая, ствараем яе як чарнавік
+            if (!existingVacancy) {
+              const vacanciesRoute = require("../routes/vacancies");
+              const vacancyCode = await vacanciesRoute.generateVacancyCode();
+              
+              const draft = new Vacancy({
+                vacancyCode,
+                sourceHash: card.id, // Для Trello ID карткі — гэта хэш
+                agencyName: source.agencyName,
+                sourceType: "trello",
+                status: "pending_ai",
+                rawText: finalTrelloText,
+                originalText: rawTrelloDump
+              });
+              await draft.save();
+              console.log(`💾 Этап 4.5. Тэкст Trello захаваны ў базу (Draft ${vacancyCode} створаны)`);
+              existingVacancy = draft;
+            } else {
+              // Абнаўляем існуючую вакансію новым тэкстам перад AI
+              existingVacancy.rawText = finalTrelloText;
+              existingVacancy.originalText = rawTrelloDump;
+              existingVacancy.status = "pending_ai";
+              await existingVacancy.save();
+              console.log(`💾 Этап 4.5. Чарнавік Trello ${existingVacancy.vacancyCode} абноўлены.`);
+            }
           }
 
-          // 🧠 Stage 1: Класіфікацыя і Пераклад
-          console.log(`🧠 AI Stage 1 для Trello: ${card.name}...`);
-          const analysis = await analyzeAndCompareWithGemini(
-            `[SOURCE: TRELLO | AGENCY: ${source.agencyName}]\n${rawTrelloDump}`
-          );
-if (!analysis || !analysis.translatedFragments) {
+          // --- ЭТАП 5-7: AI АПРАЦОЎКА ---
+          const analysis = await analyzeAndCompareWithGemini(finalTrelloText);
+
+          if (!analysis || !analysis.translatedFragments) {
             console.error(`🛑 AI FATAL ERROR для Trello: ${card.name}. Спыняем дошку.`);
-            
             await SyncState.findOneAndUpdate(
               { key: "circular_sync_position" },
-              { 
-                lastSourceType: "trello", 
-                lastSourceId: source._id, 
-                lastIndex: currentCardIndex 
-              },
+              { lastSourceType: "trello", lastSourceId: source._id, lastIndex: currentCardIndex },
               { upsert: true }
             );
             return "STOP_ALL"; 

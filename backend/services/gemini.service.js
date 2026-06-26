@@ -88,64 +88,50 @@ async function enrichTextWithDocs(rawText) {
   // 1. Абарона ад паўторнага ўзбагачэння
   if (rawText.includes("--- ЗМЕСТ")) return rawText;
 
-  // 2. Палепшаныя Regex (дадаем ігнараванне дужак у канцы)
-  const docRegex =
-    /(?:docs\.google\.com\/document|drive\.google\.com\/file)\/(?:u\/\d+\/)?d\/([a-zA-Z0-9_-]+)/g;
-  const folderRegex =
-    /drive\.google\.com\/(?:drive\/)?folders\/([a-zA-Z0-9_-]+)/g;
+  // Этап 2: Пошук унікальных спасылак
+  const docRegex = /(?:docs\.google\.com\/document|drive\.google\.com\/file)\/(?:u\/\d+\/)?d\/([a-zA-Z0-9_-]+)/g;
+  const folderRegex = /drive\.google\.com\/(?:drive\/)?folders\/([a-zA-Z0-9_-]+)/g;
   const telegraphRegex = /https?:\/\/telegra\.ph\/[^\s\]\)]+/g;
 
-  const docMatches = [...rawText.matchAll(docRegex)];
-  const folderMatches = [...rawText.matchAll(folderRegex)];
-  const telegraphMatches = [...rawText.matchAll(telegraphRegex)];
+  // Выкарыстоўваем Set, каб пазбегнуць паўторнай загрузкі адных і тых жа файлаў
+  const docMatches = [...new Set([...rawText.matchAll(docRegex)].map(m => m[1]))];
+  const folderMatches = [...new Set([...rawText.matchAll(folderRegex)].map(m => m[1]))];
+  const telegraphMatches = [...new Set([...rawText.matchAll(telegraphRegex)].map(m => m[0].replace(/[\]\)]+$/, "")))];
 
-  if (
-    docMatches.length === 0 &&
-    folderMatches.length === 0 &&
-    telegraphMatches.length === 0
-  ) {
+  if (docMatches.length === 0 && folderMatches.length === 0 && telegraphMatches.length === 0) {
     return rawText;
   }
 
-  console.log(
-    `🔗 Узбагачэнне: Google Docs(${docMatches.length}), Folders(${folderMatches.length}), Telegraph(${telegraphMatches.length})`,
-  );
+  console.log(`Этап 2. 🔗 Знойдзена ўнікальных спасылак: Docs(${docMatches.length}), Folders(${folderMatches.length}), Telegraph(${telegraphMatches.length})`);
 
   let enriched = rawText;
 
-  // Апрацоўка Telegraph
-  for (const match of telegraphMatches) {
-    const url = match[0].replace(/[\]\)]+$/, ""); // Чысцім ад зачыняючых дужак
-    if (
-      url.toLowerCase().includes("zhitlo") ||
-      url.toLowerCase().includes("foto")
-    )
-      continue;
-
+  // Этап 3: Загрузка зместу Telegraph
+  for (const url of telegraphMatches) {
+    if (url.toLowerCase().includes("zhitlo") || url.toLowerCase().includes("foto")) continue;
     const content = await scraperService.getExternalContent(url);
     if (content) {
       enriched = `${enriched}\n\n--- ЗМЕСТ TELEGRAPH ---\n${content}`;
+      console.log(`✅ Этап 3. Telegraph загружаны: ${url.substring(0, 30)}...`);
     }
   }
 
-  // Апрацоўка папак Drive
-  for (const match of folderMatches) {
-    const folderId = match[1];
+  // Этап 4: Загрузка зместу Drive (Папкі і Дакументы)
+  for (const folderId of folderMatches) {
+    console.log(`Этап 4. 📂 Загрузка папкі Drive: ${folderId}`);
     const folderUrl = `https://drive.google.com/drive/folders/${folderId}`;
-    console.log(`📂 Загрузка папкі Drive: ${folderId}`);
     const folderText = await fetchGoogleDriveFolderText(folderUrl);
-    if (folderText)
-      enriched = `${enriched}\n\n--- ЗМЕСТ ПАПКІ DRIVE ---\n${folderText}`;
+    if (folderText) enriched = `${enriched}\n\n--- ЗМЕСТ ПАПКІ DRIVE ---\n${folderText}`;
   }
 
-  // Апрацоўка асобных дакументаў
-  for (const match of docMatches) {
-    const docId = match[1];
+  for (const docId of docMatches) {
+    console.log(`Этап 4. 📄 Загрузка дакумента Drive: ${docId}`);
     const docUrl = `https://docs.google.com/document/d/${docId}/`;
-    console.log(`📄 Загрузка дакумента Drive: ${docId}`);
     const docText = await fetchGoogleDocText(docUrl);
-    if (docText)
+    if (docText) {
+      console.log(`✅ Этап 4. Google Doc загружаны: ${docText.length} сімв.`);
       enriched = `${enriched}\n\n--- ЗМЕСТ ДОКУМЕНТА ---\n${docText}`;
+    }
   }
 
   return enriched;

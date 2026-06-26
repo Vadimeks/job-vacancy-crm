@@ -126,21 +126,57 @@ async function syncSingleSource(source) {
       }
     }
 
-    // --- 5. ЗБОР ТЭКСТУ ДЛЯ AI ---
-    let rawAirtableDump = `[Airtable ID: ${airtableId}]\n`;
-    Object.entries(fields).forEach(([k, v]) => {
-      if (v && !k.toLowerCase().includes("rodo")) rawAirtableDump += `${k}: ${v}\n`;
-    });
+    // --- ЭТАП 1: ЗБОР ДАДЗЕНЫХ ---
+    let rawAirtableDump = "";
 
-    // --- 6. ПРАВЕРКА НА ЗМЕНЫ (Resume Logic) ---
-    const existingVacancy = await Vacancy.findOne({ airtableId, agencyName: source.agencyName });
-    if (existingVacancy && existingVacancy.originalText === rawAirtableDump && existingVacancy.status === targetStatus) {
-      stats.ignored++;
-      continue;
+    // ПРАВЕРКА: Ці ёсць у нас ужо гатовы тэкст (пасля мінулага збою AI)?
+    if (existingVacancy && existingVacancy.rawText && existingVacancy.status === "pending_ai") {
+      console.log(`📦 Этап 4.5. Выкарыстоўваем захаваны тэкст Airtable (Stage 0/1 пропуск)`);
+      rawAirtableDump = existingVacancy.rawText;
+    } else {
+      // 🛡️ ПРАВЕРКА НА ЗМЕНЫ (калі вакансія актыўная і тэкст той жа — прапускаем)
+      // Будуем часовы дамп для параўнання
+      let tempDump = `[Airtable ID: ${airtableId}]\n`;
+      Object.entries(fields).forEach(([k, v]) => {
+        if (v && !k.toLowerCase().includes("rodo")) tempDump += `${k}: ${v}\n`;
+      });
+
+      if (existingVacancy && existingVacancy.originalText === tempDump && existingVacancy.status === targetStatus) {
+        stats.ignored++;
+        continue;
+      }
+
+      rawAirtableDump = tempDump;
+
+      // 💾 ЗАХАВАННЕ ПРАГРЭСУ: Калі вакансія новая, ствараем яе як чарнавік
+      if (!existingVacancy) {
+        const vacanciesRoute = require("../routes/vacancies");
+        const vacancyCode = await vacanciesRoute.generateVacancyCode();
+        
+        const draft = new Vacancy({
+          vacancyCode,
+          airtableId: airtableId,
+          sourceHash: airtableId, // Для Airtable ID запісу — гэта хэш
+          agencyName: source.agencyName,
+          sourceType: "airtable",
+          status: "pending_ai",
+          rawText: rawAirtableDump,
+          originalText: rawAirtableDump
+        });
+        await draft.save();
+        console.log(`💾 Этап 4.5. Тэкст Airtable захаваны ў базу (Draft ${vacancyCode} створаны)`);
+        existingVacancy = draft;
+      } else if (existingVacancy.originalText !== rawAirtableDump) {
+        // Калі тэкст змяніўся — абнаўляем чарнавік перад AI
+        existingVacancy.rawText = rawAirtableDump;
+        existingVacancy.originalText = rawAirtableDump;
+        existingVacancy.status = "pending_ai";
+        await existingVacancy.save();
+        console.log(`💾 Этап 4.5. Чарнавік Airtable ${existingVacancy.vacancyCode} абноўлены.`);
+      }
     }
 
-    console.log(`🧠 AI апрацоўка: ${source.agencyName} | ID: ${airtableId} | Status: ${targetStatus}`);
-
+    console.log(`🧠 Этап 5. AI апрацоўка: ${source.agencyName} | ID: ${airtableId}`);
     const analysis = await analyzeAndCompareWithGemini(rawAirtableDump, [], []);
     
     // 🛡️ SAFETY SWITCH: Калі AI "ляснуў", запамінаем індэкс і спыняемся

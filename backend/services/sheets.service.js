@@ -7,7 +7,7 @@ const SyncHistory = require("../models/SyncHistory");
 const UnprocessedMessage = require("../models/UnprocessedMessage");
 const aiService = require("./ai.service");
 const scraperService = require("./scraper.service");
-const { analyzeAndCompareWithGemini } = require("./gemini.service");
+const { analyzeAndCompareWithGemini, enrichTextWithDocs } = require("./gemini.service");
 const { processVacancyMessage } = require("../routes/vacancies");
 
 const auth = new google.auth.GoogleAuth({
@@ -520,7 +520,7 @@ async function syncSheetVacancies(sourceId) {
         )
         .digest("hex");
 
-      const existingVacancy = await Vacancy.findOne({ sourceHash: rowHash });
+      let existingVacancy = await Vacancy.findOne({ sourceHash: rowHash });
 
       // 3. Калі радок у табліцы STOP
       if (rowStatus === "STOP") {
@@ -560,27 +560,61 @@ async function syncSheetVacancies(sourceId) {
         );
       }
 
-      // 5. Апрацоўка (Новая, Рэанімацыя або Абнаўленне)
-      console.log(
-        `🚀 [Row ${i + 1}] Апрацоўка: ${rowTitle} (${existingVacancy ? (existingVacancy.status === "closed" ? "Рэанімацыя" : "Абнаўленне") : "Новая"})`,
-      );
+      // --- ЭТАП 1: ЗБОР ДАДЗЕНЫХ ---
+      console.log(`Этап 1. [Row ${i + 1}] Апрацоўка: ${rowTitle}`);
       foundHashesInSheet.add(rowHash);
 
-      let externalContent = "";
-      for (const { url, header } of externalUrls) {
-        if (!url.includes("google.com")) {
-          const scraped = await scraperService.getExternalContent(url);
-          if (scraped)
-            externalContent += `\n\n--- ЗМЕСТ ПА СПАСЫЛЦЫ (${header}) ---\n${scraped}`;
+      let rawRowText = "";
+
+      // ПРАВЕРКА: Ці ёсць у нас ужо гатовы тэкст (пасля мінулага збою AI)?
+      if (existingVacancy && existingVacancy.rawText && existingVacancy.status === "pending_ai") {
+        console.log(`📦 Этап 4.5. Выкарыстоўваем захаваны тэкст (Stage 0/1 пропуск)`);
+        rawRowText = existingVacancy.rawText;
+      } else {
+        // --- ЭТАП 2-4: ЗАГРУЗКА DRIVE / TELEGRAPH ---
+        let externalContent = "";
+        for (const { url, header } of externalUrls) {
+          if (!url.includes("google.com")) {
+            const scraped = await scraperService.getExternalContent(url);
+            if (scraped) externalContent += `\n\n--- ЗМЕСТ ПА СПАСЫЛЦЫ (${header}) ---\n${scraped}`;
+          }
+        }
+
+        const rowBodyTextOnly = `[SOURCE: SPREADSHEET_ROW | AGENCY: ${source.agencyName}]\n${rowBodyText}`;
+        
+        // Выклікаем узбагачэнне (Этапы 2, 3, 4 унутры gemini.service)
+        rawRowText = await enrichTextWithDocs(rowBodyTextOnly + externalContent);
+        
+        // 💾 ЗАХАВАННЕ ПРАГРЭСУ: Калі вакансія новая, ствараем яе як чарнавік
+        if (!existingVacancy) {
+          const vacanciesRoute = require("../routes/vacancies");
+          const vacancyCode = await vacanciesRoute.generateVacancyCode();
+          
+          const draft = new Vacancy({
+            vacancyCode,
+            sourceHash: rowHash,
+            agencyName: source.agencyName,
+            sourceType: "spreadsheet",
+            sheetName: source.sheetName,
+            status: "pending_ai",
+            rawText: rawRowText,
+            originalText: rowBodyText
+          });
+          await draft.save();
+          console.log(`💾 Этап 4.5. Тэкст захаваны ў базу (Draft ${vacancyCode} створаны)`);
+          existingVacancy = draft;
+        } else if (existingVacancy.originalText !== rowBodyText) {
+          // Калі вакансія была, але тэкст у табліцы змяніўся — абнаўляем rawText і ставім pending_ai
+          existingVacancy.rawText = rawRowText;
+          existingVacancy.originalText = rowBodyText;
+          existingVacancy.status = "pending_ai";
+          await existingVacancy.save();
+          console.log(`💾 Этап 4.5. Чарнавік ${existingVacancy.vacancyCode} абноўлены новым тэкстам.`);
         }
       }
 
-      const rawRowText = `[SOURCE: SPREADSHEET_ROW | AGENCY: ${source.agencyName}]\n${rowBodyText}${externalContent}`;
-      const analysis = await analyzeAndCompareWithGemini(
-        rawRowText,
-        [],
-        recentVacancies,
-      );
+      // --- ЭТАП 5-7: AI АПРАЦОЎКА ---
+      const analysis = await analyzeAndCompareWithGemini(rawRowText, [], recentVacancies);
 
       if (!analysis) {
         console.log(`⏳ AI не адказаў для радка ${i + 1}. Запамінаем індэкс і спыняемся.`);
