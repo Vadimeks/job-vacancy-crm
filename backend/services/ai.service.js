@@ -32,11 +32,13 @@ async function getAccessToken() {
 }
 
 const AI_CHAIN = [
-  { provider: "vertex", name: "gemini-2.5-flash" },
-  { provider: "vertex", name: "gemini-2.5-flash-lite" },
-  { provider: "vertex", name: "gemini-3.1-flash-lite" },
+  // 👈 ЗМЕНА: Vertex AI часова выключаны (білінг)
+  // { provider: "vertex", name: "gemini-2.5-flash" },
+  // { provider: "vertex", name: "gemini-2.5-flash-lite" },
+  // { provider: "vertex", name: "gemini-3.1-flash-lite" },
+  { provider: "gemini_studio", name: "gemini-2.0-flash" }, // 👈 ДАДАДЗЕНА: бясплатны AI Studio
   { provider: "groq", name: "llama-3.3-70b-versatile" },
-  { provider: "groq", name: "llama-3.1-8b-instant", maxChars: 5000 }, // 👈 Абмежаванне для малой мадэлі
+  { provider: "groq", name: "llama-3.1-8b-instant", maxChars: 5000 },
 ];
 
 let chainFrozenUntil = 0; // Паўза 1 гадзіна пры адмове ўсіх мадэляў
@@ -819,7 +821,36 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true, full
             if (chunkText) fullText += chunkText;
           }
         }
+// --- GEMINI AI STUDIO (бясплатны, не Vertex) ---
+        if (model.provider === "gemini_studio") {
+          console.log(`🤖 Запыт да Gemini AI Studio: ${model.name}`);
+          const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model.name}:generateContent?key=${process.env.GEMINI_API_KEY}`;
 
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 60000);
+
+          const response = await fetch(geminiUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            signal: controller.signal,
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: `${systemPrompt}\n\n${safeContent}` }] }],
+              generationConfig: {
+                temperature: 0.1,
+                maxOutputTokens: 8192,
+              },
+            }),
+          });
+
+          clearTimeout(timeoutId);
+
+          if (response.status === 429) throw new Error("RATE_LIMIT");
+          if (response.status >= 500) throw new Error(`SERVER_ERROR_${response.status}`);
+          if (response.status === 403) throw new Error(`GEMINI_STUDIO_ERROR_403`);
+
+          const data = await response.json();
+          fullText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+        }
         // --- GROQ ---
         if (model.provider === "groq") {
           console.log(`🤖 Запыт да Groq: ${model.name}`);

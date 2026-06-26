@@ -674,3 +674,23 @@
 
 **Вынік:** Сервер пасля перазапуску аўтаматычна дабірае незавершанае кола
 і апрацоўвае `pending_ai` вакансіі без чакання 3.5 гадзін cooldown.
+## feat(ai): replace Vertex AI with Gemini AI Studio free tier + keep Groq fallback
+
+**Прычына:** Vertex AI накапіў запазычанасць $58.30 (білінг з 9 чэрвеня).
+Google Cloud заблакаваў API доступ — усе мадэлі вярталі 403 Forbidden.
+
+**Змены:**
+- `ai_service.js` — Vertex AI мадэлі закаментаваны ў `AI_CHAIN`
+- `ai_service.js` — дададзены новы provider `gemini_studio` з мадэллю
+  `gemini-2.0-flash` (бясплатны ключ праз Google AI Studio)
+- `ai_service.js` — дададзены апрацоўшчык `gemini_studio` у `executeAIRequest`
+  з таймаутам 60с і апрацоўкай памылак 429/500/403
+- Render env — `GEMINI_API_KEY` заменены на прыватны ключ з aistudio.google.com
+
+**Новы парадак AI_CHAIN:**
+1. `gemini-2.0-flash` (Gemini AI Studio, бясплатна)
+2. `llama-3.3-70b-versatile` (Groq, 100k токенаў/дзень)
+3. `llama-3.1-8b-instant` (Groq, fallback для кароткіх тэкстаў)
+
+**Вынік:** Сістэма працуе без Vertex AI. Vertex можна ўключыць назад
+раскаментаваўшы радкі ў `AI_CHAIN` пасля аплаты білінгу.
