@@ -118,20 +118,25 @@ async function runSyncWithInsurance(forceRun = false) {
     console.log("💎 Сканаванне Airtable...");
     await syncAirtable();
 
-    await CronLog.findOneAndUpdate(
-      { taskName },
-      { lastRun: new Date() },
-      { upsert: true, new: true }
-    );
+    // 👈 ЗМЕНА: CronLog і isComplete пішацца толькі пры поўным паспяховым завяршэнні
+    const finalSyncState = await SyncState.findOne({ key: "circular_sync_position" });
+    const allModelsWorked = finalSyncState && finalSyncState.lastIndex === 0;
 
-    // 👈 ДАДАДЗЕНА: адзначаем кола як паспяхова завершанае
-    await SyncState.findOneAndUpdate(
-      { key: "circular_sync_position" },
-      { isComplete: true },
-      { upsert: true }
-    );
-
-    console.log("✅ [Sync] Кола завершана.");
+    if (allModelsWorked) {
+      await CronLog.findOneAndUpdate(
+        { taskName },
+        { lastRun: new Date() },
+        { upsert: true, new: true }
+      );
+      await SyncState.findOneAndUpdate(
+        { key: "circular_sync_position" },
+        { isComplete: true },
+        { upsert: true }
+      );
+      console.log("✅ [Sync] Кола завершана паспяхова.");
+    } else {
+      console.log("⚠️ [Sync] Кола завершана з памылкамі. CronLog не запісаны — паўторны запуск адбудзецца хутчэй.");
+    }
   } catch (err) {
     console.error("❌ [Sync] Памылка канвеера:", err.message);
   }
