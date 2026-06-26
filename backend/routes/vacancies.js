@@ -955,4 +955,4 @@ router.post("/:id/publish", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
-module.exports = { router, processVacancyMessage, retryPendingVacancies };
+module.exports = { router, processVacancyMessage, retryPendingVacancies, generateVacancyCode };
