@@ -18,7 +18,7 @@ const {
   isMarketingBonus,
 } = require("../utils/messageFilters");
 const aiService = require("../services/ai.service");
-
+global.isChatProcessing = false;
 const AUTO_PROCESS_VACANCIES = true;
 let isProcessing = false;
 global.isChatProcessing = false; // 👈 ДАДАДЗЕНА: глабальны флаг для сінхранізацыі
@@ -175,6 +175,7 @@ async function processPendingMessages() {
     if (pending.length === 0) return;
 
      isProcessing = true;
+     
     global.isChatProcessing = true; // 👈 ДАДАДЗЕНА: паведамляем сінхранізацыі пра заняты канвеер
     console.log(`⚙️ КАНВЕЕР: Апрацоўка ${pending.length} паведамленняў...`);
 

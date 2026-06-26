@@ -826,22 +826,16 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true, full
           const axios = require("axios");
           console.log(`🤖 Запыт да Gemini AI Studio: ${model.name}`);
           
-          const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model.name}:generateContent`;
+          // Ключ перадаем у URL, як у тваім паспяховым curl
+          const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model.name}:generateContent?key=${process.env.GEMINI_API_KEY.trim()}`;
 
           const response = await axios.post(
             geminiUrl,
             {
-              contents: [{ role: "user", parts: [{ text: `${systemPrompt}\n\n${safeContent}` }] }],
-              generationConfig: {
-                temperature: 0.1,
-                maxOutputTokens: 8192,
-              },
+              contents: [{ role: "user", parts: [{ text: `${systemPrompt}\n\n${safeContent}` }] }]
             },
             {
-              headers: {
-                "Content-Type": "application/json",
-                "x-goog-api-key": process.env.GEMINI_API_KEY.trim() // 👈 Жалезны trim()
-              },
+              headers: { "Content-Type": "application/json" },
               timeout: 60000
             }
           );
