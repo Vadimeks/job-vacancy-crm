@@ -36,7 +36,7 @@ const AI_CHAIN = [
   // { provider: "vertex", name: "gemini-2.5-flash" },
   // { provider: "vertex", name: "gemini-2.5-flash-lite" },
   // { provider: "vertex", name: "gemini-3.1-flash-lite" },
-  { provider: "gemini_studio", name: "gemini-2.5-flash" }, // 👈 ДАДАДЗЕНА: бясплатны AI Studio
+  { provider: "gemini_studio", name: "gemini-flash-latest" }, // 👈 ДАДАДЗЕНА: бясплатны AI Studio
   { provider: "groq", name: "llama-3.3-70b-versatile" },
   { provider: "groq", name: "llama-3.1-8b-instant", maxChars: 8000 },
 ];
@@ -824,17 +824,21 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true, full
 // --- GEMINI AI STUDIO (бясплатны, не Vertex) ---
         if (model.provider === "gemini_studio") {
           console.log(`🤖 Запыт да Gemini AI Studio: ${model.name}`);
-          const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model.name}:generateContent?key=${process.env.GEMINI_API_KEY}`;
+          // Ключ выдалены з URL
+          const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model.name}:generateContent`;
 
           const controller = new AbortController();
           const timeoutId = setTimeout(() => controller.abort(), 60000);
 
           const response = await fetch(geminiUrl, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { 
+              "Content-Type": "application/json",
+              "X-goog-api-key": process.env.GEMINI_API_KEY // 👈 Ключ перадаем тут
+            },
             signal: controller.signal,
             body: JSON.stringify({
-              contents: [{ parts: [{ text: `${systemPrompt}\n\n${safeContent}` }] }],
+              contents: [{ role: "user", parts: [{ text: `${systemPrompt}\n\n${safeContent}` }] }], // 👈 Дададзена role: "user"
               generationConfig: {
                 temperature: 0.1,
                 maxOutputTokens: 8192,
