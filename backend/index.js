@@ -53,9 +53,10 @@ mongoose
 /**
  * Функцыя-абгортка для паслядоўнай сінхранізацыі ўсіх крыніц
  */
-async function runSyncWithInsurance() {
-  const taskName = "global-sync"; 
-  
+async function runSyncWithInsurance(forceRun = false) {
+  const taskName = "global-sync";
+  const SyncState = require("./models/SyncState");
+  const Vacancy = require("./models/Vacancy");
 
   try {
     // 👈 ЗМЕНА: мяккі замок замест жорсткага return
@@ -73,15 +74,32 @@ async function runSyncWithInsurance() {
       console.log(`✅ [Sync] Канвеер чатаў вызвалены. Працягваем сінхранізацыю.`);
     }
 
+     // 👈 ДАДАДЗЕНА: праверка ці трэба прымусовы запуск
+    const syncState = await SyncState.findOne({ key: "circular_sync_position" });
+    const hasPendingAi = await Vacancy.exists({ status: "pending_ai" });
+    const prevCircleIncomplete = syncState && syncState.isComplete === false;
+
     const log = await CronLog.findOne({ taskName });
     const cooldownPeriod = new Date(Date.now() - 3.5 * 60 * 60 * 1000);
 
-    if (log && log.lastRun >= cooldownPeriod) {
-      console.log(`🛡️ INSURANCE: Сінхранізацыя ўжо была нядаўна. Пропуск.`);
-      return;
+    // 👈 ДАДАДЗЕНА: прымусовы запуск калі папярэдняе кола не завершана або ёсць pending_ai
+    if (!forceRun && log && log.lastRun >= cooldownPeriod) {
+      if (prevCircleIncomplete || hasPendingAi) {
+        console.log(`⚠️ [Sync] Cooldown актыўны, але кола не завершана або ёсць pending_ai. Прымусовы запуск.`);
+      } else {
+        console.log(`🛡️ INSURANCE: Сінхранізацыя ўжо была нядаўна. Пропуск.`);
+        return;
+      }
     }
 
     console.log("⏰ [Sync] Пачатак цыклічнага канвеера...");
+
+    // 👈 ДАДАДЗЕНА: адзначаем кола як незавершанае ў пачатку
+    await SyncState.findOneAndUpdate(
+      { key: "circular_sync_position" },
+      { isComplete: false },
+      { upsert: true }
+    );
 
     // 2. ПРЫЯРЫТЭТ 2: Дапрацоўка "даўгоў" (pending_ai)
     // Гэта заўсёды ідзе першым, каб вызваліць чаргу
@@ -104,6 +122,13 @@ async function runSyncWithInsurance() {
       { taskName },
       { lastRun: new Date() },
       { upsert: true, new: true }
+    );
+
+    // 👈 ДАДАДЗЕНА: адзначаем кола як паспяхова завершанае
+    await SyncState.findOneAndUpdate(
+      { key: "circular_sync_position" },
+      { isComplete: true },
+      { upsert: true }
     );
 
     console.log("✅ [Sync] Кола завершана.");

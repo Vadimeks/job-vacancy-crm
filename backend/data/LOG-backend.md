@@ -658,3 +658,19 @@
   - Дададзены параметры `mayOnlyIncludeRowAndCellDataForIncludedViews` і `canClientSupportPreviewMode` для абыходу абароны Airtable.
   - Перапісана логіка пошуку аб'екта табліцы: цяпер сістэма шукае патрэбны ID ва ўсіх магчымых галінах JSON (`sharedApplication`, `application`, `data`).
 - **Вынік**: Скрапер павінен паспяхова бачыць і здабываць радкі з публічнай дошкі Manpower.
+## fix(sync): add isComplete flag and force-restart on incomplete circle or pending_ai
+
+**Праблема:** Кола фіксавалася як "завершана" нягледзячы на збоі AI (403/cooldown).
+Пры перазапуску сервера cooldown блакаваў запуск нават калі кола не было скончана
+або заставаліся вакансіі са статусам `pending_ai`.
+
+**Змены:**
+- `SyncState.js` — дададзена поле `isComplete: Boolean` (default: false)
+- `index.js` — `runSyncWithInsurance` атрымаў параметр `forceRun = false`
+- `index.js` — у пачатку кола `isComplete` ставіцца `false`
+- `index.js` — пасля поўнага завяршэння `isComplete` ставіцца `true`
+- `index.js` — пры старце: калі cooldown актыўны АЛЕ `isComplete === false`
+  або ёсць `pending_ai` вакансіі — сінхранізацыя запускаецца прымусова
+
+**Вынік:** Сервер пасля перазапуску аўтаматычна дабірае незавершанае кола
+і апрацоўвае `pending_ai` вакансіі без чакання 3.5 гадзін cooldown.

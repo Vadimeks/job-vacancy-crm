@@ -16,7 +16,10 @@ const syncStateSchema = new mongoose.Schema(
     lastIndex: { type: Number, default: 0 },
     
     // Спіс усіх крыніц у парадку "Кола", які мы прайшлі
-    processedInCircle: [{ type: mongoose.Schema.Types.ObjectId }]
+    processedInCircle: [{ type: mongoose.Schema.Types.ObjectId }],
+
+    // 👈 ДАДАДЗЕНА: ці паспяхова завершана апошняе кола
+    isComplete: { type: Boolean, default: false }
   },
   { timestamps: true }
 );
