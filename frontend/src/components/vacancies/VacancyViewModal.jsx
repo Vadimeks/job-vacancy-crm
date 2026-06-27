@@ -75,12 +75,13 @@ export default function VacancyViewModal({
   }, [vacancy?._id]);
   // 👈 ФІКС ПАМЫЛКІ: Сінхранізацыя стэйту пры змене вакансіі (карусель)
   // Гэты патэрн працуе хутчэй за useEffect і не выклікае памылак лінтэра
-  const [prevId, setPrevId] = useState(v._id);
-  if (v._id !== prevId) {
-    setPrevId(v._id);
-    setEditedFull(v.telegramFull || "");
-    setEditedShort(v.telegramShort || "");
-    setShowEditor(!!(v.telegramFull || v.telegramShort));
+  // 👈 ФІКС ПАМЫЛКІ: Выкарыстоўваем vacancy напрамую, бо v яшчэ не аб'яўлена
+  const [prevId, setPrevId] = useState(vacancy?._id);
+  if (vacancy?._id !== prevId) {
+    setPrevId(vacancy?._id);
+    setEditedFull(vacancy?.telegramFull || "");
+    setEditedShort(vacancy?.telegramShort || "");
+    setShowEditor(!!(vacancy?.telegramFull || vacancy?.telegramShort));
   }
   // Кіраванне клавіятурай
   useEffect(() => {
@@ -96,16 +97,17 @@ export default function VacancyViewModal({
   if (!vacancy) return null;
   const v = vacancy;
 
-  const handleCopyTelegram = () => {
+ const handleCopyTelegram = () => {
     // Калі рэдактар адкрыты — капіюем адрэдагаваны тэкст з актыўнай укладкі
-    // Інакш — капіюем стары telegramPost
     const textToCopy = showEditor 
       ? (activeTab === "full" ? editedFull : editedShort)
-      : (v.telegramPost || "");
+      : (vacancy?.telegramPost || ""); // 👈 Выкарыстоўваем vacancy для надзейнасці
       
-    navigator.clipboard.writeText(textToCopy);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    if (textToCopy) {
+      navigator.clipboard.writeText(textToCopy);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 const handleGenerate = async () => {
     setIsGenerating(true);
