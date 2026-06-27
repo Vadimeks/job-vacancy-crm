@@ -1085,7 +1085,33 @@ const [viewMode, setViewMode] = useState("list"); // Стан для перак�
                       >
                         {STATUS_LABELS[v.status]}
                       </span>
+{/* ІНДЫКАТАРЫ ПУБЛІКАЦЫІ */}
+<div className="flex items-center gap-1.5 ml-1">
+  {v.isPublished ? (
+    <span 
+      className="flex items-center gap-1 text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-md font-bold border border-emerald-200"
+      title="Апублікавана ў Telegram"
+    >
+      📢 ТГ
+    </span>
+  ) : (
+    <span 
+      className="text-[10px] bg-slate-100 text-slate-400 px-2 py-0.5 rounded-md font-bold border border-slate-200"
+      title="Яшчэ не публікавалася"
+    >
+      💤
+    </span>
+  )}
 
+  {v.postOutdated && (
+    <span 
+      className="flex items-center gap-1 text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-md font-bold border border-amber-200 animate-pulse"
+      title="Дадзеныя вакансіі змяніліся, трэба абнавіць пост"
+    >
+      🔄 UPD
+    </span>
+  )}
+</div>
                       {/* Агенція */}
                       <span className="text-[10px] uppercase tracking-wider font-black bg-slate-100 text-slate-700 border border-slate-200 px-2 py-1 rounded-md">
                         🏢 {v.agencyName}
