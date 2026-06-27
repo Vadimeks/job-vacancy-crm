@@ -129,18 +129,25 @@ const handleGenerate = async () => {
   };
 
   const handlePublish = async () => {
-    if (!confirm(`Апублікаваць ${activeTab === 'full' ? 'ПОЎНУЮ' : 'КАРОТКУЮ'} версію ў Telegram?`)) return;
+    const modeLabel = activeTab === 'full' ? 'ПОВНУ' : 'КОРОТКУ';
+    if (!confirm(`Опублікувати ${modeLabel} версію в Telegram?`)) return;
+    
     setIsPublishing(true);
     try {
-      await publishVacancy(v._id, {
-        fullText: editedFull,
-        shortText: editedShort,
-        mode: activeTab // адпраўляем толькі выбраную ўкладку
-      });
-      alert("✅ Апублікавана!");
+      const formData = new FormData();
+      formData.append("fullText", editedFull);
+      formData.append("shortText", editedShort);
+      formData.append("mode", activeTab);
+      if (selectedFile) {
+        formData.append("file", selectedFile);
+      }
+
+      await publishVacancy(v._id, formData); // Перадаем formData замест JSON
+      alert("✅ Опубліковано!");
     } catch (err) {
-      alert("Памылка публікацыі: " + err.message);
+      alert("Помилка публікації: " + (err.response?.data?.message || err.message));
     } finally {
+      setIsPublishing(true); // Пакідаем true, пакуль не закрыем (або ставім false)
       setIsPublishing(false);
     }
   };
@@ -301,111 +308,106 @@ const handleGenerate = async () => {
               {v.rawText || "Текст повідомлення відсутній"}
             </div>
           </details>
-{/* --- TELEGRAM РЭДАКТАР (АКАРДЭОН) --- */}
-          <details className="group bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden shadow-sm" open={showEditor}>
-            <summary className="px-5 py-3 text-[10px] font-black text-slate-500 uppercase tracking-widest cursor-pointer hover:bg-slate-100 transition-colors list-none flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Sparkles size={14} className="text-emerald-500" />
-                <span>Telegram Редактор</span>
-                {v.postOutdated && (
-                  <span className="ml-2 bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full animate-pulse">
-                    Потребує оновлення
-                  </span>
-                )}
-              </div>
-              <div className="flex items-center gap-3">
-                {v.postGeneratedAt && (
-                  <span className="font-mono opacity-60 lowercase tracking-normal">
-                    {new Date(v.postGeneratedAt).toLocaleString("uk-UA")}
-                  </span>
-                )}
-                <span className="group-open:rotate-180 transition-transform">▼</span>
-              </div>
-            </summary>
+{/* --- TELEGRAM РЭДАКТАР (ІДЭНТЫЧНЫ СТЫЛЬ) --- */}
+      <details className="group bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden" open={showEditor}>
+        <summary className="px-5 py-3 text-[10px] font-black text-slate-500 uppercase tracking-widest cursor-pointer hover:bg-slate-100 transition-colors list-none flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="group-open:rotate-90 transition-transform inline-block text-xs">▶</span>
+            <Sparkles size={12} className="text-emerald-500" />
+            <span>Telegram Редактор</span>
+            {v.postOutdated && (
+              <span className="ml-2 text-amber-600 animate-pulse">● Потребує оновлення</span>
+            )}
+          </div>
+          {v.postGeneratedAt && (
+            <span className="text-[9px] font-mono opacity-60 lowercase tracking-tighter">
+              згенеровано: {new Date(v.postGeneratedAt).toLocaleString("uk-UA")}
+            </span>
+          )}
+        </summary>
+        
+        <div className="px-5 pb-5 border-t border-slate-100 pt-4 space-y-4">
+          {/* Падказка і кнопка генерацыі */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-white/50 p-3 rounded-xl border border-slate-100">
+            <p className="text-[11px] text-slate-500 leading-relaxed">
+              Якщо ви хочете згенерувати пост для Telegram або оновити вже існуючий пост на основі актуальних даних вакансії, натисніть кнопку:
+            </p>
+            <button 
+              onClick={handleGenerate}
+              disabled={isGenerating}
+              className="shrink-0 flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-900 text-[10px] font-black rounded-lg transition-all disabled:opacity-50"
+            >
+              <RefreshCw size={12} className={isGenerating ? "animate-spin" : ""} />
+              {isGenerating ? "ОБРОБКА..." : "ЗГЕНЕРУВАТИ ПОСТ"}
+            </button>
+          </div>
 
-            <div className="px-6 pb-6 space-y-5 border-t border-slate-100 pt-5">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-100">
-                <p className="text-xs text-slate-500 leading-relaxed max-w-md">
-                  Якщо ви хочете згенерувати пост для Telegram або оновити вже існуючий пост на основі актуальних даних вакансії, натисніть кнопку:
-                </p>
+          {/* Рэдактар */}
+          <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-inner">
+            <div className="flex border-b border-slate-100 bg-slate-50/50">
+              {["full", "short"].map((tab) => (
                 <button 
-                  onClick={handleGenerate}
-                  disabled={isGenerating}
-                  className="shrink-0 flex items-center gap-2 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-900 text-xs font-black rounded-xl transition-all disabled:opacity-50 shadow-sm"
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`flex-1 py-2 text-[9px] font-black uppercase tracking-widest transition-all ${activeTab === tab ? "bg-white text-emerald-600 border-b-2 border-emerald-500" : "text-slate-400 hover:text-slate-600"}`}
                 >
-                  <RefreshCw size={14} className={isGenerating ? "animate-spin" : ""} />
-                  {isGenerating ? "ОБРОБКА..." : "ЗГЕНЕРУВАТИ ПОСТ"}
+                  {tab === "full" ? "Повний пост" : "Короткий пост"}
+                </button>
+              ))}
+            </div>
+            
+            <textarea
+              value={activeTab === "full" ? editedFull : editedShort}
+              onChange={(e) => activeTab === "full" ? setEditedFull(e.target.value) : setEditedShort(e.target.value)}
+              className="w-full h-64 bg-transparent text-slate-700 p-4 text-xs font-mono leading-relaxed focus:outline-none resize-none custom-scrollbar"
+              placeholder="Текст поста з'явиться тут..."
+            />
+
+            <div className="px-4 py-2 bg-slate-50/50 border-t border-slate-100 flex justify-between items-center">
+              <div className="flex items-center gap-3">
+                <span className={`text-[9px] font-bold ${(activeTab === "full" ? editedFull : editedShort).length > 4000 ? "text-red-500" : "text-slate-400"}`}>
+                  Символів: {(activeTab === "full" ? editedFull : editedShort).length} / 4096
+                </span>
+                <button onClick={handleShare} className="text-slate-400 hover:text-emerald-500 transition-colors">
+                  <Share2 size={14} />
                 </button>
               </div>
-
-              <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-inner">
-                <div className="flex border-b border-slate-100 bg-slate-50/50">
-                  {["full", "short"].map((tab) => (
-                    <button 
-                      key={tab}
-                      onClick={() => setActiveTab(tab)}
-                      className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === tab ? "bg-white text-emerald-600 border-b-2 border-emerald-500" : "text-slate-400 hover:text-slate-600"}`}
-                    >
-                      {tab === "full" ? "Повний пост" : "Короткий пост"}
-                    </button>
-                  ))}
-                </div>
-                
-                <textarea
-                  value={activeTab === "full" ? editedFull : editedShort}
-                  onChange={(e) => activeTab === "full" ? setEditedFull(e.target.value) : setEditedShort(e.target.value)}
-                  className="w-full h-64 bg-transparent text-slate-700 p-5 text-sm font-mono leading-relaxed focus:outline-none resize-none custom-scrollbar"
-                  placeholder="Текст поста з'явиться тут..."
-                />
-
-                <div className="px-5 py-3 bg-slate-50/50 border-t border-slate-100 flex flex-wrap gap-4 justify-between items-center">
-                  <div className="flex items-center gap-4">
-                    <span className={`text-[10px] font-bold ${(activeTab === "full" ? editedFull : editedShort).length > 4000 ? "text-red-500" : "text-slate-400"}`}>
-                      Символів: {(activeTab === "full" ? editedFull : editedShort).length} / 4096
-                    </span>
-                    <button onClick={handleShare} className="text-slate-400 hover:text-emerald-500 transition-colors" title="Поділитися">
-                      <Share2 size={16} />
-                    </button>
-                  </div>
-                  
-                  <button 
-                    onClick={handlePublish}
-                    disabled={isPublishing || !(activeTab === "full" ? editedFull : editedShort)}
-                    className="flex items-center gap-2 px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-black rounded-xl transition-all disabled:opacity-50"
-                  >
-                    <Send size={14} /> {isPublishing ? "ВІДПРАВКА..." : "ОПУБЛІКУВАТИ В TG"}
-                  </button>
-                </div>
-              </div>
               
-              {/* ЗАВАНТАЖЕННЯ МЕДІА (ФАЙЛИ) */}
-              <div className="flex flex-col gap-3">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Медіа-файли (Фото або Відео)</label>
-                <div className="flex items-center gap-3">
-                  <label className="flex-1 flex items-center gap-2 px-4 py-3 bg-white border-2 border-dashed border-slate-200 rounded-xl cursor-pointer hover:border-emerald-400 hover:bg-emerald-50/30 transition-all">
-                    <Image size={18} className="text-slate-400" />
-                    <span className="text-xs text-slate-500 truncate">
-                      {selectedFile ? selectedFile.name : "Оберіть файл з комп'ютера..."}
-                    </span>
-                    <input 
-                      type="file" 
-                      className="hidden" 
-                      accept="image/*,video/*"
-                      onChange={(e) => setSelectedFile(e.target.files[0])}
-                    />
-                  </label>
-                  {selectedFile && (
-                    <button 
-                      onClick={() => setSelectedFile(null)}
-                      className="p-3 text-red-400 hover:bg-red-50 rounded-xl transition-colors"
-                    >
-                      <X size={18} />
-                    </button>
-                  )}
-                </div>
-              </div>
+              <button 
+                onClick={handlePublish}
+                disabled={isPublishing || !(activeTab === "full" ? editedFull : editedShort)}
+                className="flex items-center gap-2 px-4 py-1.5 bg-slate-900 hover:bg-slate-800 text-white text-[10px] font-black rounded-lg transition-all disabled:opacity-50"
+              >
+                <Send size={12} /> {isPublishing ? "ВІДПРАВКА..." : "ОПУБЛІКУВАТИ В TG"}
+              </button>
             </div>
-          </details>
+          </div>
+
+          {/* Загрузка файла */}
+          <div className="space-y-2">
+            <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Додати медіа (фото/відео)</label>
+            <div className="flex items-center gap-2">
+              <label className="flex-1 flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg cursor-pointer hover:border-emerald-400 transition-all">
+                <Image size={14} className="text-slate-400" />
+                <span className="text-[11px] text-slate-500 truncate">
+                  {selectedFile ? selectedFile.name : "Оберіть файл з комп'ютера..."}
+                </span>
+                <input 
+                  type="file" 
+                  className="hidden" 
+                  accept="image/*,video/*"
+                  onChange={(e) => setSelectedFile(e.target.files[0])}
+                />
+              </label>
+              {selectedFile && (
+                <button onClick={() => setSelectedFile(null)} className="p-2 text-red-400 hover:bg-red-50 rounded-lg">
+                  <X size={14} />
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </details>
           {/* ОПЛАТА ПРАЦІ */}
           <section>
             <SectionTitle
