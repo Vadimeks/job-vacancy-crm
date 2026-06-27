@@ -72,6 +72,7 @@ export default function VacancyViewModal({
   const [editedShort, setEditedShort] = useState(vacancy?.telegramShort || "");
   const [showEditor, setShowEditor] = useState(false);
   const [activeTab, setActiveTab] = useState("full"); // 'full' або 'short'
+  const [selectedFile, setSelectedFile] = useState(null);
   // Скрол уверх пры змене вакансіі
   useEffect(() => {
     const modalElement = document.getElementById("vacancy-view-modal-content");
@@ -301,52 +302,51 @@ const handleGenerate = async () => {
             </div>
           </details>
 {/* --- TELEGRAM РЭДАКТАР (АКАРДЭОН) --- */}
-          <details className="group bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden shadow-xl" open={showEditor}>
-            <summary className="px-6 py-4 flex items-center justify-between cursor-pointer hover:bg-slate-800/50 transition-colors list-none">
-              <div className="flex items-center gap-3">
-                <Sparkles size={18} className="text-emerald-500" />
-                <span className="text-sm font-black text-white uppercase tracking-widest">Telegram Рэдактар</span>
+          <details className="group bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden shadow-sm" open={showEditor}>
+            <summary className="px-5 py-3 text-[10px] font-black text-slate-500 uppercase tracking-widest cursor-pointer hover:bg-slate-100 transition-colors list-none flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Sparkles size={14} className="text-emerald-500" />
+                <span>Telegram Редактор</span>
                 {v.postOutdated && (
-                  <span className="flex items-center gap-1 text-[9px] bg-amber-500 text-slate-900 px-2 py-0.5 rounded-full font-black animate-pulse">
-                    <AlertCircle size={10} /> ПАТРЭБНА АБНАВІЦЬ
+                  <span className="ml-2 bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full animate-pulse">
+                    Потребує оновлення
                   </span>
                 )}
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
                 {v.postGeneratedAt && (
-                  <span className="text-[10px] text-slate-500 font-mono flex items-center gap-1">
-                    <Calendar size={10} /> {new Date(v.postGeneratedAt).toLocaleString("uk-UA")}
+                  <span className="font-mono opacity-60 lowercase tracking-normal">
+                    {new Date(v.postGeneratedAt).toLocaleString("uk-UA")}
                   </span>
                 )}
-                <span className="group-open:rotate-180 transition-transform text-slate-500 text-xs">▼</span>
+                <span className="group-open:rotate-180 transition-transform">▼</span>
               </div>
             </summary>
 
-            <div className="px-6 pb-6 space-y-4 border-t border-slate-800 pt-4">
-              <div className="flex items-center justify-between gap-2">
-                <p className="text-[10px] text-slate-400 leading-tight">
-                  AI генеруе пост на аснове актуальных дадзеных вакансіі. <br/>
-                  Калі вакансія змянілася — націсніце "Абнавіць праз AI".
+            <div className="px-6 pb-6 space-y-5 border-t border-slate-100 pt-5">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-100">
+                <p className="text-xs text-slate-500 leading-relaxed max-w-md">
+                  Якщо ви хочете згенерувати пост для Telegram або оновити вже існуючий пост на основі актуальних даних вакансії, натисніть кнопку:
                 </p>
                 <button 
                   onClick={handleGenerate}
                   disabled={isGenerating}
-                  className="shrink-0 flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-emerald-400 text-[10px] font-black rounded-xl transition-all border border-slate-700 disabled:opacity-50"
+                  className="shrink-0 flex items-center gap-2 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-900 text-xs font-black rounded-xl transition-all disabled:opacity-50 shadow-sm"
                 >
-                  <RefreshCw size={12} className={isGenerating ? "animate-spin" : ""} />
-                  {isGenerating ? "АБНАЎЛЯЮ..." : "АБНАВІЦЬ ПРАЗ AI"}
+                  <RefreshCw size={14} className={isGenerating ? "animate-spin" : ""} />
+                  {isGenerating ? "ОБРОБКА..." : "ЗГЕНЕРУВАТИ ПОСТ"}
                 </button>
               </div>
 
-              <div className="bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden">
-                <div className="flex border-b border-slate-800 bg-slate-900/50">
+              <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-inner">
+                <div className="flex border-b border-slate-100 bg-slate-50/50">
                   {["full", "short"].map((tab) => (
                     <button 
                       key={tab}
                       onClick={() => setActiveTab(tab)}
-                      className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === tab ? "bg-slate-950 text-emerald-400 border-b-2 border-emerald-500" : "text-slate-500 hover:text-slate-300"}`}
+                      className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === tab ? "bg-white text-emerald-600 border-b-2 border-emerald-500" : "text-slate-400 hover:text-slate-600"}`}
                     >
-                      {tab === "full" ? "Поўны пост" : "Кароткі пост"}
+                      {tab === "full" ? "Повний пост" : "Короткий пост"}
                     </button>
                   ))}
                 </div>
@@ -354,16 +354,16 @@ const handleGenerate = async () => {
                 <textarea
                   value={activeTab === "full" ? editedFull : editedShort}
                   onChange={(e) => activeTab === "full" ? setEditedFull(e.target.value) : setEditedShort(e.target.value)}
-                  className="w-full h-64 bg-transparent text-slate-300 p-5 text-sm font-mono leading-relaxed focus:outline-none resize-none custom-scrollbar"
-                  placeholder="Тэкст паста з'явіцца тут..."
+                  className="w-full h-64 bg-transparent text-slate-700 p-5 text-sm font-mono leading-relaxed focus:outline-none resize-none custom-scrollbar"
+                  placeholder="Текст поста з'явиться тут..."
                 />
 
-                <div className="px-5 py-3 bg-slate-900 border-t border-slate-800 flex flex-wrap gap-3 justify-between items-center">
+                <div className="px-5 py-3 bg-slate-50/50 border-t border-slate-100 flex flex-wrap gap-4 justify-between items-center">
                   <div className="flex items-center gap-4">
-                    <span className={`text-[10px] font-bold ${(activeTab === "full" ? editedFull : editedShort).length > 4000 ? "text-red-400" : "text-slate-500"}`}>
-                      Сімвалаў: {(activeTab === "full" ? editedFull : editedShort).length} / 4096
+                    <span className={`text-[10px] font-bold ${(activeTab === "full" ? editedFull : editedShort).length > 4000 ? "text-red-500" : "text-slate-400"}`}>
+                      Символів: {(activeTab === "full" ? editedFull : editedShort).length} / 4096
                     </span>
-                    <button onClick={handleShare} className="text-slate-400 hover:text-white transition-colors" title="Падзяліцца">
+                    <button onClick={handleShare} className="text-slate-400 hover:text-emerald-500 transition-colors" title="Поділитися">
                       <Share2 size={16} />
                     </button>
                   </div>
@@ -371,30 +371,37 @@ const handleGenerate = async () => {
                   <button 
                     onClick={handlePublish}
                     disabled={isPublishing || !(activeTab === "full" ? editedFull : editedShort)}
-                    className="flex items-center gap-2 px-6 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-900 text-[10px] font-black rounded-xl transition-all disabled:opacity-50 shadow-lg shadow-emerald-500/10"
+                    className="flex items-center gap-2 px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-black rounded-xl transition-all disabled:opacity-50"
                   >
-                    <Send size={12} /> {isPublishing ? "АДПРАЎКА..." : "АПУБЛІКАВАЦЬ У TG"}
+                    <Send size={14} /> {isPublishing ? "ВІДПРАВКА..." : "ОПУБЛІКУВАТИ В TG"}
                   </button>
                 </div>
               </div>
               
-              {/* ДАДАТКОВЫЯ ПАЛІ (МЕДЫЯ) */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div className="relative">
-                  <Image size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-                  <input 
-                    type="text" 
-                    placeholder="URL фота/відэа (неабавязкова)" 
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-[10px] text-slate-300 focus:border-emerald-500 outline-none"
-                  />
-                </div>
-                <div className="relative">
-                  <Link size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-                  <input 
-                    type="text" 
-                    placeholder="Дадатковая спасылка" 
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-[10px] text-slate-300 focus:border-emerald-500 outline-none"
-                  />
+              {/* ЗАВАНТАЖЕННЯ МЕДІА (ФАЙЛИ) */}
+              <div className="flex flex-col gap-3">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Медіа-файли (Фото або Відео)</label>
+                <div className="flex items-center gap-3">
+                  <label className="flex-1 flex items-center gap-2 px-4 py-3 bg-white border-2 border-dashed border-slate-200 rounded-xl cursor-pointer hover:border-emerald-400 hover:bg-emerald-50/30 transition-all">
+                    <Image size={18} className="text-slate-400" />
+                    <span className="text-xs text-slate-500 truncate">
+                      {selectedFile ? selectedFile.name : "Оберіть файл з комп'ютера..."}
+                    </span>
+                    <input 
+                      type="file" 
+                      className="hidden" 
+                      accept="image/*,video/*"
+                      onChange={(e) => setSelectedFile(e.target.files[0])}
+                    />
+                  </label>
+                  {selectedFile && (
+                    <button 
+                      onClick={() => setSelectedFile(null)}
+                      className="p-3 text-red-400 hover:bg-red-50 rounded-xl transition-colors"
+                    >
+                      <X size={18} />
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
