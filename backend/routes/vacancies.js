@@ -104,7 +104,50 @@ function constructVacancyDisplayName(data) {
     parts.push(data.location);
   return parts.join(" — ");
 }
+// Функцыя-скрыпт для генерацыі кароткага паста па шаблоне карыстальніка
+function formatShortPostScript(v) {
+  const lines = [];
+  
+  // 1. ID
+  lines.push(`🆔 ${v.vacancyCode}`);
 
+  // 2. Загаловак
+  lines.push(`🔥 *${v.vacancydescription}*`);
+
+  // 3. Лакацыя і Зарплата
+  const salary = v.salary?.rawSalaryDisplay || (v.salary?.baseNetto ? `${v.salary.baseNetto} PLN` : "уточнюється");
+  lines.push(`📍 ${v.location} | 💰 ${salary}`);
+
+  // 4. Набор і Узрост
+  const gender = Array.isArray(v.requirements?.gender) ? v.requirements.gender.join(", ") : (v.gender || "Будь-хто");
+  const age = v.requirements?.age?.rawText || (v.requirements?.age?.max ? `до ${v.requirements.age.max} років` : "");
+  lines.push(`👥 Набір: ${gender}${age ? ` | 🎂 Вік: ${age}` : ""}`);
+
+  // 5. Жытло (з дэталямі ў дужках)
+  if (v.accommodation?.type) {
+    let acc = `🏠 Проживання: ${v.accommodation.type}`;
+    if (v.accommodation.details) acc += ` (${v.accommodation.details})`;
+    lines.push(acc);
+  }
+
+  // 6. Графік і Гадзіны
+  const sched = v.schedule?.description || "";
+  const hours = v.salary?.hoursRange || "";
+  if (sched || hours) {
+    lines.push(`🗓 Графік: ${sched}${hours ? ` | ⏱ ${hours} год/міс` : ""}`);
+  }
+
+  // 7. Тып дагавору
+  if (v.contractType) {
+    lines.push(`📄 Тип договору: ${v.contractType}`);
+  }
+
+  // 8. Транспарт
+  const transport = v.transport?.provided ? "надається" : "немає";
+  lines.push(`🚌 Транспорт: ${transport}`);
+
+  return lines.join("\n");
+}
 function cleanTelegramPost(text) {
   if (!text) return "";
   return text
@@ -981,17 +1024,22 @@ router.post("/bulk-preview", async (req, res) => {
 
     const vacancies = await Vacancy.find({ _id: { $in: ids } });
     
-    let digest = "🔥 **АКТУАЛЬНІ ВАКАНСІЇ**\n\n";
+    let digest = ""; // Пуста, каб ты сам напісаў уступ у мадалцы
     
     vacancies.forEach((v, index) => {
-      const text = v.telegramShort || `📍 ${v.vacancydescription}\n💰 ${v.salary?.rawSalaryDisplay || 'Ставка уточнюється'}`;
-      digest += `${index + 1}. ${text}\n\n-------------------\n\n`;
+      // ВЫКЛІК СКРЫПТА
+      digest += formatShortPostScript(v);
+      
+      if (index !== vacancies.length - 1) {
+        digest += "\n\n-------------------\n\n";
+      }
     });
 
-    digest += "📲 Контактуйте: @InnaNovaWork +48 780 770 745 Інна";
+    digest += "\n\n📲 Контактуйте: @InnaNovaWork +48 780 770 745 Інна";
     
     res.json({ text: digest });
   } catch (err) {
+    console.error("❌ Bulk Preview Error:", err.message);
     res.status(500).json({ message: err.message });
   }
 });
