@@ -64,5 +64,9 @@ export const getInboxStats = () => api.get("/inbox/stats");
 export const deleteInboxMessage = (id) => api.delete(`/inbox/${id}`);
 export const bulkDeleteInbox = (data) => api.delete("/inbox/bulk", { data });
 export const markInboxProcessed = (id) => api.patch(`/inbox/${id}/process`);
+// Генерацыя прэв'ю для рэдактара
+export const generateVacancyPreview = (id) => api.post(`/vacancies/${id}/generate-preview`);
 
+// Публікацыя ў Telegram
+export const publishVacancy = (id, data) => api.post(`/vacancies/${id}/publish`, data);
 export default api;

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react"; // Дадалі useEffect
-import { Copy, Check, X, Factory, Tag, Building2, ChevronLeft, ChevronRight } from "lucide-react"; // Дадалі стрэлкі
+import { Copy, Check, X, Factory, Tag, Building2, ChevronLeft, ChevronRight, Sparkles, Send, AlertCircle } from "lucide-react";
+import { generateVacancyPreview, publishVacancy } from "../../services/api";
 const formatText = (text) => {
   if (!text || typeof text !== "string") return "";
 
@@ -61,12 +62,26 @@ export default function VacancyViewModal({
   totalCount   // Новае
 }) {
   const [copied, setCopied] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [editedFull, setEditedFull] = useState(vacancy?.telegramFull || "");
+  const [editedShort, setEditedShort] = useState(vacancy?.telegramShort || "");
+  const [showEditor, setShowEditor] = useState(false);
+  const [activeTab, setActiveTab] = useState("full"); // 'full' або 'short'
   // Скрол уверх пры змене вакансіі
   useEffect(() => {
     const modalElement = document.getElementById("vacancy-view-modal-content");
     if (modalElement) modalElement.scrollTop = 0;
   }, [vacancy?._id]);
-
+  // 👈 ФІКС ПАМЫЛКІ: Сінхранізацыя стэйту пры змене вакансіі (карусель)
+  // Гэты патэрн працуе хутчэй за useEffect і не выклікае памылак лінтэра
+  const [prevId, setPrevId] = useState(v._id);
+  if (v._id !== prevId) {
+    setPrevId(v._id);
+    setEditedFull(v.telegramFull || "");
+    setEditedShort(v.telegramShort || "");
+    setShowEditor(!!(v.telegramFull || v.telegramShort));
+  }
   // Кіраванне клавіятурай
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -82,11 +97,46 @@ export default function VacancyViewModal({
   const v = vacancy;
 
   const handleCopyTelegram = () => {
-    navigator.clipboard.writeText(v.telegramPost || "");
+    // Калі рэдактар адкрыты — капіюем адрэдагаваны тэкст з актыўнай укладкі
+    // Інакш — капіюем стары telegramPost
+    const textToCopy = showEditor 
+      ? (activeTab === "full" ? editedFull : editedShort)
+      : (v.telegramPost || "");
+      
+    navigator.clipboard.writeText(textToCopy);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+const handleGenerate = async () => {
+    setIsGenerating(true);
+    try {
+      const res = await generateVacancyPreview(v._id);
+      setEditedFull(res.data.full);
+      setEditedShort(res.data.short);
+      setShowEditor(true);
+    } catch (err) {
+      alert("Памылка генерацыі: " + err.message);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
+  const handlePublish = async () => {
+    if (!confirm(`Апублікаваць ${activeTab === 'full' ? 'ПОЎНУЮ' : 'КАРОТКУЮ'} версію ў Telegram?`)) return;
+    setIsPublishing(true);
+    try {
+      await publishVacancy(v._id, {
+        fullText: editedFull,
+        shortText: editedShort,
+        mode: activeTab // адпраўляем толькі выбраную ўкладку
+      });
+      alert("✅ Апублікавана!");
+    } catch (err) {
+      alert("Памылка публікацыі: " + err.message);
+    } finally {
+      setIsPublishing(false);
+    }
+  };
   // Разумная лакацыя: дадаем краіну толькі калі яе няма ў назве горада
   const locationDisplay =
     v.country && v.country !== "Polska" && !v.location?.includes(v.country)
@@ -220,7 +270,64 @@ export default function VacancyViewModal({
               </p>
             </div>
           </div>
+{/* --- БЛОК TELEGRAM РЭДАКТАРА --- */}
+          <div className="space-y-4 bg-slate-50 p-6 rounded-3xl border border-slate-200 shadow-inner">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Sparkles size={18} className="text-emerald-500" />
+                <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Telegram Редактор</h3>
+                {v.postOutdated && (
+                  <span className="flex items-center gap-1 text-[9px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold animate-pulse">
+                    <AlertCircle size={10} /> ТРЭБА АБНАВІЦЬ
+                  </span>
+                )}
+              </div>
+              <button 
+                onClick={handleGenerate}
+                disabled={isGenerating}
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black rounded-xl transition-all disabled:opacity-50 shadow-md"
+              >
+                {isGenerating ? "ГЕНЕРУЮ..." : "ЗГЕНЕРАВАЦЬ ПРЭВ'Ю"}
+              </button>
+            </div>
 
+            {showEditor && (
+              <div className="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden shadow-xl">
+                <div className="flex border-b border-slate-800 bg-slate-800/50">
+                  <button 
+                    onClick={() => setActiveTab("full")}
+                    className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === "full" ? "bg-slate-900 text-emerald-400 border-b-2 border-emerald-500" : "text-slate-500 hover:text-slate-300"}`}
+                  >
+                    Поўны пост
+                  </button>
+                  <button 
+                    onClick={() => setActiveTab("short")}
+                    className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === "short" ? "bg-slate-900 text-emerald-400 border-b-2 border-emerald-500" : "text-slate-500 hover:text-slate-300"}`}
+                  >
+                    Кароткі пост
+                  </button>
+                </div>
+                <textarea
+                  value={activeTab === "full" ? editedFull : editedShort}
+                  onChange={(e) => activeTab === "full" ? setEditedFull(e.target.value) : setEditedShort(e.target.value)}
+                  className="w-full h-64 bg-transparent text-slate-300 p-5 text-sm font-mono leading-relaxed focus:outline-none resize-none custom-scrollbar"
+                  placeholder="Тэкст паста з'явіцца тут..."
+                />
+                <div className="px-5 py-3 bg-slate-800/30 border-t border-slate-800 flex justify-between items-center">
+                  <span className={`text-[10px] font-bold ${(activeTab === "full" ? editedFull : editedShort).length > 4000 ? "text-red-400" : "text-slate-500"}`}>
+                    Сімвалаў: {(activeTab === "full" ? editedFull : editedShort).length} / 4096
+                  </span>
+                  <button 
+                    onClick={handlePublish}
+                    disabled={isPublishing || !(activeTab === "full" ? editedFull : editedShort)}
+                    className="flex items-center gap-2 px-4 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-900 text-[10px] font-black rounded-lg transition-all disabled:opacity-50"
+                  >
+                    <Send size={12} /> {isPublishing ? "АДПРАЎКА..." : "АПУБЛІКАВАЦЬ"}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
           {/* АРЫГІНАЛЬНЫ ТЭКСТ (Перанесены сюды і стылізаваны) */}
           <details className="group bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden">
             <summary className="px-5 py-3 text-[10px] font-black text-slate-500 uppercase tracking-widest cursor-pointer hover:bg-slate-100 transition-colors list-none flex items-center gap-2">
