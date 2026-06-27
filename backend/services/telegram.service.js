@@ -17,22 +17,22 @@ const sendToTelegram = async (postText, vacancyId = null, file = null) => {
 
   for (let i = 0; i < posts.length; i++) {
     const content = posts[i];
-    const MAX_LENGTH = 4000;
+    const MAX_CAPTION = 1024; 
+    const MAX_MSG = 4000;
 
     try {
-      // Калі ёсць файл — адпраўляем яго з ПЕРШЫМ паведамленнем
       if (file && i === 0) {
         const isVideo = file.mimetype.includes('video');
         const method = isVideo ? 'sendVideo' : 'sendPhoto';
         
-        // У Telegram ліміт на подпіс (caption) — 1024 сімвалы
-        if (content.length <= 1024) {
+        if (content.length <= MAX_CAPTION) {
+          // Ідэальны варыянт: фота + тэкст як подпіс
           await bot.telegram[method](CHANNEL_ID, { source: file.buffer }, {
             caption: content,
             parse_mode: "Markdown"
           });
         } else {
-          // Калі тэкст доўгі — спачатку файл, потым тэкст асобна
+          // Доўгі тэкст: адпраўляем фота, а потым УВЕСЬ тэкст асобна
           await bot.telegram[method](CHANNEL_ID, { source: file.buffer });
           await bot.telegram.sendMessage(CHANNEL_ID, content, {
             parse_mode: "Markdown",
@@ -40,24 +40,22 @@ const sendToTelegram = async (postText, vacancyId = null, file = null) => {
           });
         }
       } else {
-        // Звычайная адпраўка тэксту
-        if (content.length <= MAX_LENGTH) {
+        // Звычайная адпраўка тэксту (без файла)
+        if (content.length <= MAX_MSG) {
           await bot.telegram.sendMessage(CHANNEL_ID, content, {
             parse_mode: "Markdown",
             disable_web_page_preview: true,
           });
         } else {
-          // Спліцінг для вельмі доўгіх тэкстаў (больш за 4000)
-          const splitIndex = content.lastIndexOf("\n", MAX_LENGTH) || MAX_LENGTH;
+          // Калі тэкст больш за 4000 (экстрэмальна доўгі) — вымушаны спліт
+          const splitIndex = content.lastIndexOf("\n", MAX_MSG) || MAX_MSG;
           await bot.telegram.sendMessage(CHANNEL_ID, content.substring(0, splitIndex), { parse_mode: "Markdown" });
           await bot.telegram.sendMessage(CHANNEL_ID, content.substring(splitIndex), { parse_mode: "Markdown" });
         }
       }
-      
       await new Promise(r => setTimeout(r, 2000));
     } catch (err) {
       console.error("❌ Telegram Send Error:", err.message);
-      // Фолбэк: адпраўка як Plain Text, калі Markdown памылковы
       await bot.telegram.sendMessage(CHANNEL_ID, content).catch(e => console.error("Final fallback failed"));
     }
   }
