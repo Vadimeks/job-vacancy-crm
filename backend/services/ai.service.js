@@ -1121,6 +1121,7 @@ async function parseVacancyWithAI(rawText, forcedAgency = null, parsingResultTyp
     const SYSTEM_INSTRUCTION = `
 ROLE: Professional automated job vacancy parser (v2.3).
 TASK: Convert job vacancy text into a JSON object with EXACTLY this structure. Fill every field based on the text. Do not invent field names.
+!!! BATCH RULE: If the input contains multiple independent vacancies or is provided as a list/array, you MUST return an ARRAY of JSON objects [{}, {}, {}]. If it is a single vacancy, return a single object.
 
 LANGUAGE:
 - Descriptions, duties, notes → Ukrainian.
@@ -1363,9 +1364,15 @@ JSON STRUCTURE:
   "parsingResultType": "FULL_VACANCY"
 }`;
 
+    // 👈 ЗМЕНА: Калі прыйшоў масіў фрагментаў, злучаем іх для AI з выразнымі пазнакамі
+    const inputContent = Array.isArray(rawText) 
+      ? rawText.map((t, i) => `--- VACANCY ${i+1} ---\n${t}`).join("\n\n")
+      : rawText;
+
     const currentDate = new Date().toLocaleDateString('uk-UA');
-const DATE_INSTRUCTION = `\n\n!!! CRITICAL DATE RULE !!!\nToday is ${currentDate}. If you see arrival dates or start dates from the PAST (e.g., 2024 or early 2025), IGNORE them. Set arrivalDate to null if the date in text is older than today.`;
-const result = await executeAIRequest(SYSTEM_INSTRUCTION + DATE_INSTRUCTION, rawText, true, fullModelOnly);
+    const DATE_INSTRUCTION = `\n\n!!! CRITICAL DATE RULE !!!\nToday is ${currentDate}. If you see arrival dates or start dates from the PAST (e.g., 2024 or early 2025), IGNORE them. Set arrivalDate to null if the date in text is older than today.`;
+    
+    const result = await executeAIRequest(SYSTEM_INSTRUCTION + DATE_INSTRUCTION, inputContent, true, fullModelOnly);
 
     const parsedData = JSON.parse(result.data);
 

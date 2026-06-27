@@ -249,11 +249,19 @@ async function processVacancyMessage(
       preDefinedAgency,
       parsingResultType,
       sheetName,
-      needsFull // 👈 Перадаем флаг
+      needsFull
     );
    
-// 🧠 Вызначаем мадэль (працуе і для аб'екта, і для масіва)
-    const vacancyDataList = Array.isArray(result) ? result : [result];
+    // 🧠 Вызначаем мадэль і рыхтуем спіс дадзеных
+    // result цяпер заўсёды будзе апрацаваны як масіў, нават калі AI вярнуў адзін аб'ект
+    let vacancyDataList = [];
+    if (result) {
+      if (Array.isArray(result)) {
+        vacancyDataList = result;
+      } else {
+        vacancyDataList = [result];
+      }
+    }
     const modelUsed = vacancyDataList[0]?.modelUsed || ""; 
     const isLite = modelUsed.toLowerCase().includes("lite");
     // Калі статус прымусова перададзены (напр. closed з Airtable), выкарыстоўваем яго

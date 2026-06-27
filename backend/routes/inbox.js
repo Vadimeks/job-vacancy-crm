@@ -258,26 +258,21 @@ async function processPendingMessages() {
         let finalCategory = categoryMap[analysis.category] || "info";
         let isAutoDone = false;
 
-        // 5. Stage 2: Парсінг (толькі для поўных вакансій)
+        // 5. Stage 2: Парсінг (БАТЧ-РЭЖЫМ для чатаў)
         if (isFullVacancy && AUTO_PROCESS_VACANCIES && !msg.isTruncated) {
-          let allProcessed = true;
-          for (const fragment of fragments) {
-            // Перадаем fragment як enrichedText, бо ён ужо збагачаны і перакладзены ў Stage 1
-            const result = await processVacancyMessage(
-              fragment,
-              msg.sender,
-              msg.agencyName,
-              msg.text,
-              msg.isTruncated,
-              analysis.category,
-              null, // sourceHash (для паведамленняў з чатаў не выкарыстоўваецца)
-              "", // sheetName (пуста для чатаў)
-              null, // existingId
-              msg.source === "telegram_userbot" ? "telegram" : "viber", // 👈 ДАДАДЗЕНА: мапінг крыніцы
-            );
-            if (!result || result.error) allProcessed = false;
-          }
-          if (allProcessed) isAutoDone = true;
+          const result = await processVacancyMessage(
+            fragments, // 👈 Перадаем увесь масіў фрагментаў адразу
+            msg.sender,
+            msg.agencyName,
+            msg.text,
+            msg.isTruncated,
+            analysis.category,
+            null,
+            "",
+            null,
+            msg.source === "telegram_userbot" ? "telegram" : "viber"
+          );
+          if (result && !result.error) isAutoDone = true;
         }
 
         msg.rawText = translatedText;

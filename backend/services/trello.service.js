@@ -227,34 +227,38 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
             return "STOP_ALL"; 
           }
 
-          // Stage 2: Парсінг кожнага фрагмента
-          for (const fragment of analysis.translatedFragments) {
-            const result = await processVacancyMessage(
-              fragment,
-              "Trello",
-              source.agencyName,
-              rawTrelloDump,
-              false,
-              analysis.category,
-              card.id,
-              list.name,
-              existingVacancy ? existingVacancy._id : null,
-              "trello"
-            );
+          // 🚀 Stage 2: БАТЧ-ПАРСІНГ (Адпраўляем усе фрагменты Трэла адразу)
+          const result = await processVacancyMessage(
+            analysis.translatedFragments, // 👈 Перадаем увесь масіў
+            "Trello",
+            source.agencyName,
+            rawTrelloDump,
+            false,
+            analysis.category,
+            card.id,
+            list.name,
+            existingVacancy ? existingVacancy._id : null,
+            "trello"
+          );
 
-            if (result && result.error) {
-               if (result.error.includes("AI_COOLDOWN") || result.error.includes("ALL_AI_MODELS_FAILED")) {
-                console.error("🛑 Спыняем Trello: AI недаступны.");
-                return "STOP_ALL"; // 👈 Стоп-кран
-              }
-            } else if (result) {
-              if (existingVacancy) {
-                stats.updated++;
-                details.push(`🔄 [${result.vacancyCode}] ${card.name}`);
-              } else {
-                stats.added++;
-                details.push(`✨ [${result.vacancyCode}] ${card.name}`);
-              }
+          if (result && result.error) {
+            if (result.error.includes("AI_COOLDOWN") || result.error.includes("ALL_AI_MODELS_FAILED")) {
+              console.error("🛑 Спыняем Trello: AI недаступны.");
+              // Запамінаем пазіцыю перад выхадам
+              await SyncState.findOneAndUpdate(
+                { key: "circular_sync_position" },
+                { lastSourceType: "trello", lastSourceId: source._id, lastIndex: currentCardIndex },
+                { upsert: true }
+              );
+              return "STOP_ALL";
+            }
+          } else if (result) {
+            if (existingVacancy) {
+              stats.updated++;
+              details.push(`🔄 [${result.vacancyCode}] ${card.name}`);
+            } else {
+              stats.added++;
+              details.push(`✨ [${result.vacancyCode}] ${card.name}`);
             }
           }
         } else if (isInfoList) {

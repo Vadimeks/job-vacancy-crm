@@ -697,50 +697,23 @@ async function syncSheetVacancies(sourceId) {
           stats.ignored++;
           continue; // Пераходзім да наступнага радка
         }
-        let fragmentIndex = 0;
-        let firstSavedId = null; // 👈 ДАДАДЗЕНА: захоўваем ID першага фрагмента для наступных
+       // 🚀 БАТЧ-ВЫКЛІК: Адпраўляем усе фрагменты адразу адным запытам
+        const savedVac = await processVacancyMessage(
+          analysis.translatedFragments, // 👈 Перадаем увесь масіў фрагментаў
+          "Google Sheets",
+          source.agencyName,
+          rowBodyText,
+          false,
+          "FULL_VACANCY",
+          rowHash,
+          source.sheetName,
+          existingVacancy ? existingVacancy._id : null,
+          "spreadsheet"
+        );
 
-        for (const fragment of analysis.translatedFragments) {
-          const savedVac = await processVacancyMessage(
-            fragment,
-            "Google Sheets",
-            source.agencyName,
-            rowBodyText,
-            false,
-            "FULL_VACANCY",
-            rowHash,
-            source.sheetName,
-            fragmentIndex === 0
-              ? existingVacancy
-                ? existingVacancy._id
-                : null
-              : firstSavedId, // 👈 ЗМЕНА: наступныя фрагменты абнаўляюць першы, не ствараюць новы
-            // Было: null — кожны фрагмент пачынаў пошук з нуля і мог стварыць новую вакансію
-            "spreadsheet",
-          );
-
-          if (savedVac && savedVac.vacancyCode) {
-            // 👈 ДАДАДЗЕНА: запамінаем ID першай створанай вакансіі
-            if (fragmentIndex === 0 && !firstSavedId) {
-              firstSavedId = savedVac._id;
-            }
-
-            if (fragmentIndex === 0 && existingVacancy) {
-              stats.updated++;
-              details.push(
-                `🔄 [${savedVac.vacancyCode}] ${rowTitle} (Row: ${i + 1})`,
-              );
-            } else if (fragmentIndex === 0) {
-              stats.added++;
-              details.push(
-                `✨ [${savedVac.vacancyCode}] ${rowTitle} (Row: ${i + 1})`,
-              );
-            }
-            // 👈 ЗМЕНА: наступныя фрагменты не дублююцца ў справаздачу і не адпраўляюцца ў TG
-            // Было: fragmentIndex > 0 дадаваў асобны радок "(Row: X - ч.2)" у details
-          }
-          fragmentIndex++;
-          await new Promise((r) => setTimeout(r, 2000));
+        if (savedVac && !savedVac.error) {
+          if (existingVacancy) stats.updated++; else stats.added++;
+          details.push(`✨ [${savedVac.vacancyCode}] ${rowTitle} (Row: ${i + 1})`);
         }
       }
 

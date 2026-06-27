@@ -206,26 +206,26 @@ async function syncSingleSource(source) {
       return "STOP_ALL";
     }
 
-    for (const fragment of analysis.translatedFragments) {
-      const result = await processVacancyMessage(
-        fragment, "Airtable", source.agencyName, rawAirtableDump, false,
-        analysis.category, airtableId, columnName, 
-        existingVacancy ? existingVacancy._id : null, "airtable",
-        false, targetStatus
-      );
+    // 🚀 БАТЧ-ВЫКЛІК: Адпраўляем усе фрагменты Airtable адным запытам
+    const result = await processVacancyMessage(
+      analysis.translatedFragments, // 👈 Перадаем увесь масіў
+      "Airtable", source.agencyName, rawAirtableDump, false,
+      analysis.category, airtableId, columnName, 
+      existingVacancy ? existingVacancy._id : null, "airtable",
+      false, targetStatus
+    );
 
-      if (result && !result.error) {
-        const isRecentlyCreated = result.createdAt && (Date.now() - new Date(result.createdAt).getTime() < 60000);
-        if (isRecentlyCreated && !existingVacancy) stats.added++; else stats.updated++;
-      } else if (result?.error) {
-        console.error(`🛑 [Airtable] AI Cooldown у парсеры. Спыняем на індэксе ${i}.`);
-        await SyncState.findOneAndUpdate(
-          { key: "circular_sync_position" },
-          { lastSourceType: "airtable", lastSourceId: source._id, lastIndex: i },
-          { upsert: true }
-        );
-        return "STOP_ALL";
-      }
+    if (result && !result.error) {
+      const isRecentlyCreated = result.createdAt && (Date.now() - new Date(result.createdAt).getTime() < 60000);
+      if (isRecentlyCreated && !existingVacancy) stats.added++; else stats.updated++;
+    } else if (result?.error) {
+      console.error(`🛑 [Airtable] AI Cooldown у парсеры. Спыняем на індэксе ${i}.`);
+      await SyncState.findOneAndUpdate(
+        { key: "circular_sync_position" },
+        { lastSourceType: "airtable", lastSourceId: source._id, lastIndex: i },
+        { upsert: true }
+      );
+      return "STOP_ALL";
     }
     await new Promise(r => setTimeout(r, 4000));
   }
