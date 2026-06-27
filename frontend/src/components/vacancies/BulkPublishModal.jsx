@@ -3,7 +3,9 @@ import { X, Send, Plus, Trash2, Image, AlertCircle, Sparkles, FileText } from "l
 import { generateBulkPreview, publishBulk } from "../../services/api";
 
 export default function BulkPublishModal({ selectedIds, onClose }) {
-  const [parts, setParts] = useState([""]); // Масіў частак паведамлення
+  const [parts, setParts] = useState([""]); 
+  const [caption, setCaption] = useState(""); // 👈 Подпіс да фота
+  const [previewUrl, setPreviewUrl] = useState(null); // 👈 Для прэв'ю файла
   const [loading, setLoading] = useState(true);
   const [publishing, setPublishing] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
@@ -13,33 +15,9 @@ export default function BulkPublishModal({ selectedIds, onClose }) {
     const fetchPreview = async () => {
       try {
         const res = await generateBulkPreview(selectedIds);
-        const rawText = res.data.text;
-
-        // Разумны спліт: першая частка пад ліміт подпісу (1000), астатнія — пад ліміт паста (3800)
-        const chunks = [];
-        let currentText = rawText;
-        let isFirst = true;
-
-        while (currentText.length > 0) {
-          const LIMIT = isFirst ? 1000 : 3800; // 👈 Першая частка меншая для фота
-
-          if (currentText.length <= LIMIT) {
-            chunks.push(currentText);
-            break;
-          }
-
-          // Шукаем раздзяляльнік вакансій
-          let splitIndex = currentText.lastIndexOf("-------------------", LIMIT);
-          if (splitIndex === -1) splitIndex = LIMIT;
-
-          chunks.push(currentText.substring(0, splitIndex).trim());
-          currentText = currentText.substring(splitIndex).trim();
-          isFirst = false; // Наступныя часткі будуць вялікімі
-        }
-
-        setParts(chunks.length > 0 ? chunks : [""]);
+        setParts([res.data.text]); // 👈 Увесь тэкст у адзін блок па змаўчанні
       } catch (err) {
-        alert("Памылка загрузкі прэв'ю: " + err.message);
+        alert("Памылка загрузкі: " + err.message);
       } finally {
         setLoading(false);
       }
@@ -47,7 +25,15 @@ export default function BulkPublishModal({ selectedIds, onClose }) {
 
     fetchPreview();
   }, [selectedIds]);
-
+useEffect(() => {
+    if (!selectedFile) {
+      setPreviewUrl(null);
+      return;
+    }
+    const url = URL.createObjectURL(selectedFile);
+    setPreviewUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [selectedFile]);
   // 2. Кіраванне часткамі
   const updatePart = (index, value) => {
     const newParts = [...parts];
@@ -65,22 +51,24 @@ export default function BulkPublishModal({ selectedIds, onClose }) {
 
   // 3. Адпраўка
   const handlePublish = async () => {
-    if (!confirm(`Апублікаваць дайджэст з ${parts.length} частак у Telegram?`)) return;
+    if (!confirm(`Апублікаваць дайджэст у Telegram?`)) return;
 
     setPublishing(true);
     try {
       const formData = new FormData();
-      // Склеіваем часткі праз наш маркер для бэкенда
-      formData.append("text", parts.join("\n\n=== SPLIT ===\n\n"));
-      if (selectedFile) {
-        formData.append("file", selectedFile);
-      }
+      // Збіраем подпіс (калі ёсць) і ўсе часткі ў адзін масіў, потым склейваем
+      const allContent = [];
+      if (selectedFile && caption.trim()) allContent.push(caption);
+      parts.forEach(p => { if(p.trim()) allContent.push(p); });
+
+      formData.append("text", allContent.join("\n\n=== SPLIT ===\n\n"));
+      if (selectedFile) formData.append("file", selectedFile);
 
       await publishBulk(formData);
-      alert("✅ Дайджэст паспяхова адпраўлены!");
+      alert("✅ Апублікавана!");
       onClose();
     } catch (err) {
-      alert("Памылка публікацыі: " + (err.response?.data?.message || err.message));
+      alert("Памылка: " + (err.response?.data?.message || err.message));
     } finally {
       setPublishing(false);
     }
@@ -118,42 +106,69 @@ export default function BulkPublishModal({ selectedIds, onClose }) {
         {/* КАНТЭНТ (ЧАСТКІ) */}
         <div className="flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar">
           
-          {/* Блок медыя (толькі для першай часткі) */}
+          {/* 1. ВЫБАР ФАЙЛА */}
           <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Галоўнае фота/відэа (дадаецца да 1-й часткі)</label>
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Медыя-файл (фота/відэа)</label>
             <div className="flex items-center gap-3">
-              <label className="flex-1 flex items-center gap-3 px-4 py-3 bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl cursor-pointer hover:border-emerald-400 hover:bg-emerald-50/50 transition-all">
+              <label className="flex-1 flex items-center gap-3 px-4 py-3 bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl cursor-pointer hover:border-emerald-400 transition-all">
                 <Image size={20} className="text-slate-400" />
-                <span className="text-sm text-slate-500 truncate">
-                  {selectedFile ? selectedFile.name : "Выберыце файл для вокладкі..."}
-                </span>
+                <span className="text-sm text-slate-500 truncate">{selectedFile ? selectedFile.name : "Дадаць медыя..."}</span>
                 <input type="file" className="hidden" accept="image/*,video/*" onChange={(e) => setSelectedFile(e.target.files[0])} />
               </label>
               {selectedFile && (
-                <button onClick={() => setSelectedFile(null)} className="p-3 text-red-500 hover:bg-red-50 rounded-xl transition-colors">
-                  <Trash2 size={20} />
-                </button>
+                <button onClick={() => setSelectedFile(null)} className="p-3 text-red-500 hover:bg-red-50 rounded-xl"><Trash2 size={20} /></button>
               )}
             </div>
           </div>
 
-          {/* Спіс частак */}
+          {/* 2. НУЛЯВЫ БЛОК (ПОДПІС ДА МЕДЫЯ) */}
+          {selectedFile && (
+            <div className="bg-emerald-50/50 p-6 rounded-3xl border border-emerald-100 animate-in zoom-in-95 duration-300">
+              <div className="flex gap-4 mb-4">
+                {previewUrl && (
+                  <div className="w-24 h-24 shrink-0 rounded-xl overflow-hidden border border-emerald-200 shadow-sm bg-white">
+                    {selectedFile.type.startsWith('video') 
+                      ? <div className="w-full h-full flex items-center justify-center bg-slate-800 text-white text-[10px]">VIDEO</div>
+                      : <img src={previewUrl} className="w-full h-full object-cover" alt="preview" />
+                    }
+                  </div>
+                )}
+                <div className="flex-1">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Блок 0: Подпіс да медыя</span>
+                    <span className={`text-[10px] font-bold ${caption.length > 1024 ? "text-red-500" : "text-emerald-600/60"}`}>
+                      {caption.length} / 1024 сімвалаў
+                    </span>
+                  </div>
+                  <textarea
+                    value={caption}
+                    onChange={(e) => setCaption(e.target.value)}
+                    className="w-full h-24 bg-white border border-emerald-200 rounded-xl p-3 text-sm text-slate-700 focus:border-emerald-500 outline-none resize-none"
+                    placeholder="Устаўце тут апісанне для паста з фота (да 1000 сімв.)..."
+                  />
+                </div>
+              </div>
+              {caption.length > 1024 && (
+                <p className="text-[10px] text-red-500 font-bold uppercase flex items-center gap-1">
+                  <AlertCircle size={12} /> Зашмат тэксту для подпісу! Перанясіце частку ў Блок 1.
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* 3. АСНОЎНЫЯ БЛОКІ ТЭКСТУ */}
           {parts.map((text, idx) => (
-            <div key={idx} className="relative group animate-in fade-in slide-in-from-bottom-2">
-              <div className="flex items-center justify-between mb-2">
+            <div key={idx} className="space-y-2">
+              <div className="flex items-center justify-between">
                 <span className="text-[10px] font-black bg-slate-900 text-white px-3 py-1 rounded-full uppercase tracking-widest">
-                  Частка {idx + 1}
+                  Блок {idx + 1}
                 </span>
                 <div className="flex items-center gap-4">
-                  <span className={`text-[10px] font-bold ${
-  text.length > (idx === 0 && selectedFile ? 1024 : 4000) ? "text-red-500" : "text-slate-400"
-}`}>
-  {text.length} / {idx === 0 && selectedFile ? 1024 : 4096} сімвалаў
-</span>
+                  <span className={`text-[10px] font-bold ${text.length > 4000 ? "text-red-500" : "text-slate-400"}`}>
+                    {text.length} / 4096 сімвалаў
+                  </span>
                   {parts.length > 1 && (
-                    <button onClick={() => removePart(idx)} className="text-slate-300 hover:text-red-500 transition-colors">
-                      <Trash2 size={16} />
-                    </button>
+                    <button onClick={() => removePart(idx)} className="text-slate-300 hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
                   )}
                 </div>
               </div>
@@ -161,27 +176,28 @@ export default function BulkPublishModal({ selectedIds, onClose }) {
               <textarea
                 value={text}
                 onChange={(e) => updatePart(idx, e.target.value)}
-                className="w-full h-64 bg-white border border-slate-200 rounded-2xl p-5 text-sm font-mono leading-relaxed text-slate-700 focus:ring-4 focus:ring-emerald-500/5 focus:border-emerald-500 outline-none transition-all shadow-sm resize-none"
-                placeholder="Увядзіце тэкст паведамлення..."
+                className={`w-full h-64 bg-white border ${text.length > 4000 ? 'border-red-300 ring-4 ring-red-500/5' : 'border-slate-200'} rounded-2xl p-5 text-sm font-mono leading-relaxed text-slate-700 focus:border-emerald-500 outline-none transition-all shadow-sm resize-none`}
+                placeholder="Тэкст паведамлення..."
               />
               
-              {(text.length > (idx === 0 && selectedFile ? 1024 : 4000)) && (
-                <div className="mt-2 flex items-center gap-1.5 text-red-500 text-[10px] font-bold uppercase">
-                  <AlertCircle size={12} /> 
-                  {idx === 0 && selectedFile 
-                    ? "Для подпісу пад фота трэба менш за 1024 сімвалы! Перанясіце частку тэксту ў наступны блок."
-                    : "Перавышаны ліміт Telegram! Тэкст будзе абрэзаны."}
+              {text.length > 4000 && (
+                <div className="p-3 bg-red-50 rounded-xl border border-red-100 flex items-start gap-2 text-red-600">
+                  <AlertCircle size={16} className="shrink-0 mt-0.5" />
+                  <p className="text-xs font-medium">
+                    <strong>Зашмат сімвалаў!</strong> Telegram не прыме такі доўгі пост. 
+                    Націсніце "Дадаць яшчэ адзін блок" ніжэй і перанясіце туды частку тэксту.
+                  </p>
                 </div>
               )}
             </div>
           ))}
 
-          {/* Кнопка дадання часткі */}
           <button 
             onClick={addPart}
-            className="w-full py-4 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 hover:text-emerald-500 hover:border-emerald-200 hover:bg-emerald-50/30 transition-all flex items-center justify-center gap-2 font-bold text-sm"
+            className="w-full py-4 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 hover:text-emerald-500 hover:border-emerald-200 hover:bg-emerald-50/30 transition-all flex flex-col items-center justify-center gap-1"
           >
-            <Plus size={20} /> ДАДАЦЬ ЯШЧЭ АДНУ ЧАСТКУ
+            <div className="flex items-center gap-2 font-bold text-sm"><Plus size={20} /> ДАДАЦЬ НОВЫ БЛОК</div>
+            <span className="text-[10px] opacity-60">Каб разбіць дайджэст на некалькі паведамленняў</span>
           </button>
         </div>
 
