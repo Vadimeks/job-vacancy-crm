@@ -122,7 +122,9 @@ const handleGenerate = async () => {
       setEditedShort(res.data.short);
       setShowEditor(true);
     } catch (err) {
-      alert("Памылка генерацыі: " + err.message);
+      // Бяром паведамленне непасрэдна з адказу сервера
+      const errorMsg = err.response?.data?.message || "Памылка генерацыі. Паспрабуйце пазней.";
+      alert(errorMsg);
     } finally {
       setIsGenerating(false);
     }
