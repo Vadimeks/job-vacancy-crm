@@ -19,7 +19,8 @@ const syncStateSchema = new mongoose.Schema(
     processedInCircle: [{ type: mongoose.Schema.Types.ObjectId }],
 
     // 👈 ДАДАДЗЕНА: ці паспяхова завершана апошняе кола
-    isComplete: { type: Boolean, default: false }
+    isComplete: { type: Boolean, default: false },
+    lastFullCircleAt: { type: Date, default: null } // 👈 Дадаем дату фінішу поўнага кола
   },
   { timestamps: true }
 );

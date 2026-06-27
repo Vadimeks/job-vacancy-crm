@@ -74,43 +74,38 @@ async function runSyncWithInsurance(forceRun = false) {
       console.log(`✅ [Sync] Канвеер чатаў вызвалены. Працягваем сінхранізацыю.`);
     }
 
-     // 👈 ДАДАДЗЕНА: праверка ці трэба прымусовы запуск
+    // 1. Чытаем стан і правяраем чаргу
     const syncState = await SyncState.findOne({ key: "circular_sync_position" });
     const hasPendingAi = await Vacancy.exists({ status: "pending_ai" });
-    const prevCircleIncomplete = syncState && syncState.isComplete === false;
+    const isCircleIncomplete = syncState && syncState.isComplete === false;
 
-    const log = await CronLog.findOne({ taskName });
-    const cooldownPeriod = new Date(Date.now() - 3.5 * 60 * 60 * 1000);
+    // Вылічаем, ці пара пачынаць новае кола (4 гадзіны ад апошняга поўнага фінішу)
+    const lastFinish = syncState?.lastFullCircleAt ? new Date(syncState.lastFullCircleAt) : new Date(0);
+    const fourHoursAgo = new Date(Date.now() - 4 * 60 * 60 * 1000);
+    const isTimeForNewCircle = lastFinish < fourHoursAgo;
 
-    // 👈 ДАДАДЗЕНА: прымусовы запуск калі папярэдняе кола не завершана або ёсць pending_ai
-    if (!forceRun && log && log.lastRun >= cooldownPeriod) {
-      if (prevCircleIncomplete || hasPendingAi) {
-        console.log(`⚠️ [Sync] Cooldown актыўны, але кола не завершана або ёсць pending_ai. Прымусовы запуск.`);
-      } else {
-        console.log(`🛡️ INSURANCE: Сінхранізацыя ўжо была нядаўна. Пропуск.`);
-        return;
-      }
+    // 🛡️ ВЫЗНАЧАЕМ, ЦІ ТРЭБА ЗАПУСК
+    let shouldRun = false;
+    let reason = "";
+
+    if (forceRun) { reason = "Прымусовы запуск"; shouldRun = true; }
+    else if (hasPendingAi) { reason = "Ёсць неапрацаваныя вакансіі (pending_ai)"; shouldRun = true; }
+    else if (isCircleIncomplete) { reason = "Мінулае кола не завершана"; shouldRun = true; }
+    else if (isTimeForNewCircle) { reason = "Прайшло 4 гадзіны, пара пачынаць новае кола"; shouldRun = true; }
+
+    if (!shouldRun) return; // Ціха выходзім, калі рабіць няма чаго
+
+    console.log(`⏰ [Sync] Трыгер: ${reason}. Пачынаем працу...`);
+
+    // Калі пачынаем менавіта НОВАЕ кола — чысцім спіс апрацаваных
+    if (isTimeForNewCircle && !isCircleIncomplete && !hasPendingAi) {
+      await SyncState.findOneAndUpdate(
+        { key: "circular_sync_position" },
+        { isComplete: false, processedInCircle: [], lastIndex: 0 },
+        { upsert: true }
+      );
+      console.log("🔄 [Sync] Спіс крыніц ачышчаны для новага кола.");
     }
-
-    console.log("⏰ [Sync] Пачатак цыклічнага канвеера...");
-
-    // 👈 ЗМЕНА: Калі мінулае кола было завершана — пачынаем новае (чысцім спіс апрацаваных)
-    // Калі не было завершана — пакідаем спіс, каб прапусціць гатовыя табліцы
-    const updateData = { isComplete: false };
-    if (syncState && syncState.isComplete) {
-      updateData.processedInCircle = [];
-      console.log("🔄 [Sync] Пачынаем новае кола крыніц.");
-    }
-
-    await SyncState.findOneAndUpdate(
-      { key: "circular_sync_position" },
-      updateData,
-      { upsert: true }
-    );
-
-    // 2. ПРЫЯРЫТЭТ 2: Дапрацоўка "даўгоў" (pending_ai)
-    // Гэта заўсёды ідзе першым, каб вызваліць чаргу
-    await retryPendingVacancies();
     
    // 3. ПРЫЯРЫТЭТ 3: Цыклічная сінхранізацыя крыніц (Кола)
     console.log("📊 Сканаванне Google Sheets...");
@@ -126,33 +121,32 @@ async function runSyncWithInsurance(forceRun = false) {
     if (airtableResult === "STOP_ALL") return; // 👈 Спыняем усё кола адразу
 
     // 👈 ЗМЕНА: CronLog і isComplete пішацца толькі пры поўным паспяховым завяршэнні
-    const finalSyncState = await SyncState.findOne({ key: "circular_sync_position" });
+      const finalSyncState = await SyncState.findOne({ key: "circular_sync_position" });
     const allModelsWorked = finalSyncState && finalSyncState.lastIndex === 0;
 
     if (allModelsWorked) {
-      await CronLog.findOneAndUpdate(
-        { taskName },
-        { lastRun: new Date() },
-        { upsert: true, new: true }
-      );
       await SyncState.findOneAndUpdate(
         { key: "circular_sync_position" },
-        { isComplete: true },
+        { 
+          isComplete: true, 
+          lastFullCircleAt: new Date(), // Фіксуем час поўнага поспеху
+          lastIndex: 0 
+        },
         { upsert: true }
       );
-      console.log("✅ [Sync] Кола завершана паспяхова.");
+      console.log("✅ [Sync] Кола завершана паспяхова. Наступны поўны запуск праз 4 гадзіны.");
     } else {
-      console.log("⚠️ [Sync] Кола завершана з памылкамі. CronLog не запісаны — паўторны запуск адбудзецца хутчэй.");
+      console.log("⚠️ [Sync] Кола перарвана памылкай AI. Watchdog паспрабуе яшчэ раз праз 10 хвілін.");
     }
   } catch (err) {
     console.error("❌ [Sync] Памылка канвеера:", err.message);
   }
 }
-// Запуск Cron кожныя 4 гадзіны (00:00, 04:00, 08:00 і г.д. па UTC)
-cron.schedule("0 */4 * * *", async () => {
-  console.log("⏰ CRON: Трыгер спрацаваў (цыкл 4 гадзіны).");
+// Правяраем стан канвеера кожныя 10 хвілін
+cron.schedule("*/10 * * * *", async () => {
+  console.log("🔍 [Watchdog] Праверка чаргі і стану сінхранізацыі...");
   await runSyncWithInsurance();
-});
+})
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
