@@ -15,23 +15,26 @@ export default function BulkPublishModal({ selectedIds, onClose }) {
         const res = await generateBulkPreview(selectedIds);
         const rawText = res.data.text;
 
-        // Разумны спліт: разбіваем па 3800 сімвалаў, каб не разарваць вакансію
+        // Разумны спліт: першая частка пад ліміт подпісу (1000), астатнія — пад ліміт паста (3800)
         const chunks = [];
         let currentText = rawText;
-        const LIMIT = 3800;
+        let isFirst = true;
 
         while (currentText.length > 0) {
+          const LIMIT = isFirst ? 1000 : 3800; // 👈 Першая частка меншая для фота
+
           if (currentText.length <= LIMIT) {
             chunks.push(currentText);
             break;
           }
 
-          // Шукаем бліжэйшы раздзяляльнік вакансій перад лімітам
+          // Шукаем раздзяляльнік вакансій
           let splitIndex = currentText.lastIndexOf("-------------------", LIMIT);
-          if (splitIndex === -1) splitIndex = LIMIT; // Калі няма раздзяляльніка — рэжам па ліміце
+          if (splitIndex === -1) splitIndex = LIMIT;
 
           chunks.push(currentText.substring(0, splitIndex).trim());
           currentText = currentText.substring(splitIndex).trim();
+          isFirst = false; // Наступныя часткі будуць вялікімі
         }
 
         setParts(chunks.length > 0 ? chunks : [""]);
@@ -142,9 +145,11 @@ export default function BulkPublishModal({ selectedIds, onClose }) {
                   Частка {idx + 1}
                 </span>
                 <div className="flex items-center gap-4">
-                  <span className={`text-[10px] font-bold ${text.length > 4000 ? "text-red-500" : "text-slate-400"}`}>
-                    {text.length} / 4096 сімвалаў
-                  </span>
+                  <span className={`text-[10px] font-bold ${
+  text.length > (idx === 0 && selectedFile ? 1024 : 4000) ? "text-red-500" : "text-slate-400"
+}`}>
+  {text.length} / {idx === 0 && selectedFile ? 1024 : 4096} сімвалаў
+</span>
                   {parts.length > 1 && (
                     <button onClick={() => removePart(idx)} className="text-slate-300 hover:text-red-500 transition-colors">
                       <Trash2 size={16} />
@@ -160,9 +165,12 @@ export default function BulkPublishModal({ selectedIds, onClose }) {
                 placeholder="Увядзіце тэкст паведамлення..."
               />
               
-              {text.length > 4000 && (
+              {(text.length > (idx === 0 && selectedFile ? 1024 : 4000)) && (
                 <div className="mt-2 flex items-center gap-1.5 text-red-500 text-[10px] font-bold uppercase">
-                  <AlertCircle size={12} /> Перавышаны ліміт Telegram! Тэкст будзе абрэзаны.
+                  <AlertCircle size={12} /> 
+                  {idx === 0 && selectedFile 
+                    ? "Для подпісу пад фота трэба менш за 1024 сімвалы! Перанясіце частку тэксту ў наступны блок."
+                    : "Перавышаны ліміт Telegram! Тэкст будзе абрэзаны."}
                 </div>
               )}
             </div>
