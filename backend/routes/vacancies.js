@@ -973,4 +973,44 @@ router.post("/:id/publish", upload.single('file'), async (req, res) => {
     res.status(500).json({ message: "Памылка публікацыі: " + err.message });
   }
 });
+// 1. Генерацыя сырога тэксту для дайджэста
+router.post("/bulk-preview", async (req, res) => {
+  try {
+    const { ids } = req.body;
+    if (!ids || ids.length === 0) return res.status(400).json({ message: "Вакансії не обрані" });
+
+    const vacancies = await Vacancy.find({ _id: { $in: ids } });
+    
+    let digest = "🔥 **АКТУАЛЬНІ ВАКАНСІЇ**\n\n";
+    
+    vacancies.forEach((v, index) => {
+      const text = v.telegramShort || `📍 ${v.vacancydescription}\n💰 ${v.salary?.rawSalaryDisplay || 'Ставка уточнюється'}`;
+      digest += `${index + 1}. ${text}\n\n-------------------\n\n`;
+    });
+
+    digest += "📲 Контактуйте: @InnaNovaWork +48 780 770 745 Інна";
+    
+    res.json({ text: digest });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// 2. Публікацыя (прымае гатовы тэкст са сплітамі ад фронтэнда)
+router.post("/bulk-publish", upload.single('file'), async (req, res) => {
+  try {
+    const { text } = req.body;
+    const file = req.file;
+
+    if (!text) return res.status(400).json({ message: "Текст порожній" });
+
+    // Наш сэрвіс ужо ўмее разбіваць па === SPLIT === і рабіць паўзы
+    await sendToTelegram(text, null, file);
+    
+    res.json({ message: "✅ Опубліковано" });
+  } catch (err) {
+    console.error("❌ Bulk Publish Error:", err.message);
+    res.status(500).json({ message: "Помилка публікації: " + err.message });
+  }
+});
 module.exports = { router, processVacancyMessage, retryPendingVacancies, generateVacancyCode };
