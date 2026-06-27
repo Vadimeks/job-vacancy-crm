@@ -69,4 +69,9 @@ export const generateVacancyPreview = (id) => api.post(`/vacancies/${id}/generat
 
 // Публікацыя ў Telegram
 export const publishVacancy = (id, data) => api.post(`/vacancies/${id}/publish`, data);
+// Масавая генерацыя дайджэста
+export const generateBulkPreview = (ids) => api.post("/vacancies/bulk-preview", { ids });
+
+// Масавая публікацыя дайджэста
+export const publishBulk = (data) => api.post("/vacancies/bulk-publish", data);
 export default api;

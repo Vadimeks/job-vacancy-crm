@@ -15,8 +15,10 @@ import ApplyModal from "../components/vacancies/ApplyModal";
 import VacancyMatchModal from "../components/vacancies/VacancyMatchModal";
 import VacancyViewModal from "../components/vacancies/VacancyViewModal";
 import VacancyFilters from "../components/vacancies/VacancyFilters";
+import BulkPublishModal from "../components/vacancies/BulkPublishModal";
 import { EMPTY_FILTERS } from "../constants/filters";
 import VacancyMap from "../components/vacancies/VacancyMap";
+
 const STATUS_COLORS = {
   active: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
   closed: "bg-red-500/10 text-red-400 border border-red-500/20",
@@ -261,6 +263,7 @@ function applyFilters(vacancies, filters) {
 export default function Vacancies() {
   const location = useLocation(); // Дадалі
   const [selectedIds, setSelectedIds] = useState([]);
+  const [showBulkModal, setShowBulkModal] = useState(false);
   // --- Рэгуляваны сайдбар (v4.5) ---
   const [sidebarWidth, setSidebarWidth] = useState(320); // Пачатковая шырыня 320px (w-80)
   const handleMouseDown = (e) => {
@@ -1004,15 +1007,24 @@ const [viewMode, setViewMode] = useState("list"); // Стан для перак�
                 : "Выбраць усе адфільтраваныя"}
             </span>
           </div>
-
-          {selectedIds.length > 0 && (
-            <button
-              onClick={handleBulkDelete}
-              className="flex items-center gap-2 px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-500 text-xs font-black rounded-lg border border-red-500/20 transition-all"
-            >
-              🗑️ ВЫДАЛІЦЬ ВЫБРАНЫЯ
-            </button>
+{selectedIds.length > 0 && (
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowBulkModal(true)}
+                className="flex items-center gap-2 px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black rounded-lg transition-all shadow-md shadow-emerald-100"
+              >
+                📢 АПУБЛІКАВАЦЬ ({selectedIds.length})
+              </button>
+              
+              <button
+                onClick={handleBulkDelete}
+                className="flex items-center gap-2 px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-500 text-xs font-black rounded-lg border border-red-500/20 transition-all"
+              >
+                🗑️ ВЫДАЛІЦЬ
+              </button>
+            </div>
           )}
+          
         </div>
         {/* ВЫВАД: СПІС АБО МАПА */}
         {viewMode === "list" ? (
@@ -1415,6 +1427,15 @@ const [viewMode, setViewMode] = useState("list"); // Стан для перак�
           />
         );
       })()}
+      {showBulkModal && (
+        <BulkPublishModal
+          selectedIds={selectedIds}
+          onClose={() => {
+            setShowBulkModal(false);
+            setSelectedIds([]); // Скідваем выбар пасля закрыцця
+          }}
+        />
+      )}
     </div>
   );
 }
