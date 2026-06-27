@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from "react"; // Дадалі useEffect
-import { Copy, Check, X, Factory, Tag, Building2, ChevronLeft, ChevronRight, Sparkles, Send, AlertCircle } from "lucide-react";
+import { 
+  Copy, Check, X, Factory, Tag, Building2, 
+  ChevronLeft, ChevronRight, Sparkles, Send, 
+  AlertCircle, Share2, Image, Link, Calendar, RefreshCw 
+} from "lucide-react";
 import { generateVacancyPreview, publishVacancy } from "../../services/api";
 const formatText = (text) => {
   if (!text || typeof text !== "string") return "";
@@ -139,6 +143,17 @@ const handleGenerate = async () => {
       setIsPublishing(false);
     }
   };
+  const handleShare = async () => {
+    const text = activeTab === "full" ? editedFull : editedShort;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: v.vacancydescription, text: text });
+      } catch (err) { console.log("Share failed", err); }
+    } else {
+      handleCopyTelegram(); // Фолбэк на капіяванне
+      alert("Спасылка скапіявана (ваш браўзер не падтрымлівае Share API)");
+    }
+  };
   // Разумная лакацыя: дадаем краіну толькі калі яе няма ў назве горада
   const locationDisplay =
     v.country && v.country !== "Polska" && !v.location?.includes(v.country)
@@ -272,64 +287,7 @@ const handleGenerate = async () => {
               </p>
             </div>
           </div>
-{/* --- БЛОК TELEGRAM РЭДАКТАРА --- */}
-          <div className="space-y-4 bg-slate-50 p-6 rounded-3xl border border-slate-200 shadow-inner">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Sparkles size={18} className="text-emerald-500" />
-                <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Telegram Редактор</h3>
-                {v.postOutdated && (
-                  <span className="flex items-center gap-1 text-[9px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold animate-pulse">
-                    <AlertCircle size={10} /> ТРЭБА АБНАВІЦЬ
-                  </span>
-                )}
-              </div>
-              <button 
-                onClick={handleGenerate}
-                disabled={isGenerating}
-                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black rounded-xl transition-all disabled:opacity-50 shadow-md"
-              >
-                {isGenerating ? "ГЕНЕРУЮ..." : "ЗГЕНЕРАВАЦЬ ПРЭВ'Ю"}
-              </button>
-            </div>
 
-            {showEditor && (
-              <div className="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden shadow-xl">
-                <div className="flex border-b border-slate-800 bg-slate-800/50">
-                  <button 
-                    onClick={() => setActiveTab("full")}
-                    className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === "full" ? "bg-slate-900 text-emerald-400 border-b-2 border-emerald-500" : "text-slate-500 hover:text-slate-300"}`}
-                  >
-                    Поўны пост
-                  </button>
-                  <button 
-                    onClick={() => setActiveTab("short")}
-                    className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === "short" ? "bg-slate-900 text-emerald-400 border-b-2 border-emerald-500" : "text-slate-500 hover:text-slate-300"}`}
-                  >
-                    Кароткі пост
-                  </button>
-                </div>
-                <textarea
-                  value={activeTab === "full" ? editedFull : editedShort}
-                  onChange={(e) => activeTab === "full" ? setEditedFull(e.target.value) : setEditedShort(e.target.value)}
-                  className="w-full h-64 bg-transparent text-slate-300 p-5 text-sm font-mono leading-relaxed focus:outline-none resize-none custom-scrollbar"
-                  placeholder="Тэкст паста з'явіцца тут..."
-                />
-                <div className="px-5 py-3 bg-slate-800/30 border-t border-slate-800 flex justify-between items-center">
-                  <span className={`text-[10px] font-bold ${(activeTab === "full" ? editedFull : editedShort).length > 4000 ? "text-red-400" : "text-slate-500"}`}>
-                    Сімвалаў: {(activeTab === "full" ? editedFull : editedShort).length} / 4096
-                  </span>
-                  <button 
-                    onClick={handlePublish}
-                    disabled={isPublishing || !(activeTab === "full" ? editedFull : editedShort)}
-                    className="flex items-center gap-2 px-4 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-900 text-[10px] font-black rounded-lg transition-all disabled:opacity-50"
-                  >
-                    <Send size={12} /> {isPublishing ? "АДПРАЎКА..." : "АПУБЛІКАВАЦЬ"}
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
           {/* АРЫГІНАЛЬНЫ ТЭКСТ (Перанесены сюды і стылізаваны) */}
           <details className="group bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden">
             <summary className="px-5 py-3 text-[10px] font-black text-slate-500 uppercase tracking-widest cursor-pointer hover:bg-slate-100 transition-colors list-none flex items-center gap-2">
@@ -342,7 +300,105 @@ const handleGenerate = async () => {
               {v.rawText || "Текст повідомлення відсутній"}
             </div>
           </details>
+{/* --- TELEGRAM РЭДАКТАР (АКАРДЭОН) --- */}
+          <details className="group bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden shadow-xl" open={showEditor}>
+            <summary className="px-6 py-4 flex items-center justify-between cursor-pointer hover:bg-slate-800/50 transition-colors list-none">
+              <div className="flex items-center gap-3">
+                <Sparkles size={18} className="text-emerald-500" />
+                <span className="text-sm font-black text-white uppercase tracking-widest">Telegram Рэдактар</span>
+                {v.postOutdated && (
+                  <span className="flex items-center gap-1 text-[9px] bg-amber-500 text-slate-900 px-2 py-0.5 rounded-full font-black animate-pulse">
+                    <AlertCircle size={10} /> ПАТРЭБНА АБНАВІЦЬ
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-4">
+                {v.postGeneratedAt && (
+                  <span className="text-[10px] text-slate-500 font-mono flex items-center gap-1">
+                    <Calendar size={10} /> {new Date(v.postGeneratedAt).toLocaleString("uk-UA")}
+                  </span>
+                )}
+                <span className="group-open:rotate-180 transition-transform text-slate-500 text-xs">▼</span>
+              </div>
+            </summary>
 
+            <div className="px-6 pb-6 space-y-4 border-t border-slate-800 pt-4">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-[10px] text-slate-400 leading-tight">
+                  AI генеруе пост на аснове актуальных дадзеных вакансіі. <br/>
+                  Калі вакансія змянілася — націсніце "Абнавіць праз AI".
+                </p>
+                <button 
+                  onClick={handleGenerate}
+                  disabled={isGenerating}
+                  className="shrink-0 flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-emerald-400 text-[10px] font-black rounded-xl transition-all border border-slate-700 disabled:opacity-50"
+                >
+                  <RefreshCw size={12} className={isGenerating ? "animate-spin" : ""} />
+                  {isGenerating ? "АБНАЎЛЯЮ..." : "АБНАВІЦЬ ПРАЗ AI"}
+                </button>
+              </div>
+
+              <div className="bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden">
+                <div className="flex border-b border-slate-800 bg-slate-900/50">
+                  {["full", "short"].map((tab) => (
+                    <button 
+                      key={tab}
+                      onClick={() => setActiveTab(tab)}
+                      className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === tab ? "bg-slate-950 text-emerald-400 border-b-2 border-emerald-500" : "text-slate-500 hover:text-slate-300"}`}
+                    >
+                      {tab === "full" ? "Поўны пост" : "Кароткі пост"}
+                    </button>
+                  ))}
+                </div>
+                
+                <textarea
+                  value={activeTab === "full" ? editedFull : editedShort}
+                  onChange={(e) => activeTab === "full" ? setEditedFull(e.target.value) : setEditedShort(e.target.value)}
+                  className="w-full h-64 bg-transparent text-slate-300 p-5 text-sm font-mono leading-relaxed focus:outline-none resize-none custom-scrollbar"
+                  placeholder="Тэкст паста з'явіцца тут..."
+                />
+
+                <div className="px-5 py-3 bg-slate-900 border-t border-slate-800 flex flex-wrap gap-3 justify-between items-center">
+                  <div className="flex items-center gap-4">
+                    <span className={`text-[10px] font-bold ${(activeTab === "full" ? editedFull : editedShort).length > 4000 ? "text-red-400" : "text-slate-500"}`}>
+                      Сімвалаў: {(activeTab === "full" ? editedFull : editedShort).length} / 4096
+                    </span>
+                    <button onClick={handleShare} className="text-slate-400 hover:text-white transition-colors" title="Падзяліцца">
+                      <Share2 size={16} />
+                    </button>
+                  </div>
+                  
+                  <button 
+                    onClick={handlePublish}
+                    disabled={isPublishing || !(activeTab === "full" ? editedFull : editedShort)}
+                    className="flex items-center gap-2 px-6 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-900 text-[10px] font-black rounded-xl transition-all disabled:opacity-50 shadow-lg shadow-emerald-500/10"
+                  >
+                    <Send size={12} /> {isPublishing ? "АДПРАЎКА..." : "АПУБЛІКАВАЦЬ У TG"}
+                  </button>
+                </div>
+              </div>
+              
+              {/* ДАДАТКОВЫЯ ПАЛІ (МЕДЫЯ) */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="relative">
+                  <Image size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                  <input 
+                    type="text" 
+                    placeholder="URL фота/відэа (неабавязкова)" 
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-[10px] text-slate-300 focus:border-emerald-500 outline-none"
+                  />
+                </div>
+                <div className="relative">
+                  <Link size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                  <input 
+                    type="text" 
+                    placeholder="Дадатковая спасылка" 
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-[10px] text-slate-300 focus:border-emerald-500 outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+          </details>
           {/* ОПЛАТА ПРАЦІ */}
           <section>
             <SectionTitle
