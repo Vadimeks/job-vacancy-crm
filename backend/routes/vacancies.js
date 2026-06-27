@@ -343,7 +343,7 @@ async function processVacancyMessage(
             agencyName: finalAgency,
             sourceType: sourceType,
             originalText: newOriginalText,
-            rawText: enrichedText,
+           rawText: Array.isArray(enrichedText) ? enrichedText.join("\n\n---\n\n") : enrichedText,
             sheetName: sheetName || vData.sheetName,
             isLowQuality: vData.isLowQuality || false,
             templateName: constructVacancyDisplayName({
@@ -375,7 +375,7 @@ async function processVacancyMessage(
           vacancyCode,
           isLowQuality: vData.isLowQuality || false,
           originalText: originalText || enrichedText,
-          rawText: enrichedText,
+          rawText: Array.isArray(enrichedText) ? enrichedText.join("\n\n---\n\n") : enrichedText,
           isTruncated,
           parsingResultType,
           sourceHash,

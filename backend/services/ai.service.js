@@ -741,7 +741,7 @@ Return ONLY JSON:
 // --- ДАПАМОЖНЫЯ ФУНКЦЫІ ---
 // ============================================================
 async function executeAIRequest(systemPrompt, userContent, jsonMode = true, fullModelOnly = false) {
-  const safeContent = String(userContent).substring(0, 8000);
+  // const safeContent = String(userContent).substring(0, 8000);
 
   if (Date.now() < chainFrozenUntil) {
     const diff = Math.ceil((chainFrozenUntil - Date.now()) / 60000);
@@ -749,20 +749,30 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true, full
   }
 
   for (const model of AI_CHAIN) {
-    // 🧠 Калі патрэбна толькі поўная мадэль — прапускаем Lite
-    if (fullModelOnly && model.name.toLowerCase().includes("lite")) {
-      console.log(`⏩ Пропуск ${model.name}: патрабуецца Full-мадэль для pending_ai.`);
+    if (fullModelOnly && model.name.toLowerCase().includes("lite")) continue;
+
+    // 👈 ГІБРЫДНАЯ ЛОГІКА: Gemini атрымлівае пачку, Groq — па адной
+    let currentInput = "";
+    let isSequentialGroq = (model.provider === "groq" && Array.isArray(userContent));
+
+    if (Array.isArray(userContent)) {
+      if (model.provider === "gemini_studio") {
+        // Gemini: злучаем у пачку
+        currentInput = userContent.map((t, i) => `--- VACANCY ${i+1} ---\n${t}`).join("\n\n");
+      } else if (!isSequentialGroq) {
+        currentInput = userContent.join("\n\n");
+      }
+    } else {
+      currentInput = String(userContent);
+    }
+
+    if (model.maxChars && currentInput.length > model.maxChars && !isSequentialGroq) {
+      console.log(`⏩ Пропуск ${model.name}: тэкст занадта вялікі.`);
       continue;
     }
-    // 🆕 КРОК: Фільтрацыя па памеры тэксту
-    if (model.maxChars && safeContent.length > model.maxChars) {
-      console.log(
-        `⏩ Пропуск ${model.name}: тэкст занадта вялікі (${safeContent.length} сімв.) для гэтай мадэлі.`,
-      );
-      continue;
-    }
-     console.log(`[AI Request] Model: ${model.name} | Provider: ${model.provider} | Input: ${safeContent.length} chars`);
-    let retries = 1; // Для кожнай мадэлі робім 1 паўтор пры сеткавых памылках
+
+    console.log(`[AI Request] Model: ${model.name} | Provider: ${model.provider} | Mode: ${isSequentialGroq ? 'Sequential' : 'Batch'}`);
+    let retries = 1;
 
     while (retries >= 0) {
       try {
@@ -792,7 +802,7 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true, full
               contents: [
                 {
                   role: "user",
-                  parts: [{ text: `${systemPrompt}\n\n${safeContent}` }],
+                  parts: [{ text: `${systemPrompt}\n\n${currentInput}` }],
                 },
               ],
               generationConfig: {
@@ -822,36 +832,38 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true, full
             if (chunkText) fullText += chunkText;
           }
         }
-// --- GEMINI AI STUDIO (бясплатны, не Vertex) ---
-          if (model.provider === "gemini_studio") {
+// --- GEMINI AI STUDIO ---
+        if (model.provider === "gemini_studio") {
           console.log(`🤖 Запыт да Gemini AI Studio (SDK): ${model.name}`);
-          
-          // Выкарыстоўваем v1beta, бо менавіта яна прыняла gemini-flash-latest у curl
-          const genModel = genAI.getGenerativeModel(
-            { model: model.name },
-            { apiVersion: "v1beta" }
-          );
-
-          const result = await genModel.generateContent(systemPrompt + "\n\n" + safeContent);
+          const genModel = genAI.getGenerativeModel({ model: model.name }, { apiVersion: "v1beta" });
+          const result = await genModel.generateContent(systemPrompt + "\n\n" + currentInput);
           const response = await result.response;
           fullText = response.text().trim();
         }
-        // --- GROQ ---
+        // --- GROQ (З падтрымкай паслядоўнай апрацоўкі масіваў) ---
         if (model.provider === "groq") {
-          console.log(`🤖 Запыт да Groq: ${model.name}`);
-          const groqParams = {
-            model: model.name,
-            messages: [
-              { role: "system", content: systemPrompt },
-              { role: "user", content: safeContent },
-            ],
-            temperature: 0.1,
-            max_tokens: 4096, // 👈 Абавязкова, каб JSON не абрываўся
-          };
-          if (jsonMode) groqParams.response_format = { type: "json_object" };
-
-          const response = await groq.chat.completions.create(groqParams);
-          fullText = response.choices[0]?.message?.content?.trim();
+          if (isSequentialGroq) {
+            console.log(`🤖 Groq Sequential: апрацоўка ${userContent.length} фрагментаў...`);
+            let results = [];
+            for (const fragment of userContent) {
+              const response = await groq.chat.completions.create({
+                model: model.name,
+                messages: [{ role: "system", content: systemPrompt }, { role: "user", content: fragment }],
+                temperature: 0.1, response_format: jsonMode ? { type: "json_object" } : undefined
+              });
+              const text = response.choices[0]?.message?.content?.trim();
+              results.push(jsonMode ? JSON.parse(repairJson(text)) : text);
+              await new Promise(r => setTimeout(r, 2000)); // Паўза паміж фрагментамі для Groq
+            }
+            return { data: JSON.stringify(results), isLowQuality: false, modelUsed: model.name };
+          } else {
+            const response = await groq.chat.completions.create({
+              model: model.name,
+              messages: [{ role: "system", content: systemPrompt }, { role: "user", content: currentInput }],
+              temperature: 0.1, response_format: jsonMode ? { type: "json_object" } : undefined
+            });
+            fullText = response.choices[0]?.message?.content?.trim();
+          }
         }
 
         // --- ВАЛІДАЦЫЯ ВЫНІКУ ---
@@ -1120,9 +1132,8 @@ async function parseVacancyWithAI(rawText, forcedAgency = null, parsingResultTyp
 
     const SYSTEM_INSTRUCTION = `
 ROLE: Professional automated job vacancy parser (v2.3).
-TASK: Convert job vacancy text into a JSON object with EXACTLY this structure. Fill every field based on the text. Do not invent field names.
-!!! BATCH RULE: If the input contains multiple independent vacancies or is provided as a list/array, you MUST return an ARRAY of JSON objects [{}, {}, {}]. If it is a single vacancy, return a single object.
-
+TASK: Convert job vacancy text into JSON. 
+!!! BATCH RULE: If the input contains multiple independent vacancies (marked as --- VACANCY N ---), you MUST return an ARRAY of JSON objects [{}, {}, {}]. If it is a single vacancy, return a single object.
 LANGUAGE:
 - Descriptions, duties, notes → Ukrainian.
 - Geography (location, voivodeship, checkInCity, country) → Polish (Latin alphabet only).
@@ -1364,15 +1375,11 @@ JSON STRUCTURE:
   "parsingResultType": "FULL_VACANCY"
 }`;
 
-    // 👈 ЗМЕНА: Калі прыйшоў масіў фрагментаў, злучаем іх для AI з выразнымі пазнакамі
-    const inputContent = Array.isArray(rawText) 
-      ? rawText.map((t, i) => `--- VACANCY ${i+1} ---\n${t}`).join("\n\n")
-      : rawText;
-
-    const currentDate = new Date().toLocaleDateString('uk-UA');
+  const currentDate = new Date().toLocaleDateString('uk-UA');
     const DATE_INSTRUCTION = `\n\n!!! CRITICAL DATE RULE !!!\nToday is ${currentDate}. If you see arrival dates or start dates from the PAST (e.g., 2024 or early 2025), IGNORE them. Set arrivalDate to null if the date in text is older than today.`;
     
-    const result = await executeAIRequest(SYSTEM_INSTRUCTION + DATE_INSTRUCTION, inputContent, true, fullModelOnly);
+    // 👈 ЗМЕНА: Перадаем rawText як ёсць (масіў або радок), executeAIRequest сам вырашыць як яго апрацаваць
+    const result = await executeAIRequest(SYSTEM_INSTRUCTION + DATE_INSTRUCTION, rawText, true, fullModelOnly);
 
     const parsedData = JSON.parse(result.data);
 

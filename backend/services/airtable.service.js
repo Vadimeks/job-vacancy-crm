@@ -80,7 +80,7 @@ async function syncSingleSource(source) {
   for (let i = 0; i < records.length; i++) {
     const row = records[i];
     const airtableId = row.id;
-    
+    let existingVacancy = await Vacancy.findOne({ airtableId });
     // 🛡️ Ахова ад памылковага закрыцця: рэгіструем ID адразу
     foundAirtableIds.add(airtableId);
 
