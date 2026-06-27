@@ -8,59 +8,57 @@ const RECRUITER_CHAT_ID = process.env.RECRUITER_CHAT_ID;
 /**
  * Адпраўка паведамлення з падтрымкай спліцінгу для доўгіх тэкстаў
  */
-const sendToTelegram = async (postText, vacancyId = null) => {
+const sendToTelegram = async (postText, vacancyId = null, file = null) => {
   if (!postText) return;
 
-  // 1. Разбіваем на асобныя пасты па маркеру
   const posts = postText.includes("=== SPLIT ===")
     ? postText.split("=== SPLIT ===").map(p => p.trim()).filter(p => p)
     : [postText];
 
-  for (const content of posts) {
+  for (let i = 0; i < posts.length; i++) {
+    const content = posts[i];
     const MAX_LENGTH = 4000;
 
     try {
-      if (content.length <= MAX_LENGTH) {
-        // Звычайная адпраўка
-        await bot.telegram.sendMessage(CHANNEL_ID, content, {
-          parse_mode: "Markdown",
-          disable_web_page_preview: true,
-        });
+      // Калі ёсць файл — адпраўляем яго з ПЕРШЫМ паведамленнем
+      if (file && i === 0) {
+        const isVideo = file.mimetype.includes('video');
+        const method = isVideo ? 'sendVideo' : 'sendPhoto';
+        
+        // У Telegram ліміт на подпіс (caption) — 1024 сімвалы
+        if (content.length <= 1024) {
+          await bot.telegram[method](CHANNEL_ID, { source: file.buffer }, {
+            caption: content,
+            parse_mode: "Markdown"
+          });
+        } else {
+          // Калі тэкст доўгі — спачатку файл, потым тэкст асобна
+          await bot.telegram[method](CHANNEL_ID, { source: file.buffer });
+          await bot.telegram.sendMessage(CHANNEL_ID, content, {
+            parse_mode: "Markdown",
+            disable_web_page_preview: true,
+          });
+        }
       } else {
-        // --- ТВАЯ АРЫГІНАЛЬНАЯ ЛОГІКА СПЛІЦІНГУ (ЗАХАВАНА) ---
-        console.log(`📏 Пост занадта доўгі (${content.length} сімв.). Разбіваем на часткі...`);
-
-        const lines = content.split("\n");
-        const title = lines[0] || "Вакансія";
-
-        let splitIndex = content.lastIndexOf("\n", MAX_LENGTH);
-        if (splitIndex === -1) splitIndex = MAX_LENGTH;
-
-        const part1 = content.substring(0, splitIndex).trim();
-        const part2 = `*${title.replace(/\*/g, "")}* (продовження опису)\n\n${content.substring(splitIndex).trim()}`;
-
-        await bot.telegram.sendMessage(CHANNEL_ID, part1, {
-          parse_mode: "Markdown",
-          disable_web_page_preview: true,
-        });
-
-        await new Promise((r) => setTimeout(r, 1000));
-
-        await bot.telegram.sendMessage(CHANNEL_ID, part2, {
-          parse_mode: "Markdown",
-          disable_web_page_preview: true,
-        });
-        console.log("✅ Вакансія адпраўлена двума паведамленнямі");
+        // Звычайная адпраўка тэксту
+        if (content.length <= MAX_LENGTH) {
+          await bot.telegram.sendMessage(CHANNEL_ID, content, {
+            parse_mode: "Markdown",
+            disable_web_page_preview: true,
+          });
+        } else {
+          // Спліцінг для вельмі доўгіх тэкстаў (больш за 4000)
+          const splitIndex = content.lastIndexOf("\n", MAX_LENGTH) || MAX_LENGTH;
+          await bot.telegram.sendMessage(CHANNEL_ID, content.substring(0, splitIndex), { parse_mode: "Markdown" });
+          await bot.telegram.sendMessage(CHANNEL_ID, content.substring(splitIndex), { parse_mode: "Markdown" });
+        }
       }
       
-      // Невялікая паўза паміж пастамі (Поўным і Кароткім)
       await new Promise(r => setTimeout(r, 2000));
-
     } catch (err) {
-      console.error("❌ Памылка Markdown. Спрабуем адправіць як звычайны тэкст...");
-      await bot.telegram.sendMessage(CHANNEL_ID, content).catch((e) =>
-        console.error("⚠️ Нават Plain Text не прайшоў:", e.message)
-      );
+      console.error("❌ Telegram Send Error:", err.message);
+      // Фолбэк: адпраўка як Plain Text, калі Markdown памылковы
+      await bot.telegram.sendMessage(CHANNEL_ID, content).catch(e => console.error("Final fallback failed"));
     }
   }
 };

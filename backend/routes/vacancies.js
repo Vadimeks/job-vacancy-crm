@@ -1,5 +1,7 @@
 // backend/routes/vacancies.js
 const express = require("express");
+const multer = require('multer');
+const upload = multer(); // Для апрацоўкі FormData і файлаў у памяці
 const router = express.Router();
 const Vacancy = require("../models/Vacancy");
 const Template = require("../models/Template");
@@ -920,39 +922,55 @@ router.post("/:id/generate-preview", async (req, res) => {
     if (!vacancy) return res.status(404).json({ message: "Вакансія не знойдзена" });
 
     const postText = await aiService.formatTelegramPost(vacancy);
+    if (!postText) throw new Error("AI_EMPTY");
+
     const parts = postText.split("=== SPLIT ===");
     
     vacancy.telegramFull = parts[0]?.trim() || "";
     vacancy.telegramShort = parts[1]?.trim() || "";
     vacancy.postOutdated = false;
+    vacancy.postGeneratedAt = new Date(); // Захоўваем час генерацыі
     await vacancy.save();
 
     res.json({ full: vacancy.telegramFull, short: vacancy.telegramShort });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error("❌ Preview Error:", err.message);
+    
+    const isLimit = err.message.includes("AI_COOLDOWN") || 
+                    err.message.includes("429") || 
+                    err.message.includes("ALL_AI_MODELS_FAILED");
+
+    if (isLimit) {
+      return res.status(503).json({ 
+        message: "Зараз AI дасягнуў ліміту запытаў або вельмі заняты. З сістэмай усё добра, проста паспрабуйце згенераваць пост яшчэ раз праз 2, 3 або 5 хвілін." 
+      });
+    }
+    res.status(500).json({ message: "Памылка AI: " + err.message });
   }
 });
 
 // Публікацыя адрэдагаванага паста
-router.post("/:id/publish", async (req, res) => {
+router.post("/:id/publish", upload.single('file'), async (req, res) => {
   try {
     const { fullText, shortText, mode } = req.body;
+    const file = req.file; // Файл з FormData
+
     const vacancy = await Vacancy.findById(req.params.id);
     if (!vacancy) return res.status(404).json({ message: "Вакансія не знойдзена" });
 
-    if (mode === "full" || mode === "both") {
-      await sendToTelegram(fullText || vacancy.telegramFull);
-    }
-    if (mode === "short" || mode === "both") {
-      // Тут будзе адпраўка ў другі канал, калі спатрэбіцца
-      await sendToTelegram(shortText || vacancy.telegramShort);
-    }
+    // Вызначаем, які тэкст адпраўляць
+    let textToSend = mode === "short" ? (shortText || vacancy.telegramShort) : (fullText || vacancy.telegramFull);
+
+    // Адпраўляем у Тэлеграм (перадаем файл трэцім параметрам)
+    await sendToTelegram(textToSend, vacancy._id, file);
 
     vacancy.isPublished = true;
     await vacancy.save();
+    
     res.json({ message: "✅ Апублікавана" });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error("❌ Publish Route Error:", err.message);
+    res.status(500).json({ message: "Памылка публікацыі: " + err.message });
   }
 });
 module.exports = { router, processVacancyMessage, retryPendingVacancies, generateVacancyCode };

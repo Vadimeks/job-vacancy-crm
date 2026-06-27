@@ -178,6 +178,7 @@ const vacancySchema = new mongoose.Schema(
     telegramShort: { type: String, default: "" }, // Кароткая версія паста для ТГ
     isPublished: { type: Boolean, default: false, index: true }, // Ці апублікавана ў канале
     postOutdated: { type: Boolean, default: false }, // Ці патрабуе пост перагенерацыі пасля абнаўлення
+    postGeneratedAt: { type: Date }, // Дата апошняй паспяховай генерацыі паста праз AI
     parsingResultType: { type: String, default: "FULL_VACANCY" }, // 🆕 Вердыкт AI (FULL_VACANCY, UPDATE, TRUNCATED, INFO)
     status: {
       type: String,
