@@ -59,6 +59,12 @@ async function runSyncWithInsurance(forceRun = false) {
   const Vacancy = require("./models/Vacancy");
 
   try {
+    // 👈 ДАДАДЗЕНА: абарона ад паралельных запускаў
+if (global.isSyncRunning) {
+  console.log(`⏳ [Sync] Сінхранізацыя ўжо ідзе. Пропуск.`);
+  return;
+}
+global.isSyncRunning = true;
     if (global.isChatProcessing) {
   console.log(`⏳ [Sync] Канвеер чатаў заняты. Чакаем завяршэння (макс. 2 хвіліны)...`);
   // 👈 ЗМЕНА: дадаем таймаўт 2 хвіліны, каб не вісець вечна калі флаг не скінуўся
@@ -80,6 +86,7 @@ async function runSyncWithInsurance(forceRun = false) {
   } else {
     console.log(`✅ [Sync] Канвеер чатаў вызвалены. Працягваем сінхранізацыю.`);
   }
+  
 }
 
     // 1. Чытаем стан і правяраем чаргу
@@ -148,6 +155,9 @@ async function runSyncWithInsurance(forceRun = false) {
     }
   } catch (err) {
     console.error("❌ [Sync] Памылка канвеера:", err.message);
+  } finally {
+    // 👈 ДАДАДЗЕНА: заўсёды вызваляем флаг пасля заканчэння
+    global.isSyncRunning = false;
   }
 }
 // Правяраем стан канвеера кожныя 10 хвілін
