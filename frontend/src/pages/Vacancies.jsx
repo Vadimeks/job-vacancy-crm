@@ -1026,31 +1026,37 @@ const [viewMode, setViewMode] = useState("list"); // Стан для перак�
             </span>
           </div>
           {draft.agencyName?.length === 1 && (
-            <button
-              onClick={handleManualSync}
-              disabled={syncing}
-              className="flex items-center gap-2 px-4 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs font-black rounded-lg transition-all shadow-md shadow-blue-100"
-            >
-              {syncing ? "⏳ СКАНУЮ..." : `🔄 СКАНАВАЦЬ ${draft.agencyName[0]}`}
-            </button>
-          )}
+  <button
+    onClick={handleManualSync}
+    disabled={syncing}
+    className="flex items-center gap-2 px-4 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs font-black rounded-lg transition-all shadow-md shadow-blue-100"
+  >
+    {syncing ? "⏳ СКАНУЮ..." : `🔄 СКАНАВАЦЬ ${draft.agencyName[0]}`}
+  </button>
+)}
 {selectedIds.length > 0 && (
-            <div className="flex gap-2">
-              <button
-                onClick={() => setShowBulkModal(true)}
-                className="flex items-center gap-2 px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black rounded-lg transition-all shadow-md shadow-emerald-100"
-              >
-                📢 АПУБЛІКАВАЦЬ ({selectedIds.length})
-              </button>
-              
-              <button
-                onClick={handleBulkDelete}
-                className="flex items-center gap-2 px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-500 text-xs font-black rounded-lg border border-red-500/20 transition-all"
-              >
-                🗑️ ВЫДАЛІЦЬ
-              </button>
-            </div>
-          )}
+  <div className="flex gap-2">
+    <button
+  onClick={() => setShowBulkModal(true)}
+  className="flex items-center gap-2 px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black rounded-lg transition-all shadow-md shadow-emerald-100"
+>
+  📢
+  <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.17 14.239l-2.95-.924c-.64-.203-.654-.64.136-.953l11.57-4.461c.537-.194 1.006.131.836.347z"/>
+  </svg>
+  <span className="hidden md:inline">У ТЕЛЕГРАМ</span>
+  <span className="bg-emerald-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold ml-0.5">
+    {selectedIds.length}
+  </span>
+</button>
+    <button
+      onClick={handleBulkDelete}
+      className="flex items-center gap-2 px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-500 text-xs font-black rounded-lg border border-red-500/20 transition-all"
+    >
+      🗑️<span className="hidden md:inline">&#8201;ВИДАЛІТЬ</span>
+    </button>
+  </div>
+)}
           
         </div>
         {/* ВЫВАД: СПІС АБО МАПА */}
