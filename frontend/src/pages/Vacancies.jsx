@@ -9,6 +9,7 @@ import {
   aiUpdateVacancy,
   toggleFavoriteVacancy,
   bulkDeleteVacancies,
+  syncAgency, // 👈 ДADADЗЕНА
 } from "../services/api";
 import EditVacancyModal from "../components/vacancies/EditVacancyModal";
 import ApplyModal from "../components/vacancies/ApplyModal";
@@ -264,6 +265,7 @@ export default function Vacancies() {
   const location = useLocation(); // Дадалі
   const [selectedIds, setSelectedIds] = useState([]);
   const [showBulkModal, setShowBulkModal] = useState(false);
+  const [syncing, setSyncing] = useState(false); // 👈 ДАДАДЗЕНА: стан ручнога сканавання
   // --- Рэгуляваны сайдбар (v4.5) ---
   const [sidebarWidth, setSidebarWidth] = useState(320); // Пачатковая шырыня 320px (w-80)
   const handleMouseDown = (e) => {
@@ -415,6 +417,22 @@ export default function Vacancies() {
       console.error("Памылка пераключэння абранага:", err);
     }
   };
+// 👈 ДADADЗЕНА: ручны запуск сканавання для выбранай агенцыі
+  const handleManualSync = async () => {
+    const agency = draft.agencyName?.[0];
+    if (!agency) return;
+    if (!window.confirm(`Запусціць сканаванне для ${agency}?`)) return;
+    setSyncing(true);
+    try {
+      await syncAgency(agency);
+      alert(`✅ Сканаванне для ${agency} запушчана. Праверце вакансіі праз хвіліну.`);
+    } catch (err) {
+      alert("❌ Памылка запуску сканавання: " + err.message);
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   // 1. Вакансіі, адфільтраваныя ТОЛЬКІ па датах і пошуку (Кантэкст для фільтраў)
   const instantFiltered = useMemo(() => {
     return vacancies.filter((v) => {
@@ -1007,6 +1025,15 @@ const [viewMode, setViewMode] = useState("list"); // Стан для перак�
                 : "Выбраць усе адфільтраваныя"}
             </span>
           </div>
+          {draft.agencyName?.length === 1 && (
+            <button
+              onClick={handleManualSync}
+              disabled={syncing}
+              className="flex items-center gap-2 px-4 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs font-black rounded-lg transition-all shadow-md shadow-blue-100"
+            >
+              {syncing ? "⏳ СКАНУЮ..." : `🔄 СКАНАВАЦЬ ${draft.agencyName[0]}`}
+            </button>
+          )}
 {selectedIds.length > 0 && (
             <div className="flex gap-2">
               <button

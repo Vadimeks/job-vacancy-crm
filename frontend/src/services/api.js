@@ -74,4 +74,6 @@ export const generateBulkPreview = (ids) => api.post("/vacancies/bulk-preview", 
 
 // Масавая публікацыя дайджэста
 export const publishBulk = (data) => api.post("/vacancies/bulk-publish", data);
+// 👈 ДАДАДЗЕНА: ручны запуск сканавання па агенцыі
+export const syncAgency = (agencyName) => api.post("/sync/agency", { agencyName });
 export default api;
