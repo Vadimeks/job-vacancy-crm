@@ -1,1 +1,12 @@
 @import "tailwindcss";
+
+/* 👈 ДADADЗЕНА: мабільная адаптацыя пад 320px */
+html, body {
+  min-width: 320px;
+  overflow-x: hidden;
+}
+
+#root {
+  min-width: 320px;
+  overflow-x: hidden;
+}
