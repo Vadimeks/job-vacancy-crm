@@ -47,7 +47,7 @@ async function fetchSharedData(sharePath) {
         includeDataForTableIds: [finalTableId],
         includeDataForViewIds: [finalViewId],
         shouldIncludeSchemaChecksum: true,
-        mayOnlyIncludeRowAndCellDataForIncludedViews: false, // 👈 ДАДАДЗЕНА: дазвол на чытанне радкоў
+        mayOnlyIncludeRowAndCellDataForIncludedViews: true, // 👈 ЗМЕНА: дазваляем чытанне дадзеных для Manpower
         mayExcludeCellDataForLargeViews: false,
         allowMsgpackOfResult: false,
         canClientSupportPreviewMode: true // 👈 ДАДАДЗЕНА: імітацыя рэжыму прагляду браўзера

@@ -1642,7 +1642,7 @@ JSON STRUCTURE:
         additionalNotes: cleaned.additionalNotes || "",
         isLowQuality: result.isLowQuality,
         modelUsed: result.modelUsed,
-        // 👈 ФІКС: заўсёды захоўваем як радок, нават калі гэта батч
+        // 👈 ФІКС: заўсёды захоўваем як радок, нават калі гэта батч-масіў
         rawText: Array.isArray(rawText) ? rawText.join("\n\n---\n\n") : rawText,
         parsingResultType: parsingResultType,
       };
