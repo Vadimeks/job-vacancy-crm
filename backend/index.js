@@ -59,20 +59,28 @@ async function runSyncWithInsurance(forceRun = false) {
   const Vacancy = require("./models/Vacancy");
 
   try {
-    // 👈 ЗМЕНА: мяккі замок замест жорсткага return
-    // Сінхранізацыя стартуе заўсёды, але чакае калі канвеер чатаў заняты
     if (global.isChatProcessing) {
-      console.log(`⏳ [Sync] Канвеер чатаў заняты. Чакаем завяршэння...`);
-      await new Promise(resolve => {
-        const check = setInterval(() => {
-          if (!global.isChatProcessing) {
-            clearInterval(check);
-            resolve();
-          }
-        }, 5000);
-      });
-      console.log(`✅ [Sync] Канвеер чатаў вызвалены. Працягваем сінхранізацыю.`);
-    }
+  console.log(`⏳ [Sync] Канвеер чатаў заняты. Чакаем завяршэння (макс. 2 хвіліны)...`);
+  // 👈 ЗМЕНА: дадаем таймаўт 2 хвіліны, каб не вісець вечна калі флаг не скінуўся
+  const waitResult = await Promise.race([
+    new Promise(resolve => {
+      const check = setInterval(() => {
+        if (!global.isChatProcessing) {
+          clearInterval(check);
+          resolve("done");
+        }
+      }, 5000);
+    }),
+    new Promise(resolve => setTimeout(() => resolve("timeout"), 2 * 60 * 1000))
+  ]);
+
+  if (waitResult === "timeout") {
+    console.warn(`⚠️ [Sync] Чаканне скончылася таймаўтам. Скідаем флаг і працягваем.`);
+    global.isChatProcessing = false; // 👈 Прымусовы скід завіслага флага
+  } else {
+    console.log(`✅ [Sync] Канвеер чатаў вызвалены. Працягваем сінхранізацыю.`);
+  }
+}
 
     // 1. Чытаем стан і правяраем чаргу
     const syncState = await SyncState.findOne({ key: "circular_sync_position" });
