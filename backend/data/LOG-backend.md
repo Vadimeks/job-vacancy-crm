@@ -812,3 +812,22 @@ Google Cloud заблакаваў API доступ — усе мадэлі вя�
 ### ai.service.js
 - Мадэль у `AI_CHAIN` зменена з `gemini-flash-latest` (gemini-3.5-flash, 20 RPD)
   на `gemini-2.5-flash` (500 RPD) — у 25 разоў больш запытаў у дзень.
+  ## [2026-06-28] Пераход на ручны рэжым сканавання
+
+### index.js
+- Watchdog (`cron.schedule`) закаментаваны — аўтасканаванне адключана.
+- Стартавы `runSyncWithInsurance()` закаментаваны.
+- Падключаны новы роўт `app.use("/api/sync", require("./routes/sync"))`.
+- Выдалены дубль `global.isSyncRunning = true`.
+
+### routes/sync.js (новы файл)
+- Эндпоінт `POST /api/sync/agency`: прымае `agencyName`, запускае
+  сканаванне ў фоне (`setImmediate`) для ўсіх крыніц гэтай агенцыі
+  (SheetSource, TrelloSource, AirtableSource).
+- Абарона ад паралельных запускаў праз `global.isSyncRunning`.
+- Адказвае адразу, не чакаючы завяршэння сканавання.
+
+### inbox.js
+- `AUTO_PROCESS_VACANCIES` зменена з `true` на `false`.
+- Паведамленні з чатаў (Viber/Telegram) захоўваюцца ў Inbox,
+  але Stage 2 (парсінг у вакансію) не запускаецца аўтаматычна.

@@ -19,7 +19,7 @@ const {
 } = require("../utils/messageFilters");
 const aiService = require("../services/ai.service");
 global.isChatProcessing = false;
-const AUTO_PROCESS_VACANCIES = true;
+const AUTO_PROCESS_VACANCIES = false; // 👈 АДКЛЮЧАНА: паведамленні з чатаў ідуць у Inbox без аўтаапрацоўкі
 let isProcessing = false;
 global.isChatProcessing = false; // 👈 ДАДАДЗЕНА: глабальны флаг для сінхранізацыі
 

@@ -41,7 +41,7 @@ app.use("/api/inbox", inboxRouter);
 app.use("/api/templates", templatesRouter);
 app.use("/api/candidates", candidatesRouter);
 app.use("/api/apply", applyRouter);
-
+app.use("/api/sync", require("./routes/sync")); // 👈 ДАДАДЗЕНА: ручны запуск сканавання
 // Падключэнне да БД
 mongoose
   .connect(process.env.MONGODB_URI)
@@ -59,35 +59,30 @@ async function runSyncWithInsurance(forceRun = false) {
   const Vacancy = require("./models/Vacancy");
 
   try {
-    // 👈 ДАДАДЗЕНА: абарона ад паралельных запускаў
-if (global.isSyncRunning) {
-  console.log(`⏳ [Sync] Сінхранізацыя ўжо ідзе. Пропуск.`);
-  return;
-}
+// 👈 ДАДАДЗЕНА: абарона ад паралельных запускаў
+    if (global.isSyncRunning) {
+      console.log(`⏳ [Sync] Сінхранізацыя ўжо ідзе. Пропуск.`);
+      return;
+    }
+   
 global.isSyncRunning = true;
-    if (global.isChatProcessing) {
-  console.log(`⏳ [Sync] Канвеер чатаў заняты. Чакаем завяршэння (макс. 2 хвіліны)...`);
-  // 👈 ЗМЕНА: дадаем таймаўт 2 хвіліны, каб не вісець вечна калі флаг не скінуўся
-  const waitResult = await Promise.race([
-    new Promise(resolve => {
-      const check = setInterval(() => {
-        if (!global.isChatProcessing) {
-          clearInterval(check);
-          resolve("done");
-        }
-      }, 5000);
-    }),
-    new Promise(resolve => setTimeout(() => resolve("timeout"), 2 * 60 * 1000))
-  ]);
-
-  if (waitResult === "timeout") {
-    console.warn(`⚠️ [Sync] Чаканне скончылася таймаўтам. Скідаем флаг і працягваем.`);
-    global.isChatProcessing = false; // 👈 Прымусовы скід завіслага флага
-  } else {
-    console.log(`✅ [Sync] Канвеер чатаў вызвалены. Працягваем сінхранізацыю.`);
-  }
-  
-}
+ if (global.isChatProcessing) {
+      console.log(`⏳ [Sync] Канвеер чатаў заняты. Чакаем завяршэння (макс. 2 хвіліны)...`);
+      const waitResult = await Promise.race([
+        new Promise(resolve => {
+          const check = setInterval(() => {
+            if (!global.isChatProcessing) { clearInterval(check); resolve("done"); }
+          }, 5000);
+        }),
+        new Promise(resolve => setTimeout(() => resolve("timeout"), 2 * 60 * 1000))
+      ]);
+      if (waitResult === "timeout") {
+        console.warn(`⚠️ [Sync] Таймаўт. Скідаем флаг і працягваем.`);
+        global.isChatProcessing = false;
+      } else {
+        console.log(`✅ [Sync] Канвеер вызвалены. Працягваем.`);
+      }
+    }
 
     // 1. Чытаем стан і правяраем чаргу
     const syncState = await SyncState.findOne({ key: "circular_sync_position" });
@@ -159,12 +154,12 @@ global.isSyncRunning = true;
     // 👈 ДАДАДЗЕНА: заўсёды вызваляем флаг пасля заканчэння
     global.isSyncRunning = false;
   }
-}
-// Правяраем стан канвеера кожныя 10 хвілін
-cron.schedule("*/10 * * * *", async () => {
-  console.log("🔍 [Watchdog] Праверка чаргі і стану сінхранізацыі...");
-  await runSyncWithInsurance();
-})
+} 
+// Правяраем стан канвеера кожныя 10 хвілін - ЗАКАМЕНТАВАНА КАБ СІНХРАНІЗАВАЦЬ УРУЧНУЮ
+// cron.schedule("*/10 * * * *", async () => {
+//   console.log("🔍 [Watchdog] Праверка чаргі і стану сінхранізацыі...");
+//   await runSyncWithInsurance();
+// })
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
@@ -172,8 +167,8 @@ app.listen(PORT, () => {
   startBot();
   startUserbot();
 
-  // Запуск пры старце (з улікам INSURANCE)
-  runSyncWithInsurance();
+  // 👈 АДКЛЮЧАНА: аўтасканаванне пераведзена на ручны рэжым
+  // runSyncWithInsurance();
 });
 
 // --- ЗАПУСК USERBOT У ДОЧАРНЫМ ПРАЦЭСЕ ---
