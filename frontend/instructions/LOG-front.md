@@ -2909,3 +2909,20 @@ isInformative() / isSimpleMessage()
 ### Candidates.jsx
 - Дададзена абарона `?.length` для `filters.sphere` і `filters.travelGroup`
   у функцыі `applyFilters` — на выпадак калі поле адсутнічае ў стары даных.
+  ## [2026-06-28] Фікс фільтраў кандыдатаў
+
+### Candidates.jsx
+- Галоўны баг: `filters.status` быў масівам `[]` (truthy),
+  таму ўмова `if (filters.status)` адсявала ўсіх кандыдатаў нават
+  без выбраных фільтраў — спіс заўсёды быў пусты.
+- Выпраўлена на `filters.status?.length > 0` + `includes()`.
+- Усе астатнія фільтры (`gender`, `nationality`, `sphere`, `location`,
+  `accommodation`, `travelGroup`, `schedule`, `docs`, `source`)
+  таксама пераведзены на `?.length > 0` для абароны ад undefined.
+
+### CandidateFilters.jsx
+- Статус зменены з адзіночнага выбару на мульты (`MultiBtn` + `toggle`).
+  Было: `draft.status === s.value` і `onChange({...draft, status: s.value})`.
+  Стала: `draft.status.includes(s.value)` і `toggle("status", v)`.
+  Зараз можна выбраць некалькі статусаў адначасова.
+  

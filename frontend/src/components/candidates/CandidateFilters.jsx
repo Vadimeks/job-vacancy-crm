@@ -76,30 +76,25 @@ export default function CandidateFilters({ draft, onChange }) {
 
       {/* Статус */}
       <Section label="Статус">
-        <div className="flex flex-wrap">
-          {[
-            { value: "", label: "Усе" },
-            { value: "new", label: "Новы" },
-            { value: "active", label: "Актыўны" },
-            { value: "waiting", label: "Чакае" },
-            { value: "employed", label: "Працуе" },
-            { value: "left", label: "Сышоў" },
-            { value: "blacklist", label: "Блэкліст" },
-          ].map((s) => (
-            <button
-              key={s.value}
-              onClick={() => onChange({ ...draft, status: s.value })}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors mb-1 mr-1 ${
-                draft.status === s.value
-                  ? "bg-emerald-500 text-slate-900"
-                  : "bg-slate-800 text-slate-400 hover:bg-slate-700"
-              }`}
-            >
-              {s.label}
-            </button>
-          ))}
-        </div>
-      </Section>
+  <div className="flex flex-wrap">
+    {[
+      { value: "new", label: "Новы" },
+      { value: "active", label: "Актыўны" },
+      { value: "waiting", label: "Чакае" },
+      { value: "employed", label: "Працуе" },
+      { value: "left", label: "Сышоў" },
+      { value: "blacklist", label: "Блэкліст" },
+    ].map((s) => (
+      <MultiBtn
+        key={s.value}
+        value={s.value}
+        label={s.label}
+        active={draft.status.includes(s.value)}
+        onClick={(v) => toggle("status", v)}
+      />
+    ))}
+  </div>
+</Section>
 
       {/* Гендар */}
       <Section label="Гендар">

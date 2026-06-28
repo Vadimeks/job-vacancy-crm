@@ -34,52 +34,44 @@ function applyFilters(candidates, filters) {
         !c.phone?.toLowerCase().includes(s) &&
         !c.telegram?.toLowerCase().includes(s) &&
         !c.currentLocation?.toLowerCase().includes(s)
-      )
-        return false;
+      ) return false;
     }
 
-    // Статус
-    if (filters.status && c.status !== filters.status) return false;
+    // Статус — масіў
+    if (filters.status?.length > 0) {
+      if (!filters.status.includes(c.status)) return false;
+    }
 
     // Гендар
-    if (filters.gender.length > 0) {
+    if (filters.gender?.length > 0) {
       if (!filters.gender.includes(c.gender)) return false;
     }
 
     // Нацыянальнасць
-    if (filters.nationality.length > 0) {
-      if (
-        !filters.nationality.some(
-          (n) => c.nationality?.toLowerCase() === n.toLowerCase(),
-        )
-      )
-        return false;
+    if (filters.nationality?.length > 0) {
+      if (!filters.nationality.some((n) => c.nationality?.toLowerCase() === n.toLowerCase())) return false;
     }
 
     // Сфера
-   if (filters.sphere?.length > 0) {
+    if (filters.sphere?.length > 0) {
       const prefs = c.jobPreferences?.spheres || [];
       if (!filters.sphere.some((s) => prefs.includes(s))) return false;
     }
 
     // Лакацыя
-    if (filters.location.length > 0) {
+    if (filters.location?.length > 0) {
       const match = filters.location.some((l) => {
         if (l === "any") return c.jobPreferences?.locationFlexible;
         if (l === "city_area") return c.jobPreferences?.locationRadius;
         if (l === "region") return c.jobPreferences?.locationRadius;
-        if (l === "city")
-          return (
-            !c.jobPreferences?.locationFlexible &&
-            !c.jobPreferences?.locationRadius
-          );
+        if (l === "city") return !c.jobPreferences?.locationFlexible && !c.jobPreferences?.locationRadius;
         return false;
       });
       if (!match) return false;
     }
 
     // Жытло
-    if (filters.accommodation.length > 0) {
+    if (filters.accommodation?.length > 0) {
       const match = filters.accommodation.some((a) => {
         if (a === "needs") return c.jobPreferences?.needsAccommodation;
         if (a === "own") return !c.jobPreferences?.needsAccommodation;
@@ -90,18 +82,17 @@ function applyFilters(candidates, filters) {
 
     // Група
     if (filters.travelGroup?.length > 0) {
-      if (!filters.travelGroup.includes(c.jobPreferences?.travelGroup))
-        return false;
+      if (!filters.travelGroup.includes(c.jobPreferences?.travelGroup)) return false;
     }
 
     // Графік
-    if (filters.schedule.length > 0) {
+    if (filters.schedule?.length > 0) {
       const prefs = c.jobPreferences?.schedule || [];
       if (!filters.schedule.some((s) => prefs.includes(s))) return false;
     }
 
     // Дакументы
-    if (filters.docs.length > 0) {
+    if (filters.docs?.length > 0) {
       const match = filters.docs.some((d) => {
         if (d === "visa") return c.documents?.hasVisa;
         if (d === "sanepid") return c.documents?.hasSanepid;
@@ -112,7 +103,7 @@ function applyFilters(candidates, filters) {
     }
 
     // Крыніца
-    if (filters.source.length > 0) {
+    if (filters.source?.length > 0) {
       if (!filters.source.includes(c.source)) return false;
     }
 
