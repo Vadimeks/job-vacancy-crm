@@ -1641,8 +1641,9 @@ JSON STRUCTURE:
         description: cleaned.description || "",
         additionalNotes: cleaned.additionalNotes || "",
         isLowQuality: result.isLowQuality,
-        modelUsed: result.modelUsed, // 👈 Дадалі перадачу мадэлі
-        rawText: rawText,
+        modelUsed: result.modelUsed,
+        // 👈 ФІКС: заўсёды захоўваем як радок, нават калі гэта батч
+        rawText: Array.isArray(rawText) ? rawText.join("\n\n---\n\n") : rawText,
         parsingResultType: parsingResultType,
       };
     }; // Закрываем функцыю processSingle
