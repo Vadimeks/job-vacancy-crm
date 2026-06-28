@@ -1292,7 +1292,7 @@ const [viewMode, setViewMode] = useState("list"); // Стан для перак�
                       </div>
                       {/* ЗАРПЛАТА (Зроблена яркай) */}
                       {(v.salary?.rawSalaryDisplay || v.salary?.baseNetto) && (
-                        <div className="flex items-center gap-2 bg-emerald-200/50  px-4 py-2 rounded-2xl ml-auto border border-emerald-500">
+                        <div className="flex items-center gap-2 bg-emerald-200/50 px-4 py-2 rounded-2xl md:ml-auto border border-emerald-500">
                           <span className="text-emerald-700 font-black text-base">
                             💰 {v.salary.rawSalaryDisplay ? v.salary.rawSalaryDisplay.split(";")[0] : `${v.salary.baseNetto} PLN`}
                           </span>
@@ -1352,26 +1352,29 @@ const [viewMode, setViewMode] = useState("list"); // Стан для перак�
                   </div>
 
                   {/* КНОПКІ ДЗЕЯННЯЎ */}
-                  <div className="flex flex-row md:flex-col gap-2 shrink-0 md:w-32 w-full mt-2 md:mt-0">
-                    <button
-                      onClick={() => setViewVacancy(v)}
-                      className="flex-1 md:w-32 px-3 py-2.5 bg-orange-200 text-orange-700 hover:bg-orange-100 border border-orange-200 rounded-xl text-[10px] font-black uppercase tracking-tight transition-all shadow-sm flex items-center gap-2"
-                    >
-                      <span className="text-sm">👁️</span> ПЕРЕГЛЯД
-                    </button>
-                    <button
-                      onClick={() => setMatchVacancy(v)}
-                      className="flex-1 md:w-32 px-3 py-2.5 bg-indigo-200 text-white hover:bg-indigo-700 border border-indigo-200 rounded-xl text-[10px] font-black uppercase tracking-tight transition-all shadow-md shadow-indigo-100 flex items-center gap-2"
-                    >
-                      <span className="text-sm">🎯</span> КАНДИДАТИ
-                    </button>
-                    <button
-                      onClick={() => setEditVacancy(v)}
-                      className="flex-1 md:w-32 px-3 py-2.5 bg-emerald-200 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 rounded-xl text-[10px] font-black uppercase tracking-tight transition-all flex items-center gap-2"
-                    >
-                      <span className="text-sm">✏️</span> РЕДАГУВАТИ
-                    </button>
-                  </div>
+<div className="flex flex-row md:flex-col gap-2 shrink-0 md:w-32 w-full mt-2 md:mt-0">
+  <button
+    onClick={() => setViewVacancy(v)}
+    className="flex-1 md:w-32 px-3 py-2.5 bg-orange-200 text-orange-700 hover:bg-orange-100 border border-orange-200 rounded-xl text-[10px] font-black uppercase tracking-tight transition-all shadow-sm flex items-center justify-center gap-2"
+  >
+    <span className="text-sm">👁️</span>
+    <span className="hidden md:inline">ПЕРЕГЛЯД</span>
+  </button>
+  <button
+    onClick={() => setMatchVacancy(v)}
+    className="flex-1 md:w-32 px-3 py-2.5 bg-indigo-200 text-white hover:bg-indigo-700 border border-indigo-200 rounded-xl text-[10px] font-black uppercase tracking-tight transition-all shadow-md shadow-indigo-100 flex items-center justify-center gap-2"
+  >
+    <span className="text-sm">🎯</span>
+    <span className="hidden md:inline">КАНДИДАТИ</span>
+  </button>
+  <button
+    onClick={() => setEditVacancy(v)}
+    className="flex-1 md:w-32 px-3 py-2.5 bg-emerald-200 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 rounded-xl text-[10px] font-black uppercase tracking-tight transition-all flex items-center justify-center gap-2"
+  >
+    <span className="text-sm">✏️</span>
+    <span className="hidden md:inline">РЕДАГУВАТИ</span>
+  </button>
+</div>
                 </div>
               </div>
             );

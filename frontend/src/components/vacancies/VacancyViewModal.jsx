@@ -751,29 +751,32 @@ const handleGenerate = async () => {
         </div>
 
         {/* КНОПКИ ДІЙ */}
-        <div className="flex flex-wrap gap-4 px-8 py-6 border-t border-slate-100 sticky bottom-0 bg-white/95 backdrop-blur-md z-10">
-          <button
-            onClick={() => onMatch(v)}
-            className="px-8 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-black text-sm rounded-xl transition-all shadow-lg shadow-emerald-500/10"
-          >
-            🎯 КАНДИДАТИ
-          </button>
-          <button
-            onClick={() => onEdit(v)}
-            className="px-8 py-3 bg-slate-100 hover:bg-slate-300 text-slate-700 text-sm font-bold rounded-xl border border-slate-700 transition-all"
-          >
-            ✏️ РЕДАГУВАТИ
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete(v._id); // Пацверджанне спрацуе ў асноўнай функцыі handleDelete
-            }}
-            className="px-8 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-500 text-sm font-bold rounded-xl border border-red-500/20 ml-auto transition-all"
-          >
-            🗑️ ВИДАЛИТИ
-          </button>
-        </div>
+        <div className="flex flex-wrap gap-2 px-4 md:px-8 py-4 md:py-6 border-t border-slate-100 sticky bottom-0 bg-white/95 backdrop-blur-md z-10">
+  <button
+    onClick={() => onMatch(v)}
+    className="flex-1 md:flex-none px-4 md:px-8 py-2.5 md:py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-black text-xs md:text-sm rounded-xl transition-all shadow-lg shadow-emerald-500/10 flex items-center justify-center gap-1"
+  >
+    <span>🎯</span>
+    <span className="hidden md:inline">КАНДИДАТИ</span>
+  </button>
+  <button
+    onClick={() => onEdit(v)}
+    className="flex-1 md:flex-none px-4 md:px-8 py-2.5 md:py-3 bg-slate-100 hover:bg-slate-300 text-slate-700 text-xs md:text-sm font-bold rounded-xl border border-slate-700 transition-all flex items-center justify-center gap-1"
+  >
+    <span>✏️</span>
+    <span className="hidden md:inline">РЕДАГУВАТИ</span>
+  </button>
+  <button
+    onClick={(e) => {
+      e.stopPropagation();
+      onDelete(v._id);
+    }}
+    className="flex-1 md:flex-none px-4 md:px-8 py-2.5 md:py-3 bg-red-500/10 hover:bg-red-500/20 text-red-500 text-xs md:text-sm font-bold rounded-xl border border-red-500/20 md:ml-auto transition-all flex items-center justify-center gap-1"
+  >
+    <span>🗑️</span>
+    <span className="hidden md:inline">ВИДАЛИТИ</span>
+  </button>
+</div>
       </div>
     </div>
   );
