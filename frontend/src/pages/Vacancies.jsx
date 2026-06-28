@@ -1182,7 +1182,7 @@ const [viewMode, setViewMode] = useState("list"); // Стан для перак�
                       </span>
 
                       {/* Крыніца і Даты (v4.5 - Фікс Invalid Date і іконак) */}
-                      <div className="flex items-center gap-3 ml-auto">
+                      <div className="flex items-center gap-3 md:ml-auto">
                         <span
                           className="text-base"
                           title={`Джерело: ${v.sourceType || "manual"}`}
@@ -1200,7 +1200,7 @@ const [viewMode, setViewMode] = useState("list"); // Стан для перак�
                                     : "📝"}{" "}
                         </span>
 
-                        <div className="flex flex-col items-end leading-none">
+                        <div className="flex flex-col items-start md:items-end leading-none">
                           <span className="text-[10px] text-slate-500 font-mono">
                             {v.createdAt
                               ? new Date(v.createdAt).toLocaleDateString(
