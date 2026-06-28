@@ -1080,7 +1080,7 @@ const [viewMode, setViewMode] = useState("list"); // Стан для перак�
                     : "border-slate-200"
                 }`}
               >
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex flex-col md:flex-row items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2 flex-wrap border-b border-slate-100/50 pb-2">
                       {/* ЧЭКБОКС ДЛЯ ВЫБАРУ */}
@@ -1352,22 +1352,22 @@ const [viewMode, setViewMode] = useState("list"); // Стан для перак�
                   </div>
 
                   {/* КНОПКІ ДЗЕЯННЯЎ */}
-                  <div className="flex flex-col gap-2 shrink-0">
+                  <div className="flex flex-row md:flex-col gap-2 shrink-0 md:w-32 w-full mt-2 md:mt-0">
                     <button
                       onClick={() => setViewVacancy(v)}
-                      className="w-32 px-3 py-2.5 bg-orange-200 text-orange-700 hover:bg-orange-100 border border-orange-200 rounded-xl text-[10px] font-black uppercase tracking-tight transition-all shadow-sm flex items-center gap-2"
+                      className="flex-1 md:w-32 px-3 py-2.5 bg-orange-200 text-orange-700 hover:bg-orange-100 border border-orange-200 rounded-xl text-[10px] font-black uppercase tracking-tight transition-all shadow-sm flex items-center gap-2"
                     >
                       <span className="text-sm">👁️</span> ПЕРЕГЛЯД
                     </button>
                     <button
                       onClick={() => setMatchVacancy(v)}
-                      className="w-32 px-3 py-2.5 bg-indigo-200 text-white hover:bg-indigo-700 border border-indigo-200 rounded-xl text-[10px] font-black uppercase tracking-tight transition-all shadow-md shadow-indigo-100 flex items-center gap-2"
+                      className="flex-1 md:w-32 px-3 py-2.5 bg-indigo-200 text-white hover:bg-indigo-700 border border-indigo-200 rounded-xl text-[10px] font-black uppercase tracking-tight transition-all shadow-md shadow-indigo-100 flex items-center gap-2"
                     >
                       <span className="text-sm">🎯</span> КАНДИДАТИ
                     </button>
                     <button
                       onClick={() => setEditVacancy(v)}
-                      className="w-32 px-3 py-2.5 bg-emerald-200 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 rounded-xl text-[10px] font-black uppercase tracking-tight transition-all flex items-center gap-2"
+                      className="flex-1 md:w-32 px-3 py-2.5 bg-emerald-200 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 rounded-xl text-[10px] font-black uppercase tracking-tight transition-all flex items-center gap-2"
                     >
                       <span className="text-sm">✏️</span> РЕДАГУВАТИ
                     </button>
