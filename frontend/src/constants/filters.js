@@ -44,4 +44,6 @@ export const EMPTY_CANDIDATE_FILTERS = {
   nationality: [],
   docs: [],
   source: [],
+  sphere: [], // 👈 ДАДАДЗЕНА: фільтр па сферы для кандыдатаў
+  travelGroup: [], // 👈 ДADADЗЕНА: фільтр па групе падарожжа
 };

@@ -2899,3 +2899,13 @@ isInformative() / isSimpleMessage()
   `flex-1 md:flex-none` — на мабільным роўна дзеляць шырыню.
 - Padding зменены на `px-4 md:px-8 py-2.5 md:py-3` для кампактнасці.
 - Тэкст кнопак хаваецца на мабільным (`hidden md:inline`), відаць толькі іконкі.
+## [2026-06-28] Фікс старонкі кандыдатаў
+
+### filters.js
+- Дададзены палі `sphere: []` і `travelGroup: []` у `EMPTY_CANDIDATE_FILTERS`.
+  Адсутнасць гэтых палёў выклікала `TypeError: can't access property "includes",
+  e.sphere is undefined` і белы экран на старонцы кандыдатаў.
+
+### Candidates.jsx
+- Дададзена абарона `?.length` для `filters.sphere` і `filters.travelGroup`
+  у функцыі `applyFilters` — на выпадак калі поле адсутнічае ў стары даных.

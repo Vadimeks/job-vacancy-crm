@@ -57,7 +57,7 @@ function applyFilters(candidates, filters) {
     }
 
     // Сфера
-    if (filters.sphere.length > 0) {
+   if (filters.sphere?.length > 0) {
       const prefs = c.jobPreferences?.spheres || [];
       if (!filters.sphere.some((s) => prefs.includes(s))) return false;
     }
@@ -89,7 +89,7 @@ function applyFilters(candidates, filters) {
     }
 
     // Група
-    if (filters.travelGroup.length > 0) {
+    if (filters.travelGroup?.length > 0) {
       if (!filters.travelGroup.includes(c.jobPreferences?.travelGroup))
         return false;
     }
