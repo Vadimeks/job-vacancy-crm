@@ -17,7 +17,7 @@ export default function BulkPublishModal({ selectedIds, onClose }) {
         const res = await generateBulkPreview(selectedIds);
         setParts([res.data.text]); // 👈 Увесь тэкст у адзін блок па змаўчанні
       } catch (err) {
-        alert("Памылка загрузкі: " + err.message);
+        alert("Помилка завантаження: " + err.message);
       } finally {
         setLoading(false);
       }
@@ -51,7 +51,7 @@ useEffect(() => {
 
   // 3. Адпраўка
   const handlePublish = async () => {
-    if (!confirm(`Апублікаваць дайджэст у Telegram?`)) return;
+    if (!confirm(`Опублікувати дайджест у Telegram?`)) return;
 
     setPublishing(true);
     try {
@@ -65,10 +65,10 @@ useEffect(() => {
       if (selectedFile) formData.append("file", selectedFile);
 
       await publishBulk(formData);
-      alert("✅ Апублікавана!");
+      alert("✅ Опубліковано!");
       onClose();
     } catch (err) {
-      alert("Памылка: " + (err.response?.data?.message || err.message));
+      alert("Помилка: " + (err.response?.data?.message || err.message));
     } finally {
       setPublishing(false);
     }
@@ -79,7 +79,7 @@ useEffect(() => {
       <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
         <div className="bg-white p-8 rounded-3xl flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm font-bold text-slate-600">Рыхтую дайджэст...</p>
+          <p className="text-sm font-bold text-slate-600">Готую дайджест...</p>
         </div>
       </div>
     );
@@ -94,9 +94,9 @@ useEffect(() => {
           <div>
             <div className="flex items-center gap-2">
               <Sparkles className="text-emerald-500" size={20} />
-              <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">Канструктар дайджэста</h2>
+              <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">Конструктор дайджесту</h2>
             </div>
-            <p className="text-xs text-slate-500 mt-1">Выбрана вакансій: {selectedIds.length}</p>
+            <p className="text-xs text-slate-500 mt-1">Вибрано вакансій: {selectedIds.length}</p>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
             <X size={24} className="text-slate-400" />
@@ -108,11 +108,11 @@ useEffect(() => {
           
           {/* 1. ВЫБАР ФАЙЛА */}
           <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Медыя-файл (фота/відэа)</label>
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Медіа-файл (фото/відео)</label>
             <div className="flex items-center gap-3">
               <label className="flex-1 flex items-center gap-3 px-4 py-3 bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl cursor-pointer hover:border-emerald-400 transition-all">
                 <Image size={20} className="text-slate-400" />
-                <span className="text-sm text-slate-500 truncate">{selectedFile ? selectedFile.name : "Дадаць медыя..."}</span>
+                <span className="text-sm text-slate-500 truncate">{selectedFile ? selectedFile.name : "Додати медіа..."}</span>
                 <input type="file" className="hidden" accept="image/*,video/*" onChange={(e) => setSelectedFile(e.target.files[0])} />
               </label>
               {selectedFile && (
@@ -135,22 +135,22 @@ useEffect(() => {
                 )}
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Блок 0: Подпіс да медыя</span>
+                    <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Блок 0: Підпис до медіа</span>
                     <span className={`text-[10px] font-bold ${caption.length > 1024 ? "text-red-500" : "text-emerald-600/60"}`}>
-                      {caption.length} / 1024 сімвалаў
+                      {caption.length} / 1024 символів
                     </span>
                   </div>
                   <textarea
                     value={caption}
                     onChange={(e) => setCaption(e.target.value)}
                     className="w-full h-24 bg-white border border-emerald-200 rounded-xl p-3 text-sm text-slate-700 focus:border-emerald-500 outline-none resize-none"
-                    placeholder="Устаўце тут апісанне для паста з фота (да 1000 сімв.)..."
+                    placeholder="Вставте тут опис для поста з фото (до 1000 симв.)..."
                   />
                 </div>
               </div>
               {caption.length > 1024 && (
                 <p className="text-[10px] text-red-500 font-bold uppercase flex items-center gap-1">
-                  <AlertCircle size={12} /> Зашмат тэксту для подпісу! Перанясіце частку ў Блок 1.
+                  <AlertCircle size={12} /> Забагато тексту для підпису! Перенесіть частину в Блок 1.
                 </p>
               )}
             </div>
@@ -165,7 +165,7 @@ useEffect(() => {
                 </span>
                 <div className="flex items-center gap-4">
                   <span className={`text-[10px] font-bold ${text.length > 4000 ? "text-red-500" : "text-slate-400"}`}>
-                    {text.length} / 4096 сімвалаў
+                    {text.length} / 4096 символів
                   </span>
                   {parts.length > 1 && (
                     <button onClick={() => removePart(idx)} className="text-slate-300 hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
@@ -177,15 +177,15 @@ useEffect(() => {
                 value={text}
                 onChange={(e) => updatePart(idx, e.target.value)}
                 className={`w-full h-64 bg-white border ${text.length > 4000 ? 'border-red-300 ring-4 ring-red-500/5' : 'border-slate-200'} rounded-2xl p-5 text-sm font-mono leading-relaxed text-slate-700 focus:border-emerald-500 outline-none transition-all shadow-sm resize-none`}
-                placeholder="Тэкст паведамлення..."
+                placeholder="Текст повідомлення..."
               />
               
               {text.length > 4000 && (
                 <div className="p-3 bg-red-50 rounded-xl border border-red-100 flex items-start gap-2 text-red-600">
                   <AlertCircle size={16} className="shrink-0 mt-0.5" />
                   <p className="text-xs font-medium">
-                    <strong>Зашмат сімвалаў!</strong> Telegram не прыме такі доўгі пост. 
-                    Націсніце "Дадаць яшчэ адзін блок" ніжэй і перанясіце туды частку тэксту.
+                    <strong>Забагато символів!</strong> Telegram не прийме такий довгий пост. 
+                    Натисніть "Додати ще один блок" нижче і перенесіть туди частину тексту.
                   </p>
                 </div>
               )}
@@ -196,15 +196,15 @@ useEffect(() => {
             onClick={addPart}
             className="w-full py-4 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 hover:text-emerald-500 hover:border-emerald-200 hover:bg-emerald-50/30 transition-all flex flex-col items-center justify-center gap-1"
           >
-            <div className="flex items-center gap-2 font-bold text-sm"><Plus size={20} /> ДАДАЦЬ НОВЫ БЛОК</div>
-            <span className="text-[10px] opacity-60">Каб разбіць дайджэст на некалькі паведамленняў</span>
+            <div className="flex items-center gap-2 font-bold text-sm"><Plus size={20} /> ДОДАТИ НОВИЙ БЛОК</div>
+            <span className="text-[10px] opacity-60">Щоб розбити дайджест на кілька повідомлень</span>
           </button>
         </div>
 
         {/* ФУТЭР */}
         <div className="px-8 py-6 bg-white border-t border-slate-100 flex items-center justify-between">
           <button onClick={onClose} className="px-6 py-3 text-slate-500 font-bold text-sm hover:text-slate-700 transition-colors">
-            Скасаваць
+            Скасувати
           </button>
           <button 
             onClick={handlePublish}
@@ -214,11 +214,11 @@ useEffect(() => {
             {publishing ? (
               <>
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                АДПРАЎКА...
+                ВІДПРАВКА...
               </>
             ) : (
               <>
-                <Send size={18} /> АПУБЛІКАВАЦЬ У ТЭЛЕГРАМ
+                <Send size={18} /> ОПУБЛІКУВАТИ В ТЕЛЕГРАМ
               </>
             )}
           </button>
