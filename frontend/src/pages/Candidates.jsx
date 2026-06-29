@@ -180,7 +180,7 @@ export default function Candidates() {
   return (
     <div className="flex min-h-screen bg-slate-50">
       {/* САЙДБАР — дэсктоп */}
-      <aside className="hidden lg:flex flex-col w-72 shrink-0 border-r border-slate-200 bg-white sticky top-16 h-[calc(100vh-4rem)]">
+      <aside className="hidden lg:flex flex-col w-72 shrink-0 border-r border-slate-200 bg-white sticky top-16 h-[calc(100vh-4rem)] self-start">
         <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800">
           <span className="text-sm font-medium text-slate-300">Фільтры</span>
           {isDirty && (

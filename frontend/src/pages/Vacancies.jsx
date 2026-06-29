@@ -722,7 +722,7 @@ const [viewMode, setViewMode] = useState("list"); // Стан для перак�
       {/* САЙДБАР З РЭГУЛЯВАННЕМ ШЫРЫНІ */}
       <aside
         style={{ width: `${sidebarWidth}px` }}
-        className="hidden lg:flex flex-col shrink-0 border-r border-slate-200 bg-white sticky top-16 h-[calc(100vh-4rem)] group shadow-sm"
+        className="hidden lg:flex flex-col shrink-0 border-r border-slate-200 bg-white sticky top-16 h-[calc(100vh-4rem)] group shadow-sm self-start"
       >
         <VacancyFilters
           filters={draft}

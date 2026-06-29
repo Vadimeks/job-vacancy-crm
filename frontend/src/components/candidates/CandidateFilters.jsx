@@ -27,8 +27,7 @@ function MultiBtn({ value, label, active, onClick }) {
       onClick={() => onClick(value)}
       className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors mb-1 mr-1 ${
         active
-          ? "bg-emerald-500 text-slate-900"
-          : "bg-slate-800 text-slate-400 hover:bg-slate-700"
+          ? "bg-emerald-500 text-white" : "bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200"
       }`}
     >
       {label}
@@ -52,7 +51,7 @@ export default function CandidateFilters({ draft, onChange }) {
   }).length;
 
   return (
-    <div className="h-full overflow-y-auto px-4 py-5">
+    <div className="h-full overflow-y-auto px-4 py-5 bg-white">
       {/* Пошук */}
       <Section label="Пошук">
         <div className="relative">
@@ -61,7 +60,7 @@ export default function CandidateFilters({ draft, onChange }) {
             value={draft.search}
             onChange={(e) => onChange({ ...draft, search: e.target.value })}
             placeholder="Імя, тэлефон, горад..."
-            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500"
+            className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-500"
           />
           {draft.search && (
             <button
@@ -266,7 +265,7 @@ export default function CandidateFilters({ draft, onChange }) {
       {activeCount > 0 && (
         <button
           onClick={() => onChange(EMPTY_CANDIDATE_FILTERS)}
-          className="w-full mt-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-400 text-xs rounded-lg transition-colors"
+          className="w-full mt-2 px-4 py-2 bg-slate-50 hover:bg-slate-100 text-slate-500 text-xs font-bold rounded-lg border border-slate-200 transition-colors"
         >
           Скінуць усе фільтры ({activeCount})
         </button>
