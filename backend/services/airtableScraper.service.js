@@ -110,7 +110,12 @@ if (rootData?.data?.tableDatas && rootData?.data?.tableSchemas) {
     // Будуем tableObj у стандартным фармаце
     const colMap = {};
     (schema.columns || schema.fields || []).forEach(col => { colMap[col.id] = col; });
-
+console.log(`🔍 [Scraper Debug] tableDatas[0].rows length: ${tableData?.rows?.length}`);
+console.log(`🔍 [Scraper Debug] tableDatas[0].viewDatas length: ${tableData?.viewDatas?.length}`);
+if (tableData?.viewDatas?.[0]) {
+  console.log(`🔍 [Scraper Debug] viewDatas[0] keys: ${Object.keys(tableData.viewDatas[0]).join(", ")}`);
+  console.log(`🔍 [Scraper Debug] viewDatas[0].rows length: ${tableData.viewDatas[0]?.rows?.length}`);
+}
     const rawRows = tableData.rows || (tableData.rowsById ? Object.values(tableData.rowsById) : []);
     rows = rawRows;
     columns = schema.columns || schema.fields || [];
