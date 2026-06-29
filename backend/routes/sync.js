@@ -41,5 +41,16 @@ router.post("/agency", async (req, res) => {
     }
   });
 });
+// GET /api/sync/progress - атрымаць бягучы стан
+router.get("/progress", (req, res) => {
+  res.json(global.syncProgress);
+});
 
+// POST /api/sync/stop - запыт на прыпынак
+router.post("/stop", (req, res) => {
+  global.stopSyncRequested = true;
+  global.syncProgress.status = 'stopping';
+  console.log("🛑 [Sync] Атрыманы запыт на прыпынак сінхранізацыі.");
+  res.json({ message: "Запыт на прыпынак адпраўлены" });
+});
 module.exports = router;

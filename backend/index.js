@@ -22,6 +22,9 @@ const applyRouter = require("./routes/apply");
 const CronLog = require("./models/CronLog");
 
 const app = express();
+// 👈 ГЛАБАЛЬНЫ ПРАГРЭС СІНХРАНІЗАЦЫІ
+global.syncProgress = { current: 0, total: 0, status: 'idle', agency: null };
+global.stopSyncRequested = false;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

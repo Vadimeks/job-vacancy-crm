@@ -68,6 +68,9 @@ async function syncSingleSource(source) {
   }
 
   console.log(`📦 Атрымана запісаў: ${records.length}`);
+// 👈 Ініцыялізацыя прагрэсу
+  global.syncProgress = { current: 0, total: records.length, status: 'running', agency: source.agencyName };
+  global.stopSyncRequested = false;
 
   // 🔄 1. Чытаем стан "Кола" (Circular Sync)
   const syncState = await SyncState.findOne({ key: "circular_sync_position" }) || new SyncState();
@@ -78,6 +81,14 @@ async function syncSingleSource(source) {
 
   // 🔄 2. Адзіны цыкл па запісах
   for (let i = 0; i < records.length; i++) {
+    // 👈 Праверка на прыпынак карыстальнікам
+    if (global.stopSyncRequested) {
+      console.log(`🛑 [Airtable] Сінхранізацыя ${source.agencyName} перарвана карыстальнікам.`);
+      global.syncProgress.status = 'interrupted';
+      global.isSyncRunning = false;
+      return "STOP_ALL";
+    }
+    global.syncProgress.current = i + 1;
     const row = records[i];
     const airtableId = row.id;
     let existingVacancy = await Vacancy.findOne({ airtableId });
@@ -114,8 +125,9 @@ async function syncSingleSource(source) {
       continue;
     }
 
-    // --- 2. ПРАВЕРКА НАЗВАЎ КАЛОНАК (Белы спіс) ---
-    if (source.includedColumns && source.includedColumns.length > 0) {
+   // --- 2. ПРАВЕРКА НАЗВАЎ КАЛОНАК (Белы спіс) ---
+    // 👈 ФІКС: Для API-рэжыму (PROGRES) прапускаем гэтую праверку, бо там няма columnName
+    if (source.shareId && source.includedColumns && source.includedColumns.length > 0) {
       const isIncluded = source.includedColumns.some(col => 
         columnName.includes(col.toLowerCase().trim())
       );
@@ -248,6 +260,7 @@ async function syncSingleSource(source) {
   await SyncState.findOneAndUpdate({ key: "circular_sync_position" }, { lastIndex: 0 });
 
   console.log(`🏁 [${source.agencyName}] Завершана: +${stats.added} новых, 🔄 ${stats.updated} абноўлена, 🛑 ${stats.closed} закрыта, ⏭️ ${stats.ignored} прапушчана.`);
+  global.syncProgress.status = 'idle'; // 👈 Скідваем статус пасля поспеху
 }
 
 module.exports = { syncAirtable, syncSingleSource }; // 👈 Дададзены экспарт для ручной сінхранізацыі
