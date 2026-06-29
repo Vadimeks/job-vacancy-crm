@@ -13,7 +13,7 @@ const SPHERES = [
 function Section({ label, children }) {
   return (
     <div className="mb-5">
-      <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2">
+      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
         {label}
       </p>
       {children}

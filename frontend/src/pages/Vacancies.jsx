@@ -718,7 +718,7 @@ const [viewMode, setViewMode] = useState("list"); // Стан для перак�
     setApplied(newFilters);
   };
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div className="flex items-start min-h-screen bg-slate-50">
       {/* САЙДБАР З РЭГУЛЯВАННЕМ ШЫРЫНІ */}
       <aside
         style={{ width: `${sidebarWidth}px` }}
