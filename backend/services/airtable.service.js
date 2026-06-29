@@ -250,4 +250,4 @@ async function syncSingleSource(source) {
   console.log(`🏁 [${source.agencyName}] Завершана: +${stats.added} новых, 🔄 ${stats.updated} абноўлена, 🛑 ${stats.closed} закрыта, ⏭️ ${stats.ignored} прапушчана.`);
 }
 
-module.exports = { syncAirtable };
+module.exports = { syncAirtable, syncSingleSource }; // 👈 Дададзены экспарт для ручной сінхранізацыі
