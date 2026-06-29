@@ -136,7 +136,7 @@ export default function Layout({ children }) {
           </div>
         )}
       </header>
-      <main className="pt-16 min-w-[320px] overflow-x-hidden">{children}</main>
+      <main className="pt-16 min-w-[320px]">{children}</main>
     </div>
   );
 }

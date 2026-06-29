@@ -178,9 +178,9 @@ export default function Candidates() {
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-950">
+    <div className="flex min-h-screen bg-slate-50">
       {/* САЙДБАР — дэсктоп */}
-      <aside className="hidden lg:flex flex-col w-72 shrink-0 border-r border-slate-800 bg-slate-900/50 sticky top-16 h-[calc(100vh-4rem)]">
+      <aside className="hidden lg:flex flex-col w-72 shrink-0 border-r border-slate-200 bg-white sticky top-16 h-[calc(100vh-4rem)]">
         <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800">
           <span className="text-sm font-medium text-slate-300">Фільтры</span>
           {isDirty && (
@@ -243,7 +243,7 @@ export default function Candidates() {
               )}
             </button>
             <div>
-              <h1 className="text-2xl font-semibold text-slate-100">
+              <h1 className="text-2xl font-black text-slate-900">
                 Кандыдаты
               </h1>
               <p className="text-sm text-slate-500 mt-0.5">
@@ -280,7 +280,7 @@ export default function Candidates() {
             {filtered.map((c) => (
               <div
                 key={c._id}
-                className="bg-slate-900 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition-colors cursor-pointer"
+                className="bg-white border border-slate-200 rounded-2xl p-5 hover:shadow-md transition-all cursor-pointer group"
                 onClick={() => setProfileId(c._id)}
               >
                 <div className="flex items-start justify-between gap-4">
@@ -303,7 +303,7 @@ export default function Candidates() {
                       </span>
                     </div>
 
-                    <h3 className="font-medium text-slate-100">{c.name}</h3>
+                    <h3 className="text-lg font-bold text-slate-900 group-hover:text-emerald-600 transition-colors">{c.name}</h3>
 
                     <div className="flex flex-wrap gap-4 mt-2 text-xs text-slate-500">
                       {c.contactType === "telegram" && c.telegram && (
