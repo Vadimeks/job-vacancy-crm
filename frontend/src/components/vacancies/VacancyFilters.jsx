@@ -216,7 +216,7 @@ const [openSections, setOpenSections] = useState({
     });
   };
   return (
-    <div className="bg-white p-6 rounded-2xl border border-slate-200 h-full overflow-y-auto custom-scrollbar shadow-sm">
+    <div className="bg-white p-4 h-full overflow-y-auto custom-scrollbar">
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-xl font-black text-emerald-600 tracking-tight uppercase">
           ФІЛЬТРИ
@@ -519,7 +519,7 @@ const [openSections, setOpenSections] = useState({
         hasActiveFilters={draft.agencyName?.length > 0}
       >
         <MultiSelect
-           options={getSmartOptions(MD.AGENCIES, "agencyName", true)} 
+           options={getSmartOptions(MD.AGENCIES, "agencyName", false)} // 👈 false, бо гэта масіў радкоў, а не аб'ектаў
           selected={draft.agencyName}
           onChange={(v) => updateField("agencyName", v)}
           placeholder="Усі агенції"
