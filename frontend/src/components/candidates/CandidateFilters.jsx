@@ -47,7 +47,7 @@ export default function CandidateFilters({ draft, onChange }) {
 
   const activeCount = Object.entries(draft).filter(([k, v]) => {
     if (k === "search") return v.length > 0;
-    if (k === "status") return v !== "";
+    if (typeof v === "boolean") return v === true;
     return Array.isArray(v) && v.length > 0;
   }).length;
 
