@@ -1284,6 +1284,8 @@ const [viewMode, setViewMode] = useState("list"); // Стан для перак�
                         <span>🗣️</span>
                         <span className="font-medium">{v.requirements?.polishLanguageLevel || "—"}</span>
                       </div>
+                      </div>
+<div className="flex flex-wrap gap-3 text-xs items-center mb-3 justify-start">
 {/* ГРАФІК І ГАДЗІНЫ (Новы яркі блок) */}
                       <div className="flex items-center gap-2 bg-blue-200/50 px-3 py-1.5 rounded-xl border border-blue-500">
                         <span className="text-blue-600 text-[10px]">{v.schedule?.onlyDayShifts ? "☀️" : "🔄"}</span>
@@ -1298,7 +1300,7 @@ const [viewMode, setViewMode] = useState("list"); // Стан для перак�
                       </div>
                       {/* ЗАРПЛАТА (Зроблена яркай) */}
                       {(v.salary?.rawSalaryDisplay || v.salary?.baseNetto) && (
-                        <div className="flex items-center gap-2 bg-emerald-200/50 px-4 py-2 rounded-2xl md:ml-auto border border-emerald-500">
+                        <div className="flex items-center gap-2 bg-emerald-200/50 px-4 py-2 rounded-2xl border border-emerald-500">
                           <span className="text-emerald-700 font-black text-base">
                             💰 {v.salary.rawSalaryDisplay ? v.salary.rawSalaryDisplay.split(";")[0] : `${v.salary.baseNetto} PLN`}
                           </span>
