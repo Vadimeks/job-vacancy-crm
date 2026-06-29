@@ -81,6 +81,13 @@ async function syncSingleSource(source) {
 
   // 🔄 2. Адзіны цыкл па запісах
   for (let i = 0; i < records.length; i++) {
+    const row = records[i];
+    const airtableId = row.id;
+    
+    // 🔍 ДЫЯГНОСТЫКА: Глядзім на структуру першага запісу
+    if (i === startIndex) {
+      console.log(`🔍 [Airtable Debug] Sample Record (${source.agencyName}): ID=${airtableId}, Column="${columnName}", Fields Keys=[${Object.keys(row.fields).join(", ")}]`);
+    }
     // 👈 Праверка на прыпынак карыстальнікам
     if (global.stopSyncRequested) {
       console.log(`🛑 [Airtable] Сінхранізацыя ${source.agencyName} перарвана карыстальнікам.`);
@@ -121,6 +128,7 @@ async function syncSingleSource(source) {
     }
 
     if (shouldIgnore) {
+      console.log(`⏭️ [Airtable Skip] ${source.agencyName}: Blacklist (Column: "${columnName}", Text: "${fieldsText.substring(0, 50)}...")`);
       stats.ignored++;
       continue;
     }
@@ -132,6 +140,7 @@ async function syncSingleSource(source) {
         columnName.includes(col.toLowerCase().trim())
       );
       if (!isIncluded && columnName !== "актуальное") {
+         console.log(`⏭️ [Airtable Skip] ${source.agencyName}: Не ў белым спісе (Column: "${columnName}")`);
         stats.ignored++;
         continue;
       }
@@ -141,6 +150,7 @@ async function syncSingleSource(source) {
     if (source.syncRules && source.syncRules.checkField) {
       const actual = fields[source.syncRules.checkField];
       if (actual && String(actual).toLowerCase().trim() !== String(source.syncRules.checkValue).toLowerCase().trim()) {
+         console.log(`⏭️ [Airtable Skip] ${source.agencyName}: Не прайшло па syncRules (${source.syncRules.checkField}: "${actual}")`);
         stats.ignored++;
         continue;
       }
@@ -170,6 +180,7 @@ async function syncSingleSource(source) {
       });
 
       if (existingVacancy && existingVacancy.originalText === tempDump && existingVacancy.status === targetStatus) {
+        console.log(`⏭️ [Airtable Skip] ${source.agencyName}: Поўны дублікат у базе (ID: ${existingVacancy.vacancyCode})`);
         stats.ignored++;
         continue;
       }
