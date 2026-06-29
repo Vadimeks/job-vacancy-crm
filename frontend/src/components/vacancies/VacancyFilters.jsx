@@ -519,7 +519,7 @@ const [openSections, setOpenSections] = useState({
         hasActiveFilters={draft.agencyName?.length > 0}
       >
         <MultiSelect
-          options={getSmartOptions(agencies, "agencyName")}
+           options={getSmartOptions(MD.AGENCIES, "agencyName", true)} 
           selected={draft.agencyName}
           onChange={(v) => updateField("agencyName", v)}
           placeholder="Усі агенції"

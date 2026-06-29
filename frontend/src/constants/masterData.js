@@ -89,12 +89,12 @@ export const AGENCIES = [
   "APOLO",
   "BISAR",
   "EST",
-  "EWL",
+  // "EWL",
   "FOLGA",
   "FWS",
   "GLOBAL",
   "INTRASERVICE",
-  "KONO",
+  // "KONO",
   "KREON",
   "MANPOWER",
   "MANUAL",
@@ -110,6 +110,7 @@ export const AGENCIES = [
   "VEKOS",
   "WORK&HUMAN",
   "JOB IMPULSE",
+  "PPG (BIEDRONKA)",
 ].sort();
 
 export const VOIVODESHIPS = [

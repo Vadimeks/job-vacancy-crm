@@ -1,12 +1,59 @@
 @import "tailwindcss";
 
-/* 👈 ДADADЗЕНА: мабільная адаптацыя пад 320px */
+/* 1. Глябальная абарона ад гарызантальнага скролу */
 html, body {
-  min-width: 320px;
+  margin: 0;
+  padding: 0;
   overflow-x: hidden;
+  background-color: #f8fafc; /* slate-50 */
 }
 
-#root {
-  min-width: 320px;
+/* 2. Жорсткая фіксацыя шырыні па тваіх брэйкпоінтах */
+
+/* --- МАБІЛКІ (да 767px) --- */
+@media (max-width: 767px) {
+  #root {
+    width: 320px;
+    margin: 0 auto;
+    overflow-x: hidden;
+  }
+  /* Фікс для фіксаванага хэдэра, каб ён не вылазіў за 320px */
+  header {
+    width: 320px !important;
+    left: 50% !important;
+    transform: translateX(-50%);
+  }
+}
+
+/* --- ПЛАНШЭТЫ / МАЛЫЯ НОЎТБУКІ (768px - 1279px) --- */
+@media (min-width: 768px) and (max-width: 1279px) {
+  #root {
+    width: 768px;
+    margin: 0 auto;
+  }
+  header {
+    width: 768px !important;
+    left: 50% !important;
+    transform: translateX(-50%);
+  }
+}
+
+/* --- ДЭСКТОП (1280px+) --- */
+@media (min-width: 1280px) {
+  #root {
+    width: 1280px;
+    margin: 0 auto;
+  }
+  header {
+    width: 1280px !important;
+    left: 50% !important;
+    transform: translateX(-50%);
+  }
+}
+
+/* 3. Фікс для асноўнага кантэйнера, каб кантэнт не "выціскаў" край */
+main {
+  width: 100%;
+  max-width: 100%;
   overflow-x: hidden;
 }
