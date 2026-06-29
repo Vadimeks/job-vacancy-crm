@@ -85,27 +85,47 @@ console.log(`🔍 [Scraper Debug] Root keys: ${Object.keys(rootData || {}).join(
 if (rootData?.data) console.log(`🔍 [Scraper Debug] data keys: ${Object.keys(rootData.data).join(", ")}`);
 if (rootData?.application) console.log(`🔍 [Scraper Debug] application tables: ${rootData.application?.tables?.length}`);
 if (rootData?.data?.application) console.log(`🔍 [Scraper Debug] data.application tables: ${rootData.data?.application?.tables?.length}`);
-    // 👈 ЗМЕНА: Дакладны пошук табліцы па ID для Manpower
-     let tableObj = null;
-    
-    // Спрабуем знайсці ў розных галінах JSON
-    const potentialTables = [
-      ...(rootData?.application?.tables || []),
-      ...(rootData?.data?.application?.tables || []),
-      ...(rootData?.sharedApplication?.tables || []),
-      ...(rootData?.data?.table ? [rootData.data.table] : [])
-    ];
+    let tableObj = null;
 
-    if (potentialTables.length > 0) {
-      // Шукаем па ID, калі не знаходзім — бярэм першую
-      tableObj = potentialTables.find(t => t.id === (tableId || "tblTyT7NtUNZ1n2ek")) || potentialTables[0];
-    }
+// 👈 ЗМЕНА: падтрымка новай структуры Airtable (data.tableDatas + data.tableSchemas)
+const targetTableId = tableId || "tblTyT7NtUNZ1n2ek";
 
-    if (tableObj) {
-      rows = tableObj.rows || [];
-      columns = tableObj.columns || [];
-      console.log(`✅ [Scraper] Знойдзена табліца: ${tableObj.id}, радкоў: ${rows.length}`);
-    }
+if (rootData?.data?.tableDatas && rootData?.data?.tableSchemas) {
+  // Новая структура: схема і дадзеныя асобна
+  const schema = rootData.data.tableSchemas?.find(s => s.id === targetTableId) || rootData.data.tableSchemas?.[0];
+  const tableData = rootData.data.tableDatas?.find(d => d.id === targetTableId) || rootData.data.tableDatas?.[0];
+
+  if (schema && tableData) {
+    console.log(`✅ [Scraper] Новая структура: схема=${schema.id}, радкоў=${tableData.rows?.length || tableData.rowsById ? Object.keys(tableData.rowsById).length : 0}`);
+    // Будуем tableObj у стандартным фармаце
+    const colMap = {};
+    (schema.columns || schema.fields || []).forEach(col => { colMap[col.id] = col; });
+
+    const rawRows = tableData.rows || (tableData.rowsById ? Object.values(tableData.rowsById) : []);
+    rows = rawRows;
+    columns = schema.columns || schema.fields || [];
+    tableObj = { id: schema.id, rows, columns };
+    console.log(`✅ [Scraper] Знойдзена табліца: ${schema.id}, радкоў: ${rows.length}`);
+  }
+} else {
+  // Старая структура (для JOB IMPULSE і інш.)
+  const potentialTables = [
+    ...(rootData?.application?.tables || []),
+    ...(rootData?.data?.application?.tables || []),
+    ...(rootData?.sharedApplication?.tables || []),
+    ...(rootData?.data?.table ? [rootData.data.table] : [])
+  ];
+
+  if (potentialTables.length > 0) {
+    tableObj = potentialTables.find(t => t.id === targetTableId) || potentialTables[0];
+  }
+
+  if (tableObj) {
+    rows = tableObj.rows || [];
+    columns = tableObj.columns || [];
+    console.log(`✅ [Scraper] Знойдзена табліца: ${tableObj.id}, радкоў: ${rows.length}`);
+  }
+}
 
     const viewName = "актуальное";
 
