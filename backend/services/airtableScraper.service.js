@@ -80,7 +80,11 @@ async function fetchSharedData(sharePath) {
     let rows = [];
     let columns = [];
     const rootData = dataRes.data;
-    
+    // 👈 ДЫЯГНОСТЫКА: лагіруем ключы каранёвага аб'екта
+console.log(`🔍 [Scraper Debug] Root keys: ${Object.keys(rootData || {}).join(", ")}`);
+if (rootData?.data) console.log(`🔍 [Scraper Debug] data keys: ${Object.keys(rootData.data).join(", ")}`);
+if (rootData?.application) console.log(`🔍 [Scraper Debug] application tables: ${rootData.application?.tables?.length}`);
+if (rootData?.data?.application) console.log(`🔍 [Scraper Debug] data.application tables: ${rootData.data?.application?.tables?.length}`);
     // 👈 ЗМЕНА: Дакладны пошук табліцы па ID для Manpower
      let tableObj = null;
     
