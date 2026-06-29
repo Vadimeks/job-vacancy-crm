@@ -87,67 +87,38 @@ if (rootData?.application) console.log(`🔍 [Scraper Debug] application tables:
 if (rootData?.data?.application) console.log(`🔍 [Scraper Debug] data.application tables: ${rootData.data?.application?.tables?.length}`);
     let tableObj = null;
 
-// 👈 ЗМЕНА: падтрымка новай структуры Airtable (data.tableDatas + data.tableSchemas)
-console.log(`🔍 [Scraper Debug] tableSchemas type: ${typeof rootData?.data?.tableSchemas}, isArray: ${Array.isArray(rootData?.data?.tableSchemas)}, length: ${rootData?.data?.tableSchemas?.length}`);
-console.log(`🔍 [Scraper Debug] tableDatas type: ${typeof rootData?.data?.tableDatas}, isArray: ${Array.isArray(rootData?.data?.tableDatas)}, length: ${rootData?.data?.tableDatas?.length}`);
+    // 👈 ЗМЕНА: падтрымка новай структуры Airtable (data.tableDatas + data.tableSchemas)
+    const targetTableId = tableId || "tblTyT7NtUNZ1n2ek";
 
-const firstSchema = Array.isArray(rootData?.data?.tableSchemas) ? rootData.data.tableSchemas[0] : null;
-const firstData = Array.isArray(rootData?.data?.tableDatas) ? rootData.data.tableDatas[0] : null;
+    if (rootData?.data?.tableDatas && rootData?.data?.tableSchemas) {
+      // Новая структура: схема і дадзеныя асобна
+      const schema = rootData.data.tableSchemas.find(s => s?.id === targetTableId) || rootData.data.tableSchemas[0];
+      const tableData = rootData.data.tableDatas.find(d => d?.id === targetTableId) || rootData.data.tableDatas[0];
 
-console.log(`🔍 [Scraper Debug] tableSchemas[0] is: ${firstSchema === null ? "NULL" : typeof firstSchema}`);
-console.log(`🔍 [Scraper Debug] tableDatas[0] is: ${firstData === null ? "NULL" : typeof firstData}`);
+      if (schema && tableData) {
+        const rawRows = tableData.rows || (tableData.rowsById ? Object.values(tableData.rowsById) : []);
+        rows = rawRows;
+        columns = schema.columns || schema.fields || [];
+        tableObj = { id: schema.id, rows, columns };
+        console.log(`✅ [Scraper] Знойдзена табліца (новая структура): ${schema.id}, радкоў: ${rows.length}`);
+      }
+    } else {
+      // Старая структура (для JOB IMPULSE і інш.)
+      const potentialTables = [
+        ...(rootData?.application?.tables || []),
+        ...(rootData?.data?.application?.tables || []),
+        ...(rootData?.sharedApplication?.tables || []),
+        ...(rootData?.data?.table ? [rootData.data.table] : [])
+      ];
 
-if (firstSchema) console.log(`🔍 [Scraper Debug] tableSchemas[0] keys: ${Object.keys(firstSchema).join(", ")}`);
-if (firstData) {
-  console.log(`🔍 [Scraper Debug] tableDatas[0] keys: ${Object.keys(firstData).join(", ")}`);
-  console.log(`🔍 [Scraper Debug] tableDatas[0].rows length: ${firstData?.rows?.length}`);
-  console.log(`🔍 [Scraper Debug] tableDatas[0].viewDatas length: ${firstData?.viewDatas?.length}`);
-  if (firstData?.viewDatas?.[0]) {
-    console.log(`🔍 [Scraper Debug] viewDatas[0] keys: ${Object.keys(firstData.viewDatas[0]).join(", ")}`);
-    console.log(`🔍 [Scraper Debug] viewDatas[0].rows length: ${firstData.viewDatas[0]?.rows?.length}`);
-  }
-}
-if (rootData?.data?.tableDatas && rootData?.data?.tableSchemas) {
-  // Новая структура: схема і дадзеныя асобна
-  const schema = rootData.data.tableSchemas?.find(s => s.id === targetTableId) || rootData.data.tableSchemas?.[0];
-  const tableData = rootData.data.tableDatas?.find(d => d.id === targetTableId) || rootData.data.tableDatas?.[0];
+      tableObj = potentialTables.find(t => t?.id === targetTableId) || potentialTables[0];
 
-  if (schema && tableData) {
-    console.log(`✅ [Scraper] Новая структура: схема=${schema.id}, радкоў=${tableData.rows?.length || tableData.rowsById ? Object.keys(tableData.rowsById).length : 0}`);
-    // Будуем tableObj у стандартным фармаце
-    const colMap = {};
-    (schema.columns || schema.fields || []).forEach(col => { colMap[col.id] = col; });
-console.log(`🔍 [Scraper Debug] tableDatas[0].rows length: ${tableData?.rows?.length}`);
-console.log(`🔍 [Scraper Debug] tableDatas[0].viewDatas length: ${tableData?.viewDatas?.length}`);
-if (tableData?.viewDatas?.[0]) {
-  console.log(`🔍 [Scraper Debug] viewDatas[0] keys: ${Object.keys(tableData.viewDatas[0]).join(", ")}`);
-  console.log(`🔍 [Scraper Debug] viewDatas[0].rows length: ${tableData.viewDatas[0]?.rows?.length}`);
-}
-    const rawRows = tableData.rows || (tableData.rowsById ? Object.values(tableData.rowsById) : []);
-    rows = rawRows;
-    columns = schema.columns || schema.fields || [];
-    tableObj = { id: schema.id, rows, columns };
-    console.log(`✅ [Scraper] Знойдзена табліца: ${schema.id}, радкоў: ${rows.length}`);
-  }
-} else {
-  // Старая структура (для JOB IMPULSE і інш.)
-  const potentialTables = [
-    ...(rootData?.application?.tables || []),
-    ...(rootData?.data?.application?.tables || []),
-    ...(rootData?.sharedApplication?.tables || []),
-    ...(rootData?.data?.table ? [rootData.data.table] : [])
-  ];
-
-  if (potentialTables.length > 0) {
-    tableObj = potentialTables.find(t => t.id === targetTableId) || potentialTables[0];
-  }
-
-  if (tableObj) {
-    rows = tableObj.rows || [];
-    columns = tableObj.columns || [];
-    console.log(`✅ [Scraper] Знойдзена табліца: ${tableObj.id}, радкоў: ${rows.length}`);
-  }
-}
+      if (tableObj) {
+        rows = tableObj.rows || [];
+        columns = tableObj.columns || [];
+        console.log(`✅ [Scraper] Знойдзена табліца (старая структура): ${tableObj.id}, радкоў: ${rows.length}`);
+      }
+    }
 
     const viewName = "актуальное";
 
