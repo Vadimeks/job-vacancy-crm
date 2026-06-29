@@ -83,6 +83,9 @@ async function syncSingleSource(source) {
   for (let i = 0; i < records.length; i++) {
     const row = records[i];
     const airtableId = row.id;
+    const fields = row.fields;
+    const columnName = (row.columnName || row.fields["Название колонки"] || "").toLowerCase();
+    const fieldsText = Object.values(fields).join(" ").toLowerCase();
     
     // 🔍 ДЫЯГНОСТЫКА: Глядзім на структуру першага запісу
     if (i === startIndex) {
@@ -96,8 +99,7 @@ async function syncSingleSource(source) {
       return "STOP_ALL";
     }
     global.syncProgress.current = i + 1;
-    const row = records[i];
-    const airtableId = row.id;
+    
     let existingVacancy = await Vacancy.findOne({ airtableId });
     // 🛡️ Ахова ад памылковага закрыцця: рэгіструем ID адразу
     foundAirtableIds.add(airtableId);
@@ -105,9 +107,6 @@ async function syncSingleSource(source) {
     // Пропуск, калі мы яшчэ не дайшлі да патрэбнага індэкса ў гэтым коле
     if (i < startIndex) continue;
 
-    const fields = row.fields;
-    const columnName = (row.columnName || row.fields["Название колонки"] || "").toLowerCase();
-    const fieldsText = Object.values(fields).join(" ").toLowerCase();
 
     // --- 1. ІНДЫВІДУАЛЬНАЯ ФІЛЬТРАЦЫЯ (Blacklist) ---
     let shouldIgnore = false;
