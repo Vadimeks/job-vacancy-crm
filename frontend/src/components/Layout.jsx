@@ -8,7 +8,7 @@ const NAV_ITEMS = [
   { to: "/vacancies", label: "Вакансії" },
   { to: "/candidates", label: "Кандидати" },
   // { to: "/templates", label: "Шаблони" },
-  { to: "/agencies", label: "Агенції" },
+  // { to: "/agencies", label: "Агенції" },
   { to: "/inbox", label: "Вхідні" },
 ];
 
