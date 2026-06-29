@@ -88,17 +88,24 @@ if (rootData?.data?.application) console.log(`🔍 [Scraper Debug] data.applicat
     let tableObj = null;
 
 // 👈 ЗМЕНА: падтрымка новай структуры Airtable (data.tableDatas + data.tableSchemas)
-const targetTableId = tableId || "tblTyT7NtUNZ1n2ek";
-// 👈 ДЫЯГНОСТЫКА 2: тып і памер tableDatas/tableSchemas
 console.log(`🔍 [Scraper Debug] tableSchemas type: ${typeof rootData?.data?.tableSchemas}, isArray: ${Array.isArray(rootData?.data?.tableSchemas)}, length: ${rootData?.data?.tableSchemas?.length}`);
 console.log(`🔍 [Scraper Debug] tableDatas type: ${typeof rootData?.data?.tableDatas}, isArray: ${Array.isArray(rootData?.data?.tableDatas)}, length: ${rootData?.data?.tableDatas?.length}`);
-if (rootData?.data?.tableSchemas) {
-  const first = Array.isArray(rootData.data.tableSchemas) ? rootData.data.tableSchemas[0] : rootData.data.tableSchemas;
-  console.log(`🔍 [Scraper Debug] tableSchemas[0] keys: ${Object.keys(first || {}).join(", ")}`);
-}
-if (rootData?.data?.tableDatas) {
-  const first = Array.isArray(rootData.data.tableDatas) ? rootData.data.tableDatas[0] : rootData.data.tableDatas;
-  console.log(`🔍 [Scraper Debug] tableDatas[0] keys: ${Object.keys(first || {}).join(", ")}`);
+
+const firstSchema = Array.isArray(rootData?.data?.tableSchemas) ? rootData.data.tableSchemas[0] : null;
+const firstData = Array.isArray(rootData?.data?.tableDatas) ? rootData.data.tableDatas[0] : null;
+
+console.log(`🔍 [Scraper Debug] tableSchemas[0] is: ${firstSchema === null ? "NULL" : typeof firstSchema}`);
+console.log(`🔍 [Scraper Debug] tableDatas[0] is: ${firstData === null ? "NULL" : typeof firstData}`);
+
+if (firstSchema) console.log(`🔍 [Scraper Debug] tableSchemas[0] keys: ${Object.keys(firstSchema).join(", ")}`);
+if (firstData) {
+  console.log(`🔍 [Scraper Debug] tableDatas[0] keys: ${Object.keys(firstData).join(", ")}`);
+  console.log(`🔍 [Scraper Debug] tableDatas[0].rows length: ${firstData?.rows?.length}`);
+  console.log(`🔍 [Scraper Debug] tableDatas[0].viewDatas length: ${firstData?.viewDatas?.length}`);
+  if (firstData?.viewDatas?.[0]) {
+    console.log(`🔍 [Scraper Debug] viewDatas[0] keys: ${Object.keys(firstData.viewDatas[0]).join(", ")}`);
+    console.log(`🔍 [Scraper Debug] viewDatas[0].rows length: ${firstData.viewDatas[0]?.rows?.length}`);
+  }
 }
 if (rootData?.data?.tableDatas && rootData?.data?.tableSchemas) {
   // Новая структура: схема і дадзеныя асобна
