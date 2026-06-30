@@ -9,7 +9,7 @@ const trelloSourceSchema = new mongoose.Schema(
     // Назва для ўнутранага карыстання (напр. "Personnel Service 2026")
     boardName: { type: String, required: true },
 
-    // Назва агенцыі (NIDEN, KREON, PERSONNEL SERVICE)
+    // Назва агенцыі (NIDEN, KREON, PERSONEL SERVICE)
     agencyName: { type: String, required: true },
 
     // Ключы доступу (індывідуальныя для кожнай крыніцы або агульныя)

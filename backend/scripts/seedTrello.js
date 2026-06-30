@@ -26,7 +26,7 @@ const TRELLO_DATA = [
   {
     boardId: process.env.TRELLO_BOARD_ID_PERSONNEL,
     boardName: "Personnel Service 2026",
-    agencyName: "PERSONNEL SERVICE",
+    agencyName: "PERSONEL SERVICE",
     apiKey: process.env.TRELLO_API_KEY,
     token: process.env.TRELLO_TOKEN,
     status: "active",
