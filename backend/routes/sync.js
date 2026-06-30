@@ -29,16 +29,33 @@ router.post("/agency", async (req, res) => {
     global.isSyncRunning = true;
     try {
       for (const agency of agencies) {
+        // 👈 ПРАВЕРКА 1: Спыняем перад пачаткам новай агенцыі
+        if (global.stopSyncRequested) break;
+
         console.log(`\n--- 🔄 Апрацоўка агенцыі: ${agency} ---`);
         
         const sheets = await SheetSource.find({ agencyName: agency, status: "active" });
-        for (const s of sheets) await syncSheetVacancies(s._id);
+        for (const s of sheets) {
+          if (global.stopSyncRequested) break; // 👈 ПРАВЕРКА 2
+          const res = await syncSheetVacancies(s._id);
+          if (res === "STOP_ALL") { global.stopSyncRequested = true; break; }
+        }
 
         const trelloBoards = await TrelloSource.find({ agencyName: agency, status: "active" });
-        for (const t of trelloBoards) await syncTrelloBoard(t._id);
+        for (const t of trelloBoards) {
+          if (global.stopSyncRequested) break; // 👈 ПРАВЕРКА 3
+          const res = await syncTrelloBoard(t._id);
+          if (res === "STOP_ALL") { global.stopSyncRequested = true; break; }
+        }
 
         const airtableSources = await AirtableSource.find({ agencyName: agency, status: "active" });
-        for (const a of airtableSources) await syncSingleSource(a);
+        for (const a of airtableSources) {
+          if (global.stopSyncRequested) break; // 👈 ПРАВЕРКА 4
+          const res = await syncSingleSource(a);
+          if (res === "STOP_ALL") { global.stopSyncRequested = true; break; }
+        }
+        
+        if (global.stopSyncRequested) break; // 👈 ПРАВЕРКА 5
       }
       console.log(`✅ [Manual Sync] Усе выбраныя агенцыі апрацаваны.`);
     } catch (err) {

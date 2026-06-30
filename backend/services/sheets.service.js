@@ -564,7 +564,10 @@ async function syncSheetVacancies(sourceId) {
    for (let i = headerRowIndex + 1; i < rowData.length; i++) {
       // Пропуск, калі мы яшчэ не дайшлі да патрэбнага індэкса ў гэтым коле
       if (i < startIndex) continue;
-
+ if (global.stopSyncRequested) {
+        console.log("🛑 [Sheets] Сінхранізацыя перарвана карыстальнікам.");
+        return "STOP_ALL";
+      }
       const cells = resolveMergedCells(i, rowData, merges);
       if (
         rowData[i].rowMetadata?.hiddenByUser ||

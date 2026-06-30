@@ -110,6 +110,10 @@ let cardCounter = 0; // 👈 ДАДАЦЬ ГЭТА (ініцыялізацыя �
       const cards = cardsRes.data;
 
       for (const card of cards) {
+          // 👈 ПРАВЕРКА НА ПРЫПЫНАК
+        if (global.stopSyncRequested) {
+          console.log("🛑 [Trello] Сінхранізацыя перарвана карыстальнікам.");
+          return "STOP_ALL";}
         const currentCardIndex = cardCounter;
         cardCounter++;
 
