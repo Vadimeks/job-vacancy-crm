@@ -1,7 +1,7 @@
 // backend/seedTrello.js
 const path = require("path");
 // Загружаем зменныя з .env файла
-require("dotenv").config({ path: path.join(__dirname, ".env") });
+require("dotenv").config({ path: path.join(__dirname, "../.env") });
 
 const mongoose = require("mongoose");
 const TrelloSource = require("../models/TrelloSource");
