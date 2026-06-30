@@ -86,31 +86,10 @@ export const CHECKLIST_ITEMS = [
 ];
 
 export const AGENCIES = [
-  "APOLO",
-  "BISAR",
-  "EST",
-  // "EWL",
-  "FOLGA",
-  "FWS",
-  "GLOBAL",
-  "INTRASERVICE",
-  // "KONO",
-  "KREON",
-  "MANPOWER",
-  "MANUAL",
-  "MRÓWKI",
-  "NIDEN",
-  "OTTO",
-  "PERSONEL SERVICE",
-  "PROGRES",
-  "RALEN",
-  "SG",
-  "SOLANO",
-  "STAFF POWER",
-  "VEKOS",
-  "WORK&HUMAN",
-  "JOB IMPULSE",
-  "PPG (BIEDRONKA)",
+  "APOLO", "BISAR", "PPG (BIEDRONKA)", "INTRASERVICE", "OTTO", 
+  "MRÓWKI", "WORK&HUMAN", "RALEN", "KREON", "NIDEN", 
+  "PERSONEL SERVICE", "JOB IMPULSE", "PROGRES", "MANPOWER", 
+  "EST", "FWS", "KONO", "SG", "STAFF POWER", "SOLANO", "MANUAL"
 ].sort();
 
 export const VOIVODESHIPS = [
