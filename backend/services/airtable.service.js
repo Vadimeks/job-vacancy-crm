@@ -270,7 +270,7 @@ async function syncSingleSource(source) {
   await SyncState.findOneAndUpdate({ key: "circular_sync_position" }, { lastIndex: 0 });
 
   console.log(`🏁 [${source.agencyName}] Завершана: +${stats.added} новых, 🔄 ${stats.updated} абноўлена, 🛑 ${stats.closed} закрыта, ⏭️ ${stats.ignored} прапушчана.`);
-  global.syncProgress.status = 'idle'; // 👈 Скідваем статус пасля поспеху
+  
 }
 
 module.exports = { syncAirtable, syncSingleSource }; // 👈 Дададзены экспарт для ручной сінхранізацыі

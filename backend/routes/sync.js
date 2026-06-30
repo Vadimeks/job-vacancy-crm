@@ -60,8 +60,14 @@ router.post("/agency", async (req, res) => {
       console.log(`✅ [Manual Sync] Усе выбраныя агенцыі апрацаваны.`);
     } catch (err) {
       console.error(`❌ [Manual Sync] Памылка:`, err.message);
-    } finally {
+   } finally {
       global.isSyncRunning = false;
+      // Калі не было памылкі і не было прыпынку — ставім поспех
+      if (!global.stopSyncRequested) {
+        global.syncProgress.status = 'idle';
+      } else {
+        global.syncProgress.status = 'interrupted';
+      }
     }
   });
 });
