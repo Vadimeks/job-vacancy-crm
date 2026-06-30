@@ -27,47 +27,56 @@ router.post("/agency", async (req, res) => {
 
   setImmediate(async () => {
     global.isSyncRunning = true;
+    global.stopSyncRequested = false; // 👈 Скідваем пры кожным старце
+    let stopReason = null; // 'user' або 'limit'
+
     try {
       for (const agency of agencies) {
-        // 👈 ПРАВЕРКА 1: Спыняем перад пачаткам новай агенцыі
-        if (global.stopSyncRequested) break;
+        if (global.stopSyncRequested) { stopReason = 'user'; break; }
 
         console.log(`\n--- 🔄 Апрацоўка агенцыі: ${agency} ---`);
         
         const sheets = await SheetSource.find({ agencyName: agency, status: "active" });
         for (const s of sheets) {
-          if (global.stopSyncRequested) break; // 👈 ПРАВЕРКА 2
+          if (global.stopSyncRequested) { stopReason = 'user'; break; }
           const res = await syncSheetVacancies(s._id);
-          if (res === "STOP_ALL") { global.stopSyncRequested = true; break; }
+          if (res === "STOP_ALL") { stopReason = 'limit'; break; }
         }
+        if (stopReason) break;
 
         const trelloBoards = await TrelloSource.find({ agencyName: agency, status: "active" });
         for (const t of trelloBoards) {
-          if (global.stopSyncRequested) break; // 👈 ПРАВЕРКА 3
+          if (global.stopSyncRequested) { stopReason = 'user'; break; }
           const res = await syncTrelloBoard(t._id);
-          if (res === "STOP_ALL") { global.stopSyncRequested = true; break; }
+          if (res === "STOP_ALL") { stopReason = 'limit'; break; }
         }
+        if (stopReason) break;
 
         const airtableSources = await AirtableSource.find({ agencyName: agency, status: "active" });
         for (const a of airtableSources) {
-          if (global.stopSyncRequested) break; // 👈 ПРАВЕРКА 4
+          if (global.stopSyncRequested) { stopReason = 'user'; break; }
           const res = await syncSingleSource(a);
-          if (res === "STOP_ALL") { global.stopSyncRequested = true; break; }
+          if (res === "STOP_ALL") { stopReason = 'limit'; break; }
         }
-        
-        if (global.stopSyncRequested) break; // 👈 ПРАВЕРКА 5
+        if (stopReason) break;
       }
-      console.log(`✅ [Manual Sync] Усе выбраныя агенцыі апрацаваны.`);
-    } catch (err) {
-      console.error(`❌ [Manual Sync] Памылка:`, err.message);
-   } finally {
-      global.isSyncRunning = false;
-      // Калі не было памылкі і не было прыпынку — ставім поспех
-      if (!global.stopSyncRequested) {
-        global.syncProgress.status = 'idle';
-      } else {
+
+      if (stopReason === 'limit') {
+        console.log(`⚠️ [Manual Sync] Спынена: дасягнуты ліміты AI.`);
+        global.syncProgress.status = 'limit';
+      } else if (stopReason === 'user') {
+        console.log(`🛑 [Manual Sync] Перарвана карыстальнікам.`);
         global.syncProgress.status = 'interrupted';
+      } else {
+        console.log(`✅ [Manual Sync] Усе выбраныя агенцыі апрацаваны цалкам.`);
+        global.syncProgress.status = 'idle';
       }
+
+    } catch (err) {
+      console.error(`❌ [Manual Sync] Крытычная памылка:`, err.message);
+      global.syncProgress.status = 'error';
+    } finally {
+      global.isSyncRunning = false;
     }
   });
 });
