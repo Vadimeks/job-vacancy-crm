@@ -270,6 +270,7 @@ export default function Vacancies() {
   const [syncing, setSyncing] = useState(false); // 👈 ДАДАДЗЕНА: стан ручнога сканавання
   
   const [progress, setProgress] = useState({ current: 0, total: 0, status: 'idle' }); // 👈 Дададзена
+  const [syncStatusMsg, setSyncStatusMsg] = useState({ text: "", type: "" }); // type: 'success' або 'error'
   // --- Рэгуляваны сайдбар (v4.5) ---
   const [sidebarWidth, setSidebarWidth] = useState(320); // Пачатковая шырыня 320px (w-80)
   const handleMouseDown = (e) => {
@@ -423,18 +424,19 @@ export default function Vacancies() {
   };
 // 👈 ДADADЗЕНА: ручны запуск сканавання для выбранай агенцыі
  const handleManualSync = async () => {
-    const selectedAgencies = draft.agencyName; // 👈 Бяром увесь масіў
+    const selectedAgencies = draft.agencyName;
     if (!selectedAgencies?.length) return;
     
-    const label = selectedAgencies.length === 1 ? selectedAgencies[0] : `${selectedAgencies.length} агенцый`;
-    if (!window.confirm(`Запусціць сканаванне для ${label}?`)) return;
+    const label = selectedAgencies.length === 1 ? selectedAgencies[0] : `${selectedAgencies.length} агенцій`;
+    if (!window.confirm(`Запусціць сканавання для ${label}?`)) return;
     
+    setSyncStatusMsg({ text: "", type: "" }); // 👈 Чысцім старое
     setSyncing(true);
     try {
-      await syncAgency(selectedAgencies); // 👈 Адпраўляем масіў
-      alert(`✅ Сканаванне для ${label} запушчана. Сачыце за прагрэсам.`);
+      await syncAgency(selectedAgencies);
+      // alert выдалены 👈
     } catch (err) {
-      alert("Ой, щось пішло не так. Спробуйте пізніше.");
+      setSyncStatusMsg({ text: "❌ Помилка запуску. Спробуйте пізніше.", type: "error" });
       setSyncing(false);
     }
   };
@@ -447,25 +449,35 @@ const handleStopSync = async () => {
     }
   };
 
-  useEffect(() => {
+ useEffect(() => {
     let interval;
     if (syncing) {
       interval = setInterval(async () => {
         try {
           const res = await getSyncProgress();
           setProgress(res.data);
-          // Калі бэкенд скончыў або быў перарваны — спыняем апытанне
-          if (res.data.status !== 'running' && res.data.status !== 'stopping') {
+          
+          // Калі статус змяніўся на idle — значыць паспяхова скончылі
+          if (res.data.status === 'idle') {
             setSyncing(false);
+            setSyncStatusMsg({ text: "✅ Сканування завершено успішно!", type: "success" });
+            clearInterval(interval);
+            await fetchVacancies(); // Аднаўляем спіс, каб убачыць новыя вакансіі
+          }
+          
+          // Калі перарвана або памылка
+          if (res.data.status === 'interrupted') {
+            setSyncing(false);
+            setSyncStatusMsg({ text: "⚠️ Сканування зупинено.", type: "error" });
             clearInterval(interval);
           }
-        } catch (e) {
-          console.error("Памылка атрымання прагрэсу:", e);
+        } catch (e) { 
+          console.error(e);
         }
-      }, 2000); // Апытваем кожныя 2 секунды
+      }, 2000);
     }
     return () => clearInterval(interval);
-  }, [syncing]);
+  }, [syncing, fetchVacancies]);
   // 1. Вакансіі, адфільтраваныя ТОЛЬКІ па датах і пошуку (Кантэкст для фільтраў)
   const instantFiltered = useMemo(() => {
     return vacancies.filter((v) => {
@@ -1070,21 +1082,48 @@ const [viewMode, setViewMode] = useState("list"); // Стан для перак�
                 : "Обрати усі відфільтровані вакансії"}
             </span>
           </div>
-          {draft.agencyName?.length > 0 && ( // 👈 Цяпер паказваем, калі выбрана 1 і больш
-  <button
-    onClick={handleManualSync}
-    disabled={syncing}
-    className="flex items-center gap-2 px-4 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs font-black rounded-lg transition-all shadow-md shadow-blue-100"
-  >
-    {syncing ? (
-      "⏳ СКАНУЮ..." 
-    ) : (
-      <>
-        <span>🔄</span> 
-        <span>СКАНУВАТИ ({draft.agencyName.length})</span>
-      </>
-    )}
-  </button>
+          {draft.agencyName?.length > 0 && (
+            <div className="flex flex-col items-end">
+              {syncing ? (
+                /* СТАН СКАНАВАННЯ: Прагрэс + Кнопка СТОП */
+                <div className="flex items-center gap-3 bg-blue-50 px-4 py-1.5 rounded-lg border border-blue-100 shadow-sm">
+                  <div className="flex flex-col items-start">
+                    <span className="text-[9px] font-black text-blue-600 uppercase leading-none">Синхронізація</span>
+                    <span className="text-xs font-bold text-blue-700">
+                      ⏳ {progress.current} / {progress.total}
+                    </span>
+                  </div>
+                  <div className="w-px h-6 bg-blue-200 mx-1" />
+                  <button 
+                    onClick={handleStopSync}
+                    className="px-2 py-1 bg-red-100 hover:bg-red-200 text-red-600 text-[10px] font-black rounded-md transition-colors"
+                  >
+                    СТОП
+                  </button>
+                </div>
+              ) : (
+                /* ЗВЫЧАЙНЫ СТАН: Кнопка запуску */
+                <button
+                  onClick={handleManualSync}
+                  className="flex items-center gap-2 px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-black rounded-lg transition-all shadow-md shadow-blue-100"
+                >
+                  <span>🔄</span> 
+                  <span>СКАНУВАТИ ({draft.agencyName.length})</span>
+                </button>
+              )}
+              
+              {/* ПАВЕДАМЛЕННЕ АБ ВЫНІКУ (пад кнопкай) */}
+              {syncStatusMsg.text && (
+                <div className={`mt-1 text-[9px] font-bold uppercase tracking-tight ${syncStatusMsg.type === 'success' ? 'text-emerald-600' : 'text-red-500'}`}>
+                  {syncStatusMsg.text}
+                </div>
+              )}
+            </div>
+          )}
+{syncStatusMsg.text && (
+  <div className={`mt-2 text-[10px] font-bold uppercase tracking-tight ${syncStatusMsg.type === 'success' ? 'text-emerald-600' : 'text-red-500'}`}>
+    {syncStatusMsg.text}
+  </div>
 )}
 {selectedIds.length > 0 && (
   <div className="flex gap-2">
