@@ -548,6 +548,9 @@ async function syncSheetVacancies(sourceId) {
     const headers = (rowData[headerRowIndex].values || []).map(
       (v) => v.formattedValue || "",
     );
+    // 👈 АБНАЎЛЯЕМ ПРАГРЭС (колькасць радкоў)
+    global.syncProgress.total = rowData.length - (headerRowIndex + 1);
+    global.syncProgress.current = 0;
     console.log("📋 Загалоўкі:", headers.filter((h) => h.trim()).join(" | "));
 
     // --- КРОК 2: Загружаем апошнія вакансіі для кантэксту дэдуплікацыі ---
@@ -562,6 +565,7 @@ async function syncSheetVacancies(sourceId) {
 
     // --- КРОК 3: ЦЫКЛ ПА РАДКАХ ---
    for (let i = headerRowIndex + 1; i < rowData.length; i++) {
+    global.syncProgress.current++; // 👈 КРОК ЛІЧЫЛЬНІКА
       // Пропуск, калі мы яшчэ не дайшлі да патрэбнага індэкса ў гэтым коле
       if (i < startIndex) continue;
  if (global.stopSyncRequested) {

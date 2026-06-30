@@ -108,8 +108,10 @@ let cardCounter = 0; // 👈 ДАДАЦЬ ГЭТА (ініцыялізацыя �
       const cardsUrl = `https://api.trello.com/1/lists/${list.id}/cards?key=${source.apiKey}&token=${source.token}`;
       const cardsRes = await axios.get(cardsUrl);
       const cards = cardsRes.data;
-
+global.syncProgress.total = cards.length;
+      global.syncProgress.current = 0;
       for (const card of cards) {
+         global.syncProgress.current++; // 👈 КРОК ЛІЧЫЛЬНІКА
           // 👈 ПРАВЕРКА НА ПРЫПЫНАК
         if (global.stopSyncRequested) {
           console.log("🛑 [Trello] Сінхранізацыя перарвана карыстальнікам.");

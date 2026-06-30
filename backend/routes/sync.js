@@ -23,10 +23,16 @@ router.post("/agency", async (req, res) => {
   }
 
   console.log(`🚀 [Manual Sync] Запуск для: ${agencies.join(", ")}`);
+  
+  // 👈 СТАВІМ СТАТУС АДРАЗУ, каб фронтэнд не ўбачыў 'idle'
+  global.isSyncRunning = true;
+  global.syncProgress = { current: 0, total: 0, status: 'running', agency: agencies[0] };
+  global.stopSyncRequested = false;
+
   res.json({ message: `Сканаванне для ${agencies.length} агенцый запушчана` });
 
   setImmediate(async () => {
-    global.isSyncRunning = true;
+   
     global.stopSyncRequested = false; // 👈 Скідваем пры кожным старце
     let stopReason = null; // 'user' або 'limit'
 
