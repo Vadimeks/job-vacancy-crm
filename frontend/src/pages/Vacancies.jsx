@@ -434,7 +434,7 @@ export default function Vacancies() {
       await syncAgency(selectedAgencies); // 👈 Адпраўляем масіў
       alert(`✅ Сканаванне для ${label} запушчана. Сачыце за прагрэсам.`);
     } catch (err) {
-      alert("❌ Памылка запуску: " + err.message);
+      alert("Ой, щось пішло не так. Спробуйте пізніше.");
       setSyncing(false);
     }
   };
@@ -677,8 +677,12 @@ const handleStopSync = async () => {
       notifyUpdate();
       handleCloseForm();
       await fetchVacancies();
-    } catch {
-      alert("Помилка створення");
+    } catch (err) {
+      const isLimit = err.response?.status === 429 || err.response?.status === 503;
+      const msg = isLimit 
+        ? "Здається, ваш AI досяг ліміту. Спробуйте, будь ласка, пізніше." 
+        : "Ой, щось пішло не так при створенні вакансії. Спробуйте пізніше.";
+      alert(msg);
     } finally {
       setAutoLoading(false);
     }
@@ -688,7 +692,7 @@ const handleStopSync = async () => {
     if (!selectedTemplate || !autoText.trim())
       return alert("Заповніть усі поля");
     setAutoLoading(true);
-    try {
+   try {
       await createVacancyFromTemplate(
         selectedTemplate._id,
         autoText,
@@ -698,8 +702,12 @@ const handleStopSync = async () => {
       handleCloseForm();
       setSourceMessageId(null);
       await fetchVacancies();
-    } catch {
-      alert("Помилка створення");
+    } catch (err) {
+      const isLimit = err.response?.status === 429 || err.response?.status === 503;
+      const msg = isLimit 
+        ? "Здається, ваш AI досяг ліміту. Спробуйте, будь ласка, пізніше." 
+        : "Ой, щось пішло не так пры створенні з шаблона. Спробуйте пізніше.";
+      alert(msg);
     } finally {
       setAutoLoading(false);
     }
@@ -719,7 +727,11 @@ const handleStopSync = async () => {
       setSourceMessageId(null);
       await fetchVacancies();
     } catch (err) {
-      alert("Помилка оновлення: " + err.message);
+      const isLimit = err.response?.status === 429 || err.response?.status === 503;
+      const msg = isLimit 
+        ? "Здається, ваш AI досяг ліміту. Спробуйте, будь ласка, пізніше." 
+        : "Ой, щось пішло не так при оновленні вакансії. Спробуйте пізніше.";
+      alert(msg);
     } finally {
       setAutoLoading(false);
     }
