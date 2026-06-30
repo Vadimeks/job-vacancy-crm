@@ -457,7 +457,7 @@ const handleStopSync = async () => {
           const res = await getSyncProgress();
           setProgress(res.data);
           
-          // 1. Поспех (цалкам прайшлі)
+          // 1. Поспех (прайшлі ўсё да канца)
           if (res.data.status === 'idle') {
             setSyncing(false);
             setSyncStatusMsg({ text: "✅ Сканування завершено!", type: "success" });
@@ -465,7 +465,7 @@ const handleStopSync = async () => {
             await fetchVacancies();
           }
           
-          // 2. Ліміты AI (НОВАЕ)
+          // 2. Ліміты AI (спынена аўтаматычна)
           else if (res.data.status === 'limit') {
             setSyncing(false);
             setSyncStatusMsg({ text: "⚠️ Ліміти AI вичерпано. Спробуйте пізніше.", type: "error" });
@@ -473,10 +473,18 @@ const handleStopSync = async () => {
             await fetchVacancies();
           }
 
-          // 3. Прыпынак карыстальнікам
+          // 3. Прыпынак карыстальнікам (націснута кнопка СТОП)
           else if (res.data.status === 'interrupted') {
             setSyncing(false);
-            setSyncStatusMsg({ text: "🛑 Сканування зупинено.", type: "error" });
+            setSyncStatusMsg({ text: "🛑 Сканування зупинено користувачем.", type: "error" });
+            clearInterval(interval);
+            await fetchVacancies();
+          }
+
+          // 4. Тэхнічная памылка (краш сервера або базы)
+          else if (res.data.status === 'error') {
+            setSyncing(false);
+            setSyncStatusMsg({ text: "❌ Сталася технічна помилка сервера.", type: "error" });
             clearInterval(interval);
           }
         } catch (e) { 
