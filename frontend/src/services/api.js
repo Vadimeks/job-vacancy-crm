@@ -76,4 +76,6 @@ export const generateBulkPreview = (ids) => api.post("/vacancies/bulk-preview", 
 export const publishBulk = (data) => api.post("/vacancies/bulk-publish", data);
 // 👈 ДАДАДЗЕНА: ручны запуск сканавання па агенцыі
 export const syncAgency = (agencyName) => api.post("/sync/agency", { agencyName });
+export const getSyncProgress = () => api.get("/sync/progress");
+export const stopSync = () => api.post("/sync/stop");
 export default api;

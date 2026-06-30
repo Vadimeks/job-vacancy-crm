@@ -9,7 +9,9 @@ import {
   aiUpdateVacancy,
   toggleFavoriteVacancy,
   bulkDeleteVacancies,
-  syncAgency, // 👈 ДADADЗЕНА
+  syncAgency,
+  getSyncProgress, // 👈 Дададзена
+  stopSync,        // 👈 Дададзена
 } from "../services/api";
 import EditVacancyModal from "../components/vacancies/EditVacancyModal";
 import ApplyModal from "../components/vacancies/ApplyModal";
@@ -266,6 +268,8 @@ export default function Vacancies() {
   const [selectedIds, setSelectedIds] = useState([]);
   const [showBulkModal, setShowBulkModal] = useState(false);
   const [syncing, setSyncing] = useState(false); // 👈 ДАДАДЗЕНА: стан ручнога сканавання
+  
+  const [progress, setProgress] = useState({ current: 0, total: 0, status: 'idle' }); // 👈 Дададзена
   // --- Рэгуляваны сайдбар (v4.5) ---
   const [sidebarWidth, setSidebarWidth] = useState(320); // Пачатковая шырыня 320px (w-80)
   const handleMouseDown = (e) => {
@@ -432,7 +436,34 @@ export default function Vacancies() {
       setSyncing(false);
     }
   };
+const handleStopSync = async () => {
+    if (!window.confirm("Спыніць сінхранізацыю?")) return;
+    try {
+      await stopSync();
+    } catch (err) {
+      console.error("Памылка прыпынку:", err);
+    }
+  };
 
+  useEffect(() => {
+    let interval;
+    if (syncing) {
+      interval = setInterval(async () => {
+        try {
+          const res = await getSyncProgress();
+          setProgress(res.data);
+          // Калі бэкенд скончыў або быў перарваны — спыняем апытанне
+          if (res.data.status !== 'running' && res.data.status !== 'stopping') {
+            setSyncing(false);
+            clearInterval(interval);
+          }
+        } catch (e) {
+          console.error("Памылка атрымання прагрэсу:", e);
+        }
+      }, 2000); // Апытваем кожныя 2 секунды
+    }
+    return () => clearInterval(interval);
+  }, [syncing]);
   // 1. Вакансіі, адфільтраваныя ТОЛЬКІ па датах і пошуку (Кантэкст для фільтраў)
   const instantFiltered = useMemo(() => {
     return vacancies.filter((v) => {
@@ -1031,7 +1062,30 @@ const [viewMode, setViewMode] = useState("list"); // Стан для перак�
     disabled={syncing}
     className="flex items-center gap-2 px-4 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs font-black rounded-lg transition-all shadow-md shadow-blue-100"
   >
-    {syncing ? "⏳ СКАНУЮ..." : `🔄 СКАНАВАЦЬ ${draft.agencyName[0]}`}
+    {syncing ? (
+  <div className="flex items-center gap-3 bg-blue-50 px-4 py-1.5 rounded-lg border border-blue-100 shadow-sm">
+    <div className="flex flex-col">
+      <span className="text-[9px] font-black text-blue-500 uppercase leading-none">Синхронізація</span>
+      <span className="text-xs font-bold text-blue-700">
+        ⏳ {progress.current} / {progress.total}
+      </span>
+    </div>
+    <div className="w-px h-6 bg-blue-200 mx-1" />
+    <button 
+      onClick={handleStopSync}
+      className="px-2 py-1 bg-red-100 hover:bg-red-200 text-red-600 text-[10px] font-black rounded-md transition-colors"
+    >
+      СТОП
+    </button>
+  </div>
+) : (
+  <button
+    onClick={handleManualSync}
+    className="flex items-center gap-2 px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-black rounded-lg transition-all shadow-md shadow-blue-100"
+  >
+    🔄 СКАНАВАЦЬ {draft.agencyName[0]}
+  </button>
+)}
   </button>
 )}
 {selectedIds.length > 0 && (
