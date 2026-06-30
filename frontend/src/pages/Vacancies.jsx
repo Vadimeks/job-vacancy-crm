@@ -1054,8 +1054,8 @@ const [viewMode, setViewMode] = useState("list"); // Стан для перак�
             />
             <span className="text-sm text-slate-500 font-medium">
               {selectedIds.length > 0
-                ? `Выбрана: ${selectedIds.length}`
-                : "Выбраць усе адфільтраваныя"}
+                ? `Обрано: ${selectedIds.length}`
+                : "Обрати усі відфільтровані вакансії"}
             </span>
           </div>
           {draft.agencyName?.length > 0 && ( // 👈 Цяпер паказваем, калі выбрана 1 і больш
@@ -1068,8 +1068,8 @@ const [viewMode, setViewMode] = useState("list"); // Стан для перак�
       "⏳ СКАНУЮ..." 
     ) : (
       <>
-        <RefreshCw size={14} /> 
-        <span>СКАНАВАЦЬ ({draft.agencyName.length})</span>
+        <span>🔄</span> 
+        <span>СКАНУВАТИ ({draft.agencyName.length})</span>
       </>
     )}
   </button>
