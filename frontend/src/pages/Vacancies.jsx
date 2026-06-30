@@ -457,18 +457,26 @@ const handleStopSync = async () => {
           const res = await getSyncProgress();
           setProgress(res.data);
           
-          // Калі статус змяніўся на idle — значыць паспяхова скончылі
+          // 1. Поспех (цалкам прайшлі)
           if (res.data.status === 'idle') {
             setSyncing(false);
-            setSyncStatusMsg({ text: "✅ Сканування завершено!", type: "success" }); // Прыбралі "успішно", бо гэта проста фініш
+            setSyncStatusMsg({ text: "✅ Сканування завершено!", type: "success" });
             clearInterval(interval);
             await fetchVacancies();
           }
           
-          // Калі перарвана або памылка
-          if (res.data.status === 'interrupted') {
+          // 2. Ліміты AI (НОВАЕ)
+          else if (res.data.status === 'limit') {
             setSyncing(false);
-            setSyncStatusMsg({ text: "⚠️ Сканування зупинено.", type: "error" });
+            setSyncStatusMsg({ text: "⚠️ Ліміти AI вичерпано. Спробуйте пізніше.", type: "error" });
+            clearInterval(interval);
+            await fetchVacancies();
+          }
+
+          // 3. Прыпынак карыстальнікам
+          else if (res.data.status === 'interrupted') {
+            setSyncing(false);
+            setSyncStatusMsg({ text: "🛑 Сканування зупинено.", type: "error" });
             clearInterval(interval);
           }
         } catch (e) { 
