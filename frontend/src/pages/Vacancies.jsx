@@ -422,17 +422,19 @@ export default function Vacancies() {
     }
   };
 // 👈 ДADADЗЕНА: ручны запуск сканавання для выбранай агенцыі
-  const handleManualSync = async () => {
-    const agency = draft.agencyName?.[0];
-    if (!agency) return;
-    if (!window.confirm(`Запусціць сканаванне для ${agency}?`)) return;
+ const handleManualSync = async () => {
+    const selectedAgencies = draft.agencyName; // 👈 Бяром увесь масіў
+    if (!selectedAgencies?.length) return;
+    
+    const label = selectedAgencies.length === 1 ? selectedAgencies[0] : `${selectedAgencies.length} агенцый`;
+    if (!window.confirm(`Запусціць сканаванне для ${label}?`)) return;
+    
     setSyncing(true);
     try {
-      await syncAgency(agency);
-      alert(`✅ Сканаванне для ${agency} запушчана. Праверце вакансіі праз хвіліну.`);
+      await syncAgency(selectedAgencies); // 👈 Адпраўляем масіў
+      alert(`✅ Сканаванне для ${label} запушчана. Сачыце за прагрэсам.`);
     } catch (err) {
-      alert("❌ Памылка запуску сканавання: " + err.message);
-    } finally {
+      alert("❌ Памылка запуску: " + err.message);
       setSyncing(false);
     }
   };
@@ -1056,36 +1058,20 @@ const [viewMode, setViewMode] = useState("list"); // Стан для перак�
                 : "Выбраць усе адфільтраваныя"}
             </span>
           </div>
-          {draft.agencyName?.length === 1 && (
+          {draft.agencyName?.length > 0 && ( // 👈 Цяпер паказваем, калі выбрана 1 і больш
   <button
     onClick={handleManualSync}
     disabled={syncing}
     className="flex items-center gap-2 px-4 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs font-black rounded-lg transition-all shadow-md shadow-blue-100"
   >
     {syncing ? (
-  <div className="flex items-center gap-3 bg-blue-50 px-4 py-1.5 rounded-lg border border-blue-100 shadow-sm">
-    <div className="flex flex-col">
-      <span className="text-[9px] font-black text-blue-500 uppercase leading-none">Синхронізація</span>
-      <span className="text-xs font-bold text-blue-700">
-        ⏳ {progress.current} / {progress.total}
-      </span>
-    </div>
-    <div className="w-px h-6 bg-blue-200 mx-1" />
-    <button 
-      onClick={handleStopSync}
-      className="px-2 py-1 bg-red-100 hover:bg-red-200 text-red-600 text-[10px] font-black rounded-md transition-colors"
-    >
-      СТОП
-    </button>
-  </div>
-) : (
-  <button
-    onClick={handleManualSync}
-    className="flex items-center gap-2 px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-black rounded-lg transition-all shadow-md shadow-blue-100"
-  >
-    🔄 СКАНАВАЦЬ {draft.agencyName[0]}
-  </button>
-)}
+      "⏳ СКАНУЮ..." 
+    ) : (
+      <>
+        <RefreshCw size={14} /> 
+        <span>СКАНАВАЦЬ ({draft.agencyName.length})</span>
+      </>
+    )}
   </button>
 )}
 {selectedIds.length > 0 && (
