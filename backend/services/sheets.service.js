@@ -16,7 +16,35 @@ const auth = new google.auth.GoogleAuth({
 });
 
 const sheets = google.sheets({ version: "v4", auth });
+// 🗺️ Мапа дакументаў для PPG (BIEDRONKA)
+const PPG_DOCS_MAP = {
+  "DPD + magazynier": "1bi9kIorWYnH-SOv2lytvqWem-8ZRGSzb",
+  "ILS + magazynier": "1bVKnAnMK6jeAJWCN-uvOcP2_p_pyD_dz",
+  "JMP + kasa": "1xVi7AnBLJ8R8W0FI7qsK5AVinnUAmknn",
+  "JMP + lady": "1aRpKstvbhL4Ecul9GF7k-NBDIVUyCK9r",
+  "JMP + magazynier": "1-YMDVtbZd911GnRX51DurJJ14jLjYeVH",
+  "JMP + wykładka": "1NvhBwILQTXOlxN2at1KafgUWuMXcNmQJ",
+  "STOKROTKA + magazynier": "1U4RpFusjgX-I7RiuvfzDhmsOBy0UUdGe",
+  "SUUS + UDT": "1VbjdD7zR1OpKXE1LiMk3t4P8G9uBEIo9",
+  "SUUS + Pakowanie": "1wiWF2pttOO8Tf2a0lpU5u3HzhS3payQR",
+  "Ligentia": "1vvTTXzxnjFQATWNym91FVS3mC969bmxU",
+  "INPOST": "15Esh_9yE71fCBo2KBHk_osH0bPmJ0h24"
+};
 
+// 📅 Функцыя праверкі: ці з'яўляецца дата мінулай
+function isDateInPast(dateStr) {
+  if (!dateStr || dateStr.trim() === "" || dateStr.includes("-")) return false;
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  // Шукаем фармат DD.MM або DD.MM.YYYY
+  const parts = dateStr.match(/(\d{1,2})[./](\d{1,2})(?:[./](\d{2,4}))?/);
+  if (!parts) return false;
+  const day = parseInt(parts[1]);
+  const month = parseInt(parts[2]) - 1;
+  const year = parts[3] ? (parts[3].length === 2 ? 2000 + parseInt(parts[3]) : parseInt(parts[3])) : now.getFullYear();
+  const targetDate = new Date(year, month, day);
+  return targetDate < now;
+}
 // --- КЛЮЧАВЫЯ СЛОВЫ ДЛЯ ПОШУКУ РАДКА ЗАГАЛОЎКАЎ ---
 // Дадаем усе вядомыя загалоўкі з усіх табліц
 const HEADER_KEYWORDS = [
@@ -87,6 +115,12 @@ const HEADER_KEYWORDS = [
   "вікова категорія",
   "оплата посередникам",
   "контакт координатор",
+  // PPG (BIEDRONKA)
+  "вихід / приїзд",
+  "projekt:",
+  "od kiedy:",
+  "stanowisko:",
+  "kwatera",
 ];
 
 /**
@@ -242,6 +276,25 @@ function getRowStatus(cells, agencyName, headers = [], rowIndex = 0) {
     if (STOP_MARKERS.some((word) => firstCell.includes(word))) return "STOP";
   }
 
+  // 4. Логіка па датах для APOLO і PPG (Аўта-стоп)
+  for (let j = 0; j < headers.length; j++) {
+    const h = (headers[j] || "").toLowerCase().replace(/\s+/g, " ");
+    const val = (cells[j]?.formattedValue || "").trim();
+
+    if (agencyName === "APOLO" && h.includes("вихід / приїзд")) {
+      if (isDateInPast(val)) {
+        console.log(`[Status Debug] Row: ${rowNum} | APOLO: Дата ў мінулым (${val}) -> STOP`);
+        return "STOP";
+      }
+    }
+    if (agencyName === "PPG (BIEDRONKA)" && h.includes("od kiedy:")) {
+      if (val && isDateInPast(val)) {
+        console.log(`[Status Debug] Row: ${rowNum} | PPG: Дата ў мінулым (${val}) -> STOP`);
+        return "STOP";
+      }
+    }
+  }
+
   return "ACTIVE";
 }
 
@@ -274,6 +327,9 @@ function buildRowText(cells, headers, agencyName, sheetName) {
   const externalUrls = [];
   let title = "";
   let anchorParts = [];
+  let apoloGender = []; // 👈 Дададзена
+  let ppgBrand = "";    // 👈 Дададзена
+  let ppgPosition = ""; // 👈 Дададзена
 
   const ANCHOR_MAP = {
     BISAR: ["місто приїзду", "проект", "локації місця роботи"],
@@ -294,6 +350,8 @@ function buildRowText(cells, headers, agencyName, sheetName) {
             ? ["вакансия", "название в crm", "место работы"]
             : [],
     "WORK&HUMAN": ["назва вакансії", "опис вакансії", "локалізалізація"],
+    APOLO: ["вакансия", "офіс"],
+    "PPG (BIEDRONKA)": ["projekt:", "region:", "stanowisko:"],
   };
 
   const agencyAnchors = ANCHOR_MAP[agencyName] || [];
@@ -309,7 +367,24 @@ function buildRowText(cells, headers, agencyName, sheetName) {
     const cell = cells[j] || null;
     const { value, link, note } = extractCellData(cell);
     if (!value && !link && !note) continue;
+// --- СПЕЦЫФІКА APOLO: Гендэр па зорках ---
+    if (agencyName === "APOLO") {
+      if (headerLower === "ч" && value === "*") apoloGender.push("Чоловіки");
+      if (headerLower === "ж" && value === "*") apoloGender.push("Жінки");
+      if (headerLower === "пари" && value === "*") apoloGender.push("Пари");
+    }
 
+    // --- СПЕЦЫФІКА PPG: Збор для мапінгу ---
+    if (agencyName === "PPG (BIEDRONKA)") {
+      if (headerLower.includes("projekt:")) ppgBrand = value.trim();
+      if (headerLower.includes("stanowisko:")) ppgPosition = value.trim();
+      
+      if (headerLower.includes("kwatera")) {
+        const isProvided = value.toLowerCase().includes("firm");
+        parts.push(`Житло: ${isProvided ? "Надається" : "Власне"}`);
+        continue; 
+      }
+    }
     // 1. Збіраем СЕМАНТЫЧНЫ ЯКАР
     if (agencyAnchors.some((a) => headerLower.includes(a.toLowerCase()))) {
       anchorParts.push(value.replace(/\s+/g, " ").trim());
@@ -355,7 +430,20 @@ function buildRowText(cells, headers, agencyName, sheetName) {
       }
     }
   }
+// --- ФІНАЛЬНАЕ ЎЗБАГАЧЭННЕ PPG ---
+  if (agencyName === "PPG (BIEDRONKA)") {
+    const mapKey = `${ppgBrand} + ${ppgPosition}`;
+    const docId = PPG_DOCS_MAP[mapKey] || PPG_DOCS_MAP[ppgBrand] || null;
+    if (docId) {
+      const docUrl = `https://docs.google.com/document/d/${docId}/`;
+      externalUrls.push({ url: docUrl, header: "Апісанне пасады" });
+      parts.push(`[Дадатковае апісанне пасады: ${docUrl}]`);
+    }
+  }
 
+  if (apoloGender.length > 0) {
+    parts.push(`Набір (Стать): ${apoloGender.join(", ")}`);
+  }
   return {
     text: parts.join("\n"),
     externalUrls,

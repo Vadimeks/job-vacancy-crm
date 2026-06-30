@@ -65,30 +65,37 @@ const POLISH_VOIVODESHIPS = [
 ];
 // ===== ЭТАЛОННЫЯ СПІСЫ ДЛЯ УНІФІКАЦЫІ =====
 const KNOWN_AGENCIES = [
+  //sheets
   "APOLO",
   "BISAR",
-  "EST",
-  "EWL",
-  "FOLGA",
-  "FWS",
-  "GLOBAL",
+ "PPG (BIEDRONKA)",
   "INTRASERVICE",
-  "KONO",
-  "KREON",
-  "MANPOWER",
-  "MANUAL",
-  "MRÓWKI",
+"OTTO",
+"MRÓWKI",
+"WORK&HUMAN",
+"RALEN",
+//trello
+"KREON",
   "NIDEN",
-  "OTTO",
   "PERSONEL SERVICE",
-  "PROGRES",
-  "RALEN",
-  "SG",
-  "SOLANO",
-  "STAFF POWER",
-  "VEKOS",
-  "WORK&HUMAN",
+  //airtable
   "JOB IMPULSE",
+  "PROGRES",
+"MANPOWER",
+//chats/viver/tg
+  "EST",
+  "FWS",
+  "KONO",
+  "SG",
+  "STAFF POWER",
+  //website
+  "SOLANO",
+  //without agency
+  "MANUAL",
+  //temporary disabled
+  // "VEKOS",
+  // "EWL",
+  // "FOLGA",
 ];
 
 const BRAND_BLACKLIST = [

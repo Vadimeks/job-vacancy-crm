@@ -4,7 +4,7 @@ const path = require("path");
 require("dotenv").config({ path: path.join(__dirname, ".env") });
 
 const mongoose = require("mongoose");
-const TrelloSource = require("./models/TrelloSource");
+const TrelloSource = require("../models/TrelloSource");
 
 const TRELLO_DATA = [
   {

@@ -33,12 +33,12 @@ if (!process.env.GROQ_API_KEY || !process.env.MONGODB_URI) {
   );
   process.exit(1);
 }
-const TrelloSource = require("./models/TrelloSource");
-const trelloService = require("./services/trello.service");
+const TrelloSource = require("../models/TrelloSource");
+const trelloService = require("../services/trello.service");
 // 3. ТОЛЬКІ ЗАРАЗ ЗАГРУЖАЕМ МОДУЛІ
 const mongoose = require("mongoose");
-const SheetSource = require("./models/SheetSource");
-const sheetsService = require("./services/sheets.service");
+const SheetSource = require("../models/SheetSource");
+const sheetsService = require("../services/sheets.service");
 
 const CONFIG = {
   spreadsheetId: "13PN6zOZiDLAL-iLm58NSbsig4h_inXp-GfmNWxc53y8",
@@ -83,6 +83,14 @@ const TARGET_AGENCY_NAME = "INTRASERVICE";
 // const TARGET_SHEET_ID = "1-qVX4cW1G8oIPiDZjEYG_0nhNOTYY2iI0k8sp-gguko";
 // const TARGET_SHEET_NAME = "Лист1";
 // const TARGET_AGENCY_NAME = "WORK&HUMAN";
+//---
+// const TARGET_SHEET_ID = "1JbHwXdnp7kt6EG8kTwO1VmR6ASFRL5Ebl4tfu-LIwXQ";
+// const TARGET_SHEET_NAME = "POLAND";
+// const TARGET_AGENCY_NAME = "PPG (BIEDRONKA)";
+//---
+// const TARGET_SHEET_ID = "1HYO05QEz6kMQUu-Keu6D51dnKS-8rvNm70YNIba5iZE";
+// const TARGET_SHEET_NAME = "Arkusz1";
+// const TARGET_AGENCY_NAME = "APOLO";
 //---
 // Калі хочаш апрацаваць УСЕ табліцы — пастаў null
 // const TARGET_SHEET_ID = null;
@@ -137,7 +145,7 @@ async function run() {
 
       // 4. Airtable (Дадаем яго ў чаргу)
       console.log("🚀 Запуск сінхранізацыі Airtable...");
-      const airtableService = require("./services/airtable.service");
+      const airtableService = require("../services/airtable.service");
       await airtableService.syncAirtable();
     }
 
