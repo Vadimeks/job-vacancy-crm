@@ -460,9 +460,9 @@ const handleStopSync = async () => {
           // Калі статус змяніўся на idle — значыць паспяхова скончылі
           if (res.data.status === 'idle') {
             setSyncing(false);
-            setSyncStatusMsg({ text: "✅ Сканування завершено успішно!", type: "success" });
+            setSyncStatusMsg({ text: "✅ Сканування завершено!", type: "success" }); // Прыбралі "успішно", бо гэта проста фініш
             clearInterval(interval);
-            await fetchVacancies(); // Аднаўляем спіс, каб убачыць новыя вакансіі
+            await fetchVacancies();
           }
           
           // Калі перарвана або памылка
@@ -1113,18 +1113,14 @@ const [viewMode, setViewMode] = useState("list"); // Стан для перак�
               )}
               
               {/* ПАВЕДАМЛЕННЕ АБ ВЫНІКУ (пад кнопкай) */}
-              {syncStatusMsg.text && (
+               {syncStatusMsg.text && (
                 <div className={`mt-1 text-[9px] font-bold uppercase tracking-tight ${syncStatusMsg.type === 'success' ? 'text-emerald-600' : 'text-red-500'}`}>
                   {syncStatusMsg.text}
                 </div>
               )}
             </div>
           )}
-{syncStatusMsg.text && (
-  <div className={`mt-2 text-[10px] font-bold uppercase tracking-tight ${syncStatusMsg.type === 'success' ? 'text-emerald-600' : 'text-red-500'}`}>
-    {syncStatusMsg.text}
-  </div>
-)}
+
 {selectedIds.length > 0 && (
   <div className="flex gap-2">
     <button
