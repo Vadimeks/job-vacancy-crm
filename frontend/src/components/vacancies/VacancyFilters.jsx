@@ -70,20 +70,20 @@ function AccordionSection({
                 {!isFirst && (
                   <>
                     <button onClick={(e) => handleMove(e, 'top')} className="w-full flex items-center gap-2 px-3 py-2 text-[11px] text-slate-600 hover:bg-slate-50">
-                      <ArrowUpToLine size={12} /> У самы верх
+                      <ArrowUpToLine size={12} /> У саму гору
                     </button>
                     <button onClick={(e) => handleMove(e, 'up')} className="w-full flex items-center gap-2 px-3 py-2 text-[11px] text-slate-600 hover:bg-slate-50">
-                      <ChevronUp size={12} /> На 1 уверх
+                      <ChevronUp size={12} /> На 1 вгору
                     </button>
                   </>
                 )}
                 {!isLast && (
                   <>
                     <button onClick={(e) => handleMove(e, 'down')} className="w-full flex items-center gap-2 px-3 py-2 text-[11px] text-slate-600 hover:bg-slate-50">
-                      <ChevronDown size={12} /> На 1 уніз
+                      <ChevronDown size={12} /> На 1 вніз
                     </button>
                     <button onClick={(e) => handleMove(e, 'bottom')} className="w-full flex items-center gap-2 px-3 py-2 text-[11px] text-slate-600 hover:bg-slate-50">
-                      <ArrowDownToLine size={12} /> У самы ніз
+                      <ArrowDownToLine size={12} /> У самий ніз
                     </button>
                   </>
                 )}
