@@ -45,5 +45,8 @@ export const EMPTY_CANDIDATE_FILTERS = {
   docs: [],
   source: [],
   sphere: [], // 👈 ДАДАДЗЕНА: фільтр па сферы для кандыдатаў
-  travelGroup: [], // 👈 ДADADЗЕНА: фільтр па групе падарожжа
+  travelGroup: [], // 👈 ДАДАДЗЕНА: фільтр па групе падарожжа
+  minAge: "",        // 👈 ДАДАДЗЕНА: для матчынгу (hard filter)
+  maxAge: "",        // 👈 ДАДАДЗЕНА: для матчынгу (hard filter)
+  contractType: [],  // 👈 ДАДАДЗЕНА: для матчынгу (soft filter)
 };
