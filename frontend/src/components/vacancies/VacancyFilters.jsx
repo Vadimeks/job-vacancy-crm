@@ -70,7 +70,7 @@ function AccordionSection({
                 {!isFirst && (
                   <>
                     <button onClick={(e) => handleMove(e, 'top')} className="w-full flex items-center gap-2 px-3 py-2 text-[11px] text-slate-600 hover:bg-slate-50">
-                      <ArrowUpToLine size={12} /> У саму гору
+                      <ArrowUpToLine size={12} /> В саму гору
                     </button>
                     <button onClick={(e) => handleMove(e, 'up')} className="w-full flex items-center gap-2 px-3 py-2 text-[11px] text-slate-600 hover:bg-slate-50">
                       <ChevronUp size={12} /> На 1 вгору
@@ -80,10 +80,10 @@ function AccordionSection({
                 {!isLast && (
                   <>
                     <button onClick={(e) => handleMove(e, 'down')} className="w-full flex items-center gap-2 px-3 py-2 text-[11px] text-slate-600 hover:bg-slate-50">
-                      <ChevronDown size={12} /> На 1 вніз
+                      <ChevronDown size={12} /> На 1 вниз
                     </button>
                     <button onClick={(e) => handleMove(e, 'bottom')} className="w-full flex items-center gap-2 px-3 py-2 text-[11px] text-slate-600 hover:bg-slate-50">
-                      <ArrowDownToLine size={12} /> У самий ніз
+                      <ArrowDownToLine size={12} /> В самий низ
                     </button>
                   </>
                 )}
@@ -134,22 +134,34 @@ export default function VacancyFilters({
   vacancies = [], // 👈 Прымаем прамы масіў vacancies з бацькоўскага кампанента
 }) {
   const draft = filters || EMPTY_FILTERS;
+  // 1. Ініцыялізацыя: чытаем толькі ID, потым збіраем аб'екты з DEFAULT_ORDER
   const [sectionsOrder, setSectionsOrder] = useState(() => {
-    const saved = localStorage.getItem("vacancy_filters_order");
-    if (saved) {
+    const savedIds = localStorage.getItem("vacancy_filters_order_ids");
+    if (savedIds) {
       try {
-        const parsed = JSON.parse(saved);
-        // Сінхранізуем са спісам DEFAULT_ORDER на выпадак, калі ў кодзе з'явіліся новыя фільтры
-        const existingIds = new Set(parsed.map(s => s.id));
+        const ids = JSON.parse(savedIds);
+        // Збіраем масіў аб'ектаў у патрэбным парадку
+        const ordered = ids
+          .map(id => DEFAULT_ORDER.find(s => s.id === id))
+          .filter(Boolean); // Прыбіраем null, калі ID больш не існуе
+
+        // Дадаем новыя секцыі, якіх яшчэ няма ў захаваным спісе
+        const existingIds = new Set(ids);
         const newSections = DEFAULT_ORDER.filter(s => !existingIds.has(s.id));
-        return [...parsed, ...newSections];
-      } catch (e) { return DEFAULT_ORDER; }
+        
+        return [...ordered, ...newSections];
+      } catch (e) { 
+        console.error("Error parsing filter order:", e);
+        return DEFAULT_ORDER; 
+      }
     }
     return DEFAULT_ORDER;
   });
 
+  // 2. Захоўваем ТОЛЬКІ масіў ID (радкоў), гэта бяспечна для JSON
   useEffect(() => {
-    localStorage.setItem("vacancy_filters_order", JSON.stringify(sectionsOrder));
+    const idsToSave = sectionsOrder.map(s => s.id);
+    localStorage.setItem("vacancy_filters_order_ids", JSON.stringify(idsToSave));
   }, [sectionsOrder]);
 
   const moveSection = (id, direction) => {
