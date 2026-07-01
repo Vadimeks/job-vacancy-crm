@@ -5,6 +5,7 @@ import ProfileModal from "../components/candidates/ProfileModal";
 import AddCandidateModal from "../components/candidates/AddCandidateModal";
 import CandidateFilters from "../components/candidates/CandidateFilters";
 import { EMPTY_CANDIDATE_FILTERS } from "../constants/filters";
+import { LayoutGrid, List as ListIcon, Trash2, User, Globe, MessageSquare } from "lucide-react";
 
 const STATUS_COLORS = {
   new: "bg-blue-500/10 text-blue-400 border border-blue-500/20",
@@ -58,14 +59,15 @@ function applyFilters(candidates, filters) {
       if (!filters.sphere.some((s) => prefs.includes(s))) return false;
     }
 
-    // Лакацыя
+    // Лакацыя (ваяводствы) — цяпер гэта масіў у мадэлі
     if (filters.location?.length > 0) {
+      const candLocs = Array.isArray(c.jobPreferences?.location) ? c.jobPreferences.location : [];
+      const isFlexible = c.jobPreferences?.locationFlexible;
+      
       const match = filters.location.some((l) => {
-        if (l === "any") return c.jobPreferences?.locationFlexible;
-        if (l === "city_area") return c.jobPreferences?.locationRadius;
-        if (l === "region") return c.jobPreferences?.locationRadius;
-        if (l === "city") return !c.jobPreferences?.locationFlexible && !c.jobPreferences?.locationRadius;
-        return false;
+        if (l === "any") return isFlexible;
+        // Калі фільтр — канкрэтнае ваяводства, правяраем яго наяўнасць у масіве кандыдата
+        return candLocs.includes(l);
       });
       if (!match) return false;
     }
@@ -110,7 +112,53 @@ function applyFilters(candidates, filters) {
     return true;
   });
 }
+function CandidateKanbanCard({ candidate, onOpen }) {
+  const aiTags = candidate.additionalNotesTags || [];
+  
+  return (
+    <div 
+      onClick={onOpen}
+      className="bg-white border border-slate-200 rounded-xl p-3 shadow-sm hover:shadow-md transition-all cursor-pointer group"
+    >
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-[10px] text-slate-400 font-medium">
+          {new Date(candidate.createdAt).toLocaleDateString('uk-UA')}
+        </span>
+        <span className="text-[10px] text-slate-500">
+          {candidate.source === "telegram_bot" ? "✈️ TG" : "📝 Руч."}
+        </span>
+      </div>
+      
+      <h4 className="text-sm font-bold text-slate-900 group-hover:text-emerald-600 transition-colors mb-1 truncate">
+        {candidate.name}
+      </h4>
+      
+      <div className="flex flex-wrap gap-1 mb-2">
+        {candidate.age && (
+          <span className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">
+            {candidate.age} р.
+          </span>
+        )}
+        {candidate.gender && (
+          <span className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">
+            {candidate.gender === "Жінки" ? "👩" : "👨"}
+          </span>
+        )}
+      </div>
 
+      {/* AI Тэгі */}
+      {aiTags.length > 0 && (
+        <div className="flex flex-wrap gap-1 mt-2 pt-2 border-t border-slate-50">
+          {aiTags.map((tag, i) => (
+            <span key={i} className="text-[9px] bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded-md font-bold uppercase tracking-wider">
+              {tag}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 export default function Candidates() {
   const [candidates, setCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -119,6 +167,7 @@ export default function Candidates() {
   const [draft, setDraft] = useState(EMPTY_CANDIDATE_FILTERS);
   const [applied, setApplied] = useState(EMPTY_CANDIDATE_FILTERS);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [viewMode, setViewMode] = useState("list"); // 'list' або 'kanban'
 
   useEffect(() => {
     const load = async () => {
@@ -251,12 +300,34 @@ export default function Candidates() {
               </p>
             </div>
           </div>
-          <button
-            onClick={() => setShowAddForm(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-medium text-sm rounded-lg transition-colors"
-          >
-            <span>＋</span> Дадаць кандыдата
-          </button>
+          <div className="flex items-center gap-3">
+            {/* Пераключальнік рэжымаў */}
+            <div className="hidden sm:flex bg-white border border-slate-200 rounded-xl p-1 shadow-sm">
+              <button
+                onClick={() => setViewMode("list")}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  viewMode === "list" ? "bg-emerald-500 text-white shadow-md" : "text-slate-500 hover:bg-slate-50"
+                }`}
+              >
+                <ListIcon size={14} /> Спіс
+              </button>
+              <button
+                onClick={() => setViewMode("kanban")}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  viewMode === "kanban" ? "bg-emerald-500 text-white shadow-md" : "text-slate-500 hover:bg-slate-50"
+                }`}
+              >
+                <LayoutGrid size={14} /> Канбан
+              </button>
+            </div>
+
+            <button
+              onClick={() => setShowAddForm(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-medium text-sm rounded-lg transition-colors"
+            >
+              <span>＋</span> Дадаць кандыдата
+            </button>
+          </div>
         </div>
 
         {/* Спіс */}
@@ -265,9 +336,7 @@ export default function Candidates() {
         ) : filtered.length === 0 ? (
           <div className="text-center py-16 text-slate-600">
             <div className="text-4xl mb-3">👥</div>
-            <div className="text-sm">
-              Кандыдатаў па гэтых фільтрах не знойдзена
-            </div>
+            <div className="text-sm">Кандыдатаў па гэтых фільтрах не знойдзена</div>
             <button
               onClick={handleResetFilters}
               className="mt-4 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-400 text-xs rounded-lg transition-colors"
@@ -275,7 +344,8 @@ export default function Candidates() {
               Скінуць фільтры
             </button>
           </div>
-        ) : (
+        ) : viewMode === "list" ? (
+          /* СПІСАВЫ РЭЖЫМ */
           <div className="space-y-3">
             {filtered.map((c) => (
               <div
@@ -286,73 +356,70 @@ export default function Candidates() {
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 mb-2 flex-wrap">
-                      <span
-                        className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLORS[c.status]}`}
-                      >
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLORS[c.status]}`}>
                         {STATUS_LABELS[c.status]}
                       </span>
                       <span className="text-xs text-slate-600">
-                        {c.source === "site"
-                          ? "🌐 Сайт"
-                          : c.source === "telegram_bot"
-                            ? "✈️ Telegram"
-                            : "✋ Ручны"}
+                        {c.source === "site" ? "🌐 Сайт" : c.source === "telegram_bot" ? "✈️ Telegram" : "✋ Ручны"}
                       </span>
                       <span className="text-xs text-slate-700">
                         {new Date(c.createdAt).toLocaleDateString("uk-UA")}
                       </span>
                     </div>
-
                     <h3 className="text-lg font-bold text-slate-900 group-hover:text-emerald-600 transition-colors">{c.name}</h3>
-
                     <div className="flex flex-wrap gap-4 mt-2 text-xs text-slate-500">
-                      {c.contactType === "telegram" && c.telegram && (
-                        <span>✈️ {c.telegram}</span>
-                      )}
-                      {(c.contactType === "viber" ||
-                        c.contactType === "phone") &&
-                        c.phone && <span>📞 {c.phone}</span>}
+                      {c.contactType === "telegram" && c.telegram && <span>✈️ {c.telegram}</span>}
+                      {(c.contactType === "viber" || c.contactType === "phone") && c.phone && <span>📞 {c.phone}</span>}
                       {c.nationality && <span>🌍 {c.nationality}</span>}
                       {c.currentLocation && <span>📍 {c.currentLocation}</span>}
                       {c.age && <span>🎂 {c.age} г.</span>}
-                      {c.gender && (
-                        <span>{c.gender === "female" ? "👩" : "👨"}</span>
-                      )}
+                      {c.gender && <span>{c.gender === "Жінки" ? "👩" : "👨"}</span>}
                     </div>
-
                     {c.jobPreferences?.locationFlexible && (
+                      <div className="mt-2 text-xs text-slate-600">🔍 Гатовы да пераезду</div>
+                    )}
+                    {!c.jobPreferences?.locationFlexible && c.jobPreferences?.location?.length > 0 && (
                       <div className="mt-2 text-xs text-slate-600">
-                        🔍 Гатовы да пераезду
+                        🔍 Шукае: {Array.isArray(c.jobPreferences.location) ? c.jobPreferences.location.join(", ") : c.jobPreferences.location}
                       </div>
                     )}
-                    {!c.jobPreferences?.locationFlexible &&
-                      c.jobPreferences?.location && (
-                        <div className="mt-2 text-xs text-slate-600">
-                          🔍 Шукае: {c.jobPreferences.location}
-                        </div>
-                      )}
                   </div>
-
-                  <div
-                    className="flex gap-2 shrink-0"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <button
-                      onClick={() => setProfileId(c._id)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-slate-400 hover:text-slate-100 hover:bg-slate-800 rounded-lg transition-colors text-xs"
-                    >
-                      👤 Профіль
-                    </button>
-                    <button
-                      onClick={() => handleDelete(c._id)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-slate-600 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors text-xs"
-                    >
-                      🗑
-                    </button>
+                  <div className="flex gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
+                    <button onClick={() => setProfileId(c._id)} className="flex items-center gap-1.5 px-3 py-1.5 text-slate-400 hover:text-slate-100 hover:bg-slate-800 rounded-lg transition-colors text-xs">👤 Профіль</button>
+                    <button onClick={() => handleDelete(c._id)} className="flex items-center gap-1.5 px-3 py-1.5 text-slate-600 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors text-xs">🗑</button>
                   </div>
                 </div>
               </div>
             ))}
+          </div>
+        ) : (
+          /* КАНБАН РЭЖЫМ */
+          <div className="flex gap-4 overflow-x-auto pb-6 min-h-[calc(100vh-250px)] custom-scrollbar">
+            {Object.entries(STATUS_LABELS).map(([statusKey, label]) => {
+              const columnCandidates = filtered.filter(c => c.status === statusKey);
+              return (
+                <div key={statusKey} className="w-72 shrink-0 flex flex-col gap-3">
+                  <div className="flex items-center justify-between px-2">
+                    <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+                      <span className={`w-1.5 h-1.5 rounded-full ${STATUS_COLORS[statusKey].split(' ')[0]}`} />
+                      {label}
+                      <span className="bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded-md text-[9px]">
+                        {columnCandidates.length}
+                      </span>
+                    </h3>
+                  </div>
+                  <div className="flex flex-col gap-3 p-2 bg-slate-100/50 rounded-2xl flex-1 border border-dashed border-slate-200">
+                    {columnCandidates.map(c => (
+                      <CandidateKanbanCard 
+                        key={c._id} 
+                        candidate={c} 
+                        onOpen={() => setProfileId(c._id)} 
+                      />
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
