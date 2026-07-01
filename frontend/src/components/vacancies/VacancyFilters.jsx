@@ -1,31 +1,98 @@
 // frontend/src/components/vacancies/VacancyFilters.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { EMPTY_FILTERS } from "../../constants/filters";
 import * as MD from "../../constants/masterData";
 import MultiSelect from "../shared/MultiSelect";
-import { Search, Sun } from "lucide-react";
+import { 
+  Search, 
+  Sun, 
+  MoreVertical, 
+  ChevronUp, 
+  ChevronDown, 
+  ArrowUpToLine, 
+  ArrowDownToLine 
+} from "lucide-react";
 
-function AccordionSection({ label, isOpen, onToggle, hasActiveFilters, icon, children }) {
+function AccordionSection({ 
+  label, 
+  isOpen, 
+  onToggle, 
+  hasActiveFilters, 
+  icon, 
+  children,
+  onMove, // Функцыя для перамяшчэння: (direction) => void
+  isFirst,
+  isLast 
+}) {
+  const [showMenu, setShowMenu] = useState(false);
+
+  const handleMove = (e, direction) => {
+    e.stopPropagation();
+    onMove(direction);
+    setShowMenu(false);
+  };
+
   return (
-    <div className="mb-2 border-b border-slate-100 pb-2">
-      <button
-        type="button"
-        onClick={onToggle}
-        className="w-full flex items-center justify-between py-2 px-1 hover:bg-slate-50 rounded-lg transition-colors"
-      >
-        <div className="flex items-center gap-2">
-          {icon && <span className={hasActiveFilters ? 'text-emerald-600' : 'text-slate-400'}>{icon}</span>}
-          <span className={`text-sm font-bold ${hasActiveFilters ? 'text-emerald-600' : 'text-slate-700'}`}>
-            {label}
+    <div className="mb-2 border-b border-slate-100 pb-2 relative">
+      <div className="flex items-center group">
+        <button
+          type="button"
+          onClick={onToggle}
+          className="flex-1 flex items-center justify-between py-2 px-1 hover:bg-slate-50 rounded-lg transition-colors"
+        >
+          <div className="flex items-center gap-2">
+            {icon && <span className={hasActiveFilters ? 'text-emerald-600' : 'text-slate-400'}>{icon}</span>}
+            <span className={`text-sm font-bold ${hasActiveFilters ? 'text-emerald-600' : 'text-slate-700'}`}>
+              {label}
+            </span>
+            {hasActiveFilters && (
+              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full shadow-sm shadow-emerald-200" />
+            )}
+          </div>
+          <span className={`text-[10px] text-slate-400 transition-transform duration-200 ${isOpen || hasActiveFilters ? 'rotate-180' : ''}`}>
+            ▼
           </span>
-          {hasActiveFilters && (
-            <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full shadow-sm shadow-emerald-200" />
+        </button>
+
+        {/* Кнопка меню "Тры кропкі" */}
+        <div className="relative">
+          <button
+            onClick={(e) => { e.stopPropagation(); setShowMenu(!showMenu); }}
+            className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-md transition-all opacity-0 group-hover:opacity-100"
+          >
+            <MoreVertical size={14} />
+          </button>
+
+          {showMenu && (
+            <>
+              <div className="fixed inset-0 z-20" onClick={() => setShowMenu(false)} />
+              <div className="absolute right-0 mt-1 w-40 bg-white border border-slate-200 rounded-xl shadow-xl z-30 py-1 animate-in fade-in zoom-in-95 duration-100">
+                {!isFirst && (
+                  <>
+                    <button onClick={(e) => handleMove(e, 'top')} className="w-full flex items-center gap-2 px-3 py-2 text-[11px] text-slate-600 hover:bg-slate-50">
+                      <ArrowUpToLine size={12} /> У самы верх
+                    </button>
+                    <button onClick={(e) => handleMove(e, 'up')} className="w-full flex items-center gap-2 px-3 py-2 text-[11px] text-slate-600 hover:bg-slate-50">
+                      <ChevronUp size={12} /> На 1 уверх
+                    </button>
+                  </>
+                )}
+                {!isLast && (
+                  <>
+                    <button onClick={(e) => handleMove(e, 'down')} className="w-full flex items-center gap-2 px-3 py-2 text-[11px] text-slate-600 hover:bg-slate-50">
+                      <ChevronDown size={12} /> На 1 уніз
+                    </button>
+                    <button onClick={(e) => handleMove(e, 'bottom')} className="w-full flex items-center gap-2 px-3 py-2 text-[11px] text-slate-600 hover:bg-slate-50">
+                      <ArrowDownToLine size={12} /> У самы ніз
+                    </button>
+                  </>
+                )}
+              </div>
+            </>
           )}
         </div>
-        <span className={`text-[10px] text-slate-400 transition-transform duration-200 ${isOpen || hasActiveFilters ? 'rotate-180' : ''}`}>
-          ▼
-        </span>
-      </button>
+      </div>
+
       {(isOpen || hasActiveFilters) && (
         <div className="mt-2 px-1 animate-in fade-in slide-in-from-top-1 duration-200">
           {children}
@@ -34,7 +101,28 @@ function AccordionSection({ label, isOpen, onToggle, hasActiveFilters, icon, chi
     </div>
   );
 }
-
+const DEFAULT_ORDER = [
+  { id: "search", label: "Пошук", icon: <Search size={14} /> },
+  { id: "status", label: "Статус" },
+  { id: "dates", label: "Період оновлення" },
+  { id: "category", label: "Категорія" },
+  { id: "voivodeship", label: "Регіон (Воєводство)" },
+  { id: "location", label: "Місто" },
+  { id: "salary", label: "Зарплата" },
+  { id: "contract", label: "Тип договору" },
+  { id: "hours", label: "Години на місяць" },
+  { id: "accommodation", label: "Житло" },
+  { id: "transport", label: "Довіз да роботи" },
+  { id: "gender", label: "Хто їде" },
+  { id: "age", label: "Вік" },
+  { id: "language", label: "Рівень польської" },
+  { id: "nationality", label: "Національність" },
+  { id: "docs", label: "Документи" },
+  { id: "nuances", label: "Особливості (Чек-лист)" },
+  { id: "agencyName", label: "Агенція" },
+  { id: "brand", label: "Бренд" },
+  { id: "sourceType", label: "Джерело вакансії" },
+];
 export default function VacancyFilters({
   filters = EMPTY_FILTERS,
   setFilters,
@@ -46,6 +134,38 @@ export default function VacancyFilters({
   vacancies = [], // 👈 Прымаем прамы масіў vacancies з бацькоўскага кампанента
 }) {
   const draft = filters || EMPTY_FILTERS;
+  const [sectionsOrder, setSectionsOrder] = useState(() => {
+    const saved = localStorage.getItem("vacancy_filters_order");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        // Сінхранізуем са спісам DEFAULT_ORDER на выпадак, калі ў кодзе з'явіліся новыя фільтры
+        const existingIds = new Set(parsed.map(s => s.id));
+        const newSections = DEFAULT_ORDER.filter(s => !existingIds.has(s.id));
+        return [...parsed, ...newSections];
+      } catch (e) { return DEFAULT_ORDER; }
+    }
+    return DEFAULT_ORDER;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("vacancy_filters_order", JSON.stringify(sectionsOrder));
+  }, [sectionsOrder]);
+
+  const moveSection = (id, direction) => {
+    const index = sectionsOrder.findIndex(s => s.id === id);
+    if (index === -1) return;
+
+    let newOrder = [...sectionsOrder];
+    const item = newOrder.splice(index, 1)[0];
+
+    if (direction === 'top') newOrder.unshift(item);
+    else if (direction === 'bottom') newOrder.push(item);
+    else if (direction === 'up') newOrder.splice(Math.max(0, index - 1), 0, item);
+    else if (direction === 'down') newOrder.splice(Math.min(newOrder.length, index + 1), 0, item);
+
+    setSectionsOrder(newOrder);
+  };
 const [openSections, setOpenSections] = useState({
    search: false,
     status: false,
@@ -215,35 +335,10 @@ const [openSections, setOpenSections] = useState({
       };
     });
   };
- return (
-    <div className="flex flex-col h-full bg-white">
-      {/* СТАТЫЧНАЯ ШАПКА ФІЛЬТРАЎ */}
-      <div className="p-4 border-b border-slate-100 bg-white z-10">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-black text-emerald-600 tracking-tight uppercase">
-            ФІЛЬТРИ
-          </h3>
-          {activeCount > 0 && (
-            <button
-              onClick={() => setFilters(EMPTY_FILTERS)}
-              className="text-[10px] font-bold text-slate-500 hover:text-red-400 transition-colors uppercase"
-            >
-              Скинути ({activeCount})
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* СКРОЛАЕМЫ СПІС АКАРДЭОНАЎ */}
-      <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
-        {/* ПОШУК */}
-        <AccordionSection 
-          label="Пошук" 
-          icon={<Search size={14} />}
-          isOpen={openSections.search} 
-          onToggle={() => toggleSection("search")}
-          hasActiveFilters={!!draft.search}
-        >
+  const renderSectionContent = (id) => {
+    switch (id) {
+      case "search":
+        return (
           <input
             type="text"
             value={draft.search || ""}
@@ -251,30 +346,18 @@ const [openSections, setOpenSections] = useState({
             placeholder="Назва, опис, код..."
             className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-500 transition-all"
           />
-        </AccordionSection>
-
-        {/* СТАТУС */}
-        <AccordionSection 
-          label="Статус" 
-          isOpen={openSections.status} 
-          onToggle={() => toggleSection("status")}
-          hasActiveFilters={draft.status?.length > 0}
-        >
+        );
+      case "status":
+        return (
           <MultiSelect
             options={getSmartOptions(MD.STATUSES, "status", true)}
             selected={draft.status}
             onChange={(v) => updateField("status", v)}
             placeholder="Будь-який status"
           />
-        </AccordionSection>
-
-        {/* ПЕРЫЯД */}
-        <AccordionSection 
-          label="Період оновлення" 
-          isOpen={openSections.dates} 
-          onToggle={() => toggleSection("dates")}
-          hasActiveFilters={!!(draft.startDate || draft.endDate)}
-        >
+        );
+      case "dates":
+        return (
           <div className="flex gap-2">
             <input
               type="date"
@@ -289,60 +372,36 @@ const [openSections, setOpenSections] = useState({
               className="w-1/2 bg-white border border-slate-200 rounded-xl px-2 py-2 text-xs text-slate-900 focus:outline-none focus:border-emerald-500"
             />
           </div>
-        </AccordionSection>
-
-        {/* КАТЕГОРІЯ */}
-        <AccordionSection 
-          label="Категорія" 
-          isOpen={openSections.category} 
-          onToggle={() => toggleSection("category")}
-          hasActiveFilters={draft.category?.length > 0}
-        >
+        );
+      case "category":
+        return (
           <MultiSelect
             options={getSmartOptions(MD.CATEGORIES, "category", true)}
             selected={draft.category}
             onChange={(v) => updateField("category", v)}
             placeholder="Усі категорії"
           />
-        </AccordionSection>
-
-        {/* РЕГІОН */}
-        <AccordionSection 
-          label="Регіон (Воєводство)" 
-          isOpen={openSections.voivodeship} 
-          onToggle={() => toggleSection("voivodeship")}
-          hasActiveFilters={draft.voivodeship?.length > 0}
-        >
+        );
+      case "voivodeship":
+        return (
           <MultiSelect
             options={getSmartOptions(voivodeships, "voivodeship")}
             selected={draft.voivodeship}
             onChange={(v) => updateField("voivodeship", v)}
             placeholder="Усі регіони"
           />
-        </AccordionSection>
-        
-        {/* МІСТО */}
-        <AccordionSection 
-          label="Місто" 
-          isOpen={openSections.location} 
-          onToggle={() => toggleSection("location")}
-          hasActiveFilters={draft.location?.length > 0}
-        >
+        );
+      case "location":
+        return (
           <MultiSelect
             options={getSmartOptions(locations, "location")}
             selected={draft.location}
             onChange={(v) => updateField("location", v)}
             placeholder="Усі міста"
           />
-        </AccordionSection>
-        
-        {/* ЗАРПЛАТА */}
-        <AccordionSection 
-          label="Зарплата" 
-          isOpen={openSections.salary} 
-          onToggle={() => toggleSection("salary")}
-          hasActiveFilters={!!(draft.minSalary || draft.maxSalary)}
-        >
+        );
+      case "salary":
+        return (
           <div className="flex gap-2">
             <input
               type="number"
@@ -359,90 +418,54 @@ const [openSections, setOpenSections] = useState({
               className="w-1/2 bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-emerald-500"
             />
           </div>
-        </AccordionSection>
-
-        {/* ТИП ДОГОВОРУ */} 
-        <AccordionSection 
-          label="Тип договору" 
-          isOpen={openSections.contract} 
-          onToggle={() => toggleSection("contract")}
-          hasActiveFilters={draft.contractType?.length > 0}
-        >
+        );
+      case "contract":
+        return (
           <MultiSelect
             options={getSmartOptions(MD.CONTRACT_TYPES, "contractType", true)}
             selected={draft.contractType}
             onChange={(v) => updateField("contractType", v)}
             placeholder="Будь-який договір"
           />
-        </AccordionSection>
-        
-        {/* ГОДИНИ */} 
-        <AccordionSection 
-          label="Години на місяць" 
-          isOpen={openSections.hours} 
-          onToggle={() => toggleSection("hours")}
-          hasActiveFilters={draft.hoursRange?.length > 0}
-        >
+        );
+      case "hours":
+        return (
           <MultiSelect
             options={getSmartOptions(MD.HOURS_RANGE_OPTIONS, "hoursRange", true)}
             selected={draft.hoursRange}
             onChange={(v) => updateField("hoursRange", v)}
             placeholder="Будь-яка кількість"
           />
-        </AccordionSection>
-
-        {/* ЖИТЛО */}
-        <AccordionSection 
-          label="Житло" 
-          isOpen={openSections.accommodation} 
-          onToggle={() => toggleSection("accommodation")}
-          hasActiveFilters={draft.accommodation?.length > 0}
-        >
+        );
+      case "accommodation":
+        return (
           <MultiSelect
             options={getSmartOptions(MD.ACCOMMODATION_OPTIONS, "accommodation", true)}
             selected={draft.accommodation}
             onChange={(v) => updateField("accommodation", v)}
             placeholder="Будь-які умови"
           />
-        </AccordionSection>
-
-        {/* ДОВІЗ */}
-        <AccordionSection 
-          label="Довіз до роботи" 
-          isOpen={openSections.transport} 
-          onToggle={() => toggleSection("transport")}
-          hasActiveFilters={draft.transport?.length > 0}
-        >
+        );
+      case "transport":
+        return (
           <MultiSelect
             options={getSmartOptions(MD.TRANSPORT_OPTIONS, "transport", true)}
             selected={draft.transport}
             onChange={(v) => updateField("transport", v)}
             placeholder="Не важливо"
           />
-        </AccordionSection>
-
-        {/* ХТО ЇДЕ */}
-        <AccordionSection 
-          label="Хто їде" 
-          isOpen={openSections.gender} 
-          onToggle={() => toggleSection("gender")}
-          hasActiveFilters={draft.gender?.length > 0}
-        >
+        );
+      case "gender":
+        return (
           <MultiSelect
             options={getSmartOptions(MD.GENDERS, "gender", true)}
             selected={draft.gender}
             onChange={(v) => updateField("gender", v)}
             placeholder="Будь-хто"
           />
-        </AccordionSection>
-
-        {/* ВІК */}
-        <AccordionSection 
-          label="Вік" 
-          isOpen={openSections.age} 
-          onToggle={() => toggleSection("age")}
-          hasActiveFilters={!!(draft.minAge || draft.maxAge)}
-        >
+        );
+      case "age":
+        return (
           <div className="flex gap-2">
             <input
               type="number"
@@ -459,105 +482,63 @@ const [openSections, setOpenSections] = useState({
               className="w-1/2 bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-emerald-500"
             />
           </div>
-        </AccordionSection>
-
-        {/* МОВА */}
-        <AccordionSection 
-          label="Рівень польської" 
-          isOpen={openSections.language} 
-          onToggle={() => toggleSection("language")}
-          hasActiveFilters={draft.language?.length > 0}
-        >
+        );
+      case "language":
+        return (
           <MultiSelect
             options={getSmartOptions(MD.LANGUAGES, "language", true)}
             selected={draft.language}
             onChange={(v) => updateField("language", v)}
             placeholder="Будь-який рівень"
           />
-        </AccordionSection>
-
-        {/* НАЦІОНАЛЬНІСТЬ */}
-        <AccordionSection 
-          label="Національність" 
-          isOpen={openSections.nationality} 
-          onToggle={() => toggleSection("nationality")}
-          hasActiveFilters={draft.nationality?.length > 0}
-        >
+        );
+      case "nationality":
+        return (
           <MultiSelect
             options={getSmartOptions(MD.NATIONALITIES, "nationality", true)}
             selected={draft.nationality}
             onChange={(v) => updateField("nationality", v)}
             placeholder="Усі нації"
           />
-        </AccordionSection>
-
-        {/* ДОКУМЕНТИ */}
-        <AccordionSection 
-          label="Документи" 
-          isOpen={openSections.docs} 
-          onToggle={() => toggleSection("docs")}
-          hasActiveFilters={draft.docs?.length > 0}
-        >
+        );
+      case "docs":
+        return (
           <MultiSelect
             options={getSmartOptions(MD.DOCS, "docs", true)}
             selected={draft.docs}
             onChange={(v) => updateField("docs", v)}
             placeholder="Будь-які документи"
           />
-        </AccordionSection>
-
-        {/* НЮАНСЫ */}
-        <AccordionSection 
-          label="Особливості (Чек-лист)" 
-          isOpen={openSections.nuances} 
-          onToggle={() => toggleSection("nuances")}
-          hasActiveFilters={draft.nuances?.length > 0}
-        >
+        );
+      case "nuances":
+        return (
           <MultiSelect
             options={getSmartOptions(mappedNuances, "nuances", true)}
             selected={draft.nuances}
             onChange={(v) => updateField("nuances", v)}
             placeholder="Вибрати нюанси..."
           />
-        </AccordionSection>
-
-        {/* АГЕНЦІЯ */}
-        <AccordionSection 
-          label="Агенція" 
-          isOpen={openSections.agencyName} 
-          onToggle={() => toggleSection("agencyName")}
-          hasActiveFilters={draft.agencyName?.length > 0}
-        >
+        );
+      case "agencyName":
+        return (
           <MultiSelect
             options={getSmartOptions(MD.AGENCIES, "agencyName", false)}
             selected={draft.agencyName}
             onChange={(v) => updateField("agencyName", v)}
             placeholder="Усі агенції"
           />
-        </AccordionSection>
-
-        {/* БРЕНД */}
-        <AccordionSection 
-          label="Бренд" 
-          isOpen={openSections.brand} 
-          onToggle={() => toggleSection("brand")}
-          hasActiveFilters={draft.brand?.length > 0}
-        >
+        );
+      case "brand":
+        return (
           <MultiSelect
             options={getSmartOptions(brands, "brand")}
             selected={draft.brand}
             onChange={(v) => updateField("brand", v)}
             placeholder="Усі бренди"
           />
-        </AccordionSection>
-
-        {/* КРЫНІЦЫ */}
-        <AccordionSection 
-          label="Джерело вакансії" 
-          isOpen={openSections.sourceType} 
-          onToggle={() => toggleSection("sourceType")}
-          hasActiveFilters={draft.sourceType?.length > 0}
-        >
+        );
+      case "sourceType":
+        return (
           <div className="grid grid-cols-2 gap-2">
             {[
               { id: "viber", label: "📱 Viber" },
@@ -597,7 +578,53 @@ const [openSections, setOpenSections] = useState({
               );
             })}
           </div>
-        </AccordionSection>
+        );
+      default:
+        return null;
+    }
+  };
+ return (
+    <div className="flex flex-col h-full bg-white">
+      {/* СТАТЫЧНАЯ ШАПКА ФІЛЬТРАЎ */}
+      <div className="p-4 border-b border-slate-100 bg-white z-10">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-black text-emerald-600 tracking-tight uppercase">
+            ФІЛЬТРИ
+          </h3>
+          {activeCount > 0 && (
+            <button
+              onClick={() => setFilters(EMPTY_FILTERS)}
+              className="text-[10px] font-bold text-slate-500 hover:text-red-400 transition-colors uppercase"
+            >
+              Скинути ({activeCount})
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* СКРОЛАЕМЫ СПІС АКАРДЭОНАЎ */}
+      <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+        {sectionsOrder.map((section, index) => (
+          <AccordionSection
+            key={section.id}
+            label={section.label}
+            icon={section.icon}
+            isOpen={openSections[section.id]}
+            onToggle={() => toggleSection(section.id)}
+            hasActiveFilters={
+              section.id === "search" ? !!draft.search :
+              section.id === "dates" ? !!(draft.startDate || draft.endDate) :
+              section.id === "salary" ? !!(draft.minSalary || draft.maxSalary) :
+              section.id === "age" ? !!(draft.minAge || draft.maxAge) :
+              draft[section.id]?.length > 0
+            }
+            isFirst={index === 0}
+            isLast={index === sectionsOrder.length - 1}
+            onMove={(direction) => moveSection(section.id, direction)}
+          >
+            {renderSectionContent(section.id)}
+          </AccordionSection>
+        ))}
       </div>
     </div>
   );
