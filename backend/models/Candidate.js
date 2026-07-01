@@ -2,14 +2,14 @@ const mongoose = require("mongoose");
 
 // Сінхранізуем сферы з катэгорыямі з шаблона вакансіі
 const SPHERES = [
-  "📦 Склад / Логістика",
-  "🍖 Харчова промисловість",
-  "⚙️ Виробництво та Автопром",
-  "🏗️ Будівництво та Ремонт",
-  "👕 Текстильна промисловість",
-  "🍏 Сільське господарство",
-  "🛋️ Меблева промисловість",
-  "🛠️ Інші роботи / Послуги",
+  "Склади та логістика",
+  "Харчова промисловість",
+  "Автомобільна промисловість",
+  "Виробництво та промисловість",
+  "Будівництво",
+  "Сільське господарство",
+  "Торгівля та послуги",
+  "Різне",
 ];
 
 const candidateSchema = new mongoose.Schema(
@@ -26,7 +26,7 @@ const candidateSchema = new mongoose.Schema(
     currentLocation: String, // Горад, дзе зараз знаходзіцца
     age: Number,
     // Пашыраем гендэр для адпаведнасці шаблону (для пар)
-    gender: { type: String, enum: ["male", "female", "couple"] },
+    gender: { type: String, enum: ["Чоловіки", "Жінки", "Пари", "Сім'ї"] },
 
     // Мовы з узроўнямі для дакладнага матчынгу з вакансіяй
     languages: [
@@ -122,8 +122,16 @@ const candidateSchema = new mongoose.Schema(
       enum: ["site", "telegram_bot", "manual", "referral"],
       default: "manual",
     },
+
+    // 👇 ДАДАНА: палі для Telegram-бота кандыдатаў
+    telegramId: { type: String, default: null },   // Унікальны ID карыстальніка ў Telegram
+    chatId: { type: String, default: null },        // ID чата для адпраўкі паведамленняў (String, не Number — JS не цягне вялікія int)
+    subscribedToVacancies: { type: Boolean, default: false }, // Галачка "атрымліваць падыходзячыя вакансіі"
+    additionalNotesTags: { type: [String], default: [] },     // Тэгі, здабытыя AI з вольнага тэксту кандыдата
   },
   { timestamps: true },
 );
-
+// 👇 ДАДАНА: індэксы для хуткага пошуку па Telegram
+candidateSchema.index({ telegramId: 1 }, { unique: true, sparse: true }); // sparse — дазваляе null, але забяспечвае унікальнасць для bot-кандыдатаў
+candidateSchema.index({ chatId: 1 });
 module.exports = mongoose.model("Candidate", candidateSchema);

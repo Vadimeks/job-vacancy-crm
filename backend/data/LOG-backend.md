@@ -866,3 +866,14 @@ Google Cloud заблакаваў API доступ — усе мадэлі вя�
 
 ### sheets.service.js
 - Дададзена праверка `stopSyncRequested` унутр цыкла па радках Google-табліц. Цяпер скан табліцы можна перарваць у любы момант, не чакаючы завяршэння ўсіх радкоў.
+## 2026-07-01 — Уніфікацыя мадэляў для Telegram-бота і матчынгу
+
+### Змены
+- **`models/Candidate.js`**: дададзены палі `telegramId` (sparse unique index), `chatId` (index), `subscribedToVacancies` (Boolean), `additionalNotesTags` ([String]) — падрыхтоўка да Telegram-бота кандыдатаў
+- **`models/Candidate.js`**: `gender` enum уніфікаваны з `Vacancy.requirements.gender` (`"Чоловіки" | "Жінки" | "Пари" | "Сім'ї"`)
+- **`models/Candidate.js`**: канстанта `SPHERES` прыведзена да значэнняў `masterData.js → CATEGORIES` (выдалены эмодзі-прэфіксы)
+- **`services/matching.service.js`**: гендэрны hard filter спрошчаны да прамога `vacancy.requirements.gender.includes(candidate.gender)` замест крохкага `includes("чолов")`
+- **`frontend/src/constants/filters.js`**: у `EMPTY_CANDIDATE_FILTERS` дададзены `minAge`, `maxAge`, `contractType`
+
+### Прычына
+Падрыхтоўка да Telegram-бота кандыдатаў — анкета збірае дадзеныя ў фармаце `Candidate`, а матчынг параўноўвае іх з `Vacancy`. Усе палі, якія ўдзельнічаюць у матчынгу, цяпер маюць ідэнтычны фармат у абодвух мадэлях.

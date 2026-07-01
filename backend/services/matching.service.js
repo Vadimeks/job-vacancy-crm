@@ -23,26 +23,9 @@ const matchCandidatesForVacancy = async (vacancy) => {
       // --- HARD FILTERS — кандыдат адсяваецца калі не адпавядае ---
       // ================================================================
 
-      // FIX: requirements.gender цяпер масіў ["Чоловіки", "Жінки", "Пари"]
+      // FIX: уніфікаваны гендэр — прамое параўнанне (было: includes("чолов")/includes("male"))
       if (vacancy.requirements?.gender?.length > 0 && candidate.gender) {
-        const genderArr = vacancy.requirements.gender.map((g) =>
-          g.toLowerCase(),
-        );
-        const acceptsMale = genderArr.some(
-          (g) => g.includes("чолов") || g.includes("male"),
-        );
-        const acceptsFemale = genderArr.some(
-          (g) => g.includes("жінк") || g.includes("female"),
-        );
-        const acceptsPairs = genderArr.some((g) => g.includes("пар"));
-        const acceptsAll = !acceptsMale && !acceptsFemale; // масіў пусты або невядомы — прымаем усіх
-
-        if (!acceptsAll) {
-          if (candidate.gender === "male" && !acceptsMale && !acceptsPairs)
-            continue;
-          if (candidate.gender === "female" && !acceptsFemale && !acceptsPairs)
-            continue;
-        }
+        if (!vacancy.requirements.gender.includes(candidate.gender)) continue;
       }
 
       // Узрост — не змяніўся, але цяпер ageMax заўсёды ёсць (дэфолт 60)
