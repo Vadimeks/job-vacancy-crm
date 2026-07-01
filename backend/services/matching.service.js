@@ -88,15 +88,20 @@ const matchCandidatesForVacancy = async (vacancy) => {
       // ================================================================
       let score = 0;
 
-      // Лакацыя (25 балаў)
+     // Лакацыя (25 балаў)
+      // 👈 ЗМЕНА: было параўнанне радкоў (location vs location), цяпер масіў ваяводстваў (location[]) vs vacancy.voivodeship
       if (prefs?.locationFlexible) {
         score += 25;
-      } else if (prefs?.locationRadius) {
-        score += 15;
-      } else if (prefs?.location && vacancy.location) {
-        const candLoc = prefs.location.toLowerCase();
-        const vacLoc = vacancy.location.toLowerCase();
-        if (vacLoc.includes(candLoc) || candLoc.includes(vacLoc)) score += 25;
+      } else if (Array.isArray(prefs?.location) && prefs.location.length > 0 && vacancy.voivodeship) {
+        // Вакансія можа мець некалькі ваяводстваў праз коску ("Mazowieckie, Łódzkie")
+        const vacVoivParts = vacancy.voivodeship.split(",").map(v => v.trim().toLowerCase());
+        const hasMatch = prefs.location.some(candVoiv =>
+          vacVoivParts.some(vacVoiv => vacVoiv.includes(candVoiv.toLowerCase()) || candVoiv.toLowerCase().includes(vacVoiv))
+        );
+        if (hasMatch) score += 25;
+        // 👈 ДАДАДЗЕНА: калі масіў ёсць але супадзення няма — 0 балаў (не адсяваем, гэта soft filter)
+      } else if (!prefs?.location || prefs.location.length === 0) {
+        score += 15; // Кандыдат не ўказаў рэгіён — мяккі прыярытэт (было: locationRadius)
       }
 
       // Сфера / катэгорыя (20 балаў)

@@ -48,7 +48,7 @@ const candidateSchema = new mongoose.Schema(
       udtCategories: [String], // Катэгорыі навантажувачаў (напр. "WJO II")
     },
     jobPreferences: {
-      location: String,
+      location: { type: [String], default: [] }, // 👈 ЗМЕНА: масіў рэгіёнаў/ваяводстваў (было: String)
       locationFlexible: { type: Boolean, default: false },
       locationRadius: { type: Boolean, default: false },
       spheres: [{ type: String }], // Будзе захоўваць назвы катэгорый з вакансій
