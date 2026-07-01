@@ -197,4 +197,204 @@ const matchCandidatesForVacancy = async (vacancy) => {
   }
 };
 
-module.exports = { matchCandidatesForVacancy };
+const matchVacanciesForCandidate = async (candidate) => {
+  try {
+    console.log(`🔍 Матчынг вакансій для кандыдата ${candidate._id}...`);
+
+    const Vacancy = require("../models/Vacancy");
+    const vacancies = await Vacancy.find({ status: "active" });
+
+    if (vacancies.length === 0) {
+      console.log("ℹ️ Няма актыўных вакансій");
+      return [];
+    }
+
+    const prefs = candidate.jobPreferences;
+    const matched = [];
+
+    for (const vacancy of vacancies) {
+
+      // ================================================================
+      // --- HARD FILTERS — вакансія адсяваецца калі не адпавядае ---
+      // ================================================================
+
+      // Гендэр: уніфікаваны фармат, прамое параўнанне
+      if (vacancy.requirements?.gender?.length > 0 && candidate.gender) {
+        if (!vacancy.requirements.gender.includes(candidate.gender)) continue;
+      }
+
+      // Узрост
+      if (vacancy.requirements?.age?.max && candidate.age) {
+        if (candidate.age > vacancy.requirements.age.max) continue;
+      }
+      if (vacancy.requirements?.age?.min && candidate.age) {
+        if (candidate.age < vacancy.requirements.age.min) continue;
+      }
+
+      // Нацыянальнасць
+      if (vacancy.requirements?.nationalities?.length > 0 && candidate.nationality) {
+        const allowed = vacancy.requirements.nationalities.map(n => n.toLowerCase());
+        if (!allowed.includes(candidate.nationality.toLowerCase())) continue;
+      }
+
+      // Жытло
+      if (prefs?.needsAccommodation) {
+        const hasAccommodation =
+          vacancy.accommodation?.type === "Безкоштовне" ||
+          vacancy.accommodation?.type === "Платне";
+        if (!hasAccommodation) continue;
+      }
+
+      // Дадатковыя дакументы
+      if (vacancy.requirements?.needsAdditionalDocs) {
+        const details = (vacancy.requirements.additionalDocsDetails || "").toLowerCase();
+        if (details.includes("санеп") || details.includes("sanep")) {
+          if (!candidate.documents?.hasSanepid) continue;
+        }
+        if (details.includes("udt")) {
+          if (!candidate.documents?.hasUDT) continue;
+        }
+      }
+
+      // Пары
+      if (prefs?.travelGroup === "couple" && !vacancy.accommodation?.forCouples) {
+        continue;
+      }
+
+      // Адрыхтоўка ў Еўропу
+      if (vacancy.businessTrip?.isBusinessTrip && prefs?.noBusinessTrip) {
+        continue;
+      }
+// ================================================================
+      // --- AI TAGS FILTERS (Інтэлектуальны матчынг) ---
+      // ================================================================
+      const aiTags = candidate.additionalNotesTags || [];
+
+      if (aiTags.length > 0) {
+        // 1. Графік: калі толькі дзень
+        if (aiTags.includes("ONLY_DAY") && vacancy.schedule?.onlyDayShifts === false) {
+          continue;
+        }
+
+        // 2. Дзеці: калі патрэбна жыллё з дзецьмі
+        if (aiTags.includes("WITH_CHILDREN") && vacancy.accommodation?.withChildren === false) {
+          continue;
+        }
+
+        // 3. Жывёлы: калі патрэбна жыллё з жывёламі
+        if (aiTags.includes("WITH_PETS") && vacancy.accommodation?.withPets === false) {
+          continue;
+        }
+
+        // 4. Фізічная нагрузка: калі ёсць абмежаванні па здароўі
+        if (aiTags.includes("HEAVY_LIFT_LIMIT") && vacancy.requirements?.physicalLoad === true) {
+          continue;
+        }
+        
+        // 5. Спецыяльныя дакументы (калі згадаў у тэксце, але не націснуў кнопку)
+        if (aiTags.includes("HAS_UDT") && !vacancy.requirements?.standardDocs?.includes("UDT")) {
+           // Тут мы не адсяваем, а наадварот — можам дадаць балаў у будучыні, 
+           // але пакуль пакінем Hard Filters для крытычных рэчаў (1-4)
+        }
+      }
+      // ================================================================
+      // --- SOFT FILTERS — балы за адпаведнасць ---
+      // ================================================================
+      let score = 0;
+
+      // Лакацыя (25 балаў)
+      // 👈 ЗМЕНА: параўноўваем масіў ваяводстваў кандыдата з vacancy.voivodeship
+      if (prefs?.locationFlexible) {
+        score += 25;
+      } else if (Array.isArray(prefs?.location) && prefs.location.length > 0 && vacancy.voivodeship) {
+        const vacVoivParts = vacancy.voivodeship.split(",").map(v => v.trim().toLowerCase());
+        const hasMatch = prefs.location.some(candVoiv =>
+          vacVoivParts.some(vacVoiv =>
+            vacVoiv.includes(candVoiv.toLowerCase()) || candVoiv.toLowerCase().includes(vacVoiv)
+          )
+        );
+        if (hasMatch) score += 25;
+      } else if (!prefs?.location || prefs.location.length === 0) {
+        score += 15; // Кандыдат не ўказаў рэгіён
+      }
+
+      // Сфера / катэгорыя (20 балаў)
+      if (vacancy.category && prefs?.spheres?.length > 0) {
+        if (prefs.spheres.some(s => vacancy.category.includes(s))) score += 20;
+      } else {
+        score += 10;
+      }
+
+      // Тып дагавора (15 балаў)
+      if (vacancy.contractType && prefs?.contractType) {
+        if (prefs.contractType === "any" || prefs.contractType === vacancy.contractType) score += 15;
+      } else {
+        score += 10;
+      }
+
+      // Графік (15 балаў)
+      if (prefs?.schedule?.length > 0 && vacancy.schedule?.shiftsCount) {
+        const shifts = String(vacancy.schedule.shiftsCount);
+        const hasMatch =
+          (shifts === "1" && prefs.schedule.includes("1_shift")) ||
+          (shifts === "2" && prefs.schedule.includes("2_shifts")) ||
+          (shifts === "3" && prefs.schedule.includes("3_shifts"));
+        if (hasMatch) score += 15;
+        else score += 5;
+      } else {
+        score += 10;
+      }
+
+      // Звышурочныя (10 балаў)
+      const hasOvertimeSignal =
+        vacancy.salary?.salaryNotes?.toLowerCase().includes("надгодин") ||
+        vacancy.salary?.salaryNotes?.toLowerCase().includes("overtime");
+      if (hasOvertimeSignal && prefs?.wantsOvertime) score += 10;
+      else if (!hasOvertimeSignal && !prefs?.wantsOvertime) score += 10;
+      else score += 5;
+
+      // Пары (10 балаў)
+      if (prefs?.travelGroup) {
+        if (prefs.travelGroup === "couple" && vacancy.accommodation?.forCouples) score += 10;
+        else if (prefs.travelGroup === "alone") score += 10;
+        else score += 5;
+      } else {
+        score += 7;
+      }
+
+      // Мова (5 балаў)
+      if (vacancy.requirements?.polishLanguageLevel) {
+        const level = vacancy.requirements.polishLanguageLevel.toLowerCase();
+        if (level.includes("не вимаг")) {
+          score += 5;
+        } else if (candidate.languages?.length > 0) {
+          const hasPolish = candidate.languages
+            .map(l => (l.name || l).toLowerCase())
+            .some(l => l.includes("пол") || l.includes("pol"));
+          if (hasPolish) score += 5;
+        }
+      } else {
+        score += 5;
+      }
+
+      // Спецыфічныя ўмовы (штраф да -10 балаў)
+      if (vacancy.conditions?.hasSpecificConditions && prefs?.avoidHardConditions) {
+        score -= 10;
+      }
+
+      // Парог — мінімум 70 балаў (для аўта-адпраўкі з бота)
+      if (score >= 70) {
+        matched.push({ ...vacancy.toObject(), matchScore: score });
+      }
+    }
+
+    matched.sort((a, b) => b.matchScore - a.matchScore);
+    console.log(`✅ Знойдзена ${matched.length} вакансій для кандыдата`);
+    return matched;
+  } catch (err) {
+    console.error("❌ Памылка matchVacanciesForCandidate:", err.message);
+    return [];
+  }
+};
+
+module.exports = { matchCandidatesForVacancy, matchVacanciesForCandidate };

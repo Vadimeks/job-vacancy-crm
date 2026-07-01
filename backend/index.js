@@ -9,6 +9,7 @@ const cron = require("node-cron");
 
 // Сэрвісы і Роўты
 const { startBot } = require("./services/telegram.service");
+const { registerCandidateBotHandlers } = require("./services/telegramCandidateBot.service"); // 👈 ДАДАЦЬ ГЭТА
 const { router: vacanciesRouter, retryPendingVacancies } = require("./routes/vacancies");
 const { syncAllSheets } = require("./services/sheets.service");
 const { syncAllTrelloBoards } = require("./services/trello.service");
@@ -167,6 +168,7 @@ global.isSyncRunning = true;
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Server: http://localhost:${PORT}`);
+   registerCandidateBotHandlers(); // 👈 ДАДАЦЬ ГЭТА (строга перад startBot)
   startBot();
   startUserbot();
 
