@@ -21,12 +21,12 @@ const EMPTY_FORM = {
   nationality: "",
   currentLocation: "",
   age: "",
-  gender: "",
+  gender: "Чоловіки",
   status: "new",
   source: "manual",
   notes: "",
   jobPreferences: {
-    location: "",
+    location: [],
     locationFlexible: false,
     schedule: [],
     contractType: "any",
@@ -76,9 +76,16 @@ export default function AddCandidateModal({ onClose, onAdd }) {
     setSaving(true);
     try {
       const res = await createCandidate({
-        ...form,
-        age: form.age ? Number(form.age) : undefined,
-      });
+  ...form,
+  age: form.age ? Number(form.age) : undefined,
+  jobPreferences: {
+    ...form.jobPreferences,
+    // Калі рэкрутэр увёў гарады праз коску, пераўтвараем у масіў
+    location: typeof form.jobPreferences.location === 'string' 
+      ? form.jobPreferences.location.split(',').map(l => l.trim()).filter(Boolean)
+      : form.jobPreferences.location
+  }
+});
       onAdd(res.data);
       onClose();
     } catch {
@@ -180,8 +187,10 @@ export default function AddCandidateModal({ onClose, onAdd }) {
               </label>
               <div className="flex gap-2">
                 {[
-                  ["male", "👨 Мужчына"],
-                  ["female", "👩 Жанчына"],
+                  ["Чоловіки", "👨 Чоловіки"],
+  ["Жінки", "👩 Жінки"],
+  ["Пари", "👫 Пари"],
+  ["Сім'ї", "👨‍👩‍👧 Сім'ї"],
                 ].map(([val, lbl]) => (
                   <button
                     key={val}

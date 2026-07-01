@@ -2,12 +2,14 @@
 import { EMPTY_CANDIDATE_FILTERS } from "../../constants/filters";
 
 const SPHERES = [
-  { value: "warehouse", label: "Склад" },
-  { value: "food_production", label: "Харчаванне" },
-  { value: "automotive", label: "Аўтазавод" },
-  { value: "agriculture", label: "Сельская гаспадарка" },
-  { value: "retail", label: "Магазін" },
-  { value: "other", label: "Іншае" },
+  { value: "Склади та логістика", label: "Склад" },
+  { value: "Харчова промисловість", label: "Харчування" },
+  { value: "Автомобільна промисловість", label: "Аўтазавод" },
+  { value: "Виробництво та промисловість", label: "Вытворчасць" },
+  { value: "Будівництво", label: "Будоўля" },
+  { value: "Сільське господарство", label: "Сельгас" },
+  { value: "Торгівля та послуги", label: "Гандаль" },
+  { value: "Різне", label: "Іншае" },
 ];
 
 function Section({ label, children }) {
@@ -99,9 +101,11 @@ export default function CandidateFilters({ draft, onChange }) {
       <Section label="Гендар">
         <div className="flex flex-wrap">
           {[
-            { value: "female", label: "👩 Жанчыны" },
-            { value: "male", label: "👨 Мужчыны" },
-          ].map((g) => (
+  { value: "Чоловіки", label: "👨 Чоловіки" },
+  { value: "Жінки", label: "👩 Жінки" },
+  { value: "Пари", label: "👫 Пари" },
+  { value: "Сім'ї", label: "👨‍👩‍👧 Сім'ї" },
+].map((g) => (
             <MultiBtn
               key={g.value}
               value={g.value}

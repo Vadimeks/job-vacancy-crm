@@ -22,12 +22,14 @@ export default function EditCandidateModal({ candidate, onClose, onSave }) {
     nationality: candidate.nationality || "",
     currentLocation: candidate.currentLocation || "",
     age: candidate.age || "",
-    gender: candidate.gender || "",
+    gender: candidate.gender || "Чоловіки",
     status: candidate.status || "new",
     notes: candidate.notes || "",
     blacklistReason: candidate.blacklistReason || "",
     jobPreferences: {
-      location: candidate.jobPreferences?.location || "",
+       location: Array.isArray(candidate.jobPreferences?.location) 
+    ? candidate.jobPreferences.location.join(", ") 
+    : (candidate.jobPreferences?.location || ""),
       locationFlexible: candidate.jobPreferences?.locationFlexible || false,
       schedule: candidate.jobPreferences?.schedule || [],
       contractType: candidate.jobPreferences?.contractType || "any",
@@ -76,9 +78,15 @@ export default function EditCandidateModal({ candidate, onClose, onSave }) {
     setSaving(true);
     try {
       const res = await updateCandidate(candidate._id, {
-        ...form,
-        age: form.age ? Number(form.age) : undefined,
-      });
+  ...form,
+  age: form.age ? Number(form.age) : undefined,
+  jobPreferences: {
+    ...form.jobPreferences,
+    location: typeof form.jobPreferences.location === 'string'
+      ? form.jobPreferences.location.split(',').map(l => l.trim()).filter(Boolean)
+      : form.jobPreferences.location
+  }
+});
       onSave(res.data);
       onClose();
     } catch {
@@ -182,9 +190,11 @@ export default function EditCandidateModal({ candidate, onClose, onSave }) {
               </label>
               <div className="flex gap-2">
                 {[
-                  ["male", "👨 Мужчына"],
-                  ["female", "👩 Жанчына"],
-                ].map(([val, lbl]) => (
+  ["Чоловіки", "👨 Чоловіки"],
+  ["Жінки", "👩 Жінки"],
+  ["Пари", "👫 Пари"],
+  ["Сім'ї", "👨‍👩‍👧 Сім'ї"],
+].map(([val, lbl]) => (
                   <button
                     key={val}
                     onClick={() => setField("gender", val)}

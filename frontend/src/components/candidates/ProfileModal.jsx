@@ -158,12 +158,12 @@ export default function ProfileModal({ candidateId, onClose, onUpdate }) {
                     )}
                     {candidate.age && <span>🎂 {candidate.age} г.</span>}
                     {candidate.gender && (
-                      <span>
-                        {candidate.gender === "female"
-                          ? "👩 Жанчына"
-                          : "👨 Мужчына"}
-                      </span>
-                    )}
+  <span>
+    {candidate.gender === "Жінки" ? "👩 Жанчына" : 
+     candidate.gender === "Чоловіки" ? "👨 Мужчына" : 
+     candidate.gender === "Пари" ? "👫 Пара" : "👨‍👩‍👧 Сям'я"}
+  </span>
+)}
                   </div>
                 </div>
 
@@ -232,7 +232,19 @@ export default function ProfileModal({ candidateId, onClose, onUpdate }) {
                   </p>
                 </>
               )}
-
+{/* AI Аналіз пажаданняў */}
+{candidate.additionalNotesTags?.length > 0 && (
+  <>
+    <Divider label="🤖 AI Аналіз пажаданняў" />
+    <div className="flex flex-wrap gap-2">
+      {candidate.additionalNotesTags.map((tag, i) => (
+        <span key={i} className="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-1 rounded-lg font-bold uppercase tracking-wider border border-emerald-500/20">
+          {tag}
+        </span>
+      ))}
+    </div>
+  </>
+)}
               {/* Пажаданні */}
               {candidate.jobPreferences && (
                 <>
@@ -242,11 +254,13 @@ export default function ProfileModal({ candidateId, onClose, onUpdate }) {
                       <div className="text-slate-400">
                         📍 Гатовы да пераезду
                       </div>
-                    ) : candidate.jobPreferences.location ? (
-                      <div className="text-slate-400">
-                        📍 {candidate.jobPreferences.location}
-                      </div>
-                    ) : null}
+                    ) : candidate.jobPreferences.location?.length > 0 ? (
+  <div className="text-slate-400">
+    📍 {Array.isArray(candidate.jobPreferences.location) 
+        ? candidate.jobPreferences.location.join(", ") 
+        : candidate.jobPreferences.location}
+  </div>
+) : null}
                     {candidate.jobPreferences.readyDate && (
                       <div className="text-slate-400">
                         📅 Гатовы з: {candidate.jobPreferences.readyDate}
@@ -319,11 +333,11 @@ export default function ProfileModal({ candidateId, onClose, onUpdate }) {
                             ? "🟢 Хоча працаваць"
                             : "💬 Хоча дэталі"}
                         </span>
-                        {av.vacancyId?.title && (
-                          <span className="text-slate-500 ml-2">
-                            — {av.vacancyId.title}
-                          </span>
-                        )}
+                        {(av.vacancyId?.vacancydescription || av.vacancyId?.title) && (
+  <span className="text-slate-500 ml-2">
+    — {av.vacancyId.vacancydescription || av.vacancyId.title}
+  </span>
+)}
                         {av.vacancyId?.vacancyCode && (
                           <span className="text-slate-600 ml-2 font-mono text-xs">
                             ({av.vacancyId.vacancyCode})
@@ -352,8 +366,8 @@ export default function ProfileModal({ candidateId, onClose, onUpdate }) {
                           <div className="flex items-center justify-between">
                             <div>
                               <span className="text-sm text-slate-200 font-medium">
-                                {v.title}
-                              </span>
+  {v.vacancydescription || v.title}
+</span>
                               {v.vacancyCode && (
                                 <span className="text-xs font-mono text-slate-500 ml-2">
                                   ({v.vacancyCode})
