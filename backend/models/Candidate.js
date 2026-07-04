@@ -28,13 +28,7 @@ const candidateSchema = new mongoose.Schema(
     // Пашыраем гендэр для адпаведнасці шаблону (для пар)
     gender: { type: String, enum: ["Чоловіки", "Жінки", "Пари", "Сім'ї"] },
 
-    // Мовы з узроўнямі для дакладнага матчынгу з вакансіяй
-    languages: [
-      {
-        name: { type: String, default: "Польська" },
-        level: { type: String, default: "Не вимагається" }, // "Не вимагається", "A2", "B1" і г.д.
-      },
-    ],
+   // 👈 ВЫДАЛЕНА: каранёвы блок languages[] — замененны на jobPreferences.polishLanguageLevel (адно значэнне, ідэнтычна Vacancy.requirements.polishLanguageLevel)
     // Дадаць перад jobPreferences:
     qualifications: {
       manualSkills: { type: Boolean, default: false }, // Ці гатовы да тэстаў на спрыт
@@ -48,22 +42,33 @@ const candidateSchema = new mongoose.Schema(
       udtCategories: [String], // Катэгорыі навантажувачаў (напр. "WJO II")
     },
     jobPreferences: {
-      location: { type: [String], default: [] }, // 👈 ЗМЕНА: масіў рэгіёнаў/ваяводстваў (было: String)
-      locationFlexible: { type: Boolean, default: false },
-      locationRadius: { type: Boolean, default: false },
-      spheres: [{ type: String }], // Будзе захоўваць назвы катэгорый з вакансій
-      schedule: [String],
-      scheduleTypes: [String],
-      wantsOvertime: { type: Boolean, default: true },
-      contractType: { type: String, default: "any" }, // "Umowa zlecenie", "Umowa o pracę", "any"
-      needsAccommodation: { type: Boolean, default: true },
-      travelGroup: {
-        type: String,
-        enum: ["alone", "couple", "family"],
-        default: "alone",
+      voivodeship: { type: [String], default: [] }, // 👈 ЗМЕНЕНА: было "location" — перайменавана для ідэнтычнасці з Vacancy.voivodeship
+      locationFlexible: { type: Boolean, default: false }, // без змен
+      locationNotes: { type: String, default: "" }, // 👈 НОВАЕ: вольны тэкст для дадатковага AI-матчынгу па лакацыі
+      // 👈 ВЫДАЛЕНА: locationRadius (мёртвае поле, не выкарыстоўвалася)
+      spheres: [{ type: String }], // без змен — Будзе захоўваць назвы катэгорый з вакансій
+      // 👈 ВЫДАЛЕНА: schedule (замененa на hoursRange ніжэй)
+      // 👈 ВЫДАЛЕНА: scheduleTypes (мёртвае поле, не выкарыстоўвалася)
+      // 👈 ВЫДАЛЕНА: wantsOvertime (не мае аналага ў вакансіях, выдалена паводле дамоўленасці)
+      contractType: { type: String, default: "any" }, // без змен
+      accommodation: { // 👈 НОВАЕ: структураваны аб'ект замест needsAccommodation, сіметрычны Vacancy.accommodation
+        needed: { type: Boolean, default: true },
+        forCouples: { type: Boolean, default: false },
+        withChildren: { type: Boolean, default: false },
+        freeOnly: { type: Boolean, default: false }, // патрэбна менавіта бясплатнае жытло
       },
-      readyDate: String,
-      notes: String,
+      // 👈 ВЫДАЛЕНА: travelGroup (enum alone/couple/family) — замененa на gender-логіку ў matching.service.js
+      transport: { // 👈 НОВАЕ: сіметрычна Vacancy.transport, толькі сцяг "патрэбен давоз"
+        needed: { type: Boolean, default: false },
+      },
+      polishLanguageLevel: { type: String, default: "Не вимагається" }, // 👈 НОВАЕ: замест каранёвага languages[], ідэнтычна Vacancy.requirements.polishLanguageLevel
+      onlyDayShifts: { type: Boolean, default: false }, // 👈 НОВАЕ: сіметрычна Vacancy.schedule.onlyDayShifts
+      hoursRange: { type: [String], default: [] }, // 👈 НОВАЕ: замена schedule, значэнні MD.HOURS_RANGE_OPTIONS (low/mid/high/unknown)
+      nuances: { type: [String], default: [] }, // 👈 НОВАЕ: выбраныя нюансы з фіксаванага спісу (MD.CHECKLIST_ITEMS)
+      nuancesNotes: { type: String, default: "" }, // 👈 НОВАЕ: вольны тэкст для дадатковых нюансаў, якіх няма ў спісе
+      readyDate: { type: Date, default: null }, // 👈 ЗМЕНЕНА: было String — цяпер Date (date-picker на фронце)
+      readyDateNotes: { type: String, default: "" }, // 👈 НОВАЕ: удакладненне па даце гатоўнасці
+      notes: { type: String, default: "" }, // без змен
     },
 
     documents: {
