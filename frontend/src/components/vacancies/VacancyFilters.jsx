@@ -397,7 +397,7 @@ const [openSections, setOpenSections] = useState({
       case "voivodeship":
         return (
           <MultiSelect
-            options={getSmartOptions(voivodeships, "voivodeship")}
+            options={getSmartOptions(voivodeships, "voivodeship", true)} 
             selected={draft.voivodeship}
             onChange={(v) => updateField("voivodeship", v)}
             placeholder="Усі регіони"

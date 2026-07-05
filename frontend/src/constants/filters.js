@@ -34,19 +34,20 @@ export const EMPTY_CANDIDATE_FILTERS = {
   search: "",
   status: [],
   voivodeship: [],
-  location: [],
-  category: [],
+  locationNotes: "", // 👈 НОВАЕ: тэкставы пошук-падрадак (замяняе стары citySearch)
+  sphere: [],
   gender: [],
-  schedule: [],
   accommodation: [],
+  freeHousing: false, // 👈 НОВАЕ: хуткі тумблер "толькі бясплатнае жытло" (сіметрычна EMPTY_FILTERS.freeHousing)
   transport: [],
-  language: [],
+  language: [], // 👈 ЗМЕНЕНА: было "polishLanguageLevel" — перайменавана для супадзення з ключом фільтра вакансій
   nationality: [],
   docs: [],
+  nuances: [], // 👈 НОВАЕ: чэк-ліст нюансаў (MD.CHECKLIST_ITEMS)
   source: [],
-  sphere: [], // 👈 ДАДАДЗЕНА: фільтр па сферы для кандыдатаў
-  travelGroup: [], // 👈 ДАДАДЗЕНА: фільтр па групе падарожжа
-  minAge: "",        // 👈 ДАДАДЗЕНА: для матчынгу (hard filter)
-  maxAge: "",        // 👈 ДАДАДЗЕНА: для матчынгу (hard filter)
-  contractType: [],  // 👈 ДАДАДЗЕНА: для матчынгу (soft filter)
+  minAge: "",
+  maxAge: "",
+  contractType: [],
+  onlyDayShifts: false,
+  hoursRange: [],
 };

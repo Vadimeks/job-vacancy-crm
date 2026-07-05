@@ -1,16 +1,7 @@
 // frontend/src/components/candidates/CandidateFilters.jsx
 import { EMPTY_CANDIDATE_FILTERS } from "../../constants/filters";
+import * as MD from "../../constants/masterData";
 
-const SPHERES = [
-  { value: "Склади та логістика", label: "Склад" },
-  { value: "Харчова промисловість", label: "Харчування" },
-  { value: "Автомобільна промисловість", label: "Аўтазавод" },
-  { value: "Виробництво та промисловість", label: "Вытворчасць" },
-  { value: "Будівництво", label: "Будоўля" },
-  { value: "Сільське господарство", label: "Сельгас" },
-  { value: "Торгівля та послуги", label: "Гандаль" },
-  { value: "Різне", label: "Іншае" },
-];
 
 function Section({ label, children }) {
   return (
@@ -56,12 +47,12 @@ export default function CandidateFilters({ draft, onChange }) {
     <div className="h-full overflow-y-auto px-4 py-5 bg-white">
       {/* Пошук */}
       <Section label="Пошук">
-        <div className="relative">
-          <input
-            type="text"
-            value={draft.search}
-            onChange={(e) => onChange({ ...draft, search: e.target.value })}
-            placeholder="Імя, тэлефон, горад..."
+    <div className="relative">
+      <input
+        type="text"
+        value={draft.search}
+        onChange={(e) => onChange({ ...draft, search: e.target.value })}
+        placeholder="Ім'я, телефон, місто..." 
             className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-500"
           />
           {draft.search && (
@@ -78,14 +69,7 @@ export default function CandidateFilters({ draft, onChange }) {
       {/* Статус */}
       <Section label="Статус">
   <div className="flex flex-wrap">
-    {[
-      { value: "new", label: "Новы" },
-      { value: "active", label: "Актыўны" },
-      { value: "waiting", label: "Чакае" },
-      { value: "employed", label: "Працуе" },
-      { value: "left", label: "Сышоў" },
-      { value: "blacklist", label: "Блэкліст" },
-    ].map((s) => (
+    {MD.STATUSES.map((s) => (
       <MultiBtn
         key={s.value}
         value={s.value}
@@ -98,14 +82,9 @@ export default function CandidateFilters({ draft, onChange }) {
 </Section>
 
       {/* Гендар */}
-      <Section label="Гендар">
+      <Section label="Хто їде">
         <div className="flex flex-wrap">
-          {[
-  { value: "Чоловіки", label: "👨 Чоловіки" },
-  { value: "Жінки", label: "👩 Жінки" },
-  { value: "Пари", label: "👫 Пари" },
-  { value: "Сім'ї", label: "👨‍👩‍👧 Сім'ї" },
-].map((g) => (
+          {MD.GENDERS.map((g) => (
             <MultiBtn
               key={g.value}
               value={g.value}
@@ -117,29 +96,43 @@ export default function CandidateFilters({ draft, onChange }) {
         </div>
       </Section>
 
-      {/* Нацыянальнасць */}
-      <Section label="Нацыянальнасць">
-        <div className="flex flex-wrap">
-          {[
-            { value: "Україна", label: "🇺🇦 Украіна" },
-            { value: "Молдова", label: "🇲🇩 Малдова" },
-            { value: "Білорусь", label: "🇧🇾 Беларусь" },
-          ].map((n) => (
-            <MultiBtn
-              key={n.value}
-              value={n.value}
-              label={n.label}
-              active={draft.nationality.includes(n.value)}
-              onClick={(v) => toggle("nationality", v)}
-            />
-          ))}
-        </div>
-      </Section>
-
+      {/* Національність */}
+      <Section label="Національність">
+    <div className="flex flex-wrap">
+      {MD.NATIONALITIES.map((n) => (
+        <MultiBtn
+          key={n.value}
+          value={n.value}
+          label={n.label}
+          active={draft.nationality.includes(n.value)}
+          onClick={(v) => toggle("nationality", v)}
+        />
+      ))}
+    </div>
+</Section>
+{/* 👈 НОВАЕ: секцыя Вік, ідэнтычна вакансіям (лічбавы дыяпазон) */}
+<Section label="Вік">
+  <div className="flex gap-2">
+    <input
+      type="number"
+      value={draft.minAge || ""}
+      onChange={(e) => onChange({ ...draft, minAge: e.target.value })}
+      placeholder="Від"
+      className="w-1/2 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-emerald-500"
+    />
+    <input
+      type="number"
+      value={draft.maxAge || ""}
+      onChange={(e) => onChange({ ...draft, maxAge: e.target.value })}
+      placeholder="До"
+      className="w-1/2 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-emerald-500"
+    />
+  </div>
+</Section>
       {/* Сфера */}
       <Section label="Сфера">
         <div className="flex flex-wrap">
-          {SPHERES.map((s) => (
+          {MD.CATEGORIES.map((s) => (
             <MultiBtn
               key={s.value}
               value={s.value}
@@ -152,107 +145,148 @@ export default function CandidateFilters({ draft, onChange }) {
       </Section>
 
       {/* Лакацыя */}
-      <Section label="Лакацыя">
-        <div className="flex flex-wrap">
-          {[
-            { value: "city", label: "📍 Канкрэтны горад" },
-            { value: "city_area", label: "🏘 Горад + 50км" },
-            { value: "region", label: "🗺 Рэгіён/ваяводства" },
-            { value: "any", label: "✈️ Без розніцы" },
-          ].map((l) => (
-            <MultiBtn
-              key={l.value}
-              value={l.value}
-              label={l.label}
-              active={draft.location.includes(l.value)}
-              onClick={(v) => toggle("location", v)}
-            />
-          ))}
-        </div>
-      </Section>
-
-      {/* Жытло */}
-      <Section label="Жытло">
-        <div className="flex flex-wrap">
-          {[
-            { value: "needs", label: "🏠 Патрэбна жытло" },
-            { value: "own", label: "❌ Сваё жытло" },
-          ].map((a) => (
-            <MultiBtn
-              key={a.value}
-              value={a.value}
-              label={a.label}
-              active={draft.accommodation.includes(a.value)}
-              onClick={(v) => toggle("accommodation", v)}
-            />
-          ))}
-        </div>
-      </Section>
-
-      {/* Група */}
-      <Section label="Еду">
-        <div className="flex flex-wrap">
-          {[
-            { value: "alone", label: "👤 Адзін/а" },
-            { value: "couple", label: "👫 Пара" },
-            { value: "family", label: "👨‍👩‍👧 Сям'я" },
-          ].map((g) => (
-            <MultiBtn
-              key={g.value}
-              value={g.value}
-              label={g.label}
-              active={draft.travelGroup.includes(g.value)}
-              onClick={(v) => toggle("travelGroup", v)}
-            />
-          ))}
-        </div>
-      </Section>
-
+      <Section label="Регіон (Воєводство)">
+  <div className="flex flex-wrap">
+    <MultiBtn
+      value="any"
+      label="✈️ Без різниці"
+      active={draft.voivodeship.includes("any")} 
+      onClick={(v) => toggle("voivodeship", v)} 
+    />
+    {MD.VOIVODESHIPS.map((vov) => (
+      <MultiBtn
+        key={vov.value}
+        value={vov.value}
+        label={vov.label}
+        active={draft.voivodeship.includes(vov.value)} 
+        onClick={(v) => toggle("voivodeship", v)}
+      />
+    ))}
+  </div>
+</Section>
+{/* 👈 ЗМЕНЕНА: было "Місто" (citySearch) — цяпер тэкставае ўдакладненне лакацыі для AI-матчынгу */}
+<Section label="Уточнення локації">
+  <input
+    type="text"
+    value={draft.locationNotes || ""}
+    onChange={(e) => onChange({ ...draft, locationNotes: e.target.value })}
+    placeholder="Наприклад: Wrocław, конкретний район..."
+    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-500"
+  />
+</Section>
+      {/* 👈 ЗМЕНЕНА: было true/false — цяпер мульты-выбар флагаў + асобны тумблер бясплатнага жытла */}
+<Section label="Житло">
+  <div className="flex flex-wrap">
+    <button
+      onClick={() => onChange({ ...draft, freeHousing: !draft.freeHousing })}
+      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors mb-1 mr-1 flex items-center gap-1 ${
+        draft.freeHousing ? "bg-indigo-600 text-white" : "bg-slate-50 text-slate-600 border border-slate-200"
+      }`}
+    >
+      <span>🆓</span> Тільки безкоштовне
+    </button>
+    {[
+      { value: "needed", label: "🏠 Потрібне житло" },
+      { value: "forCouples", label: "👫 Для пар" },
+      { value: "withChildren", label: "👨‍👩‍👧 З дітьми" },
+    ].map((a) => (
+      <MultiBtn
+        key={a.value}
+        value={a.value}
+        label={a.label}
+        active={draft.accommodation.includes(a.value)}
+        onClick={(v) => toggle("accommodation", v)}
+      />
+    ))}
+  </div>
+</Section>
+{/* 👈 НОВАЕ: секцыя Транспорт, ідэнтычна вакансіям (MD.TRANSPORT_OPTIONS) */}
+<Section label="Транспорт">
+  <div className="flex flex-wrap">
+    {MD.TRANSPORT_OPTIONS.map((t) => (
+      <MultiBtn
+        key={t.value}
+        value={t.value}
+        label={t.label}
+        active={draft.transport.includes(t.value)}
+        onClick={(v) => toggle("transport", v)}
+      />
+    ))}
+  </div>
+</Section>
       {/* Графік */}
       <Section label="Графік">
-        <div className="flex flex-wrap">
-          {[
-            { value: "1_shift", label: "1 змена" },
-            { value: "2_shifts", label: "2 змены" },
-            { value: "3_shifts", label: "3 змены" },
-          ].map((s) => (
-            <MultiBtn
-              key={s.value}
-              value={s.value}
-              label={s.label}
-              active={draft.schedule.includes(s.value)}
-              onClick={(v) => toggle("schedule", v)}
-            />
-          ))}
-        </div>
-      </Section>
+  <div className="flex flex-wrap">
+    <button
+      onClick={() => onChange({ ...draft, onlyDayShifts: !draft.onlyDayShifts })}
+      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors mb-1 mr-1 flex items-center gap-1 ${
+        draft.onlyDayShifts ? "bg-blue-500 text-white" : "bg-slate-50 text-slate-600 border border-slate-200"
+      }`}
+    >
+      <span>☀️</span> Тільки день
+    </button>
+    {MD.HOURS_RANGE_OPTIONS.map((h) => (
+      <MultiBtn
+        key={h.value}
+        value={h.value}
+        label={h.label}
+        active={draft.hoursRange.includes(h.value)} 
+        onClick={(v) => toggle("hoursRange", v)} 
+      />
+    ))}
+  </div>
+</Section>
+{/* 👈 НОВАЕ: секцыя Мова, ідэнтычна вакансіям (MD.LANGUAGES) */}
+<Section label="Рівень польської">
+  <div className="flex flex-wrap">
+    {MD.LANGUAGES.map((l) => (
+      <MultiBtn
+        key={l.value}
+        value={l.value}
+        label={l.label}
+        active={draft.language.includes(l.value)}
+        onClick={(v) => toggle("language", v)}
+      />
+    ))}
+  </div>
+</Section>
+{/* 👈 НОВАЕ: секцыя Нюанси (чек-ліст), ідэнтычна вакансіям (MD.CHECKLIST_ITEMS) */}
+<Section label="Нюанси (Чек-лист)">
+  <div className="flex flex-wrap">
+    {MD.CHECKLIST_ITEMS.map((n) => (
+      <MultiBtn
+        key={n.value}
+        value={n.value}
+        label={n.label}
+        active={draft.nuances.includes(n.value)}
+        onClick={(v) => toggle("nuances", v)}
+      />
+    ))}
+  </div>
+</Section>
+      {/* Документи */}
+      <Section label="Документи">
+    <div className="flex flex-wrap">
+      {MD.DOCS.map((d) => (
+        <MultiBtn
+          key={d.value}
+          value={d.value}
+          label={d.label}
+          active={draft.docs.includes(d.value)}
+          onClick={(v) => toggle("docs", v)}
+        />
+      ))}
+    </div>
+</Section>
 
-      {/* Дакументы */}
-      <Section label="Дакументы">
+      {/* Джерело */}
+      <Section label="Джерело">
         <div className="flex flex-wrap">
           {[
-            { value: "visa", label: "Віза/Пабыт" },
-            { value: "sanepid", label: "Санепід" },
-            { value: "udt", label: "UDT" },
-          ].map((d) => (
-            <MultiBtn
-              key={d.value}
-              value={d.value}
-              label={d.label}
-              active={draft.docs.includes(d.value)}
-              onClick={(v) => toggle("docs", v)}
-            />
-          ))}
-        </div>
-      </Section>
-
-      {/* Крыніца */}
-      <Section label="Крыніца">
-        <div className="flex flex-wrap">
-          {[
-            { value: "site", label: "🌐 Сайт" },
-            { value: "manual", label: "✋ Ручны" },
+            { value: "site", label: "🌐 Тікток" },
             { value: "telegram_bot", label: "✈️ Telegram" },
+            { value: "manual", label: "✋ Ручний" },
+            { value: "referral", label: "🤝 Рекомендація" },
           ].map((s) => (
             <MultiBtn
               key={s.value}
@@ -271,7 +305,7 @@ export default function CandidateFilters({ draft, onChange }) {
           onClick={() => onChange(EMPTY_CANDIDATE_FILTERS)}
           className="w-full mt-2 px-4 py-2 bg-slate-50 hover:bg-slate-100 text-slate-500 text-xs font-bold rounded-lg border border-slate-200 transition-colors"
         >
-          Скінуць усе фільтры ({activeCount})
+          Скинути всі фільтри ({activeCount})
         </button>
       )}
     </div>

@@ -55,7 +55,7 @@ export const TRANSPORT_OPTIONS = [
 export const NATIONALITIES = [
   { value: "Україна", label: "🇺🇦 Україна" },
   { value: "Молдова", label: "🇲🇩 Молдова" },
-  { value: "Білорусь", label: "🇧🇾 Білорусь" },
+  { value: "Білорусь", label: "⚪️🔴⚪️ Білорусь" },
   { value: "Грузія", label: "🇬🇪 Грузія" },
   { value: "Казахстан", label: "🇰🇿 Казахстан" },
   { value: "Азербайджан", label: "🇦🇿 Азербайджан" },
@@ -92,25 +92,28 @@ export const AGENCIES = [
   "EST", "FWS", "KONO", "SG", "STAFF POWER", "SOLANO", "MANUAL"
 ].sort();
 
+// 👈 ЗМЕНЕНА: было — масіў простых радкоў, стала — масіў {value, label}
+// value застаецца чыстай назвай ваяводства (для матчынгу і сумяшчальнасці з базай)
+// label дадае галоўны горад-арыенцір для карыстальніка (акрамя агульных катэгорый)
 export const VOIVODESHIPS = [
-  "Польща",
-  "Dolnośląskie",
-  "Kujawsko-Pomorskie",
-  "Lubelskie",
-  "Lubuskie",
-  "Łódzkie",
-  "Małopolskie",
-  "Mazowieckie",
-  "Opolskie",
-  "Podkarpackie",
-  "Podlaskie",
-  "Pomorskie",
-  "Śląskie",
-  "Świętokrzyskie",
-  "Warmińsko-Mazurskie",
-  "Wielkopolskie",
-  "Zachodniopomorskie",
-  "Інші країни Європи",
+  { value: "Польща", label: "Польща" },
+  { value: "Dolnośląskie", label: "Dolnośląskie (Wrocław)" },
+  { value: "Kujawsko-Pomorskie", label: "Kujawsko-Pomorskie (Bydgoszcz)" },
+  { value: "Lubelskie", label: "Lubelskie (Lublin)" },
+  { value: "Lubuskie", label: "Lubuskie (Zielona Góra)" },
+  { value: "Łódzkie", label: "Łódzkie (Łódź)" },
+  { value: "Małopolskie", label: "Małopolskie (Kraków)" },
+  { value: "Mazowieckie", label: "Mazowieckie (Warszawa)" },
+  { value: "Opolskie", label: "Opolskie (Opole)" },
+  { value: "Podkarpackie", label: "Podkarpackie (Rzeszów)" },
+  { value: "Podlaskie", label: "Podlaskie (Białystok)" },
+  { value: "Pomorskie", label: "Pomorskie (Gdańsk)" },
+  { value: "Śląskie", label: "Śląskie (Katowice)" },
+  { value: "Świętokrzyskie", label: "Świętokrzyskie (Kielce)" },
+  { value: "Warmińsko-Mazurskie", label: "Warmińsko-Mazurskie (Olsztyn)" },
+  { value: "Wielkopolskie", label: "Wielkopolskie (Poznań)" },
+  { value: "Zachodniopomorskie", label: "Zachodniopomorskie (Szczecin)" },
+  { value: "Інші країни Європи", label: "Інші країни Європи" },
 ];
 // 👈 ДАДАДЗЕНА: Тыпы дагавору (case-insensitive фільтрацыя на фронце)
 export const CONTRACT_TYPES = [

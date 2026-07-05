@@ -20,6 +20,7 @@ import VacancyViewModal from "../components/vacancies/VacancyViewModal";
 import VacancyFilters from "../components/vacancies/VacancyFilters";
 import BulkPublishModal from "../components/vacancies/BulkPublishModal";
 import { EMPTY_FILTERS } from "../constants/filters";
+import * as MD from "../constants/masterData";
 import VacancyMap from "../components/vacancies/VacancyMap";
 
 const STATUS_COLORS = {
@@ -524,7 +525,7 @@ const handleStopSync = async () => {
     const agencies = new Set();
     const brands = new Set();
     const locations = new Set();
-    const voivodeships = new Set();
+     // 👈 ВЫДАЛЕНА: const voivodeships = new Set(); — цяпер бярэм гатовы хардкодны спіс з MD.VOIVODESHIPS, дынамічны збор не патрэбны
     const nuances = new Set();
 
     const VOIV_LIST = [
@@ -557,35 +558,6 @@ const handleStopSync = async () => {
         brands.add(v.brand.toUpperCase().trim());
       } else {
         brands.add("NO BRAND");
-      }
-
-      if (v.country === "Polska") {
-        voivodeships.add("Польща");
-      }
-
-      if (v.voivodeship) {
-        v.voivodeship.split(",").forEach((vovPart) => {
-          const vov = vovPart.trim();
-          const lowVov = vov.toLowerCase();
-          if (!vov || lowVov === "польща") return;
-
-          if (lowVov.includes("європа") || lowVov.includes("країни європи")) {
-            voivodeships.add(EUROPE_LABEL);
-          } else {
-            const normalizedVov = vov
-              .split("-")
-              .map(
-                (word) =>
-                  word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
-              )
-              .join("-");
-            voivodeships.add(normalizedVov);
-          }
-        });
-      }
-
-      if (v.country && v.country !== "Polska") {
-        voivodeships.add(EUROPE_LABEL);
       }
 
       if (v.location) {
@@ -630,13 +602,7 @@ const handleStopSync = async () => {
       agencies: Array.from(agencies).sort(),
       brands: Array.from(brands).sort(),
       locations: Array.from(locations).sort(),
-      voivodeships: Array.from(voivodeships).sort((a, b) => {
-        if (a === "Польща") return -1;
-        if (b === "Польща") return 1;
-        if (a === "Інші країни Європи") return 1;
-        if (b === "Інші країни Європи") return -1;
-        return a.localeCompare(b, 'uk-UA');
-      }),
+      voivodeships: MD.VOIVODESHIPS, // 👈 ЗМЕНЕНА: было Array.from(voivodeships).sort(...) — цяпер хардкодны спіс {value, label} з masterData.js
       nuances: Array.from(nuances).sort(),
       sourceTypes: Array.from(sourceTypes).sort(),
     };

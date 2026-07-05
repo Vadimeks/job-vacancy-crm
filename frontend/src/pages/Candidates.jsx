@@ -17,17 +17,17 @@ const STATUS_COLORS = {
 };
 
 const STATUS_LABELS = {
-  new: "Новы",
-  active: "Актыўны",
-  waiting: "Чакае",
-  employed: "Працуе",
-  left: "Сышоў",
-  blacklist: "Блэкліст",
+  new: "Новий",
+  active: "Активний",
+  waiting: "Очікує",
+  employed: "Працює",
+  left: "Звільнився",
+  blacklist: "Чорний список",
 };
 
 function applyFilters(candidates, filters) {
   return candidates.filter((c) => {
-    // Пошук
+    // Пошук (імя, тэлефон, тг, горад) — без змен
     if (filters.search) {
       const s = filters.search.toLowerCase();
       if (
@@ -38,76 +38,91 @@ function applyFilters(candidates, filters) {
       ) return false;
     }
 
-    // Статус — масіў
-    if (filters.status?.length > 0) {
-      if (!filters.status.includes(c.status)) return false;
+    // 👈 ЗМЕНЕНА: было citySearch (шукаў у jobPreferences.location) — цяпер locationNotes (тэкставае поле для AI-матчынгу)
+    if (filters.locationNotes) {
+      const ln = filters.locationNotes.toLowerCase();
+      const candNotes = c.jobPreferences?.locationNotes || "";
+      if (!candNotes.toLowerCase().includes(ln)) return false;
     }
 
-    // Гендар
-    if (filters.gender?.length > 0) {
-      if (!filters.gender.includes(c.gender)) return false;
-    }
+    // Статус — без змен
+    if (filters.status?.length > 0 && !filters.status.includes(c.status)) return false;
 
-    // Нацыянальнасць
+    // Гендар — без змен
+    if (filters.gender?.length > 0 && !filters.gender.includes(c.gender)) return false;
+
+    // Нацыянальнасць — без змен
     if (filters.nationality?.length > 0) {
       if (!filters.nationality.some((n) => c.nationality?.toLowerCase() === n.toLowerCase())) return false;
     }
 
-    // Сфера
+    // Сфера — без змен
     if (filters.sphere?.length > 0) {
       const prefs = c.jobPreferences?.spheres || [];
       if (!filters.sphere.some((s) => prefs.includes(s))) return false;
     }
 
-    // Лакацыя (ваяводствы) — цяпер гэта масіў у мадэлі
-    if (filters.location?.length > 0) {
-      const candLocs = Array.isArray(c.jobPreferences?.location) ? c.jobPreferences.location : [];
+    // 👈 ЗМЕНЕНА: было filters.location / c.jobPreferences.location — цяпер filters.voivodeship / c.jobPreferences.voivodeship
+    if (filters.voivodeship?.length > 0) {
+      const candLocs = Array.isArray(c.jobPreferences?.voivodeship) ? c.jobPreferences.voivodeship : [];
       const isFlexible = c.jobPreferences?.locationFlexible;
-      
-      const match = filters.location.some((l) => {
-        if (l === "any") return isFlexible;
-        // Калі фільтр — канкрэтнае ваяводства, правяраем яго наяўнасць у масіве кандыдата
-        return candLocs.includes(l);
-      });
+      const match = filters.voivodeship.some((l) => (l === "any" ? isFlexible : candLocs.includes(l)));
       if (!match) return false;
     }
 
-    // Жытло
+    // 👈 ЗМЕНЕНА: было values "true"/"false" супраць needsAccommodation (Boolean) — цяпер values needed/forCouples/withChildren супраць структуры accommodation{}
     if (filters.accommodation?.length > 0) {
-      const match = filters.accommodation.some((a) => {
-        if (a === "needs") return c.jobPreferences?.needsAccommodation;
-        if (a === "own") return !c.jobPreferences?.needsAccommodation;
-        return false;
-      });
+      const acc = c.jobPreferences?.accommodation || {};
+      const match = filters.accommodation.some((a) => !!acc[a]);
       if (!match) return false;
     }
 
-    // Група
-    if (filters.travelGroup?.length > 0) {
-      if (!filters.travelGroup.includes(c.jobPreferences?.travelGroup)) return false;
+    // 👈 НОВАЕ: фільтр "толькі бясплатнае жытло" (сіметрычна freeHousing у вакансіях)
+    if (filters.freeHousing && !c.jobPreferences?.accommodation?.freeOnly) return false;
+
+    // 👈 ЗМЕНЕНА: было filters.schedule / c.jobPreferences.schedule — цяпер filters.hoursRange / c.jobPreferences.hoursRange
+    if (filters.hoursRange?.length > 0) {
+      const prefs = c.jobPreferences?.hoursRange || [];
+      if (!filters.hoursRange.some((s) => prefs.includes(s))) return false;
     }
 
-    // Графік
-    if (filters.schedule?.length > 0) {
-      const prefs = c.jobPreferences?.schedule || [];
-      if (!filters.schedule.some((s) => prefs.includes(s))) return false;
+    // Тільки денні зміни — без змен
+    if (filters.onlyDayShifts && !c.jobPreferences?.onlyDayShifts) return false;
+
+    // 👈 НОВАЕ: фільтр Транспорт, скапіявана з логікі applyFilters у Vacancies.jsx
+    if (filters.transport?.length > 0) {
+      const hasTransport = !!c.jobPreferences?.transport?.needed;
+      const match = filters.transport.some((ft) => (ft === "provided" ? hasTransport : !hasTransport));
+      if (!match) return false;
     }
 
-    // Дакументы
+    // 👈 НОВАЕ: фільтр Мова (значэнні з MD.LANGUAGES, ідэнтычна вакансіям)
+    if (filters.language?.length > 0) {
+      const lvl = c.jobPreferences?.polishLanguageLevel || "Не вимагається";
+      if (!filters.language.includes(lvl)) return false;
+    }
+
+    // 👈 НОВАЕ: фільтр Нюансы (масіў, ідэнтычна вакансіям)
+    if (filters.nuances?.length > 0) {
+      const prefs = c.jobPreferences?.nuances || [];
+      if (!filters.nuances.some((n) => prefs.includes(n))) return false;
+    }
+
+    // Дакументы (праз activeDocs) — без змен
     if (filters.docs?.length > 0) {
-      const match = filters.docs.some((d) => {
-        if (d === "visa") return c.documents?.hasVisa;
-        if (d === "sanepid") return c.documents?.hasSanepid;
-        if (d === "udt") return c.documents?.hasUDT;
-        return false;
-      });
+      const match = filters.docs.some((d) => c.documents?.activeDocs?.includes(d));
       if (!match) return false;
     }
 
-    // Крыніца
-    if (filters.source?.length > 0) {
-      if (!filters.source.includes(c.source)) return false;
-    }
+    // Тып кантракта — без змен
+    if (filters.contractType?.length > 0 && !filters.contractType.includes(c.jobPreferences?.contractType)) return false;
+
+    // Узрост (min/max) — без змен
+    if (filters.minAge && c.age && c.age < Number(filters.minAge)) return false;
+    if (filters.maxAge && c.age && c.age > Number(filters.maxAge)) return false;
+
+    // Джерело — без змен
+    if (filters.source?.length > 0 && !filters.source.includes(c.source)) return false;
 
     return true;
   });
@@ -176,7 +191,7 @@ export default function Candidates() {
         const res = await getCandidates();
         setCandidates(res.data);
       } catch {
-        console.error("Памылка загрузкі кандыдатаў");
+        console.error("Помилка завантаження кандидатів");
       } finally {
         setLoading(false);
       }
@@ -207,7 +222,7 @@ export default function Candidates() {
   };
 
   const handleDelete = async (id) => {
-    if (!confirm("Выдаліць кандыдата?")) return;
+    if (!confirm("Видалити кандидата?")) return;
     try {
       await deleteCandidate(id);
       setCandidates((prev) => prev.filter((c) => c._id !== id));
@@ -231,13 +246,13 @@ export default function Candidates() {
       {/* САЙДБАР — дэсктоп */}
       <aside className="hidden lg:flex flex-col w-72 shrink-0 border-r border-slate-200 bg-white sticky top-16 h-[calc(100vh-4rem)] self-start">
         <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800">
-          <span className="text-sm font-medium text-slate-300">Фільтры</span>
+          <span className="text-sm font-medium text-slate-300">Фільтри</span>
           {isDirty && (
             <button
               onClick={handleResetFilters}
               className="text-xs text-slate-500 hover:text-slate-300 transition-colors"
             >
-              Скінуць
+              Скинути
             </button>
           )}
         </div>
@@ -271,7 +286,7 @@ export default function Candidates() {
                 onClick={handleApplyFilters}
                 className="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-semibold text-sm rounded-lg transition-colors"
               >
-                Паказаць {previewCount} кандыдатаў
+                Показати {previewCount} кандидатів
               </button>
             </div>
           </div>
@@ -286,17 +301,17 @@ export default function Candidates() {
               onClick={() => setSidebarOpen(true)}
               className="lg:hidden flex items-center gap-2 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm rounded-lg transition-colors"
             >
-              ⚙️ Фільтры
+              ⚙️ Фільтри
               {isDirty && (
                 <span className="w-2 h-2 bg-emerald-400 rounded-full" />
               )}
             </button>
             <div>
               <h1 className="text-2xl font-black text-slate-900">
-                Кандыдаты
+                Кандидати
               </h1>
               <p className="text-sm text-slate-500 mt-0.5">
-                {filtered.length} з {candidates.length} кандыдатаў
+                {filtered.length} з {candidates.length} кандидатів
               </p>
             </div>
           </div>
@@ -325,23 +340,23 @@ export default function Candidates() {
               onClick={() => setShowAddForm(true)}
               className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-medium text-sm rounded-lg transition-colors"
             >
-              <span>＋</span> Дадаць кандыдата
+              <span>＋</span> Додати кандидата
             </button>
           </div>
         </div>
 
         {/* Спіс */}
         {loading ? (
-          <div className="text-slate-500 text-sm">Загрузка...</div>
+          <div className="text-slate-500 text-sm">Завантаження...</div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-16 text-slate-600">
             <div className="text-4xl mb-3">👥</div>
-            <div className="text-sm">Кандыдатаў па гэтых фільтрах не знойдзена</div>
+            <div className="text-sm">Кандидатів за цими фільтрами не знайдено</div>
             <button
               onClick={handleResetFilters}
               className="mt-4 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-400 text-xs rounded-lg transition-colors"
             >
-              Скінуць фільтры
+              Скинути фільтри
             </button>
           </div>
         ) : viewMode === "list" ? (
@@ -360,7 +375,9 @@ export default function Candidates() {
                         {STATUS_LABELS[c.status]}
                       </span>
                       <span className="text-xs text-slate-600">
-                        {c.source === "site" ? "🌐 Сайт" : c.source === "telegram_bot" ? "✈️ Telegram" : "✋ Ручны"}
+                        {c.source === "site" ? "🌐 Тікток" : 
+ c.source === "telegram_bot" ? "✈️ Telegram" : 
+ c.source === "referral" ? "🤝 Рекомендація" : "✋ Ручний"}
                       </span>
                       <span className="text-xs text-slate-700">
                         {new Date(c.createdAt).toLocaleDateString("uk-UA")}
@@ -431,7 +448,7 @@ export default function Candidates() {
             onClick={handleApplyFilters}
             className="flex items-center gap-2 px-5 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-semibold text-sm rounded-xl shadow-lg shadow-emerald-500/20 transition-all"
           >
-            Паказаць {previewCount} кандыдатаў ✓
+            Показати {previewCount} кандидатів ✓
           </button>
         </div>
       )}

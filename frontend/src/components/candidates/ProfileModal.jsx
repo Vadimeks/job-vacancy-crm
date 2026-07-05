@@ -10,21 +10,21 @@ import Divider from "../shared/Divider";
 import EditCandidateModal from "./EditCandidateModal";
 
 const STATUS_COLORS = {
-  new: "bg-blue-500/10 text-blue-400 border border-blue-500/20",
-  active: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
-  waiting: "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20",
-  employed: "bg-purple-500/10 text-purple-400 border border-purple-500/20",
-  left: "bg-slate-500/10 text-slate-400 border border-slate-500/20",
-  blacklist: "bg-red-500/10 text-red-400 border border-red-500/20",
+  new: "bg-blue-50 text-blue-600 border-blue-200",
+  active: "bg-emerald-50 text-emerald-600 border-emerald-200",
+  waiting: "bg-yellow-50 text-yellow-700 border-yellow-200",
+  employed: "bg-purple-50 text-purple-600 border-purple-200",
+  left: "bg-slate-50 text-slate-500 border-slate-200",
+  blacklist: "bg-red-50 text-red-600 border-red-200",
 };
 
 const STATUS_LABELS = {
-  new: "Новы",
-  active: "Актыўны",
-  waiting: "Чакае",
-  employed: "Працуе",
-  left: "Сышоў",
-  blacklist: "Блэкліст",
+  new: "Новий",
+  active: "Активний",
+  waiting: "Очікує",
+  employed: "Працюе",
+  left: "Звільнився",
+  blacklist: "Чорний список",
 };
 
 export default function ProfileModal({ candidateId, onClose, onUpdate }) {
@@ -43,7 +43,7 @@ export default function ProfileModal({ candidateId, onClose, onUpdate }) {
       const res = await matchVacanciesForCandidate(candidate._id);
       setMatchedVacancies(res.data);
     } catch {
-      alert("Памылка матчынгу");
+      alert("Помилка матчингу");
     } finally {
       setMatchLoading(false);
     }
@@ -54,7 +54,7 @@ export default function ProfileModal({ candidateId, onClose, onUpdate }) {
         const res = await getCandidate(candidateId);
         setCandidate(res.data);
       } catch {
-        console.error("Памылка загрузкі профілю");
+        console.error("Помилка завантаження профілю");
       } finally {
         setLoading(false);
       }
@@ -69,7 +69,7 @@ export default function ProfileModal({ candidateId, onClose, onUpdate }) {
       onUpdate(res.data);
       setEditStatus(false);
     } catch {
-      alert("Памылка змены статусу");
+      alert("Помилка зміни статусу");
     }
   };
 
@@ -84,7 +84,7 @@ export default function ProfileModal({ candidateId, onClose, onUpdate }) {
       setCandidate(res.data);
       setNewNote("");
     } catch {
-      alert("Памылка дадання нататкі");
+      alert("Помилка додавання нотатки");
     } finally {
       setAddingNote(false);
     }
@@ -103,27 +103,27 @@ export default function ProfileModal({ candidateId, onClose, onUpdate }) {
           className="absolute inset-0 bg-black/70 backdrop-blur-sm"
           onClick={onClose}
         />
-        <div className="relative bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto mx-4">
+        <div className="relative bg-white border border-slate-200 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto mx-4 shadow-2xl">
           {/* Загаловак */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 sticky top-0 bg-slate-900 z-10">
-            <h2 className="font-semibold text-slate-100">Профіль кандыдата</h2>
+          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 sticky top-0 bg-white z-10">
+            <h2 className="font-bold text-slate-900">Профіль кандидата</h2>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setShowEdit(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-lg transition-colors"
               >
-                ✏️ Рэдагаваць
+                ✏️ Редагувати
               </button>
               <button
                 onClick={handleMatch}
                 disabled={matchLoading}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg transition-colors disabled:opacity-50"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold rounded-lg transition-colors disabled:opacity-50"
               >
-                🎯 {matchLoading ? "Пошук..." : "Вакансіі"}
+                🎯 {matchLoading ? "Пошук..." : "Вакансії"}
               </button>
               <button
                 onClick={onClose}
-                className="p-2 text-slate-500 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition-colors"
+                className="p-2 text-slate-500 hover:text-slate-200 hover:bg-slate-50 rounded-lg transition-colors"
               >
                 ✕
               </button>
@@ -131,18 +131,18 @@ export default function ProfileModal({ candidateId, onClose, onUpdate }) {
           </div>
 
           {loading ? (
-            <div className="p-8 text-center text-slate-500">Загрузка...</div>
+            <div className="p-8 text-center text-slate-500">Завантаження...</div>
           ) : !candidate ? (
-            <div className="p-8 text-center text-slate-500">Не знойдзена</div>
+            <div className="p-8 text-center text-slate-500">Не знайдено</div>
           ) : (
             <div className="px-6 py-5 space-y-5">
               {/* Асноўная інфа */}
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <h3 className="text-xl font-semibold text-slate-100">
+                  <h3 className="text-xl font-bold text-slate-900">
                     {candidate.name}
                   </h3>
-                  <div className="flex flex-wrap gap-3 mt-2 text-sm text-slate-400">
+                  <div className="flex flex-wrap gap-3 mt-2 text-sm text-slate-500">
                     {candidate.contactType === "telegram" &&
                       candidate.telegram && (
                         <span>✈️ {candidate.telegram}</span>
@@ -156,14 +156,14 @@ export default function ProfileModal({ candidateId, onClose, onUpdate }) {
                     {candidate.currentLocation && (
                       <span>📍 {candidate.currentLocation}</span>
                     )}
-                    {candidate.age && <span>🎂 {candidate.age} г.</span>}
+                     {candidate.age && <span>🎂 {candidate.age} р.</span>}
                     {candidate.gender && (
-  <span>
-    {candidate.gender === "Жінки" ? "👩 Жанчына" : 
-     candidate.gender === "Чоловіки" ? "👨 Мужчына" : 
-     candidate.gender === "Пари" ? "👫 Пара" : "👨‍👩‍👧 Сям'я"}
-  </span>
-)}
+                      <span>
+                        {candidate.gender === "Жінки" ? "👩 Жінка" : 
+                         candidate.gender === "Чоловіки" ? "👨 Чоловік" : 
+                         candidate.gender === "Пари" ? "👫 Пара" : "👨‍👩‍👧 Сім'я"}
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -178,7 +178,7 @@ export default function ProfileModal({ candidateId, onClose, onUpdate }) {
                           className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors text-left ${
                             candidate.status === val
                               ? "bg-emerald-500 text-slate-900"
-                              : "bg-slate-800 text-slate-400 hover:bg-slate-700"
+                              : "bg-slate-50 text-slate-700 hover:bg-slate-700"
                           }`}
                         >
                           {lbl}
@@ -188,7 +188,7 @@ export default function ProfileModal({ candidateId, onClose, onUpdate }) {
                         onClick={() => setEditStatus(false)}
                         className="text-xs text-slate-600 mt-1 text-center"
                       >
-                        Адмена
+                        Скасувати
                       </button>
                     </div>
                   ) : (
@@ -215,11 +215,9 @@ export default function ProfileModal({ candidateId, onClose, onUpdate }) {
                   })}
                 </span>
                 <span>
-                  {candidate.source === "site"
-                    ? "🌐 Сайт"
-                    : candidate.source === "telegram_bot"
-                      ? "✈️ Telegram"
-                      : "✋ Ручны"}
+                  {candidate.source === "site" ? "🌐 Тікток" : 
+ candidate.source === "telegram_bot" ? "✈️ Telegram" : 
+ candidate.source === "referral" ? "🤝 Рекомендація" : "✋ Ручний"}
                 </span>
               </div>
 
@@ -227,7 +225,7 @@ export default function ProfileModal({ candidateId, onClose, onUpdate }) {
               {candidate.notes && (
                 <>
                   <Divider label="📝 Нататкі" />
-                  <p className="text-sm text-slate-400 bg-slate-800 rounded-lg px-3 py-2">
+                  <p className="text-sm text-slate-700 bg-slate-50 rounded-lg px-3 py-2">
                     {candidate.notes}
                   </p>
                 </>
@@ -245,101 +243,139 @@ export default function ProfileModal({ candidateId, onClose, onUpdate }) {
     </div>
   </>
 )}
-              {/* Пажаданні */}
-              {candidate.jobPreferences && (
+              {/* Побажання */}
+              {candidate.jobPreferences && ( 
                 <>
-                  <Divider label="🔍 Пажаданні да працы" />
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    {candidate.jobPreferences.locationFlexible ? (
-                      <div className="text-slate-400">
-                        📍 Гатовы да пераезду
+                  <Divider label="🔍 Побажання да роботи" />
+                  <div className="grid grid-cols-1 gap-4 text-sm">
+                    {/* Локація */}
+                    <div className="text-slate-600">
+                      <div className="flex items-center gap-2">
+                        📍 <span className="font-medium">Регіон:</span> {
+                          candidate.jobPreferences.locationFlexible 
+                            ? "Будь-який (Польща)" 
+                            : (candidate.jobPreferences.voivodeship?.join(", ") || "Не вказано")
+                        }
                       </div>
-                    ) : candidate.jobPreferences.location?.length > 0 ? (
-  <div className="text-slate-400">
-    📍 {Array.isArray(candidate.jobPreferences.location) 
-        ? candidate.jobPreferences.location.join(", ") 
-        : candidate.jobPreferences.location}
-  </div>
-) : null}
+                      {candidate.jobPreferences.locationNotes && (
+                        <div className="ml-6 text-xs italic text-slate-400">
+                          — {candidate.jobPreferences.locationNotes}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Дата гатоўнасці */}
                     {candidate.jobPreferences.readyDate && (
-                      <div className="text-slate-400">
-                        📅 Гатовы з: {candidate.jobPreferences.readyDate}
+                      <div className="text-slate-600">
+                        <div className="flex items-center gap-2">
+                          📅 <span className="font-medium">Готовий з:</span> {new Date(candidate.jobPreferences.readyDate).toLocaleDateString('uk-UA')}
+                        </div>
+                        {candidate.jobPreferences.readyDateNotes && (
+                          <div className="ml-6 text-xs italic text-slate-400">
+                            — {candidate.jobPreferences.readyDateNotes}
+                          </div>
+                        )}
                       </div>
                     )}
-                    {candidate.jobPreferences.needsAccommodation && (
-                      <div className="text-slate-400">🏠 Патрэбна жытло</div>
-                    )}
-                    {candidate.jobPreferences.travelGroup && (
-                      <div className="text-slate-400">
-                        👥{" "}
-                        {candidate.jobPreferences.travelGroup === "alone"
-                          ? "Адзін/а"
-                          : candidate.jobPreferences.travelGroup === "couple"
-                            ? "Пара"
-                            : "З сям'ёй"}
-                      </div>
-                    )}
-                    {candidate.jobPreferences.schedule?.length > 0 && (
-                      <div className="text-slate-400">
-                        ⏰ {candidate.jobPreferences.schedule.join(", ")}
-                      </div>
-                    )}
-                    {candidate.jobPreferences.contractType && (
-                      <div className="text-slate-400">
-                        📄 {candidate.jobPreferences.contractType}
+
+                    {/* Житло і Транспорт */}
+                    <div className="flex flex-wrap gap-4">
+                      {candidate.jobPreferences.accommodation?.needed && (
+                        <div className="text-slate-600 flex items-center gap-1">
+                          🏠 <span className="font-medium">Потрібне житло</span>
+                          {candidate.jobPreferences.accommodation.freeOnly && <span className="text-[10px] bg-indigo-100 text-indigo-600 px-1.5 py-0.5 rounded font-bold ml-1">FREE</span>}
+                          {(candidate.jobPreferences.accommodation.forCouples || candidate.jobPreferences.accommodation.withChildren) && (
+                            <span className="text-slate-400 text-xs">
+                              ({[
+                                candidate.jobPreferences.accommodation.forCouples ? "пари" : null,
+                                candidate.jobPreferences.accommodation.withChildren ? "з дітьми" : null
+                              ].filter(Boolean).join(", ")})
+                            </span>
+                          )}
+                        </div>
+                      )}
+                      {candidate.jobPreferences.transport?.needed && (
+                        <div className="text-slate-600 flex items-center gap-1">
+                          🚌 <span className="font-medium">Потрібен довіз</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Графік і Мова */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {candidate.jobPreferences.hoursRange?.length > 0 && (
+                        <div className="text-slate-600">
+                          ⏰ <span className="font-medium">Годин:</span> {candidate.jobPreferences.hoursRange.join(", ")}
+                          {candidate.jobPreferences.onlyDayShifts && <span className="ml-2 text-blue-500">☀️ Тільки день</span>}
+                        </div>
+                      )}
+                      {candidate.jobPreferences.polishLanguageLevel && (
+                        <div className="text-slate-600">
+                          🗣️ <span className="font-medium">Польська:</span> {candidate.jobPreferences.polishLanguageLevel}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Нюансы */}
+                    {(candidate.jobPreferences.nuances?.length > 0 || candidate.jobPreferences.nuancesNotes) && (
+                      <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Особливості / Нюанси</p>
+                        <div className="flex flex-wrap gap-1.5 mb-2">
+                          {candidate.jobPreferences.nuances?.map(n => (
+                            <span key={n} className="text-[10px] bg-white border border-slate-200 px-2 py-0.5 rounded text-slate-600 font-medium">
+                              {n}
+                            </span>
+                          ))}
+                        </div>
+                        {candidate.jobPreferences.nuancesNotes && (
+                          <p className="text-xs text-slate-500 italic">{candidate.jobPreferences.nuancesNotes}</p>
+                        )}
                       </div>
                     )}
                   </div>
                 </>
               )}
+                
 
-              {/* Дакументы */}
-              {candidate.documents && (
+              {/* Документи */}
+              {candidate.documents?.activeDocs?.length > 0 && (
                 <>
-                  <Divider label="📄 Дакументы" />
-                  <div className="flex gap-3 flex-wrap">
-                    {[
-                      [candidate.documents.hasVisa, "Віза"],
-                      [candidate.documents.hasSanepid, "Санепід"],
-                      [candidate.documents.hasUDT, "UDT"],
-                    ].map(([has, label]) => (
+                  <Divider label="📄 Документи" />
+                  <div className="flex gap-2 flex-wrap">
+                    {candidate.documents.activeDocs.map((doc) => (
                       <span
-                        key={label}
-                        className={`text-xs px-2 py-1 rounded-lg ${
-                          has
-                            ? "bg-emerald-500/10 text-emerald-400"
-                            : "bg-slate-800 text-slate-600"
-                        }`}
+                        key={doc}
+                        className="text-xs px-2 py-1 rounded-lg bg-slate-100 text-slate-700 border border-slate-200 font-medium"
                       >
-                        {has ? "✅" : "❌"} {label}
+                        ✅ {doc}
                       </span>
                     ))}
                   </div>
                 </>
               )}
 
-              {/* Заяўкі на вакансіі */}
+             {/* Заявки на вакансії */}
               {candidate.appliedVacancies?.length > 0 && (
                 <>
-                  <Divider label="💼 Заяўкі на вакансіі" />
+                  <Divider label="💼 Заявки на вакансії" />
                   <div className="space-y-2">
                     {candidate.appliedVacancies.map((av, i) => (
                       <div
                         key={i}
-                        className="bg-slate-800 rounded-lg px-3 py-2 text-sm"
+                        className="bg-slate-50 border border-slate-100 rounded-lg px-3 py-2 text-sm"
                       >
-                        <span className="text-slate-300">
+                        <span className="text-slate-700 font-medium">
                           {av.type === "want_work"
-                            ? "🟢 Хоча працаваць"
-                            : "💬 Хоча дэталі"}
+                            ? "🟢 Хоче працювати"
+                            : "💬 Хоче деталі"}
                         </span>
                         {(av.vacancyId?.vacancydescription || av.vacancyId?.title) && (
-  <span className="text-slate-500 ml-2">
-    — {av.vacancyId.vacancydescription || av.vacancyId.title}
-  </span>
-)}
+                          <span className="text-slate-500 ml-2">
+                            — {av.vacancyId.vacancydescription || av.vacancyId.title}
+                          </span>
+                        )}
                         {av.vacancyId?.vacancyCode && (
-                          <span className="text-slate-600 ml-2 font-mono text-xs">
+                          <span className="text-slate-400 ml-2 font-mono text-xs">
                             ({av.vacancyId.vacancyCode})
                           </span>
                         )}
@@ -348,40 +384,41 @@ export default function ProfileModal({ candidateId, onClose, onUpdate }) {
                   </div>
                 </>
               )}
-              {/* Матчынг вакансій */}
+                {/* Матчинг вакансій */} 
               {matchedVacancies !== null && (
                 <>
-                  <Divider label="🎯 Падыходзячыя вакансіі" />
+                  <Divider label="🎯 Відповідні вакансії" />
                   {matchedVacancies.length === 0 ? (
-                    <p className="text-xs text-slate-600">
-                      Падыходзячых вакансій не знойдзена
+                    <p className="text-xs text-slate-400 italic px-2">
+                      Відповідних вакансій не знайдено
                     </p>
                   ) : (
                     <div className="space-y-2">
                       {matchedVacancies.map((v) => (
                         <div
                           key={v._id}
-                          className="bg-slate-800 rounded-lg px-3 py-2"
+                          className="bg-slate-50 border border-slate-100 rounded-lg px-3 py-2"
                         >
                           <div className="flex items-center justify-between">
                             <div>
-                              <span className="text-sm text-slate-200 font-medium">
-  {v.vacancydescription || v.title}
-</span>
+                              <span className="text-sm text-slate-900 font-bold">
+                                {v.vacancydescription || v.title}
+                              </span>
                               {v.vacancyCode && (
-                                <span className="text-xs font-mono text-slate-500 ml-2">
+                                <span className="text-xs font-mono text-slate-400 ml-2">
                                   ({v.vacancyCode})
                                 </span>
                               )}
                             </div>
-                            <span className="text-xs bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full">
+                            <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">
                               ⭐ {v.matchScore}
                             </span>
                           </div>
                           <div className="flex gap-3 mt-1 text-xs text-slate-500">
                             <span>📍 {v.location}</span>
                             {v.agencyName && <span>🏢 {v.agencyName}</span>}
-                            {v.salary?.base && <span>💰 {v.salary.base}</span>}
+                            {/* 👈 ВЫПРАЎЛЕНА: base -> baseNetto (згодна з мадэллю Vacancy) */}
+                            {v.salary?.baseNetto && <span>💰 {v.salary.baseNetto}</span>}
                           </div>
                         </div>
                       ))}
@@ -389,16 +426,17 @@ export default function ProfileModal({ candidateId, onClose, onUpdate }) {
                   )}
                 </>
               )}
-              {/* Гісторыя */}
-              <Divider label="🗂 Гісторыя зносін" />
+                   
+              {/* Історія */}
+              <Divider label="🗂 Історія спілкування" />
               <div className="space-y-2 mb-3">
                 {!candidate.history?.length ? (
-                  <p className="text-xs text-slate-600">Гісторыя пустая</p>
+                  <p className="text-xs text-slate-400 italic">Історія порожня</p>
                 ) : (
                   [...candidate.history].reverse().map((h, i) => (
-                    <div key={i} className="bg-slate-800 rounded-lg px-3 py-2">
+                    <div key={i} className="bg-slate-50 border border-slate-100 rounded-lg px-3 py-2">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs text-slate-500">
+                        <span className="text-xs text-slate-400">
                           {new Date(h.date).toLocaleString("uk-UA", {
                             day: "2-digit",
                             month: "2-digit",
@@ -406,35 +444,35 @@ export default function ProfileModal({ candidateId, onClose, onUpdate }) {
                             minute: "2-digit",
                           })}
                         </span>
-                        <span className="text-xs bg-slate-700 text-slate-400 px-1.5 py-0.5 rounded">
+                        <span className="text-[10px] bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded font-bold uppercase">
                           {h.type === "call"
-                            ? "📞 Званок"
+                            ? "📞 Дзвінок"
                             : h.type === "chat"
                               ? "💬 Чат"
-                              : "📝 Нататка"}
+                              : "📝 Нотатка"}
                         </span>
                       </div>
-                      <p className="text-sm text-slate-300">{h.text}</p>
+                      <p className="text-sm text-slate-700">{h.text}</p>
                     </div>
                   ))
                 )}
               </div>
 
-              {/* Дадаць нататку */}
+              {/* Додати нотатку */}
               <div className="flex gap-2">
                 <input
                   value={newNote}
                   onChange={(e) => setNewNote(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleAddNote()}
-                  placeholder="Дадаць нататку..."
-                  className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500"
+                  placeholder="Додати нотатку..."
+                  className="flex-1 bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-500 shadow-sm"
                 />
                 <button
                   onClick={handleAddNote}
                   disabled={addingNote || !newNote.trim()}
                   className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-slate-900 font-medium text-sm rounded-lg transition-colors"
                 >
-                  Дадаць
+                  Додати
                 </button>
               </div>
             </div>
@@ -442,7 +480,7 @@ export default function ProfileModal({ candidateId, onClose, onUpdate }) {
         </div>
       </div>
 
-      {/* Мадалка рэдагавання */}
+      {/* Модалка редагування */}
       {showEdit && candidate && (
         <EditCandidateModal
           candidate={candidate}

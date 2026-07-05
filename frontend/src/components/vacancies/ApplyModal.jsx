@@ -2,6 +2,7 @@ import { useState } from "react";
 import { submitApplication } from "../../services/api";
 import Field from "../shared/Field";
 import Divider from "../shared/Divider";
+import * as MD from "../../constants/masterData";
 
 export default function ApplyModal({ vacancy, applyType, onClose }) {
   const [form, setForm] = useState({
@@ -14,13 +15,25 @@ export default function ApplyModal({ vacancy, applyType, onClose }) {
     age: "",
     gender: "",
     jobPreferences: {
-      location: "",
+      voivodeship: [],
       locationFlexible: false,
-      needsAccommodation: false,
-      travelGroup: "alone",
-      readyDate: "",
-      schedule: [],
+      locationNotes: "",
+      spheres: [],
+      accommodation: {
+        needed: false,
+        forCouples: false,
+        withChildren: false,
+        freeOnly: false,
+      },
+      transport: { needed: false },
+      polishLanguageLevel: "Не вимагається",
+      onlyDayShifts: false,
+      hoursRange: [],
       contractType: "any",
+      nuances: [],
+      nuancesNotes: "",
+      readyDate: "",
+      readyDateNotes: "",
     },
   });
   const [sending, setSending] = useState(false);
@@ -32,23 +45,27 @@ export default function ApplyModal({ vacancy, applyType, onClose }) {
       const next = { ...prev };
       if (parts.length === 1) {
         next[parts[0]] = value;
-      } else {
+      } else if (parts.length === 2) {
         next[parts[0]] = { ...next[parts[0]], [parts[1]]: value };
+      } else if (parts.length === 3) {
+        next[parts[0]] = {
+          ...next[parts[0]],
+          [parts[1]]: { ...next[parts[0]]?.[parts[1]], [parts[2]]: value },
+        };
       }
       return next;
     });
   };
 
-  const toggleSchedule = (val) => {
+  const toggleArrayPref = (field, val) => {
     setForm((prev) => {
-      // Абарона: калі schedule адсутнічае, выкарыстоўваем пусты масіў
-      const cur = prev.jobPreferences.schedule || [];
+      const cur = prev.jobPreferences[field] || [];
       const next = cur.includes(val)
         ? cur.filter((s) => s !== val)
         : [...cur, val];
       return {
         ...prev,
-        jobPreferences: { ...prev.jobPreferences, schedule: next },
+        jobPreferences: { ...prev.jobPreferences, [field]: next },
       };
     });
   };
@@ -196,21 +213,20 @@ export default function ApplyModal({ vacancy, applyType, onClose }) {
                   <label className="block text-xs text-slate-500 mb-2">
                     Стать
                   </label>
-                  <div className="flex gap-2">
-                    {[
-                      ["male", "👨 Чоловік"],
-                      ["female", "👩 Жінка"],
-                    ].map(([val, lbl]) => (
+                  {/* 👈 ВЫПРАЎЛЕНА: было values "male"/"female" — не супадалі з enum мадэлі Candidate.gender ["Чоловіки","Жінки","Пари","Сім'ї"], захаванне ў базе адхілялася б */}
+                  <div className="flex gap-2 flex-wrap">
+                    {MD.GENDERS.map((g) => (
                       <button
-                        key={val}
-                        onClick={() => setField("gender", val)}
+                        key={g.value}
+                        type="button"
+                        onClick={() => setField("gender", g.value)}
                         className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
-                          form.gender === val
+                          form.gender === g.value
                             ? "bg-emerald-600 border-emerald-600 text-white shadow-md"
                             : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
                         }`}
                       >
-                        {lbl}
+                        {g.label}
                       </button>
                     ))}
                   </div>
@@ -220,85 +236,93 @@ export default function ApplyModal({ vacancy, applyType, onClose }) {
               <Divider label="🔍 Побажання до роботи" />
               <div>
                 <label className="block text-xs text-slate-500 mb-2">
-                  Де шукаєте роботу?
+                  Регіон пошуку роботи (Воєводство)
                 </label>
-                <div className="flex gap-2 mb-3 flex-wrap">
-                  {[
-                    ["here", "Де зараз перебуваю"],
-                    ["specific", "У певному місці"],
-                    ["flexible", "Готовий до переїзду"],
-                  ].map(([val, lbl]) => (
+                <div className="flex flex-wrap gap-2 mb-3">
+                  <button
+                    type="button"
+                    onClick={() => setField("jobPreferences.locationFlexible", !form.jobPreferences.locationFlexible)}
+                    className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
+                      form.jobPreferences.locationFlexible
+                        ? "bg-emerald-600 border-emerald-600 text-white shadow-md"
+                        : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
+                    }`}
+                  >
+                    ✈️ Будь-який регіон
+                  </button>
+                  {MD.VOIVODESHIPS.map((vov) => (
                     <button
-                      key={val}
-                      onClick={() => {
-                        setField(
-                          "jobPreferences.locationFlexible",
-                          val === "flexible",
-                        );
-                        if (val === "here")
-                          setField(
-                            "jobPreferences.location",
-                            form.currentLocation,
-                          );
-                        if (val !== "specific")
-                          setField("jobPreferences.location", "");
-                      }}
+                      key={vov.value}
+                      type="button"
+                      onClick={() => toggleArrayPref("voivodeship", vov.value)}
                       className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
-                        (val === "flexible" &&
-                          form.jobPreferences.locationFlexible) ||
-                        (val === "here" &&
-                          !form.jobPreferences.locationFlexible &&
-                          form.jobPreferences.location ===
-                            form.currentLocation) ||
-                        (val === "specific" &&
-                          !form.jobPreferences.locationFlexible &&
-                          form.jobPreferences.location &&
-                          form.jobPreferences.location !== form.currentLocation)
+                        form.jobPreferences.voivodeship.includes(vov.value)
                           ? "bg-emerald-600 border-emerald-600 text-white shadow-md"
                           : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
                       }`}
                     >
-                      {lbl}
+                      {vov.label}
                     </button>
                   ))}
                 </div>
-                {!form.jobPreferences.locationFlexible && (
-                  <Field
-                    label="Місто"
-                    value={form.jobPreferences.location}
-                    onChange={(v) => setField("jobPreferences.location", v)}
-                    placeholder="напр. Варшава"
-                  />
-                )}
+                <Field
+                  label="Уточнення локації (напр. конкретне місто)"
+                  value={form.jobPreferences.locationNotes}
+                  onChange={(v) => setField("jobPreferences.locationNotes", v)}
+                  placeholder="Наприклад: Wrocław..."
+                />
+              </div>
+ {/* 👈 НОВАЕ: секцыя Сфера, ідэнтычна AddCandidateModal.jsx/EditCandidateModal.jsx (MD.CATEGORIES) */}
+              <div>
+                <label className="block text-xs text-slate-500 mb-2">Сфера</label>
+                <div className="flex flex-wrap gap-2">
+                  {MD.CATEGORIES.map((s) => (
+                    <button
+                      key={s.value}
+                      type="button"
+                      onClick={() => toggleArrayPref("spheres", s.value)}
+                      className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
+                        form.jobPreferences.spheres.includes(s.value)
+                          ? "bg-emerald-600 border-emerald-600 text-white shadow-md"
+                          : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
+                      }`}
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Field
+                  label="Коли готові приступити"
+                  value={form.jobPreferences.readyDate}
+                  type="date"
+                  onChange={(v) => setField("jobPreferences.readyDate", v)}
+                />
+                <Field
+                  label="Нюанси щодо дати"
+                  value={form.jobPreferences.readyDateNotes}
+                  onChange={(v) => setField("jobPreferences.readyDateNotes", v)}
+                  placeholder="Напр. 'можна раніше'"
+                />
               </div>
 
-              <Field
-                label="Коли готові приступити"
-                value={form.jobPreferences.readyDate}
-                onChange={(v) => setField("jobPreferences.readyDate", v)}
-                placeholder="напр. 01.05.2026"
-              />
-
-              <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-4">
                 <div>
-                  <label className="block text-xs text-slate-500 mb-2">
-                    Потрібне житло?
-                  </label>
-                  <div className="flex gap-2">
+                  <label className="block text-xs text-slate-500 mb-2">Житло</label>
+                  <div className="flex flex-wrap gap-2">
                     {[
-                      ["true", "Так"],
-                      ["false", "Ні"],
-                    ].map(([val, lbl]) => (
+                      ["needed", "🏠 Потрібне житло"],
+                      ["forCouples", "👫 Для пар"],
+                      ["withChildren", "👨‍👩‍👧 З дітьми"],
+                      ["freeOnly", "🆓 Тільки безкоштовне"],
+                    ].map(([key, lbl]) => (
                       <button
-                        key={val}
-                        onClick={() =>
-                          setField(
-                            "jobPreferences.needsAccommodation",
-                            val === "true",
-                          )
-                        }
+                        key={key}
+                        type="button"
+                        onClick={() => setField(`jobPreferences.accommodation.${key}`, !form.jobPreferences.accommodation[key])}
                         className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
-                          String(form.jobPreferences.needsAccommodation) === val
+                          form.jobPreferences.accommodation[key]
                             ? "bg-emerald-600 border-emerald-600 text-white shadow-md"
                             : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
                         }`}
@@ -308,23 +332,20 @@ export default function ApplyModal({ vacancy, applyType, onClose }) {
                     ))}
                   </div>
                 </div>
+
                 <div>
-                  <label className="block text-xs text-slate-500 mb-2">
-                    Їду
-                  </label>
-                  <div className="flex gap-2 flex-wrap">
+                  <label className="block text-xs text-slate-500 mb-2">Транспорт</label>
+                  <div className="flex gap-2">
                     {[
-                      ["alone", "Один/одна"],
-                      ["couple", "Пара"],
-                      ["family", "З сім'єю"],
+                      ["true", "🚌 Потрібен довіз"],
+                      ["false", "❌ Не потрібен"],
                     ].map(([val, lbl]) => (
                       <button
                         key={val}
-                        onClick={() =>
-                          setField("jobPreferences.travelGroup", val)
-                        }
+                        type="button"
+                        onClick={() => setField("jobPreferences.transport.needed", val === "true")}
                         className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
-                          form.jobPreferences.travelGroup === val
+                          String(form.jobPreferences.transport.needed) === val
                             ? "bg-emerald-600 border-emerald-600 text-white shadow-md"
                             : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
                         }`}
@@ -337,25 +358,51 @@ export default function ApplyModal({ vacancy, applyType, onClose }) {
               </div>
 
               <div>
-                <label className="block text-xs text-slate-500 mb-2">
-                  Графік роботи
-                </label>
-                <div className="flex gap-2">
-                  {[
-                    ["1_shift", "1 зміна"],
-                    ["2_shifts", "2 зміни"],
-                    ["3_shifts", "3 зміни"],
-                  ].map(([val, lbl]) => (
+                <label className="block text-xs text-slate-500 mb-2">Графік та години</label>
+                <div className="flex flex-wrap gap-2 mb-3">
+                  <button
+                    type="button"
+                    onClick={() => setField("jobPreferences.onlyDayShifts", !form.jobPreferences.onlyDayShifts)}
+                    className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
+                      form.jobPreferences.onlyDayShifts
+                        ? "bg-blue-600 border-blue-600 text-white shadow-md"
+                        : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
+                    }`}
+                  >
+                    ☀️ Тільки день
+                  </button>
+                  {MD.HOURS_RANGE_OPTIONS.map((h) => (
                     <button
-                      key={val}
-                      onClick={() => toggleSchedule(val)}
+                      key={h.value}
+                      type="button"
+                      onClick={() => toggleArrayPref("hoursRange", h.value)}
                       className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
-                        (form.jobPreferences.schedule || []).includes(val)
+                        form.jobPreferences.hoursRange.includes(h.value)
                           ? "bg-emerald-600 border-emerald-600 text-white shadow-md"
                           : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
                       }`}
                     >
-                      {lbl}
+                      {h.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs text-slate-500 mb-2">Рівень польської</label>
+                <div className="flex flex-wrap gap-2">
+                  {MD.LANGUAGES.map((l) => (
+                    <button
+                      key={l.value}
+                      type="button"
+                      onClick={() => setField("jobPreferences.polishLanguageLevel", l.value)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                        form.jobPreferences.polishLanguageLevel === l.value
+                          ? "bg-emerald-500 text-white"
+                          : "bg-slate-50 text-slate-600 border border-slate-200"
+                      }`}
+                    >
+                      {l.label}
                     </button>
                   ))}
                 </div>
@@ -386,6 +433,31 @@ export default function ApplyModal({ vacancy, applyType, onClose }) {
                     </button>
                   ))}
                 </div>
+              </div>
+              <Divider label="🌡 Нюанси (Чек-лист)" />
+              <div className="space-y-4">
+                <div className="flex flex-wrap gap-2">
+                  {MD.CHECKLIST_ITEMS.map((n) => (
+                    <button
+                      key={n.value}
+                      type="button"
+                      onClick={() => toggleArrayPref("nuances", n.value)}
+                      className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
+                        form.jobPreferences.nuances.includes(n.value)
+                          ? "bg-emerald-600 border-emerald-600 text-white shadow-md"
+                          : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
+                      }`}
+                    >
+                      {n.label}
+                    </button>
+                  ))}
+                </div>
+                <Field
+                  label="Додаткові нюанси (вільний текст)"
+                  value={form.jobPreferences.nuancesNotes}
+                  onChange={(v) => setField("jobPreferences.nuancesNotes", v)}
+                  placeholder="Якщо є нюанси, яких немає у списку..."
+                />
               </div>
             </div>
 

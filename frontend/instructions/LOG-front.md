@@ -3004,3 +3004,27 @@ isInformative() / isSimpleMessage()
 - Выпраўлена памылка React #31 пры захаванні іконак у `localStorage`.
 - Забяспечана поўная сумяшчальнасць з мадэллю Vacancy v2.0 (выкарыстанне `vacancydescription`).
 - Аптымізаваны выклікі AI: парсер нататак запускаецца толькі пры наяўнасці тэксту.
+## [2026-07-05] - Уніфікацыя кіравання кандыдатамі і сінхранізацыя структур
+
+### Фронтэнд (Frontend)
+- **Stucture Unification**: Поўная перабудова `jobPreferences` у мадалках `AddCandidateModal.jsx`, `EditCandidateModal.jsx` і `ApplyModal.jsx`. Цяпер яны цалкам сіметрычныя мадэлі вакансій.
+- **3-Level State Management**: Функцыя `setField` пашырана для падтрымкі трохузроўневай укладзенасці (напр., `jobPreferences.accommodation.needed`), што дазволіла працаваць са складанымі аб'ектамі ў формах.
+- **Filtering Logic**: 
+    - У `Candidates.jsx` функцыя `applyFilters` абноўлена для працы з новымі палямі: `voivodeship` (масіў), `accommodation` (аб'ект), `transport`, `language` і `nuances`.
+    - Выпраўлены баг фільтра дакументаў: цяпер выкарыстоўваецца масіў `activeDocs` замест старых булевых сцягоў.
+    - Дададзены фільтр `locationNotes` для тэкставага пошуку па ўдакладненнях лакацыі.
+- **UI/UX**:
+    - `ProfileModal.jsx` цалкам пераведзены на светлую тэму і ўкраінскую мову.
+    - `masterData.js`: Спіс `VOIVODESHIPS` ператвораны ў масіў аб'ектаў `{value, label}` з даданнем гарадоў-арыенціраў (напр., "Dolnośląskie (Wrocław)").
+    - Выдалены рэшткі беларускай мовы і цёмнай тэмы ў сайдбарах і кнопках старонкі кандыдатаў.
+
+### Бэкенд (Backend)
+- **Candidate Model (`Candidate.js`)**:
+    - Поўны рэфактарынг схемы `jobPreferences` для адпаведнасці структуры вакансій.
+    - `readyDate`: Тып зменены з `String` на `Date` для карэктнай працы з календаром.
+    - `travelGroup`: Поле выдалена (заменена на гендарную логіку матчынгу).
+    - `languages`: Каранёвы масіў выдалены, заменены на адзінае поле `polishLanguageLevel` унутры `jobPreferences`.
+    - Дададзены новыя палі: `accommodation` (аб'ект), `transport` (аб'ект), `nuances` (масіў), `nuancesNotes`, `locationNotes` і `onlyDayShifts`.
+- **Analysis & Planning**:
+    - Праведзены аўдыт `matching.service.js`: выяўлены баг з `ageMax` (няправільны шлях да поля ў вакансіі) і запланавана ўкараненне буфера талерантнасці (+1-3 гады) пры матчынгу.
+    - Запланавана перабудова анкеты ў `telegramCandidateBot.service.js` для падтрымкі новай структуры дадзеных.
