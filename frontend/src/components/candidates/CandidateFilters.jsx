@@ -105,16 +105,18 @@ const DEFAULT_ORDER = [
   { id: "sphere", label: "Сфера", icon: <Sparkles size={14} /> },
   { id: "voivodeship", label: "Регіон", icon: <MapPin size={14} /> },
   { id: "locationNotes", label: "Уточнення локації", icon: <MapPin size={14} /> },
-  { id: "accommodation", label: "Житло", icon: <Home size={14} /> },
+  { id: "freeHousing", label: "Безкоштовне житло", icon: <Home size={14} /> }, // 👈 НОВАЕ
+  { id: "accommodation", label: "Умови житла", icon: <Home size={14} /> },
   { id: "transport", label: "Транспорт", icon: <Bus size={14} /> },
-  { id: "hoursRange", label: "Графік та години", icon: <Clock size={14} /> },
+  { id: "onlyDayShifts", label: "Денні зміни", icon: <Clock size={14} /> }, // 👈 НОВАЕ
+  { id: "hoursRange", label: "Години на місяць", icon: <Clock size={14} /> },
   { id: "language", label: "Рівень польської", icon: <Languages size={14} /> },
   { id: "nuances", label: "Нюанси", icon: <ClipboardList size={14} /> },
   { id: "docs", label: "Документи", icon: <FileText size={14} /> },
   { id: "source", label: "Джерело", icon: <Share2 size={14} /> },
   { id: "gender", label: "Хто їде", icon: <User size={14} /> },
-{ id: "nationality", label: "Національність", icon: <User size={14} /> },
-{ id: "contractType", label: "Тип договору", icon: <FileText size={14} /> },
+  { id: "nationality", label: "Національність", icon: <User size={14} /> },
+  { id: "contractType", label: "Тип договору", icon: <FileText size={14} /> },
 ];
 
 
@@ -205,7 +207,7 @@ const renderSectionContent = (id) => {
       case "status":
         return (
           <MultiSelect
-            options={MD.STATUSES}
+            options={MD.CANDIDATE_STATUSES} // 👈 ВЫПРАЎЛЕНА: выкарыстоўваем кандыдацкія статусы
             selected={draft.status}
             onChange={(v) => updateField("status", v)}
             placeholder="Будь-який статус"
@@ -240,14 +242,14 @@ const renderSectionContent = (id) => {
           />
         );
       case "voivodeship":
-  return (
-    <MultiSelect
-      options={[{ value: "any", label: "✈️ Без різниці (готовий скрізь)" }, ...MD.VOIVODESHIPS]}
-      selected={draft.voivodeship}
-      onChange={(v) => updateField("voivodeship", v)}
-      placeholder="Усі регіони"
-    />
-  );
+        return (
+          <MultiSelect
+            options={MD.VOIVODESHIPS} // 👈 ВЫПРАЎЛЕНА: прыбраны дублікат "any", выкарыстоўваем толькі masterData
+            selected={draft.voivodeship}
+            onChange={(v) => updateField("voivodeship", v)}
+            placeholder="Усі регіони"
+          />
+        );
       case "locationNotes":
         return (
           <input
@@ -258,28 +260,32 @@ const renderSectionContent = (id) => {
             className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-500"
           />
         );
-      case "accommodation":
+     case "accommodation":
         return (
-          <div className="space-y-2">
-            <button
-              onClick={() => updateField("freeHousing", !draft.freeHousing)}
-              className={`w-full px-3 py-2 rounded-xl text-xs font-bold transition-all border flex items-center gap-2 ${
-                draft.freeHousing ? "bg-indigo-600 text-white border-indigo-600 shadow-md" : "bg-slate-50 text-slate-600 border-slate-200"
-              }`}
-            >
+          <MultiSelect
+            options={[
+              { value: "needed", label: "🏠 Потрібне житло" },
+              { value: "forCouples", label: "👫 Для пар" },
+              { value: "withChildren", label: "👨‍👩‍👧 З дітьми" },
+            ]}
+            selected={draft.accommodation}
+            onChange={(v) => updateField("accommodation", v)}
+            placeholder="Будь-які умови"
+          />
+        );
+        case "freeHousing": // 👈 НОВАЕ: асобная секцыя-кнопка
+        return (
+          <button
+            onClick={() => updateField("freeHousing", !draft.freeHousing)}
+            className={`w-full px-3 py-2.5 rounded-xl text-xs font-bold transition-all border flex items-center justify-between ${
+              draft.freeHousing ? "bg-indigo-600 text-white border-indigo-600 shadow-md" : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+            }`}
+          >
+            <div className="flex items-center gap-2">
               <span>🆓</span> Тільки безкоштовне
-            </button>
-            <MultiSelect
-              options={[
-                { value: "needed", label: "🏠 Потрібне житло" },
-                { value: "forCouples", label: "👫 Для пар" },
-                { value: "withChildren", label: "👨‍👩‍👧 З дітьми" },
-              ]}
-              selected={draft.accommodation}
-              onChange={(v) => updateField("accommodation", v)}
-              placeholder="Будь-які умови"
-            />
-          </div>
+            </div>
+            {draft.freeHousing && <span>✓</span>}
+          </button>
         );
       case "transport":
         return (
@@ -290,24 +296,28 @@ const renderSectionContent = (id) => {
             placeholder="Не важливо"
           />
         );
+        case "onlyDayShifts": // 👈 НОВАЕ: асобная секцыя-кнопка
+        return (
+          <button
+            onClick={() => updateField("onlyDayShifts", !draft.onlyDayShifts)}
+            className={`w-full px-3 py-2.5 rounded-xl text-xs font-bold transition-all border flex items-center justify-between ${
+              draft.onlyDayShifts ? "bg-blue-600 text-white border-blue-600 shadow-md" : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <span>☀️</span> Тільки день
+            </div>
+            {draft.onlyDayShifts && <span>✓</span>}
+          </button>
+        );
       case "hoursRange":
         return (
-          <div className="space-y-2">
-            <button
-              onClick={() => updateField("onlyDayShifts", !draft.onlyDayShifts)}
-              className={`w-full px-3 py-2 rounded-xl text-xs font-bold transition-all border flex items-center gap-2 ${
-                draft.onlyDayShifts ? "bg-blue-600 text-white border-blue-600 shadow-md" : "bg-slate-50 text-slate-600 border-slate-200"
-              }`}
-            >
-              <span>☀️</span> Тільки день
-            </button>
-            <MultiSelect
-              options={MD.HOURS_RANGE_OPTIONS}
-              selected={draft.hoursRange}
-              onChange={(v) => updateField("hoursRange", v)}
-              placeholder="Будь-яка кількість"
-            />
-          </div>
+          <MultiSelect
+            options={MD.HOURS_RANGE_OPTIONS}
+            selected={draft.hoursRange}
+            onChange={(v) => updateField("hoursRange", v)}
+            placeholder="Будь-яка кількість"
+          />
         );
       case "language":
         return (
@@ -339,13 +349,7 @@ const renderSectionContent = (id) => {
       case "source":
         return (
           <MultiSelect
-            options={[
-              { value: "site", label: "🌐 Тікток" },
-              { value: "telegram_bot", label: "✈️ Telegram" },
-              { value: "manual", label: "✋ Ручний" },
-              { value: "referral", label: "🤝 Рекомендація" },
-              { value: "trello", label: "📋 Trello" },
-            ]}
+            options={MD.CANDIDATE_SOURCES} // 👈 ВЫПРАЎЛЕНА: выкарыстоўваем уніфікаваныя крыніцы з masterData
             selected={draft.source}
             onChange={(v) => updateField("source", v)}
             placeholder="Усі джерела"
@@ -402,7 +406,7 @@ case "contractType":
       </div>
 
       {/* СКРОЛАЕМЫ СПІС АКАРДЭОНАЎ */}
-      <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto p-4 pb-20 custom-scrollbar">
          {sectionsOrder.map((section, index) => ( 
           <AccordionSection
             key={section.id}
@@ -410,12 +414,14 @@ case "contractType":
             icon={section.icon}
             isOpen={openSections[section.id]}
             onToggle={() => toggleSection(section.id)}
-            hasActiveFilters={
+           hasActiveFilters={
               section.id === "search" ? !!draft.search :
               section.id === "locationNotes" ? !!draft.locationNotes :
               section.id === "age" ? !!(draft.minAge || draft.maxAge) :
-              section.id === "accommodation" ? (draft.accommodation?.length > 0 || draft.freeHousing) :
-              section.id === "hoursRange" ? (draft.hoursRange?.length > 0 || draft.onlyDayShifts) :
+              section.id === "freeHousing" ? !!draft.freeHousing : // 👈 Дададзена
+              section.id === "onlyDayShifts" ? !!draft.onlyDayShifts : // 👈 Дададзена
+              section.id === "accommodation" ? draft.accommodation?.length > 0 :
+              section.id === "hoursRange" ? draft.hoursRange?.length > 0 :
               Array.isArray(draft[section.id]) && draft[section.id].length > 0
             }
             isFirst={index === 0}

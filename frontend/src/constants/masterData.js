@@ -22,7 +22,24 @@ export const STATUSES = [
   { value: "archived", label: "📂 Архів" },
   { value: "closed", label: "🔴 Закрита" },
 ];
+// 👈 ДАДАДЗЕНА: Спецыфічныя статусы для кандыдатаў (Канбан)
+export const CANDIDATE_STATUSES = [
+  { value: "new", label: "🆕 Новий" },
+  { value: "active", label: "🟢 Активний" },
+  { value: "waiting", label: "⏳ Очікує" },
+  { value: "employed", label: "💼 Працює" },
+  { value: "left", label: "🚪 Звільнився" },
+  { value: "blacklist", label: "🚫 Чорний список" },
+];
 
+// 👈 ДАДАДЗЕНА: Уніфікаваныя крыніцы для кандыдатаў
+export const CANDIDATE_SOURCES = [
+  { value: "site", label: "🌐 Тікток / Сайт" },
+  { value: "telegram_bot", label: "✈️ Telegram" },
+  { value: "trello", label: "🔵 Trello" },
+  { value: "manual", label: "✋ Ручний" },
+  { value: "other", label: "➕ Інше" },
+];
 export const GENDERS = [
   { value: "Чоловіки", label: "👨 Чоловіки" },
   { value: "Жінки", label: "👩 Жінки" },

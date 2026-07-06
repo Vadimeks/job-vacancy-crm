@@ -19,6 +19,7 @@ export default function EditCandidateModal({ candidate, onClose, onSave }) {
     status: candidate.status || "new",
     notes: candidate.notes || "",
     blacklistReason: candidate.blacklistReason || "",
+    newHistoryEntry: "", // 👈 ДАДАДЗЕНА: для хуткага запісу ў гісторыю
     jobPreferences: {
       voivodeship: candidate.jobPreferences?.voivodeship || [],
       locationFlexible: candidate.jobPreferences?.locationFlexible || false,
@@ -82,10 +83,17 @@ export default function EditCandidateModal({ candidate, onClose, onSave }) {
   };
 
   const handleSave = async () => {
-    if (!form.name.trim()) return alert("Введіть ім'я");
+    // 1. Валідацыя
+    if (!form.name.trim()) return alert("Введіть ім'я та прізвище");
+    if (!form.gender) return alert("Оберіть стать (Хто їде)");
+    
+    const phoneRegex = /^\+\d{10,15}$/;
+    if (form.phone && !phoneRegex.test(form.phone)) {
+      return alert("Невірний формат телефону. Використовуйте формат +380XXXXXXXXX (від 10 до 15 цифр)");
+    }
+
     setSaving(true);
     try {
-      // Сінхранізуем булевы палі дакументаў для сумяшчальнасці
       const ad = form.documents.activeDocs;
       const syncedDocuments = {
         ...form.documents,
@@ -97,15 +105,27 @@ export default function EditCandidateModal({ candidate, onClose, onSave }) {
         residencyCertificate: ad.includes("Довідка резидента")
       };
 
-      const res = await updateCandidate(candidate._id, {
-        ...form,
+      // 2. Падрыхтоўка дадзеных (уключаючы гісторыю)
+      let dataToSave = { 
+        ...form, 
         documents: syncedDocuments,
-        age: form.age ? Number(form.age) : undefined,
-      });
+        age: form.age ? Number(form.age) : undefined 
+      };
+
+      if (form.newHistoryEntry.trim()) {
+        const newEntry = {
+          date: new Date(),
+          type: "note",
+          text: form.newHistoryEntry.trim()
+        };
+        dataToSave.history = [...(candidate.history || []), newEntry];
+      }
+
+      const res = await updateCandidate(candidate._id, dataToSave);
       onSave(res.data);
       onClose();
-    } catch {
-      alert("Помилка збереження");
+    } catch (err) {
+      alert("Помилка збереження: " + (err.response?.data?.message || err.message));
     } finally {
       setSaving(false);
     }
@@ -182,11 +202,28 @@ export default function EditCandidateModal({ candidate, onClose, onSave }) {
 
           <Divider label="👤 Особисті дані" />
           <div className="grid grid-cols-2 gap-4">
-            <Field
-              label="Національність"
-              value={form.nationality}
-              onChange={(v) => setField("nationality", v)}
-            />
+            <div>
+              <label className="block text-xs text-slate-500 mb-2">Національність</label>
+              <div className="flex flex-wrap gap-1.5 mb-2">
+                {MD.NATIONALITIES.map(n => (
+                  <button
+                    key={n.value}
+                    type="button"
+                    onClick={() => setField("nationality", n.value)}
+                    className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all border ${form.nationality === n.value ? 'bg-emerald-600 border-emerald-600 text-white shadow-sm' : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'}`}
+                  >
+                    {n.label}
+                  </button>
+                ))}
+              </div>
+              <input
+                type="text"
+                value={form.nationality}
+                onChange={(e) => setField("nationality", e.target.value)}
+                placeholder="Або введіть іншу..."
+                className="w-full bg-yellow-50 border border-yellow-200 rounded-xl px-3 py-2 text-sm font-medium focus:outline-none focus:border-yellow-400 transition-all"
+              />
+            </div>
             <Field
               label="Де знаходиться зараз"
               value={form.currentLocation}
@@ -228,7 +265,7 @@ export default function EditCandidateModal({ candidate, onClose, onSave }) {
           <div>
             <label className="block text-xs text-slate-500 mb-2">Статус</label>
             <div className="flex gap-2 flex-wrap">
-              {MD.STATUSES.map((s) => (
+              {MD.CANDIDATE_STATUSES.map((s) => (
                 <button
                  key={s.value}
                   onClick={() => setField("status", s.value)}
@@ -286,12 +323,14 @@ export default function EditCandidateModal({ candidate, onClose, onSave }) {
                 </button>
               ))}
             </div>
-            <Field
-              label="Уточнення локації (напр. конкретне місто)"
-              value={form.jobPreferences.locationNotes}
-              onChange={(v) => setField("jobPreferences.locationNotes", v)}
-              placeholder="Наприклад: Wrocław..."
-            />
+            <div className="bg-yellow-50/50 p-3 rounded-2xl border border-yellow-100">
+              <Field
+                label="Уточнення локації (напр. конкретне місто)"
+                value={form.jobPreferences.locationNotes}
+                onChange={(v) => setField("jobPreferences.locationNotes", v)}
+                placeholder="Наприклад: Wrocław..."
+              />
+            </div>
           </div>
 
           <div>
@@ -488,19 +527,23 @@ export default function EditCandidateModal({ candidate, onClose, onSave }) {
             })}
           </div>
 
-          <Divider label="📝 Нотатки" />
-          <div>
-            <label className="block text-xs text-slate-500 mb-1">
-              Нотатки рекрутера
-            </label>
-            <textarea
-              value={form.notes}
-              onChange={(e) => setField("notes", e.target.value)}
-              rows={3}
-              placeholder="Любая дадатковая інфармацыя..."
-              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-500 resize-none"
-            />
-          </div>
+          <Divider label="📜 Додати запис у історію" />
+          <textarea
+            value={form.newHistoryEntry}
+            onChange={(e) => setField("newHistoryEntry", e.target.value)}
+            rows={2}
+            placeholder="Наприклад: Домовилися про дзвінок у понеділок..."
+            className="w-full bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 text-sm text-slate-900 font-medium placeholder-slate-400 focus:outline-none focus:border-amber-400 resize-none shadow-inner"
+          />
+
+          <Divider label="📝 Нотатки рекрутера" />
+          <textarea
+            value={form.notes}
+            onChange={(e) => setField("notes", e.target.value)}
+            rows={3}
+            placeholder="Любая додаткова інформація..."
+            className="w-full bg-yellow-50 border border-yellow-200 rounded-xl px-3 py-2 text-sm text-slate-900 font-bold placeholder-slate-400 focus:outline-none focus:border-yellow-400 resize-none shadow-inner"
+          />
         </div>
 
         <div className="flex gap-3 px-6 py-4 border-t border-slate-100 sticky bottom-0 bg-white">

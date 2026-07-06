@@ -8,6 +8,7 @@ import {
 } from "../../services/api";
 import Divider from "../shared/Divider";
 import EditCandidateModal from "./EditCandidateModal";
+import VacancyViewModal from "../vacancies/VacancyViewModal"; // 👈 ДАДАДЗЕНА
 import * as MD from "../../constants/masterData"; 
 
 const STATUS_COLORS = {
@@ -37,7 +38,8 @@ export default function ProfileModal({ candidateId, onClose, onUpdate }) {
   const [showEdit, setShowEdit] = useState(false);
   const [matchedVacancies, setMatchedVacancies] = useState(null);
   const [matchLoading, setMatchLoading] = useState(false);
-
+const [showAllMatches, setShowAllMatches] = useState(false); // 👈 ДАДАДЗЕНА
+  const [selectedVacancy, setSelectedVacancy] = useState(null); // 👈 ДАДАДЗЕНА
   const handleMatch = async () => {
     setMatchLoading(true);
     try {
@@ -187,9 +189,9 @@ export default function ProfileModal({ candidateId, onClose, onUpdate }) {
                       ))}
                       <button
                         onClick={() => setEditStatus(false)}
-                        className="text-xs text-slate-600 mt-1 text-center"
+                        className="text-[10px] font-black uppercase text-slate-400 hover:text-red-500 mt-2 py-1 border-t border-slate-100 transition-colors text-center w-full"
                       >
-                        Скасувати
+                        ✕ Скасувати
                       </button>
                     </div>
                   ) : (
@@ -226,7 +228,7 @@ export default function ProfileModal({ candidateId, onClose, onUpdate }) {
               {candidate.notes && (
                 <>
                   <Divider label="📝 Нататкі" />
-                  <p className="text-sm text-slate-700 bg-slate-50 rounded-lg px-3 py-2">
+                  <p className="text-sm text-slate-900 bg-yellow-50 border border-yellow-200 rounded-xl px-4 py-3 font-bold shadow-sm leading-relaxed">
                     {candidate.notes}
                   </p>
                 </>
@@ -259,9 +261,9 @@ export default function ProfileModal({ candidateId, onClose, onUpdate }) {
                         }
                       </div>
                       {candidate.jobPreferences.locationNotes && (
-                        <div className="ml-6 text-xs italic text-slate-400">
-                          — {candidate.jobPreferences.locationNotes}
-                        </div>
+                        <div className="ml-6 text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md inline-block mt-1">
+  💡 {candidate.jobPreferences.locationNotes}
+</div>
                       )}
                     </div>
 
@@ -272,9 +274,10 @@ export default function ProfileModal({ candidateId, onClose, onUpdate }) {
                           📅 <span className="font-medium">Готовий з:</span> {new Date(candidate.jobPreferences.readyDate).toLocaleDateString('uk-UA')}
                         </div>
                         {candidate.jobPreferences.readyDateNotes && (
-                          <div className="ml-6 text-xs italic text-slate-400">
-                            — {candidate.jobPreferences.readyDateNotes}
+                          <div className="ml-6 text-xs font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-md inline-block mt-1 border border-amber-100">
+                            💡 {candidate.jobPreferences.readyDateNotes}
                           </div>
+                        
                         )}
                       </div>
                     )}
@@ -332,7 +335,9 @@ export default function ProfileModal({ candidateId, onClose, onUpdate }) {
 })}
                         </div>
                         {candidate.jobPreferences.nuancesNotes && (
-                          <p className="text-xs text-slate-500 italic">{candidate.jobPreferences.nuancesNotes}</p>
+                          <p className="text-xs font-bold text-amber-700 bg-amber-50 px-3 py-2 rounded-lg mt-2 border border-amber-100 italic leading-relaxed">
+                            💡 {candidate.jobPreferences.nuancesNotes}
+                          </p>
                         )}
                       </div>
                     )}
@@ -388,7 +393,7 @@ export default function ProfileModal({ candidateId, onClose, onUpdate }) {
                   </div>
                 </>
               )}
-                {/* Матчинг вакансій */} 
+              {/* Матчинг вакансій */} 
               {matchedVacancies !== null && (
                 <>
                   <Divider label="🎯 Відповідні вакансії" />
@@ -398,19 +403,20 @@ export default function ProfileModal({ candidateId, onClose, onUpdate }) {
                     </p>
                   ) : (
                     <div className="space-y-2">
-                      {matchedVacancies.map((v) => (
+                      {(showAllMatches ? matchedVacancies : matchedVacancies.slice(0, 3)).map((v) => (
                         <div
                           key={v._id}
-                          className="bg-slate-50 border border-slate-100 rounded-lg px-3 py-2"
+                          onClick={() => setSelectedVacancy(v)} // 👈 Клікабельнасць
+                          className="bg-white border border-slate-200 rounded-xl px-4 py-3 hover:border-emerald-500 hover:shadow-md transition-all cursor-pointer group"
                         >
                           <div className="flex items-center justify-between">
                             <div>
-                              <span className="text-sm text-slate-900 font-bold">
+                              <span className="text-sm text-slate-900 font-bold group-hover:text-emerald-600 transition-colors">
                                 {v.vacancydescription || v.title}
                               </span>
                               {v.vacancyCode && (
-                                <span className="text-xs font-mono text-slate-400 ml-2">
-                                  ({v.vacancyCode})
+                                <span className="text-[10px] font-mono bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded ml-2">
+                                  {v.vacancyCode}
                                 </span>
                               )}
                             </div>
@@ -418,14 +424,22 @@ export default function ProfileModal({ candidateId, onClose, onUpdate }) {
                               ⭐ {v.matchScore}
                             </span>
                           </div>
-                          <div className="flex gap-3 mt-1 text-xs text-slate-500">
+                          <div className="flex gap-3 mt-1.5 text-[11px] text-slate-500">
                             <span>📍 {v.location}</span>
                             {v.agencyName && <span>🏢 {v.agencyName}</span>}
-                            {/* 👈 ВЫПРАЎЛЕНА: base -> baseNetto (згодна з мадэллю Vacancy) */}
-                            {v.salary?.baseNetto && <span>💰 {v.salary.baseNetto}</span>}
+                            {v.salary?.baseNetto && <span className="text-emerald-600 font-bold">💰 {v.salary.baseNetto}</span>}
                           </div>
                         </div>
                       ))}
+                      
+                      {matchedVacancies.length > 3 && (
+                        <button
+                          onClick={() => setShowAllMatches(!showAllMatches)}
+                          className="w-full py-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-emerald-600 transition-colors"
+                        >
+                          {showAllMatches ? "▲ Згорнути" : `▼ Показати ще ${matchedVacancies.length - 3}`}
+                        </button>
+                      )}
                     </div>
                   )}
                 </>
@@ -492,6 +506,17 @@ export default function ProfileModal({ candidateId, onClose, onUpdate }) {
           onSave={handleSaveEdit}
         />
       )}
+      {/* Мадалка прагляду вакансіі з матчынгу */}
+      {selectedVacancy && (
+        <VacancyViewModal
+          vacancy={selectedVacancy}
+          onClose={() => setSelectedVacancy(null)}
+          // Кнопкі рэдагавання/выдалення ў гэтым кантэксце можна адключыць або пакінуць
+        />
+      )}
+    
+  
+
     </>
   );
 }

@@ -18,6 +18,7 @@ const EMPTY_FORM = {
   status: "new",
   source: "manual",
   notes: "",
+  newHistoryEntry: "", // 👈 ДАДАДЗЕНА
   jobPreferences: {
     voivodeship: [], // 👈 ЗМЕНЕНА: было "location" — перайменавана, ідэнтычна Vacancy.voivodeship
     locationFlexible: false,
@@ -82,10 +83,17 @@ const setField = (path, value) => {
   };
 
   const handleSave = async () => {
-    if (!form.name.trim()) return alert("Введіть ім'я");
+    // 1. Валідацыя
+    if (!form.name.trim()) return alert("Введіть ім'я та прізвище");
+    if (!form.gender) return alert("Оберіть стать (Хто їде)");
+    
+    const phoneRegex = /^\+\d{10,15}$/;
+    if (form.phone && !phoneRegex.test(form.phone)) {
+      return alert("Невірний формат телефону. Використовуйте формат +380XXXXXXXXX (від 10 до 15 цифр)");
+    }
+
     setSaving(true);
     try {
-      // Сінхранізуем булевы палі з масівам activeDocs для сумяшчальнасці са старой схемай
       const ad = form.documents.activeDocs;
       const syncedDocuments = {
         ...form.documents,
@@ -96,16 +104,27 @@ const setField = (path, value) => {
         hasKartaPobytu: ad.includes("Карта побуту"),
         residencyCertificate: ad.includes("Довідка резидента")
       };
-     // 👈 ВЫДАЛЕНА: канвертацыя location з радка ў масіў — больш не патрэбна, voivodeship запаўняецца праз мульты-select кнопкі і ўжо з'яўляецца масівам
-      const res = await createCandidate({
-        ...form,
+
+      let dataToSave = { 
+        ...form, 
         documents: syncedDocuments,
-        age: form.age ? Number(form.age) : undefined,
-      });
+        age: form.age ? Number(form.age) : undefined 
+      };
+
+      // Дадаем першы запіс у гісторыю, калі ён ёсць
+      if (form.newHistoryEntry.trim()) {
+        dataToSave.history = [{
+          date: new Date(),
+          type: "note",
+          text: form.newHistoryEntry.trim()
+        }];
+      }
+
+      const res = await createCandidate(dataToSave);
       onAdd(res.data);
       onClose();
-    } catch {
-      alert("Помилка збереження");
+    } catch (err) {
+      alert("Помилка збереження: " + (err.response?.data?.message || err.message));
     } finally {
       setSaving(false);
     }
@@ -179,12 +198,28 @@ const setField = (path, value) => {
 
           <Divider label="👤 Особисті дані" />
           <div className="grid grid-cols-2 gap-4">
-            <Field
-              label="Національність"
-              value={form.nationality}
-              onChange={(v) => setField("nationality", v)}
-              placeholder="Україна"
-            />
+            <div>
+              <label className="block text-xs text-slate-500 mb-2">Національність</label>
+              <div className="flex flex-wrap gap-1.5 mb-2">
+                {MD.NATIONALITIES.map(n => (
+                  <button
+                    key={n.value}
+                    type="button"
+                    onClick={() => setField("nationality", n.value)}
+                    className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all border ${form.nationality === n.value ? 'bg-emerald-600 border-emerald-600 text-white shadow-sm' : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'}`}
+                  >
+                    {n.label}
+                  </button>
+                ))}
+              </div>
+              <input
+                type="text"
+                value={form.nationality}
+                onChange={(e) => setField("nationality", e.target.value)}
+                placeholder="Або введіть іншу..."
+                className="w-full bg-yellow-50 border border-yellow-200 rounded-xl px-3 py-2 text-sm font-medium focus:outline-none focus:border-yellow-400 transition-all"
+              />
+            </div>
             <Field
               label="Де знаходиться зараз"
               value={form.currentLocation}
@@ -222,7 +257,7 @@ const setField = (path, value) => {
           <div>
             <label className="block text-xs text-slate-500 mb-2">Статус</label>
             <div className="flex gap-2 flex-wrap">
-              {MD.STATUSES.map((s) => (
+              {MD.CANDIDATE_STATUSES.map((s) => (
                 <button
                   key={s.value}
                   onClick={() => setField("status", s.value)}
@@ -270,12 +305,14 @@ const setField = (path, value) => {
                 </button>
               ))}
             </div>
-            <Field
-              label="Уточнення локації (напр. конкретне місто)"
-              value={form.jobPreferences.locationNotes}
-              onChange={(v) => setField("jobPreferences.locationNotes", v)}
-              placeholder="Наприклад: Wrocław..."
-            />
+            <div className="bg-yellow-50/50 p-3 rounded-2xl border border-yellow-100">
+              <Field
+                label="Уточнення локації (напр. конкретне місто)"
+                value={form.jobPreferences.locationNotes}
+                onChange={(v) => setField("jobPreferences.locationNotes", v)}
+                placeholder="Наприклад: Wrocław..."
+              />
+            </div>
           </div>
 
           <div>
@@ -431,12 +468,14 @@ const setField = (path, value) => {
               </button>
             ))}
           </div>
-          <Field
-            label="Додаткові нюанси (вільний текст)"
-            value={form.jobPreferences.nuancesNotes}
-            onChange={(v) => setField("jobPreferences.nuancesNotes", v)}
-            placeholder="Якщо є нюанси, яких немає у списку..."
-          />
+          <div className="bg-yellow-50/50 p-3 rounded-2xl border border-yellow-100">
+            <Field
+              label="Додаткові нюанси (вільний текст)"
+              value={form.jobPreferences.nuancesNotes}
+              onChange={(v) => setField("jobPreferences.nuancesNotes", v)}
+              placeholder="Якщо є нюанси, яких немає у списку..."
+            />
+          </div>
           <Divider label="📄 Документи" />
           <div className="flex gap-2 flex-wrap">
             {MD.DOCS.map((doc) => {
@@ -464,19 +503,23 @@ const setField = (path, value) => {
             })}
           </div>
 
-          <Divider label="📝 Нотатки" />
-          <div>
-            <label className="block text-xs text-slate-500 mb-1">
-              Нотатки рекрутера
-            </label>
-            <textarea
-              value={form.notes}
-              onChange={(e) => setField("notes", e.target.value)}
-              rows={3}
-              placeholder="Будь-яка додаткова інформація..."
-              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-500 resize-none"
-            />
-          </div>
+           <Divider label="📜 Перший запис у історію" />
+          <textarea
+            value={form.newHistoryEntry}
+            onChange={(e) => setField("newHistoryEntry", e.target.value)}
+            rows={2}
+            placeholder="Наприклад: Кандидат зацікавлений у вакансії на склад..."
+            className="w-full bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 text-sm text-slate-900 font-medium placeholder-slate-400 focus:outline-none focus:border-amber-400 resize-none shadow-inner"
+          />
+
+          <Divider label="📝 Нотатки рекрутера" />
+          <textarea
+            value={form.notes}
+            onChange={(e) => setField("notes", e.target.value)}
+            rows={3}
+            placeholder="Будь-яка додаткова інформація..."
+            className="w-full bg-yellow-50 border border-yellow-200 rounded-xl px-3 py-2 text-sm text-slate-900 font-bold placeholder-slate-400 focus:outline-none focus:border-yellow-400 resize-none shadow-inner"
+          />
         </div>
 
         <div className="flex gap-3 px-6 py-4 border-t border-slate-100 sticky bottom-0 bg-white">

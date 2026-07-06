@@ -6,7 +6,7 @@ import AddCandidateModal from "../components/candidates/AddCandidateModal";
 import CandidateFilters from "../components/candidates/CandidateFilters";
 import { EMPTY_CANDIDATE_FILTERS } from "../constants/filters";
 import { LayoutGrid, List as ListIcon, Trash2, User, Globe, MessageSquare } from "lucide-react";
-
+import * as MD from "../constants/masterData";
 
 const STATUS_COLORS = {
   new: "bg-blue-500/10 text-blue-400 border border-blue-500/20",
@@ -17,14 +17,7 @@ const STATUS_COLORS = {
   blacklist: "bg-red-500/10 text-red-400 border border-red-500/20",
 };
 
-const STATUS_LABELS = {
-  new: "Новий",
-  active: "Активний",
-  waiting: "Очікує",
-  employed: "Працює",
-  left: "Звільнився",
-  blacklist: "Чорний список",
-};
+
 
 function applyFilters(candidates, filters) {
   return candidates.filter((c) => {
@@ -63,11 +56,12 @@ function applyFilters(candidates, filters) {
       if (!filters.sphere.some((s) => prefs.includes(s))) return false;
     }
 
-    // 👈 ЗМЕНЕНА: было filters.location / c.jobPreferences.location — цяпер filters.voivodeship / c.jobPreferences.voivodeship
     if (filters.voivodeship?.length > 0) {
       const candLocs = Array.isArray(c.jobPreferences?.voivodeship) ? c.jobPreferences.voivodeship : [];
-      const isFlexible = c.jobPreferences?.locationFlexible;
-      const match = filters.voivodeship.some((l) => (l === "any" ? isFlexible : candLocs.includes(l)));
+      const isFlexible = !!c.jobPreferences?.locationFlexible;
+      
+      // Калі кандыдат "Flexible", ён падыходзіць пад любы абраны рэгіён
+      const match = filters.voivodeship.some((l) => isFlexible || candLocs.includes(l));
       if (!match) return false;
     }
 
@@ -143,7 +137,7 @@ function CandidateKanbanCard({ candidate, onOpen, onDragStart }) {
           {new Date(candidate.createdAt).toLocaleDateString('uk-UA')}
         </span>
         <span className="text-[10px] text-slate-500">
-          {candidate.source === "telegram_bot" ? "✈️ TG" : "📝 Руч."}
+          {MD.CANDIDATE_SOURCES.find(s => s.value === candidate.source)?.label || candidate.source}
         </span>
       </div>
       
@@ -186,7 +180,22 @@ export default function Candidates() {
   const [applied, setApplied] = useState(EMPTY_CANDIDATE_FILTERS);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [viewMode, setViewMode] = useState("list"); // 'list' або 'kanban'
-
+// --- Рэгуляваны сайдбар (перанесена з вакансій) ---
+  const [sidebarWidth, setSidebarWidth] = useState(288); // 288px = w-72
+  const handleMouseDown = (e) => {
+    const startX = e.clientX;
+    const startWidth = sidebarWidth;
+    const onMouseMove = (moveEvent) => {
+      const newWidth = startWidth + (moveEvent.clientX - startX);
+      if (newWidth >= 240 && newWidth <= 450) setSidebarWidth(newWidth);
+    };
+    const onMouseUp = () => {
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+    };
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
+  };
   useEffect(() => {
     const load = async () => {
       setLoading(true);
@@ -259,19 +268,29 @@ const handleStatusDrop = async (candidateId, newStatus) => {
   return (
     <div className="flex min-h-screen bg-slate-50">
       {/* САЙДБАР — дэсктоп */}
-      <aside className="hidden lg:flex flex-col w-72 shrink-0 border-r border-slate-200 bg-white sticky top-16 h-[calc(100vh-4rem)] self-start">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800">
-          <span className="text-sm font-medium text-slate-300">Фільтри</span>
+      <aside 
+        style={{ width: `${sidebarWidth}px` }}
+        className="hidden lg:flex flex-col shrink-0 border-r border-slate-200 bg-white sticky top-16 h-[calc(100vh-4rem)] self-start group"
+      >
+        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
+          <span className="text-sm font-bold text-slate-400 uppercase tracking-tight">Фільтри</span>
           {isDirty && (
             <button
               onClick={handleResetFilters}
-              className="text-xs text-slate-500 hover:text-slate-300 transition-colors"
+              className="text-[10px] font-bold text-emerald-600 hover:text-emerald-700 transition-colors uppercase"
             >
               Скинути
             </button>
           )}
         </div>
         <CandidateFilters draft={draft} onChange={setDraft} />
+        
+        {/* Рэйка для рэсайзу */}
+        <div
+          onMouseDown={handleMouseDown}
+          className="absolute top-0 -right-1 w-2 h-full cursor-col-resize z-10 hover:bg-emerald-500/40 transition-colors"
+          title="Потягніть, щоб змінити ширину"
+        />
       </aside>
 
       {/* САЙДБАР — мабільны */}
@@ -386,13 +405,11 @@ const handleStatusDrop = async (candidateId, newStatus) => {
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 mb-2 flex-wrap">
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLORS[c.status]}`}>
-                        {STATUS_LABELS[c.status]}
+                      <span className={`text-[10px] uppercase font-black px-2 py-0.5 rounded-full ${STATUS_COLORS[c.status]}`}>
+                        {MD.CANDIDATE_STATUSES.find(s => s.value === c.status)?.label || c.status}
                       </span>
                       <span className="text-xs text-slate-600">
-                        {c.source === "site" ? "🌐 Тікток" : 
- c.source === "telegram_bot" ? "✈️ Telegram" : 
- c.source === "referral" ? "🤝 Рекомендація" : "✋ Ручний"}
+                        {MD.CANDIDATE_SOURCES.find(s => s.value === c.source)?.label || c.source}
                       </span>
                       <span className="text-xs text-slate-700">
                         {new Date(c.createdAt).toLocaleDateString("uk-UA")}
@@ -427,7 +444,9 @@ const handleStatusDrop = async (candidateId, newStatus) => {
         ) : (
           /* КАНБАН РЭЖЫМ */
           <div className="flex gap-4 overflow-x-auto pb-6 min-h-[calc(100vh-250px)] custom-scrollbar">
-            {Object.entries(STATUS_LABELS).map(([statusKey, label]) => {
+            {MD.CANDIDATE_STATUSES.map((statusObj) => {
+              const statusKey = statusObj.value;
+              const label = statusObj.label;
               const columnCandidates = filtered.filter(c => c.status === statusKey);
               return (
                 <div key={statusKey} className="w-72 shrink-0 flex flex-col gap-3">

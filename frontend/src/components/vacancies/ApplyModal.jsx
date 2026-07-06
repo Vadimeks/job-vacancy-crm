@@ -71,15 +71,19 @@ export default function ApplyModal({ vacancy, applyType, onClose }) {
   };
 
   const handleSubmit = async () => {
-    // Лакалізацыя паведамленняў валідацыі
     if (!form.name.trim()) return alert("Введіть ім'я та прізвище");
-    if (form.contactType === "telegram" && !form.telegram.trim())
+    if (!form.gender) return alert("Будь ласка, оберіть стать");
+    
+    if (form.contactType === "telegram" && !form.telegram.trim()) {
       return alert("Введіть Telegram username");
-    if (
-      (form.contactType === "viber" || form.contactType === "phone") &&
-      !form.phone.trim()
-    )
-      return alert("Введіть номер телефону");
+    }
+
+    const phoneRegex = /^\+\d{10,15}$/;
+    if (form.contactType !== "telegram") {
+      if (!phoneRegex.test(form.phone)) {
+        return alert("Невірний формат телефону. Використовуйте +380XXXXXXXXX (від 10 да 15 цифр)");
+      }
+    }
 
     setSending(true);
     try {
@@ -179,23 +183,41 @@ export default function ApplyModal({ vacancy, applyType, onClose }) {
                     placeholder="@username"
                   />
                 ) : (
+                  
                   <Field
-                    label="Номер телефону *"
+                    label="Номер телефону (у форматі +380...) *"
                     value={form.phone}
                     onChange={(v) => setField("phone", v)}
-                    placeholder="+380XXXXXXXXX"
+                    placeholder="+380991234567"
                   />
+                
                 )}
               </div>
 
               <Divider label="👤 Особисті дані" />
               <div className="grid grid-cols-2 gap-4">
-                <Field
-                  label="Національність"
-                  value={form.nationality}
-                  onChange={(v) => setField("nationality", v)}
-                  placeholder="Україна"
-                />
+                <div>
+                  <label className="block text-xs text-slate-500 mb-2">Національність</label>
+                  <div className="flex flex-wrap gap-1.5 mb-2">
+                    {MD.NATIONALITIES.map(n => (
+                      <button
+                        key={n.value}
+                        type="button"
+                        onClick={() => setField("nationality", n.value)}
+                        className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all border ${form.nationality === n.value ? 'bg-emerald-600 border-emerald-600 text-white shadow-sm' : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'}`}
+                      >
+                        {n.label}
+                      </button>
+                    ))}
+                  </div>
+                  <input
+                    type="text"
+                    value={form.nationality}
+                    onChange={(e) => setField("nationality", e.target.value)}
+                    placeholder="Або введіть іншу..."
+                    className="w-full bg-yellow-50 border border-yellow-200 rounded-xl px-3 py-2 text-sm font-medium focus:outline-none focus:border-yellow-400 transition-all"
+                  />
+                </div>
                 <Field
                   label="Де зараз перебуваєте"
                   value={form.currentLocation}
@@ -265,12 +287,14 @@ export default function ApplyModal({ vacancy, applyType, onClose }) {
                     </button>
                   ))}
                 </div>
-                <Field
-                  label="Уточнення локації (напр. конкретне місто)"
-                  value={form.jobPreferences.locationNotes}
-                  onChange={(v) => setField("jobPreferences.locationNotes", v)}
-                  placeholder="Наприклад: Wrocław..."
-                />
+                <div className="bg-yellow-50/50 p-3 rounded-2xl border border-yellow-100">
+                  <Field
+                    label="Уточнення локації (напр. конкретне місто)"
+                    value={form.jobPreferences.locationNotes}
+                    onChange={(v) => setField("jobPreferences.locationNotes", v)}
+                    placeholder="Наприклад: Wrocław..."
+                  />
+                </div>
               </div>
  {/* 👈 НОВАЕ: секцыя Сфера, ідэнтычна AddCandidateModal.jsx/EditCandidateModal.jsx (MD.CATEGORIES) */}
               <div>
@@ -452,12 +476,14 @@ export default function ApplyModal({ vacancy, applyType, onClose }) {
                     </button>
                   ))}
                 </div>
-                <Field
-                  label="Додаткові нюанси (вільний текст)"
-                  value={form.jobPreferences.nuancesNotes}
-                  onChange={(v) => setField("jobPreferences.nuancesNotes", v)}
-                  placeholder="Якщо є нюанси, яких немає у списку..."
-                />
+                <div className="bg-yellow-50/50 p-3 rounded-2xl border border-yellow-100">
+                  <Field
+                    label="Додаткові нюанси (вільний текст)"
+                    value={form.jobPreferences.nuancesNotes}
+                    onChange={(v) => setField("jobPreferences.nuancesNotes", v)}
+                    placeholder="Якщо є нюанси, яких немає у списку..."
+                  />
+                </div>
               </div>
             </div>
 
