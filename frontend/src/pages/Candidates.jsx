@@ -410,9 +410,9 @@ const handleStatusDrop = async (candidateId, newStatus) => {
                     {c.jobPreferences?.locationFlexible && (
                       <div className="mt-2 text-xs text-slate-600">🔍 Гатовы да пераезду</div>
                     )}
-                    {!c.jobPreferences?.locationFlexible && c.jobPreferences?.location?.length > 0 && (
+                    {!c.jobPreferences?.locationFlexible && c.jobPreferences?.voivodeship?.length > 0 && (
                       <div className="mt-2 text-xs text-slate-600">
-                        🔍 Шукае: {Array.isArray(c.jobPreferences.location) ? c.jobPreferences.location.join(", ") : c.jobPreferences.location}
+                        🔍 Шукае: {Array.isArray(c.jobPreferences.voivodeship) ? c.jobPreferences.voivodeship.join(", ") : c.jobPreferences.voivodeship}
                       </div>
                     )}
                   </div>
