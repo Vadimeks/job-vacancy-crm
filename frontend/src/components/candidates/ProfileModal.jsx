@@ -174,19 +174,19 @@ const [showAllMatches, setShowAllMatches] = useState(false); // 👈 ДАДАД�
                 <div className="shrink-0">
                   {editStatus ? (
                     <div className="flex flex-col gap-1">
-                      {Object.entries(STATUS_LABELS).map(([val, lbl]) => (
-                        <button
-                          key={val}
-                          onClick={() => handleStatusChange(val)}
-                          className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors text-left ${
-                            candidate.status === val
-                              ? "bg-emerald-500 text-slate-900"
-                              : "bg-slate-50 text-slate-700 hover:bg-slate-700"
-                          }`}
-                        >
-                          {lbl}
-                        </button>
-                      ))}
+                      {MD.CANDIDATE_STATUSES.map((s) => (
+  <button
+    key={s.value}
+    onClick={() => handleStatusChange(s.value)}
+    className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors text-left ${
+      candidate.status === s.value
+        ? "bg-emerald-500 text-white"
+        : "bg-slate-50 text-slate-700 hover:bg-slate-100"
+    }`}
+  >
+    {s.label}
+  </button>
+))}
                       <button
                         onClick={() => setEditStatus(false)}
                         className="text-[10px] font-black uppercase text-slate-400 hover:text-red-500 mt-2 py-1 border-t border-slate-100 transition-colors text-center w-full"
@@ -309,7 +309,10 @@ const [showAllMatches, setShowAllMatches] = useState(false); // 👈 ДАДАД�
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {candidate.jobPreferences.hoursRange?.length > 0 && (
                         <div className="text-slate-600">
-                          ⏰ <span className="font-medium">Годин:</span> {candidate.jobPreferences.hoursRange.join(", ")}
+                          ⏰ <span className="font-medium">Годин:</span> {candidate.jobPreferences.hoursRange?.map(slug => {
+  const found = MD.HOURS_RANGE_OPTIONS.find(h => h.value === slug);
+  return found ? found.label : slug;
+}).join(", ")}
                           {candidate.jobPreferences.onlyDayShifts && <span className="ml-2 text-blue-500">☀️ Тільки день</span>}
                         </div>
                       )}

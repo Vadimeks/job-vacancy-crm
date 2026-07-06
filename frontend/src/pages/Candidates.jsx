@@ -442,7 +442,7 @@ const handleStatusDrop = async (candidateId, newStatus) => {
             ))}
           </div>
         ) : (
-          /* КАНБАН РЭЖЫМ */
+           /* КАНБАН РЭЖЫМ */
           <div className="flex gap-4 overflow-x-auto pb-6 min-h-[calc(100vh-250px)] custom-scrollbar">
             {MD.CANDIDATE_STATUSES.map((statusObj) => {
               const statusKey = statusObj.value;
@@ -452,7 +452,8 @@ const handleStatusDrop = async (candidateId, newStatus) => {
                 <div key={statusKey} className="w-72 shrink-0 flex flex-col gap-3">
                   <div className="flex items-center justify-between px-2">
                     <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-                      <span className={`w-1.5 h-1.5 rounded-full ${STATUS_COLORS[statusKey].split(' ')[0]}`} />
+                      {/* Бярэм колер з аб'екта STATUS_COLORS па ключы */}
+                      <span className={`w-1.5 h-1.5 rounded-full ${STATUS_COLORS[statusKey]?.split(' ')[0] || 'bg-slate-400'}`} />
                       {label}
                       <span className="bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded-md text-[9px]">
                         {columnCandidates.length}
