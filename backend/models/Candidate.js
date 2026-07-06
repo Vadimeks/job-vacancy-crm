@@ -124,7 +124,7 @@ const candidateSchema = new mongoose.Schema(
 
     source: {
       type: String,
-      enum: ["site", "telegram_bot", "manual", "referral"],
+      enum: ["site", "telegram_bot", "trello", "manual", "other"], // 👈 ВЫПРАЎЛЕНА: выдалены referral, дададзены trello і other
       default: "manual",
     },
 
