@@ -1,11 +1,12 @@
 // frontend/src/pages/Candidates.jsx
 import { useEffect, useState, useMemo } from "react";
-import { getCandidates, deleteCandidate } from "../services/api";
+import { getCandidates, deleteCandidate, updateCandidate } from "../services/api";
 import ProfileModal from "../components/candidates/ProfileModal";
 import AddCandidateModal from "../components/candidates/AddCandidateModal";
 import CandidateFilters from "../components/candidates/CandidateFilters";
 import { EMPTY_CANDIDATE_FILTERS } from "../constants/filters";
 import { LayoutGrid, List as ListIcon, Trash2, User, Globe, MessageSquare } from "lucide-react";
+
 
 const STATUS_COLORS = {
   new: "bg-blue-500/10 text-blue-400 border border-blue-500/20",
@@ -127,13 +128,15 @@ function applyFilters(candidates, filters) {
     return true;
   });
 }
-function CandidateKanbanCard({ candidate, onOpen }) {
+function CandidateKanbanCard({ candidate, onOpen, onDragStart }) {
   const aiTags = candidate.additionalNotesTags || [];
   
   return (
     <div 
+      draggable
+      onDragStart={(e) => onDragStart(e, candidate)}
       onClick={onOpen}
-      className="bg-white border border-slate-200 rounded-xl p-3 shadow-sm hover:shadow-md transition-all cursor-pointer group"
+      className="bg-white border border-slate-200 rounded-xl p-3 shadow-sm hover:shadow-md transition-all cursor-pointer group active:opacity-50 active:scale-[0.98]"
     >
       <div className="flex items-center justify-between mb-2">
         <span className="text-[10px] text-slate-400 font-medium">
@@ -230,7 +233,19 @@ export default function Candidates() {
       alert("Памылка выдалення");
     }
   };
+const handleStatusDrop = async (candidateId, newStatus) => {
+    const candidate = candidates.find(c => c._id === candidateId);
+    // Калі статус не змяніўся — нічога не робім (эканомія запытаў)
+    if (!candidate || candidate.status === newStatus) return;
 
+    try {
+      const res = await updateCandidate(candidateId, { status: newStatus });
+      handleUpdate(res.data); // Абнаўляем лакальны стан праз існуючую функцыю
+    } catch (err) {
+      console.error("❌ Памылка змены статусу:", err);
+      alert("Не ўдалося змяніць статус кандыдата");
+    }
+  };
   const handleUpdate = (updated) => {
     setCandidates((prev) =>
       prev.map((c) => (c._id === updated._id ? updated : c)),
@@ -425,12 +440,22 @@ export default function Candidates() {
                       </span>
                     </h3>
                   </div>
-                  <div className="flex flex-col gap-3 p-2 bg-slate-100/50 rounded-2xl flex-1 border border-dashed border-slate-200">
+                  <div 
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={(e) => {
+                      const candidateId = e.dataTransfer.getData("candidateId");
+                      handleStatusDrop(candidateId, statusKey);
+                    }}
+                    className="flex flex-col gap-3 p-2 bg-slate-100/50 rounded-2xl flex-1 border border-dashed border-slate-200 transition-colors hover:bg-slate-200/50"
+                  >
                     {columnCandidates.map(c => (
                       <CandidateKanbanCard 
                         key={c._id} 
                         candidate={c} 
                         onOpen={() => setProfileId(c._id)} 
+                        onDragStart={(e, cand) => {
+                          e.dataTransfer.setData("candidateId", cand._id);
+                        }}
                       />
                     ))}
                   </div>

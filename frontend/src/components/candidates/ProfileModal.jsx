@@ -8,6 +8,7 @@ import {
 } from "../../services/api";
 import Divider from "../shared/Divider";
 import EditCandidateModal from "./EditCandidateModal";
+import * as MD from "../../constants/masterData"; 
 
 const STATUS_COLORS = {
   new: "bg-blue-50 text-blue-600 border-blue-200",
@@ -321,11 +322,14 @@ export default function ProfileModal({ candidateId, onClose, onUpdate }) {
                       <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Особливості / Нюанси</p>
                         <div className="flex flex-wrap gap-1.5 mb-2">
-                          {candidate.jobPreferences.nuances?.map(n => (
-                            <span key={n} className="text-[10px] bg-white border border-slate-200 px-2 py-0.5 rounded text-slate-600 font-medium">
-                              {n}
-                            </span>
-                          ))}
+                          {candidate.jobPreferences.nuances?.map(n => {
+  const found = MD.CHECKLIST_ITEMS.find(item => item.value === n);
+  return (
+    <span key={n} className="text-[10px] bg-white border border-slate-200 px-2 py-0.5 rounded text-slate-600 font-medium">
+      {found ? found.label : n}
+    </span>
+  );
+})}
                         </div>
                         {candidate.jobPreferences.nuancesNotes && (
                           <p className="text-xs text-slate-500 italic">{candidate.jobPreferences.nuancesNotes}</p>

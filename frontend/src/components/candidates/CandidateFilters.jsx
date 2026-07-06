@@ -1,38 +1,96 @@
 // frontend/src/components/candidates/CandidateFilters.jsx
-import { useState } from "react";
+import { useState, useEffect } from "react"; // 👈 ДАДАДЗЕНА: useEffect для захавання парадку секцый
 import { EMPTY_CANDIDATE_FILTERS } from "../../constants/filters";
 import * as MD from "../../constants/masterData";
 import MultiSelect from "../shared/MultiSelect";
 import { 
   Search, User, MapPin, Home, Bus, Clock, 
   Languages, FileText, Share2, ChevronDown, 
-  Calendar, ClipboardList, Sparkles 
+  Calendar, ClipboardList, Sparkles,
+  MoreVertical, ChevronUp, ArrowUpToLine, ArrowDownToLine // 👈 ДАДАДЗЕНА: для меню перамяшчэння секцый (перанесена з VacancyFilters.jsx)
 } from "lucide-react";
 
-function AccordionSection({ label, isOpen, onToggle, hasActiveFilters, icon, children }) {
+// 👈 ЗМЕНЕНА: AccordionSection пашырана меню перамяшчэння (тры кропкі), перанесена з VacancyFilters.jsx для ідэнтычнасці
+function AccordionSection({ 
+  label, 
+  isOpen, 
+  onToggle, 
+  hasActiveFilters, 
+  icon, 
+  children,
+  onMove, // Функцыя для перамяшчэння: (direction) => void
+  isFirst,
+  isLast 
+}) {
+  const [showMenu, setShowMenu] = useState(false);
+
+  const handleMove = (e, direction) => {
+    e.stopPropagation();
+    onMove(direction);
+    setShowMenu(false);
+  };
+
   return (
-    <div className="mb-2 border-b border-slate-100 pb-2">
-      <button
-        type="button"
-        onClick={onToggle}
-        className="w-full flex items-center justify-between py-2 px-1 hover:bg-slate-50 rounded-lg transition-colors group"
-      >
-        <div className="flex items-center gap-2">
-          {icon && <span className={hasActiveFilters ? 'text-emerald-600' : 'text-slate-400'}>{icon}</span>}
-          <span className={`text-sm font-bold ${hasActiveFilters ? 'text-emerald-600' : 'text-slate-700'}`}>
-            {label}
+    <div className="mb-2 border-b border-slate-100 pb-2 relative">
+      <div className="flex items-center group">
+        <button
+          type="button"
+          onClick={onToggle}
+          className="flex-1 flex items-center justify-between py-2 px-1 hover:bg-slate-50 rounded-lg transition-colors"
+        >
+          <div className="flex items-center gap-2">
+            {icon && <span className={hasActiveFilters ? 'text-emerald-600' : 'text-slate-400'}>{icon}</span>}
+            <span className={`text-sm font-bold ${hasActiveFilters ? 'text-emerald-600' : 'text-slate-700'}`}>
+              {label}
+            </span>
+            {hasActiveFilters && (
+              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full shadow-sm shadow-emerald-200" />
+            )}
+          </div>
+          <span className={`text-[10px] text-slate-400 transition-transform duration-200 ${isOpen || hasActiveFilters ? 'rotate-180' : ''}`}>
+            ▼
           </span>
-          {hasActiveFilters && (
-            <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full shadow-sm shadow-emerald-200" />
+        </button>
+
+        <div className="relative">
+          <button
+            onClick={(e) => { e.stopPropagation(); setShowMenu(!showMenu); }}
+            className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-md transition-all opacity-0 group-hover:opacity-100"
+          >
+            <MoreVertical size={14} />
+          </button>
+
+          {showMenu && (
+            <>
+              <div className="fixed inset-0 z-20" onClick={() => setShowMenu(false)} />
+              <div className="absolute right-0 mt-1 w-40 bg-white border border-slate-200 rounded-xl shadow-xl z-30 py-1 animate-in fade-in zoom-in-95 duration-100">
+                {!isFirst && (
+                  <>
+                    <button onClick={(e) => handleMove(e, 'top')} className="w-full flex items-center gap-2 px-3 py-2 text-[11px] text-slate-600 hover:bg-slate-50">
+                      <ArrowUpToLine size={12} /> В саму гору
+                    </button>
+                    <button onClick={(e) => handleMove(e, 'up')} className="w-full flex items-center gap-2 px-3 py-2 text-[11px] text-slate-600 hover:bg-slate-50">
+                      <ChevronUp size={12} /> На 1 вгору
+                    </button>
+                  </>
+                )}
+                {!isLast && (
+                  <>
+                    <button onClick={(e) => handleMove(e, 'down')} className="w-full flex items-center gap-2 px-3 py-2 text-[11px] text-slate-600 hover:bg-slate-50">
+                      <ChevronDown size={12} /> На 1 вниз
+                    </button>
+                    <button onClick={(e) => handleMove(e, 'bottom')} className="w-full flex items-center gap-2 px-3 py-2 text-[11px] text-slate-600 hover:bg-slate-50">
+                      <ArrowDownToLine size={12} /> В самий низ
+                    </button>
+                  </>
+                )}
+              </div>
+            </>
           )}
         </div>
-        <ChevronDown 
-          size={16} 
-          className={`text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} 
-        />
-      </button>
+      </div>
 
-      {isOpen && (
+      {(isOpen || hasActiveFilters) && (
         <div className="mt-2 px-1 animate-in fade-in slide-in-from-top-1 duration-200">
           {children}
         </div>
@@ -54,10 +112,53 @@ const DEFAULT_ORDER = [
   { id: "nuances", label: "Нюанси", icon: <ClipboardList size={14} /> },
   { id: "docs", label: "Документи", icon: <FileText size={14} /> },
   { id: "source", label: "Джерело", icon: <Share2 size={14} /> },
+  { id: "gender", label: "Хто їде", icon: <User size={14} /> },
+{ id: "nationality", label: "Національність", icon: <User size={14} /> },
+{ id: "contractType", label: "Тип договору", icon: <FileText size={14} /> },
 ];
 
 
 export default function CandidateFilters({ draft, onChange }) {
+  // 👈 НОВАЕ: захаванне парадку секцый, перанесена з VacancyFilters.jsx
+  const [sectionsOrder, setSectionsOrder] = useState(() => {
+    const savedIds = localStorage.getItem("candidate_filters_order_ids");
+    if (savedIds) {
+      try {
+        const ids = JSON.parse(savedIds);
+        const ordered = ids
+          .map(id => DEFAULT_ORDER.find(s => s.id === id))
+          .filter(Boolean);
+        const existingIds = new Set(ids);
+        const newSections = DEFAULT_ORDER.filter(s => !existingIds.has(s.id));
+        return [...ordered, ...newSections];
+      } catch (e) {
+        console.error("Error parsing filter order:", e);
+        return DEFAULT_ORDER;
+      }
+    }
+    return DEFAULT_ORDER;
+  });
+
+  useEffect(() => {
+    const idsToSave = sectionsOrder.map(s => s.id);
+    localStorage.setItem("candidate_filters_order_ids", JSON.stringify(idsToSave));
+  }, [sectionsOrder]);
+
+  const moveSection = (id, direction) => {
+    const index = sectionsOrder.findIndex(s => s.id === id);
+    if (index === -1) return;
+
+    let newOrder = [...sectionsOrder];
+    const item = newOrder.splice(index, 1)[0];
+
+    if (direction === 'top') newOrder.unshift(item);
+    else if (direction === 'bottom') newOrder.push(item);
+    else if (direction === 'up') newOrder.splice(Math.max(0, index - 1), 0, item);
+    else if (direction === 'down') newOrder.splice(Math.min(newOrder.length, index + 1), 0, item);
+
+    setSectionsOrder(newOrder);
+  };
+
   const [openSections, setOpenSections] = useState({
     search: true, // Па змаўчанні адкрыта толькі поле пошуку
   });
@@ -139,14 +240,14 @@ const renderSectionContent = (id) => {
           />
         );
       case "voivodeship":
-        return (
-          <MultiSelect
-            options={MD.VOIVODESHIPS}
-            selected={draft.voivodeship}
-            onChange={(v) => updateField("voivodeship", v)}
-            placeholder="Усі регіони"
-          />
-        );
+  return (
+    <MultiSelect
+      options={[{ value: "any", label: "✈️ Без різниці (готовий скрізь)" }, ...MD.VOIVODESHIPS]}
+      selected={draft.voivodeship}
+      onChange={(v) => updateField("voivodeship", v)}
+      placeholder="Усі регіони"
+    />
+  );
       case "locationNotes":
         return (
           <input
@@ -250,6 +351,33 @@ const renderSectionContent = (id) => {
             placeholder="Усі джерела"
           />
         );
+        case "gender":
+  return (
+    <MultiSelect
+      options={MD.GENDERS}
+      selected={draft.gender}
+      onChange={(v) => updateField("gender", v)}
+      placeholder="Будь-хто"
+    />
+  );
+case "nationality":
+  return (
+    <MultiSelect
+      options={MD.NATIONALITIES}
+      selected={draft.nationality}
+      onChange={(v) => updateField("nationality", v)}
+      placeholder="Усі нації"
+    />
+  );
+case "contractType":
+  return (
+    <MultiSelect
+      options={MD.CONTRACT_TYPES}
+      selected={draft.contractType}
+      onChange={(v) => updateField("contractType", v)}
+      placeholder="Будь-який договір"
+    />
+  );
       default:
         return null;
     }
@@ -275,7 +403,7 @@ const renderSectionContent = (id) => {
 
       {/* СКРОЛАЕМЫ СПІС АКАРДЭОНАЎ */}
       <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
-        {DEFAULT_ORDER.map((section) => (
+         {sectionsOrder.map((section, index) => ( 
           <AccordionSection
             key={section.id}
             label={section.label}
@@ -290,6 +418,9 @@ const renderSectionContent = (id) => {
               section.id === "hoursRange" ? (draft.hoursRange?.length > 0 || draft.onlyDayShifts) :
               Array.isArray(draft[section.id]) && draft[section.id].length > 0
             }
+            isFirst={index === 0}
+            isLast={index === sectionsOrder.length - 1} 
+            onMove={(direction) => moveSection(section.id, direction)} 
           >
             {renderSectionContent(section.id)}
           </AccordionSection>
