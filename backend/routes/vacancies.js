@@ -1069,4 +1069,41 @@ router.post("/bulk-publish", upload.single('file'), async (req, res) => {
     res.status(500).json({ message: "Помилка публікації: " + err.message });
   }
 });
+// 🔄 Перапарсінг адной вакансіі праз AI (v5.0)
+router.post("/:id/reparse", async (req, res) => {
+  try {
+    const vacancy = await Vacancy.findById(req.params.id);
+    if (!vacancy) return res.status(404).json({ message: "Вакансія не знойдзена" });
+
+    // Бяром арыгінальны тэкст (originalText), калі яго няма — rawText
+    const textToParse = vacancy.originalText || vacancy.rawText;
+    if (!textToParse) return res.status(400).json({ message: "Няма зыходнага тэксту для апрацоўкі" });
+
+    console.log(`🤖 [Reparse] Запуск поўнага перапарсінгу для ${vacancy.vacancyCode}...`);
+
+    const result = await processVacancyMessage(
+      textToParse,
+      vacancy.sender || "Manual",
+      vacancy.agencyName,
+      vacancy.originalText,
+      vacancy.isTruncated,
+      vacancy.parsingResultType,
+      vacancy.sourceHash,
+      vacancy.sheetName,
+      vacancy._id,
+      vacancy.sourceType,
+      true // forceFull = true (прымусова выкарыстоўваем лепшую мадэль з AI_CHAIN)
+    );
+
+    if (result && !result.error) {
+      console.log(`✅ [Reparse] Вакансія ${vacancy.vacancyCode} паспяхова абноўлена.`);
+      res.json(result);
+    } else {
+      throw new Error(result?.error || "Памылка AI-апрацоўкі");
+    }
+  } catch (err) {
+    console.error("❌ Reparse Route Error:", err.message);
+    res.status(500).json({ message: "Памылка перапарсінгу: " + err.message });
+  }
+});
 module.exports = { router, processVacancyMessage, retryPendingVacancies, generateVacancyCode };

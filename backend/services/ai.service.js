@@ -33,14 +33,17 @@ async function getAccessToken() {
 }
 
 const AI_CHAIN = [
+  { provider: "gemini_studio", name: "gemini-2.5-flash" },
+  { provider: "groq", name: "llama-3.3-70b-versatile" },
+  { provider: "vertex", name: "gemini-2.5-flash" },
   // 👈 ЗМЕНА: Vertex AI часова выключаны (білінг)
   // { provider: "vertex", name: "gemini-2.5-flash" },
   // { provider: "vertex", name: "gemini-2.5-flash-lite" },
   // { provider: "vertex", name: "gemini-3.1-flash-lite" },
-  { provider: "gemini_studio", name: "gemini-2.5-flash" },
-  { provider: "gemini_studio", name: "gemini-2.5-flash-lite" },
-  { provider: "groq", name: "llama-3.3-70b-versatile" },
-  { provider: "groq", name: "llama-3.1-8b-instant", maxChars: 16000 },
+  // { provider: "gemini_studio", name: "gemini-2.5-flash" },
+  // { provider: "gemini_studio", name: "gemini-2.5-flash-lite" },
+  // { provider: "groq", name: "llama-3.3-70b-versatile" },
+  // { provider: "groq", name: "llama-3.1-8b-instant", maxChars: 16000 },
 ];
 
 let chainFrozenUntil = 0; // Паўза 1 гадзіна пры адмове ўсіх мадэляў
