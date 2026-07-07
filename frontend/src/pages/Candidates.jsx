@@ -443,7 +443,7 @@ const handleStatusDrop = async (candidateId, newStatus) => {
           </div>
         ) : (
            /* КАНБАН РЭЖЫМ */
-          <div className="flex gap-4 overflow-x-auto pb-6 min-h-[calc(100vh-250px)] custom-scrollbar">
+          <div className="w-full flex gap-4 overflow-x-auto pb-6 min-h-[calc(100vh-250px)] custom-scrollbar">
             {MD.CANDIDATE_STATUSES.map((statusObj) => {
               const statusKey = statusObj.value;
               const label = statusObj.label;
