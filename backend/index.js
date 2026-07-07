@@ -117,6 +117,7 @@ global.isSyncRunning = true;
     const lastRunDate = lastFinish.toDateString();
     const isToday = lastRunDate === now.toDateString();
     const wasDoneInMorning = isToday && lastFinish.getHours() >= 7 && lastFinish.getHours() < 14;
+    const isTimeForNewCircle = (isMorningSlot && !isToday) || (isAfternoonSlot && isCooldownOver); // 👈 ФІКС: вызначаем для блока ачысткі ніжэй
 
     // 🛡️ ВЫЗНАЧАЕМ, ЦІ ТРЭБА ЗАПУСК
     let shouldRun = false;
