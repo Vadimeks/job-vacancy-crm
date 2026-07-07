@@ -26,6 +26,7 @@ const app = express();
 // 👈 ГЛАБАЛЬНЫ ПРАГРЭС СІНХРАНІЗАЦЫІ
 global.syncProgress = { current: 0, total: 0, status: 'idle', agency: null };
 global.stopSyncRequested = false;
+global.isManualActionInProgress = false; // 👈 ДАДАДЗЕНА: прыярытэт ручных дзеянняў (reparse, publish і г.д.)
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -88,15 +89,34 @@ global.isSyncRunning = true;
       }
     }
 
+   // 0. ПРЫЯРЫТЭТ: Калі рэкрутэр зараз нешта робіць уручную — аўтаматыка нават не спрабуе пачаць
+    if (global.isManualActionInProgress && !forceRun) {
+      console.log("⏳ [Sync] Аўтаматыка чакае: рэкрутэр выконвае ручную аперацыю...");
+      return;
+    }
+
     // 1. Чытаем стан і правяраем чаргу
     const syncState = await SyncState.findOne({ key: "circular_sync_position" });
     const hasPendingAi = await Vacancy.exists({ status: "pending_ai" });
     const isCircleIncomplete = syncState && syncState.isComplete === false;
 
-    // Вылічаем, ці пара пачынаць новае кола (4 гадзіны ад апошняга поўнага фінішу)
+    // 2. Логіка раскладу (07:00 і 14:00) і інтэрвалаў
+    const now = new Date();
+    const currentHour = now.getHours();
     const lastFinish = syncState?.lastFullCircleAt ? new Date(syncState.lastFullCircleAt) : new Date(0);
-    const fourHoursAgo = new Date(Date.now() - 4 * 60 * 60 * 1000);
-    const isTimeForNewCircle = lastFinish < fourHoursAgo;
+    
+    // Умова 2 гадзін пасля любога фінішу
+    const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
+    const isCooldownOver = lastFinish < twoHoursAgo;
+
+    // Вызначаем, ці надышоў час паводле раскладу
+    const isMorningSlot = currentHour >= 7 && currentHour < 14;
+    const isAfternoonSlot = currentHour >= 14;
+    
+    // Правяраем, ці рабілі мы ўжо кола ў гэтых слотах
+    const lastRunDate = lastFinish.toDateString();
+    const isToday = lastRunDate === now.toDateString();
+    const wasDoneInMorning = isToday && lastFinish.getHours() >= 7 && lastFinish.getHours() < 14;
 
     // 🛡️ ВЫЗНАЧАЕМ, ЦІ ТРЭБА ЗАПУСК
     let shouldRun = false;
@@ -105,7 +125,11 @@ global.isSyncRunning = true;
     if (forceRun) { reason = "Прымусовы запуск"; shouldRun = true; }
     else if (hasPendingAi) { reason = "Ёсць неапрацаваныя вакансіі (pending_ai)"; shouldRun = true; }
     else if (isCircleIncomplete) { reason = "Мінулае кола не завершана"; shouldRun = true; }
-    else if (isTimeForNewCircle) { reason = "Прайшло 4 гадзіны, пара пачынаць новае кола"; shouldRun = true; }
+    else if (isMorningSlot && !isToday) { reason = "Ранішні слот (07:00+), новы дзень"; shouldRun = true; }
+    else if (isAfternoonSlot && (!wasDoneInMorning || isCooldownOver) && isCooldownOver) { 
+      reason = "Дзённы слот (14:00+) і вытрымана паўза 2 гадзіны"; 
+      shouldRun = true; 
+    }
 
     if (!shouldRun) return; // Ціха выходзім, калі рабіць няма чаго
 
@@ -160,10 +184,10 @@ global.isSyncRunning = true;
   }
 } 
 // Правяраем стан канвеера кожныя 10 хвілін - ЗАКАМЕНТАВАНА КАБ СІНХРАНІЗАВАЦЬ УРУЧНУЮ
-// cron.schedule("*/10 * * * *", async () => {
-//   console.log("🔍 [Watchdog] Праверка чаргі і стану сінхранізацыі...");
-//   await runSyncWithInsurance();
-// })
+cron.schedule("*/10 * * * *", async () => {
+  console.log("🔍 [Watchdog] Праверка чаргі і стану сінхранізацыі...");
+  await runSyncWithInsurance();
+})
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

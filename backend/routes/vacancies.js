@@ -1002,17 +1002,16 @@ router.post("/:id/generate-preview", async (req, res) => {
 
 // Публікацыя адрэдагаванага паста
 router.post("/:id/publish", upload.single('file'), async (req, res) => {
+  global.isManualActionInProgress = true; // 👈 Уключаем прыярытэт
   try {
     const { fullText, shortText, mode } = req.body;
-    const file = req.file; // Файл з FormData
+    const file = req.file;
 
     const vacancy = await Vacancy.findById(req.params.id);
     if (!vacancy) return res.status(404).json({ message: "Вакансія не знойдзена" });
 
-    // Вызначаем, які тэкст адпраўляць
     let textToSend = mode === "short" ? (shortText || vacancy.telegramShort) : (fullText || vacancy.telegramFull);
 
-    // Адпраўляем у Тэлеграм (перадаем файл трэцім параметрам)
     await sendToTelegram(textToSend, vacancy._id, file);
 
     vacancy.isPublished = true;
@@ -1022,6 +1021,8 @@ router.post("/:id/publish", upload.single('file'), async (req, res) => {
   } catch (err) {
     console.error("❌ Publish Route Error:", err.message);
     res.status(500).json({ message: "Памылка публікацыі: " + err.message });
+  } finally {
+    global.isManualActionInProgress = false; // 👈 Выключаем прыярытэт
   }
 });
 // 1. Генерацыя сырога тэксту для дайджэста
@@ -1054,33 +1055,31 @@ router.post("/bulk-preview", async (req, res) => {
 
 // 2. Публікацыя (прымае гатовы тэкст са сплітамі ад фронтэнда)
 router.post("/bulk-publish", upload.single('file'), async (req, res) => {
+  global.isManualActionInProgress = true; // 👈 Уключаем прыярытэт
   try {
     const { text } = req.body;
     const file = req.file;
 
     if (!text) return res.status(400).json({ message: "Текст порожній" });
 
-    // Наш сэрвіс ужо ўмее разбіваць па === SPLIT === і рабіць паўзы
     await sendToTelegram(text, null, file);
     
     res.json({ message: "✅ Опубліковано" });
   } catch (err) {
     console.error("❌ Bulk Publish Error:", err.message);
     res.status(500).json({ message: "Помилка публікації: " + err.message });
+  } finally {
+    global.isManualActionInProgress = false; // 👈 Выключаем прыярытэт
   }
 });
 // 🔄 Перапарсінг адной вакансіі праз AI (v5.0)
 router.post("/:id/reparse", async (req, res) => {
+  global.isManualActionInProgress = true; // 👈 Уключаем прыярытэт
   try {
     const vacancy = await Vacancy.findById(req.params.id);
     if (!vacancy) return res.status(404).json({ message: "Вакансія не знойдзена" });
 
-    // Бяром арыгінальны тэкст (originalText), калі яго няма — rawText
     const textToParse = vacancy.originalText || vacancy.rawText;
-    if (!textToParse) return res.status(400).json({ message: "Няма зыходнага тэксту для апрацоўкі" });
-
-    console.log(`🤖 [Reparse] Запуск поўнага перапарсінгу для ${vacancy.vacancyCode}...`);
-
     const result = await processVacancyMessage(
       textToParse,
       vacancy.sender || "Manual",
@@ -1092,18 +1091,13 @@ router.post("/:id/reparse", async (req, res) => {
       vacancy.sheetName,
       vacancy._id,
       vacancy.sourceType,
-      true // forceFull = true (прымусова выкарыстоўваем лепшую мадэль з AI_CHAIN)
+      true 
     );
-
-    if (result && !result.error) {
-      console.log(`✅ [Reparse] Вакансія ${vacancy.vacancyCode} паспяхова абноўлена.`);
-      res.json(result);
-    } else {
-      throw new Error(result?.error || "Памылка AI-апрацоўкі");
-    }
+    res.json(result);
   } catch (err) {
-    console.error("❌ Reparse Route Error:", err.message);
     res.status(500).json({ message: "Памылка перапарсінгу: " + err.message });
+  } finally {
+    global.isManualActionInProgress = false; // 👈 Выключаем заўсёды
   }
 });
 module.exports = { router, processVacancyMessage, retryPendingVacancies, generateVacancyCode };

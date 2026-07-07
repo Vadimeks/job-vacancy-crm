@@ -25,7 +25,8 @@ router.post("/agency", async (req, res) => {
   console.log(`🚀 [Manual Sync] Запуск для: ${agencies.join(", ")}`);
   
   // 👈 СТАВІМ СТАТУС АДРАЗУ, каб фронтэнд не ўбачыў 'idle'
-  global.isSyncRunning = true;
+ global.isSyncRunning = true;
+  global.isManualActionInProgress = true; // 👈 ДАДАДЗЕНА: блакуем аўтаматыку
   global.syncProgress = { current: 0, total: 0, status: 'running', agency: agencies[0] };
   global.stopSyncRequested = false;
 
@@ -83,6 +84,7 @@ router.post("/agency", async (req, res) => {
       global.syncProgress.status = 'error';
     } finally {
       global.isSyncRunning = false;
+      global.isManualActionInProgress = false; // 👈 ДАДАДЗЕНА: вызваляем аўтаматыку
     }
   });
 });

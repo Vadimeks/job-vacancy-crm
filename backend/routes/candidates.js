@@ -79,16 +79,17 @@ router.post("/:id/history", async (req, res) => {
 
 // GET /api/candidates/:id/match-vacancies
 router.get("/:id/match-vacancies", async (req, res) => {
+  global.isManualActionInProgress = true; // 👈 Блакуем аўтаматыку
   try {
     const candidate = await Candidate.findById(req.params.id);
     if (!candidate) return res.status(404).json({ message: "Кандыдат не знойдзены" });
 
-    // Выкарыстоўваем адзіную логіку з matching.service.js
     const matched = await matchVacanciesForCandidate(candidate);
     res.json(matched);
   } catch (err) {
-    console.error("❌ Match Error:", err.message);
     res.status(500).json({ message: err.message });
+  } finally {
+    global.isManualActionInProgress = false; // 👈 Вызваляем
   }
 });
 
