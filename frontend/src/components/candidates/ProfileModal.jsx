@@ -175,18 +175,18 @@ const [showAllMatches, setShowAllMatches] = useState(false); // 👈 ДАДАД�
                   {editStatus ? (
                     <div className="flex flex-col gap-1">
                       {MD.CANDIDATE_STATUSES.map((s) => (
-  <button
-    key={s.value}
-    onClick={() => handleStatusChange(s.value)}
-    className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors text-left ${
-      candidate.status === s.value
-        ? "bg-emerald-500 text-white"
-        : "bg-slate-50 text-slate-700 hover:bg-slate-100"
-    }`}
-  >
-    {s.label}
-  </button>
-))}
+                        <button
+                          key={s.value}
+                          onClick={() => handleStatusChange(s.value)}
+                          className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors text-left ${
+                            candidate.status === s.value
+                              ? "bg-emerald-500 text-white"
+                              : "bg-slate-50 text-slate-700 hover:bg-slate-100"
+                          }`}
+                        >
+                          {s.label}
+                        </button>
+                      ))}
                       <button
                         onClick={() => setEditStatus(false)}
                         className="text-[10px] font-black uppercase text-slate-400 hover:text-red-500 mt-2 py-1 border-t border-slate-100 transition-colors text-center w-full"
