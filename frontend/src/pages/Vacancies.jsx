@@ -37,7 +37,7 @@ const STATUS_LABELS = {
 
 // 1. Поўная і карэктная функцыя фільтрацыі
 function applyFilters(vacancies, filters) {
-  if (!vacancies) return [];
+  if (!Array.isArray(vacancies)) return []; // 👈 ФІКС: гарантуем, што працуем толькі з масівам
 
   return vacancies.filter((v) => {
     if (filters.isFavorite && !v.isFavorite) return false;
