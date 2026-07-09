@@ -58,12 +58,13 @@ export default function VacancyViewModal({
   vacancy,
   onClose,
   onEdit,
+  onUpdate, // 👈 ДАДАДЗЕНА: новы проп для ціхага абнаўлення
   onDelete,
   onMatch,
-   onNext,      // Новае
-  onPrev,      // Новае
-  currentIndex, // Новае
-  totalCount   // Новае
+  onNext,
+  onPrev,
+  currentIndex,
+  totalCount
 }) {
   const [copied, setCopied] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -97,13 +98,16 @@ export default function VacancyViewModal({
   }, [vacancy?._id]);
   // 👈 ФІКС ПАМЫЛКІ: Сінхранізацыя стэйту пры змене вакансіі (карусель)
   // Гэты патэрн працуе хутчэй за useEffect і не выклікае памылак лінтэра
-  // 👈 ФІКС ПАМЫЛКІ: Выкарыстоўваем vacancy напрамую, бо v яшчэ не аб'яўлена
-  const [prevId, setPrevId] = useState(vacancy?._id);
-  if (vacancy?._id !== prevId) {
+ 
+ const [prevId, setPrevId] = useState(vacancy?._id);
+  const [lastUpdated, setLastUpdated] = useState(vacancy?.updatedAt); // 👈 ДАДАДЗЕНА
+
+  if (vacancy?._id !== prevId || vacancy?.updatedAt !== lastUpdated) {
     setPrevId(vacancy?._id);
+    setLastUpdated(vacancy?.updatedAt); // 👈 ЗАПАМІНАЕМ час абнаўлення
     setEditedFull(vacancy?.telegramFull || "");
     setEditedShort(vacancy?.telegramShort || "");
-    setShowEditor(!!(vacancy?.telegramFull || vacancy?.telegramShort));
+    // Не чапаем setShowEditor, каб не закрываць яго, калі карыстальнік яго ўжо адкрыў
   }
   // Кіраванне клавіятурай
   useEffect(() => {
@@ -134,17 +138,21 @@ export default function VacancyViewModal({
 const handleGenerate = async () => {
     setIsGenerating(true);
     try {
-      const res = await generateVacancyPreview(v._id);
-      setEditedFull(res.data.full);
-      setEditedShort(res.data.short);
-      setShowEditor(true);
+     const res = await reparseVacancy(vacancy._id); // 👈 ФІКС: выкарыстоўваем vacancy._id напрамую
+      // 💡 ЗМЕНЕНА: Выклікаем onUpdate замест onEdit, каб не адкрываць мадалку рэдагавання
+      if (onUpdate) {
+        onUpdate(res.data);
+      } else if (onEdit) {
+        onEdit(res.data); 
+      }
+      
+      alert("✅ Дані вакансії оновлено праз AI!");
     } catch (err) {
-      // Бяром паведамленне непасрэдна з адказу сервера
-      const errorMsg = err.response?.data?.message || "Памылка генерацыі. Паспрабуйце пазней.";
-      alert(errorMsg);
+      alert("Помилка AI-аналізу: " + (err.response?.data?.message || err.message));
     } finally {
-      setIsGenerating(false);
+      setIsReparsing(false);
     }
+  
   };
 
   const handlePublish = async () => {

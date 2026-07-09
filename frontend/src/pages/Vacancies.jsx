@@ -1532,6 +1532,12 @@ const [viewMode, setViewMode] = useState("list"); // Стан для перак�
               setViewVacancy(null);
               setMatchVacancy(v);
             }}
+            onUpdate={(updated) => {
+              // 1. Абнаўляем вакансію ў агульным спісе (каб змены былі бачны ў табліцы)
+              setVacancies(prev => prev.map(v => v._id === updated._id ? updated : v));
+              // 2. Абнаўляем стан бягучай вакансіі (каб мадалка адразу паказала новыя дадзеныя)
+              setViewVacancy(updated);
+            }}
           />
         );
       })()}
