@@ -889,13 +889,15 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true, full
 
         return { data: fullText.trim(), isLowQuality: false, modelUsed: model.name }; // 👈 Дадалі modelUsed
       } catch (error) {
-        const isRetryable =
-          error.message.includes("SERVER_ERROR") || error.name === "AbortError";
+        // 👈 ЗМЕНЕНА: Дададзены RATE_LIMIT і 429 у спіс рэтраяў (v5.7)
+        const isRateLimitErr = error.message?.includes("RATE_LIMIT") || error.message?.includes("429");
+        const isRetryable = error.message.includes("SERVER_ERROR") || error.name === "AbortError" || isRateLimitErr;
 
         if (isRetryable && retries > 0) {
-          console.warn(`⚠️ Часовая памылка (${model.name}), паўтор...`);
+          const waitTime = isRateLimitErr ? 3000 : 2000; // Калі ліміт — чакаем крыху даўжэй
+          console.warn(`⚠️ Часовая памылка (${model.name}): ${error.message}. Паўтор праз ${waitTime/1000}с...`);
           retries--;
-          await new Promise((r) => setTimeout(r, 2000));
+          await new Promise((r) => setTimeout(r, waitTime));
           continue;
         }
 
