@@ -457,10 +457,12 @@ function buildRowText(cells, headers, agencyName, sheetName) {
       }
     }
 
-    if (foundDocId) {
+   if (foundDocId) {
       const docUrl = `https://docs.google.com/document/d/${foundDocId}/`;
       externalUrls.push({ url: docUrl, header: "Апісанне пасады" });
       parts.push(`[Дадатковае апісанне пасады: ${docUrl}]`);
+      // 👈 Абноўлены лог з вывадам ID
+      console.log(`🔗 [PPG Match] Знойдзены дакумент для ${ppgBrand}/${ppgPosition} -> ID: ${foundDocId}`);
     }
   }
   if (apoloGender.length > 0) {
@@ -589,6 +591,11 @@ async function syncSheetVacancies(sourceId) {
    for (let i = headerRowIndex + 1; i < rowData.length; i++) {
     global.syncProgress.current++; // 👈 КРОК ЛІЧЫЛЬНІКА
       // Пропуск, калі мы яшчэ не дайшлі да патрэбнага індэкса ў гэтым коле
+      // 👈 ДАДАДЗЕНА: Паўза, калі рэкрутэр выконвае ручную аперацыю (v5.4)
+      while (global.isManualActionInProgress) {
+        console.log("⏳ [Sync] Аўтаматыка на паўзе: рэкрутэр працуе ўручную...");
+        await new Promise(r => setTimeout(r, 5000)); // Чакаем 5 секунд і правяраем зноў
+      }
       if (i < startIndex) continue;
  if (global.stopSyncRequested) {
         console.log("🛑 [Sheets] Сінхранізацыя перарвана карыстальнікам.");

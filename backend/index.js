@@ -116,8 +116,26 @@ global.isSyncRunning = true;
     // Правяраем, ці рабілі мы ўжо кола ў гэтых слотах
     const lastRunDate = lastFinish.toDateString();
     const isToday = lastRunDate === now.toDateString();
+    
+    // Вызначаем, ці выкананы нормы для кожнага слота сёння
     const wasDoneInMorning = isToday && lastFinish.getHours() >= 7 && lastFinish.getHours() < 14;
-    const isTimeForNewCircle = (isMorningSlot && !isToday) || (isAfternoonSlot && isCooldownOver); // 👈 ФІКС: вызначаем для блока ачысткі ніжэй
+    const wasDoneInAfternoon = isToday && lastFinish.getHours() >= 14;
+
+    // Новае кола пачынаем, толькі калі мы яшчэ не працавалі ў бягучым слоце
+    const isTimeForNewCircle = (isMorningSlot && !wasDoneInMorning) || (isAfternoonSlot && !wasDoneInAfternoon);
+
+    // 🛡️ ВЫЗНАЧАЕМ, ЦІ ТРЭБА ЗАПУСК
+    let shouldRun = false;
+    let reason = "";
+
+    if (forceRun) { reason = "Прымусовы запуск"; shouldRun = true; }
+    else if (hasPendingAi) { reason = "Ёсць неапрацаваныя вакансіі (pending_ai)"; shouldRun = true; }
+    else if (isCircleIncomplete) { reason = "Мінулае кола не завершана"; shouldRun = true; }
+    else if (isMorningSlot && !wasDoneInMorning) { reason = "Ранішні слот (07:00+), пачатак новага кола"; shouldRun = true; }
+    else if (isAfternoonSlot && !wasDoneInAfternoon && isCooldownOver) { 
+      reason = "Дзённы слот (14:00+) і вытрымана паўза 2 гадзіны"; 
+      shouldRun = true; 
+    }
 
     // 🛡️ ВЫЗНАЧАЕМ, ЦІ ТРЭБА ЗАПУСК
     let shouldRun = false;

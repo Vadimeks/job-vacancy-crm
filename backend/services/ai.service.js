@@ -47,6 +47,7 @@ const AI_CHAIN = [
 ];
 
 let chainFrozenUntil = 0; // Паўза 1 гадзіна пры адмове ўсіх мадэляў
+const PROVIDER_FREEZE = { groq: 0, gemini_studio: 0, vertex: 0 }; // 👈 ДАДАДЗЕНА: замарозка асобных правайдэраў
 
 const POLISH_VOIVODESHIPS = [
   "Dolnośląskie",
@@ -762,13 +763,20 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true, full
   for (const model of AI_CHAIN) {
     if (fullModelOnly && model.name.toLowerCase().includes("lite")) continue;
 
+    // 👈 ДАДАДЗЕНА: Праверка, ці не замарожаны гэты правайдэр
+    if (Date.now() < PROVIDER_FREEZE[model.provider]) {
+      const remain = Math.ceil((PROVIDER_FREEZE[model.provider] - Date.now()) / 60000);
+      console.log(`❄️ [AI] Правайдэр ${model.provider} замарожаны яшчэ на ${remain} хв. Пропуск ${model.name}.`);
+      continue;
+    }
+
     // 👈 ГІБРЫДНАЯ ЛОГІКА: Gemini атрымлівае пачку, Groq — па адной
     let currentInput = "";
     let isSequentialGroq = (model.provider === "groq" && Array.isArray(userContent));
 
     if (Array.isArray(userContent)) {
-      if (model.provider === "gemini_studio") {
-        // Gemini: злучаем у пачку
+      // 👈 ЗМЕНЕНА: Vertex выкарыстоўвае тую ж логіку пачак, што і Gemini Studio
+      if (model.provider === "gemini_studio" || model.provider === "vertex") {
         currentInput = userContent.map((t, i) => `--- VACANCY ${i+1} ---\n${t}`).join("\n\n");
       } else if (!isSequentialGroq) {
         currentInput = userContent.join("\n\n");
@@ -911,6 +919,19 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true, full
         }
 
         console.error(`⚠️ Памылка мадэлі (${model.name}):`, error.message);
+
+        // 👈 ДАДАДЗЕНА: Вызначаем, ці гэта памылка лімітаў (429 / Quota)
+        const isRateLimit = 
+          error.message?.includes("429") || 
+          error.message?.includes("Rate limit") || 
+          error.message?.includes("quota") ||
+          error.message?.includes("RATE_LIMIT");
+
+        if (isRateLimit) {
+          PROVIDER_FREEZE[model.provider] = Date.now() + 30 * 60 * 1000; // Замарозка на 30 хвілін
+          console.warn(`🚫 [AI] Правайдэр ${model.provider} дасягнуў ліміту. Замарожана на 30 хв.`);
+        }
+
         break; // Выхад з while, пераход да наступнай мадэлі ў for
       }
     }
