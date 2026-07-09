@@ -137,19 +137,6 @@ global.isSyncRunning = true;
       shouldRun = true; 
     }
 
-    // 🛡️ ВЫЗНАЧАЕМ, ЦІ ТРЭБА ЗАПУСК
-    let shouldRun = false;
-    let reason = "";
-
-    if (forceRun) { reason = "Прымусовы запуск"; shouldRun = true; }
-    else if (hasPendingAi) { reason = "Ёсць неапрацаваныя вакансіі (pending_ai)"; shouldRun = true; }
-    else if (isCircleIncomplete) { reason = "Мінулае кола не завершана"; shouldRun = true; }
-    else if (isMorningSlot && !isToday) { reason = "Ранішні слот (07:00+), новы дзень"; shouldRun = true; }
-    else if (isAfternoonSlot && (!wasDoneInMorning || isCooldownOver) && isCooldownOver) { 
-      reason = "Дзённы слот (14:00+) і вытрымана паўза 2 гадзіны"; 
-      shouldRun = true; 
-    }
-
     if (!shouldRun) return; // Ціха выходзім, калі рабіць няма чаго
 
     console.log(`⏰ [Sync] Трыгер: ${reason}. Пачынаем працу...`);
