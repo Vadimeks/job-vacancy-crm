@@ -20,7 +20,7 @@ const STATUS_COLORS = {
 
 
 function applyFilters(candidates, filters) {
-  if (!Array.isArray(candidates)) return []; // 👈 ФІКС: калі дадзеныя яшчэ не прыйшлі або там памылка — вяртаем пусты масіў
+  if (!Array.isArray(candidates)) return []; // 👈 Ахова
   return candidates.filter((c) => {
     // Пошук (імя, тэлефон, тг, горад) — без змен
     if (filters.search) {

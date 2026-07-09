@@ -37,7 +37,7 @@ const STATUS_LABELS = {
 
 // 1. Поўная і карэктная функцыя фільтрацыі
 function applyFilters(vacancies, filters) {
-  if (!Array.isArray(vacancies)) return []; // 👈 ФІКС: гарантуем, што працуем толькі з масівам
+  if (!Array.isArray(vacancies)) return []; // 👈 Жорсткая праверка на масіў
 
   return vacancies.filter((v) => {
     if (filters.isFavorite && !v.isFavorite) return false;
@@ -497,6 +497,7 @@ const handleStopSync = async () => {
   }, [syncing, fetchVacancies]);
   // 1. Вакансіі, адфільтраваныя ТОЛЬКІ па датах і пошуку (Кантэкст для фільтраў)
   const instantFiltered = useMemo(() => {
+    if (!Array.isArray(vacancies)) return []; // 👈 Ахова перад фільтрацыяй
     return vacancies.filter((v) => {
       // Пошук
       if (draft.search) {
