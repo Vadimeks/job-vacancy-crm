@@ -529,14 +529,13 @@ function repairJson(text) {
 
   cleaned = cleaned.replace(/[\u0000-\u001F\u007F-\u009F]/g, "");
 
+  // 👈 ДАДАДЗЕНА: Закрыццё вісячай лапкі
+  const openQuotes = (cleaned.match(/"/g) || []).length;
+  if (openQuotes % 2 !== 0) cleaned += '"';
+
   if (!cleaned.endsWith("}")) {
     if (cleaned.endsWith(",")) cleaned = cleaned.slice(0, -1);
     
-    const lastChar = cleaned.slice(-1);
-    const needsQuote = /[a-zA-Zа-яёіўА-ЯЁІЎ0-9\s]$/.test(lastChar);
-    
-    if (needsQuote) cleaned += '"';
-
     const openBraces = (cleaned.match(/\{/g) || []).length;
     const closeBraces = (cleaned.match(/\}/g) || []).length;
     if (openBraces > closeBraces) {
@@ -759,7 +758,7 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true, full
     const diff = Math.ceil((chainFrozenUntil - Date.now()) / 60000);
     throw new Error(`AI_COOLDOWN: Паўза яшчэ ${diff} хв.`);
   }
-
+ let lastErrorWasJson = false;
   for (const model of AI_CHAIN) {
     if (fullModelOnly && model.name.toLowerCase().includes("lite")) continue;
 
@@ -797,16 +796,13 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true, full
       try {
         let fullText = "";
 
-        // --- VERTEX AI ---
+        // --- VERTEX AI (Non-streaming version) ---
         if (model.provider === "vertex") {
-          console.log(
-            `🤖 Запыт да Vertex AI: ${model.name} (Спроб: ${retries})`,
-          );
+          console.log(`🤖 Запыт да Vertex AI: ${model.name} (Спроб: ${retries})`);
           const token = await getAccessToken();
-          if (!token) throw new Error("Токен адсутнічае");
-
-          const url = `https://${LOCATION}-aiplatform.googleapis.com/v1/projects/${GOOGLE_PROJECT_ID}/locations/${LOCATION}/publishers/google/models/${model.name}:streamGenerateContent`;
-
+           if (!token) throw new Error("Токен адсутнічае");
+          // 👈 ЗМЕНЕНА: generateContent замест streamGenerateContent
+          const url = `https://${LOCATION}-aiplatform.googleapis.com/v1/projects/${GOOGLE_PROJECT_ID}/locations/${LOCATION}/publishers/google/models/${model.name}:generateContent`;
           const controller = new AbortController();
           const timeoutId = setTimeout(() => controller.abort(), 60000);
 
@@ -818,12 +814,7 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true, full
             },
             signal: controller.signal,
             body: JSON.stringify({
-              contents: [
-                {
-                  role: "user",
-                  parts: [{ text: `${systemPrompt}\n\n${currentInput}` }],
-                },
-              ],
+              contents: [{ role: "user", parts: [{ text: `${systemPrompt}\n\n${currentInput}` }] }],
               generationConfig: {
                 temperature: 0.1,
                 responseMimeType: jsonMode ? "application/json" : "text/plain",
@@ -833,23 +824,12 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true, full
           });
 
           clearTimeout(timeoutId);
-
           if (response.status === 429) throw new Error("RATE_LIMIT");
-          
-          if (!response.ok) {
-            // Калі статус не 200-299, чытаем тэкст (там будзе HTML памылкі)
-            const errorText = await response.text();
-            console.error(`❌ Vertex AI Error (${response.status}):`, errorText.substring(0, 200));
-            throw new Error(`VERTEX_ERROR_${response.status}`);
-          }
+          if (!response.ok) throw new Error(`VERTEX_ERROR_${response.status}`);
 
-          // Толькі калі response.ok — спрабуем парсіць JSON
           const data = await response.json();
-          const chunks = Array.isArray(data) ? data : [data];
-          for (const chunk of chunks) {
-            const chunkText = chunk.candidates?.[0]?.content?.parts?.[0]?.text;
-            if (chunkText) fullText += chunkText;
-          }
+          // 👈 ЗМЕНЕНА: Простае атрыманне тэксту без цыкла па chunks
+          fullText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
         }
 // --- GEMINI AI STUDIO ---
         if (model.provider === "gemini_studio") {
@@ -902,6 +882,7 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true, full
             return { data: repaired, isLowQuality, modelUsed: model.name }; // 👈 Дадалі modelUsed
           } catch (e) {
             console.warn(`⚠️ Мадэль ${model.name} вярнула невылечны JSON.`);
+            lastErrorWasJson = true; // 👈 ДАДАДЗЕНА: пазначаем, што праблема ў кантэнце, а не ў сервісе
             throw new Error("INVALID_JSON");
           }
         }
@@ -936,8 +917,14 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true, full
       }
     }
   }
+// 👈 SMART FREEZE: Замарожваем увесь ланцужок толькі калі гэта НЕ памылка JSON (v5.5)
+  if (!lastErrorWasJson) {
+    chainFrozenUntil = Date.now() + 5 * 60 * 1000; // Паўза 5 хв толькі пры адмове API
+    console.error("❄️ [AI] Усе мадэлі адмовілі (API error). Глабальная замарозка на 5 хв.");
+  } else {
+    console.warn("⚠️ [AI] Усе мадэлі вярнулі INVALID_JSON. Пропуск без глабальнай замарозкі.");
+  }
 
-  chainFrozenUntil = Date.now() + 5 * 60 * 1000; // Калі ўсё ляснула — адпачываем 2 хв
   throw new Error("ALL_AI_MODELS_FAILED");
 }
 

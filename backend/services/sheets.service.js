@@ -738,18 +738,9 @@ async function syncSheetVacancies(sourceId) {
       const analysis = await analyzeAndCompareWithGemini(rawRowText, [], recentVacancies);
 
       if (!analysis) {
-        console.log(`⏳ AI не адказаў для радка ${i + 1}. Запамінаем індэкс і спыняемся.`);
-        
-        await SyncState.findOneAndUpdate(
-          { key: "circular_sync_position" },
-          { 
-            lastSourceType: "spreadsheet", 
-            lastSourceId: source._id, 
-            lastIndex: i 
-          },
-          { upsert: true }
-        );
-        return "STOP_ALL"; 
+        console.log(`⚠️ [Sync] AI памылка для радка ${i + 1}. Вакансія застаецца ў pending_ai. Пераход да наступнага радка.`);
+        stats.ignored++;
+        continue; // 👈 Гэта дазволіць Watchdog дабіць астатнія табліцы!
       }
 
       console.log(
