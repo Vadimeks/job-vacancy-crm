@@ -738,9 +738,10 @@ async function syncSheetVacancies(sourceId) {
       const analysis = await analyzeAndCompareWithGemini(rawRowText, [], recentVacancies);
 
       if (!analysis) {
-        console.log(`⚠️ [Sync] AI памылка для радка ${i + 1}. Вакансія застаецца ў pending_ai. Пераход да наступнага радка.`);
+        // 👈 ЗМЕНЕНА: Не спыняем сінхранізацыю табліц (v5.6)
+        console.warn(`⚠️ [Sheets] AI памылка для радка ${i + 1}. Вакансія ў pending_ai. Пропуск.`);
         stats.ignored++;
-        continue; // 👈 Гэта дазволіць Watchdog дабіць астатнія табліцы!
+        continue; 
       }
 
       console.log(

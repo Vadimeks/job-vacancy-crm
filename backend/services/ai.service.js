@@ -909,8 +909,11 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true, full
           error.message?.includes("RATE_LIMIT");
 
         if (isRateLimit) {
-          PROVIDER_FREEZE[model.provider] = Date.now() + 30 * 60 * 1000; // Замарозка на 30 хвілін
-          console.warn(`🚫 [AI] Правайдэр ${model.provider} дасягнуў ліміту. Замарожана на 30 хв.`);
+          // 👈 ЗМЕНЕНА: Дыферэнцыраваная замарозка (v5.6)
+          // Vertex (платны) — 2 хвіліны, астатнія (бясплатныя) — 30 хвілін
+          const freezeMinutes = model.provider === "vertex" ? 2 : 30;
+          PROVIDER_FREEZE[model.provider] = Date.now() + freezeMinutes * 60 * 1000;
+          console.warn(`🚫 [AI] Правайдэр ${model.provider} дасягнуў ліміту. Замарожана на ${freezeMinutes} хв.`);
         }
 
         break; // Выхад з while, пераход да наступнай мадэлі ў for

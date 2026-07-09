@@ -219,13 +219,10 @@ async function syncSingleSource(source) {
     
     // 🛡️ SAFETY SWITCH: Калі AI "ляснуў", запамінаем індэкс і спыняемся
     if (!analysis || !analysis.translatedFragments) {
-      console.error(`🛑 [Airtable] AI Error для ${airtableId}. Запамінаем індэкс ${i} і спыняемся.`);
-      await SyncState.findOneAndUpdate(
-        { key: "circular_sync_position" },
-        { lastSourceType: "airtable", lastSourceId: source._id, lastIndex: i },
-        { upsert: true }
-      );
-      return "STOP_ALL";
+      // 👈 ЗМЕНЕНА: Не спыняем Airtable, ідзем далей (v5.6)
+      console.error(`⚠️ [Airtable] AI памылка для запісу ${airtableId}. Пропуск.`);
+      stats.ignored++;
+      continue;
     }
 
     // 🚀 БАТЧ-ВЫКЛІК: Адпраўляем усе фрагменты Airtable адным запытам

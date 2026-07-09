@@ -224,13 +224,10 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
           const analysis = await analyzeAndCompareWithGemini(finalTrelloText);
 
           if (!analysis || !analysis.translatedFragments) {
-            console.error(`🛑 AI FATAL ERROR для Trello: ${card.name}. Спыняем дошку.`);
-            await SyncState.findOneAndUpdate(
-              { key: "circular_sync_position" },
-              { lastSourceType: "trello", lastSourceId: source._id, lastIndex: currentCardIndex },
-              { upsert: true }
-            );
-            return "STOP_ALL"; 
+            // 👈 ЗМЕНЕНА: Не спыняем усю дошку, проста прапускаем картку (v5.6)
+            console.error(`⚠️ [Trello] AI памылка для "${card.name}". Картка застаецца ў pending_ai. Пропуск.`);
+            stats.ignored++;
+            continue; 
           }
 
           // 🚀 Stage 2: БАТЧ-ПАРСІНГ (Адпраўляем усе фрагменты Трэла адразу)
