@@ -37,7 +37,7 @@ const STATUS_LABELS = {
 
 // 1. Поўная і карэктная функцыя фільтрацыі
 function applyFilters(vacancies, filters) {
-  if (!Array.isArray(vacancies)) return []; // 👈 Жорсткая праверка на масіў
+  if (!Array.isArray(vacancies)) return []; // 👈 Ахова: калі не масіў — не фільтруем
 
   return vacancies.filter((v) => {
     if (filters.isFavorite && !v.isFavorite) return false;
@@ -364,7 +364,7 @@ export default function Vacancies() {
     try {
       setLoading(true);
       const res = await getVacancies(params);
-      setVacancies(res.data || []);
+      setVacancies(Array.isArray(res.data) ? res.data : []); // 👈 Гарантуем масіў у стане
     } catch (err) {
       console.error("Помилка при завантаженні вакансій:", err);
     } finally {

@@ -202,7 +202,7 @@ export default function Candidates() {
       setLoading(true);
       try {
         const res = await getCandidates();
-        setCandidates(res.data);
+        setCandidates(Array.isArray(res.data) ? res.data : []); // 👈 Ахова
       } catch {
         console.error("Помилка завантаження кандидатів");
       } finally {
