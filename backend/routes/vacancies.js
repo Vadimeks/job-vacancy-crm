@@ -1076,14 +1076,17 @@ router.post("/bulk-publish", upload.single('file'), async (req, res) => {
 });
 // 🔄 Перапарсінг адной вакансіі праз AI (v5.0)
 router.post("/:id/reparse", async (req, res) => {
-  global.isManualActionInProgress = true; // 👈 Уключаем прыярытэт
+  global.isManualActionInProgress = true;
   try {
     const vacancy = await Vacancy.findById(req.params.id);
     if (!vacancy) return res.status(404).json({ message: "Вакансія не знойдзена" });
 
-    const textToParse = vacancy.originalText || vacancy.rawText;
+    // 🆕 Stage 0: Нанова збіраем тэкст з Drive перад парсінгам!
+    const textToEnrich = vacancy.originalText || vacancy.rawText;
+    const enrichedText = await enrichTextWithDocs(textToEnrich);
+
     const result = await processVacancyMessage(
-      textToParse,
+      enrichedText, // 👈 Перадаем ужо збагачаны тэкст
       vacancy.sender || "Manual",
       vacancy.agencyName,
       vacancy.originalText,
@@ -1099,7 +1102,7 @@ router.post("/:id/reparse", async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: "Памылка перапарсінгу: " + err.message });
   } finally {
-    global.isManualActionInProgress = false; // 👈 Выключаем заўсёды
+    global.isManualActionInProgress = false;
   }
 });
 module.exports = { router, processVacancyMessage, retryPendingVacancies, generateVacancyCode };
