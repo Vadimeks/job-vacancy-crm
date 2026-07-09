@@ -1516,7 +1516,7 @@ JSON STRUCTURE:
       const finalVoivodeship =
         finalVoivParts.size > 0
           ? Array.from(finalVoivParts).sort().join(", ")
-          : "Польща";
+          : (cleaned.country && cleaned.country !== "Polska" ? "Інші країни Європи" : "Польща"); // 👈 ФІКС: для замежжа ставім правільны рэгіён (v6.1)
       return {
         // === 1. СИСТЕМНІ ПОЛЯ ===
         ...cleaned,
