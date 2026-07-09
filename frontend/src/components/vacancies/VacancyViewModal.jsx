@@ -80,9 +80,9 @@ export default function VacancyViewModal({
     setIsReparsing(true);
     try {
       const res = await reparseVacancy(v._id);
-      // Выкарыстоўваем onEdit, каб абнавіць спіс на фоне
-      if (onEdit) onEdit(res.data);
-      alert("✅ Вакансію успішно перезібрано праз AI!");
+      // Мы проста абнаўляем спіс на фоне, React сам перамалюе мадалку, 
+      // бо яна атрымлівае `vacancy` як пропс.
+      if (onEdit) onEdit(res.data); 
     } catch (err) {
       alert("Помилка AI-аналізу: " + (err.response?.data?.message || err.message));
     } finally {
