@@ -1516,14 +1516,19 @@ const [viewMode, setViewMode] = useState("list"); // Стан для перак�
           <VacancyViewModal
             vacancy={viewVacancy}
             onClose={() => setViewVacancy(null)}
+             onUpdate={(updated) => {
+              setVacancies(prev => prev.map(v => v._id === updated._id ? updated : v));
+              setViewVacancy(updated);
+            }}
             onNext={hasNext ? handleNext : null} // Перадаем функцыю, калі ёсць наступная
             onPrev={hasPrev ? handlePrev : null} // Перадаем функцыю, калі ёсць папярэдняя
             currentIndex={currentIndex + 1}      // Нумар для лічыльніка (напр. 5)
             totalCount={filtered.length}         // Агульная колькасць (напр. 120)
             onEdit={(v) => {
-              setViewVacancy(null);
+              // Мы не закрываем setViewVacancy(null), каб мадалка прагляду не знікала
               setEditVacancy(v);
             }}
+            
             onDelete={(id) => {
               setViewVacancy(null);
               handleDelete(id);

@@ -81,9 +81,8 @@ export default function VacancyViewModal({
     setIsReparsing(true);
     try {
       const res = await reparseVacancy(v._id);
-      // 💡 ФІКС: Мы выклікаем onEdit, але Vacancies.jsx павінен проста абнавіць спіс, 
-      // а не адкрываць мадалку рэдагавання. 
-      if (onEdit) onEdit(res.data); 
+       // 💡 ЗМЕНЕНА: Выклікаем onUpdate, каб застацца ў рэжыме прагляду
+      if (onUpdate) onUpdate(res.data);
       alert("✅ Дані вакансії оновлено праз AI!");
     } catch (err) {
       alert("Помилка AI-аналізу: " + (err.response?.data?.message || err.message));
