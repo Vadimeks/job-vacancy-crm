@@ -145,7 +145,18 @@ global.isSyncRunning = true;
       );
       console.log("🔄 [Sync] Спіс крыніц ачышчаны для новага кола.");
     }
-    
+     // 2.5. ПРЫЯРЫТЭТ: Калі ёсць pending_ai — спачатку разграбаем іх!
+    if (hasPendingAi) {
+      console.log("🧹 [Sync] Знойдзены вакансіі ў чарзе. Запуск даапрацоўкі...");
+      await retryPendingVacancies();
+      // Калі мы толькі што разграбалі чаргу, не трэба адразу ісці ў табліцы, 
+      // дамо AI адпачыць да наступнага цыкла watchdog.
+      if (!forceRun) {
+        console.log("✅ [Sync] Чаргу апрацавана. Спыняем бягучы цыкл.");
+        global.isSyncRunning = false;
+        return;
+      }
+    }
    // 3. ПРЫЯРЫТЭТ 3: Цыклічная сінхранізацыя крыніц (Кола)
     console.log("📊 Сканаванне Google Sheets...");
     const sheetsResult = await syncAllSheets();

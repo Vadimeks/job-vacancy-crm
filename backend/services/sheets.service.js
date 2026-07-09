@@ -432,12 +432,39 @@ function buildRowText(cells, headers, agencyName, sheetName) {
   }
 // --- ФІНАЛЬНАЕ ЎЗБАГАЧЭННЕ PPG ---
   if (agencyName === "PPG (BIEDRONKA)") {
-    const mapKey = `${ppgBrand} + ${ppgPosition}`;
-    const docId = PPG_DOCS_MAP[mapKey] || PPG_DOCS_MAP[ppgBrand] || null;
-    if (docId) {
-      const docUrl = `https://docs.google.com/document/d/${docId}/`;
+    // 🧠 Разумны пошук ID дакумента
+    const brand = ppgBrand.toUpperCase();
+    const pos = ppgPosition.toLowerCase();
+    
+    let foundDocId = null;
+
+    // 1. Вызначаем базавы брэнд (JMP, DPD, ILS, STOKROTKA і г.д.)
+    const baseBrand = Object.keys(PPG_DOCS_MAP).find(k => brand.includes(k.split(' ')[0]));
+    
+    if (baseBrand) {
+      // 2. Шукаем супадзенне па пасадзе (каса, лада, магазінер)
+      if (pos.includes("кас") || pos.includes("kas")) foundDocId = PPG_DOCS_MAP["JMP + kasa"];
+      else if (pos.includes("лад") || pos.includes("lad")) foundDocId = PPG_DOCS_MAP["JMP + lady"];
+      else if (pos.includes("выкл") || pos.includes("wyk")) foundDocId = PPG_DOCS_MAP["JMP + wykładka"];
+      else if (pos.includes("mag") || pos.includes("склад")) {
+         // Для складаў глядзім на брэнд
+         if (brand.includes("DPD")) foundDocId = PPG_DOCS_MAP["DPD + magazynier"];
+         else if (brand.includes("ILS")) foundDocId = PPG_DOCS_MAP["ILS + magazynier"];
+         else if (brand.includes("STOK")) foundDocId = PPG_DOCS_MAP["STOKROTKA + magazynier"];
+         else foundDocId = PPG_DOCS_MAP["JMP + magazynier"];
+      }
+      else if (brand.includes("LIGENTIA")) foundDocId = PPG_DOCS_MAP["Ligentia"];
+      else if (brand.includes("INPOST")) foundDocId = PPG_DOCS_MAP["INPOST"];
+      else if (brand.includes("SUUS")) {
+        foundDocId = pos.includes("udt") ? PPG_DOCS_MAP["SUUS + UDT"] : PPG_DOCS_MAP["SUUS + Pakowanie"];
+      }
+    }
+
+    if (foundDocId) {
+      const docUrl = `https://docs.google.com/document/d/${foundDocId}/`;
       externalUrls.push({ url: docUrl, header: "Апісанне пасады" });
       parts.push(`[Дадатковае апісанне пасады: ${docUrl}]`);
+      console.log(`🔗 [PPG Match] Знойдзены дакумент для ${ppgBrand}/${ppgPosition}`);
     }
   }
 

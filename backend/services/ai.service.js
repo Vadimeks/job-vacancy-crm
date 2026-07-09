@@ -1423,6 +1423,20 @@ JSON STRUCTURE:
         cleaned.country,
       );
 
+      // 🛡️ ФІКС КІРЫЛІЦЫ: Калі AI ігнаруе промпт і піша "Варшава"
+      let finalLocation = displayLocation;
+      const hasCyrillic = /[А-ЯЁІЎа-яёіў]/.test(finalLocation);
+      if (hasCyrillic) {
+        const lowLoc = finalLocation.toLowerCase();
+        // LOCATION_FIX_MAP у нас ужо ёсць у пачатку файла
+        for (const [key, val] of Object.entries(LOCATION_FIX_MAP)) {
+          if (lowLoc.includes(key)) {
+            finalLocation = val;
+            break;
+          }
+        }
+      }
+
       // 2. Загаловак: выкарыстоўваем displayLocation
       const baseTitle = cleaned.vacancydescription || "Опис вакансії";
       const titleWithoutLocation = baseTitle.includes(" — ")
@@ -1518,7 +1532,7 @@ JSON STRUCTURE:
         },
 
         // === 2. ЛАКАЦЫІ І ГЕАГРАФІЯ ===
-        location: displayLocation,
+        location: finalLocation,
         locationDescription: cleaned.locationDescription || "",
         voivodeship: finalVoivodeship,
         country: cleaned.country || "Polska",

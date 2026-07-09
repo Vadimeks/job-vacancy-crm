@@ -39,7 +39,12 @@ async function fetchGoogleDriveFolderText(folderUrl) {
 
     for (const file of files) {
       // Чытаем толькі Google Docs або простыя TXT
-      if (file.mimeType === "application/vnd.google-apps.document") {
+      // Чытаем Google Docs, TXT і любыя іншыя тэкставыя файлы
+      if (
+        file.mimeType === "application/vnd.google-apps.document" || 
+        file.mimeType === "text/plain" ||
+        file.name.toLowerCase().endsWith('.txt')
+      ) {
         const text = await fetchGoogleDocText(
           `https://docs.google.com/document/d/${file.id}/`,
         );
