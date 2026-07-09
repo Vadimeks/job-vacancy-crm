@@ -427,11 +427,13 @@ router.post("/auto", async (req, res) => {
       sourceType || "manual", // 👈 ПЕРАДАЕМ У ПРАЦЭСАР
     );
 
-    if (result && !result.error) {
-      if (messageId) await markInboxMessageAsProcessed(messageId);
-      res.status(201).json(result);
+    if (result && result._id && !result.error) {
+      console.log(`✅ [Reparse] Вакансія ${vacancy.vacancyCode} паспяхова абноўлена.`);
+      res.json(result);
     } else {
-      throw new Error(result?.error || "Памылка апрацоўкі");
+      const errorMsg = result?.error || "Усе AI-мадэлі адмовілі ў апрацоўцы";
+      console.error(`❌ [Reparse] Памылка: ${errorMsg}`);
+      res.status(500).json({ message: errorMsg }); // 👈 Цяпер фронтэнд убачыць памылку
     }
   } catch (err) {
     console.error("❌ Auto-route Error:", err.message);

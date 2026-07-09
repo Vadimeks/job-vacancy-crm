@@ -1171,7 +1171,7 @@ NUANCES RULES (conditions.specificNuances):
   10. "Інше" (anything else specific)
 
 GEOGRAPHY RULES:
-- location: actual place of work. Polish spelling only (Warszawa, Kraków).
+- location: All cities and locations MUST be in Polish (Latin alphabet). Example: "Warszawa", not "Варшава". Never translate city names to Ukrainian.
 - MULTI-CITY RULE: If the text lists multiple cities for the SAME job description (e.g., Biedronka: Pasym, Ryn, Pisz), DO NOT split into fragments. Instead, list ALL cities in the 'location' field separated by commas (e.g., "Pasym, Ryn, Pisz").
 - checkInCity: registration/оформлення city.
 - country: default Polska; if not Poland → English name.
@@ -1216,6 +1216,7 @@ DESCRIPTION & NOTES:
 - FORMATTING RULE: Use double newlines (\n\n) between logical paragraphs. Use bullet points (•) for lists.
 - additionalNotes: everything else (recruitment, transport, videos, contract details, client brand names, навчання/вихід на норму).
 - No duplication: if info already in structured fields → don’t repeat.
+-- DRIVE CONTENT PRIORITY: If the input contains sections like "--- ЗМЕСТ ДОКУМЕНТА" or "--- ЗМЕСТ ПАПКІ DRIVE", treat this as the PRIMARY source for duties and description. The short table text is only for metadata (dates, counts).
 
 CONDITIONS:
 - specificNuances: array of objects { "category": "CATEGORY_NAME", "text": "detail" }.
