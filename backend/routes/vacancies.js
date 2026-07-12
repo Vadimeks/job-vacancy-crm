@@ -9,7 +9,7 @@ const Counter = require("../models/Counter");
 const UnprocessedMessage = require("../models/UnprocessedMessage");
 const aiService = require("../services/ai.service");
 const { POLISH_VOIVODESHIPS, VOIVODESHIP_MAP } = aiService;
-const { enrichTextWithDocs } = require("../services/gemini.service");
+const { analyzeAndCompareWithGemini, enrichTextWithDocs } = require("../services/gemini.service");
 const { getWhitelistedAgency } = require("../utils/messageFilters");
 const {
   sendToTelegram,
