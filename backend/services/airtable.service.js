@@ -216,7 +216,21 @@ async function syncSingleSource(source) {
 
     console.log(`🧠 Этап 5. AI апрацоўка: ${source.agencyName} | ID: ${airtableId}`);
     const analysis = await analyzeAndCompareWithGemini(rawAirtableDump, [], []);
-    
+    // 🛡️ ФІЛЬТР ІНФА/ШУМУ (v6.9.1)
+    if (analysis.category === "RECRUITER_INFO" || analysis.category === "NOISE") {
+      console.log(`📥 [Airtable Info] Знойдзена інфармацыя для рэкрутэра. Адпраўка ў Inbox.`);
+      await new UnprocessedMessage({
+        sender: source.agencyName,
+        agencyName: source.agencyName,
+        text: `[Airtable: ${columnName}]\n${rawAirtableDump}`,
+        source: "airtable",
+        category: "info",
+        processed: false,
+        aiAnalyzed: true
+      }).save();
+      stats.ignored++;
+      continue; 
+    }
     // 🛡️ SAFETY SWITCH: Калі AI "ляснуў", запамінаем індэкс і спыняемся
     if (!analysis || !analysis.translatedFragments) {
       // 👈 ЗМЕНЕНА: Не спыняем Airtable, ідзем далей (v5.6)

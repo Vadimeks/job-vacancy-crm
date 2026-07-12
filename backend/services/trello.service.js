@@ -222,7 +222,21 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
 
           // --- ЭТАП 5-7: AI АПРАЦОЎКА ---
           const analysis = await analyzeAndCompareWithGemini(finalTrelloText);
-
+// 🛡️ ФІЛЬТР ІНФА/ШУМУ (v6.9.1)
+          if (analysis.category === "RECRUITER_INFO" || analysis.category === "NOISE") {
+            console.log(`📥 [Trello Info] Знойдзена інфармацыя для рэкрутэра. Адпраўка ў Inbox.`);
+            await new UnprocessedMessage({
+              sender: source.agencyName,
+              agencyName: source.agencyName,
+              text: `[Trello: ${list.name}]\n${rawTrelloDump}`,
+              source: "trello",
+              category: "info",
+              processed: false,
+              aiAnalyzed: true
+            }).save();
+            stats.ignored++;
+            continue;
+          }
           if (!analysis || !analysis.translatedFragments) {
             // 👈 ЗМЕНЕНА: Не спыняем усю дошку, проста прапускаем картку (v5.6)
             console.error(`⚠️ [Trello] AI памылка для "${card.name}". Картка застаецца ў pending_ai. Пропуск.`);
