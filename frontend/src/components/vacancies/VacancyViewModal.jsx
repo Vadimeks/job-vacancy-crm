@@ -137,21 +137,22 @@ export default function VacancyViewModal({
 const handleGenerate = async () => {
     setIsGenerating(true);
     try {
-     const res = await reparseVacancy(vacancy._id); // 👈 ФІКС: выкарыстоўваем vacancy._id напрамую
-      // 💡 ЗМЕНЕНА: Выклікаем onUpdate замест onEdit, каб не адкрываць мадалку рэдагавання
-      if (onUpdate) {
-        onUpdate(res.data);
-      } else if (onEdit) {
-        onEdit(res.data); 
-      }
+      // Выклікаем менавіта генерацыю прэв'ю, а не перапарсінг усёй вакансіі
+      const res = await generateVacancyPreview(v._id);
       
-      alert("✅ Дані вакансії оновлено праз AI!");
+      // Абнаўляем палі рэдактара новымі дадзенымі з бэкенда
+      setEditedFull(res.data.full);
+      setEditedShort(res.data.short);
+      
+      // Пазначаем у агульным стэйце, што пост больш не састарэлы (ціхае абнаўленне)
+      if (onUpdate) {
+        onUpdate({ ...v, postOutdated: false, telegramFull: res.data.full, telegramShort: res.data.short });
+      }
     } catch (err) {
-      alert("Помилка AI-аналізу: " + (err.response?.data?.message || err.message));
+      alert("Помилка генерації: " + (err.response?.data?.message || err.message));
     } finally {
-      setIsReparsing(false);
+      setIsGenerating(false);
     }
-  
   };
 
   const handlePublish = async () => {
