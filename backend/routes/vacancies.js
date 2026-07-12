@@ -983,15 +983,19 @@ router.post("/:id/generate-preview", async (req, res) => {
     const vacancy = await Vacancy.findById(req.params.id);
     if (!vacancy) return res.status(404).json({ message: "Вакансія не знойдзена" });
 
-    const postText = await aiService.formatTelegramPost(vacancy);
-    if (!postText) throw new Error("AI_EMPTY");
+    // 1. Поўны пост — праз AI
+    const fullPost = await aiService.formatTelegramPost(vacancy);
+    if (!fullPost) throw new Error("AI_EMPTY");
 
-    const parts = postText.split("=== SPLIT ===");
-    
-    vacancy.telegramFull = parts[0]?.trim() || "";
-    vacancy.telegramShort = parts[1]?.trim() || "";
+    // 2. Кароткі пост — праз твой лакальны скрыпт
+    const shortPostRaw = formatShortPostScript(vacancy);
+    // Выкарыстоўваем існуючую функцыю ачысткі для кароткага паста
+    const shortPostEscaped = sanitizeTelegramMarkdown(shortPostRaw);
+
+    vacancy.telegramFull = fullPost;
+    vacancy.telegramShort = shortPostEscaped;
     vacancy.postOutdated = false;
-    vacancy.postGeneratedAt = new Date(); // Захоўваем час генерацыі
+    vacancy.postGeneratedAt = new Date();
     await vacancy.save();
 
     res.json({ full: vacancy.telegramFull, short: vacancy.telegramShort });

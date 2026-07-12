@@ -572,11 +572,6 @@ CRITICAL RULE: If the factory and location match, but the JOB PROCESS (duties/pr
 const FORMAT_PROMPT = `
 ROLE: Professional HR content formatter.
 TASK: Format job data into a beautiful Telegram post in UKRAINIAN.
-!!! OUTPUT STRUCTURE !!!
-You MUST return exactly two versions of the post separated by "=== SPLIT ===".
-Version 1: Full detailed post.
-Version 2: Short concise post.
-
 
 !!! CRITICAL MODE SELECTION !!!
 - Use COMPACT MODE if the total length of the vacancy information (rawText) is less than 700 characters.
@@ -663,19 +658,6 @@ FULL MODE STRUCTURE (skip empty lines/sections):
 
 📝 *Додаткова інформація*
 [additionalNotes including навчання, адаптація, вихід на норму, координатор, банківський рахунок, карта побуту, можливість роботи в інших країнах, організаваны трансфер з Украіны]
-📲 Контактуйте: @InnaNovaWork +48 780 770 745 Інна
-
---- STRUCTURE FOR SHORT POST (after === SPLIT ===) ---
-🆔 [vacancyCode] | 🏢 [agencyName] [| 🏭 brand]
-
-🔥 *[vacancydescription]*
-📍 [location] | 💰 [salary.rawSalaryDisplay]
-👥 Набір: [requirements.gender] [| 🎂 Вік: [requirements.age.rawText]]
-🏠 Проживання: [accommodation.type] [([accommodation.details])]
-🗓 Графік: [schedule.description] [| ⏱ [salary.hoursRange] год/міс]
-📄 Тип договору: [contractType]
-🚌 Транспорт: [transport.provided ? "надається" : "немає"]
-
 📲 Контактуйте: @InnaNovaWork +48 780 770 745 Інна`
 ;
 
@@ -1055,85 +1037,38 @@ async function linkTemplateToVacancy(vacancyData, template) {
 }
 
 async function formatTelegramPost(vacancyData) {
-  console.log(
-    `🤖 Форматаванне Telegram-посту для ${vacancyData.vacancyCode}...`,
-  );
-
+  console.log(`🤖 Форматаванне Telegram-посту для ${vacancyData.vacancyCode}...`);
   try {
-    // 1. 🛡️ Technical Privacy Shield
     const rawObj = vacancyData.toObject ? vacancyData.toObject() : vacancyData;
-    const {
-      forRecruiter,
-      originalText,
-      rawText,
-      textHash,
-      prefixHash,
-      __v,
-      _id,
-      ...publicData
-    } = rawObj;
+    const { forRecruiter, originalText, rawText, textHash, prefixHash, __v, _id, ...publicData } = rawObj;
 
-    // 2. Падрыхтоўка промпта з датай
     const currentDate = new Date().toLocaleDateString('uk-UA');
     const dynamicPrompt = FORMAT_PROMPT.replace('{{currentDate}}', currentDate);
 
-    const strictPrompt =
-      dynamicPrompt +
-      "\n\n!!! CRITICAL: Return TWO versions separated by === SPLIT ===. NO JSON, NO explanations.";
-
-    // 3. Запыт да AI
+    // Запыт да AI (цяпер просім толькі адзін варыянт)
     const result = await executeAIRequest(
-      strictPrompt,
+      dynamicPrompt + "\n\n!!! RETURN ONLY THE FULL POST TEXT. NO JSON, NO EXPLANATIONS.",
       `DATA:\n${JSON.stringify(publicData, null, 2)}`,
       false
     );
 
-    // Выпраўлена: бяром з result, а не з response
     let trimmedText = (result?.data || result || "").trim();
 
-    // Лакальная функцыя для жалезнага экраніравання спецсімвалаў Telegram
+    // Лакальная функцыя экраніравання (спрошчаная)
     const escapeMarkdownV2 = (text) => {
       if (!text) return "";
-      
-      // 1. Праверка парнасці зорачак (*) і ніжніх падкрэсліванняў (_)
       const starCount = (text.match(/\*/g) || []).length;
       const underCount = (text.match(/_/g) || []).length;
-      
       let processed = text;
-      if (starCount % 2 !== 0) {
-        console.log(`⚠️ [AI Service] Няпарны сімвал [*] для ${vacancyData.vacancyCode}. Экрануем усе зорачкі.`);
-        processed = processed.replace(/\*/g, '\\*');
-      }
-      if (underCount % 2 !== 0) {
-        console.log(`⚠️ [AI Service] Няпарны сімвал [_] для ${vacancyData.vacancyCode}. Экрануем усе падкрэсліванні.`);
-        processed = processed.replace(/_/g, '\\_');
-      }
-
-      // 2. Экрануем тэхнічныя сімвалы (- + = ! . ( ) { } [ ] > # | ~)
-      // Выкарыстоўваем адмоўны прагляд (lookahead/lookbehind), каб НЕ зламаць раздзяляльнік === SPLIT ===
-      return processed.replace(/(?<!=== )(?<!=)([\+\-\=\!\.\(\)\{\}\[\]\>\|\#\~])(?!(?: ===)|(?:=))/g, '\\$1');
+      if (starCount % 2 !== 0) processed = processed.replace(/\*/g, '\\*');
+      if (underCount % 2 !== 0) processed = processed.replace(/_/g, '\\_');
+      // Экрануем тэхнічныя сімвалы (прыбралі "=", каб не было лішніх слэшаў)
+      return processed.replace(/([\+\-\!\.\(\)\{\}\[\]\>\|\#\~])/g, '\\$1');
     };
 
-    // Калі AI вярнуў сыры JSON замест фарматаванага тэксту (аварыйны шчыт)
-    const isJson = trimmedText.startsWith('{') && trimmedText.endsWith('}');
-    if (isJson) {
-      console.log("⚠️ AI вярнуў JSON замест гатовага паста. Уключаем аварыйны шчыт.");
-      const parsed = JSON.parse(trimmedText);
-      const fullFallback = parsed.fullPost || parsed.full || parsed.text || trimmedText;
-      const shortFallback = parsed.shortPost || parsed.short || "";
-      
-      // Бяспечна экрануем абедзве часткі асобна
-      return `${escapeMarkdownV2(fullFallback)}\n\n=== SPLIT ===\n\n${escapeMarkdownV2(shortFallback)}`;
-    }
-
-    if (!trimmedText || trimmedText.length < 50) {
-      throw new Error("Фарматаванне вярнула занадта кароткі або пусты тэкст.");
-    }
-
-    // Прымяняем экраніраванне да гатовага паста
     return escapeMarkdownV2(trimmedText);
   } catch (err) {
-    console.error(`❌ Памылка фарматавання паста для ${vacancyData.vacancyCode}:`, err.message);
+    console.error(`❌ Памылка фарматавання паста:`, err.message);
     throw err;
   }
 }

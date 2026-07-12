@@ -93,9 +93,11 @@ async function runAudit() {
 
     for (const v of vacancies) {
       // 1. Праверка на неперакладзены тэкст
+      const UKRAINIAN_CHARS = /[ііїєґІЇЄҐ]/;
       const isUntranslated = 
-        (v.originalText && v.rawText && v.originalText.trim() === v.rawText.trim() && CYRILLIC_REGEX.test(v.rawText)) || 
-        RUSSIAN_ONLY_CHARS.test(v.rawText || "");
+        RUSSIAN_ONLY_CHARS.test(v.rawText || "") || 
+        (CYRILLIC_REGEX.test(v.rawText || "") && !UKRAINIAN_CHARS.test(v.rawText || ""));
+      // Гэта адсее ўкраінскі тэкст (VAC-0516) і пакіне толькі расійскі або "падазроны"
 
       if (isUntranslated) {
         report.toFix_Untranslated.push({
