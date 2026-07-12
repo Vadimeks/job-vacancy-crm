@@ -475,9 +475,37 @@ function buildRowText(cells, headers, agencyName, sheetName) {
     anchorText: anchorParts.join("::") || title,
   };
 }
-// 👈 ДАДАДЗЕНА: Экранаванне спецсімвалаў для бяспечнага выкарыстання ў $regex (v6.4)
+// 👈 ДАДАДЗЕНА: Экранаванне спецсімвалаў для бяспечнага выкарыстання ў $regex (v6.8)
 function escapeRegExp(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+// 👈 АБНОЎЛЕНА: Палепшаны пошук вакансіі па спасылках (v6.8)
+async function findVacancyByExternalDocLink(agencyName, externalUrls) {
+  // 🛡️ Ахова PPG: для гэтай агенцыі шаблонныя дакументы агульныя для розных гарадоў,
+  // таму пошук па спасылцы тут забаронены, каб не зліць розныя лакацыі ў адну.
+  if (agencyName === "PPG (BIEDRONKA)") return null;
+
+  const docLinks = (externalUrls || [])
+    .map(u => u.url)
+    .filter(url => url.includes("docs.google.com") || url.includes("drive.google.com"));
+
+  if (docLinks.length === 0) return null;
+
+  return await Vacancy.findOne({
+    agencyName,
+    sourceType: "spreadsheet",
+    status: { $in: ["active", "closed", "pending_ai"] },
+    $or: docLinks.map(link => {
+      const cleanLink = escapeRegExp(link.split('?')[0]);
+      return {
+        $or: [
+          { rawText: { $regex: cleanLink, $options: 'i' } },
+          { originalText: { $regex: cleanLink, $options: 'i' } }
+        ]
+      };
+    })
+  });
 }
 
 

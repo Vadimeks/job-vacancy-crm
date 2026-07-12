@@ -3,16 +3,7 @@
   "totalVacancies": 1126,
   "toDelete_ShortVacancies": [],
   "toFix_LocationIssues": [
-    {
-      "vacancyCode": "VAC-1120",
-      "_id": "6a2918eff8b075436ed5c70c",
-      "location": "Польща",
-      "title": "Сезонні працівники на саджанці (Сільське господарство) — Польща",
-      "issues": [
-        "location_field_cyrillic",
-        "title_tail_cyrillic"
-      ]
-    },
+    
     {
       "vacancyCode": "VAC-1276",
       "_id": "6a3405c1f9245ee9dea667fe",

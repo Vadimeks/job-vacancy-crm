@@ -830,9 +830,9 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true, full
           const data = await response.json();
           fullText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
 
-          // 👈 ДАДАДЗЕНА: Дыягностыка EMPTY_RESPONSE (v6.8)
+           // 👈 ДАДАДЗЕНА: Дыягностыка для лакальнага асяроддзя (v6.8)
           if (!fullText && model.provider === "vertex") {
-            console.warn(`⚠️ [Vertex AI] Пусты адказ для ${model.name}. Поўны JSON ад Google:`);
+            console.warn(`⚠️ [Vertex AI] Атрыманы пусты адказ для ${model.name}. Поўны JSON ад Google:`);
             console.dir(data, { depth: null });
           }
         }

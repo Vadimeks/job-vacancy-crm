@@ -1090,12 +1090,18 @@ router.post("/:id/reparse", async (req, res) => {
     const vacancy = await Vacancy.findById(req.params.id);
     if (!vacancy) return res.status(404).json({ message: "Вакансія не знойдзена" });
 
-    // 🆕 Stage 0: Нанова збіраем тэкст з Drive перад парсінгам!
     const textToEnrich = vacancy.originalText || vacancy.rawText;
     const enrichedText = await enrichTextWithDocs(textToEnrich);
 
+    // 👈 ЗМЕНЕНА: Выклікаем Stage 1 для перакладу і сплітынгу (v6.8)
+    const analysis = await analyzeAndCompareWithGemini(enrichedText);
+    
+    if (!analysis || !analysis.translatedFragments) {
+      throw new Error("AI Stage 1 failed to translate/split text");
+    }
+
     const result = await processVacancyMessage(
-      enrichedText, // 👈 Перадаем ужо збагачаны тэкст
+      analysis.translatedFragments, // ✅ Цяпер перадаем перакладзеныя фрагменты
       vacancy.sender || "Manual",
       vacancy.agencyName,
       vacancy.originalText,
