@@ -529,19 +529,23 @@ function repairJson(text) {
 
   cleaned = cleaned.replace(/[\u0000-\u001F\u007F-\u009F]/g, "");
 
-  // 👈 ДАДАДЗЕНА: Закрыццё вісячай лапкі
+  // 1. Закрываем вісячую лапку
   const openQuotes = (cleaned.match(/"/g) || []).length;
   if (openQuotes % 2 !== 0) cleaned += '"';
 
-  if (!cleaned.endsWith("}")) {
-    if (cleaned.endsWith(",")) cleaned = cleaned.slice(0, -1);
-    
-    const openBraces = (cleaned.match(/\{/g) || []).length;
-    const closeBraces = (cleaned.match(/\}/g) || []).length;
-    if (openBraces > closeBraces) {
-      cleaned += "}".repeat(openBraces - closeBraces);
-    }
+  // 2. Закрываем масівы і аб'екты (v6.9.3)
+  const stack = [];
+  for (let i = 0; i < cleaned.length; i++) {
+    if (cleaned[i] === '{' || cleaned[i] === '[') stack.push(cleaned[i]);
+    else if (cleaned[i] === '}' || cleaned[i] === ']') stack.pop();
   }
+
+  while (stack.length > 0) {
+    const last = stack.pop();
+    if (last === '{') cleaned += '}';
+    if (last === '[') cleaned += ']';
+  }
+
   return cleaned;
 }
 // --- PROMPTS ---
@@ -747,7 +751,8 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true, full
     // 👈 ДАДАДЗЕНА: Праверка, ці не замарожаны гэты правайдэр
     if (Date.now() < PROVIDER_FREEZE[model.provider]) {
       const remain = Math.ceil((PROVIDER_FREEZE[model.provider] - Date.now()) / 60000);
-      console.log(`❄️ [AI] Правайдэр ${model.provider} замарожаны яшчэ на ${remain} хв. Пропуск ${model.name}.`);
+      // 
+      
       continue;
     }
 

@@ -92,12 +92,13 @@ async function runAudit() {
     const textGroups = new Map(); // Для пошуку спліт-бага
 
     for (const v of vacancies) {
-      // 1. Праверка на неперакладзены тэкст
+      // 1. Праверка на неперакладзены тэкст (v2.6)
       const UKRAINIAN_CHARS = /[ііїєґІЇЄҐ]/;
-      const isUntranslated = 
-        RUSSIAN_ONLY_CHARS.test(v.rawText || "") || 
-        (CYRILLIC_REGEX.test(v.rawText || "") && !UKRAINIAN_CHARS.test(v.rawText || ""));
-      // Гэта адсее ўкраінскі тэкст (VAC-0516) і пакіне толькі расійскі або "падазроны"
+      const hasRussianSpecific = /[ыэёъЫЭЁЪ]/.test(v.rawText || "");
+      const isCyrillic = CYRILLIC_REGEX.test(v.rawText || "");
+      
+      // Калі ёсць рускія літары АБО ёсць кірыліца, але няма ніводнай украінскай літары
+      const isUntranslated = hasRussianSpecific || (isCyrillic && !UKRAINIAN_CHARS.test(v.rawText || ""));
 
       if (isUntranslated) {
         report.toFix_Untranslated.push({
@@ -108,18 +109,7 @@ async function runAudit() {
         });
       }
 
-      // 2. Кароткія вакансіі
-      const rawLen = (v.rawText || "").length;
-      if (v.parsingResultType === "FULL_VACANCY" && rawLen < SHORT_TEXT_LIMIT) {
-        report.toDelete_ShortVacancies.push({
-          vacancyCode: v.vacancyCode,
-          _id: v._id.toString(),
-          len: rawLen,
-          agency: v.agencyName
-        });
-      }
-
-      // 3. Праблемы лакацый
+      // 3. Праблемы лакацый (Кірыліца ў полі location)
       const issues = [];
       if (CYRILLIC_REGEX.test(v.location || "")) issues.push("location_field_cyrillic");
       

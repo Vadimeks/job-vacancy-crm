@@ -122,6 +122,14 @@ function formatShortPostScript(v) {
   // 2. Загаловак
   lines.push(`🔥 *${v.vacancydescription}*`);
 
+  // 2.5 Характар працы (v6.9.2)
+  if (v.description) {
+    // Бяром першы радок, прыбіраем буліты і абразаем да 120 сімвалаў
+    const firstLine = v.description.split('\n')[0].replace(/^[•\s*-]+/, '').trim();
+    if (firstLine) {
+      lines.push(`🛠 *Робота:* ${firstLine.substring(0, 120)}${firstLine.length > 120 ? '...' : ''}`);
+    }
+  }
   // 3. Лакацыя і Зарплата
   const salary = v.salary?.rawSalaryDisplay || (v.salary?.baseNetto ? `${v.salary.baseNetto} PLN` : "уточнюється");
   lines.push(`📍 ${v.location} | 💰 ${salary}`);
