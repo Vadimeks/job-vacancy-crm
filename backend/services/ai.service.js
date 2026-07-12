@@ -828,8 +828,13 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true, full
           if (!response.ok) throw new Error(`VERTEX_ERROR_${response.status}`);
 
           const data = await response.json();
-          // 👈 ЗМЕНЕНА: Простае атрыманне тэксту без цыкла па chunks
           fullText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+
+          // 👈 ДАДАДЗЕНА: Дыягностыка EMPTY_RESPONSE (v6.8)
+          if (!fullText && model.provider === "vertex") {
+            console.warn(`⚠️ [Vertex AI] Пусты адказ для ${model.name}. Поўны JSON ад Google:`);
+            console.dir(data, { depth: null });
+          }
         }
 // --- GEMINI AI STUDIO ---
         if (model.provider === "gemini_studio") {
@@ -882,7 +887,11 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true, full
             return { data: repaired, isLowQuality, modelUsed: model.name }; // 👈 Дадалі modelUsed
           } catch (e) {
             console.warn(`⚠️ Мадэль ${model.name} вярнула невылечны JSON.`);
-            lastErrorWasJson = true; // 👈 ДАДАДЗЕНА: пазначаем, што праблема ў кантэнце, а не ў сервісе
+            // 👈 ДАДАДЗЕНА: вывад сырога адказу для дыягностыкі (v6.7)
+            console.log("--- RAW FAILED JSON START ---");
+            console.log(fullText);
+            console.log("--- RAW FAILED JSON END ---");
+            lastErrorWasJson = true;
             throw new Error("INVALID_JSON");
           }
         }
@@ -1408,7 +1417,7 @@ JSON STRUCTURE:
 
     const parsedData = JSON.parse(result.data);
 
-    const processSingle = (parsed) => {
+    const processSingle = (parsed, index) => {
       // --- Страхоўка лакацыі: прыбіраем дубляванне "Polska"
       if (parsed.location) {
         parsed.location = parsed.location.replace(/Polska,?\s*/gi, "").trim();
@@ -1686,10 +1695,11 @@ JSON STRUCTURE:
         parsingResultType: parsingResultType,
       };
     }; // Закрываем функцыю processSingle
-
+// 👈 ЗМЕНЕНА: перадаем індэкс пры мапінгу (v6.7)
     const finalResult = Array.isArray(parsedData)
-      ? parsedData.map(processSingle)
-      : processSingle(parsedData);
+      ? parsedData.map((data, i) => processSingle(data, i))
+      : processSingle(parsedData, 0);
+    
 
     // Дадаем мета-даныя да ўсяго выніку
     if (Array.isArray(finalResult)) {

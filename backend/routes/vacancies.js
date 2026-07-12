@@ -42,7 +42,15 @@ const BRAND_BLACKLIST = [
   "логістика",
   "логистика",
 ];
-
+// 👈 ДАДАДЗЕНА: Рэканструкцыя тэксту для ізаляваных фрагментаў (v6.8)
+function buildSyntheticRawText(v) {
+  let parts = [];
+  if (v.vacancydescription) parts.push(`ВАКАНСІЯ: ${v.vacancydescription}`);
+  if (v.location) parts.push(`ЛОКАЦЫЯ: ${v.location}`);
+  if (v.description) parts.push(`АПІСАННЕ: ${v.description}`);
+  if (v.salary?.rawSalaryDisplay) parts.push(`АПЛАТА: ${v.salary.rawSalaryDisplay}`);
+  return `[AI RECONSTRUCTED FRAGMENT]\n${parts.join('\n')}`;
+}
 // ============================================================
 // БЛОК 1: АПТЫМІЗАВАНЫ ГЕНЕРАТАР (толькі логіка падліку)
 // ============================================================
@@ -321,11 +329,12 @@ async function processVacancyMessage(
         const existing = await Vacancy.findById(currentExistingId);
         const newOriginalText = originalText || enrichedText;
 
-        // Калі тэкст не змяніўся і вакансія актыўная — нічога не робім, каб не псаваць updatedAt
+       // Калі тэкст не змяніўся і вакансія актыўная — нічога не робім, каб не псаваць updatedAt
         if (
           existing &&
           existing.originalText === newOriginalText &&
-          existing.status === "active"
+          existing.status === "active" &&
+          !forceFull // 👈 ДАДАДЗЕНА: дазваляем рэпарсінг нават без зменаў тэксту (v6.7)
         ) {
           console.log(
             `⏭️ Пропуск абнаўлення для ${existing.vacancyCode} — зменаў няма.`,
@@ -343,7 +352,7 @@ async function processVacancyMessage(
             agencyName: finalAgency,
             sourceType: sourceType,
             originalText: newOriginalText,
-           rawText: Array.isArray(enrichedText) ? enrichedText.join("\n\n---\n\n") : enrichedText,
+           rawText: (vacancyDataList.length > 1) ? buildSyntheticRawText(vData) : (vData.rawText || (Array.isArray(enrichedText) ? enrichedText.join("\n\n---\n\n") : enrichedText)),
             sheetName: sheetName || vData.sheetName,
             isLowQuality: vData.isLowQuality || false,
             templateName: constructVacancyDisplayName({
@@ -375,7 +384,7 @@ async function processVacancyMessage(
           vacancyCode,
           isLowQuality: vData.isLowQuality || false,
           originalText: originalText || enrichedText,
-          rawText: Array.isArray(enrichedText) ? enrichedText.join("\n\n---\n\n") : enrichedText,
+          rawText: (vacancyDataList.length > 1) ? buildSyntheticRawText(vData) : (vData.rawText || (Array.isArray(enrichedText) ? enrichedText.join("\n\n---\n\n") : enrichedText)),
           isTruncated,
           parsingResultType,
           sourceHash,

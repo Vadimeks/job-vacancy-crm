@@ -475,6 +475,41 @@ function buildRowText(cells, headers, agencyName, sheetName) {
     anchorText: anchorParts.join("::") || title,
   };
 }
+// 👈 ДАДАДЗЕНА: Экранаванне спецсімвалаў для бяспечнага выкарыстання ў $regex (v6.4)
+function escapeRegExp(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+
+// 👈 АБНОЎЛЕНА: Палепшаны пошук вакансіі па спасылках (v6.5)
+async function findVacancyByExternalDocLink(agencyName, externalUrls) {
+  // 🛡️ Ахова PPG: для гэтай агенцыі шаблонныя дакументы агульныя для розных гарадоў,
+  // таму пошук па спасылцы тут забаронены, каб не зліць розныя лакацыі ў адну.
+  if (agencyName === "PPG (BIEDRONKA)") return null;
+
+  const docLinks = (externalUrls || [])
+    .map(u => u.url)
+    .filter(url => url.includes("docs.google.com") || url.includes("drive.google.com"));
+
+  if (docLinks.length === 0) return null;
+
+  return await Vacancy.findOne({
+    agencyName,
+    sourceType: "spreadsheet",
+    // 👈 ДАДАДЗЕНА: шукаем і сярод чарнавікоў (pending_ai), каб не пладзіць іх
+    status: { $in: ["active", "closed", "pending_ai"] },
+    $or: docLinks.map(link => {
+      // 👈 ЗМЕНЕНА: выкарыстоўваем escapeRegExp для бяспекі
+      const cleanLink = escapeRegExp(link.split('?')[0]);
+      return {
+        $or: [
+          { rawText: { $regex: cleanLink, $options: 'i' } },
+          { originalText: { $regex: cleanLink, $options: 'i' } }
+        ]
+      };
+    })
+  });
+}
 /**
  * Вяртае масіў ячэек для радка rowIndex,
  * падстаўляючы значэнні з першых радкоў аб'яднанняў.
@@ -645,6 +680,19 @@ async function syncSheetVacancies(sourceId) {
         .digest("hex");
 
       let existingVacancy = await Vacancy.findOne({ sourceHash: rowHash });
+
+      // 👈 ДАДАДЗЕНА: Fallback-пошук, калі хэш змяніўся, але Google Doc супадае (v6.4)
+      if (!existingVacancy && externalUrls.length > 0) {
+        const foundByLink = await findVacancyByExternalDocLink(source.agencyName, externalUrls);
+        if (foundByLink) {
+          console.log(
+            `🔗 [Sync] Знойдзена супадзенне па Google Doc для ${foundByLink.vacancyCode}. "Лечым" хэш.`,
+          );
+          foundByLink.sourceHash = rowHash; // Абнаўляем хэш на новы, каб наступны раз знайшлося адразу
+          await foundByLink.save();
+          existingVacancy = foundByLink;
+        }
+      }
 
       // 3. Калі радок у табліцы STOP
       if (rowStatus === "STOP") {
