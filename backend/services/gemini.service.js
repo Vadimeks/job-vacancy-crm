@@ -148,7 +148,10 @@ Task: Classify, Translate, and Split NEW_MESSAGE.
 
 !!! UKRAINIAN ONLY !!!
 All output fragments MUST be in Ukrainian. If the input is in Russian or Polish, translate it accurately to Ukrainian.
-
+!!! MIRROR RULE (STRICT 1:1 TRANSLATION) !!!
+- Do not summarize, do not "fix" contradictions, and do not omit any numbers.
+- If the primary message says "27 zł" and the attached document says "24 zł", you MUST keep BOTH values in their respective sections.
+- KEEP ALL ORIGINAL URL LINKS (Google Docs, Drive, photos, videos, etc.) in the translated text.
 !!! CRITICAL SPLITTING LOGIC !!!
 1. translatedFragments: This MUST be an ARRAY of strings.
 2. SPLIT only when the message contains 2 or more COMPLETE and INDEPENDENT job offers.
@@ -164,20 +167,22 @@ All output fragments MUST be in Ukrainian. If the input is in Russian or Polish,
 6. GOLDEN RULE: When in doubt — return ONE fragment. Incorrect splitting is far worse than not splitting.
 7. ALL fragments MUST be in UKRAINIAN ONLY.
 8. NEVER summarize or shorten. Copy 100% of details into each fragment.
-PRIVACY: If you see a raw Google Docs link (docs.google.com) in the input, USE its content for translation, but DO NOT include the raw URL link in the final "translatedFragments".
+
 CLASSIFICATION RULES:
-- FULL_VACANCY: Detailed job ad for a candidate. !!! MANDATORY: Must contain a salary or hourly rate for the WORKER (e.g., "25 zł/god", "5000 zł/міс"). !!! PRIVACY RULE: If the message ONLY mentions bonuses for recruiters/partners (e.g., "800 зл за кандидата"), it is NOT a FULL_VACANCY. Classify it as RECRUITER_INFO. Duties and City must be present.
+- FULL_VACANCY: Detailed job ad. MANDATORY: Must be 400+ characters (total combined text) AND contain a worker's rate (e.g., "25 zł/god"). Duties and City must be present.
 !!! CRITICAL: If the text is shorter than 400 characters, classify it as UPDATE.
 If the text is 400 characters or longer, classify it as FULL_VACANCY (even if duties are not explicitly listed).
 !! LIST RULE: If the message contains a list of multiple short job summaries (like a digest), classify the WHOLE message as UPDATE and DO NOT split it.
 !!! MIXED MESSAGE: If a message contains one detailed vacancy (more than 400 characters) and several short ones (less than 400 characters each), extract ONLY the detailed one into translatedFragments and set category to FULL_VACANCY.
 !!! ANTI-CV RULE: If the text is a Job Application or CV from a candidate (e.g., "Шукаю роботу", "Ми працювали на складах", "Я водій", "2 сестри хочуть разом"), classify it as NOISE or UPDATE. NEVER classify a candidate's request as a FULL_VACANCY.
-- UPDATE: Short status changes (STOP, CLOSED), stop-signals, lists of rates/spots, or job offers WITHOUT detailed dutieschanges in rates for existing jobs, or messages like "need 2 more people".
+- UPDATE: Any text shorter than 400 characters, short status changes (STOP, CLOSED), or lists of multiple short job summaries (digests).
 - TRUNCATED: A job ad that is clearly cut off (ends mid-sentence, mid-word, or ends with "..." / "…").
 - RECRUITER_INFO: Information about recruiter bonuses, partner terms, legal updates, or office rules. If a message is primarily about "money per candidate", it belongs here, Legal info, office hours, document rules, or general cooperation terms.
 - NOISE: Greetings, emojis only, system messages, or social chat.
 !!! SALARY RULE: A FULL_VACANCY must contain a worker's rate (e.g., zł/god). If the text only mentions recruiter bonuses (e.g., "800 зл за кандидата"), classify it as RECRUITER_INFO. 
-!!! INTEGRITY RULE: Treat the entire input as a single document. The 400-character limit and classification criteria apply to the TOTAL combined text, including all appended content from links (sections like "--- ЗМЕСТ" or "--- ПАДРАБЯЗНАЕ АПІСАННЕ").
+!!! INTEGRITY RULE !!!
+Treat the entire input as a single document. The 400-character limit and classification criteria apply to the TOTAL combined text, including all content from links (sections like "--- ЗМЕСТ").
+
 Output ONLY valid JSON:
 {
   "category": "FULL_VACANCY" | "UPDATE" | "TRUNCATED" | "RECRUITER_INFO" | "NOISE",

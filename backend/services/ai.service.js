@@ -1166,6 +1166,8 @@ PRIVACY & FORMATTING:
 - INTERNAL COUNTS: Mentions like "need 1 person", "last 2 spots" go ONLY to forRecruiter.internalNotes.
 - NEVER put recruiter-only info in public fields (salary, description, additionalNotes).
 - TECHNICAL INFO: Any mention of "KRAZ", "nr certyfikatu", or "Oferta pracy tymczasowej" MUST go ONLY to forRecruiter.internalNotes. NEVER put this in public fields.
+• POSITION ACCURACY: If the PRIMARY SOURCE mentions a specific role (e.g., "Operator wózka", "Welder", "CNC"), do not generalize it to "Warehouse worker" or "Production worker" even if the link content uses general terms.
+
 CATEGORY:
 One of:
 "Склади та логістика", "Харчова промисловість", "Автомобільна промисловість",
@@ -1178,8 +1180,10 @@ DESCRIPTION & NOTES:
 - FORMATTING RULE: Use double newlines (\n\n) between logical paragraphs. Use bullet points (•) for lists.
 - additionalNotes: everything else (recruitment, transport, videos, contract details, client brand names, навчання/вихід на норму).
 - No duplication: if info already in structured fields → don’t repeat.
--- DRIVE CONTENT PRIORITY: If the input contains sections like "--- ЗМЕСТ ДОКУМЕНТА" or "--- ЗМЕСТ ПАПКІ DRIVE", treat this as the PRIMARY source for duties and description. The short table text is only for metadata (dates, counts).
-
+-- DATA HIERARCHY & PRIORITY (v7.0):
+1. PRIMARY SOURCE: Everything before the first "---" separator (this is the spreadsheet row, Trello card, or chat message).
+2. SECONDARY SOURCE: Everything after "--- ЗМЕСТ" (this is the extracted document content).
+!!! CRITICAL RULE: In case of any conflict (Salary, Dates, Age, Gender, City, Position Name), the PRIMARY SOURCE has 100% PRIORITY. Use LINK_CONTENT only to fill in missing details (like full duties description), never to overwrite facts from the PRIMARY SOURCE.
 CONDITIONS:
 - specificNuances: array of objects { "category": "CATEGORY_NAME", "text": "detail" }.
 - foodType: "Власне", "Обіди", "Субсидоване".
@@ -1212,10 +1216,10 @@ SALARY:
   !!! CRITICAL: NEVER use recruiter bonuses (e.g., "800 зл за людыну") to fill baseNetto or rawSalaryDisplay. These fields are for the WORKER'S pay only. Recruiter money goes ONLY to forRecruiter.internalNotes.
 REQUIREMENTS:
 - experienceRequired: true/false (check if "досвід" is mentioned as required).
-- polishLanguageLevel: one of "Не вимагається", "A1", "A2", "B1", "B2", "C1".
+- polishLanguageLevel: one of "Не вимагається", "A1", "A2", "B1", "B2", "C1"."Communicative Polish" regarding language means polishLanguageLevel is "A2" or "A1". Never set "Не вимагається" if any level is mentioned.
   LANGUAGE RULE: If ANY specific language knowledge is required (e.g., Romanian, English), DO NOT set polishLanguageLevel to "Не вимагається". Set it to "A1" or higher and specify the language in languageDetails.
 - documents: only from strict list; others → additionalDocsDetails.
-- physicalLoad: Boolean (true if work is physically heavy/demanding, else false).
+- physicalLoad: Boolean (true if work is physically heavy/demanding, else false). Do not mark "physicalLoad" as true for "Operator" roles (Forklift, CNC) unless the text explicitly mentions heavy lifting (>15kg).
 
 SCHEDULE:
 - description: full shift schedule with times (never summarized).

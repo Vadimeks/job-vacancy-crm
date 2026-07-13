@@ -430,8 +430,10 @@ router.post("/auto", async (req, res) => {
       existingId, // 👈 Прымаем ID
       sourceType, // 👈 ДАДАДЗЕНА
     } = req.body;
-
+ // 👈 ДАДАДЗЕНА: Узбагачаем тэкст спасылкамі перад апрацоўкай (v6.9.7)
+    const enrichedText = await enrichTextWithDocs(rawText);
     const result = await processVacancyMessage(
+      enrichedText,
       rawText,
       senderInfo || "Manual",
       agencyName,
@@ -445,8 +447,9 @@ router.post("/auto", async (req, res) => {
     );
 
     if (result && result._id && !result.error) {
-      console.log(`✅ [Reparse] Вакансія ${result.vacancyCode} паспяхова абноўлена.`);
+       console.log(`✅ [Auto-Create] Вакансія ${result.vacancyCode} паспяхова апрацавана.`);
       res.json(result);
+      
     } else {
       const errorMsg = result?.error || "Усе AI-мадэлі адмовілі ў апрацоўцы";
       console.error(`❌ [Reparse] Памылка: ${errorMsg}`);
@@ -527,6 +530,9 @@ router.post("/", async (req, res) => {
       });
     }
     const vacancyCode = await generateVacancyCode();
+// 👈 ДАДАДЗЕНА: Узбагачаем апісанне тэкстам з дакументаў, калі ёсць спасылкі (v6.9.7)
+    const enrichedDescription = await enrichTextWithDocs(vacancyData.description || "");
+    vacancyData.description = enrichedDescription;
 
      const coords = await locationService.getCoords(vacancyData.location, vacancyData.country);
     const newVacancy = new Vacancy({ 
@@ -1102,6 +1108,7 @@ router.post("/:id/reparse", async (req, res) => {
     const vacancy = await Vacancy.findById(req.params.id);
     if (!vacancy) return res.status(404).json({ message: "Вакансія не знойдзена" });
 
+    // 👈 ЗМЕНЕНА: Заўсёды бярэм originalText (першакрыніцу), каб пазбегнуць дэградацыі rawText (v6.9.7)
     const textToEnrich = vacancy.originalText || vacancy.rawText;
     const enrichedText = await enrichTextWithDocs(textToEnrich);
 
