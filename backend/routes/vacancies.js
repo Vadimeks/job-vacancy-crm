@@ -445,7 +445,7 @@ router.post("/auto", async (req, res) => {
     );
 
     if (result && result._id && !result.error) {
-      console.log(`✅ [Reparse] Вакансія ${vacancy.vacancyCode} паспяхова абноўлена.`);
+      console.log(`✅ [Reparse] Вакансія ${result.vacancyCode} паспяхова абноўлена.`);
       res.json(result);
     } else {
       const errorMsg = result?.error || "Усе AI-мадэлі адмовілі ў апрацоўцы";
