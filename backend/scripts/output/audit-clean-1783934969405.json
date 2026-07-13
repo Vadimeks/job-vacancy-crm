@@ -1,0 +1,2703 @@
+{
+  "generatedAt": "2026-07-13T09:29:29.136Z",
+  "totalVacancies": 998,
+  "toFix_Untranslated": [
+    {
+      "vacancyCode": "VAC-0516",
+      "_id": "6a2282f534c36265e90fa461",
+      "agency": "INTRASERVICE",
+      "preview": "[AI RECONSTRUCTED FRAGMENT]\nВАКАНСІЯ: Запилення огірків (Сільське господарство) ..."
+    },
+    {
+      "vacancyCode": "VAC-0944",
+      "_id": "6a2497b17cb9760fa3347811",
+      "agency": "KREON",
+      "preview": "VIVE | KIELCE. Місця лише для жінок. Робота на сучасному підприємстві, яке займа..."
+    },
+    {
+      "vacancyCode": "VAC-0945",
+      "_id": "6a2497d27cb9760fa334781c",
+      "agency": "KREON",
+      "preview": "SFC SOLUTIONS | ЧЕНСТОХОВА. Автоклави, чоловіки до 50 років, без досвіду, високі..."
+    },
+    {
+      "vacancyCode": "VAC-0962",
+      "_id": "6a24a03e7cb9760fa3347905",
+      "agency": "PERSONEL SERVICE",
+      "preview": "ЗАГАЛОВАК: Склад іграшок у Лодзі / 20 жінок і 20 чоловіків на своєму житлі із зн..."
+    },
+    {
+      "vacancyCode": "VAC-0971",
+      "_id": "6a24a18c7cb9760fa3347973",
+      "agency": "PERSONEL SERVICE",
+      "preview": "ЗАГАЛОВАК: FIEGE Gardno nocka/ 8 жінок і 2 чоловіки з приїздом 17-23.06. BHP 29...."
+    },
+    {
+      "vacancyCode": "VAC-1017",
+      "_id": "6a24a7aa7cb9760fa3347b9e",
+      "agency": "PERSONEL SERVICE",
+      "preview": "BROSE KOPRIVNICE (виробництво автомобільних сидінь та модулів) ЧЕХІЯ/ 100 осіб/ ..."
+    },
+    {
+      "vacancyCode": "VAC-1057",
+      "_id": "6a25571f2d1f2b02d6ee658c",
+      "agency": "MRÓWKI",
+      "preview": "Національність: УКР            АНГЛ                 ГРУЗ              МОЛД\n№: 32..."
+    },
+    {
+      "vacancyCode": "VAC-1151",
+      "_id": "6a2a5fc830385269fea29907",
+      "agency": "PERSONEL SERVICE",
+      "preview": "ЗАГАЛОВАК: Виробництво побутової техніки Лодзь/ 2 чоловіки на власному житлі з п..."
+    },
+    {
+      "vacancyCode": "VAC-1183",
+      "_id": "6a2bfed1495489f671c15e2b",
+      "agency": "PERSONEL SERVICE",
+      "preview": "ЗАГАЛОВАК: Склад іграшок, канцтоварів та книжок Sochaczew/ 2 жінки і 2 чоловіки ..."
+    },
+    {
+      "vacancyCode": "VAC-1221",
+      "_id": "6a307b1dba53d6a195a0ba99",
+      "agency": "PERSONEL SERVICE",
+      "preview": "Виробництво вікон Ochmanów (заборонено використовувати назву Клієнта Oknoplast)/..."
+    },
+    {
+      "vacancyCode": "VAC-1310",
+      "_id": "6a36551589a9c36213b20648",
+      "agency": "PERSONEL SERVICE",
+      "preview": "ЗАГАЛОВАК: СКЛАД КОСМЕТИКИ MSZCZONÓW/ 3 жінки і 2 чоловіки до 45 років з приїздо..."
+    },
+    {
+      "vacancyCode": "VAC-1798",
+      "_id": "6a43ac7e39ee9d5e71c3c564",
+      "agency": "PERSONEL SERVICE",
+      "preview": "[SOURCE: TRELLO | AGENCY: PERSONEL SERVICE]\nKONGSBERG WŁOCŁAWEK/ 6 чоловіків із ..."
+    },
+    {
+      "vacancyCode": "VAC-1862",
+      "_id": "6a4dfb5ea913c0b7956de104",
+      "agency": "APOLO",
+      "preview": "ВАКАНСІЯ: FRIGO Kompletacja\nк-сть: 1\nприїзд: вже\nвихід: після підписання\nСТАТЬ: ..."
+    },
+    {
+      "vacancyCode": "VAC-1876",
+      "_id": "6a4f7300961aaf1d18ee9402",
+      "agency": "PPG (BIEDRONKA)",
+      "preview": "Проєкт: JMP КОШАЛІН\nЗ: 13.07.2026\nРегіон: Колобжег\nКількість: 1\nПосада: продавец..."
+    },
+    {
+      "vacancyCode": "VAC-1898",
+      "_id": "6a4fd421485a592791a4040f",
+      "agency": "PPG (BIEDRONKA)",
+      "preview": "Проєкт: JMP GDAŃSK\nЗ якого часу: 01.08.2026\nРегіон: Мерошино\nКількість: 2\nПосада..."
+    },
+    {
+      "vacancyCode": "VAC-1902",
+      "_id": "6a4fd425485a592791a40432",
+      "agency": "PPG (BIEDRONKA)",
+      "preview": "[SOURCE: SPREADSHEET_ROW | AGENCY: PPG (BIEDRONKA)]\nProjekt:: JMP KOSTRZYN\nOd ki..."
+    },
+    {
+      "vacancyCode": "VAC-1926",
+      "_id": "6a4fe8f76e5b295cf354d670",
+      "agency": "PERSONEL SERVICE",
+      "preview": "Виробництво вікон Ochmanów (заборонено використовувати назву Клієнта Oknoplast)/..."
+    },
+    {
+      "vacancyCode": "VAC-1934",
+      "_id": "6a4ff4f36e5b295cf3551633",
+      "agency": "PERSONEL SERVICE",
+      "preview": "HUTCHINSON ŁÓDŹ LODOWA/ 10 чоловіків і 4 жінки (без пар) з польською А1 на своєм..."
+    },
+    {
+      "vacancyCode": "VAC-2039",
+      "_id": "6a503ca56247751532378319",
+      "agency": "MANPOWER",
+      "preview": "Шукаєш роботу в самому Познані? Маємо для Тебе вакансію!\nНа підприємство, яке зн..."
+    },
+    {
+      "vacancyCode": "VAC-2204",
+      "_id": "6a50a37408e9375adb7fdfa5",
+      "agency": "PROGRES",
+      "preview": "Назва: Warszawa: КОМПЛЕКТАЦІЯ ЗАМОВЛЕНЬ НА ЛОГІСТИЧНОМУ СКЛАДІ ALLEGRO \n📢\nUmowa..."
+    },
+    {
+      "vacancyCode": "VAC-2271",
+      "_id": "6a510f9d08e9375adb808d4f",
+      "agency": "PERSONEL SERVICE",
+      "preview": "[SOURCE: TRELLO | AGENCY: PERSONEL SERVICE]\nСклад одягу Magnice 1/ 500 осіб з пр..."
+    },
+    {
+      "vacancyCode": "VAC-2313",
+      "_id": "6a52039dfe689cbbb3007943",
+      "agency": "INTRASERVICE",
+      "preview": "[SOURCE: SPREADSHEET_ROW | AGENCY: INTRASERVICE]\nСтатус вакансии: Активная\nВакан..."
+    },
+    {
+      "vacancyCode": "VAC-2329",
+      "_id": "6a520707fe689cbbb3007ca2",
+      "agency": "RALEN",
+      "preview": "[AI RECONSTRUCTED FRAGMENT]\nВАКАНСІЯ: Кухар (Харчова промисловість) — Ełk\nЛОКАЦЫ..."
+    },
+    {
+      "vacancyCode": "VAC-2346",
+      "_id": "6a5252ab812fc3c14baa79b3",
+      "agency": "PPG (BIEDRONKA)",
+      "preview": "[SOURCE: SPREADSHEET_ROW | AGENCY: PPG (BIEDRONKA)]\nProjekt:: JMP MSZCZONÓW\nOd k..."
+    },
+    {
+      "vacancyCode": "VAC-2350",
+      "_id": "6a540d01c5be73cac878bcde",
+      "agency": "INTRASERVICE",
+      "preview": "[AI RECONSTRUCTED FRAGMENT]\nВАКАНСІЯ: Збір та сортування помідорів (Сільське гос..."
+    },
+    {
+      "vacancyCode": "VAC-2351",
+      "_id": "6a548dc77d0e7a5344e7d4e4",
+      "agency": "BISAR",
+      "preview": "МІСТО ПРИЇЗДУ: PRUSZCZ GDAŃSKI\nАДРЕСА ОФІСУ              ГОДИНИ РОБОТИ: Pruszcz ..."
+    },
+    {
+      "vacancyCode": "VAC-2352",
+      "_id": "6a548dfb7d0e7a5344e7d503",
+      "agency": "BISAR",
+      "preview": "МІСТО ПРИЇЗДУ: PRUSZCZ GDAŃSKI\nАДРЕСА ОФІСУ              ГОДИНИ РОБОТИ: Pruszcz ..."
+    }
+  ],
+  "toFix_LocationIssues": [
+    {
+      "vacancyCode": "VAC-0790",
+      "_id": "6a23428c0d751348a962b6f9",
+      "location": "Польща",
+      "title": "Водій C+E (Склади та логістика) — Польща",
+      "issues": [
+        "location_field_cyrillic",
+        "title_tail_cyrillic"
+      ]
+    },
+    {
+      "vacancyCode": "VAC-1893",
+      "_id": "6a4fd41e485a592791a403ec",
+      "location": "Польща",
+      "title": "Працівник магазину (Торгівля та послуги) — Польща",
+      "issues": [
+        "location_field_cyrillic",
+        "title_tail_cyrillic"
+      ]
+    },
+    {
+      "vacancyCode": "VAC-1896",
+      "_id": "6a4fd420485a592791a40401",
+      "location": "Польща",
+      "title": "Працівник магазину (Торгівля та послуги) — Польща",
+      "issues": [
+        "location_field_cyrillic",
+        "title_tail_cyrillic"
+      ]
+    },
+    {
+      "vacancyCode": "VAC-1898",
+      "_id": "6a4fd421485a592791a4040f",
+      "location": "Польща",
+      "title": "Викладач товару (Торгівля та послуги) — Польща",
+      "issues": [
+        "location_field_cyrillic",
+        "title_tail_cyrillic"
+      ]
+    },
+    {
+      "vacancyCode": "VAC-2347",
+      "_id": "6a525321812fc3c14baa79c7",
+      "location": "Польща",
+      "title": "Працівник магазину (Торгівля та послуги) — Польща",
+      "issues": [
+        "location_field_cyrillic",
+        "title_tail_cyrillic"
+      ]
+    }
+  ],
+  "toFix_SharedRawText": [
+    {
+      "count": 3,
+      "codes": [
+        "VAC-1398",
+        "VAC-1520",
+        "VAC-1929"
+      ],
+      "ids": [
+        "6a3a62de3beb8ce780000699",
+        "6a3bcf8c0878b64563183d68",
+        "6a4fee9a6e5b295cf354f94a"
+      ],
+      "preview": "SIGNIFY PHILIPS PIŁA\nМітки: Umowa Zlecenie, Без польської, Познань, Бидгощ, Support\n\n**SIGNIFY PHILI..."
+    },
+    {
+      "count": 2,
+      "codes": [
+        "VAC-2351",
+        "VAC-2352"
+      ],
+      "ids": [
+        "6a548dc77d0e7a5344e7d4e4",
+        "6a548dfb7d0e7a5344e7d503"
+      ],
+      "preview": "МІСТО ПРИЇЗДУ: PRUSZCZ GDAŃSKI\nАДРЕСА ОФІСУ              ГОДИНИ РОБОТИ: Pruszcz Gdański  83-000\nul. ..."
+    }
+  ],
+  "toDelete_ShortVacancies": [],
+  "duplicates_HighConfidence": [
+    {
+      "groupKey": "intraservice::viomil::wielkopolskie, dolnośląskie",
+      "a": {
+        "code": "VAC-0756",
+        "id": "6a233bf90d751348a962b5d7",
+        "source": "spreadsheet"
+      },
+      "b": {
+        "code": "VAC-2301",
+        "id": "6a52011ffe689cbbb300788d",
+        "source": "spreadsheet"
+      },
+      "reason": "shared_google_doc"
+    },
+    {
+      "groupKey": "niden::aurora::kąty wrocławskie",
+      "a": {
+        "code": "VAC-1178",
+        "id": "6a2bf889495489f671c15b3b",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-2270",
+        "id": "6a510f4108e9375adb808cfb",
+        "source": "trello"
+      },
+      "reason": "shared_technical_id"
+    },
+    {
+      "groupKey": "intraservice::d&h::gdańsk",
+      "a": {
+        "code": "VAC-1257",
+        "id": "6a32eaa9dcd384e434107db3",
+        "source": "spreadsheet"
+      },
+      "b": {
+        "code": "VAC-2303",
+        "id": "6a520160fe689cbbb30078a9",
+        "source": "spreadsheet"
+      },
+      "reason": "shared_google_doc"
+    },
+    {
+      "groupKey": "job impulse::fresh logistics polska::grodzisk mazowiecki",
+      "a": {
+        "code": "VAC-1664",
+        "id": "6a3c44a80878b645631929ea",
+        "source": "airtable"
+      },
+      "b": {
+        "code": "VAC-1763",
+        "id": "6a42a25c51d05d36e6c073c6",
+        "source": "airtable"
+      },
+      "reason": "shared_technical_id"
+    },
+    {
+      "groupKey": "job impulse::neon::konin żagański",
+      "a": {
+        "code": "VAC-1731",
+        "id": "6a3d5f5cfbd3e3fbcc24aa53",
+        "source": "airtable"
+      },
+      "b": {
+        "code": "VAC-1758",
+        "id": "6a42a19551d05d36e6c07383",
+        "source": "airtable"
+      },
+      "reason": "shared_technical_id"
+    },
+    {
+      "groupKey": "ppg::biedronka::польща",
+      "a": {
+        "code": "VAC-1893",
+        "id": "6a4fd41e485a592791a403ec",
+        "source": "spreadsheet"
+      },
+      "b": {
+        "code": "VAC-1896",
+        "id": "6a4fd420485a592791a40401",
+        "source": "spreadsheet"
+      },
+      "reason": "shared_google_doc"
+    },
+    {
+      "groupKey": "ppg::biedronka::польща",
+      "a": {
+        "code": "VAC-1893",
+        "id": "6a4fd41e485a592791a403ec",
+        "source": "spreadsheet"
+      },
+      "b": {
+        "code": "VAC-1898",
+        "id": "6a4fd421485a592791a4040f",
+        "source": "spreadsheet"
+      },
+      "reason": "shared_google_doc"
+    },
+    {
+      "groupKey": "ppg::biedronka::польща",
+      "a": {
+        "code": "VAC-1893",
+        "id": "6a4fd41e485a592791a403ec",
+        "source": "spreadsheet"
+      },
+      "b": {
+        "code": "VAC-2347",
+        "id": "6a525321812fc3c14baa79c7",
+        "source": "spreadsheet"
+      },
+      "reason": "shared_google_doc"
+    },
+    {
+      "groupKey": "ppg::biedronka::польща",
+      "a": {
+        "code": "VAC-1896",
+        "id": "6a4fd420485a592791a40401",
+        "source": "spreadsheet"
+      },
+      "b": {
+        "code": "VAC-1898",
+        "id": "6a4fd421485a592791a4040f",
+        "source": "spreadsheet"
+      },
+      "reason": "shared_google_doc"
+    },
+    {
+      "groupKey": "ppg::biedronka::польща",
+      "a": {
+        "code": "VAC-1896",
+        "id": "6a4fd420485a592791a40401",
+        "source": "spreadsheet"
+      },
+      "b": {
+        "code": "VAC-2347",
+        "id": "6a525321812fc3c14baa79c7",
+        "source": "spreadsheet"
+      },
+      "reason": "shared_google_doc"
+    },
+    {
+      "groupKey": "ppg::biedronka::польща",
+      "a": {
+        "code": "VAC-1898",
+        "id": "6a4fd421485a592791a4040f",
+        "source": "spreadsheet"
+      },
+      "b": {
+        "code": "VAC-2347",
+        "id": "6a525321812fc3c14baa79c7",
+        "source": "spreadsheet"
+      },
+      "reason": "shared_google_doc"
+    },
+    {
+      "groupKey": "bisar::koral kukinia::kukinia",
+      "a": {
+        "code": "VAC-2351",
+        "id": "6a548dc77d0e7a5344e7d4e4",
+        "source": "spreadsheet"
+      },
+      "b": {
+        "code": "VAC-2352",
+        "id": "6a548dfb7d0e7a5344e7d503",
+        "source": "spreadsheet"
+      },
+      "reason": "shared_google_doc"
+    }
+  ],
+  "duplicates_Potential": [
+    {
+      "groupKey": "work&human::::żnin",
+      "a": {
+        "code": "VAC-0738",
+        "id": "6a23341fe69ec7fd46f8526f",
+        "source": "spreadsheet"
+      },
+      "b": {
+        "code": "VAC-0739",
+        "id": "6a233459e69ec7fd46f85278",
+        "source": "spreadsheet"
+      },
+      "similarity": "78%"
+    },
+    {
+      "groupKey": "otto::avon::garwolin",
+      "a": {
+        "code": "VAC-0883",
+        "id": "6a236aa6f14d8abae8179301",
+        "source": "spreadsheet"
+      },
+      "b": {
+        "code": "VAC-1211",
+        "id": "6a3068f17d3e2971a59a97c5",
+        "source": "spreadsheet"
+      },
+      "similarity": "93%"
+    },
+    {
+      "groupKey": "otto::::rawa mazowiecka",
+      "a": {
+        "code": "VAC-0904",
+        "id": "6a237d09b87c466bac400774",
+        "source": "spreadsheet"
+      },
+      "b": {
+        "code": "VAC-1391",
+        "id": "6a3a47d93beb8ce780ffc08c",
+        "source": "viber"
+      },
+      "similarity": "97%"
+    },
+    {
+      "groupKey": "vekos::::żnin",
+      "a": {
+        "code": "VAC-0911",
+        "id": "6a2385335488acdc30a89d9a",
+        "source": "spreadsheet"
+      },
+      "b": {
+        "code": "VAC-0913",
+        "id": "6a2385825488acdc30a89dac",
+        "source": "spreadsheet"
+      },
+      "similarity": "80%"
+    },
+    {
+      "groupKey": "kreon::u jędrusia::wieliczka",
+      "a": {
+        "code": "VAC-0943",
+        "id": "6a24978d7cb9760fa3347805",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-0949",
+        "id": "6a2498467cb9760fa3347849",
+        "source": "trello"
+      },
+      "similarity": "92%"
+    },
+    {
+      "groupKey": "kreon::sfc solutions::częstochowa",
+      "a": {
+        "code": "VAC-0945",
+        "id": "6a2497d27cb9760fa334781c",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-0947",
+        "id": "6a24980e7cb9760fa3347832",
+        "source": "trello"
+      },
+      "similarity": "99%"
+    },
+    {
+      "groupKey": "personel service::vive::kielce",
+      "a": {
+        "code": "VAC-0954",
+        "id": "6a249f327cb9760fa33478ac",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-0996",
+        "id": "6a24a4fd7cb9760fa3347aa8",
+        "source": "trello"
+      },
+      "similarity": "86%"
+    },
+    {
+      "groupKey": "personel service::::gądki",
+      "a": {
+        "code": "VAC-0957",
+        "id": "6a249f947cb9760fa33478cd",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1169",
+        "id": "6a2b1021e27cc4e2fa6f99a1",
+        "source": "trello"
+      },
+      "similarity": "100%"
+    },
+    {
+      "groupKey": "personel service::::gądki",
+      "a": {
+        "code": "VAC-0957",
+        "id": "6a249f947cb9760fa33478cd",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1405",
+        "id": "6a3abd666262c4d3cf3e1d0a",
+        "source": "trello"
+      },
+      "similarity": "78%"
+    },
+    {
+      "groupKey": "personel service::::gądki",
+      "a": {
+        "code": "VAC-1169",
+        "id": "6a2b1021e27cc4e2fa6f99a1",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1405",
+        "id": "6a3abd666262c4d3cf3e1d0a",
+        "source": "trello"
+      },
+      "similarity": "78%"
+    },
+    {
+      "groupKey": "personel service::rosti::białystok",
+      "a": {
+        "code": "VAC-0961",
+        "id": "6a24a0207cb9760fa33478fd",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-2272",
+        "id": "6a5110b608e9375adb808e70",
+        "source": "trello"
+      },
+      "similarity": "85%"
+    },
+    {
+      "groupKey": "personel service::rosti::białystok",
+      "a": {
+        "code": "VAC-0961",
+        "id": "6a24a0207cb9760fa33478fd",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-2277",
+        "id": "6a51179508e9375adb809043",
+        "source": "trello"
+      },
+      "similarity": "84%"
+    },
+    {
+      "groupKey": "personel service::rosti::białystok",
+      "a": {
+        "code": "VAC-0987",
+        "id": "6a24a3d47cb9760fa3347a33",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-2273",
+        "id": "6a51113d08e9375adb808e85",
+        "source": "trello"
+      },
+      "similarity": "85%"
+    },
+    {
+      "groupKey": "personel service::rosti::białystok",
+      "a": {
+        "code": "VAC-0987",
+        "id": "6a24a3d47cb9760fa3347a33",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-2278",
+        "id": "6a5117b908e9375adb80904c",
+        "source": "trello"
+      },
+      "similarity": "93%"
+    },
+    {
+      "groupKey": "personel service::rosti::białystok",
+      "a": {
+        "code": "VAC-2272",
+        "id": "6a5110b608e9375adb808e70",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-2277",
+        "id": "6a51179508e9375adb809043",
+        "source": "trello"
+      },
+      "similarity": "89%"
+    },
+    {
+      "groupKey": "personel service::rosti::białystok",
+      "a": {
+        "code": "VAC-2273",
+        "id": "6a51113d08e9375adb808e85",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-2278",
+        "id": "6a5117b908e9375adb80904c",
+        "source": "trello"
+      },
+      "similarity": "90%"
+    },
+    {
+      "groupKey": "personel service::::łódź",
+      "a": {
+        "code": "VAC-0962",
+        "id": "6a24a03e7cb9760fa3347905",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1513",
+        "id": "6a3bcb520878b645631838df",
+        "source": "trello"
+      },
+      "similarity": "95%"
+    },
+    {
+      "groupKey": "personel service::::łódź",
+      "a": {
+        "code": "VAC-0962",
+        "id": "6a24a03e7cb9760fa3347905",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1517",
+        "id": "6a3bce700878b64563183c6d",
+        "source": "trello"
+      },
+      "similarity": "96%"
+    },
+    {
+      "groupKey": "personel service::::łódź",
+      "a": {
+        "code": "VAC-1513",
+        "id": "6a3bcb520878b645631838df",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1517",
+        "id": "6a3bce700878b64563183c6d",
+        "source": "trello"
+      },
+      "similarity": "100%"
+    },
+    {
+      "groupKey": "personel service::usi::biskupice podgórne",
+      "a": {
+        "code": "VAC-0963",
+        "id": "6a24a0667cb9760fa3347914",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1146",
+        "id": "6a2a5f4b30385269fea298c7",
+        "source": "trello"
+      },
+      "similarity": "97%"
+    },
+    {
+      "groupKey": "personel service::usi::biskupice podgórne",
+      "a": {
+        "code": "VAC-0963",
+        "id": "6a24a0667cb9760fa3347914",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-2349",
+        "id": "6a525572812fc3c14baa7ccc",
+        "source": "trello"
+      },
+      "similarity": "85%"
+    },
+    {
+      "groupKey": "personel service::usi::biskupice podgórne",
+      "a": {
+        "code": "VAC-1146",
+        "id": "6a2a5f4b30385269fea298c7",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-2349",
+        "id": "6a525572812fc3c14baa7ccc",
+        "source": "trello"
+      },
+      "similarity": "86%"
+    },
+    {
+      "groupKey": "personel service::::kąty wrocławskie, magnice",
+      "a": {
+        "code": "VAC-0964",
+        "id": "6a24a08b7cb9760fa334791e",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-0979",
+        "id": "6a24a2d17cb9760fa33479d7",
+        "source": "trello"
+      },
+      "similarity": "93%"
+    },
+    {
+      "groupKey": "personel service::::kąty wrocławskie, magnice",
+      "a": {
+        "code": "VAC-0964",
+        "id": "6a24a08b7cb9760fa334791e",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1022",
+        "id": "6a2536d3ab4cc0fe61e867f4",
+        "source": "trello"
+      },
+      "similarity": "98%"
+    },
+    {
+      "groupKey": "personel service::::kąty wrocławskie, magnice",
+      "a": {
+        "code": "VAC-0979",
+        "id": "6a24a2d17cb9760fa33479d7",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1022",
+        "id": "6a2536d3ab4cc0fe61e867f4",
+        "source": "trello"
+      },
+      "similarity": "95%"
+    },
+    {
+      "groupKey": "personel service::kuchnia vikinga::białystok",
+      "a": {
+        "code": "VAC-0965",
+        "id": "6a24a0b17cb9760fa334792d",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-0978",
+        "id": "6a24a2a77cb9760fa33479cc",
+        "source": "trello"
+      },
+      "similarity": "100%"
+    },
+    {
+      "groupKey": "personel service::kuchnia vikinga::białystok",
+      "a": {
+        "code": "VAC-0965",
+        "id": "6a24a0b17cb9760fa334792d",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1023",
+        "id": "6a2536f0ab4cc0fe61e86804",
+        "source": "trello"
+      },
+      "similarity": "98%"
+    },
+    {
+      "groupKey": "personel service::kuchnia vikinga::białystok",
+      "a": {
+        "code": "VAC-0978",
+        "id": "6a24a2a77cb9760fa33479cc",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1023",
+        "id": "6a2536f0ab4cc0fe61e86804",
+        "source": "trello"
+      },
+      "similarity": "98%"
+    },
+    {
+      "groupKey": "personel service::hutchinson::bielsko-biała",
+      "a": {
+        "code": "VAC-0968",
+        "id": "6a24a1107cb9760fa334794c",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1032",
+        "id": "6a25383eab4cc0fe61e86870",
+        "source": "trello"
+      },
+      "similarity": "94%"
+    },
+    {
+      "groupKey": "personel service::::pietrzykowice",
+      "a": {
+        "code": "VAC-0969",
+        "id": "6a24a1367cb9760fa3347958",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-0977",
+        "id": "6a24a2837cb9760fa33479bd",
+        "source": "trello"
+      },
+      "similarity": "90%"
+    },
+    {
+      "groupKey": "personel service::::pietrzykowice",
+      "a": {
+        "code": "VAC-0969",
+        "id": "6a24a1367cb9760fa3347958",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1024",
+        "id": "6a253719ab4cc0fe61e86811",
+        "source": "trello"
+      },
+      "similarity": "87%"
+    },
+    {
+      "groupKey": "personel service::::pietrzykowice",
+      "a": {
+        "code": "VAC-0977",
+        "id": "6a24a2837cb9760fa33479bd",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1024",
+        "id": "6a253719ab4cc0fe61e86811",
+        "source": "trello"
+      },
+      "similarity": "96%"
+    },
+    {
+      "groupKey": "personel service::tpv::gorzów wielkopolski",
+      "a": {
+        "code": "VAC-0970",
+        "id": "6a24a1687cb9760fa3347968",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-0992",
+        "id": "6a24a47f7cb9760fa3347a7a",
+        "source": "trello"
+      },
+      "similarity": "93%"
+    },
+    {
+      "groupKey": "personel service::tpv::gorzów wielkopolski",
+      "a": {
+        "code": "VAC-0970",
+        "id": "6a24a1687cb9760fa3347968",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1514",
+        "id": "6a3bcba70878b645631839d2",
+        "source": "trello"
+      },
+      "similarity": "90%"
+    },
+    {
+      "groupKey": "personel service::tpv::gorzów wielkopolski",
+      "a": {
+        "code": "VAC-0970",
+        "id": "6a24a1687cb9760fa3347968",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1790",
+        "id": "6a43a42b562a58f4fa96850c",
+        "source": "trello"
+      },
+      "similarity": "91%"
+    },
+    {
+      "groupKey": "personel service::tpv::gorzów wielkopolski",
+      "a": {
+        "code": "VAC-0970",
+        "id": "6a24a1687cb9760fa3347968",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1931",
+        "id": "6a4ff2b76e5b295cf354fbb0",
+        "source": "trello"
+      },
+      "similarity": "92%"
+    },
+    {
+      "groupKey": "personel service::tpv::gorzów wielkopolski",
+      "a": {
+        "code": "VAC-0970",
+        "id": "6a24a1687cb9760fa3347968",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1939",
+        "id": "6a4ff9736e5b295cf35516a0",
+        "source": "trello"
+      },
+      "similarity": "91%"
+    },
+    {
+      "groupKey": "personel service::tpv::gorzów wielkopolski",
+      "a": {
+        "code": "VAC-0992",
+        "id": "6a24a47f7cb9760fa3347a7a",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1514",
+        "id": "6a3bcba70878b645631839d2",
+        "source": "trello"
+      },
+      "similarity": "88%"
+    },
+    {
+      "groupKey": "personel service::tpv::gorzów wielkopolski",
+      "a": {
+        "code": "VAC-0992",
+        "id": "6a24a47f7cb9760fa3347a7a",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1790",
+        "id": "6a43a42b562a58f4fa96850c",
+        "source": "trello"
+      },
+      "similarity": "92%"
+    },
+    {
+      "groupKey": "personel service::tpv::gorzów wielkopolski",
+      "a": {
+        "code": "VAC-0992",
+        "id": "6a24a47f7cb9760fa3347a7a",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1931",
+        "id": "6a4ff2b76e5b295cf354fbb0",
+        "source": "trello"
+      },
+      "similarity": "89%"
+    },
+    {
+      "groupKey": "personel service::tpv::gorzów wielkopolski",
+      "a": {
+        "code": "VAC-0992",
+        "id": "6a24a47f7cb9760fa3347a7a",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1939",
+        "id": "6a4ff9736e5b295cf35516a0",
+        "source": "trello"
+      },
+      "similarity": "93%"
+    },
+    {
+      "groupKey": "personel service::tpv::gorzów wielkopolski",
+      "a": {
+        "code": "VAC-1514",
+        "id": "6a3bcba70878b645631839d2",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1790",
+        "id": "6a43a42b562a58f4fa96850c",
+        "source": "trello"
+      },
+      "similarity": "92%"
+    },
+    {
+      "groupKey": "personel service::tpv::gorzów wielkopolski",
+      "a": {
+        "code": "VAC-1514",
+        "id": "6a3bcba70878b645631839d2",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1931",
+        "id": "6a4ff2b76e5b295cf354fbb0",
+        "source": "trello"
+      },
+      "similarity": "94%"
+    },
+    {
+      "groupKey": "personel service::tpv::gorzów wielkopolski",
+      "a": {
+        "code": "VAC-1514",
+        "id": "6a3bcba70878b645631839d2",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1939",
+        "id": "6a4ff9736e5b295cf35516a0",
+        "source": "trello"
+      },
+      "similarity": "89%"
+    },
+    {
+      "groupKey": "personel service::tpv::gorzów wielkopolski",
+      "a": {
+        "code": "VAC-1790",
+        "id": "6a43a42b562a58f4fa96850c",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1931",
+        "id": "6a4ff2b76e5b295cf354fbb0",
+        "source": "trello"
+      },
+      "similarity": "93%"
+    },
+    {
+      "groupKey": "personel service::tpv::gorzów wielkopolski",
+      "a": {
+        "code": "VAC-1790",
+        "id": "6a43a42b562a58f4fa96850c",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1939",
+        "id": "6a4ff9736e5b295cf35516a0",
+        "source": "trello"
+      },
+      "similarity": "95%"
+    },
+    {
+      "groupKey": "personel service::tpv::gorzów wielkopolski",
+      "a": {
+        "code": "VAC-1931",
+        "id": "6a4ff2b76e5b295cf354fbb0",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1939",
+        "id": "6a4ff9736e5b295cf35516a0",
+        "source": "trello"
+      },
+      "similarity": "94%"
+    },
+    {
+      "groupKey": "personel service::fiege::gardno",
+      "a": {
+        "code": "VAC-0971",
+        "id": "6a24a18c7cb9760fa3347973",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-0982",
+        "id": "6a24a3387cb9760fa33479fe",
+        "source": "trello"
+      },
+      "similarity": "96%"
+    },
+    {
+      "groupKey": "personel service::fiege::gardno",
+      "a": {
+        "code": "VAC-0971",
+        "id": "6a24a18c7cb9760fa3347973",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1030",
+        "id": "6a2537edab4cc0fe61e86859",
+        "source": "trello"
+      },
+      "similarity": "85%"
+    },
+    {
+      "groupKey": "personel service::fiege::gardno",
+      "a": {
+        "code": "VAC-0971",
+        "id": "6a24a18c7cb9760fa3347973",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1223",
+        "id": "6a30f1b0832621a0cc46bdfa",
+        "source": "trello"
+      },
+      "similarity": "90%"
+    },
+    {
+      "groupKey": "personel service::fiege::gardno",
+      "a": {
+        "code": "VAC-0971",
+        "id": "6a24a18c7cb9760fa3347973",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1224",
+        "id": "6a30f1e5832621a0cc46be39",
+        "source": "trello"
+      },
+      "similarity": "86%"
+    },
+    {
+      "groupKey": "personel service::fiege::gardno",
+      "a": {
+        "code": "VAC-0971",
+        "id": "6a24a18c7cb9760fa3347973",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1229",
+        "id": "6a30f421832621a0cc46bf3b",
+        "source": "trello"
+      },
+      "similarity": "89%"
+    },
+    {
+      "groupKey": "personel service::fiege::gardno",
+      "a": {
+        "code": "VAC-0971",
+        "id": "6a24a18c7cb9760fa3347973",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1923",
+        "id": "6a4fe218fed8cfb11d3fe9b0",
+        "source": "trello"
+      },
+      "similarity": "82%"
+    },
+    {
+      "groupKey": "personel service::fiege::gardno",
+      "a": {
+        "code": "VAC-0971",
+        "id": "6a24a18c7cb9760fa3347973",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1940",
+        "id": "6a4ff9ab6e5b295cf35516b1",
+        "source": "trello"
+      },
+      "similarity": "84%"
+    },
+    {
+      "groupKey": "personel service::fiege::gardno",
+      "a": {
+        "code": "VAC-0982",
+        "id": "6a24a3387cb9760fa33479fe",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1030",
+        "id": "6a2537edab4cc0fe61e86859",
+        "source": "trello"
+      },
+      "similarity": "89%"
+    },
+    {
+      "groupKey": "personel service::fiege::gardno",
+      "a": {
+        "code": "VAC-0982",
+        "id": "6a24a3387cb9760fa33479fe",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1223",
+        "id": "6a30f1b0832621a0cc46bdfa",
+        "source": "trello"
+      },
+      "similarity": "90%"
+    },
+    {
+      "groupKey": "personel service::fiege::gardno",
+      "a": {
+        "code": "VAC-0982",
+        "id": "6a24a3387cb9760fa33479fe",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1224",
+        "id": "6a30f1e5832621a0cc46be39",
+        "source": "trello"
+      },
+      "similarity": "86%"
+    },
+    {
+      "groupKey": "personel service::fiege::gardno",
+      "a": {
+        "code": "VAC-0982",
+        "id": "6a24a3387cb9760fa33479fe",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1229",
+        "id": "6a30f421832621a0cc46bf3b",
+        "source": "trello"
+      },
+      "similarity": "90%"
+    },
+    {
+      "groupKey": "personel service::fiege::gardno",
+      "a": {
+        "code": "VAC-0982",
+        "id": "6a24a3387cb9760fa33479fe",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1923",
+        "id": "6a4fe218fed8cfb11d3fe9b0",
+        "source": "trello"
+      },
+      "similarity": "82%"
+    },
+    {
+      "groupKey": "personel service::fiege::gardno",
+      "a": {
+        "code": "VAC-0982",
+        "id": "6a24a3387cb9760fa33479fe",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1940",
+        "id": "6a4ff9ab6e5b295cf35516b1",
+        "source": "trello"
+      },
+      "similarity": "84%"
+    },
+    {
+      "groupKey": "personel service::fiege::gardno",
+      "a": {
+        "code": "VAC-1030",
+        "id": "6a2537edab4cc0fe61e86859",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1223",
+        "id": "6a30f1b0832621a0cc46bdfa",
+        "source": "trello"
+      },
+      "similarity": "89%"
+    },
+    {
+      "groupKey": "personel service::fiege::gardno",
+      "a": {
+        "code": "VAC-1030",
+        "id": "6a2537edab4cc0fe61e86859",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1224",
+        "id": "6a30f1e5832621a0cc46be39",
+        "source": "trello"
+      },
+      "similarity": "87%"
+    },
+    {
+      "groupKey": "personel service::fiege::gardno",
+      "a": {
+        "code": "VAC-1030",
+        "id": "6a2537edab4cc0fe61e86859",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1229",
+        "id": "6a30f421832621a0cc46bf3b",
+        "source": "trello"
+      },
+      "similarity": "88%"
+    },
+    {
+      "groupKey": "personel service::fiege::gardno",
+      "a": {
+        "code": "VAC-1030",
+        "id": "6a2537edab4cc0fe61e86859",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1923",
+        "id": "6a4fe218fed8cfb11d3fe9b0",
+        "source": "trello"
+      },
+      "similarity": "77%"
+    },
+    {
+      "groupKey": "personel service::fiege::gardno",
+      "a": {
+        "code": "VAC-1030",
+        "id": "6a2537edab4cc0fe61e86859",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1940",
+        "id": "6a4ff9ab6e5b295cf35516b1",
+        "source": "trello"
+      },
+      "similarity": "80%"
+    },
+    {
+      "groupKey": "personel service::fiege::gardno",
+      "a": {
+        "code": "VAC-1223",
+        "id": "6a30f1b0832621a0cc46bdfa",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1224",
+        "id": "6a30f1e5832621a0cc46be39",
+        "source": "trello"
+      },
+      "similarity": "92%"
+    },
+    {
+      "groupKey": "personel service::fiege::gardno",
+      "a": {
+        "code": "VAC-1223",
+        "id": "6a30f1b0832621a0cc46bdfa",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1229",
+        "id": "6a30f421832621a0cc46bf3b",
+        "source": "trello"
+      },
+      "similarity": "98%"
+    },
+    {
+      "groupKey": "personel service::fiege::gardno",
+      "a": {
+        "code": "VAC-1223",
+        "id": "6a30f1b0832621a0cc46bdfa",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1923",
+        "id": "6a4fe218fed8cfb11d3fe9b0",
+        "source": "trello"
+      },
+      "similarity": "84%"
+    },
+    {
+      "groupKey": "personel service::fiege::gardno",
+      "a": {
+        "code": "VAC-1223",
+        "id": "6a30f1b0832621a0cc46bdfa",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1940",
+        "id": "6a4ff9ab6e5b295cf35516b1",
+        "source": "trello"
+      },
+      "similarity": "88%"
+    },
+    {
+      "groupKey": "personel service::fiege::gardno",
+      "a": {
+        "code": "VAC-1224",
+        "id": "6a30f1e5832621a0cc46be39",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1229",
+        "id": "6a30f421832621a0cc46bf3b",
+        "source": "trello"
+      },
+      "similarity": "90%"
+    },
+    {
+      "groupKey": "personel service::fiege::gardno",
+      "a": {
+        "code": "VAC-1224",
+        "id": "6a30f1e5832621a0cc46be39",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1923",
+        "id": "6a4fe218fed8cfb11d3fe9b0",
+        "source": "trello"
+      },
+      "similarity": "83%"
+    },
+    {
+      "groupKey": "personel service::fiege::gardno",
+      "a": {
+        "code": "VAC-1224",
+        "id": "6a30f1e5832621a0cc46be39",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1940",
+        "id": "6a4ff9ab6e5b295cf35516b1",
+        "source": "trello"
+      },
+      "similarity": "84%"
+    },
+    {
+      "groupKey": "personel service::fiege::gardno",
+      "a": {
+        "code": "VAC-1229",
+        "id": "6a30f421832621a0cc46bf3b",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1923",
+        "id": "6a4fe218fed8cfb11d3fe9b0",
+        "source": "trello"
+      },
+      "similarity": "84%"
+    },
+    {
+      "groupKey": "personel service::fiege::gardno",
+      "a": {
+        "code": "VAC-1229",
+        "id": "6a30f421832621a0cc46bf3b",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1940",
+        "id": "6a4ff9ab6e5b295cf35516b1",
+        "source": "trello"
+      },
+      "similarity": "88%"
+    },
+    {
+      "groupKey": "personel service::fiege::gardno",
+      "a": {
+        "code": "VAC-1923",
+        "id": "6a4fe218fed8cfb11d3fe9b0",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1940",
+        "id": "6a4ff9ab6e5b295cf35516b1",
+        "source": "trello"
+      },
+      "similarity": "92%"
+    },
+    {
+      "groupKey": "personel service::hilton foods::tychy",
+      "a": {
+        "code": "VAC-0974",
+        "id": "6a24a2157cb9760fa3347995",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1937",
+        "id": "6a4ff9116e5b295cf355167e",
+        "source": "trello"
+      },
+      "similarity": "98%"
+    },
+    {
+      "groupKey": "personel service::hopi::sochaczew",
+      "a": {
+        "code": "VAC-0983",
+        "id": "6a24a3597cb9760fa3347a07",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1241",
+        "id": "6a31c955b2622219619caf65",
+        "source": "trello"
+      },
+      "similarity": "88%"
+    },
+    {
+      "groupKey": "personel service::hopi::sochaczew",
+      "a": {
+        "code": "VAC-0983",
+        "id": "6a24a3597cb9760fa3347a07",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1244",
+        "id": "6a31ca21b2622219619cb04d",
+        "source": "trello"
+      },
+      "similarity": "96%"
+    },
+    {
+      "groupKey": "personel service::hopi::sochaczew",
+      "a": {
+        "code": "VAC-0983",
+        "id": "6a24a3597cb9760fa3347a07",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1792",
+        "id": "6a43a469562a58f4fa96852b",
+        "source": "trello"
+      },
+      "similarity": "79%"
+    },
+    {
+      "groupKey": "personel service::hopi::sochaczew",
+      "a": {
+        "code": "VAC-0983",
+        "id": "6a24a3597cb9760fa3347a07",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1933",
+        "id": "6a4ff4ba6e5b295cf3551626",
+        "source": "trello"
+      },
+      "similarity": "87%"
+    },
+    {
+      "groupKey": "personel service::hopi::sochaczew",
+      "a": {
+        "code": "VAC-1241",
+        "id": "6a31c955b2622219619caf65",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1244",
+        "id": "6a31ca21b2622219619cb04d",
+        "source": "trello"
+      },
+      "similarity": "92%"
+    },
+    {
+      "groupKey": "personel service::hopi::sochaczew",
+      "a": {
+        "code": "VAC-1241",
+        "id": "6a31c955b2622219619caf65",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1792",
+        "id": "6a43a469562a58f4fa96852b",
+        "source": "trello"
+      },
+      "similarity": "85%"
+    },
+    {
+      "groupKey": "personel service::hopi::sochaczew",
+      "a": {
+        "code": "VAC-1241",
+        "id": "6a31c955b2622219619caf65",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1933",
+        "id": "6a4ff4ba6e5b295cf3551626",
+        "source": "trello"
+      },
+      "similarity": "80%"
+    },
+    {
+      "groupKey": "personel service::hopi::sochaczew",
+      "a": {
+        "code": "VAC-1244",
+        "id": "6a31ca21b2622219619cb04d",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1792",
+        "id": "6a43a469562a58f4fa96852b",
+        "source": "trello"
+      },
+      "similarity": "78%"
+    },
+    {
+      "groupKey": "personel service::hopi::sochaczew",
+      "a": {
+        "code": "VAC-1244",
+        "id": "6a31ca21b2622219619cb04d",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1933",
+        "id": "6a4ff4ba6e5b295cf3551626",
+        "source": "trello"
+      },
+      "similarity": "87%"
+    },
+    {
+      "groupKey": "personel service::hopi::sochaczew",
+      "a": {
+        "code": "VAC-1792",
+        "id": "6a43a469562a58f4fa96852b",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1933",
+        "id": "6a4ff4ba6e5b295cf3551626",
+        "source": "trello"
+      },
+      "similarity": "90%"
+    },
+    {
+      "groupKey": "personel service::hutchinson::łódź",
+      "a": {
+        "code": "VAC-0990",
+        "id": "6a24a4397cb9760fa3347a66",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1048",
+        "id": "6a253a61ab4cc0fe61e86932",
+        "source": "trello"
+      },
+      "similarity": "86%"
+    },
+    {
+      "groupKey": "personel service::hutchinson::łódź",
+      "a": {
+        "code": "VAC-0990",
+        "id": "6a24a4397cb9760fa3347a66",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1921",
+        "id": "6a4fe1b6fed8cfb11d3fe986",
+        "source": "trello"
+      },
+      "similarity": "96%"
+    },
+    {
+      "groupKey": "personel service::hutchinson::łódź",
+      "a": {
+        "code": "VAC-0990",
+        "id": "6a24a4397cb9760fa3347a66",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1942",
+        "id": "6a4ffa0e6e5b295cf35516d1",
+        "source": "trello"
+      },
+      "similarity": "96%"
+    },
+    {
+      "groupKey": "personel service::hutchinson::łódź",
+      "a": {
+        "code": "VAC-1048",
+        "id": "6a253a61ab4cc0fe61e86932",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1921",
+        "id": "6a4fe1b6fed8cfb11d3fe986",
+        "source": "trello"
+      },
+      "similarity": "85%"
+    },
+    {
+      "groupKey": "personel service::hutchinson::łódź",
+      "a": {
+        "code": "VAC-1048",
+        "id": "6a253a61ab4cc0fe61e86932",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1942",
+        "id": "6a4ffa0e6e5b295cf35516d1",
+        "source": "trello"
+      },
+      "similarity": "86%"
+    },
+    {
+      "groupKey": "personel service::hutchinson::łódź",
+      "a": {
+        "code": "VAC-1095",
+        "id": "6a26e3a11a6ca16d3785f821",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1103",
+        "id": "6a27b748b5d78e71041b8130",
+        "source": "trello"
+      },
+      "similarity": "97%"
+    },
+    {
+      "groupKey": "personel service::hutchinson::łódź",
+      "a": {
+        "code": "VAC-1095",
+        "id": "6a26e3a11a6ca16d3785f821",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1927",
+        "id": "6a4fedee6e5b295cf354f8fa",
+        "source": "trello"
+      },
+      "similarity": "91%"
+    },
+    {
+      "groupKey": "personel service::hutchinson::łódź",
+      "a": {
+        "code": "VAC-1095",
+        "id": "6a26e3a11a6ca16d3785f821",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1934",
+        "id": "6a4ff4f36e5b295cf3551633",
+        "source": "trello"
+      },
+      "similarity": "93%"
+    },
+    {
+      "groupKey": "personel service::hutchinson::łódź",
+      "a": {
+        "code": "VAC-1103",
+        "id": "6a27b748b5d78e71041b8130",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1927",
+        "id": "6a4fedee6e5b295cf354f8fa",
+        "source": "trello"
+      },
+      "similarity": "91%"
+    },
+    {
+      "groupKey": "personel service::hutchinson::łódź",
+      "a": {
+        "code": "VAC-1103",
+        "id": "6a27b748b5d78e71041b8130",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1934",
+        "id": "6a4ff4f36e5b295cf3551633",
+        "source": "trello"
+      },
+      "similarity": "91%"
+    },
+    {
+      "groupKey": "personel service::hutchinson::łódź",
+      "a": {
+        "code": "VAC-1921",
+        "id": "6a4fe1b6fed8cfb11d3fe986",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1942",
+        "id": "6a4ffa0e6e5b295cf35516d1",
+        "source": "trello"
+      },
+      "similarity": "97%"
+    },
+    {
+      "groupKey": "personel service::hutchinson::łódź",
+      "a": {
+        "code": "VAC-1927",
+        "id": "6a4fedee6e5b295cf354f8fa",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1934",
+        "id": "6a4ff4f36e5b295cf3551633",
+        "source": "trello"
+      },
+      "similarity": "92%"
+    },
+    {
+      "groupKey": "personel service::no limit natolin::natolin",
+      "a": {
+        "code": "VAC-1148",
+        "id": "6a2a5f8b30385269fea298e3",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1516",
+        "id": "6a3bcc240878b64563183a20",
+        "source": "trello"
+      },
+      "similarity": "92%"
+    },
+    {
+      "groupKey": "personel service::technikolor::józefosław",
+      "a": {
+        "code": "VAC-1149",
+        "id": "6a2a5faa30385269fea298f7",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1219",
+        "id": "6a307a90ba53d6a195a0ba80",
+        "source": "trello"
+      },
+      "similarity": "92%"
+    },
+    {
+      "groupKey": "personel service::gedia::nowa sól",
+      "a": {
+        "code": "VAC-1029",
+        "id": "6a2537ceab4cc0fe61e8684b",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1162",
+        "id": "6a2a62b230385269fea29ac8",
+        "source": "trello"
+      },
+      "similarity": "96%"
+    },
+    {
+      "groupKey": "personel service::gedia::nowa sól",
+      "a": {
+        "code": "VAC-1029",
+        "id": "6a2537ceab4cc0fe61e8684b",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1222",
+        "id": "6a307d12ba53d6a195a0bb44",
+        "source": "trello"
+      },
+      "similarity": "96%"
+    },
+    {
+      "groupKey": "personel service::gedia::nowa sól",
+      "a": {
+        "code": "VAC-1162",
+        "id": "6a2a62b230385269fea29ac8",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1222",
+        "id": "6a307d12ba53d6a195a0bb44",
+        "source": "trello"
+      },
+      "similarity": "96%"
+    },
+    {
+      "groupKey": "personel service::effector::kielce",
+      "a": {
+        "code": "VAC-1034",
+        "id": "6a253878ab4cc0fe61e86889",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1925",
+        "id": "6a4fe8cf6e5b295cf354d663",
+        "source": "trello"
+      },
+      "similarity": "96%"
+    },
+    {
+      "groupKey": "personel service::::sochaczew",
+      "a": {
+        "code": "VAC-1036",
+        "id": "6a2538b4ab4cc0fe61e8689e",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1155",
+        "id": "6a2a606530385269fea29975",
+        "source": "trello"
+      },
+      "similarity": "92%"
+    },
+    {
+      "groupKey": "personel service::::sochaczew",
+      "a": {
+        "code": "VAC-1036",
+        "id": "6a2538b4ab4cc0fe61e8689e",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1183",
+        "id": "6a2bfed1495489f671c15e2b",
+        "source": "trello"
+      },
+      "similarity": "91%"
+    },
+    {
+      "groupKey": "personel service::::sochaczew",
+      "a": {
+        "code": "VAC-1036",
+        "id": "6a2538b4ab4cc0fe61e8689e",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1243",
+        "id": "6a31c9a8b2622219619caf7d",
+        "source": "trello"
+      },
+      "similarity": "96%"
+    },
+    {
+      "groupKey": "personel service::::sochaczew",
+      "a": {
+        "code": "VAC-1155",
+        "id": "6a2a606530385269fea29975",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1183",
+        "id": "6a2bfed1495489f671c15e2b",
+        "source": "trello"
+      },
+      "similarity": "93%"
+    },
+    {
+      "groupKey": "personel service::::sochaczew",
+      "a": {
+        "code": "VAC-1155",
+        "id": "6a2a606530385269fea29975",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1243",
+        "id": "6a31c9a8b2622219619caf7d",
+        "source": "trello"
+      },
+      "similarity": "92%"
+    },
+    {
+      "groupKey": "personel service::::sochaczew",
+      "a": {
+        "code": "VAC-1183",
+        "id": "6a2bfed1495489f671c15e2b",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1243",
+        "id": "6a31c9a8b2622219619caf7d",
+        "source": "trello"
+      },
+      "similarity": "90%"
+    },
+    {
+      "groupKey": "personel service::lg chem::biskupice podgórne",
+      "a": {
+        "code": "VAC-1038",
+        "id": "6a253906ab4cc0fe61e868b6",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1512",
+        "id": "6a3bcb0f0878b64563183836",
+        "source": "trello"
+      },
+      "similarity": "89%"
+    },
+    {
+      "groupKey": "personel service::faurecia::gorzów wielkopolski",
+      "a": {
+        "code": "VAC-1041",
+        "id": "6a25396aab4cc0fe61e868e2",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1185",
+        "id": "6a2bff24495489f671c15e3d",
+        "source": "trello"
+      },
+      "similarity": "90%"
+    },
+    {
+      "groupKey": "personel service::faurecia::gorzów wielkopolski",
+      "a": {
+        "code": "VAC-1041",
+        "id": "6a25396aab4cc0fe61e868e2",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1304",
+        "id": "6a352a293fa23ff2dadfb8c7",
+        "source": "trello"
+      },
+      "similarity": "94%"
+    },
+    {
+      "groupKey": "personel service::faurecia::gorzów wielkopolski",
+      "a": {
+        "code": "VAC-1185",
+        "id": "6a2bff24495489f671c15e3d",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1304",
+        "id": "6a352a293fa23ff2dadfb8c7",
+        "source": "trello"
+      },
+      "similarity": "90%"
+    },
+    {
+      "groupKey": "personel service::h&m::gądki",
+      "a": {
+        "code": "VAC-1096",
+        "id": "6a26e3df1a6ca16d3785f82d",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1101",
+        "id": "6a27b6f8b5d78e71041b8112",
+        "source": "trello"
+      },
+      "similarity": "93%"
+    },
+    {
+      "groupKey": "personel service::maflow::łysomice",
+      "a": {
+        "code": "VAC-1100",
+        "id": "6a27b6c3b5d78e71041b80fc",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1915",
+        "id": "6a4fe057fed8cfb11d3fe924",
+        "source": "trello"
+      },
+      "similarity": "90%"
+    },
+    {
+      "groupKey": "personel service::lisner::poznań",
+      "a": {
+        "code": "VAC-1105",
+        "id": "6a27b8e1b5d78e71041b8286",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1293",
+        "id": "6a34613f61cf38486f9c5e69",
+        "source": "trello"
+      },
+      "similarity": "90%"
+    },
+    {
+      "groupKey": "personel service::lisner::poznań",
+      "a": {
+        "code": "VAC-1105",
+        "id": "6a27b8e1b5d78e71041b8286",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1920",
+        "id": "6a4fe183fed8cfb11d3fe975",
+        "source": "trello"
+      },
+      "similarity": "93%"
+    },
+    {
+      "groupKey": "personel service::lisner::poznań",
+      "a": {
+        "code": "VAC-1293",
+        "id": "6a34613f61cf38486f9c5e69",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1920",
+        "id": "6a4fe183fed8cfb11d3fe975",
+        "source": "trello"
+      },
+      "similarity": "92%"
+    },
+    {
+      "groupKey": "personel service::animex::opole",
+      "a": {
+        "code": "VAC-1145",
+        "id": "6a2a5f0f30385269fea298b7",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1914",
+        "id": "6a4fdfdafed8cfb11d3fe90f",
+        "source": "trello"
+      },
+      "similarity": "92%"
+    },
+    {
+      "groupKey": "personel service::lg energy solution::wrocław, biskupice podgórne",
+      "a": {
+        "code": "VAC-1271",
+        "id": "6a339f2ff9245ee9dea5565f",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1928",
+        "id": "6a4fee296e5b295cf354f90d",
+        "source": "trello"
+      },
+      "similarity": "94%"
+    },
+    {
+      "groupKey": "personel service::scania::gdańsk",
+      "a": {
+        "code": "VAC-1216",
+        "id": "6a3079fbba53d6a195a0ba5e",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-2275",
+        "id": "6a5111b908e9375adb808eac",
+        "source": "trello"
+      },
+      "similarity": "90%"
+    },
+    {
+      "groupKey": "personel service::scania::gdańsk",
+      "a": {
+        "code": "VAC-1216",
+        "id": "6a3079fbba53d6a195a0ba5e",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-2279",
+        "id": "6a5117ec08e9375adb80906d",
+        "source": "trello"
+      },
+      "similarity": "92%"
+    },
+    {
+      "groupKey": "personel service::scania::gdańsk",
+      "a": {
+        "code": "VAC-2275",
+        "id": "6a5111b908e9375adb808eac",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-2279",
+        "id": "6a5117ec08e9375adb80906d",
+        "source": "trello"
+      },
+      "similarity": "93%"
+    },
+    {
+      "groupKey": "personel service::signify philips::piła",
+      "a": {
+        "code": "VAC-1398",
+        "id": "6a3a62de3beb8ce780000699",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1520",
+        "id": "6a3bcf8c0878b64563183d68",
+        "source": "trello"
+      },
+      "similarity": "100%"
+    },
+    {
+      "groupKey": "personel service::signify philips::piła",
+      "a": {
+        "code": "VAC-1398",
+        "id": "6a3a62de3beb8ce780000699",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1929",
+        "id": "6a4fee9a6e5b295cf354f94a",
+        "source": "trello"
+      },
+      "similarity": "100%"
+    },
+    {
+      "groupKey": "personel service::signify philips::piła",
+      "a": {
+        "code": "VAC-1520",
+        "id": "6a3bcf8c0878b64563183d68",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1929",
+        "id": "6a4fee9a6e5b295cf354f94a",
+        "source": "trello"
+      },
+      "similarity": "100%"
+    },
+    {
+      "groupKey": "personel service::::chrzanów",
+      "a": {
+        "code": "VAC-1220",
+        "id": "6a307adaba53d6a195a0ba8a",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1932",
+        "id": "6a4ff2ec6e5b295cf354fbc1",
+        "source": "trello"
+      },
+      "similarity": "86%"
+    },
+    {
+      "groupKey": "personel service::::chrzanów",
+      "a": {
+        "code": "VAC-1220",
+        "id": "6a307adaba53d6a195a0ba8a",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1938",
+        "id": "6a4ff9376e5b295cf3551693",
+        "source": "trello"
+      },
+      "similarity": "90%"
+    },
+    {
+      "groupKey": "personel service::::chrzanów",
+      "a": {
+        "code": "VAC-1932",
+        "id": "6a4ff2ec6e5b295cf354fbc1",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1938",
+        "id": "6a4ff9376e5b295cf3551693",
+        "source": "trello"
+      },
+      "similarity": "93%"
+    },
+    {
+      "groupKey": "personel service::::ochmanów",
+      "a": {
+        "code": "VAC-1221",
+        "id": "6a307b1dba53d6a195a0ba99",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1926",
+        "id": "6a4fe8f76e5b295cf354d670",
+        "source": "trello"
+      },
+      "similarity": "100%"
+    },
+    {
+      "groupKey": "personel service::::katowice",
+      "a": {
+        "code": "VAC-1242",
+        "id": "6a31c982b2622219619caf71",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1913",
+        "id": "6a4fdfaefed8cfb11d3fe900",
+        "source": "trello"
+      },
+      "similarity": "90%"
+    },
+    {
+      "groupKey": "personel service::::katowice",
+      "a": {
+        "code": "VAC-1242",
+        "id": "6a31c982b2622219619caf71",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1944",
+        "id": "6a4ffa816e5b295cf35516ef",
+        "source": "trello"
+      },
+      "similarity": "95%"
+    },
+    {
+      "groupKey": "personel service::::katowice",
+      "a": {
+        "code": "VAC-1913",
+        "id": "6a4fdfaefed8cfb11d3fe900",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1944",
+        "id": "6a4ffa816e5b295cf35516ef",
+        "source": "trello"
+      },
+      "similarity": "95%"
+    },
+    {
+      "groupKey": "personel service::::krzyżowice",
+      "a": {
+        "code": "VAC-1268",
+        "id": "6a32f0b1dcd384e4341084f6",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1272",
+        "id": "6a33a05bf9245ee9dea556d8",
+        "source": "trello"
+      },
+      "similarity": "89%"
+    },
+    {
+      "groupKey": "personel service::shein::krzyżowice",
+      "a": {
+        "code": "VAC-1274",
+        "id": "6a33a298f9245ee9dea557e3",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1789",
+        "id": "6a43a3ea562a58f4fa9662f8",
+        "source": "trello"
+      },
+      "similarity": "75%"
+    },
+    {
+      "groupKey": "personel service::animex foods::morliny",
+      "a": {
+        "code": "VAC-1291",
+        "id": "6a3460ae61cf38486f9c5e4a",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1296",
+        "id": "6a3465fc61cf38486f9c6098",
+        "source": "trello"
+      },
+      "similarity": "95%"
+    },
+    {
+      "groupKey": "personel service::beko::wrocław",
+      "a": {
+        "code": "VAC-1311",
+        "id": "6a36591f89a9c36213b2088c",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1948",
+        "id": "6a5001b8d835f0e12d240a96",
+        "source": "trello"
+      },
+      "similarity": "94%"
+    },
+    {
+      "groupKey": "personel service::3lp::siechnice",
+      "a": {
+        "code": "VAC-1515",
+        "id": "6a3bcbea0878b645631839ee",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1916",
+        "id": "6a4fe099fed8cfb11d3fe935",
+        "source": "trello"
+      },
+      "similarity": "96%"
+    },
+    {
+      "groupKey": "manpower::lisner::poznań",
+      "a": {
+        "code": "VAC-2036",
+        "id": "6a503c1c62477515323782f4",
+        "source": "airtable"
+      },
+      "b": {
+        "code": "VAC-2040",
+        "id": "6a504d7545b45a0d8b04168f",
+        "source": "airtable"
+      },
+      "similarity": "80%"
+    },
+    {
+      "groupKey": "manpower::lisner::poznań",
+      "a": {
+        "code": "VAC-2036",
+        "id": "6a503c1c62477515323782f4",
+        "source": "airtable"
+      },
+      "b": {
+        "code": "VAC-2174",
+        "id": "6a509fbf08e9375adb7fdd58",
+        "source": "airtable"
+      },
+      "similarity": "76%"
+    },
+    {
+      "groupKey": "manpower::lisner::poznań",
+      "a": {
+        "code": "VAC-2039",
+        "id": "6a503ca56247751532378319",
+        "source": "airtable"
+      },
+      "b": {
+        "code": "VAC-2102",
+        "id": "6a5071f41a4c93b3b6898647",
+        "source": "airtable"
+      },
+      "similarity": "81%"
+    },
+    {
+      "groupKey": "manpower::lisner::poznań",
+      "a": {
+        "code": "VAC-2040",
+        "id": "6a504d7545b45a0d8b04168f",
+        "source": "airtable"
+      },
+      "b": {
+        "code": "VAC-2174",
+        "id": "6a509fbf08e9375adb7fdd58",
+        "source": "airtable"
+      },
+      "similarity": "78%"
+    },
+    {
+      "groupKey": "manpower::lisner::poznań",
+      "a": {
+        "code": "VAC-2055",
+        "id": "6a506053aacfccca5b1a27ac",
+        "source": "airtable"
+      },
+      "b": {
+        "code": "VAC-2174",
+        "id": "6a509fbf08e9375adb7fdd58",
+        "source": "airtable"
+      },
+      "similarity": "76%"
+    },
+    {
+      "groupKey": "manpower::lisner::poznań",
+      "a": {
+        "code": "VAC-2062",
+        "id": "6a506198aacfccca5b1a2807",
+        "source": "airtable"
+      },
+      "b": {
+        "code": "VAC-2166",
+        "id": "6a509e4c08e9375adb7fdc7d",
+        "source": "airtable"
+      },
+      "similarity": "81%"
+    },
+    {
+      "groupKey": "manpower::lisner::poznań",
+      "a": {
+        "code": "VAC-2099",
+        "id": "6a50717b1a4c93b3b6898622",
+        "source": "airtable"
+      },
+      "b": {
+        "code": "VAC-2174",
+        "id": "6a509fbf08e9375adb7fdd58",
+        "source": "airtable"
+      },
+      "similarity": "75%"
+    },
+    {
+      "groupKey": "personel service::ikea::stepnica",
+      "a": {
+        "code": "VAC-1797",
+        "id": "6a43ac7139ee9d5e71c3c557",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-1930",
+        "id": "6a4ff2856e5b295cf354fb9a",
+        "source": "trello"
+      },
+      "similarity": "95%"
+    },
+    {
+      "groupKey": "manpower::hutchinson::łódź",
+      "a": {
+        "code": "VAC-1999",
+        "id": "6a5017f47d5200554f6df6e4",
+        "source": "airtable"
+      },
+      "b": {
+        "code": "VAC-2038",
+        "id": "6a503c6d624775153237830c",
+        "source": "airtable"
+      },
+      "similarity": "77%"
+    },
+    {
+      "groupKey": "manpower::hutchinson::łódź",
+      "a": {
+        "code": "VAC-2155",
+        "id": "6a509c9d08e9375adb7fd93a",
+        "source": "airtable"
+      },
+      "b": {
+        "code": "VAC-2156",
+        "id": "6a509cc708e9375adb7fd94b",
+        "source": "airtable"
+      },
+      "similarity": "78%"
+    },
+    {
+      "groupKey": "manpower::hitachi::łódź",
+      "a": {
+        "code": "VAC-2143",
+        "id": "6a509a8b08e9375adb7fd890",
+        "source": "airtable"
+      },
+      "b": {
+        "code": "VAC-2149",
+        "id": "6a509b9a08e9375adb7fd8e0",
+        "source": "airtable"
+      },
+      "similarity": "88%"
+    },
+    {
+      "groupKey": "manpower::gkn::oleśnica",
+      "a": {
+        "code": "VAC-2060",
+        "id": "6a506142aacfccca5b1a27f1",
+        "source": "airtable"
+      },
+      "b": {
+        "code": "VAC-2064",
+        "id": "6a5061ffaacfccca5b1a281d",
+        "source": "airtable"
+      },
+      "similarity": "84%"
+    },
+    {
+      "groupKey": "manpower::bsh::łódź",
+      "a": {
+        "code": "VAC-2042",
+        "id": "6a504de345b45a0d8b0416a7",
+        "source": "airtable"
+      },
+      "b": {
+        "code": "VAC-2093",
+        "id": "6a5070581a4c93b3b68985be",
+        "source": "airtable"
+      },
+      "similarity": "82%"
+    },
+    {
+      "groupKey": "manpower::hutchinson::bielsko-biała, mazańcowice",
+      "a": {
+        "code": "VAC-2089",
+        "id": "6a506f9e1a4c93b3b6898580",
+        "source": "airtable"
+      },
+      "b": {
+        "code": "VAC-2104",
+        "id": "6a5072641a4c93b3b6898663",
+        "source": "airtable"
+      },
+      "similarity": "82%"
+    },
+    {
+      "groupKey": "manpower::u form::bieruń",
+      "a": {
+        "code": "VAC-2078",
+        "id": "6a5063b3aacfccca5b1a28c8",
+        "source": "airtable"
+      },
+      "b": {
+        "code": "VAC-2082",
+        "id": "6a506e891a4c93b3b689852e",
+        "source": "airtable"
+      },
+      "similarity": "94%"
+    },
+    {
+      "groupKey": "manpower::hutchinson::dębica",
+      "a": {
+        "code": "VAC-2150",
+        "id": "6a509bd408e9375adb7fd8ef",
+        "source": "airtable"
+      },
+      "b": {
+        "code": "VAC-2151",
+        "id": "6a509bfd08e9375adb7fd8fe",
+        "source": "airtable"
+      },
+      "similarity": "76%"
+    },
+    {
+      "groupKey": "manpower::corning::stryków",
+      "a": {
+        "code": "VAC-2117",
+        "id": "6a507b5408e9375adb7fd492",
+        "source": "airtable"
+      },
+      "b": {
+        "code": "VAC-2123",
+        "id": "6a507c4a08e9375adb7fd4ec",
+        "source": "airtable"
+      },
+      "similarity": "76%"
+    },
+    {
+      "groupKey": "manpower::dsm::niepruszewo",
+      "a": {
+        "code": "VAC-2168",
+        "id": "6a509e9c08e9375adb7fdcb0",
+        "source": "airtable"
+      },
+      "b": {
+        "code": "VAC-2173",
+        "id": "6a509f8b08e9375adb7fdd3d",
+        "source": "airtable"
+      },
+      "similarity": "95%"
+    },
+    {
+      "groupKey": "manpower::hitachi energy::łódź",
+      "a": {
+        "code": "VAC-2172",
+        "id": "6a509f7708e9375adb7fdd29",
+        "source": "airtable"
+      },
+      "b": {
+        "code": "VAC-2190",
+        "id": "6a50a13a08e9375adb7fdec0",
+        "source": "airtable"
+      },
+      "similarity": "92%"
+    },
+    {
+      "groupKey": "manpower::pesa::bydgoszcz",
+      "a": {
+        "code": "VAC-2181",
+        "id": "6a50a08e08e9375adb7fde40",
+        "source": "airtable"
+      },
+      "b": {
+        "code": "VAC-2188",
+        "id": "6a50a10a08e9375adb7fde98",
+        "source": "airtable"
+      },
+      "similarity": "89%"
+    },
+    {
+      "groupKey": "manpower::weber::zabrze",
+      "a": {
+        "code": "VAC-2227",
+        "id": "6a50ab3408e9375adb800565",
+        "source": "airtable"
+      },
+      "b": {
+        "code": "VAC-2228",
+        "id": "6a50ab6908e9375adb801f98",
+        "source": "airtable"
+      },
+      "similarity": "89%"
+    },
+    {
+      "groupKey": "manpower::::nysa",
+      "a": {
+        "code": "VAC-2230",
+        "id": "6a50abbc08e9375adb802cca",
+        "source": "airtable"
+      },
+      "b": {
+        "code": "VAC-2231",
+        "id": "6a50abfe08e9375adb802eec",
+        "source": "airtable"
+      },
+      "similarity": "90%"
+    },
+    {
+      "groupKey": "manpower::eko-okna::kornice",
+      "a": {
+        "code": "VAC-2232",
+        "id": "6a50ac2608e9375adb802f07",
+        "source": "airtable"
+      },
+      "b": {
+        "code": "VAC-2233",
+        "id": "6a50ac4b08e9375adb802f1e",
+        "source": "airtable"
+      },
+      "similarity": "78%"
+    },
+    {
+      "groupKey": "personel service::::magnice",
+      "a": {
+        "code": "VAC-2276",
+        "id": "6a5111e208e9375adb808ebf",
+        "source": "trello"
+      },
+      "b": {
+        "code": "VAC-2280",
+        "id": "6a51182808e9375adb80907a",
+        "source": "trello"
+      },
+      "similarity": "94%"
+    }
+  ]
+}

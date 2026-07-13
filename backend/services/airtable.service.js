@@ -1,6 +1,7 @@
 const axios = require("axios");
 const AirtableSource = require("../models/AirtableSource");
 const Vacancy = require("../models/Vacancy");
+const UnprocessedMessage = require("../models/UnprocessedMessage");
 const { processVacancyMessage } = require("../routes/vacancies");
 const { analyzeAndCompareWithGemini } = require("./gemini.service");
 const airtableScraper = require("./airtableScraper.service");
@@ -9,7 +10,7 @@ const SyncState = require("../models/SyncState"); // 👈 Дадаць да ас
  * Сінхранізацыя Airtable з выкарыстаннем поўнага AI-пайплайна
  */
 async function syncAirtable() {
-  const SyncState = require("../models/SyncState");
+
   const syncState = await SyncState.findOne({ key: "circular_sync_position" });
   const processedIds = syncState?.processedInCircle?.map(id => id.toString()) || [];
 
