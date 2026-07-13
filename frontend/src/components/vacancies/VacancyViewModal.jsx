@@ -126,7 +126,7 @@ export default function VacancyViewModal({
     // Калі рэдактар адкрыты — капіюем адрэдагаваны тэкст з актыўнай укладкі
     const textToCopy = showEditor 
       ? (activeTab === "full" ? editedFull : editedShort)
-      : (vacancy?.telegramPost || ""); // 👈 Выкарыстоўваем vacancy для надзейнасці
+      : (v.telegramFull || v.telegramShort || "");
       
     if (textToCopy) {
       navigator.clipboard.writeText(textToCopy);
@@ -797,7 +797,7 @@ const handleGenerate = async () => {
   </button>
 
   <button
-    onClick={() => onEdit(v)}
+    onClick={() => { onEdit(v); onClose(); }}
     className="flex-1 md:flex-none px-4 md:px-8 py-2.5 md:py-3 bg-slate-100 hover:bg-slate-300 text-slate-700 text-xs md:text-sm font-bold rounded-xl border border-slate-700 transition-all flex items-center justify-center gap-1"
   >
     <span>✏️</span>
