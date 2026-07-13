@@ -445,7 +445,7 @@ const handleGenerate = async () => {
               border="border-emerald-500/20"
             />
             <div className="space-y-1.5">
-              <Row label="Ставка" value={v.salary?.baseNetto} />
+              <Row label="Ставка" value={v.salary?.rawSalaryDisplay || v.salary?.baseNetto} />
               <Row label="Студенти" value={v.salary?.studentNetto} />
               <Row label="Годин на місяць" value={v.salary?.hoursRange} />
               <Row label="Виплати" value={v.salary?.payoutDates} />
