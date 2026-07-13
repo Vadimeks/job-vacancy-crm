@@ -1180,9 +1180,12 @@ DESCRIPTION & NOTES:
 - FORMATTING RULE: Use double newlines (\n\n) between logical paragraphs. Use bullet points (•) for lists.
 - additionalNotes: everything else (recruitment, transport, videos, contract details, client brand names, навчання/вихід на норму).
 - No duplication: if info already in structured fields → don’t repeat.
--- DATA HIERARCHY & PRIORITY (v7.0):
-1. PRIMARY SOURCE: Everything before the first "---" separator (this is the spreadsheet row, Trello card, or chat message).
-2. SECONDARY SOURCE: Everything after "--- ЗМЕСТ" (this is the extracted document content).
+!!! DATA HIERARCHY & CONFLICT RESOLUTION !!!
+- PRIMARY SOURCE: Everything before the first "---" separator (spreadsheet row, card, or chat message).
+- SECONDARY SOURCE: Everything after "--- ЗМЕСТ" (extracted document content).
+- RULE 1: In case of conflict (Dates, Age, Gender, City, Position Name), the PRIMARY SOURCE has 100% PRIORITY.
+- RULE 2 (SALARY FALLBACK): If PRIMARY SOURCE contains only a recruiter bonus (e.g., "500 zł"), move it to forRecruiter.internalNotes AND extract the worker's actual salary (e.g., "4810 brutto") from the SECONDARY SOURCE. 
+- RULE 3 (RAW DISPLAY): Always populate "salary.rawSalaryDisplay" with the most complete salary info found (e.g., "27 zł/god" or "4810 brutto").
 !!! CRITICAL RULE: In case of any conflict (Salary, Dates, Age, Gender, City, Position Name), the PRIMARY SOURCE has 100% PRIORITY. Use LINK_CONTENT only to fill in missing details (like full duties description), never to overwrite facts from the PRIMARY SOURCE.
 CONDITIONS:
 - specificNuances: array of objects { "category": "CATEGORY_NAME", "text": "detail" }.
