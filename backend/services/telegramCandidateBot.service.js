@@ -48,7 +48,23 @@ const HOURS_PREFERENCES = [
   { label: "⏱️ 220+ год/міс", value: "high" }
 ];
 // ===== ДАПАМОЖНЫЯ ФУНКЦЫІ =====
-
+// 🧠 Функцыя для стварэння профілю на аснове вакансіі (v7.4)
+function fillPrefsFromVacancy(vacancy) {
+  const { getHoursBucket } = require("./matching.service");
+  
+  return {
+    voivodeship: vacancy.voivodeship ? [vacancy.voivodeship.split(',')[0].trim()] : [],
+    spheres: vacancy.category ? [vacancy.category] : [],
+    accommodation: {
+      needed: vacancy.accommodation?.type && !vacancy.accommodation.type.toLowerCase().includes("власн"),
+      forCouples: vacancy.accommodation?.forCouples || false,
+      freeOnly: vacancy.accommodation?.isFree || false
+    },
+    polishLanguageLevel: vacancy.requirements?.polishLanguageLevel || "Не вимагається",
+    onlyDayShifts: vacancy.schedule?.onlyDayShifts || false,
+    hoursRange: vacancy.salary?.hoursRange ? [getHoursBucket(vacancy.salary.hoursRange)] : []
+  };
+} 
 function getStep(ctx) {
   return ctx.session?.step || "name";
 }
@@ -259,14 +275,20 @@ async function finishQuestionnaire(ctx) {
     };
 
     let candidate = await Candidate.findOne({ telegramId: String(ctx.from.id) });
-
-       if (candidate) {
-      // Кандыдат ужо існуе — абнаўляем анкету
+  if (candidate) {
+      // Архівацыя старога профілю ў гісторыю
+      candidate.profileHistory.push({
+        updatedAt: new Date(),
+        jobPreferences: candidate.jobPreferences,
+        source: "user"
+      });
+      
+      // Абнаўляем існуючага
       Object.assign(candidate, candidateData);
       await candidate.save();
       console.log(`🔄 [CandidateBot] Кандыдат абноўлены: ${candidate._id}`);
     } else {
-      // Новы кандыдат
+      // Ствараем новага
       candidate = new Candidate(candidateData);
       await candidate.save();
       console.log(`✅ [CandidateBot] Новы кандыдат створаны: ${candidate._id}`);
@@ -297,15 +319,51 @@ function registerCandidateBotHandlers() {
   bot.use(session());
 
   // /start — пачатак анкеты
-  bot.start(async (ctx) => {
-    ctx.session = {}; // Скідаем сесію пры кожным /start
+bot.start(async (ctx) => {
+    const payload = ctx.startPayload; // apply_ID
+    const telegramId = String(ctx.from.id);
+    let candidate = await Candidate.findOne({ telegramId });
+
+    if (payload && payload.startsWith('apply_')) {
+      const vacancyId = payload.replace('apply_', '');
+      const vacancy = await Vacancy.findById(vacancyId);
+
+      if (vacancy) {
+        // Калі кандыдат новы — ствараем яго і аўта-запаўняем профіль
+        if (!candidate) {
+          candidate = new Candidate({
+            name: `${ctx.from.first_name || ""} ${ctx.from.last_name || ""}`.trim() || "Кандидат",
+            telegramId,
+            chatId: String(ctx.chat.id),
+            telegram: ctx.from.username ? `@${ctx.from.username}` : null,
+            contactType: "telegram",
+            source: "telegram_bot",
+            jobPreferences: fillPrefsFromVacancy(vacancy), // 👈 АЎТА-ЗАПАЎНЕННЕ
+            status: "new"
+          });
+        }
+
+        // Фіксуем водгук
+        if (!candidate.appliedVacancies.some(av => av.vacancyId.toString() === vacancyId)) {
+          candidate.appliedVacancies.push({ vacancyId, appliedAt: new Date(), type: "want_work" });
+        }
+        await candidate.save();
+
+        await ctx.reply(`✅ Ви відгукнулися на вакансію: ${vacancy.vacancydescription || vacancy.vacancyCode}`);
+        await ctx.reply(
+          "Ми автоматично налаштували ваші побажання на основі цієї вакансії. Бажаєте пройти повну анкету, каб ми підібрали ще більше варіантаў?",
+          Markup.inlineKeyboard([
+            [Markup.button.callback("📋 Пройти анкету", "start_survey")],
+            [Markup.button.callback("👌 Все вірно, чекаю дзвінка", "finish_auto")]
+          ])
+        );
+        return;
+      }
+    }
+
+    // Звычайны старт
     setStep(ctx, "name");
-    await ctx.reply(
-      "👋 Вітаємо в Nova Work Agency!\n\n" +
-      "Давайте заповнимо коротку анкету — це займе лише 2-3 хвилини.\n" +
-      "Після цього ми одразу підберемо для вас підходящі вакансії 🎯\n\n" +
-      "Як вас звати? (Введіть ім'я та прізвище)"
-    );
+    await ctx.reply("👋 Вітаємо! Давайте заповнимо анкету. Як вас звати?");
   });
 
   // ===== АПРАЦОЎКА ТЭКСТАВАГА ЎВОДУ =====

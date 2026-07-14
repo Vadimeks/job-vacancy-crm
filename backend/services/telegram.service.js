@@ -4,7 +4,7 @@ const { Telegraf, Markup } = require("telegraf");
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
 const CHANNEL_ID = process.env.TELEGRAM_CHANNEL_ID;
 const RECRUITER_CHAT_ID = process.env.RECRUITER_CHAT_ID;
-
+const BOT_USERNAME = process.env.TELEGRAM_BOT_USERNAME;
 /**
  * Адпраўка паведамлення з падтрымкай спліцінгу для доўгіх тэкстаў
  */
@@ -18,6 +18,17 @@ const sendToTelegram = async (postText, vacancyId = null, file = null) => {
 
   for (let i = 0; i < posts.length; i++) {
     const content = posts[i];
+    
+    // 👈 ДАДАДЗЕНА: Фармуем кнопку-спасылку на бот (v7.3)
+    const replyMarkup = vacancyId ? {
+      inline_keyboard: [
+        [{ 
+          text: "✅ Мені цікаво / Зв'язатися", 
+          url: `https://t.me/${process.env.TELEGRAM_BOT_USERNAME}?start=apply_${vacancyId}` 
+        }]
+      ]
+    } : undefined;
+   
     const MAX_CAPTION = 1024; // Ліміт Telegram на подпіс пад фота
     const MAX_MSG = 4000;     // Ліміт на звычайнае паведамленне
 
@@ -31,7 +42,8 @@ const sendToTelegram = async (postText, vacancyId = null, file = null) => {
           // ВАРЫЯНТ А: Тэкст кароткі — адпраўляем як подпіс (caption)
           await bot.telegram[method](CHANNEL_ID, { source: file.buffer }, {
             caption: content,
-            parse_mode: "Markdown"
+            parse_mode: "Markdown",
+            reply_markup: replyMarkup // 👈 Дадалі кнопку
           });
         } else {
           // ВАРЫЯНТ Б: Тэкст доўгі — адпраўляем файл асобна, потым УВЕСЬ тэкст
@@ -42,6 +54,7 @@ const sendToTelegram = async (postText, vacancyId = null, file = null) => {
             await bot.telegram.sendMessage(CHANNEL_ID, content, {
               parse_mode: "Markdown",
               disable_web_page_preview: true,
+              reply_markup: replyMarkup // 👈 Дадалі кнопку
             });
           } else {
             const splitIndex = content.lastIndexOf("\n", MAX_MSG) || MAX_MSG;
@@ -55,6 +68,7 @@ const sendToTelegram = async (postText, vacancyId = null, file = null) => {
           await bot.telegram.sendMessage(CHANNEL_ID, content, {
             parse_mode: "Markdown",
             disable_web_page_preview: true,
+            reply_markup: replyMarkup
           });
         } else {
           const splitIndex = content.lastIndexOf("\n", MAX_MSG) || MAX_MSG;

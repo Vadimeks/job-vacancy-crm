@@ -133,7 +133,16 @@ const candidateSchema = new mongoose.Schema(
     chatId: { type: String, default: null },        // ID чата для адпраўкі паведамленняў (String, не Number — JS не цягне вялікія int)
     subscribedToVacancies: { type: Boolean, default: false }, // Галачка "атрымліваць падыходзячыя вакансіі"
     additionalNotesTags: { type: [String], default: [] },     // Тэгі, здабытыя AI з вольнага тэксту кандыдата
+    // 👈 ДАДАДЗЕНА: Гісторыя змен профілю (v7.4)
+    profileHistory: [
+      {
+        updatedAt: { type: Date, default: Date.now },
+        jobPreferences: Object, // Копія пажаданняў да змены
+        source: { type: String, enum: ["user", "recruiter", "auto"], default: "user" }
+      }
+    ],
   },
+  
   { timestamps: true },
 );
 // 👇 ДАДАНА: індэксы для хуткага пошуку па Telegram
