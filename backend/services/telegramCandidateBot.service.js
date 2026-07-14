@@ -38,7 +38,15 @@ const DOCS_OPTIONS = [
   { label: "UDT", field: "hasUDT" },
   { label: "Права кат. B", field: "hasDrivingLicense" },
 ];
+const LANGUAGE_LEVELS = [
+  "Не вимагається", "A1", "A2", "B1", "B2", "C1"
+];
 
+const HOURS_PREFERENCES = [
+  { label: "⏱️ До 170 год/міс", value: "low" },
+  { label: "⏱️ 170–220 год/міс", value: "mid" },
+  { label: "⏱️ 220+ год/міс", value: "high" }
+];
 // ===== ДАПАМОЖНЫЯ ФУНКЦЫІ =====
 
 function getStep(ctx) {
@@ -179,7 +187,20 @@ async function finishQuestionnaire(ctx) {
 
     const s = ctx.session;
 
-    // Будуем аб'ект дакументаў з выбраных лейблаў
+    // 1. Апрацоўка даты гатоўнасці (v7.2)
+    let readyDate = null;
+    let readyDateNotes = "";
+    if (s.readyDateInput === "ASAP") {
+      readyDate = new Date();
+      readyDateNotes = "Якнайшвидше (ASAP)";
+    } else if (s.readyDateInput) {
+      const [day, month] = s.readyDateInput.split('.').map(Number);
+      const year = new Date().getFullYear();
+      readyDate = new Date(year, month - 1, day);
+      readyDateNotes = s.readyDateInput;
+    }
+
+    // 2. Будуем аб'ект дакументаў
     const documents = {};
     if (s.selectedDocs && s.selectedDocs.length > 0) {
       for (const docLabel of s.selectedDocs) {
@@ -187,31 +208,22 @@ async function finishQuestionnaire(ctx) {
         if (docOption) documents[docOption.field] = true;
       }
     }
-    // activeDocs — масіў лейблаў для сінхранізацыі з Vacancy.requirements.standardDocs
     documents.activeDocs = s.selectedDocs || [];
 
-    // Уніфікацыя значэнняў гендэру (кнопка "Пара" → "Пари", "Сім'я" → "Сім'ї")
     const genderMap = { "Пара": "Пари", "Сім'я": "Сім'ї" };
     const genderValue = genderMap[s.gender] || s.gender;
 
-    // 🧠 Інтэлектуальны збор тэгаў: злучаем удакладненне полу і дадатковыя нататкі
     const freeTextContext = [s.genderDetail, s.additionalNotes]
-      .filter(Boolean) // Прыбіраем пустыя палі
+      .filter(Boolean)
       .join(". ");
 
     let additionalNotesTags = [];
     if (freeTextContext) {
-      // Выклікаем AI для аналізу тэксту
       additionalNotesTags = await extractCandidateTags(freeTextContext);
-      
-      // Калі AI не вярнуў тэгаў, але тэкст быў — захоўваем пачатак тэксту як тэг
       if (additionalNotesTags.length === 0) {
         additionalNotesTags = [freeTextContext.substring(0, 100)];
       }
     }
-
-    // Ствараем або абнаўляем кандыдата (па telegramId)
-    let candidate = await Candidate.findOne({ telegramId: String(ctx.from.id) });
 
     const candidateData = {
       name: s.name || "Невідомо",
@@ -228,17 +240,27 @@ async function finishQuestionnaire(ctx) {
       additionalNotesTags,
       source: "telegram_bot",
       jobPreferences: {
-        location: s.workLocation || [],
+        voivodeship: s.workLocation || [],
         locationFlexible: s.locationFlexible || false,
         spheres: s.spheres || [],
-        needsAccommodation: s.needsAccommodation || false,
+        accommodation: { 
+          needed: s.needsAccommodation || false 
+        },
+        transport: {
+          needed: s.transportNeeded || false // 👈 НОВАЕ
+        },
+        polishLanguageLevel: s.polishLanguageLevel || "Не вимагається", // 👈 НОВАЕ
+        hoursRange: s.hoursRange || [], // 👈 НОВАЕ
+        readyDate: readyDate, // 👈 НОВАЕ
+        readyDateNotes: readyDateNotes // 👈 НОВАЕ
       },
       documents,
-      // Удакладненне полу захоўваем у notes
       notes: s.genderDetail ? `Уточнення: ${s.genderDetail}` : "",
     };
 
-    if (candidate) {
+    let candidate = await Candidate.findOne({ telegramId: String(ctx.from.id) });
+
+       if (candidate) {
       // Кандыдат ужо існуе — абнаўляем анкету
       Object.assign(candidate, candidateData);
       await candidate.save();
@@ -353,7 +375,21 @@ function registerCandidateBotHandlers() {
         );
         break;
       }
-
+// Крок: Дата гатоўнасці (тэкставы ўвод)
+      case "ready_date": {
+        if (!text.match(/^\d{1,2}\.\d{1,2}$/)) {
+          await ctx.reply("⚠️ Будь ласка, введіть дату у форматі ДД.ММ (наприклад: 20.07):");
+          break;
+        }
+        ctx.session.readyDateInput = text;
+        setStep(ctx, "docs");
+        const docLabels = DOCS_OPTIONS.map(d => d.label);
+        await ctx.reply(
+          "📄 Які документи у вас є? (можна кілька, потім натисніть Готово):",
+          buildMultiSelectKeyboard(docLabels, [], "doc", 2)
+        );
+        break;
+      }
       // Крок 14: Дадатковая інфармацыя
       case "additional": {
         ctx.session.additionalNotes = text;
@@ -505,21 +541,76 @@ function registerCandidateBotHandlers() {
     }
   });
 
-  // Жытло
+  // Жытло -> Пераход да Транспарту (v7.1)
   bot.action(/^accommodation:(.+)$/, async (ctx) => {
     const value = ctx.match[1];
     ctx.session.needsAccommodation = value === "Так";
     await ctx.answerCbQuery();
     await ctx.editMessageReplyMarkup(undefined);
+    setStep(ctx, "transport");
+    await ctx.reply(
+      "🚌 Вам потрібен довіз да роботи?",
+      Markup.inlineKeyboard([
+        [Markup.button.callback("🚗 Так, потрібен", "transport:YES")],
+        [Markup.button.callback("❌ Ні, не потрібно / Маю власне авто", "transport:NO")]
+      ])
+    );
+  });
+// Транспарт -> Пераход да Мовы (v7.1)
+  bot.action(/^transport:(.+)$/, async (ctx) => {
+    const value = ctx.match[1];
+    ctx.session.transportNeeded = value === "YES";
+    await ctx.answerCbQuery();
+    await ctx.editMessageReplyMarkup(undefined);
+    setStep(ctx, "language");
+    await ctx.reply(
+      "🗣️ Який ваш рівень знання польської мови?",
+      buildInlineKeyboard(LANGUAGE_LEVELS, "lang", 2)
+    );
+  });
+  // Мова -> Пераход да Гадзін (v7.1)
+  bot.action(/^lang:(.+)$/, async (ctx) => {
+    const value = ctx.match[1];
+    ctx.session.polishLanguageLevel = value;
+    await ctx.answerCbQuery();
+    await ctx.editMessageReplyMarkup(undefined);
+    setStep(ctx, "hours");
+    
+    const hoursButtons = HOURS_PREFERENCES.map(h => 
+      Markup.button.callback(h.label, `hours:${h.value}`)
+    );
+    
+    await ctx.reply(
+      "⏱️ Скільки годин на місяць ви бажаєте працювати?",
+      Markup.inlineKeyboard(hoursButtons, { columns: 1 })
+    );
+  });
+  // Гадзіны -> Пераход да Даты гатоўнасці (v7.1)
+  bot.action(/^hours:(.+)$/, async (ctx) => {
+    const value = ctx.match[1];
+    ctx.session.hoursRange = [value]; // Захоўваем як масіў для схемы
+    await ctx.answerCbQuery();
+    await ctx.editMessageReplyMarkup(undefined);
+    setStep(ctx, "ready_date");
+    await ctx.reply(
+      "📅 Коли ви готові розпочати роботу?\n\n" +
+      "Введіть дату у форматі ДД.ММ (наприклад: 25.07):",
+      Markup.inlineKeyboard([[Markup.button.callback("⏭️ Якнайшвидше", "ready_date:ASAP")]])
+    );
+  });
+
+  // Апрацоўка кнопкі "Якнайшвидше"
+  bot.action("ready_date:ASAP", async (ctx) => {
+    ctx.session.readyDateInput = "ASAP";
+    await ctx.answerCbQuery();
+    await ctx.editMessageReplyMarkup(undefined);
     setStep(ctx, "docs");
-    ctx.session.selectedDocs = [];
     const docLabels = DOCS_OPTIONS.map(d => d.label);
     await ctx.reply(
       "📄 Які документи у вас є? (можна кілька, потім натисніть Готово):",
       buildMultiSelectKeyboard(docLabels, [], "doc", 2)
     );
   });
-
   // Дакументы (мульты-выбар)
   bot.action(/^doc:(.+)$/, async (ctx) => {
     const value = ctx.match[1];
