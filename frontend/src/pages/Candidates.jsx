@@ -1,11 +1,11 @@
 // frontend/src/pages/Candidates.jsx
 import { useEffect, useState, useMemo } from "react";
-import { getCandidates, deleteCandidate, updateCandidate } from "../services/api";
+import { getCandidates, deleteCandidate, updateCandidate, addCandidateHistory } from "../services/api";
 import ProfileModal from "../components/candidates/ProfileModal";
 import AddCandidateModal from "../components/candidates/AddCandidateModal";
 import CandidateFilters from "../components/candidates/CandidateFilters";
 import { EMPTY_CANDIDATE_FILTERS } from "../constants/filters";
-import { LayoutGrid, List as ListIcon, Trash2, User, Globe, MessageSquare } from "lucide-react";
+import { LayoutGrid, List as ListIcon, Trash2, User, Globe, MessageSquare, Check, X } from "lucide-react";
 import * as MD from "../constants/masterData";
 
 const STATUS_COLORS = {
@@ -123,9 +123,20 @@ function applyFilters(candidates, filters) {
     return true;
   });
 }
-function CandidateKanbanCard({ candidate, onOpen, onDragStart }) {
+function CandidateKanbanCard({ candidate, onOpen, onDragStart, onQuickNote }) {
+  const [showNoteInput, setShowNoteInput] = useState(false);
+  const [noteText, setNoteText] = useState("");
   const aiTags = candidate.additionalNotesTags || [];
   
+  const handleSubmit = (e) => {
+    e.stopPropagation();
+    if (noteText.trim()) {
+      onQuickNote(candidate._id, noteText);
+      setNoteText("");
+      setShowNoteInput(false);
+    }
+  };
+
   return (
     <div 
       draggable
@@ -169,6 +180,35 @@ function CandidateKanbanCard({ candidate, onOpen, onDragStart }) {
           ))}
         </div>
       )}
+
+      {/* 📝 ХУТКАЯ НАТАТКА (v7.3) */}
+      <div className="mt-3 pt-2 border-t border-slate-100" onClick={e => e.stopPropagation()}>
+        {!showNoteInput ? (
+          <button 
+            onClick={() => setShowNoteInput(true)}
+            className="text-[10px] text-slate-400 hover:text-emerald-600 flex items-center gap-1 font-bold uppercase tracking-tighter transition-colors"
+          >
+            <MessageSquare size={10} /> Швидка нотатка
+          </button>
+        ) : (
+          <div className="flex gap-1 animate-in slide-in-from-top-1 duration-200">
+            <input 
+              autoFocus
+              value={noteText}
+              onChange={e => setNoteText(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleSubmit(e)}
+              className="flex-1 text-[10px] px-2 py-1 border border-slate-200 rounded bg-slate-50 focus:outline-none focus:border-emerald-500"
+              placeholder="Напишіть щось..."
+            />
+            <button onClick={handleSubmit} className="p-1 bg-emerald-500 text-white rounded hover:bg-emerald-600 transition-colors">
+              <Check size={10} />
+            </button>
+            <button onClick={() => setShowNoteInput(false)} className="p-1 bg-slate-100 text-slate-400 rounded hover:bg-slate-200 transition-colors">
+              <X size={10} />
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -261,7 +301,14 @@ const handleStatusDrop = async (candidateId, newStatus) => {
       prev.map((c) => (c._id === updated._id ? updated : c)),
     );
   };
-
+const handleQuickNote = async (id, text) => {
+    try {
+      const res = await addCandidateHistory(id, { type: "note", text });
+      handleUpdate(res.data); // Абнаўляем кандыдата ў спісе, каб захаваць гісторыю
+    } catch (err) {
+      alert("Помилка додавання нотатки");
+    }
+  };
   const handleAdd = (newCandidate) => {
     setCandidates((prev) => [newCandidate, ...prev]);
   };
@@ -474,6 +521,7 @@ const handleStatusDrop = async (candidateId, newStatus) => {
                         key={c._id} 
                         candidate={c} 
                         onOpen={() => setProfileId(c._id)} 
+                         onQuickNote={handleQuickNote}
                         onDragStart={(e, cand) => {
                           e.dataTransfer.setData("candidateId", cand._id);
                         }}
