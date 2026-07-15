@@ -1062,14 +1062,14 @@ async function formatTelegramPost(vacancyData) {
     // Лакальная функцыя экраніравання (спрошчаная)
     const escapeMarkdown = (text) => {
       if (!text) return "";
-      // 1. Выдаляем старыя слэшы і экрануем падкрэсліванні (v7.6.1)
-      // Падкрэсліванне ў Markdown V1 — гэта курціў, ён часта ламае разметку, калі сустракаецца ў URL
+      // 1. Выдаляем старыя слэшы і экрануем падкрэсліванні (v7.6.2)
+      // У Markdown V1 трэба экраніраваць "_", каб яны не лічыліся курцівам
       let processed = text.replace(/\\/g, "").replace(/_/g, "\\_");
 
-      // 2. Прыбіраем прабелы каля зорачак (Telegram V1 гэтага не любіць)
+      // 2. Прыбіраем прабелы каля зорачак
       processed = processed.replace(/\*\s+/g, "*").replace(/\s+\*/g, "*");
 
-      // 3. Балансіроўка зорачак (калі колькасць няцотная — выдаляем апошнюю)
+      // 3. Балансіроўка зорачак
       const starCount = (processed.match(/\*/g) || []).length;
       if (starCount % 2 !== 0) {
         const lastIndex = processed.lastIndexOf("*");
