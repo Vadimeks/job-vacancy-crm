@@ -48,7 +48,7 @@ const sendToTelegram = async (postText, vacancyId = null, file = null) => {
       inline_keyboard.push([{ text: "📋 Залишити заявку на підбір", url: `https://t.me/${process.env.TELEGRAM_BOT_USERNAME}?start=survey` }]);
       inline_keyboard.push([
         { text: "✈️ Telegram", url: "https://t.me/InnaNovaWork" },
-        { text: "📱 Viber", url: "https://viber.click/48780770745" },
+        { text: "📱 Viber", url: "https://msng.link/vi/48780770745" }
         
       ]);
     }
