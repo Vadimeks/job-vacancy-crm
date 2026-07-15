@@ -123,10 +123,10 @@ export default function VacancyViewModal({
   const v = vacancy;
 
  const handleCopyTelegram = () => {
-    // Калі рэдактар адкрыты — капіюем адрэдагаваны тэкст з актыўнай укладкі
+    // Калі рэдактар адкрыты — капіюем з яго, калі закрыты — з палёў вакансіі
     const textToCopy = showEditor 
       ? (activeTab === "full" ? editedFull : editedShort)
-      : (v.telegramFull || v.telegramShort || "");
+      : (v.telegramFull || v.telegramShort || ""); 
       
     if (textToCopy) {
       navigator.clipboard.writeText(textToCopy);
