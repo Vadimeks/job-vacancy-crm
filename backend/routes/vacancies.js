@@ -1084,21 +1084,25 @@ router.post("/bulk-preview", async (req, res) => {
 
 // 2. Публікацыя (прымае гатовы тэкст са сплітамі ад фронтэнда)
 router.post("/bulk-publish", upload.single('file'), async (req, res) => {
-  global.isManualActionInProgress = true; // 👈 Уключаем прыярытэт
+  global.isManualActionInProgress = true;
   try {
-    const { text } = req.body;
+    const { text, vacancyIds } = req.body; // 👈 Дадалі прыём vacancyIds
     const file = req.file;
 
     if (!text) return res.status(400).json({ message: "Текст порожній" });
 
-    await sendToTelegram(text, null, file);
+    // Парсім ID, калі яны прыйшлі як радок (праз FormData яны заўсёды радкі)
+    const parsedIds = vacancyIds ? JSON.parse(vacancyIds) : null;
+
+    // Перадаем масіў ID у функцыю адпраўкі
+    await sendToTelegram(text, parsedIds, file);
     
     res.json({ message: "✅ Опубліковано" });
   } catch (err) {
     console.error("❌ Bulk Publish Error:", err.message);
     res.status(500).json({ message: "Помилка публікації: " + err.message });
   } finally {
-    global.isManualActionInProgress = false; // 👈 Выключаем прыярытэт
+    global.isManualActionInProgress = false;
   }
 });
 // 🔄 Перапарсінг адной вакансіі праз AI (v5.0)

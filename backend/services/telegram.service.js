@@ -19,20 +19,41 @@ const sendToTelegram = async (postText, vacancyId = null, file = null) => {
   for (let i = 0; i < posts.length; i++) {
     const content = posts[i];
     
-    // 👈 ВЫПРАЎЛЕНА: Прымусовае пераўтварэнне ID у радок (v7.6)
-    const vId = vacancyId ? String(vacancyId) : null;
-    
-    const replyMarkup = vId ? {
-      inline_keyboard: [
-        [{ text: "✅ Мені цікаво / Відгукнутися", url: `https://t.me/${process.env.TELEGRAM_BOT_USERNAME}?start=apply_${vId}` }],
-        [{ text: "📋 Залишити заявку на підбір", url: `https://t.me/${process.env.TELEGRAM_BOT_USERNAME}?start=survey` }],
-        [
-          { text: "✈️ Telegram", url: "https://t.me/InnaNovaWork" },
-          { text: "📱 Viber", url: "https://viber.click/48780770745" }, // Заменена на https спасылку
-          { text: "📞 Позвонити", url: "tel:+48780770745" } // Дададзена кнопка званка
-        ]
-      ]
-    } : undefined;
+    // 👈 НОВАЕ: Дынамічная сетка кнопак для адзінкавых пастоў і дайджэстаў (v7.6.2)
+    let inline_keyboard = [];
+
+    if (Array.isArray(vacancyId) && vacancyId.length > 0) {
+      // ВАРЫЯНТ А: Дайджэст (масіў ID)
+      const Vacancy = require("../models/Vacancy");
+      const vacs = await Vacancy.find({ _id: { $in: vacancyId } }).select('vacancyCode');
+      
+      // Будуем сетку: па 2 кнопкі ў радку
+      for (let i = 0; i < vacs.length; i += 2) {
+        const row = vacs.slice(i, i + 2).map(v => ({
+          text: `✅ Цікавить ${v.vacancyCode}`,
+          url: `https://t.me/${process.env.TELEGRAM_BOT_USERNAME}?start=apply_${v._id}`
+        }));
+        inline_keyboard.push(row);
+      }
+    } else if (vacancyId && typeof vacancyId === 'string') {
+      // ВАРЫЯНТ Б: Адзінкавая вакансія
+      inline_keyboard.push([{ 
+        text: "✅ Мені цікаво / Відгукнутися", 
+        url: `https://t.me/${process.env.TELEGRAM_BOT_USERNAME}?start=apply_${vacancyId}` 
+      }]);
+    }
+
+    // Дадаем агульныя кнопкі ўнізе (калі ёсць хоць адна вакансія)
+    if (inline_keyboard.length > 0) {
+      inline_keyboard.push([{ text: "📋 Залишити заявку на підбір", url: `https://t.me/${process.env.TELEGRAM_BOT_USERNAME}?start=survey` }]);
+      inline_keyboard.push([
+        { text: "✈️ Telegram", url: "https://t.me/InnaNovaWork" },
+        { text: "📱 Viber", url: "https://viber.click/48780770745" },
+        { text: "📞 Позвонити", url: "tel:+48780770745" }
+      ]);
+    }
+
+    const replyMarkup = inline_keyboard.length > 0 ? { inline_keyboard } : undefined;
    
     const MAX_CAPTION = 1024; // Ліміт Telegram на подпіс пад фота
     const MAX_MSG = 4000;     // Ліміт на звычайнае паведамленне
