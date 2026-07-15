@@ -1059,11 +1059,10 @@ async function formatTelegramPost(vacancyData) {
 
     let trimmedText = (result?.data || result || "").trim();
 
-    // Лакальная функцыя экраніравання (спрошчаная)
+    // Лакальная функцыя экраніравання (v7.6.2 - палепшаная)
     const escapeMarkdown = (text) => {
       if (!text) return "";
-      // 1. Выдаляем старыя слэшы і экрануем падкрэсліванні (v7.6.2)
-      // У Markdown V1 трэба экраніраваць "_", каб яны не лічыліся курцівам
+      // 1. Выдаляем старыя слэшы і экрануем падкрэсліванні
       let processed = text.replace(/\\/g, "").replace(/_/g, "\\_");
 
       // 2. Прыбіраем прабелы каля зорачак
@@ -1074,6 +1073,14 @@ async function formatTelegramPost(vacancyData) {
       if (starCount % 2 !== 0) {
         const lastIndex = processed.lastIndexOf("*");
         processed = processed.substring(0, lastIndex) + processed.substring(lastIndex + 1);
+      }
+
+      // 4. Балансіроўка квадратных дужак (v7.6.2)
+      // Калі колькасць [ і ] не супадае, Telegram выдае памылку 400. Экрануем іх.
+      const openBrackets = (processed.match(/\[/g) || []).length;
+      const closeBrackets = (processed.match(/\]/g) || []).length;
+      if (openBrackets !== closeBrackets) {
+        processed = processed.replace(/\[/g, "\\[").replace(/\]/g, "\\]");
       }
 
       return processed;

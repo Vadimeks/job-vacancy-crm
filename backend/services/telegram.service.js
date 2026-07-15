@@ -28,7 +28,8 @@ const sendToTelegram = async (postText, vacancyId = null, file = null) => {
         [{ text: "📋 Залишити заявку на підбір", url: `https://t.me/${process.env.TELEGRAM_BOT_USERNAME}?start=survey` }],
         [
           { text: "✈️ Telegram", url: "https://t.me/InnaNovaWork" },
-          { text: "📱 Viber", url: "viber://chat?number=%2B48780770745" }
+          { text: "📱 Viber", url: "https://viber.click/48780770745" }, // Заменена на https спасылку
+          { text: "📞 Позвонити", url: "tel:+48780770745" } // Дададзена кнопка званка
         ]
       ]
     } : undefined;
@@ -84,11 +85,15 @@ const sendToTelegram = async (postText, vacancyId = null, file = null) => {
       // Паўза паміж паведамленнямі для абыходу спам-фільтраў
       await new Promise(r => setTimeout(r, 2000));
 
-    } catch (err) {
+    }  catch (err) {
       console.error("❌ Telegram Send Error:", err.message);
-      // Аварыйны фолбэк: адпраўка як Plain Text, калі Markdown памылковы
-      await bot.telegram.sendMessage(CHANNEL_ID, content).catch(e => 
-        console.error("⚠️ Нават Plain Text не прайшоў:", e.message)
+      
+      // Аварыйны фолбэк: адпраўка як Plain Text, але З ЗАХАВАННЕМ КНОПАК (v7.6.2)
+      await bot.telegram.sendMessage(CHANNEL_ID, content, {
+        reply_markup: replyMarkup,
+        disable_web_page_preview: true
+      }).catch(e => 
+        console.error("⚠️ Нават Plain Text з кнопкамі не прайшоў:", e.message)
       );
     }
   }
