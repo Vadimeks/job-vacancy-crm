@@ -49,7 +49,7 @@ const sendToTelegram = async (postText, vacancyId = null, file = null) => {
       inline_keyboard.push([
         { text: "✈️ Telegram", url: "https://t.me/InnaNovaWork" },
         { text: "📱 Viber", url: "https://viber.click/48780770745" },
-        { text: "📞 Позвонити", url: "tel:+48780770745" }
+        
       ]);
     }
 
