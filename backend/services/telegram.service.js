@@ -35,7 +35,7 @@ const sendToTelegram = async (postText, vacancyId = null, file = null) => {
         }));
         inline_keyboard.push(row);
       }
-    } else if (vacancyId && typeof vacancyId === 'string') {
+    } else if (vacancyId && !Array.isArray(vacancyId)) { 
       // ВАРЫЯНТ Б: Адзінкавая вакансія
       inline_keyboard.push([{ 
         text: "✅ Мені цікаво / Відгукнутися", 

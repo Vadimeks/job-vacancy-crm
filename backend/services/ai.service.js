@@ -1082,7 +1082,8 @@ async function formatTelegramPost(vacancyData) {
       if (openBrackets !== closeBrackets) {
         processed = processed.replace(/\[/g, "\\[").replace(/\]/g, "\\]");
       }
-
+// 1.5. Замяняем падвойныя зоркі (V2) на адзінарныя (V1) для Telegram (v7.6.3)
+      processed = processed.replace(/\*\*/g, "*");
       return processed;
     };
 
