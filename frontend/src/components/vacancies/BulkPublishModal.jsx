@@ -62,6 +62,7 @@ useEffect(() => {
       parts.forEach(p => { if(p.trim()) allContent.push(p); });
 
       formData.append("text", allContent.join("\n\n=== SPLIT ===\n\n"));
+      formData.append("vacancyIds", JSON.stringify(selectedIds)); // 👈 Дадаем перадачу ID для кнопак
       if (selectedFile) formData.append("file", selectedFile);
 
       await publishBulk(formData);
