@@ -19,15 +19,13 @@ const sendToTelegram = async (postText, vacancyId = null, file = null) => {
   for (let i = 0; i < posts.length; i++) {
     const content = posts[i];
     
-    // 👈 ДАДАДЗЕНА: Фармуем кнопку-спасылку на бот (v7.3)
-    // 👈 АБНОЎЛЕНА: Пашыраны блок кнопак (v7.5)
-    const replyMarkup = vacancyId ? {
+    // 👈 ВЫПРАЎЛЕНА: Прымусовае пераўтварэнне ID у радок (v7.6)
+    const vId = vacancyId ? String(vacancyId) : null;
+    
+    const replyMarkup = vId ? {
       inline_keyboard: [
-        // 1 радок: Галоўная кнопка
-        [{ text: "✅ Мені цікаво / Відгукнутися", url: `https://t.me/${process.env.TELEGRAM_BOT_USERNAME}?start=apply_${vacancyId}` }],
-        // 2 радок: Заяўка на падбор
+        [{ text: "✅ Мені цікаво / Відгукнутися", url: `https://t.me/${process.env.TELEGRAM_BOT_USERNAME}?start=apply_${vId}` }],
         [{ text: "📋 Залишити заявку на підбір", url: `https://t.me/${process.env.TELEGRAM_BOT_USERNAME}?start=survey` }],
-        // 3 радок: Прамыя кантакты
         [
           { text: "✈️ Telegram", url: "https://t.me/InnaNovaWork" },
           { text: "📱 Viber", url: "viber://chat?number=%2B48780770745" }

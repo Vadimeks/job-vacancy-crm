@@ -1062,15 +1062,23 @@ async function formatTelegramPost(vacancyData) {
     // Лакальная функцыя экраніравання (спрошчаная)
     const escapeMarkdown = (text) => {
       if (!text) return "";
-      // У Markdown V1 трэба экраніраваць толькі гэтыя сімвалы, калі яны не з'яўляюцца часткай разметкі
-      // Але паколькі AI сам ставіць * і _, мы проста сочым за іх парнасцю
-      const starCount = (text.match(/\*/g) || []).length;
-      const underCount = (text.match(/_/g) || []).length;
-      let processed = text;
-      if (starCount % 2 !== 0) processed = processed.replace(/\*/g, '');
-      if (underCount % 2 !== 0) processed = processed.replace(/_/g, '');
-      
-      // Прыбіраем экраніраванне кропак, дужак і іншага — для V1 гэта не трэба
+      // 1. Выдаляем усе зваротныя слэшы (\), каб яны не ламалі разметку (v7.6)
+      let processed = text.replace(/\\/g, "");
+
+      // 2. Балансіроўка зорачак: калі іх колькасць няцотная, выдаляем апошнюю
+      const starCount = (processed.match(/\*/g) || []).length;
+      if (starCount % 2 !== 0) {
+        const lastIndex = processed.lastIndexOf("*");
+        processed = processed.substring(0, lastIndex) + processed.substring(lastIndex + 1);
+      }
+
+      // 3. Балансіроўка падкрэсліванняў
+      const underCount = (processed.match(/_/g) || []).length;
+      if (underCount % 2 !== 0) {
+        const lastIndex = processed.lastIndexOf("_");
+        processed = processed.substring(0, lastIndex) + processed.substring(lastIndex + 1);
+      }
+
       return processed;
     };
 
