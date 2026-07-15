@@ -1,4 +1,5 @@
 // backend/services/telegramCandidateBot.service.js
+
 const { extractCandidateTags } = require("./candidateAi.service");
 const { session, Markup } = require("telegraf");
 const { bot, notifyRecruiter } = require("./telegram.service");
@@ -320,50 +321,45 @@ function registerCandidateBotHandlers() {
 
   // /start — пачатак анкеты
 bot.start(async (ctx) => {
-    const payload = ctx.startPayload; // apply_ID
+    const payload = ctx.startPayload; 
     const telegramId = String(ctx.from.id);
+    
+    // 1. Шукаем або ствараем кандыдата адразу (v7.5)
     let candidate = await Candidate.findOne({ telegramId });
+    if (!candidate) {
+      candidate = new Candidate({
+        name: `${ctx.from.first_name || ""} ${ctx.from.last_name || ""}`.trim() || "Кандидат",
+        telegramId,
+        chatId: String(ctx.chat.id),
+        telegram: ctx.from.username ? `@${ctx.from.username}` : null,
+        contactType: "telegram",
+        source: "telegram_bot",
+        status: "new"
+      });
+      await candidate.save();
+      console.log(`🆕 Створаны новы кандыдат праз бот: ${candidate.name}`);
+    }
 
+    // 2. Калі прыйшоў па вакансіі
     if (payload && payload.startsWith('apply_')) {
       const vacancyId = payload.replace('apply_', '');
       const vacancy = await Vacancy.findById(vacancyId);
-
+      
       if (vacancy) {
-        // Калі кандыдат новы — ствараем яго і аўта-запаўняем профіль
-        if (!candidate) {
-          candidate = new Candidate({
-            name: `${ctx.from.first_name || ""} ${ctx.from.last_name || ""}`.trim() || "Кандидат",
-            telegramId,
-            chatId: String(ctx.chat.id),
-            telegram: ctx.from.username ? `@${ctx.from.username}` : null,
-            contactType: "telegram",
-            source: "telegram_bot",
-            jobPreferences: fillPrefsFromVacancy(vacancy), // 👈 АЎТА-ЗАПАЎНЕННЕ
-            status: "new"
-          });
-        }
-
-        // Фіксуем водгук
+        // Дадаем у водгукі
         if (!candidate.appliedVacancies.some(av => av.vacancyId.toString() === vacancyId)) {
           candidate.appliedVacancies.push({ vacancyId, appliedAt: new Date(), type: "want_work" });
+          await candidate.save();
         }
-        await candidate.save();
-
-        await ctx.reply(`✅ Ви відгукнулися на вакансію: ${vacancy.vacancydescription || vacancy.vacancyCode}`);
-        await ctx.reply(
-          "Ми автоматично налаштували ваші побажання на основі цієї вакансії. Бажаєте пройти повну анкету, каб ми підібрали ще більше варіантаў?",
-          Markup.inlineKeyboard([
-            [Markup.button.callback("📋 Пройти анкету", "start_survey")],
-            [Markup.button.callback("👌 Все вірно, чекаю дзвінка", "finish_auto")]
-          ])
-        );
-        return;
+        
+        await ctx.reply(`✅ Вы відгукнулися на вакансію: ${vacancy.vacancydescription || vacancy.vacancyCode}`);
+        await ctx.reply("Рекрутер отримав ваше повідомлення і скоро зв'яжеться з вами. А поки — заповніть анкету, каб ми підібралі для вас ще більше варіантів!");
       }
     }
 
-    // Звычайны старт
+    // 3. Калі проста заяўка на падбор або старт
     setStep(ctx, "name");
-    await ctx.reply("👋 Вітаємо! Давайте заповнимо анкету. Як вас звати?");
+    await ctx.reply("👋 Вітаємо ў Nova Work Agency! Давайте заповнимо коротку анкету. Як вас звати?");
   });
 
   // ===== АПРАЦОЎКА ТЭКСТАВАГА ЎВОДУ =====

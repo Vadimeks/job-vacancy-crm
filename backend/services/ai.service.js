@@ -1060,18 +1060,21 @@ async function formatTelegramPost(vacancyData) {
     let trimmedText = (result?.data || result || "").trim();
 
     // Лакальная функцыя экраніравання (спрошчаная)
-    const escapeMarkdownV2 = (text) => {
+    const escapeMarkdown = (text) => {
       if (!text) return "";
+      // У Markdown V1 трэба экраніраваць толькі гэтыя сімвалы, калі яны не з'яўляюцца часткай разметкі
+      // Але паколькі AI сам ставіць * і _, мы проста сочым за іх парнасцю
       const starCount = (text.match(/\*/g) || []).length;
       const underCount = (text.match(/_/g) || []).length;
       let processed = text;
-      if (starCount % 2 !== 0) processed = processed.replace(/\*/g, '\\*');
-      if (underCount % 2 !== 0) processed = processed.replace(/_/g, '\\_');
-      // Экрануем тэхнічныя сімвалы (прыбралі "=", каб не было лішніх слэшаў)
-      return processed.replace(/([\+\-\!\.\(\)\{\}\[\]\>\|\#\~])/g, '\\$1');
+      if (starCount % 2 !== 0) processed = processed.replace(/\*/g, '');
+      if (underCount % 2 !== 0) processed = processed.replace(/_/g, '');
+      
+      // Прыбіраем экраніраванне кропак, дужак і іншага — для V1 гэта не трэба
+      return processed;
     };
 
-    return escapeMarkdownV2(trimmedText);
+    return escapeMarkdown(trimmedText);
   } catch (err) {
     console.error(`❌ Памылка фарматавання паста:`, err.message);
     throw err;
