@@ -46,14 +46,21 @@ const matchCandidatesForVacancy = async (vacancy) => {
       // ================================================================
       // --- HARD FILTERS — кандыдат адсяваецца калі не адпавядае ---
       // ================================================================
-      // 1. Гендэр і Жыллё (уніфікаваная логіка для пар і сем'яў)
+      // 1. Гендэр і Жыллё (v7.7.0 - палепшана для пар)
       if (vacancy.requirements?.gender?.length > 0 && candidate.gender) {
-        if (!vacancy.requirements.gender.includes(candidate.gender)) continue;
+        const vGenders = vacancy.requirements.gender;
         
-        // Калі кандыдат — Пара, вакансія павінна мець жыллё для пар
+        if (candidate.gender === "Пари") {
+          // Пара падыходзіць, калі ёсць тэг "Пари" АБО (ёсць і Мужчыны, і Жанчыны)
+          const allowsBoth = vGenders.includes("Чоловіки") && vGenders.includes("Жінки");
+          const allowsCouples = vGenders.includes("Пари");
+          if (!allowsCouples && !allowsBoth) continue;
+        } else {
+          if (!vGenders.includes(candidate.gender)) continue;
+        }
+        
+        // Жыллё для пар/дзяцей — пакідаем жорстка
         if (candidate.gender === "Пари" && !vacancy.accommodation?.forCouples) continue;
-        
-        // Калі кандыдат — Сям'я, вакансія павінна дазваляць дзяцей
         if (candidate.gender === "Сім'ї" && !vacancy.accommodation?.withChildren) continue;
       }
 

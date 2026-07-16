@@ -49,6 +49,16 @@ const HOURS_PREFERENCES = [
   { label: "⏱️ 220+ год/міс", value: "high" }
 ];
 // ===== ДАПАМОЖНЫЯ ФУНКЦЫІ =====
+// 1. У пачатак файла дадай функцыю лагіравання:
+async function logChat(telegramId, role, text, type = "chat") {
+  try {
+    const Candidate = require("../models/Candidate");
+    await Candidate.findOneAndUpdate(
+      { telegramId: String(telegramId) },
+      { $push: { history: { text, role, type, date: new Date() } } }
+    );
+  } catch (err) { console.error("❌ LogChat Error:", err.message); }
+}
 // 🧠 Функцыя для стварэння профілю на аснове вакансіі (v7.4)
 function fillPrefsFromVacancy(vacancy) {
   const { getHoursBucket } = require("./matching.service");
@@ -324,41 +334,50 @@ function registerCandidateBotHandlers() {
   bot.use(session());
 
   // /start — пачатак анкеты
+// 2. Новы апрацоўшчык START (унутры registerCandidateBotHandlers)
 bot.start(async (ctx) => {
     const payload = ctx.startPayload; 
     const telegramId = String(ctx.from.id);
     
-    // 1. Шукаем або ствараем кандыдата адразу (v7.5)
     let candidate = await Candidate.findOne({ telegramId });
+    
     if (!candidate) {
+      // 👈 НОВАЕ: Шукаем па імені, калі няма па telegramId
+      const name = `${ctx.from.first_name || ""} ${ctx.from.last_name || ""}`.trim();
+      const potentialDuplicate = await Candidate.findOne({ name: name });
+
+      const { generateCandidateCode } = require("../routes/candidates");
       candidate = new Candidate({
-        name: `${ctx.from.first_name || ""} ${ctx.from.last_name || ""}`.trim() || "Кандидат",
+        candidateCode: await generateCandidateCode(),
+        name: name || "Кандидат",
         telegramId,
         chatId: String(ctx.chat.id),
         telegram: ctx.from.username ? `@${ctx.from.username}` : null,
         contactType: "telegram",
         source: "telegram_bot",
-        status: "new"
+        // 👈 Пазначаем як дублікат, калі імя супала
+        isDuplicate: !!potentialDuplicate,
+        linkedDuplicateId: potentialDuplicate ? potentialDuplicate._id : null
       });
       await candidate.save();
-      console.log(`🆕 Створаны новы кандыдат праз бот: ${candidate.name}`);
+      
+      if (candidate.isDuplicate) {
+        await notifyRecruiter(`⚠️ <b>Увага:</b> Знайдено дублікат кандидата па імені: <b>${name}</b>. <a href="${process.env.FRONTEND_URL}/candidates/${candidate._id}">Праверыць</a>`);
+      }
     }
 
-    // 2. Калі прыйшоў па вакансіі
     if (payload && payload.startsWith('apply_')) {
       const vacancyId = payload.replace('apply_', '');
       const vacancy = await Vacancy.findById(vacancyId);
       
       if (vacancy) {
-        // Дадаем у водгукі
+        // 1. Дадаем у водгукі (калі яшчэ няма)
         if (!candidate.appliedVacancies.some(av => av.vacancyId.toString() === vacancyId)) {
           candidate.appliedVacancies.push({ vacancyId, appliedAt: new Date(), type: "want_work" });
           await candidate.save();
         }
-        
-        await ctx.reply(`✅ Вы відгукнулися на вакансію: ${vacancy.vacancydescription || vacancy.vacancyCode}`);
-        await ctx.reply("Рекрутер отримав ваше повідомлення і скоро зв'яжеться з вами. А поки — заповніть анкету, щоб ми підібралі для вас ще більше варіантів!");
-        // 👈 ДАДАДЗЕНА: Імгненнае апавяшчэнне рэкрутэра з кодам вакансіі (v7.6.4)
+
+        // 2. Апавяшчэнне рэкрутэру (Цяпер яно спрацуе!)
         await notifyRecruiter(
           `🔥 <b>Новий відгук на вакансію!</b>\n\n` +
           `📋 Вакансія: <b>${vacancy.vacancydescription}</b>\n` +
@@ -367,8 +386,22 @@ bot.start(async (ctx) => {
           `✈️ Telegram: ${candidate.telegram || "немає"}\n` +
           `<a href="${process.env.FRONTEND_URL}/candidates/${candidate._id}">Відкрити профіль у CRM</a>`
         );
+
+        const confirmMsg = `✅ Ви відгукнулися на вакансію: ${vacancy.vacancydescription}\n\nРекрутер отримав ваше повідомлення і скоро зв'яжеться з вами.`;
+        await ctx.reply(confirmMsg);
+        await logChat(telegramId, "bot", confirmMsg);
+
+        const promptMsg = `Щоб ми могли запропонувати вам найкращі варіанти, напишіть, будь ласка, адным паведамленнем:\n• Ваша ім'я та вік\n• Рівень польської мови\n• Досвід роботи\n• Коли готові приїхати\n\nАбо натисніть кнопку нижче, каб заповнити анкету 👇`;
+        
+        await ctx.reply(promptMsg, Markup.inlineKeyboard([
+          [Markup.button.url("📋 Заповнити анкету (1 хв)", `https://t.me/${process.env.TELEGRAM_BOT_USERNAME}/app`)],
+          [Markup.button.callback("⏭️ Пропустити", "skip_survey")]
+        ]));
+        await logChat(telegramId, "bot", promptMsg);
+        
+        setStep(ctx, "waiting_full_info"); 
+        return;
       }
-      
     }
 
     // 3. Калі проста заяўка на падбор або старт
@@ -385,6 +418,17 @@ bot.start(async (ctx) => {
     if (text.startsWith("/")) return;
 
     switch (step) {
+      // 👈 ДАДАДЗЕНА: Апрацоўка вольнага тэксту пасля водгуку
+      case "waiting_full_info": {
+        await logChat(ctx.from.id, "user", text); // Запісваем адказ у гісторыю
+        
+        // Адпраўляем рэкрутэру тое, што напісаў чалавек
+        await notifyRecruiter(`📝 <b>Додаткова інформація від кандидата (${ctx.from.first_name}):</b>\n\n<i>"${text}"</i>`);
+        
+        await ctx.reply("Дякуємо! Рекрутер вивчить вашу інформацію і напише вам. Калі хочаце атрымліваць падборкі вакансій — націсніце /start");
+        setStep(ctx, "idle");
+        break;
+      }
 
       // Крок 1: Імя
       case "name": {

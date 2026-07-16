@@ -63,20 +63,6 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-// POST /api/candidates/:id/history
-router.post("/:id/history", async (req, res) => {
-  try {
-    const { type, text } = req.body;
-    const candidate = await Candidate.findById(req.params.id);
-    if (!candidate) return res.status(404).json({ message: "Не знойдзена" });
-    candidate.history.push({ type, text, date: new Date() });
-    await candidate.save();
-    res.json(candidate);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
-
 // GET /api/candidates/:id/match-vacancies
 router.get("/:id/match-vacancies", async (req, res) => {
   global.isManualActionInProgress = true; // 👈 Блакуем аўтаматыку
@@ -92,5 +78,42 @@ router.get("/:id/match-vacancies", async (req, res) => {
     global.isManualActionInProgress = false; // 👈 Вызваляем
   }
 });
+// Функцыя генерацыі (дадай перад module.exports)
+async function generateCandidateCode() {
+  const Candidate = require("../models/Candidate");
+  const lastCandidate = await Candidate.findOne({}, { candidateCode: 1 }).sort({ createdAt: -1 });
+  let nextNum = 1;
+  if (lastCandidate && lastCandidate.candidateCode) {
+    const lastNum = parseInt(lastCandidate.candidateCode.replace("CAN-", ""), 10);
+    if (!isNaN(lastNum)) nextNum = lastNum + 1;
+  }
+  return `CAN-${String(nextNum).padStart(4, "0")}`;
+}
 
-module.exports = router;
+router.post("/:id/history", async (req, res) => {
+  console.log(`📥 Спроба дадаць нататку для ID: ${req.params.id}, Тэкст: ${req.body.text}`);
+  try {
+    const { type, text, role } = req.body;
+    const candidate = await Candidate.findById(req.params.id);
+    
+    if (!candidate) {
+      console.error("❌ Кандыдат не знойдзены ў базе");
+      return res.status(404).json({ message: "Не знойдзена" });
+    }
+
+    candidate.history.push({ 
+      type: type || "note", 
+      text: text, 
+      role: role || "recruiter",
+      date: new Date() 
+    });
+    
+    const saved = await candidate.save();
+    console.log("✅ Нататка паспяхова захавана");
+    res.json(saved);
+  } catch (err) {
+    console.error("❌ Памылка захавання гісторыі:", err); // Гэты лог пакажа рэальную прычыну ў Render
+    res.status(400).json({ message: "Памылка базы: " + err.message });
+  }
+});
+module.exports = { router, generateCandidateCode };

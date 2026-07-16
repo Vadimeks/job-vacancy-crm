@@ -14,6 +14,21 @@ const SPHERES = [
 
 const candidateSchema = new mongoose.Schema(
   {
+    // 1. У пачатак схемы (пасля name) дадай:
+    candidateCode: { type: String, unique: true, sparse: true },
+    isDuplicate: { type: Boolean, default: false },
+    linkedDuplicateId: { type: mongoose.Schema.Types.ObjectId, ref: "Candidate", default: null },
+    duplicateFields: [String], 
+
+// 2. Знайдзі блок history і замяні яго (дадаем ролю: bot/user/system):
+    history: [
+      {
+        date: { type: Date, default: Date.now },
+        type: { type: String, default: "note" }, // note, chat_question, chat_answer
+        role: { type: String, enum: ["bot", "user", "system", "recruiter"], default: "user" },
+        text: String,
+      },
+    ],
     name: { type: String, required: true },
     contactType: {
       type: String,
@@ -114,13 +129,7 @@ const candidateSchema = new mongoose.Schema(
     },
 
     notes: String,
-    history: [
-      {
-        date: { type: Date, default: Date.now },
-        type: String,
-        text: String,
-      },
-    ],
+    
 
     source: {
       type: String,
