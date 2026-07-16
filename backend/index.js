@@ -111,16 +111,21 @@ global.isSyncRunning = true;
     // Новае кола пачынаем толькі пасля 7 раніцы і толькі калі сёння яшчэ не завяршалі поўнае кола
     const isTimeForNewCircle = currentHour >= 7 && !wasDoneToday;
 
-    // 🛡️ ВЫЗНАЧАЕМ, ЦІ ТРЭБА ЗАПУСК
+    // 🛡️ ВЫЗНАЧАЕМ, ЦІ ТРЭБА ЗАПУСК (v7.7.1 - Чысты код без дубляў)
     let shouldRun = false;
     let reason = "";
 
-    if (forceRun) { reason = "Прымусовы запуск"; shouldRun = true; }
-    else if (hasPendingAi) { reason = "Ёсць неапрацаваныя вакансіі (pending_ai)"; shouldRun = true; }
-    else if (isCircleIncomplete) { reason = "Мінулае кола не завершана (рэтрай)"; shouldRun = true; }
-    else if (isTimeForNewCircle) { reason = "Час штодзённага сканавання (пасля 07:00)"; shouldRun = true; }
-    else if (isAfternoonSlot && !wasDoneInAfternoon && isCooldownOver) { 
-      reason = "Дзённы слот (14:00+) і вытрымана паўза 2 гадзіны"; 
+    if (forceRun) { 
+      reason = "Прымусовы запуск"; 
+      shouldRun = true; 
+    } else if (hasPendingAi) { 
+      reason = "Ёсць неапрацаваныя вакансіі (pending_ai)"; 
+      shouldRun = true; 
+    } else if (isCircleIncomplete) { 
+      reason = "Мінулае кола не завершана (рэтрай)"; 
+      shouldRun = true; 
+    } else if (isTimeForNewCircle) { 
+      reason = "Час штодзённага сканавання (пасля 07:00)"; 
       shouldRun = true; 
     }
 
