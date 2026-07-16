@@ -455,26 +455,17 @@ const [showAllMatches, setShowAllMatches] = useState(false); // 👈 ДАДАД�
                   <p className="text-xs text-slate-400 italic">Історія порожня</p>
                 ) : (
                   [...candidate.history].reverse().map((h, i) => (
-                    <div key={i} className="bg-slate-50 border border-slate-100 rounded-lg px-3 py-2">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs text-slate-400">
-                          {new Date(h.date).toLocaleString("uk-UA", {
-                            day: "2-digit",
-                            month: "2-digit",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </span>
-                        <span className="text-[10px] bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded font-bold uppercase">
-                          {h.type === "call"
-                            ? "📞 Дзвінок"
-                            : h.type === "chat"
-                              ? "💬 Чат"
-                              : "📝 Нотатка"}
-                        </span>
-                      </div>
-                      <p className="text-sm text-slate-700">{h.text}</p>
-                    </div>
+                    <div key={i} className={`p-3 rounded-xl border ${h.role === 'bot' ? 'bg-blue-50/50 border-blue-100 ml-4' : h.role === 'user' ? 'bg-emerald-50/50 border-emerald-100 mr-4' : 'bg-slate-50 border-slate-100'}`}>
+      <div className="flex items-center justify-between mb-1">
+        <span className="text-[10px] font-bold uppercase tracking-tighter opacity-50">
+          {h.role === 'bot' ? '🤖 Бот' : h.role === 'user' ? '👤 Кандидат' : '👔 Рекрутер'}
+        </span>
+        <span className="text-[9px] text-slate-400">
+          {new Date(h.date).toLocaleString("uk-UA")}
+        </span>
+      </div>
+      <p className="text-sm text-slate-700 leading-relaxed">{h.text}</p>
+    </div>
                   ))
                 )}
               </div>

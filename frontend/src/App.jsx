@@ -16,6 +16,7 @@ export default function App() {
           <Route path="/candidates" element={<Candidates />} />
           <Route path="/templates" element={<Templates />} />
           <Route path="/inbox" element={<Inbox />} /> {/* Дадалі маршрут */}
+          <Route path="/candidates/:id" element={<Candidates />} />
         </Routes>
       </Layout>
     </BrowserRouter>

@@ -7,6 +7,7 @@ import CandidateFilters from "../components/candidates/CandidateFilters";
 import { EMPTY_CANDIDATE_FILTERS } from "../constants/filters";
 import { LayoutGrid, List as ListIcon, Trash2, User, Globe, MessageSquare, Check, X } from "lucide-react";
 import * as MD from "../constants/masterData";
+import { useParams } from "react-router-dom";
 
 const STATUS_COLORS = {
   new: "bg-blue-500/10 text-blue-400 border border-blue-500/20",
@@ -237,6 +238,12 @@ export default function Candidates() {
     document.addEventListener("mousemove", onMouseMove);
     document.addEventListener("mouseup", onMouseUp);
   };
+  const { id } = useParams();
+  useEffect(() => {
+    if (id) {
+      setProfileId(id); // Калі ID ёсць у URL, адразу адкрываем мадалку
+    }
+  }, [id]);
   useEffect(() => {
     const load = async () => {
       setLoading(true);
