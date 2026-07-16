@@ -116,20 +116,17 @@ function constructVacancyDisplayName(data) {
 function formatShortPostScript(v) {
   const lines = [];
   
-  // 1. ID
-  lines.push(`🆔 ${v.vacancyCode}`);
-
-  // 2. Загаловак
+  // 1. Загаловак (ID прыбраны адсюль)
   lines.push(`🔥 *${v.vacancydescription}*`);
 
-  // 2.5 Характар працы (v6.9.2)
+  // 2. Характар працы
   if (v.description) {
-    // Бяром першы радок, прыбіраем буліты і абразаем да 120 сімвалаў
     const firstLine = v.description.split('\n')[0].replace(/^[•\s*-]+/, '').trim();
     if (firstLine) {
       lines.push(`🛠 *Робота:* ${firstLine.substring(0, 120)}${firstLine.length > 120 ? '...' : ''}`);
     }
   }
+
   // 3. Лакацыя і Зарплата
   const salary = v.salary?.rawSalaryDisplay || (v.salary?.baseNetto ? `${v.salary.baseNetto} PLN` : "уточнюється");
   lines.push(`📍 ${v.location} | 💰 ${salary}`);
@@ -139,28 +136,23 @@ function formatShortPostScript(v) {
   const age = v.requirements?.age?.rawText || (v.requirements?.age?.max ? `до ${v.requirements.age.max} років` : "");
   lines.push(`👥 Набір: ${gender}${age ? ` | 🎂 Вік: ${age}` : ""}`);
 
-  // 5. Жытло (з дэталямі ў дужках)
+  // 5. Жытло
   if (v.accommodation?.type) {
     let acc = `🏠 Проживання: ${v.accommodation.type}`;
     if (v.accommodation.details) acc += ` (${v.accommodation.details})`;
     lines.push(acc);
   }
 
-  // 6. Графік і Гадзіны
-  const sched = v.schedule?.description || "";
-  const hours = v.salary?.hoursRange || "";
-  if (sched || hours) {
-    lines.push(`🗓 Графік: ${sched}${hours ? ` | ⏱ ${hours} год/міс` : ""}`);
-  }
-
-  // 7. Тып дагавору
-  if (v.contractType) {
-    lines.push(`📄 Тип договору: ${v.contractType}`);
-  }
-
-  // 8. Транспарт
+  // 6. Транспарт
   const transport = v.transport?.provided ? "надається" : "немає";
   lines.push(`🚌 Транспорт: ${transport}`);
+
+  // 7. ID і Кантакты ўнізе (v7.6.4)
+  lines.push(``);
+  lines.push(`🆔 ${v.vacancyCode}`);
+  lines.push(``);
+  lines.push(`📞 Зателефонувати рекрутеру: +48 780 770 745 (Інна)`);
+  lines.push(`👇 Написати рекрутеру:`);
 
   return lines.join("\n");
 }

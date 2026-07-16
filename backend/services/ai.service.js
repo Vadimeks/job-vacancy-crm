@@ -610,7 +610,7 @@ TITLE RULE:
 - Location = place of work, not checkInCity.
 
 FULL MODE STRUCTURE (skip empty lines/sections):
-🆔 [vacancyCode] | 🏢 [agencyName] [| 🏭 brand]
+
 *[vacancydescription]*
 
 📍 Місто: [location][(country if not Polska)]
@@ -662,7 +662,12 @@ FULL MODE STRUCTURE (skip empty lines/sections):
 
 📝 *Додаткова інформація*
 [additionalNotes including навчання, адаптація, вихід на норму, координатор, банківський рахунок, карта побуту, можливість роботи в інших країнах, організаваны трансфер з Украіны]
-📲 Контактуйте: @InnaNovaWork +48 780 770 745 Інна`
+
+🆔 [vacancyCode] 
+// | 🏢 [agencyName] [| 🏭 brand]
+
+📞 Зателефонувати рекрутеру: +48 780 770 745 (Інна)
+👇 Написати рекрутеру:`
 ;
 
 const CREATE_TEMPLATE_PROMPT = `
@@ -1183,6 +1188,7 @@ PRIVACY & FORMATTING:
 - NEVER put recruiter-only info in public fields (salary, description, additionalNotes).
 - TECHNICAL INFO: Any mention of "KRAZ", "nr certyfikatu", or "Oferta pracy tymczasowej" MUST go ONLY to forRecruiter.internalNotes. NEVER put this in public fields.
 • POSITION ACCURACY: If the PRIMARY SOURCE mentions a specific role (e.g., "Operator wózka", "Welder", "CNC"), do not generalize it to "Warehouse worker" or "Production worker" even if the link content uses general terms.
+- ARRIVAL & COORDINATION: Any information about meeting points (stations, platforms), driver schedules (e.g., "driver meets from 08:00 to 21:00"), coordinator phone numbers, or instructions for temporary self-accommodation MUST be moved to forRecruiter.internalNotes. DO NOT put this in public description or additionalNotes.
 
 CATEGORY:
 One of:

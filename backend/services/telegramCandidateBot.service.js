@@ -61,11 +61,15 @@ function fillPrefsFromVacancy(vacancy) {
       forCouples: vacancy.accommodation?.forCouples || false,
       freeOnly: vacancy.accommodation?.isFree || false
     },
+    // 👈 ДАДАДЗЕНА: Пашыранае запаўненне профілю (v7.6.4)
     polishLanguageLevel: vacancy.requirements?.polishLanguageLevel || "Не вимагається",
     onlyDayShifts: vacancy.schedule?.onlyDayShifts || false,
-    hoursRange: vacancy.salary?.hoursRange ? [getHoursBucket(vacancy.salary.hoursRange)] : []
+    hoursRange: vacancy.salary?.hoursRange ? [getHoursBucket(vacancy.salary.hoursRange)] : [],
+    experienceRequired: vacancy.requirements?.experienceRequired || false,
+    nationality: vacancy.requirements?.nationalities?.[0] || "Україна",
+    transportNeeded: vacancy.transport?.provided || false
   };
-} 
+}
 function getStep(ctx) {
   return ctx.session?.step || "name";
 }
@@ -353,8 +357,18 @@ bot.start(async (ctx) => {
         }
         
         await ctx.reply(`✅ Вы відгукнулися на вакансію: ${vacancy.vacancydescription || vacancy.vacancyCode}`);
-        await ctx.reply("Рекрутер отримав ваше повідомлення і скоро зв'яжеться з вами. А поки — заповніть анкету, каб ми підібралі для вас ще більше варіантів!");
+        await ctx.reply("Рекрутер отримав ваше повідомлення і скоро зв'яжеться з вами. А поки — заповніть анкету, щоб ми підібралі для вас ще більше варіантів!");
+        // 👈 ДАДАДЗЕНА: Імгненнае апавяшчэнне рэкрутэра з кодам вакансіі (v7.6.4)
+        await notifyRecruiter(
+          `🔥 <b>Новий відгук на вакансію!</b>\n\n` +
+          `📋 Вакансія: <b>${vacancy.vacancydescription}</b>\n` +
+          `🆔 Код: <code>${vacancy.vacancyCode}</code>\n` +
+          `👤 Кандидат: ${candidate.name}\n` +
+          `✈️ Telegram: ${candidate.telegram || "немає"}\n` +
+          `<a href="${process.env.FRONTEND_URL}/candidates/${candidate._id}">Відкрити профіль у CRM</a>`
+        );
       }
+      
     }
 
     // 3. Калі проста заяўка на падбор або старт
