@@ -17,7 +17,7 @@ const { syncAirtable } = require("./services/airtable.service");
 
 const inboxRouter = require("./routes/inbox");
 const templatesRouter = require("./routes/templates");
-const candidatesRouter = require("./routes/candidates");
+const { router: candidatesRouter } = require("./routes/candidates"); 
 const applyRouter = require("./routes/apply");
 
 const CronLog = require("./models/CronLog");
