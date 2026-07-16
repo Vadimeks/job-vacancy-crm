@@ -100,29 +100,16 @@ global.isSyncRunning = true;
     const hasPendingAi = await Vacancy.exists({ status: "pending_ai" });
     const isCircleIncomplete = syncState && syncState.isComplete === false;
 
-    // 2. Логіка раскладу (07:00 і 14:00) і інтэрвалаў
+   // 2. Логіка штодзённага запуску (пасля 07:00) (v7.7.1)
     const now = new Date();
     const currentHour = now.getHours();
     const lastFinish = syncState?.lastFullCircleAt ? new Date(syncState.lastFullCircleAt) : new Date(0);
     
-    // Умова 2 гадзін пасля любога фінішу
-    const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
-    const isCooldownOver = lastFinish < twoHoursAgo;
+    const isToday = lastFinish.toDateString() === now.toDateString();
+    const wasDoneToday = isToday && syncState?.isComplete;
 
-    // Вызначаем, ці надышоў час паводле раскладу
-    const isMorningSlot = currentHour >= 7 && currentHour < 14;
-    const isAfternoonSlot = currentHour >= 14;
-    
-    // Правяраем, ці рабілі мы ўжо кола ў гэтых слотах
-    const lastRunDate = lastFinish.toDateString();
-    const isToday = lastRunDate === now.toDateString();
-    
-    // Вызначаем, ці выкананы нормы для кожнага слота сёння
-    const wasDoneInMorning = isToday && lastFinish.getHours() >= 7 && lastFinish.getHours() < 14;
-    const wasDoneInAfternoon = isToday && lastFinish.getHours() >= 14;
-
-    // Новае кола пачынаем, толькі калі мы яшчэ не працавалі ў бягучым слоце
-    const isTimeForNewCircle = (isMorningSlot && !wasDoneInMorning) || (isAfternoonSlot && !wasDoneInAfternoon);
+    // Новае кола пачынаем толькі пасля 7 раніцы і толькі калі сёння яшчэ не завяршалі поўнае кола
+    const isTimeForNewCircle = currentHour >= 7 && !wasDoneToday;
 
     // 🛡️ ВЫЗНАЧАЕМ, ЦІ ТРЭБА ЗАПУСК
     let shouldRun = false;
@@ -130,8 +117,8 @@ global.isSyncRunning = true;
 
     if (forceRun) { reason = "Прымусовы запуск"; shouldRun = true; }
     else if (hasPendingAi) { reason = "Ёсць неапрацаваныя вакансіі (pending_ai)"; shouldRun = true; }
-    else if (isCircleIncomplete) { reason = "Мінулае кола не завершана"; shouldRun = true; }
-    else if (isMorningSlot && !wasDoneInMorning) { reason = "Ранішні слот (07:00+), пачатак новага кола"; shouldRun = true; }
+    else if (isCircleIncomplete) { reason = "Мінулае кола не завершана (рэтрай)"; shouldRun = true; }
+    else if (isTimeForNewCircle) { reason = "Час штодзённага сканавання (пасля 07:00)"; shouldRun = true; }
     else if (isAfternoonSlot && !wasDoneInAfternoon && isCooldownOver) { 
       reason = "Дзённы слот (14:00+) і вытрымана паўза 2 гадзіны"; 
       shouldRun = true; 
