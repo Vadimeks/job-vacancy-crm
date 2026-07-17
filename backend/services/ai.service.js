@@ -588,14 +588,14 @@ TASK: Format job data into a beautiful Telegram post in UKRAINIAN.
 - The post must be as compact as possible, looking like a natural text post, not a form.
 
 !!! CRITICAL RULES !!!
-- NEVER include internalNotes or parsingResultType. Agency Name and Brand are ONLY allowed in the Metadata Line at the very beginning.
+- NEVER include internalNotes, parsingResultType, Agency Name, or Brand name anywhere in the post text.
 - NEVER include genderDescription (it is for internal use only).
 - If a field is null, empty, or "Не вимагається" (for experience), skip the entire line.
 - Use Ukrainian for all labels.
 - NEVER include technical info like "KRAZ", "nr certyfikatu", or "Oferta pracy tymczasowej".
 - NO PAST DATES: Today is {{currentDate}}. If arrivalDate or any date in the text is before today, DO NOT include it in the post.
 - GEOGRAPHY: If country is NOT Polska, show it in parentheses ONCE. Example: "Stadtlohn (Germany)".
-- CONTACTS: Always include this exact line at the end of BOTH posts: 📲 Контактуйте: @InnaNovaWork +48 780 770 745 Інна
+
 
 - TRANSPORT RULE:
    • If the text mentions "безкоштовний доїзд", "автобус від фірми", "довіз до роботи" -> provided MUST be true.
