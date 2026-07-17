@@ -7,7 +7,16 @@ const Candidate = require("../models/Candidate");
 const { matchVacanciesForCandidate } = require("./matching.service");
 const aiService = require("./ai.service");
 const Vacancy = require("../models/Vacancy");
-
+// 👈 ДАДАДЗЕНА: Функцыя для запісу ўсіх дыялогаў у гісторыю CRM (v7.7.3)
+async function logChat(telegramId, role, text, type = "chat") {
+  try {
+    const Candidate = require("../models/Candidate");
+    await Candidate.findOneAndUpdate(
+      { telegramId: String(telegramId) },
+      { $push: { history: { text, role, type, date: new Date() } } }
+    );
+  } catch (err) { console.error("❌ LogChat Error:", err.message); }
+}
 // ===== КАНСТАНТЫ АНКЕТЫ =====
 const CATEGORIES = [
   "Склади та логістика",
@@ -49,16 +58,7 @@ const HOURS_PREFERENCES = [
   { label: "⏱️ 220+ год/міс", value: "high" }
 ];
 // ===== ДАПАМОЖНЫЯ ФУНКЦЫІ =====
-// 1. У пачатак файла дадай функцыю лагіравання:
-async function logChat(telegramId, role, text, type = "chat") {
-  try {
-    const Candidate = require("../models/Candidate");
-    await Candidate.findOneAndUpdate(
-      { telegramId: String(telegramId) },
-      { $push: { history: { text, role, type, date: new Date() } } }
-    );
-  } catch (err) { console.error("❌ LogChat Error:", err.message); }
-}
+
 // 🧠 Функцыя для стварэння профілю на аснове вакансіі (v7.4)
 function fillPrefsFromVacancy(vacancy) {
   const { getHoursBucket } = require("./matching.service");
@@ -371,13 +371,13 @@ bot.start(async (ctx) => {
       const vacancy = await Vacancy.findById(vacancyId);
       
       if (vacancy) {
-        // 1. Дадаем у водгукі (калі яшчэ няма)
+        // 1. Запісваем водгук у базу
         if (!candidate.appliedVacancies.some(av => av.vacancyId.toString() === vacancyId)) {
           candidate.appliedVacancies.push({ vacancyId, appliedAt: new Date(), type: "want_work" });
           await candidate.save();
         }
 
-        // 2. Апавяшчэнне рэкрутэру (Цяпер яно спрацуе!)
+        // 2. Апавяшчэнне рэкрутэру (перанесена вышэй за return)
         await notifyRecruiter(
           `🔥 <b>Новий відгук на вакансію!</b>\n\n` +
           `📋 Вакансія: <b>${vacancy.vacancydescription}</b>\n` +
@@ -387,11 +387,12 @@ bot.start(async (ctx) => {
           `<a href="${process.env.FRONTEND_URL}/candidates/${candidate._id}">Відкрити профіль у CRM</a>`
         );
 
+        // 3. Адказ кандыдату (выпраўлена мова)
         const confirmMsg = `✅ Ви відгукнулися на вакансію: ${vacancy.vacancydescription}\n\nРекрутер отримав ваше повідомлення і скоро зв'яжеться з вами.`;
         await ctx.reply(confirmMsg);
         await logChat(telegramId, "bot", confirmMsg);
 
-        const promptMsg = `Щоб ми могли запропонувати вам найкращі варіанти, напишіть, будь ласка, адным паведамленнем:\n• Ваша ім'я та вік\n• Рівень польської мови\n• Досвід роботи\n• Коли готові приїхати\n\nАбо натисніть кнопку нижче, каб заповнити анкету 👇`;
+        const promptMsg = `Щоб ми могли запропонувати вам найкращі варіанти, напишіть, будь ласка, одним повідомленням:\n• Ваше ім'я та вік\n• Рівень польської мови\n• Досвід роботи\n• Коли готові приїхати\n\nАбо натисніть кнопку нижче, щоб заповнити анкету 👇`;
         
         await ctx.reply(promptMsg, Markup.inlineKeyboard([
           [Markup.button.url("📋 Заповнити анкету (1 хв)", `https://t.me/${process.env.TELEGRAM_BOT_USERNAME}/app`)],
@@ -418,21 +419,21 @@ bot.start(async (ctx) => {
     if (text.startsWith("/")) return;
 
     switch (step) {
-      // 👈 ДАДАДЗЕНА: Апрацоўка вольнага тэксту пасля водгуку
+      // 👈 ДАДАДЗЕНА: Апрацоўка адказу пасля водгуку (v7.7.3)
       case "waiting_full_info": {
-        await logChat(ctx.from.id, "user", text); // Запісваем адказ у гісторыю
-        
-        // Адпраўляем рэкрутэру тое, што напісаў чалавек
+        await logChat(ctx.from.id, "user", text); 
         await notifyRecruiter(`📝 <b>Додаткова інформація від кандидата (${ctx.from.first_name}):</b>\n\n<i>"${text}"</i>`);
         
-        await ctx.reply("Дякуємо! Рекрутер вивчить вашу інформацію і напише вам. Калі хочаце атрымліваць падборкі вакансій — націсніце /start");
+        const thanksMsg = "Дякуємо! Інформація прийнята. Рекрутер вивчить ваші дані і напише вам найближчим часом. ⏳";
+        await ctx.reply(thanksMsg);
+        await logChat(ctx.from.id, "bot", thanksMsg);
         setStep(ctx, "idle");
         break;
       }
 
       // Крок 1: Імя
       case "name": {
-        ctx.session.name = text;
+        await logChat(ctx.from.id, "user", text); ctx.session.name = text;
         setStep(ctx, "phone");
         await ctx.reply("📞 Введіть ваш номер телефону або Viber (наприклад: +380991234567):");
         break;
@@ -440,7 +441,7 @@ bot.start(async (ctx) => {
 
       // Крок 2: Тэлефон
       case "phone": {
-        ctx.session.phone = text;
+        await logChat(ctx.from.id, "user", text); ctx.session.phone = text;
         setStep(ctx, "gender");
         await ctx.reply(
           "👤 Оберіть вашу стать:",
@@ -451,7 +452,7 @@ bot.start(async (ctx) => {
 
       // Крок 4: Удакладненне полу (вольны тэкст)
       case "gender_detail": {
-        ctx.session.genderDetail = text;
+        await logChat(ctx.from.id, "user", `Уточнення статі: ${text}`); ctx.session.genderDetail = text;
         setStep(ctx, "age");
         await ctx.reply("🎂 Скільки вам років? (Введіть число):");
         break;
@@ -465,6 +466,7 @@ bot.start(async (ctx) => {
           break;
         }
         ctx.session.age = age;
+        await logChat(ctx.from.id, "user", `Вік: ${text}`); ctx.session.age = age;
         setStep(ctx, "nationality");
         await ctx.reply(
           "🌍 Оберіть вашу національність:",
@@ -475,7 +477,7 @@ bot.start(async (ctx) => {
 
       // Крок 7: Горад дзе зараз знаходзіцца
       case "current_location": {
-        ctx.session.currentLocation = text;
+        await logChat(ctx.from.id, "user", `Зараз у: ${text}`); ctx.session.currentLocation = text;
         setStep(ctx, "work_location");
         await ctx.reply(
           "📍 Де шукаєте роботу?",
@@ -493,7 +495,7 @@ bot.start(async (ctx) => {
           await ctx.reply("⚠️ Будь ласка, введіть дату у форматі ДД.ММ (наприклад: 20.07):");
           break;
         }
-        ctx.session.readyDateInput = text;
+        await logChat(ctx.from.id, "user", `Готовий з: ${text}`); ctx.session.readyDateInput = text;
         setStep(ctx, "docs");
         const docLabels = DOCS_OPTIONS.map(d => d.label);
         await ctx.reply(
@@ -504,7 +506,7 @@ bot.start(async (ctx) => {
       }
       // Крок 14: Дадатковая інфармацыя
       case "additional": {
-        ctx.session.additionalNotes = text;
+        await logChat(ctx.from.id, "user", `Побажання: ${text}`); ctx.session.additionalNotes = text;
         await finishQuestionnaire(ctx);
         break;
       }
@@ -519,6 +521,7 @@ bot.start(async (ctx) => {
   // Гендэр
   bot.action(/^gender:(.+)$/, async (ctx) => {
     const value = ctx.match[1];
+    await logChat(ctx.from.id, "user", `Стать: ${value}`);
     ctx.session.gender = value;
     await ctx.answerCbQuery();
     await ctx.editMessageReplyMarkup(undefined);
@@ -546,6 +549,7 @@ bot.start(async (ctx) => {
   // Нацыянальнасць
   bot.action(/^nationality:(.+)$/, async (ctx) => {
     const value = ctx.match[1];
+   await logChat(ctx.from.id, "user", `Національність: ${value}`);
     ctx.session.nationality = value;
     await ctx.answerCbQuery();
     await ctx.editMessageReplyMarkup(undefined);
@@ -556,6 +560,7 @@ bot.start(async (ctx) => {
   // Бажаная лакацыя працы (першы ўзровень выбару)
   bot.action(/^work_location:(.+)$/, async (ctx) => {
     const value = ctx.match[1];
+    await logChat(ctx.from.id, "user", `Шукає роботу: ${value}`);
     await ctx.answerCbQuery();
     await ctx.editMessageReplyMarkup(undefined);
 
@@ -593,7 +598,8 @@ bot.start(async (ctx) => {
   bot.action(/^voiv:(.+)$/, async (ctx) => {
     const value = ctx.match[1];
 
-    if (value === "DONE") {
+    if (value === "DONE") 
+      {
       if (!ctx.session.workLocation || ctx.session.workLocation.length === 0) {
         await ctx.answerCbQuery("⚠️ Оберіть хоча б одне воєводство!");
         return;
@@ -615,11 +621,13 @@ bot.start(async (ctx) => {
       } else {
         ctx.session.workLocation.push(value);
       }
+      await logChat(ctx.from.id, "user", `Обрано регіон: ${value}`);
       // Абнаўляем клавіятуру з адзначанымі элементамі
       await ctx.editMessageReplyMarkup(
         buildMultiSelectKeyboard(VOIVODESHIPS, ctx.session.workLocation, "voiv", 2).reply_markup
       );
     }
+    
   });
 
   // Выбар сфер працы (мульты-выбар)
@@ -647,15 +655,18 @@ bot.start(async (ctx) => {
       } else {
         ctx.session.spheres.push(value);
       }
+      await logChat(ctx.from.id, "user", `Сфера: ${value}`);
       await ctx.editMessageReplyMarkup(
         buildMultiSelectKeyboard(CATEGORIES, ctx.session.spheres, "sphere", 1).reply_markup
       );
     }
+    
   });
 
   // Жытло -> Пераход да Транспарту (v7.1)
   bot.action(/^accommodation:(.+)$/, async (ctx) => {
     const value = ctx.match[1];
+    await logChat(ctx.from.id, "user", `Потрібне житло: ${value}`);
     ctx.session.needsAccommodation = value === "Так";
     await ctx.answerCbQuery();
     await ctx.editMessageReplyMarkup(undefined);
@@ -669,9 +680,7 @@ bot.start(async (ctx) => {
     );
   });
 // Транспарт -> Пераход да Мовы (v7.1)
-  bot.action(/^transport:(.+)$/, async (ctx) => {
-    const value = ctx.match[1];
-    ctx.session.transportNeeded = value === "YES";
+  bot.action(/^transport:(.+)$/, async (ctx) => { const value = ctx.match[1]; const text = value === "YES" ? "Так" : "Ні"; await logChat(ctx.from.id, "user", `Потрібен довіз: ${text}`); 
     await ctx.answerCbQuery();
     await ctx.editMessageReplyMarkup(undefined);
     setStep(ctx, "language");
@@ -683,6 +692,7 @@ bot.start(async (ctx) => {
   // Мова -> Пераход да Гадзін (v7.1)
   bot.action(/^lang:(.+)$/, async (ctx) => {
     const value = ctx.match[1];
+    await logChat(ctx.from.id, "user", `Рівень польської: ${value}`);
     ctx.session.polishLanguageLevel = value;
     await ctx.answerCbQuery();
     await ctx.editMessageReplyMarkup(undefined);
@@ -700,6 +710,7 @@ bot.start(async (ctx) => {
   // Гадзіны -> Пераход да Даты гатоўнасці (v7.1)
   bot.action(/^hours:(.+)$/, async (ctx) => {
     const value = ctx.match[1];
+    await logChat(ctx.from.id, "user", `Бажані години: ${value}`);
     ctx.session.hoursRange = [value]; // Захоўваем як масіў для схемы
     await ctx.answerCbQuery();
     await ctx.editMessageReplyMarkup(undefined);
@@ -758,6 +769,7 @@ bot.start(async (ctx) => {
   // Падпіска на вакансіі
   bot.action(/^subscribe:(.+)$/, async (ctx) => {
     const value = ctx.match[1];
+    await logChat(ctx.from.id, "user", `Підписка: ${value}`);
     ctx.session.subscribedToVacancies = value === "Так";
     await ctx.answerCbQuery();
     await ctx.editMessageReplyMarkup(undefined);
@@ -779,7 +791,15 @@ bot.start(async (ctx) => {
     await ctx.editMessageReplyMarkup(undefined);
     await finishQuestionnaire(ctx);
   });
-
+// 👈 ДАДАДЗЕНА: Апрацоўка кнопкі "Пропустити" (v7.7.3)
+  bot.action("skip_survey", async (ctx) => {
+    const msg = "Дякуємо! Рекрутер зв'яжеться з вами найближчим часом. Очікуйте на повідомлення! ⏳";
+    await ctx.answerCbQuery();
+    await ctx.editMessageReplyMarkup(undefined);
+    await ctx.reply(msg);
+    await logChat(ctx.from.id, "bot", msg); // Запісваем фінальнае паведамленне бота
+    setStep(ctx, "idle");
+  });
   console.log("✅ [CandidateBot] Handlers зарэгістраваны");
 }
 
