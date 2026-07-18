@@ -57,6 +57,12 @@ const HOURS_PREFERENCES = [
   { label: "⏱️ 170–220 год/міс", value: "mid" },
   { label: "⏱️ 220+ год/міс", value: "high" }
 ];
+// 👈 ДАДАДЗЕНА: Агульная клавіятура кантактаў (v7.7.7)
+const CONTACT_KEYBOARD = Markup.inlineKeyboard([
+  [{ text: "✈️ Написати в Telegram", url: "https://t.me/InnaNovaWork" }],
+  [{ text: "📱 Написати у Viber", url: "https://msng.link/vi/48780770745" }],
+  [{ text: "📞 Зателефонувати рекрутеру", url: "tel:+48780770745" }]
+]);
 // ===== ДАПАМОЖНЫЯ ФУНКЦЫІ =====
 
 // 🧠 Функцыя для стварэння профілю на аснове вакансіі (v7.4)
@@ -200,24 +206,8 @@ async function sendMatchedVacanciesToCandidate(candidate) {
       [{ text: "📱 Написати у Viber", url: "https://msng.link/vi/48780770745" }],
       [{ text: "📞 Зателефонувати рекрутеру", url: "tel:+48780770745" }]
     ]);
-
-    await bot.telegram.sendMessage(
-      candidate.chatId,
-      "☝️ Оберіть вакансію, яка вам сподобалася, або зв'яжіться з рекрутером напряму:",
-      contactKeyboard
-    );
-    // 👈 ДАДАДЗЕНА: Кнопкі сувязі пасля спіса вакансій (v7.7.6)
-    const contactKeyboard = Markup.inlineKeyboard([
-      [{ text: "✈️ Написати в Telegram", url: "https://t.me/InnaNovaWork" }],
-      [{ text: "📱 Написати у Viber", url: "https://msng.link/vi/48780770745" }],
-      [{ text: "📞 Зателефонувати рекрутеру", url: "tel:+48780770745" }]
-    ]);
-
-    await bot.telegram.sendMessage(
-      candidate.chatId,
-      "☝️ Оберіть вакансію, яка вам сподобалася, або зв'яжіться з рекрутером напряму:",
-      contactKeyboard
-    );
+   
+   await bot.telegram.sendMessage(candidate.chatId, "☝️ Оберіть вакансію, яка вам сподобалася, або зв'яжіться з рекрутером напряму:", CONTACT_KEYBOARD);
     // Апавяшчэнне рэкрутэру
     await notifyRecruiter(
       `📋 <b>Новий кандидат з бота:</b>\n` +
