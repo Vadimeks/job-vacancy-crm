@@ -195,7 +195,29 @@ async function sendMatchedVacanciesToCandidate(candidate) {
         }
       }
     }
+  const contactKeyboard = Markup.inlineKeyboard([
+      [{ text: "✈️ Написати в Telegram", url: "https://t.me/InnaNovaWork" }],
+      [{ text: "📱 Написати у Viber", url: "https://msng.link/vi/48780770745" }],
+      [{ text: "📞 Зателефонувати рекрутеру", url: "tel:+48780770745" }]
+    ]);
 
+    await bot.telegram.sendMessage(
+      candidate.chatId,
+      "☝️ Оберіть вакансію, яка вам сподобалася, або зв'яжіться з рекрутером напряму:",
+      contactKeyboard
+    );
+    // 👈 ДАДАДЗЕНА: Кнопкі сувязі пасля спіса вакансій (v7.7.6)
+    const contactKeyboard = Markup.inlineKeyboard([
+      [{ text: "✈️ Написати в Telegram", url: "https://t.me/InnaNovaWork" }],
+      [{ text: "📱 Написати у Viber", url: "https://msng.link/vi/48780770745" }],
+      [{ text: "📞 Зателефонувати рекрутеру", url: "tel:+48780770745" }]
+    ]);
+
+    await bot.telegram.sendMessage(
+      candidate.chatId,
+      "☝️ Оберіть вакансію, яка вам сподобалася, або зв'яжіться з рекрутером напряму:",
+      contactKeyboard
+    );
     // Апавяшчэнне рэкрутэру
     await notifyRecruiter(
       `📋 <b>Новий кандидат з бота:</b>\n` +
@@ -392,13 +414,14 @@ bot.start(async (ctx) => {
         await ctx.reply(confirmMsg);
         await logChat(telegramId, "bot", confirmMsg);
 
-        const promptMsg = `Щоб ми могли запропонувати вам найкращі варіанти, напишіть, будь ласка, одним повідомленням:\n• Ваше ім'я та вік\n• Рівень польської мови\n• Досвід роботи\n• Коли готові приїхати\n\nАбо натисніть кнопку нижче, щоб заповнити анкету 👇`;
-        
-        await ctx.reply(promptMsg, Markup.inlineKeyboard([
-          [Markup.button.url("📋 Заповнити анкету (1 хв)", `https://t.me/${process.env.TELEGRAM_BOT_USERNAME}/app`)],
-          [Markup.button.callback("⏭️ Пропустити", "skip_survey")]
-        ]));
-        await logChat(telegramId, "bot", promptMsg);
+        const promptMsg = `Щоб ми могли запропонувати вам найкращі варіанти, напишіть, будь ласка, **прямо сюди в чат** одним повідомленням:\n• Ваше ім'я та вік\n• Рівень польської мови\n• Досвід роботи\n• Коли готові приїхати\n\nАбо натисніть кнопку нижче, щоб заповнити анкету 👇`;
+        await ctx.reply(promptMsg, {
+          parse_mode: "Markdown",
+          ...Markup.inlineKeyboard([
+            [Markup.button.url("📋 Заповнити анкету (1 хв)", `https://t.me/${process.env.TELEGRAM_BOT_USERNAME}/app`)],
+            [Markup.button.callback("⏭️ Пропустити", "skip_survey")]
+          ])
+        });
         
         setStep(ctx, "waiting_full_info"); 
         return;
@@ -724,6 +747,7 @@ bot.start(async (ctx) => {
 
   // Апрацоўка кнопкі "Якнайшвидше"
   bot.action("ready_date:ASAP", async (ctx) => {
+    await logChat(ctx.from.id, "user", "Дата: Якнайшвидше (ASAP)");
     ctx.session.readyDateInput = "ASAP";
     await ctx.answerCbQuery();
     await ctx.editMessageReplyMarkup(undefined);
@@ -758,6 +782,7 @@ bot.start(async (ctx) => {
         ctx.session.selectedDocs.splice(idx, 1);
       } else {
         ctx.session.selectedDocs.push(value);
+        await logChat(ctx.from.id, "user", `Документ: ${value}`);
       }
       const docLabels = DOCS_OPTIONS.map(d => d.label);
       await ctx.editMessageReplyMarkup(
@@ -774,9 +799,9 @@ bot.start(async (ctx) => {
     await ctx.answerCbQuery();
     await ctx.editMessageReplyMarkup(undefined);
     setStep(ctx, "additional");
-    await ctx.reply(
-      "📝 Якщо маєте побажання або деталі, яких не було в анкеті — напишіть тут.\n" +
-      "_Наприклад: 'хочу роботу тільки вдень', 'є досвід на навантажувачі', 'їду з дитиною'_",
+   await ctx.reply(
+      "📝 Якщо маєте побажання або деталі, яких не було в анкеті — **напишіть їх прямо сюди в чат**\n\n" +
+      "_Наприклад: 'хочу роботу тільки вдень', 'їду з дитиною'_",
       {
         parse_mode: "Markdown",
         ...Markup.inlineKeyboard([[Markup.button.callback("⏭️ Пропустити", "additional:SKIP")]])
@@ -786,6 +811,7 @@ bot.start(async (ctx) => {
 
   // Пропуск дадатковай інфармацыі
   bot.action("additional:SKIP", async (ctx) => {
+    await logChat(ctx.from.id, "user", "Додаткова інформація: Пропущено");
     ctx.session.additionalNotes = null;
     await ctx.answerCbQuery();
     await ctx.editMessageReplyMarkup(undefined);
