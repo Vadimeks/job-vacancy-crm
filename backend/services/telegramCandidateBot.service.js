@@ -408,7 +408,7 @@ bot.start(async (ctx) => {
         await ctx.reply(promptMsg, {
           parse_mode: "Markdown",
           ...Markup.inlineKeyboard([
-            [Markup.button.url("📋 Заповнити анкету (1 хв)", `https://t.me/${process.env.TELEGRAM_BOT_USERNAME}/app`)],
+            [Markup.button.webApp("📋 Заповнити анкету (1 хв)", `${process.env.FRONTEND_URL}/survey`)],
             [Markup.button.callback("⏭️ Пропустити", "skip_survey")]
           ])
         });
