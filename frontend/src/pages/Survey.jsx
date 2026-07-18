@@ -16,6 +16,7 @@ export default function Survey() {
     locationFlexible: false,
     spheres: [],
     accommodationNeeded: true,
+    freeHousingOnly: false,
     transportNeeded: false,
     polishLanguageLevel: "Не вимагається",
     hoursRange: [],
@@ -199,7 +200,20 @@ export default function Survey() {
             </div>
           </div>
         </section>
-
+{/* Кнопка "Толькі бясплатнае" з'яўляецца, толькі калі выбрана, што жытло патрэбна */}
+{formData.accommodationNeeded && (
+  <button
+    onClick={() => setFormData({ ...formData, freeHousingOnly: !formData.freeHousingOnly })}
+    className={`col-span-2 p-3 rounded-xl text-center transition-all flex items-center justify-center gap-2 ${
+      formData.freeHousingOnly 
+        ? "bg-indigo-500/20 border-2 border-indigo-500 text-indigo-400" 
+        : "bg-[var(--tg-theme-secondary-bg-color)] opacity-50"
+    }`}
+  >
+    <span className="text-lg">{formData.freeHousingOnly ? "✅" : "⬜"}</span>
+    <span className="text-[10px] font-bold uppercase">Шукаю тільки безкоштовне житло</span>
+  </button>
+)}
         {/* Жыллё і Транспарт */}
         <section className="grid grid-cols-2 gap-4">
           <button
