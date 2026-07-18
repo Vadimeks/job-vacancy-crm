@@ -55,6 +55,8 @@ export const matchVacanciesForCandidate = (id) =>
   api.get(`/candidates/${id}/match-vacancies`);
 
 // --- ЗАЯЎКІ ---
+// 👈 ДАДАДЗЕНА: Адпраўка анкеты з Telegram Mini App (v7.8.0)
+export const createTmaApply = (data) => api.post("/apply/tma", data);
 export const submitApplication = (data) => api.post("/apply", data);
 export const matchCandidatesForVacancy = (id) =>
   api.get(`/vacancies/${id}/match-candidates`);
