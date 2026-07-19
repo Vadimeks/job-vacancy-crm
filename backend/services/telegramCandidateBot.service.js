@@ -201,12 +201,7 @@ async function sendMatchedVacanciesToCandidate(candidate) {
         }
       }
     }
-  const contactKeyboard = Markup.inlineKeyboard([
-      [{ text: "✈️ Написати в Telegram", url: "https://t.me/InnaNovaWork" }],
-      [{ text: "📱 Написати у Viber", url: "https://msng.link/vi/48780770745" }],
-      [{ text: "📞 Зателефонувати рекрутеру", url: "tel:+48780770745" }]
-    ]);
-   
+  
    await bot.telegram.sendMessage(candidate.chatId, "☝️ Оберіть вакансію, яка вам сподобалася, або зв'яжіться з рекрутером напряму:", CONTACT_KEYBOARD);
     // Апавяшчэнне рэкрутэру
     await notifyRecruiter(
@@ -419,8 +414,12 @@ bot.start(async (ctx) => {
     }
 
     // 3. Калі проста заяўка на падбор або старт
-    setStep(ctx, "name");
-    await ctx.reply("👋 Вітаємо ў Nova Work Agency! Давайте заповнимо коротку анкету. Як вас звати?");
+    // 👈 Уніфікаваны ўваход праз Mini App (v7.9.3)
+    const welcomeMsg = "👋 Вітаємо ў Nova Work Agency! Для підбору вакансій, будь ласка, заповніть коротку анкету 👇";
+    await ctx.reply(welcomeMsg, Markup.inlineKeyboard([
+      [Markup.button.webApp("📋 Заповнити анкету", `${process.env.FRONTEND_URL}/survey`)]
+    ]));
+    await logChat(telegramId, "bot", welcomeMsg);
   });
 
   // ===== АПРАЦОЎКА ТЭКСТАВАГА ЎВОДУ =====

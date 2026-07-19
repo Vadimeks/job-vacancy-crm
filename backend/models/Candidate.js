@@ -16,6 +16,8 @@ const candidateSchema = new mongoose.Schema(
   {
     // 1. У пачатак схемы (пасля name) дадай:
     candidateCode: { type: String, unique: true, sparse: true },
+    needsClarification: { type: Boolean, default: false }, // 👈 ДАДАДЗЕНА: флаг канфлікту дадзеных
+    clarificationFields: [String], // 👈 ДАДАДЗЕНА: спіс палёў, якія патрабуюць удакладнення
     isDuplicate: { type: Boolean, default: false },
     linkedDuplicateId: { type: mongoose.Schema.Types.ObjectId, ref: "Candidate", default: null },
     duplicateFields: [String], 
