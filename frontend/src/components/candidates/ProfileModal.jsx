@@ -106,7 +106,28 @@ const [showAllMatches, setShowAllMatches] = useState(false); // 👈 ДАДАД�
           className="absolute inset-0 bg-black/70 backdrop-blur-sm"
           onClick={onClose}
         />
+        
         <div className="relative bg-white border border-slate-200 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto mx-4 shadow-2xl">
+          {/* 👈 ПЕРАНЕСЕНА СЮДЫ: Банэр цяпер унутры карткі (v7.9.2) */}
+          {candidate.needsClarification && (
+            <div className="bg-red-50 border-b border-red-100 px-6 py-3 flex items-center gap-3 animate-pulse sticky top-0 z-20">
+              <span className="text-xl">⚠️</span>
+              <div className="flex-1">
+                <p className="text-[10px] font-black text-red-600 uppercase tracking-widest leading-none">Дані анкети відрізняються!</p>
+                <p className="text-[11px] text-red-500 font-bold mt-1">Потрібно уточнити: {candidate.clarificationFields?.join(", ")}</p>
+              </div>
+              <button 
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  await updateCandidate(candidate._id, { needsClarification: false });
+                  setCandidate({...candidate, needsClarification: false});
+                }}
+                className="px-3 py-1.5 bg-white border border-red-200 text-red-500 text-[10px] font-black rounded-lg hover:bg-red-50 transition-colors shadow-sm"
+              >
+                ЗНЯТИ ПОЗНАЧКУ
+              </button>
+            </div>
+          )}
           {/* Загаловак */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 sticky top-0 bg-white z-10">
             <h2 className="font-bold text-slate-900">Профіль кандидата</h2>

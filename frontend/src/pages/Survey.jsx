@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import * as MD from "../constants/masterData";
 import { createTmaApply } from "../services/api";
 
 const tg = window.Telegram.WebApp;
-
+const isTelegram = !!tg.initData; // 👈 Вызначаем, ці гэта Telegram
 export default function Survey() {
   const [formData, setFormData] = useState({
     name: tg.initDataUnsafe?.user?.first_name || "",
@@ -21,7 +21,10 @@ export default function Survey() {
     polishLanguageLevel: "Не вимагається",
     hoursRange: [],
     readyDate: "",
-    notes: ""
+    activeDocs: [], // 👈 ДАДАДЗЕНА: без гэтага поля toggleArrayItem("activeDocs", ...) кідаў TypeError і вешаў форму
+    autoMatchConsent: false, // 👈 ДАДАДЗЕНА: згода на аўтаматычны падбор і падпіску на вакансії
+    notes: "",
+    nuances: ""
   });
 
   const [status, setStatus] = useState("idle"); // 'idle', 'loading', 'success', 'error'
@@ -49,40 +52,40 @@ export default function Survey() {
     }
   }, [formData.name, formData.phone, status]);
 
-  // Апрацоўка націску на галоўную кнопку Тэлеграма
-  useEffect(() => {
-    const handleSubmit = async () => {
-      setStatus("loading");
-      tg.MainButton.showProgress();
+ // 👈 ВЫПРАЎЛЕНА: Выкарыстоўваем useCallback для стабільнасці спасылкі (v7.9.4)
+  const handleSubmit = useCallback(async () => {
+    setStatus("loading");
+    if (isTelegram) tg.MainButton.showProgress();
+    
+    try {
+      const payload = {
+        ...formData,
+        telegramId: String(tg.initDataUnsafe?.user?.id || ""),
+        telegramUsername: tg.initDataUnsafe?.user?.username || ""
+      };
       
-      try {
-        const payload = {
-          ...formData,
-          telegramId: String(tg.initDataUnsafe?.user?.id || ""),
-          telegramUsername: tg.initDataUnsafe?.user?.username || ""
-        };
-        
-        await createTmaApply(payload);
-        
-        setStatus("success");
+      await createTmaApply(payload);
+      
+      setStatus("success");
+      if (isTelegram) {
         tg.MainButton.hideProgress();
         tg.MainButton.hide();
         tg.HapticFeedback.notificationOccurred("success");
-        
-        // Закрываем праграму праз 2 секунды пасля поспеху
         setTimeout(() => tg.close(), 2000);
-      } catch (err) {
-        setStatus("error");
+      }
+    } catch (err) {
+      setStatus("error");
+      if (isTelegram) {
         tg.MainButton.hideProgress();
         tg.HapticFeedback.notificationOccurred("error");
-        alert("Помилка при відправці. Спробуйте ще раз.");
       }
-    };
-
+      alert("Помилка при відправці. Спробуйте ще раз.");
+    }
+  }, [formData]); // Функцыя абновіцца толькі пры змене дадзеных формы
+useEffect(() => {
     tg.onEvent("mainButtonClicked", handleSubmit);
     return () => tg.offEvent("mainButtonClicked", handleSubmit);
-  }, [formData]);
-
+  }, [handleSubmit]); // 👈 Цяпер залежыць ад стабільнай функцыі
   const toggleArrayItem = (field, value) => {
     setFormData(prev => ({
       ...prev,
@@ -94,21 +97,23 @@ export default function Survey() {
 
   if (status === "success") {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-6 text-center bg-[var(--tg-theme-bg-color)] text-[var(--tg-theme-text-color)]">
-        <div className="text-6xl mb-4">✅</div>
-        <h1 className="text-2xl font-bold mb-2">Дякуємо!</h1>
-        <p className="opacity-70">Ваша анкета успішно збережена. Рекрутер зв'яжеться з вами найближчим часом.</p>
+      <div className="flex flex-col items-center justify-center min-h-screen p-6 text-center bg-slate-50 text-slate-900 font-sans">
+        <div className="w-full max-w-md bg-white p-10 rounded-[40px] shadow-2xl border border-emerald-100 animate-in zoom-in-95 duration-300">
+          <div className="text-7xl mb-6 animate-bounce">✅</div>
+          <h1 className="text-3xl font-black uppercase tracking-tighter text-slate-900 mb-3">Дякуємо!</h1>
+          <p className="text-sm text-slate-500 leading-relaxed font-medium">Ваша анкету успішно збережена.<br/>Рекрутер зв'яжеться з вами найближчим часом.</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen pb-24 bg-[var(--tg-theme-bg-color)] text-[var(--tg-theme-text-color)] font-sans">
-      <div className="p-5 space-y-6">
-        <header>
-          <h1 className="text-2xl font-black uppercase tracking-tight">Анкета кандидата</h1>
-          <p className="text-sm opacity-60">Заповніть дані, щоб ми підібрали вакансії</p>
-        </header>
+    <div className="min-h-screen overflow-x-hidden bg-slate-50 text-slate-900 font-sans flex justify-center p-0 sm:p-4">
+      <div className="w-full max-w-2xl bg-white sm:rounded-[2rem] sm:shadow-2xl sm:my-4 overflow-hidden flex flex-col border border-slate-100 p-6 sm:p-10 space-y-8">
+        <header className="pt-4 text-center space-y-2">
+  <h1 className="text-3xl font-black uppercase tracking-tighter text-slate-900">Анкета кандидата</h1>
+  <p className="text-xs font-bold text-emerald-600 uppercase tracking-widest opacity-80">Nova Work Agency</p>
+</header>
 
         {/* Асноўныя дадзеныя */}
         <section className="space-y-4">
@@ -118,7 +123,7 @@ export default function Survey() {
               type="text"
               value={formData.name}
               onChange={e => setFormData({ ...formData, name: e.target.value })}
-              className="w-full p-3 rounded-xl bg-[var(--tg-theme-secondary-bg-color)] border-none focus:ring-2 focus:ring-emerald-500 outline-none"
+              className="w-full p-3 rounded-xl bg-slate-50 border border-slate-100   focus:ring-2 focus:ring-emerald-500 outline-none"
               placeholder="Введіть ім'я"
             />
           </div>
@@ -129,7 +134,7 @@ export default function Survey() {
               type="tel"
               value={formData.phone}
               onChange={e => setFormData({ ...formData, phone: e.target.value })}
-              className="w-full p-3 rounded-xl bg-[var(--tg-theme-secondary-bg-color)] border-none focus:ring-2 focus:ring-emerald-500 outline-none"
+              className="w-full p-3 rounded-xl bg-slate-50 border border-slate-100   focus:ring-2 focus:ring-emerald-500 outline-none"
               placeholder="+380..."
             />
           </div>
@@ -141,7 +146,7 @@ export default function Survey() {
                 type="number"
                 value={formData.age}
                 onChange={e => setFormData({ ...formData, age: e.target.value })}
-                className="w-full p-3 rounded-xl bg-[var(--tg-theme-secondary-bg-color)] border-none outline-none"
+                className="w-full p-3 rounded-xl bg-slate-50 border border-slate-100   outline-none"
                 placeholder="25"
               />
             </div>
@@ -150,17 +155,41 @@ export default function Survey() {
               <select
                 value={formData.gender}
                 onChange={e => setFormData({ ...formData, gender: e.target.value })}
-                className="w-full p-3 rounded-xl bg-[var(--tg-theme-secondary-bg-color)] border-none outline-none appearance-none"
+                className="w-full p-3 rounded-xl bg-slate-50 border border-slate-100   outline-none appearance-none"
               >
                 {MD.GENDERS.map(g => <option key={g.value} value={g.value}>{g.label}</option>)}
               </select>
+            </div>
+          </div>
+
+          {/* 👈 ДАДАДЗЕНА: Нацыянальнасць і бягучае месцазнаходжанне */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <label className="text-xs font-bold uppercase opacity-50 ml-1">Національність</label>
+              <select
+                value={formData.nationality}
+                onChange={e => setFormData({ ...formData, nationality: e.target.value })}
+                className="w-full p-3 rounded-xl bg-slate-50 border border-slate-100   outline-none appearance-none"
+              >
+                {MD.NATIONALITIES.map(n => <option key={n.value} value={n.value}>{n.label}</option>)}
+              </select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-bold uppercase opacity-50 ml-1">Зараз у місті</label>
+              <input
+                type="text"
+                value={formData.currentLocation}
+                onChange={e => setFormData({ ...formData, currentLocation: e.target.value })}
+                className="w-full p-3 rounded-xl bg-slate-50 border border-slate-100   outline-none"
+                placeholder="Київ"
+              />
             </div>
           </div>
         </section>
 
         {/* Пажаданні */}
         <section className="space-y-4 border-t border-[var(--tg-theme-secondary-bg-color)] pt-6">
-          <h2 className="text-sm font-black uppercase opacity-50">Побажання до роботи</h2>
+          <h3 className="text-[11px] font-black text-emerald-600 uppercase tracking-[0.2em] mb-4 border-b border-emerald-500/10 pb-1 flex items-center gap-2"><span>🔍</span> Побажання до роботи</h3>
           
           <div className="space-y-2">
             <label className="text-xs font-bold ml-1">Де шукаєте роботу? (Регіони)</label>
@@ -170,9 +199,7 @@ export default function Survey() {
                   key={v.value}
                   onClick={() => toggleArrayItem("voivodeship", v.value)}
                   className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                    formData.voivodeship.includes(v.value)
-                      ? "bg-emerald-500 text-white"
-                      : "bg-[var(--tg-theme-secondary-bg-color)] opacity-70"
+                    formData.voivodeship.includes(v.value) ? "bg-emerald-500 text-white border-emerald-600 shadow-md" : "bg-slate-50 text-slate-600 border-slate-100"
                   }`}
                 >
                   {v.label.split(' (')[0]}
@@ -190,14 +217,75 @@ export default function Survey() {
                   onClick={() => toggleArrayItem("spheres", c.value)}
                   className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                     formData.spheres.includes(c.value)
-                      ? "bg-blue-500 text-white"
-                      : "bg-[var(--tg-theme-secondary-bg-color)] opacity-70"
+                      ? "bg-emerald-500 text-white border-emerald-600 shadow-md" : "bg-slate-50 text-slate-600 border-slate-100"
                   }`}
                 >
                   {c.label}
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* 👈 ДАДАДЗЕНА: Рівень польської мови */}
+          <div className="space-y-2">
+            <label className="text-xs font-bold ml-1">Рівень польської мови</label>
+            <div className="flex flex-wrap gap-2">
+              {MD.LANGUAGES.map(l => (
+                <button
+                  key={l.value}
+                  onClick={() => setFormData({ ...formData, polishLanguageLevel: l.value })}
+                  className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                    formData.polishLanguageLevel === l.value
+                      ? "bg-emerald-500 text-white border-emerald-600 shadow-md" : "bg-slate-50 text-slate-600 border-slate-100"
+                  }`}
+                >
+                  {l.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 👈 ДАДАДЗЕНА: Бажана кількість годин на місяць */}
+          <div className="space-y-2">
+            <label className="text-xs font-bold ml-1">Скільки годин на місяць бажаєте працювати?</label>
+            <div className="flex flex-wrap gap-2">
+              {MD.HOURS_RANGE_OPTIONS.filter(h => h.value !== "unknown").map(h => (
+                <button
+                  key={h.value}
+                  onClick={() => toggleArrayItem("hoursRange", h.value)}
+                  className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                    formData.hoursRange.includes(h.value)
+                      ? "bg-emerald-500 text-white border-emerald-600 shadow-md" : "bg-slate-50 text-slate-600 border-slate-100"
+                  }`}
+                >
+                  {h.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 👈 ДАДАДЗЕНА: Дата гатоўнасці выхаду на роботу */}
+          <div className="space-y-1">
+            <label className="text-xs font-bold uppercase opacity-50 ml-1">Коли готові розпочати роботу?</label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={formData.readyDate}
+                onChange={e => setFormData({ ...formData, readyDate: e.target.value })}
+                className="flex-1 p-3 rounded-xl bg-slate-50 border border-slate-100   outline-none"
+                placeholder="ДД.ММ, наприклад 25.07"
+              />
+              <button
+                onClick={() => setFormData({ ...formData, readyDate: "ASAP" })}
+                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase transition-all ${
+                  formData.readyDate === "ASAP"
+                    ? "bg-emerald-500 text-white border-emerald-600 shadow-md" : "bg-slate-50 text-slate-600 border-slate-100"
+                }`}
+              >
+                Якнайшвидше
+              </button>
+            </div>
+
           </div>
         </section>
 {/* Кнопка "Толькі бясплатнае" з'яўляецца, толькі калі выбрана, што жытло патрэбна */}
@@ -207,7 +295,7 @@ export default function Survey() {
     className={`col-span-2 p-3 rounded-xl text-center transition-all flex items-center justify-center gap-2 ${
       formData.freeHousingOnly 
         ? "bg-indigo-500/20 border-2 border-indigo-500 text-indigo-400" 
-        : "bg-[var(--tg-theme-secondary-bg-color)] opacity-50"
+        : "bg-slate-50 border border-slate-100 opacity-50"
     }`}
   >
     <span className="text-lg">{formData.freeHousingOnly ? "✅" : "⬜"}</span>
@@ -219,7 +307,7 @@ export default function Survey() {
           <button
             onClick={() => setFormData({ ...formData, accommodationNeeded: !formData.accommodationNeeded })}
             className={`p-4 rounded-2xl text-center transition-all ${
-              formData.accommodationNeeded ? "bg-orange-500/20 border-2 border-orange-500" : "bg-[var(--tg-theme-secondary-bg-color)] opacity-50"
+              formData.accommodationNeeded ? "bg-orange-500/20 border-2 border-orange-500" : "bg-slate-50 border border-slate-100 opacity-50"
             }`}
           >
             <div className="text-2xl mb-1">🏠</div>
@@ -229,7 +317,7 @@ export default function Survey() {
           <button
             onClick={() => setFormData({ ...formData, transportNeeded: !formData.transportNeeded })}
             className={`p-4 rounded-2xl text-center transition-all ${
-              formData.transportNeeded ? "bg-indigo-500/20 border-2 border-indigo-500" : "bg-[var(--tg-theme-secondary-bg-color)] opacity-50"
+              formData.transportNeeded ? "bg-indigo-500/20 border-2 border-indigo-500" : "bg-slate-50 border border-slate-100 opacity-50"
             }`}
           >
             <div className="text-2xl mb-1">🚌</div>
@@ -262,12 +350,51 @@ export default function Survey() {
           <textarea
             value={formData.notes}
             onChange={e => setFormData({ ...formData, notes: e.target.value })}
-            className="w-full p-3 rounded-xl bg-[var(--tg-theme-secondary-bg-color)] border-none outline-none resize-none"
+            className="w-full p-3 rounded-xl bg-slate-50 border border-slate-100   outline-none resize-none"
             rows={3}
             placeholder="Наприклад: їду з дитиною, маю власне авто..."
           />
         </div>
+<div className="space-y-1">
+          <label className="text-[10px] font-black uppercase opacity-50 ml-1 text-red-500">Важливі нюанси</label>
+          <textarea
+            value={formData.nuances}
+            onChange={e => setFormData({ ...formData, nuances: e.target.value })}
+            className="w-full p-3 rounded-xl bg-slate-50 border border-slate-100 outline-none resize-none text-sm"
+            rows={3}
+            placeholder="Наприклад: алергія на пил, не можу піднімати важке, потрібен виїзд з дітьми..."
+          />
+          <p className="text-[9px] text-slate-400 ml-1 italic">Напишіть тут все, що важливо знати рекрутеру перед дзвінком</p>
+        </div>
+        {/* 👈 ДАДАДЗЕНА: Згода на аўтаматычны падбор вакансій */}
+        <button
+          onClick={() => setFormData({ ...formData, autoMatchConsent: !formData.autoMatchConsent })}
+          className={`w-full p-4 rounded-2xl text-left transition-all flex items-start gap-3 ${
+            formData.autoMatchConsent
+              ? "bg-emerald-500 text-white border-emerald-600 shadow-md" : "bg-slate-50 text-slate-600 border-slate-100"
+          }`}
+        >
+          <span className="text-xl shrink-0">{formData.autoMatchConsent ? "✅" : "⬜"}</span>
+          <span className="text-xs leading-relaxed">
+            <span className="font-bold block mb-1">Погоджуюсь на автоматичний підбір вакансій</span>
+            Ми одразу підберемо для вас підходящі вакансії за вказаними параметрами. Рекрутер в будь-якому разі зв'яжеться з вами особисто.
+          </span>
+        </button>
       </div>
+      {/* 👈 ДАДАДЗЕНА: Кнопка для Viber/Browser (v7.9.3) */}
+        {!isTelegram && (
+          <button
+            onClick={async () => {
+              // Выклікаем тую ж функцыю, што і для галоўнай кнопкі ТГ
+              // (Трэба будзе вынесці handleSubmit з useEffect у асобную функцыю)
+              handleSubmit();
+            }}
+            disabled={formData.name.length < 2 || formData.phone.length < 9 || status === "loading"}
+            className="w-full py-4 bg-emerald-500 text-white font-black rounded-2xl shadow-xl hover:bg-emerald-600 transition-all disabled:opacity-50 uppercase tracking-widest mt-4"
+          >
+            {status === "loading" ? "Відправка..." : "Відправити анкету"}
+          </button>
+        )}
     </div>
   );
 }
