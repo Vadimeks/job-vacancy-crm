@@ -24,7 +24,8 @@ export default function Survey() {
     activeDocs: [], // 👈 ДАДАДЗЕНА: без гэтага поля toggleArrayItem("activeDocs", ...) кідаў TypeError і вешаў форму
     autoMatchConsent: false, // 👈 ДАДАДЗЕНА: згода на аўтаматычны падбор і падпіску на вакансії
     notes: "",
-    nuances: ""
+    nuances: [], // 👈 ЗМЕНЕНА: было тэкставае поле, цяпер масіў выбраных нюансаў (checklist)
+    nuancesNotes: "" // 👈 ДАДАДЗЕНА: вольны тэкст для дадатковых нюансаў
   });
 
   const [status, setStatus] = useState("idle"); // 'idle', 'loading', 'success', 'error'
@@ -60,8 +61,10 @@ export default function Survey() {
     try {
       const payload = {
         ...formData,
-        telegramId: String(tg.initDataUnsafe?.user?.id || ""),
-        telegramUsername: tg.initDataUnsafe?.user?.username || ""
+        // Перастрахоўка: калі мы не ў ТГ, гэтыя палі будуць пустымі
+        telegramId: tg.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : null,
+        telegramUsername: tg.initDataUnsafe?.user?.username || null,
+        source: isTelegram ? "telegram_bot" : "viber" // Дапамагаем бэкенду вызначыць крыніцу
       };
       
       await createTmaApply(payload);
@@ -108,7 +111,7 @@ useEffect(() => {
   }
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-slate-50 text-slate-900 font-sans flex justify-center p-0 sm:p-4">
+    <div className="min-h-screen overflow-x-hidden bg-slate-50 text-slate-900 font-sans flex flex-col items-center p-0 sm:p-4">
       <div className="w-full max-w-2xl bg-white sm:rounded-[2rem] sm:shadow-2xl sm:my-4 overflow-hidden flex flex-col border border-slate-100 p-6 sm:p-10 space-y-8">
         <header className="pt-4 text-center space-y-2">
   <h1 className="text-3xl font-black uppercase tracking-tighter text-slate-900">Анкета кандидата</h1>
@@ -193,19 +196,42 @@ useEffect(() => {
           
           <div className="space-y-2">
             <label className="text-xs font-bold ml-1">Де шукаєте роботу? (Регіони)</label>
-            <div className="flex flex-wrap gap-2">
-              {MD.VOIVODESHIPS.map(v => (
-                <button
-                  key={v.value}
-                  onClick={() => toggleArrayItem("voivodeship", v.value)}
-                  className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                    formData.voivodeship.includes(v.value) ? "bg-emerald-500 text-white border-emerald-600 shadow-md" : "bg-slate-50 text-slate-600 border-slate-100"
-                  }`}
-                >
-                  {v.label.split(' (')[0]}
-                </button>
-              ))}
-            </div>
+            
+            {/* 👈 НОВАЕ: Кнопка "Будь-який регіон" */}
+            <button
+              onClick={() => {
+                const nextFlexible = !formData.locationFlexible;
+                setFormData({
+                  ...formData,
+                  locationFlexible: nextFlexible,
+                  voivodeship: nextFlexible ? [] : formData.voivodeship
+                });
+              }}
+              className={`w-full p-3 rounded-xl text-xs font-bold uppercase transition-all border-2 flex items-center justify-center gap-2 mb-2 ${
+                formData.locationFlexible 
+                  ? "bg-emerald-500 text-white border-emerald-600 shadow-md" 
+                  : "bg-slate-50 text-slate-400 border-slate-100"
+              }`}
+            >
+              <span>{formData.locationFlexible ? "✅" : "🌍"}</span>
+              Будь-який регіон Польщі
+            </button>
+
+            {!formData.locationFlexible && (
+              <div className="flex flex-wrap gap-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                {MD.VOIVODESHIPS.map(v => (
+                  <button
+                    key={v.value}
+                    onClick={() => toggleArrayItem("voivodeship", v.value)}
+                    className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                      formData.voivodeship.includes(v.value) ? "bg-emerald-500 text-white border-emerald-600 shadow-md" : "bg-slate-50 text-slate-600 border-slate-100"
+                    }`}
+                  >
+                    {v.label.split(' (')[0]}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -355,16 +381,30 @@ useEffect(() => {
             placeholder="Наприклад: їду з дитиною, маю власне авто..."
           />
         </div>
-<div className="space-y-1">
+<div className="space-y-2">
           <label className="text-[10px] font-black uppercase opacity-50 ml-1 text-red-500">Важливі нюанси</label>
+          <p className="text-[10px] text-slate-400 ml-1">Які нюанси варто врахувати при підборі вакансії для вас?</p>
+          <div className="flex flex-wrap gap-2">
+            {MD.CHECKLIST_ITEMS.map(item => (
+              <button
+                key={item.value}
+                onClick={() => toggleArrayItem("nuances", item.value)}
+                className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                  formData.nuances.includes(item.value)
+                    ? "bg-red-500 text-white border-red-600 shadow-md" : "bg-slate-50 text-slate-600 border-slate-100"
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
           <textarea
-            value={formData.nuances}
-            onChange={e => setFormData({ ...formData, nuances: e.target.value })}
-            className="w-full p-3 rounded-xl bg-slate-50 border border-slate-100 outline-none resize-none text-sm"
+            value={formData.nuancesNotes}
+            onChange={e => setFormData({ ...formData, nuancesNotes: e.target.value })}
+            className="w-full p-3 rounded-xl bg-slate-50 border border-slate-100 outline-none resize-none text-sm mt-2"
             rows={3}
-            placeholder="Наприклад: алергія на пил, не можу піднімати важке, потрібен виїзд з дітьми..."
+            placeholder="Впишіть, якщо є ще якісь нюанси, або деталі обраного варіанту вище..."
           />
-          <p className="text-[9px] text-slate-400 ml-1 italic">Напишіть тут все, що важливо знати рекрутеру перед дзвінком</p>
         </div>
         {/* 👈 ДАДАДЗЕНА: Згода на аўтаматычны падбор вакансій */}
         <button
@@ -381,20 +421,16 @@ useEffect(() => {
           </span>
         </button>
       </div>
-      {/* 👈 ДАДАДЗЕНА: Кнопка для Viber/Browser (v7.9.3) */}
-        {!isTelegram && (
-          <button
-            onClick={async () => {
-              // Выклікаем тую ж функцыю, што і для галоўнай кнопкі ТГ
-              // (Трэба будзе вынесці handleSubmit з useEffect у асобную функцыю)
-              handleSubmit();
-            }}
-            disabled={formData.name.length < 2 || formData.phone.length < 9 || status === "loading"}
-            className="w-full py-4 bg-emerald-500 text-white font-black rounded-2xl shadow-xl hover:bg-emerald-600 transition-all disabled:opacity-50 uppercase tracking-widest mt-4"
-          >
-            {status === "loading" ? "Відправка..." : "Відправити анкету"}
-          </button>
-        )}
+      {/* 👈 Кнопка для Viber/Browser: дадаем шырыню і водступы */}
+      {!isTelegram && (
+        <button
+          onClick={handleSubmit}
+          disabled={formData.name.length < 2 || formData.phone.length < 9 || status === "loading"}
+          className="w-full max-w-2xl py-4 bg-emerald-500 text-white font-black rounded-2xl shadow-xl hover:bg-emerald-600 transition-all disabled:opacity-50 uppercase tracking-widest mt-4 mx-4 sm:mx-0 mb-8"
+        >
+          {status === "loading" ? "Відправка..." : "Відправити анкету"}
+        </button>
+      )}
     </div>
   );
 }
