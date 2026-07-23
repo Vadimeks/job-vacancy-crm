@@ -3148,3 +3148,16 @@ isInformative() / isSimpleMessage()
 ### Changed
 - `frontend/src/pages/Home.jsx`: Complete redesign with 2-column Hero, vertical stats, and "Featured" vacancies logic.
 - `frontend/src/App.jsx`: Restored original admin routes and implemented layout switching (Public vs Admin).
+## [2024-07-24] - Frontend: Public Portal & UI Refactoring
+### Added
+- `frontend/src/components/PublicLayout.jsx`: Created a dedicated layout for candidates with NW branding.
+- `frontend/src/services/api.js`: Added `toggleFeaturedVacancy` function.
+### Changed
+- `frontend/src/App.jsx`: Restored original admin routes; implemented public routes under `/nova-work-portal-2024`.
+- `frontend/src/pages/Home.jsx`: Complete redesign of the landing page:
+    - New 2-column Hero section with vertical stats.
+    - Smart "Featured" logic (fallback to fresh vacancies if featured are older than 10 days).
+    - Removed duplicate footer and redundant buttons.
+- `frontend/src/pages/Vacancies.jsx`: Added "eye" button to toggle vacancy promotion to the landing page.
+- `frontend/src/components/vacancies/VacancyViewModal.jsx`: Implemented `mode="public"` to hide sensitive data (brands, agencies, internal notes) and simplify actions for candidates.
+- `frontend/src/pages/Survey.jsx`: Fixed header alignment and centering.

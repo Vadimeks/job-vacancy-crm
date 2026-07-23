@@ -64,7 +64,9 @@ export default function VacancyViewModal({
   onNext,
   onPrev,
   currentIndex,
-  totalCount
+  totalCount,
+    onApply, // 👈 ДАДАДЗЕНА
+  mode = "admin" // 👈 ДАДАДЗЕНА: рэжым (admin/public)
 }) {
   const [copied, setCopied] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -250,7 +252,7 @@ const handleGenerate = async () => {
             >
               {STATUS_LABELS[v.status] || v.status}
             </span>
-            {v.agencyName && (
+            {mode !== "public" && v.agencyName && (
               <span className="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-bold border border-slate-100 uppercase tracking-wider">
                 <Building2 size={9} className="inline mr-1" /> {v.agencyName}
               </span>
@@ -260,7 +262,7 @@ const handleGenerate = async () => {
                 <Tag size={9} className="inline mr-1" /> {v.category}
               </span>
             )}
-            {v.brand && (
+            {mode !== "public" && v.brand && (
               <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-bold border border-emerald-100 uppercase tracking-wider">
                 <Factory size={9} className="inline mr-1" /> {v.brand}
               </span>
@@ -324,7 +326,7 @@ const handleGenerate = async () => {
           </div>
 
           {/* АРЫГІНАЛЬНЫ ТЭКСТ (Перанесены сюды і стылізаваны) */}
-          <details className="group bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden">
+          {mode !== "public" && (<details className="group bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden">
             <summary className="px-5 py-3 text-[10px] font-black text-slate-500 uppercase tracking-widest cursor-pointer hover:bg-slate-100 transition-colors list-none flex items-center gap-2">
               <span className="group-open:rotate-90 transition-transform inline-block text-xs">
                 ▶
@@ -334,9 +336,9 @@ const handleGenerate = async () => {
             <div className="px-5 pb-4 text-[11px] text-slate-600 font-mono leading-relaxed whitespace-pre-wrap border-t border-slate-100 pt-3">
               {v.rawText || "Текст повідомлення відсутній"}
             </div>
-          </details>
+          </details>)}
 {/* --- TELEGRAM РЭДАКТАР (ІДЭНТЫЧНЫ СТЫЛЬ) --- */}
-      <details className="group bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden" open={showEditor}>
+      {mode !== "public" && (<details className="group bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden" open={showEditor}>
         <summary className="px-5 py-3 text-[10px] font-black text-slate-500 uppercase tracking-widest cursor-pointer hover:bg-slate-100 transition-colors list-none flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="group-open:rotate-90 transition-transform inline-block text-xs">▶</span>
@@ -435,7 +437,7 @@ const handleGenerate = async () => {
             </div>
           </div>
         </div>
-      </details>
+      </details>)}
           {/* ОПЛАТА ПРАЦІ */}
           <section>
             <SectionTitle
@@ -768,52 +770,64 @@ const handleGenerate = async () => {
           </section>
 
           {/* МЕТА-ДАНІ */}
-          <div className="pt-4 border-t border-slate-800 flex justify-between items-center text-[9px] font-mono text-slate-700 uppercase tracking-tighter">
+          {mode !== "public" && (<div className="pt-4 border-t border-slate-800 flex justify-between items-center text-[9px] font-mono text-slate-700 uppercase tracking-tighter">
             <span>ID: {v._id}</span>
             <span>
               СТВОРЕНО: {new Date(v.createdAt).toLocaleString("uk-UA")}
             </span>
-          </div>
+          </div>)}
         </div>
 
-        {/* КНОПКИ ДІЙ */}
+        {/* КНОПКІ ДІЙ */}
         <div className="flex flex-wrap gap-2 px-4 md:px-8 py-4 md:py-6 border-t border-slate-100 sticky bottom-0 bg-white/95 backdrop-blur-md z-10">
-  <button
-    onClick={() => onMatch(v)}
-    className="flex-1 md:flex-none px-4 md:px-8 py-2.5 md:py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-black text-xs md:text-sm rounded-xl transition-all shadow-lg shadow-emerald-500/10 flex items-center justify-center gap-1"
-  >
-    <span>🎯</span>
-    <span className="hidden md:inline">КАНДИДАТИ</span>
-  </button>
+          {mode === "public" ? (
+            /* ПУБЛІЧНЫЯ КНОПКІ */
+            <button
+              onClick={() => onApply(v, "want_work")}
+              className="w-full py-4 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-sm rounded-2xl transition-all shadow-xl shadow-emerald-200 uppercase tracking-widest"
+            >
+              Відгукнутись на вакансію
+            </button>
+          ) : (
+            /* АДМІНСКІЯ КНОПКІ */
+            <>
+              <button
+                onClick={() => onMatch(v)}
+                className="flex-1 md:flex-none px-4 md:px-8 py-2.5 md:py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-black text-xs md:text-sm rounded-xl transition-all shadow-lg shadow-emerald-500/10 flex items-center justify-center gap-1"
+              >
+                <span>🎯</span>
+                <span className="hidden md:inline">КАНДИДАТИ</span>
+              </button>
 
-  <button
-    onClick={handleReparse}
-    disabled={isReparsing}
-    className="flex-1 md:flex-none px-4 md:px-6 py-2.5 md:py-3 bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold rounded-xl border border-blue-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-    title="Перезібрати дані з оригінального тексту праз AI"
-  >
-    <RefreshCw size={16} className={isReparsing ? "animate-spin" : ""} />
-    <span className="hidden md:inline">{isReparsing ? "ОБРОБКА..." : "AI ОБНОВИТИ"}</span>
-  </button>
+              <button
+                onClick={handleReparse}
+                disabled={isReparsing}
+                className="flex-1 md:flex-none px-4 md:px-6 py-2.5 md:py-3 bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold rounded-xl border border-blue-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                <RefreshCw size={16} className={isReparsing ? "animate-spin" : ""} />
+                <span className="hidden md:inline">{isReparsing ? "ОБРОБКА..." : "AI ОБНОВИТИ"}</span>
+              </button>
 
-  <button
-    onClick={() => { onEdit(v); onClose(); }}
-    className="flex-1 md:flex-none px-4 md:px-8 py-2.5 md:py-3 bg-slate-100 hover:bg-slate-300 text-slate-700 text-xs md:text-sm font-bold rounded-xl border border-slate-700 transition-all flex items-center justify-center gap-1"
-  >
-    <span>✏️</span>
-    <span className="hidden md:inline">РЕДАГУВАТИ</span>
-  </button>
-  <button
-    onClick={(e) => {
-      e.stopPropagation();
-      onDelete(v._id);
-    }}
-    className="flex-1 md:flex-none px-4 md:px-8 py-2.5 md:py-3 bg-red-500/10 hover:bg-red-500/20 text-red-500 text-xs md:text-sm font-bold rounded-xl border border-red-500/20 md:ml-auto transition-all flex items-center justify-center gap-1"
-  >
-    <span>🗑️</span>
-    <span className="hidden md:inline">ВИДАЛИТИ</span>
-  </button>
-</div>
+              <button
+                onClick={() => { onEdit(v); onClose(); }}
+                className="flex-1 md:flex-none px-4 md:px-8 py-2.5 md:py-3 bg-slate-100 hover:bg-slate-300 text-slate-700 text-xs md:text-sm font-bold rounded-xl border border-slate-700 transition-all flex items-center justify-center gap-1"
+              >
+                <span>✏️</span>
+                <span className="hidden md:inline">РЕДАГУВАТИ</span>
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(v._id);
+                }}
+                className="flex-1 md:flex-none px-4 md:px-8 py-2.5 md:py-3 bg-red-500/10 hover:bg-red-500/20 text-red-500 text-xs md:text-sm font-bold rounded-xl border border-red-500/20 md:ml-auto transition-all flex items-center justify-center gap-1"
+              >
+                <span>🗑️</span>
+                <span className="hidden md:inline">ВИДАЛИТИ</span>
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

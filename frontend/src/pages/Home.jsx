@@ -32,10 +32,21 @@ export default function Home() {
           today: all.filter((v) => new Date(v.createdAt) >= today).length,
         });
 
-        // 👈 ЗМЕНЕНА: Паказваем толькі "Featured" вакансіі (адзначаныя рэкрутэрам)
+        // 👈 АБНОЎЛЕНА: Логіка 10 дзён (v8.1)
         const featured = all.filter((v) => v.isFeaturedForCandidates && v.status === "active");
-        // Калі такіх няма, паказваем 4 апошнія актыўныя (фолбэк)
-        setVacancies(featured.length > 0 ? featured.slice(0, 4) : all.filter(v => v.status === "active").slice(0, 4));
+        
+        const tenDaysAgo = new Date();
+        tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
+
+        // Правяраем, ці ёсць хоць адна "featured" вакансія, абноўленая за апошнія 10 дзён
+        const hasFreshFeatured = featured.some(v => new Date(v.updatedAt) > tenDaysAgo);
+
+        if (featured.length > 0 && hasFreshFeatured) {
+          setVacancies(featured.slice(0, 4));
+        } else {
+          // Калі папулярных няма або яны старэйшыя за 10 дзён — паказваем 4 самыя свежыя
+          setVacancies(all.filter(v => v.status === "active").slice(0, 4));
+        }
       } catch {
         console.error("Памылка загрузкі");
       } finally {
@@ -112,12 +123,6 @@ export default function Home() {
       >
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Популярні вакансії</h2>
-          <Link
-            to="/vacancies"
-            className="text-sm text-emerald-400 hover:text-emerald-300 transition-colors"
-          >
-            Усі вакансії &#8594;
-          </Link>
         </div>
 
         {loading ? (
@@ -203,16 +208,9 @@ export default function Home() {
         )}
       </section>
 
-      {/* ФУТАР */}
-      <footer className="bg-white border-t border-slate-200 py-10 mt-20">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">
-            © 2026 Nova Work Agency · Безкоштовне посередництво
-          </p>
-        </div>
-      </footer>
       {viewVacancy && (
         <VacancyViewModal
+        mode="public" // 👈 ДАДАДЗЕНА
           vacancy={viewVacancy}
           onClose={() => setViewVacancy(null)}
           onApply={(v, type) => {

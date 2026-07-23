@@ -2,11 +2,11 @@ import { useState } from "react";
 import { NavLink, Link } from "react-router-dom";
 
 const PUBLIC_NAV_ITEMS = [
-  { to: "/", label: "Головна", exact: true },
-  { to: "/jobs", label: "Підібрати вакансію" },
-  { to: "/anketa", label: "Заявка на підбір" },
-  { to: "/cv", label: "Створити резюме" },
-  { to: "/contacts", label: "Контакти" },
+  { to: "/nova-work-portal-2024", label: "Головна", exact: true },
+  { to: "/nova-work-portal-2024/jobs", label: "Підібрати вакансію" },
+  { to: "/nova-work-portal-2024/anketa", label: "Заявка на підбір" },
+  { to: "/nova-work-portal-2024/cv", label: "Створити резюме" },
+  { to: "/nova-work-portal-2024/contacts", label: "Контакти" },
 ];
 
 export default function PublicLayout({ children }) {

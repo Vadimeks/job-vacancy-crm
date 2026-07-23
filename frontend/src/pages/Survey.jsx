@@ -113,7 +113,7 @@ useEffect(() => {
   return (
     <div className="min-h-screen overflow-x-hidden bg-slate-50 text-slate-900 font-sans flex flex-col items-center p-0 sm:p-4">
       <div className="w-full max-w-2xl bg-white sm:rounded-[2rem] sm:shadow-2xl sm:my-4 overflow-hidden flex flex-col border border-slate-100 p-6 sm:p-10 space-y-8">
-        <header className="pt-4 text-center space-y-2">
+        <header className="w-full pt-4 flex flex-col items-center text-center space-y-2">
   <h1 className="text-3xl font-black uppercase tracking-tighter text-slate-900">Анкета кандидата</h1>
   <p className="text-xs font-bold text-emerald-600 uppercase tracking-widest opacity-80">Nova Work Agency</p>
 </header>
