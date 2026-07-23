@@ -3140,3 +3140,11 @@ isInformative() / isSimpleMessage()
     - Дададзены чэкбокс згоды на аўтаматычны падбор вакансій.
     - Выпраўлены фрыз пры выбары дакументаў праз ініцыялізацыю `activeDocs: []`.
 - **App Architecture**: Маршрут `/survey` вынесены за межы `<Layout>`, каб прыбраць сайдбар CRM пры адкрыцці анкеты ў Тэлеграме.
+## [2024-07-24] - Public Portal & Featured UI
+### Added
+- `frontend/src/components/PublicLayout.jsx`: New layout for candidates with NW branding.
+- `frontend/src/pages/Vacancies.jsx`: Added "eye" button to toggle `isFeaturedForCandidates` status.
+- `frontend/src/services/api.js`: Added `toggleFeaturedVacancy` function.
+### Changed
+- `frontend/src/pages/Home.jsx`: Complete redesign with 2-column Hero, vertical stats, and "Featured" vacancies logic.
+- `frontend/src/App.jsx`: Restored original admin routes and implemented layout switching (Public vs Admin).

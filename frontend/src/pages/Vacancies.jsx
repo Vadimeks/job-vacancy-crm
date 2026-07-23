@@ -8,6 +8,7 @@ import {
   createVacancyFromTemplate,
   aiUpdateVacancy,
   toggleFavoriteVacancy,
+  toggleFeaturedVacancy,
   bulkDeleteVacancies,
   syncAgency,
   getSyncProgress, // 👈 Дададзена
@@ -423,6 +424,19 @@ export default function Vacancies() {
       console.error("Памылка пераключэння абранага:", err);
     }
   };
+const handleToggleFeatured = async (id) => {
+    try {
+      const res = await toggleFeaturedVacancy(id); // Трэба будзе дадаць у api.js
+      setVacancies((prev) =>
+        prev.map((v) =>
+          v._id === id ? { ...v, isFeaturedForCandidates: res.data.isFeaturedForCandidates } : v,
+        ),
+      );
+    } catch (err) {
+      console.error("Памылка пераключэння статусу Featured:", err);
+    }
+  };
+
 // 👈 ДADADЗЕНА: ручны запуск сканавання для выбранай агенцыі
  const handleManualSync = async () => {
     const selectedAgencies = draft.agencyName;
@@ -1181,6 +1195,20 @@ const [viewMode, setViewMode] = useState("list"); // Стан для перак�
                         >
                           {v.isFavorite ? "★" : "☆"}
                         </button>
+                        <button
+  onClick={(e) => {
+    e.stopPropagation();
+    handleToggleFeatured(v._id);
+  }}
+  className={`text-lg transition-transform active:scale-125 ml-1 ${
+    v.isFeaturedForCandidates
+      ? "text-emerald-500"
+      : "text-slate-300 hover:text-emerald-400"
+  }`}
+  title={v.isFeaturedForCandidates ? "Зняти з головної" : "Показати на головній"}
+>
+  {v.isFeaturedForCandidates ? "👁️" : "👁️‍🗨️"}
+</button>
                         <span className="text-[11px] font-bold font-mono bg-slate-100 text-slate-600 px-2 py-1 rounded-lg flex items-center gap-1 border border-slate-200">
                           {v.vacancyCode}
                           {v.isTruncated && (
