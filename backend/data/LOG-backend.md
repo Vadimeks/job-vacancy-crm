@@ -1161,3 +1161,7 @@ Google Cloud заблакаваў API доступ — усе мадэлі вя�
 ### Changed
 - `frontend/src/App.jsx`: Masked CRM routes under `/nova-management-secure-2024/`. Created public aliases `/anketa` and `/cv`.
 - `backend/services/telegramCandidateBot.service.js`: Updated WebApp buttons to point to the new `/anketa` URL.
+## [2024-07-23] - Featured Vacancies Support
+### Added
+- `backend/models/Vacancy.js`: Added `isFeaturedForCandidates` field to control visibility on the landing page.
+- `backend/routes/vacancies.js`: Added `PATCH /api/vacancies/:id/featured` route to toggle vacancy promotion status.

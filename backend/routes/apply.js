@@ -190,7 +190,7 @@ router.post("/tma", async (req, res) => {
     const genderLabel = MD.GENDERS.find(g => g.value === surveyData.gender)?.label || surveyData.gender;
     const docsLabel = (surveyData.activeDocs || []).join(", ") || "не вказано";
 
-    const isUpdate = candidate.profileHistory.length > 0;
+    
     await notifyRecruiter(
       `✅ <b>${isFirstTime ? "🆕 Нова анкета" : "🔄 Оновлена анкета"} через Mini App!</b>\n\n` +
       `👤 Ім'я: ${name}\n` +

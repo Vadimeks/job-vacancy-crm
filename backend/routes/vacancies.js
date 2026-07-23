@@ -947,6 +947,20 @@ router.patch("/:id/favorite", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+// 👈 ДАДАДЗЕНА: Пераключэнне статусу "Паказаць кандыдатам" (v8.0)
+router.patch("/:id/featured", async (req, res) => {
+  try {
+    const vacancy = await Vacancy.findById(req.params.id);
+    if (!vacancy) return res.status(404).json({ message: "Вакансія не знойдзена" });
+
+    vacancy.isFeaturedForCandidates = !vacancy.isFeaturedForCandidates;
+    await vacancy.save();
+
+    res.json({ _id: vacancy._id, isFeaturedForCandidates: vacancy.isFeaturedForCandidates });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 // Масавае выдаленне вакансій
 router.post("/bulk-delete", async (req, res) => {
   try {
