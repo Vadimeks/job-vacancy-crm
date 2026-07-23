@@ -403,7 +403,7 @@ bot.start(async (ctx) => {
         await ctx.reply(promptMsg, {
           parse_mode: "Markdown",
           ...Markup.inlineKeyboard([
-            [Markup.button.webApp("📋 Заповнити анкету (1 хв)", `${process.env.FRONTEND_URL}/survey`)],
+            [Markup.button.webApp("📋 Заповнити анкету (1 хв)", `${process.env.FRONTEND_URL}/anketa`)],
             [Markup.button.callback("⏭️ Пропустити", "skip_survey")]
           ])
         });
@@ -417,7 +417,7 @@ bot.start(async (ctx) => {
     // 👈 Уніфікаваны ўваход праз Mini App (v7.9.3)
     const welcomeMsg = "👋 Вітаємо ў Nova Work Agency! Для підбору вакансій, будь ласка, заповніть коротку анкету 👇";
     await ctx.reply(welcomeMsg, Markup.inlineKeyboard([
-      [Markup.button.webApp("📋 Заповнити анкету", `${process.env.FRONTEND_URL}/survey`)]
+      [Markup.button.webApp("📋 Заповнити анкету", `${process.env.FRONTEND_URL}/anketa`)]
     ]));
     await logChat(telegramId, "bot", welcomeMsg);
   });

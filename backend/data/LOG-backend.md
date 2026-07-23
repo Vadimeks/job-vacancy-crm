@@ -1157,3 +1157,7 @@ Google Cloud заблакаваў API доступ — усе мадэлі вя�
     - Enhanced recruiter notifications with update status.
 ### Fixed
 - `frontend/src/pages/Survey.jsx`: Fixed layout bug where the submit button stretched to full height; added "Any region" toggle and nuances checklist.
+## [2024-07-20] - Security & Routing Update
+### Changed
+- `frontend/src/App.jsx`: Masked CRM routes under `/nova-management-secure-2024/`. Created public aliases `/anketa` and `/cv`.
+- `backend/services/telegramCandidateBot.service.js`: Updated WebApp buttons to point to the new `/anketa` URL.
