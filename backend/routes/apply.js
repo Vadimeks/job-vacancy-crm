@@ -63,11 +63,24 @@ router.post("/", async (req, res) => {
   }
 });
 // 👈 НОВАЕ: Прыём анкеты з Telegram Mini App (v7.8.0)
-// 👈 НОВАЕ: Прыём анкеты з Telegram Mini App (v7.8.0)
 router.post("/tma", async (req, res) => {
   try {
     const { telegramId, name, phone, ...surveyData } = req.body;
 
+  // 👈 ДАДАДЗЕНА: Апрацоўка даты гатоўнасці (v7.9.6)
+    let readyDate = null;
+    let readyDateNotes = "";
+    if (surveyData.readyDate === "ASAP") {
+      readyDate = new Date();
+      readyDateNotes = "Якнайшвидше (ASAP)";
+    } else if (surveyData.readyDate) {
+      const [day, month] = surveyData.readyDate.split('.').map(Number);
+      if (day && month) {
+        const year = new Date().getFullYear();
+        readyDate = new Date(year, month - 1, day);
+        readyDateNotes = surveyData.readyDate;
+      }
+    }
     if (!telegramId) return res.status(400).json({ message: "Telegram ID missing" });
 
    // 1. Шукаем кандыдата: спачатку па Telegram ID, потым па тэлефоне (v7.9.3)
@@ -95,36 +108,35 @@ router.post("/tma", async (req, res) => {
       });
     }
 
-    // 2. Разумнае абнаўленне з пошукам канфліктаў (v7.9.2)
+    // 2. Разумнае абнаўленне з пошукам канфліктаў (v7.9.6)
     const conflicts = [];
     
-    // Функцыя-памочнік для параўнання
-    const checkConflict = (field, newValue, label) => {
-      const oldValue = field;
-      // Калі поле было запоўнена і новае значэнне адрозніваецца (ігнаруючы рэгістр для радкоў)
-      if (oldValue && String(oldValue).toLowerCase() !== String(newValue).toLowerCase()) {
-        conflicts.push(label);
-        return true;
+    // 👈 ЗМЕНЕНА: Шукаем канфлікты ТОЛЬКІ калі анкета ўжо запаўнялася раней
+    if (candidate.hasCompletedSurvey) {
+      const checkConflict = (oldValue, newValue, label) => {
+        if (!newValue) return false;
+        if (oldValue && String(oldValue).toLowerCase() !== String(newValue).toLowerCase()) {
+          conflicts.push(label);
+          return true;
+        }
+        return false;
+      };
+
+      checkConflict(candidate.name, name, "Ім'я");
+      checkConflict(candidate.age, surveyData.age, "Вік");
+      checkConflict(candidate.gender, surveyData.gender, "Стать");
+      checkConflict(candidate.phone, phone, "Телефон");
+      checkConflict(candidate.jobPreferences?.polishLanguageLevel, surveyData.polishLanguageLevel, "Мова");
+
+      if (conflicts.length > 0) {
+        candidate.profileHistory.push({
+          updatedAt: new Date(),
+          jobPreferences: { ...candidate.jobPreferences },
+          source: "auto"
+        });
+        candidate.needsClarification = true;
+        candidate.clarificationFields = conflicts;
       }
-      return false;
-    };
-
-    // Параўноўваем ключавыя палі
-    checkConflict(candidate.name, name, "Ім'я");
-    checkConflict(candidate.age, surveyData.age, "Вік");
-    checkConflict(candidate.gender, surveyData.gender, "Стать");
-    checkConflict(candidate.phone, phone, "Телефон");
-    checkConflict(candidate.jobPreferences?.polishLanguageLevel, surveyData.polishLanguageLevel, "Мова");
-
-    // Калі ёсць канфлікты — захоўваем стары стан у гісторыю
-    if (conflicts.length > 0) {
-      candidate.profileHistory.push({
-        updatedAt: new Date(),
-        jobPreferences: { ...candidate.jobPreferences },
-        source: "auto"
-      });
-      candidate.needsClarification = true;
-      candidate.clarificationFields = conflicts;
     }
 
     // Запісваем новыя дадзеныя
@@ -138,18 +150,20 @@ router.post("/tma", async (req, res) => {
     candidate.jobPreferences = {
       ...candidate.jobPreferences,
       voivodeship: surveyData.voivodeship || [],
+      locationFlexible: !!surveyData.locationFlexible, // 👈 ДАДАДЗЕНА
       spheres: surveyData.spheres || [],
       accommodation: { 
-        ...candidate.jobPreferences.accommodation,
-        needed: surveyData.accommodationNeeded,
-        freeOnly: surveyData.freeHousingOnly  
+        ...candidate.jobPreferences?.accommodation,
+        needed: !!surveyData.accommodationNeeded,
+        freeOnly: !!surveyData.freeHousingOnly  
       },
-      transport: { needed: surveyData.transportNeeded },
+      transport: { needed: !!surveyData.transportNeeded },
       polishLanguageLevel: surveyData.polishLanguageLevel || candidate.jobPreferences?.polishLanguageLevel,
       hoursRange: surveyData.hoursRange || [],
       readyDate: readyDate,
       readyDateNotes: readyDateNotes,
-      nuancesNotes: surveyData.nuances || "",
+      nuances: surveyData.nuances || [], // 👈 ДАДАДЗЕНА (масіў)
+      nuancesNotes: surveyData.nuancesNotes || "", // 👈 ВЫПРАЎЛЕНА (тэкст)
       notes: surveyData.notes || ""
     };
 
@@ -158,7 +172,9 @@ router.post("/tma", async (req, res) => {
       activeDocs: surveyData.activeDocs || []
     };
 
-    candidate.subscribedToVacancies = !!surveyData.autoMatchConsent; // 👈 ДАДАДЗЕНА
+    candidate.subscribedToVacancies = !!surveyData.autoMatchConsent;
+    const isFirstTime = !candidate.hasCompletedSurvey; // 👈 Вызначаем для апавяшчэння
+    candidate.hasCompletedSurvey = true; // 👈 ПАТВЕРДЖАНА: анкета запоўнена
 
     // 3. Запісваем у гісторыю, што анкета запоўнена
     candidate.history.push({
@@ -174,15 +190,16 @@ router.post("/tma", async (req, res) => {
     const genderLabel = MD.GENDERS.find(g => g.value === surveyData.gender)?.label || surveyData.gender;
     const docsLabel = (surveyData.activeDocs || []).join(", ") || "не вказано";
 
+    const isUpdate = candidate.profileHistory.length > 0;
     await notifyRecruiter(
-      `✅ <b>Анкета заповнена через Mini App!</b>\n\n` +
+      `✅ <b>${isFirstTime ? "🆕 Нова анкета" : "🔄 Оновлена анкета"} через Mini App!</b>\n\n` +
       `👤 Ім'я: ${name}\n` +
       `📞 Телефон: ${phone}\n` +
       `🎂 Вік: ${surveyData.age || "не вказано"}\n` +
       `👥 Стать: ${genderLabel}\n` +
       `🌍 Національність: ${surveyData.nationality || "не вказано"}\n` +
       `📍 Зараз у: ${surveyData.currentLocation || "не вказано"}\n` +
-      `🔍 Регіони: ${surveyData.voivodeship?.join(", ") || "не вказано"}\n` +
+      `🔍 Регіони: ${surveyData.locationFlexible ? "🌍 Будь-який регіон" : (surveyData.voivodeship?.join(", ") || "не вказано")}\n` +
       `🏭 Сфери: ${surveyData.spheres?.join(", ") || "не вказано"}\n` +
       `🏠 Житло: ${surveyData.accommodationNeeded ? "потрібне" + (surveyData.freeHousingOnly ? " (тільки безкоштовне)" : "") : "не потрібне"}\n` +
       `🚌 Довіз: ${surveyData.transportNeeded ? "потрібен" : "не потрібен"}\n` +
@@ -190,7 +207,8 @@ router.post("/tma", async (req, res) => {
       `📄 Документи: ${docsLabel}\n` +
       `📅 Готовий з: ${surveyData.readyDate || "не вказано"}\n` +
       `🔔 Згода на автопідбір: ${surveyData.autoMatchConsent ? "Так ✅" : "Ні"}\n\n` +
-      `${surveyData.nuances ? `⚠️ <b>НЮАНСИ:</b> ${surveyData.nuances}\n` : ""}` +
+      `${surveyData.nuances?.length > 0 ? `⚠️ <b>НЮАНСИ:</b> ${surveyData.nuances.join(", ")}\n` : ""}` +
+      `${surveyData.nuancesNotes ? `📝 Деталі нюансів: ${surveyData.nuancesNotes}\n` : ""}` +
       `${surveyData.notes ? `📝 Побажання: ${surveyData.notes}\n` : ""}` +
       `\n<a href="${process.env.FRONTEND_URL}/candidates/${candidate._id}">Відкрити профіль у CRM</a>`
     );

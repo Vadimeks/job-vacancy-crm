@@ -18,6 +18,7 @@ const candidateSchema = new mongoose.Schema(
     candidateCode: { type: String, unique: true, sparse: true },
     needsClarification: { type: Boolean, default: false }, // 👈 ДАДАДЗЕНА: флаг канфлікту дадзеных
     clarificationFields: [String], // 👈 ДАДАДЗЕНА: спіс палёў, якія патрабуюць удакладнення
+    hasCompletedSurvey: { type: Boolean, default: false }, // 👈 ДАДАДЗЕНА: ці запаўняў карыстальнік поўную анкету хоць раз
     isDuplicate: { type: Boolean, default: false },
     linkedDuplicateId: { type: mongoose.Schema.Types.ObjectId, ref: "Candidate", default: null },
     duplicateFields: [String], 

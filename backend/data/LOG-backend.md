@@ -1147,3 +1147,13 @@ Google Cloud заблакаваў API доступ — усе мадэлі вя�
 - **Expanded Reporting**: Апавяшчэнне рэкрутэру ў Telegram пераведзена на поўны фармат "Пытанне — Адказ" па ўсіх 15+ пунктах анкеты, уключаючы блок "Нюансы".
 - **Conditional Matching**: Рэалізаваны аўтаматычны запуск матчынгу вакансій пасля запаўнення анкеты, але толькі пры наяўнасці згоды (`autoMatchConsent`) ад кандыдата.
 - **Data Integrity**: Выпраўлена страта дадзеных пры абнаўленні профілю (выкарыстанне спрэд-аператара для захавання палёў `forCouples`, `withChildren` і інш.).
+## [2024-07-20] - TMA Survey & Backend Sync
+### Added
+- `backend/models/Candidate.js`: Added `hasCompletedSurvey` flag to distinguish between first-time entry and profile updates.
+- `backend/routes/apply.js`: Refactored `/tma` route with:
+    - Smart conflict detection (only for returning users).
+    - Support for `locationFlexible` (Any region) and `nuances` (checklist + notes).
+    - Date parsing for "ASAP" and "DD.MM" formats.
+    - Enhanced recruiter notifications with update status.
+### Fixed
+- `frontend/src/pages/Survey.jsx`: Fixed layout bug where the submit button stretched to full height; added "Any region" toggle and nuances checklist.
