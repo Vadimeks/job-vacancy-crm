@@ -1165,3 +1165,9 @@ Google Cloud заблакаваў API доступ — усе мадэлі вя�
 ### Added
 - `backend/models/Vacancy.js`: Added `isFeaturedForCandidates` field to control visibility on the landing page.
 - `backend/routes/vacancies.js`: Added `PATCH /api/vacancies/:id/featured` route to toggle vacancy promotion status.
+## [2024-07-24] - Backend: Featured Vacancies & Bot Updates
+### Added
+- `backend/models/Vacancy.js`: Added `isFeaturedForCandidates` field to manage landing page content.
+- `backend/routes/vacancies.js`: Added `PATCH /api/vacancies/:id/featured` route for recruiters.
+### Changed
+- `backend/services/telegramCandidateBot.service.js`: Updated WebApp links to point to the new public URL (`/nova-work-portal-2024/anketa`).
