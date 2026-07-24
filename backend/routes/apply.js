@@ -81,7 +81,8 @@ router.post("/tma", async (req, res) => {
         readyDateNotes = surveyData.readyDate;
       }
     }
-    if (!telegramId) return res.status(400).json({ message: "Telegram ID missing" });
+    // 👈 ВЫПРАЎЛЕНА: дазваляем адпраўку без telegramId (для Viber/Browser)
+if (!telegramId && !phone) return res.status(400).json({ message: "Telegram ID or Phone missing" });
 
    // 1. Шукаем кандыдата: спачатку па Telegram ID, потым па тэлефоне (v7.9.3)
     let candidate = null;
