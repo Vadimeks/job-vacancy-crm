@@ -3167,3 +3167,13 @@ isInformative() / isSimpleMessage()
     - Improved UI with a clearer header and descriptive instructions for the "Nuances" section.
 - `frontend/src/pages/Survey.jsx`: Added "Back to Home" link for better navigation.
 - `frontend/src/App.jsx`: Fixed typos and improved styling of placeholder pages.
+## [2024-07-24] - Public Job Portal Completion
+### Added
+- `frontend/src/components/vacancies/PublicVacancyFilters.jsx`: Created a simplified filter component for candidates (Category, Region, Salary, Housing, Gender).
+- `frontend/src/pages/Jobs.jsx`: Implemented a public job search page with:
+    - Initial limit of 4 vacancies.
+    - Search-triggered limit of 10 vacancies.
+    - "Contact Recruiter" CTA when no results are found or limit is reached.
+    - Integration with `mode="public"` for vacancy details.
+### Changed
+- `frontend/src/App.jsx`: Connected the real `Jobs` page instead of the placeholder.
