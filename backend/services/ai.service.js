@@ -588,7 +588,7 @@ TASK: Format job data into a beautiful Telegram post in UKRAINIAN.
 - The post must be as compact as possible, looking like a natural text post, not a form.
 
 !!! CRITICAL RULES !!!
-- NEVER include internalNotes, parsingResultType, Agency Name, or Brand name anywhere in the post text.
+- NEVER include internalNotes, parsingResultType, Agency Name, or Brand name anywhere in the post text (including title and description, and additional notes).
 - NEVER include genderDescription (it is for internal use only).
 - If a field is null, empty, or "Не вимагається" (for experience), skip the entire line.
 - Use Ukrainian for all labels.
@@ -1187,7 +1187,11 @@ PRIVACY & FORMATTING:
 - NEVER put recruiter-only info in public fields (salary, description, additionalNotes).
 - TECHNICAL INFO: Any mention of "KRAZ", "nr certyfikatu", or "Oferta pracy tymczasowej" MUST go ONLY to forRecruiter.internalNotes. NEVER put this in public fields.
 • POSITION ACCURACY: If the PRIMARY SOURCE mentions a specific role (e.g., "Operator wózka", "Welder", "CNC"), do not generalize it to "Warehouse worker" or "Production worker" even if the link content uses general terms.
-- ARRIVAL & COORDINATION: Any information about meeting points (stations, platforms), driver schedules (e.g., "driver meets from 08:00 to 21:00"), coordinator phone numbers, or instructions for temporary self-accommodation MUST be moved to forRecruiter.internalNotes. DO NOT put this in public description or additionalNotes.
+- ARRIVAL & COORDINATION: Any information about meeting points, driver schedules, coordinator phone numbers, or instructions for temporary self-accommodation MUST be moved to forRecruiter.internalNotes.
+- RECRUITMENT STAGES: Any info about "Етапи рекрутації", document registration processes, or interview details MUST go to forRecruiter.internalNotes.
+- EXTERNAL LINKS: Any YouTube links, video links, or "smartCard-inline" references MUST go to forRecruiter.internalNotes.
+- SPECIFIC COUNTS: Mentions like "5 жінок та 9 чоловіків" or "last 2 spots" MUST go to forRecruiter.internalNotes.
+- CLIENT INTEREST: Phrases like "Клієнт зацікавлений..." or "Client needs..." MUST go to forRecruiter.internalNotes.
 
 CATEGORY:
 One of:

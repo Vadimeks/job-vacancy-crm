@@ -1171,3 +1171,6 @@ Google Cloud заблакаваў API доступ — усе мадэлі вя�
 - `backend/routes/vacancies.js`: Added `PATCH /api/vacancies/:id/featured` route for recruiters.
 ### Changed
 - `backend/services/telegramCandidateBot.service.js`: Updated WebApp links to point to the new public URL (`/nova-work-portal-2024/anketa`).
+### Fixed
+- `backend/routes/apply.js`: Allowed applications without `telegramId` for non-Telegram users.
+- `backend/services/ai.service.js`: Hardened privacy rules to strictly exclude brand names from all public fields (title, description, additional notes) and redirect recruitment-only info to `internalNotes`.
