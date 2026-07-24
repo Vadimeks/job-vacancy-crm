@@ -1192,6 +1192,8 @@ PRIVACY & FORMATTING:
 - EXTERNAL LINKS: Any YouTube links, video links, or "smartCard-inline" references MUST go to forRecruiter.internalNotes.
 - SPECIFIC COUNTS: Mentions like "5 жінок та 9 чоловіків" or "last 2 spots" MUST go to forRecruiter.internalNotes.
 - CLIENT INTEREST: Phrases like "Клієнт зацікавлений..." or "Client needs..." MUST go to forRecruiter.internalNotes.
+- NON-VACANCY DETECTION: If the text is NOT a job offer but a recruiter guide, payment table (price list), document list, "how to apply" instructions, or contact list -> set parsingResultType: "INFO" and status: "archived".
+- If the title (vacancydescription) would be something like "Оплата за кандидата", "Умови співпраці", or "Анкета подачі" -> it is definitely "INFO".
 
 CATEGORY:
 One of:

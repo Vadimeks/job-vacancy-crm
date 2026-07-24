@@ -272,9 +272,9 @@ async function processVacancyMessage(
     }
     const modelUsed = vacancyDataList[0]?.modelUsed || ""; 
     const isLite = modelUsed.toLowerCase().includes("lite");
-    // Калі статус прымусова перададзены (напр. closed з Airtable), выкарыстоўваем яго
-    // Інакш: калі мадэль Lite — у чаргу, калі Full — актыўная.
-    const finalStatus = forcedStatus || (isLite ? "pending_ai" : "active");
+    // 👈 ВЫПРАЎЛЕНА: Калі AI вызначыў, што гэта не вакансія, а інфа — адпраўляем у архіў (v8.2)
+const isMetaInfo = vacancyDataList.some(v => v.parsingResultType === "INFO");
+const finalStatus = isMetaInfo ? "archived" : (forcedStatus || (isLite ? "pending_ai" : "active"));
     // 🌍 Аўтаматычнае атрыманне каардынат для кожнага фрагмента
     for (const vData of vacancyDataList) {
       try {

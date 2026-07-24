@@ -1174,3 +1174,7 @@ Google Cloud заблакаваў API доступ — усе мадэлі вя�
 ### Fixed
 - `backend/routes/apply.js`: Allowed applications without `telegramId` for non-Telegram users.
 - `backend/services/ai.service.js`: Hardened privacy rules to strictly exclude brand names from all public fields (title, description, additional notes) and redirect recruitment-only info to `internalNotes`.
+### Fixed
+- `frontend/src/pages/Survey.jsx`: Fixed header alignment issue by switching the tag from `<header>` to `<section>`.
+### Changed
+- `backend/routes/vacancies.js`: Implemented auto-archiving for `INFO` type messages (recruiter guides, price lists) to keep the active vacancy list clean.
