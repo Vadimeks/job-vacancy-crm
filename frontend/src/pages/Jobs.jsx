@@ -124,7 +124,7 @@ const [locations, setLocations] = useState([]);
                 <div className="pt-10 text-center">
                   <p className="text-slate-400 text-sm mb-4">Знайдено ще {filtered.length - limit} вакансій</p>
                   <button 
-                    onClick={() => window.location.href = "https://t.me/InnaNovaWork"}
+  onClick={() => window.open("https://t.me/InnaNovaWork", "_blank", "noopener,noreferrer")}
                     className="px-10 py-4 bg-emerald-500 text-white font-black rounded-2xl shadow-xl shadow-emerald-100 uppercase tracking-widest text-xs"
                   >
                     Отримати повний список у рекрутера
