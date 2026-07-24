@@ -158,9 +158,6 @@ export default function Home() {
 
                 <div className="flex flex-wrap gap-3 text-xs text-slate-500 mb-4">
                   <span>📍 {v.location}</span>
-                  {v.agencyName && v.agencyName !== "Manual" && (
-                    <span>🏢 {v.agencyName}</span>
-                  )}
                   {v.salary?.baseNetto && <span>💰 {v.salary.baseNetto}</span>}
                   {v.requirements?.gender && (
                     <span>

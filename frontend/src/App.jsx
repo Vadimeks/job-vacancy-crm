@@ -18,12 +18,12 @@ export default function App() {
         <Route path="/templates" element={<Layout><Templates /></Layout>} />
         <Route path="/inbox" element={<Layout><Inbox /></Layout>} />
 
-        {/* 🌍 ПУБЛІЧНЫ ПАРТАЛ (Для кандыдатаў - СКЛАДАНЫЯ АДРАСЫ) */}
-        <Route path="/nova-work-portal-2024" element={<PublicLayout><Home /></PublicLayout>} />
-        <Route path="/nova-work-portal-2024/anketa" element={<Survey />} />
-        <Route path="/nova-work-portal-2024/jobs" element={<PublicLayout><div>Старінка підбору вакансій...</div></PublicLayout>} />
-        <Route path="/nova-work-portal-2024/cv" element={<PublicLayout><div>Генератор резюме...</div></PublicLayout>} />
-        <Route path="/nova-work-portal-2024/contacts" element={<PublicLayout><div className="p-20 text-center">Наші контакти: +48 780 770 745</div></PublicLayout>} />
+        {/* 🌍 ПУБЛІЧНЫ ПАРТАЛ */}
+<Route path="/nova-work-portal-2024" element={<PublicLayout><Home /></PublicLayout>} />
+<Route path="/nova-work-portal-2024/anketa" element={<Survey />} />
+<Route path="/nova-work-portal-2024/jobs" element={<PublicLayout><div className="max-w-7xl mx-auto p-20 text-center font-bold text-slate-400">Сторінка підбору вакансій у розробці...</div></PublicLayout>} />
+<Route path="/nova-work-portal-2024/cv" element={<PublicLayout><div className="max-w-7xl mx-auto p-20 text-center font-bold text-slate-400">Генератор резюме у розробці...</div></PublicLayout>} />
+<Route path="/nova-work-portal-2024/contacts" element={<PublicLayout><div className="max-w-7xl mx-auto p-20 text-center font-bold text-slate-400">Наші контакти: <br/> 📞 +48 780 770 745 <br/> ✈️ @InnaNovaWork</div></PublicLayout>} />
 
         {/* Рэдырэкт з кораня на партал кандыдата, каб не было пустога экрана */}
         <Route path="/" element={<PublicLayout><Home /></PublicLayout>} />

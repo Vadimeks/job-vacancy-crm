@@ -3161,3 +3161,9 @@ isInformative() / isSimpleMessage()
 - `frontend/src/pages/Vacancies.jsx`: Added "eye" button to toggle vacancy promotion to the landing page.
 - `frontend/src/components/vacancies/VacancyViewModal.jsx`: Implemented `mode="public"` to hide sensitive data (brands, agencies, internal notes) and simplify actions for candidates.
 - `frontend/src/pages/Survey.jsx`: Fixed header alignment and centering.
+### Changed
+- `frontend/src/components/vacancies/ApplyModal.jsx`: 
+    - Fixed 400 error by ensuring `readyDate` is sent as `null` instead of an empty string.
+    - Improved UI with a clearer header and descriptive instructions for the "Nuances" section.
+- `frontend/src/pages/Survey.jsx`: Added "Back to Home" link for better navigation.
+- `frontend/src/App.jsx`: Fixed typos and improved styling of placeholder pages.

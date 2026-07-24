@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import * as MD from "../constants/masterData";
 import { createTmaApply } from "../services/api";
-
+import { Link } from "react-router-dom";
 const tg = window.Telegram.WebApp;
 const isTelegram = !!tg.initData; // 👈 Вызначаем, ці гэта Telegram
 export default function Survey() {
@@ -112,6 +112,12 @@ useEffect(() => {
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-slate-50 text-slate-900 font-sans flex flex-col items-center p-0 sm:p-4">
+      {/* 👈 ДАДАДЗЕНА: Кнопка На галоўную */}
+      <div className="w-full max-w-2xl px-4 pt-4">
+        <Link to="/nova-work-portal-2024" className="text-[10px] font-black uppercase text-slate-400 hover:text-emerald-600 transition-colors flex items-center gap-1">
+          ← На головну
+        </Link>
+      </div>
       <div className="w-full max-w-2xl bg-white sm:rounded-[2rem] sm:shadow-2xl sm:my-4 overflow-hidden flex flex-col border border-slate-100 p-6 sm:p-10 space-y-8">
         <header className="w-full pt-4 flex flex-col items-center text-center space-y-2">
   <h1 className="text-3xl font-black uppercase tracking-tighter text-slate-900">Анкета кандидата</h1>

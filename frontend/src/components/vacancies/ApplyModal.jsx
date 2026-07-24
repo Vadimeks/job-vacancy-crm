@@ -87,15 +87,24 @@ export default function ApplyModal({ vacancy, applyType, onClose }) {
 
     setSending(true);
     try {
+      // 👈 ФІКС 400: Ператвараем пустую дату ў null, каб MongoDB не лаялася
+      const submissionData = { 
+        ...form,
+        jobPreferences: {
+          ...form.jobPreferences,
+          readyDate: form.jobPreferences.readyDate || null
+        }
+      };
+
       await submitApplication({
         vacancyId: vacancy._id,
         applyType,
-        ...form,
+        ...submissionData,
         age: form.age ? Number(form.age) : undefined,
       });
       setSent(true);
-    } catch {
-      alert("Помилка відправки заявки");
+    } catch (err) {
+      alert("Помилка відправки заявки: " + (err.response?.data?.message || err.message));
     } finally {
       setSending(false);
     }
@@ -112,10 +121,12 @@ export default function ApplyModal({ vacancy, applyType, onClose }) {
           <div>
             <h2 className="text-xl font-black text-slate-900">
               {applyType === "want_work"
-                ? "🟢 Хочу тут працювати"
-                : "💬 Дізнатися деталі"}
+                ? "🟢 Подача заявки на вакансію"
+                : "💬 Запит інформації"}
             </h2>
-            <p className="text-xs text-slate-500 mt-0.5">{vacancy.title}</p>
+            <p className="text-[11px] text-slate-500 mt-2 leading-relaxed">
+              Будь ласка, заповніть цю коротку анкету. Це допоможе рекрутеру швидше перевірити вашу кандидатуру та запропонувати найкращі варіанти.
+            </p>
           </div>
           <button
             onClick={onClose}
@@ -458,8 +469,11 @@ export default function ApplyModal({ vacancy, applyType, onClose }) {
                   ))}
                 </div>
               </div>
-              <Divider label="🌡 Нюанси (Чек-лист)" />
+              <Divider label="🌡 Важливі особливості" />
               <div className="space-y-4">
+                <p className="text-[10px] text-slate-400 ml-1">
+                  Оберіть пункти, які нам важливо врахувати при підборі роботи для вас (наприклад, якщо ви маєте обмеження по здоров'ю або шукаєте роботу без нічних змін):
+                </p>
                 <div className="flex flex-wrap gap-2">
                   {MD.CHECKLIST_ITEMS.map((n) => (
                     <button
