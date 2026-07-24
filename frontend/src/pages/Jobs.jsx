@@ -16,9 +16,17 @@ export default function Jobs() {
   const [applyVacancy, setApplyVacancy] = useState(null);
   const [applyType, setApplyType] = useState(null);
 
+const [locations, setLocations] = useState([]);
+
   useEffect(() => {
     getVacancies({ status: "active" }).then(res => {
       setVacancies(res.data);
+      // Збіраем унікальныя гарады для фільтра
+      const locs = new Set();
+      res.data.forEach(v => {
+        if (v.location) v.location.split(',').forEach(l => locs.add(l.trim()));
+      });
+      setLocations(Array.from(locs).sort());
       setLoading(false);
     });
   }, []);
@@ -26,11 +34,21 @@ export default function Jobs() {
   // Логіка фільтрацыі (спрошчаная версія)
   const filtered = useMemo(() => {
     return vacancies.filter(v => {
-      if (appliedFilters.category?.length > 0 && !appliedFilters.category.includes(v.category)) return false;
-      if (appliedFilters.gender?.length > 0 && !appliedFilters.gender.some(g => v.requirements?.gender?.includes(g))) return false;
-      if (appliedFilters.minSalary && v.salary?.baseNetto < Number(appliedFilters.minSalary)) return false;
-      if (appliedFilters.search) {
-        const s = appliedFilters.search.toLowerCase();
+      const f = appliedFilters;
+      if (f.category?.length > 0 && !f.category.includes(v.category)) return false;
+      if (f.voivodeship?.length > 0 && !f.voivodeship.some(fv => v.voivodeship?.includes(fv))) return false;
+      if (f.location?.length > 0 && !f.location.some(fl => v.location?.includes(fl))) return false;
+      if (f.gender?.length > 0 && !f.gender.some(fg => v.requirements?.gender?.includes(fg))) return false;
+      if (f.minSalary && (v.salary?.baseNetto || 0) < Number(f.minSalary)) return false;
+      if (f.maxSalary && (v.salary?.baseNetto || 999999) > Number(f.maxSalary)) return false;
+      if (f.onlyDayShifts && !v.schedule?.onlyDayShifts) return false;
+      if (f.freeHousing && !v.accommodation?.isFree) return false;
+      if (f.language?.length > 0 && !f.language.includes(v.requirements?.polishLanguageLevel)) return false;
+      if (f.nationality?.length > 0 && !f.nationality.some(fn => v.requirements?.nationalities?.includes(fn))) return false;
+      if (f.docs?.length > 0 && !f.docs.some(fd => v.requirements?.standardDocs?.includes(fd))) return false;
+      
+      if (f.search) {
+        const s = f.search.toLowerCase();
         return v.vacancydescription?.toLowerCase().includes(s) || v.location?.toLowerCase().includes(s);
       }
       return true;
@@ -54,6 +72,7 @@ export default function Jobs() {
               filters={filters} 
               setFilters={setFilters} 
               voivodeships={MD.VOIVODESHIPS}
+              locations={locations}
             />
             <button
               onClick={handleSearch}

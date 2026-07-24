@@ -73,9 +73,10 @@ export default function Home() {
               </div>
 
               <h1 className="text-5xl md:text-7xl font-black text-slate-900 leading-[0.9] tracking-tighter">
-                РОБОТА В ПОЛЬЩІ <br />
-                <span className="text-emerald-500">ДЛЯ УКРАЇНЦІВ</span>
-              </h1>
+  РОБОТА В ПОЛЬЩІ <br />
+  <span className="text-emerald-500 uppercase">ДЛЯ УКРАЇНЦІВ</span>
+  <span className="block text-2xl md:text-3xl text-slate-400 mt-2 font-bold tracking-tight">і не тільки</span>
+</h1>
 
               <p className="text-lg text-slate-500 font-medium max-w-xl mx-auto lg:mx-0">
                 Актуальні вакансії від перевірених агенцій. Безкоштовне посередництво, офіційне оформлення, житло та транспорт.
@@ -83,7 +84,7 @@ export default function Home() {
 
               <div className="pt-4">
                 <Link
-                  to="/jobs"
+                  to="/nova-work-portal-2024/jobs"
                   className="inline-block px-10 py-5 bg-emerald-500 hover:bg-emerald-600 text-white font-black rounded-2xl shadow-xl shadow-emerald-200 transition-all hover:-translate-y-1 uppercase tracking-widest text-sm"
                 >
                   Підібрати вакансію →

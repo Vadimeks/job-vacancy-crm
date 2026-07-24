@@ -3177,3 +3177,14 @@ isInformative() / isSimpleMessage()
     - Integration with `mode="public"` for vacancy details.
 ### Changed
 - `frontend/src/App.jsx`: Connected the real `Jobs` page instead of the placeholder.
+## [2024-07-25] - Public Portal Refinement
+### Changed
+- `frontend/src/pages/Home.jsx`: 
+    - Fixed Hero button route to point to the correct public jobs path.
+    - Updated H1 title with "...і не тільки" sub-headline for better inclusivity.
+- `frontend/src/components/vacancies/PublicVacancyFilters.jsx`: 
+    - Implemented a full set of candidate-facing filters (Category, Region, City, Salary, Contract, Hours, Accommodation, Transport, Gender, Language, Nationality, Docs, Nuances).
+    - Added quick-toggle buttons for "Only Day Shifts" and "Free Housing".
+- `frontend/src/pages/Jobs.jsx`: 
+    - Enhanced filtering logic to support all new criteria.
+    - Added dynamic location extraction from the vacancy list to populate the "City" filter.
