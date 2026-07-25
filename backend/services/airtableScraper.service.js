@@ -143,14 +143,28 @@ if (rootData?.data?.application) console.log(`🔍 [Scraper Debug] data.applicat
         }
 
         if (val !== undefined) {
-          if (val && typeof val === 'object') {
-            if (Array.isArray(val)) {
-              fields[col.name] = val.map(v => v.displayValue || v.name || v).join(", ");
-            } else {
-              fields[col.name] = val.displayValue || val.name || JSON.stringify(val);
+          // 👈 ВЫПРАЎЛЕНА: Рэзалвім ID выбараў (sel...) і чысцім [object Object] (v8.3)
+          const choices = col.options?.choices || col.typeOptions?.choices || [];
+          
+          const resolveValue = (v) => {
+            if (v === null || v === undefined) return "";
+            // Калі гэта ID выбару (Airtable Select)
+            if (typeof v === 'string' && v.startsWith('sel')) {
+              const choice = choices.find(c => c.id === v);
+              return choice ? choice.name : v;
             }
+            // Калі гэта аб'ект (Attachments, Links)
+            if (typeof v === 'object') {
+              return v.displayValue || v.name || v.url || "";
+            }
+            return v;
+          };
+
+          if (Array.isArray(val)) {
+            fields[col.name] = val.map(resolveValue).filter(Boolean).join(", ");
           } else {
-            fields[col.name] = val;
+            const resolved = resolveValue(val);
+            fields[col.name] = (resolved === "[object Object]") ? "" : resolved;
           }
         }
       });

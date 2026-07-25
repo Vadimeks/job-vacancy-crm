@@ -1178,3 +1178,14 @@ Google Cloud заблакаваў API доступ — усе мадэлі вя�
 - `frontend/src/pages/Survey.jsx`: Fixed header alignment issue by switching the tag from `<header>` to `<section>`.
 ### Changed
 - `backend/routes/vacancies.js`: Implemented auto-archiving for `INFO` type messages (recruiter guides, price lists) to keep the active vacancy list clean.
+## [2024-07-25] - Backend: Data Quality & Strict Filtering
+### Added
+- `backend/routes/vacancies.js`: Added `POST /api/vacancies/bulk-featured` for mass management of promoted vacancies.
+### Fixed
+- `backend/services/airtableScraper.service.js`: 
+    - Implemented resolving of Airtable Select IDs (`sel...`) into human-readable names.
+    - Fixed `[object Object]` serialization for attachments and links.
+- `backend/services/airtable.service.js`: 
+    - Fixed Progres archive filtering by checking the "Для кого:" field.
+    - Implemented strict `FULL_VACANCY` filtering: now `UPDATE` and `INFO` categories are sent to Inbox instead of creating/updating vacancies.
+- `backend/services/trello.service.js`: Unified logic with Airtable to only process `FULL_VACANCY` as active records.

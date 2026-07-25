@@ -224,15 +224,17 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
           const analysis = await analyzeAndCompareWithGemini(finalTrelloText);
           // 🔍 ДЫЯГНОСТЫКА (часова, v8.3): правяраем гіпотэзу пра UPDATE, які пралазіць міма фільтра
           console.log(`🔍 [Category Debug] ${source.agencyName} | Card: "${card.name}" | List: "${list.name}" | AI Category: ${analysis?.category || "NULL"}`);
-// 🛡️ ФІЛЬТР ІНФА/ШУМУ (v6.9.1)
-          if (analysis.category === "RECRUITER_INFO" || analysis.category === "NOISE") {
-            console.log(`📥 [Trello Info] Знойдзена інфармацыя для рэкрутэра. Адпраўка ў Inbox.`);
+// 👈 ВЫПРАЎЛЕНА: Вакансія ствараецца ТОЛЬКІ пры FULL_VACANCY. Усё астатняе (UPDATE, INFO) — у Inbox (v8.3)
+          if (analysis.category !== "FULL_VACANCY") {
+            const msgCategory = analysis.category === "UPDATE" ? "update" : "info";
+            console.log(`📥 [Trello] Катэгорыя ${analysis.category} -> Адпраўка ў Inbox як ${msgCategory}`);
+            
             await new UnprocessedMessage({
               sender: source.agencyName,
               agencyName: source.agencyName,
               text: `[Trello: ${list.name}]\n${rawTrelloDump}`,
               source: "trello",
-              category: "info",
+              category: msgCategory,
               processed: false,
               aiAnalyzed: true
             }).save();

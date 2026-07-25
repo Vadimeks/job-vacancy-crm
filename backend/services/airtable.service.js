@@ -121,8 +121,10 @@ async function syncSingleSource(source) {
       if (columnName.includes("uncategorized") || columnName.includes("phillipinas") || columnName.includes("indian")) {
         shouldIgnore = true;
       }
-    } else if (source.agencyName === "PROGRES") {
-      if (columnName.includes("uncategorized") || columnName.includes("архів") || columnName.includes("archive")) {
+   } else if (source.agencyName === "PROGRES") {
+      // 👈 ВЫПРАЎЛЕНА: Progres выкарыстоўвае поле "Для кого:", а не назву калонкі (v8.3)
+      const progresStatus = (fields["Для кого:"] || "").toLowerCase();
+      if (columnName.includes("uncategorized") || progresStatus.includes("архів") || progresStatus.includes("archive")) {
         shouldIgnore = true;
       }
     }
@@ -219,14 +221,17 @@ async function syncSingleSource(source) {
     const analysis = await analyzeAndCompareWithGemini(rawAirtableDump, [], []);
     // 🔍 ДЫЯГНОСТЫКА (часова, v8.3): правяраем гіпотэзу пра UPDATE, які пралазіць міма фільтра
     console.log(`🔍 [Category Debug] ${source.agencyName} | ID: ${airtableId} | Column: "${columnName}" | AI Category: ${analysis?.category || "NULL"} | Title: "${rawAirtableDump.substring(0, 60).replace(/\n/g, " ")}..."`);
-    // 🛡️ ФІЛЬТР ІНФА/ШУМУ (v6.9.1)
-    if (analysis.category === "RECRUITER_INFO" || analysis.category === "NOISE") {
+    // 👈 ВЫПРАЎЛЕНА: Вакансія ствараецца ТОЛЬКІ пры FULL_VACANCY. Усё астатняе (UPDATE, INFO) — у Inbox (v8.3)
+    if (analysis.category !== "FULL_VACANCY") {
+      const msgCategory = analysis.category === "UPDATE" ? "update" : "info";
+      console.log(`📥 [Airtable] Катэгорыя ${analysis.category} -> Адпраўка ў Inbox як ${msgCategory}`);
+      
       await new UnprocessedMessage({
         sender: source.agencyName,
         agencyName: source.agencyName,
-        text: `[Airtable: ${columnName}]\n${rawAirtableDump}`,
+        text: `[Airtable: ${columnName || "API"}]\n${rawAirtableDump}`,
         source: "airtable",
-        category: "info",
+        category: msgCategory,
         processed: false,
         aiAnalyzed: true
       }).save();
