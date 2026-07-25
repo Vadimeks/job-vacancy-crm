@@ -150,8 +150,15 @@ if (rootData?.data?.application) console.log(`🔍 [Scraper Debug] data.applicat
             if (v === null || v === undefined) return "";
             // Калі гэта ID выбару (Airtable Select)
             if (typeof v === 'string' && v.startsWith('sel')) {
-              const choice = choices.find(c => c.id === v);
-              return choice ? choice.name : v;
+              // 👈 ВЫПРАЎЛЕНА: Падтрымка розных структур choices (v8.4)
+            let choice = null;
+            if (Array.isArray(choices)) {
+              choice = choices.find(c => c.id === v);
+            } else if (choices && typeof choices === 'object') {
+              choice = choices[v];
+            }
+            return choice ? (choice.name || choice.label || v) : v;
+              
             }
             // Калі гэта аб'ект (Attachments, Links)
             if (typeof v === 'object') {

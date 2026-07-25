@@ -86,7 +86,11 @@ async function syncSingleSource(source) {
     const airtableId = row.id;
     const fields = row.fields;
     const columnName = (row.columnName || row.fields["Название колонки"] || "").toLowerCase();
-    const fieldsText = Object.values(fields).join(" ").toLowerCase();
+    // 👈 ВЫПРАЎЛЕНА: Бяспечны збор тэксту без [object Object] (v8.4)
+    const fieldsText = Object.values(fields)
+      .map(v => typeof v === 'object' ? JSON.stringify(v) : String(v))
+      .join(" ")
+      .toLowerCase();
     
     // 🔍 ДЫЯГНОСТЫКА: Глядзім на структуру першага запісу
     if (i === startIndex) {
