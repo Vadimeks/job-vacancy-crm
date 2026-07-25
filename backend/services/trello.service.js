@@ -222,6 +222,8 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
 
           // --- ЭТАП 5-7: AI АПРАЦОЎКА ---
           const analysis = await analyzeAndCompareWithGemini(finalTrelloText);
+          // 🔍 ДЫЯГНОСТЫКА (часова, v8.3): правяраем гіпотэзу пра UPDATE, які пралазіць міма фільтра
+          console.log(`🔍 [Category Debug] ${source.agencyName} | Card: "${card.name}" | List: "${list.name}" | AI Category: ${analysis?.category || "NULL"}`);
 // 🛡️ ФІЛЬТР ІНФА/ШУМУ (v6.9.1)
           if (analysis.category === "RECRUITER_INFO" || analysis.category === "NOISE") {
             console.log(`📥 [Trello Info] Знойдзена інфармацыя для рэкрутэра. Адпраўка ў Inbox.`);

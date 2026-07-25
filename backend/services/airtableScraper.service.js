@@ -120,6 +120,16 @@ if (rootData?.data?.application) console.log(`🔍 [Scraper Debug] data.applicat
       }
     }
 
+    // 🔍 ДЫЯГНОСТЫКА (часова, v8.3): шукаем структуру choices для select-палёў
+    const sampleSelectColumn = (columns || []).find(
+      c => c.typeOptions?.choices || c.options?.choices
+    );
+    if (sampleSelectColumn) {
+      console.log(`🔍 [Scraper Debug] Sample select column structure:`, JSON.stringify(sampleSelectColumn, null, 2));
+    } else {
+      console.log(`🔍 [Scraper Debug] Choices NOT found in typeOptions.choices / options.choices. Full first column:`, JSON.stringify(columns?.[0], null, 2));
+    }
+
     const viewName = "актуальное";
 
     return rows.map(row => {
