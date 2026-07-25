@@ -9,6 +9,7 @@ import {
   aiUpdateVacancy,
   toggleFavoriteVacancy,
   toggleFeaturedVacancy,
+   bulkToggleFeatured,
   bulkDeleteVacancies,
   syncAgency,
   getSyncProgress, // 👈 Дададзена
@@ -317,6 +318,23 @@ export default function Vacancies() {
       alert("Помилка масового видалення");
     }
   };
+const handleBulkFeatured = async (status) => {
+    const label = status ? "додати у популярні" : "прибрати з популярних";
+    if (!window.confirm(`Ви впевнені, што хочаце ${label} обрані вакансії (${selectedIds.length} шт.)?`)) return;
+    
+    try {
+      await bulkToggleFeatured(selectedIds, status);
+      setVacancies(prev => prev.map(v => 
+        selectedIds.includes(v._id) ? { ...v, isFeaturedForCandidates: status } : v
+      ));
+      setSelectedIds([]);
+      alert("✅ Статус оновлено");
+    } catch (err) {
+      alert("Помилка оновлення");
+    }
+  };
+
+
   // -----------------------
 
   const [vacancies, setVacancies] = useState([]);
@@ -1133,6 +1151,18 @@ const [viewMode, setViewMode] = useState("list"); // Стан для перак�
     {selectedIds.length}
   </span>
 </button>
+<button
+      onClick={() => handleBulkFeatured(true)}
+      className="flex items-center gap-2 px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-black rounded-lg transition-all shadow-md shadow-amber-100"
+    >
+      ⭐ У ПОПУЛЯРНІ
+    </button>
+    <button
+      onClick={() => handleBulkFeatured(false)}
+      className="flex items-center gap-2 px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-600 text-xs font-black rounded-lg transition-all"
+    >
+      ✕ ПРИБРАТИ
+    </button>
     <button
       onClick={handleBulkDelete}
       className="flex items-center gap-2 px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-500 text-xs font-black rounded-lg border border-red-500/20 transition-all"
@@ -1149,10 +1179,9 @@ const [viewMode, setViewMode] = useState("list"); // Стан для перак�
             {filtered.map((v) => {
             // Разумная лакацыя: дадаем краіну толькі калі яе яшчэ няма ў назве горада
             const cityOnly = (v.location || "").split("(")[0].trim();
-            const locationDisplay =
-              v.country && v.country !== "Polska"
-                ? `${cityOnly} (${v.country})`
-                : cityOnly;
+            // 👈 ВЫПРАЎЛЕНА: Калі "па ўсёй Польшчы", не паказваем спіс ваяводстваў (v8.3)
+const isAllPoland = v.location?.toLowerCase().includes("po całej polsce") || v.location?.toLowerCase().includes("po całej polsce");
+const locationDisplay = isAllPoland ? "Уся Польща" : (v.country && v.country !== "Polska" ? `${cityOnly} (${v.country})` : cityOnly);
             // Збіраем толькі унікальныя катэгорыі нюансаў для кампактнага вываду
             const uniqueCategories = Array.from(
               new Set(

@@ -753,7 +753,17 @@ const handleGenerate = async () => {
               </p>
             </div>
           )}
-
+{/* 🔒 УНУТРАНАЯ ІНФАРМАЦЫЯ (Толькі для рэкрутэраў) */}
+          {mode !== "public" && v.forRecruiter?.internalNotes && (
+            <div className="p-5 bg-indigo-50 border border-indigo-100 rounded-2xl">
+              <p className="text-[10px] text-indigo-600 font-black uppercase tracking-widest mb-2 flex items-center gap-2">
+                <span>🔒</span> Тільки для рекрутерів (бонуси, ліміти)
+              </p>
+              <p className="text-sm text-indigo-900 whitespace-pre-wrap leading-relaxed font-medium">
+                {v.forRecruiter.internalNotes}
+              </p>
+            </div>
+          )}
           {/* ДЖЕРЕЛО ТА СИСТЕМНА ІНФО */}
           <section className="mt-8 pt-6 border-t border-slate-800 space-y-4">
             {v.isTruncated && (

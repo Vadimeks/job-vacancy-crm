@@ -3188,3 +3188,13 @@ isInformative() / isSimpleMessage()
 - `frontend/src/pages/Jobs.jsx`: 
     - Enhanced filtering logic to support all new criteria.
     - Added dynamic location extraction from the vacancy list to populate the "City" filter.
+    ## [2024-07-25] - Frontend: Recruiter UX & Mass Actions
+### Added
+- `frontend/src/services/api.js`: Added `bulkToggleFeatured` function.
+- `frontend/src/pages/Vacancies.jsx`: 
+    - Added mass management buttons ("⭐ У ПОПУЛЯРНІ", "✕ ПРИБРАТИ") to the bulk actions panel.
+    - Implemented `handleBulkFeatured` logic with confirmation.
+- `frontend/src/components/vacancies/VacancyViewModal.jsx`: Added a dedicated section for `forRecruiter.internalNotes` (visible only in admin mode) to show bonuses and internal limits.
+### Changed
+- `frontend/src/pages/Vacancies.jsx` & `Home.jsx`: Simplified location display for "po całej Polsce" to reduce visual clutter.
+- `frontend/src/pages/Home.jsx`: Refined "Featured" logic to always display exactly 4 vacancies (mixing active featured ones with the freshest active ones).
