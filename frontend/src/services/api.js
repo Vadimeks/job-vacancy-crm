@@ -37,6 +37,9 @@ export const toggleFavoriteVacancy = (id) =>
 // 👈 ДАДАДЗЕНА: Пераключэнне статусу "Паказати на головній" (v8.0)
 export const toggleFeaturedVacancy = (id) =>
   api.patch(`/vacancies/${id}/featured`);
+// 👈 ДАДАДЗЕНА: Масавае кіравання папулярнымі (v8.3)
+export const bulkToggleFeatured = (ids, status) => 
+  api.post("/vacancies/bulk-featured", { ids, status });
 export const bulkDeleteVacancies = (ids) =>
   api.post("/vacancies/bulk-delete", { ids });
 export const reparseVacancy = (id) => api.post(`/vacancies/${id}/reparse`);
