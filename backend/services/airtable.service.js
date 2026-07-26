@@ -5,7 +5,8 @@ const UnprocessedMessage = require("../models/UnprocessedMessage");
 const { processVacancyMessage } = require("../routes/vacancies");
 const { analyzeAndCompareWithGemini } = require("./gemini.service");
 const airtableScraper = require("./airtableScraper.service");
-const SyncState = require("../models/SyncState"); // 👈 Дадаць да астатніх імпартаў
+const SyncState = require("../models/SyncState"); 
+const { checkVacancyGatekeeper } = require("../utils/messageFilters");
 /**
  * Сінхранізацыя Airtable з выкарыстаннем поўнага AI-пайплайна
  */
@@ -220,7 +221,25 @@ async function syncSingleSource(source) {
         console.log(`💾 Этап 4.5. Чарнавік Airtable ${existingVacancy.vacancyCode} абноўлены.`);
       }
     }
-
+// 👈 ДАДАДЗЕНА: Жалезны Санітар (v8.5)
+    const gateVerdict = checkVacancyGatekeeper(rawAirtableDump, columnName);
+    
+    if (gateVerdict === "IGNORE") {
+      console.log(`⏭️ [Gatekeeper Skip] ${source.agencyName}: Смецце або кароткі тэкст.`);
+      stats.ignored++;
+      continue;
+    }
+    
+    if (gateVerdict === "CLOSE") {
+      console.log(`🔴 [Gatekeeper Close] ${source.agencyName}: Знойдзены СТОП.`);
+      if (existingVacancy) {
+        existingVacancy.status = "closed";
+        existingVacancy.closingReason = "Маркер СТОП у тэксце (Gatekeeper)";
+        await existingVacancy.save();
+      }
+      stats.ignored++; // Або stats.closed++ калі хочаш бачыць у статыстыцы
+      continue;
+    }
     console.log(`🧠 Этап 5. AI апрацоўка: ${source.agencyName} | ID: ${airtableId}`);
     const analysis = await analyzeAndCompareWithGemini(rawAirtableDump, [], []);
     // 🔍 ДЫЯГНОСТЫКА (часова, v8.3): правяраем гіпотэзу пра UPDATE, які пралазіць міма фільтра

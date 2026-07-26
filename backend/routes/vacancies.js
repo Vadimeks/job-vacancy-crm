@@ -10,7 +10,7 @@ const UnprocessedMessage = require("../models/UnprocessedMessage");
 const aiService = require("../services/ai.service");
 const { POLISH_VOIVODESHIPS, VOIVODESHIP_MAP } = aiService;
 const { analyzeAndCompareWithGemini, enrichTextWithDocs } = require("../services/gemini.service");
-const { getWhitelistedAgency } = require("../utils/messageFilters");
+const { getWhitelistedAgency, checkVacancyGatekeeper } = require("../utils/messageFilters"); // 👈 АБНОЎЛЕНА
 const {
   sendToTelegram,
   notifyRecruiterAboutMatch,
@@ -245,6 +245,12 @@ async function processVacancyMessage(
   );
   try {
     const savedVacancies = [];
+     // 👈 ДАДАДЗЕНА: Ахова ад галюцынацый (v8.5)
+    const totalText = Array.isArray(enrichedText) ? enrichedText.join(" ") : String(enrichedText);
+    if (checkVacancyGatekeeper(totalText) === "IGNORE") {
+      console.warn("⚠️ [Parser] Тэкст не прайшоў праверку Gatekeeper, адмена.");
+      return { error: "GATEKEEPER_IGNORE" };
+    }
 // 🛡️ Калі мы ведаем, што гэта рэтрай або вакансія ўжо ў чарзе — патрабуем Full мадэль
     let needsFull = forceFull;
     if (existingId) {
@@ -1121,7 +1127,19 @@ router.post("/:id/reparse", async (req, res) => {
     // 👈 ЗМЕНЕНА: Заўсёды бярэм originalText (першакрыніцу), каб пазбегнуць дэградацыі rawText (v6.9.7)
     const textToEnrich = vacancy.originalText || vacancy.rawText;
     const enrichedText = await enrichTextWithDocs(textToEnrich);
-
+// 👈 ДАДАДЗЕНА: Жалезны Санітар (v8.5)
+    const verdict = checkVacancyGatekeeper(enrichedText);
+    
+    if (verdict === "IGNORE") {
+      return res.status(400).json({ message: "Текст занадто короткий або не містить вакансії. AI-обробка скасована." });
+    }
+    
+    if (verdict === "CLOSE") {
+      vacancy.status = "closed";
+      vacancy.closingReason = "Знайдено маркер СТОП у тексті";
+      await vacancy.save();
+      return res.json({ message: "Вакансія закрита (знайдено маркер СТОП)", status: "closed" });
+    }
     // 👈 ЗМЕНЕНА: Выклікаем Stage 1 для перакладу і сплітынгу (v6.8)
     const analysis = await analyzeAndCompareWithGemini(enrichedText);
     

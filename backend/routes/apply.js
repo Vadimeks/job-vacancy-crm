@@ -101,12 +101,19 @@ if (!telegramId && !phone) return res.status(400).json({ message: "Telegram ID o
     
     if (!candidate) {
       const { generateCandidateCode } = require("./candidates");
-      candidate = new Candidate({
+      const candidateData = {
         candidateCode: await generateCandidateCode(),
-        telegramId: telegramId ? String(telegramId) : null,
         source: telegramId ? "telegram_bot" : "viber", // 👈 Аўта-вызначэнне крыніцы
         contactType: telegramId ? "telegram" : "viber"
-      });
+      };
+      // 👈 ВЫПРАЎЛЕНА (E11000 fix): не задаём telegramId наогул, калі яго няма.
+      // Раней ставілі telegramId: null, а sparse-унікальны індэкс усё роўна
+      // лічыць null звычайным значэннем і забараняе яго паўтор у некалькіх дакументах.
+      // Калі поле проста адсутнічае (undefined), sparse-індэкс яго ігнаруе.
+      if (telegramId) {
+        candidateData.telegramId = String(telegramId);
+      }
+      candidate = new Candidate(candidateData);
     }
 
     // 2. Разумнае абнаўленне з пошукам канфліктаў (v7.9.6)

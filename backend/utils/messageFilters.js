@@ -1,5 +1,5 @@
 // backend/utils/messageFilters.js
-
+const { NATIONALITIES } = require("../constants/masterData"); // 👈 ДАДАДЗЕНА для праверкі вайт-ліста
 const CHAT_AGENCY_MAP = [
   // --- Telegram Whitelist ---
   { id: "-1002197502834", agency: "SG" },
@@ -404,6 +404,54 @@ function getMatchingIgnoreRegex(text) {
   }
   return null;
 }
+/**
+ * Гейткіпер вакансій: вырашае лёс запісу ДА выкліку AI.
+ * Вердыкты: 
+ * - "PROCESS": усё добра, ідзем у AI.
+ * - "CLOSE": знойдзены STOP-маркер, трэба закрыць вакансію.
+ * - "IGNORE": смецце, кароткі тэкст ці чужая нацыянальнасць.
+ */
+function checkVacancyGatekeeper(text, columnName = "") {
+  if (!text) return "IGNORE";
+
+  // 1. Ачыстка ад тэхнічнага смецця Airtable для дакладнай праверкі даўжыні
+  const cleanText = text
+    .replace(/\[Airtable ID: [^\]]+\]/g, "")
+    .replace(/Назва колонки: [^\n]+/g, "")
+    .replace(/Название колонки: [^\n]+/g, "")
+    .trim();
+
+  const lowerText = cleanText.toLowerCase();
+  const lowerColumn = (columnName || "").toLowerCase();
+
+  // 2. STOP-Check (шукаем у першых 200 сімвалах)
+  const stopZone = lowerText.substring(0, 200);
+  // Regex ловіць STOP, СТОП, СТОП-, STOP!!!! і г.д.
+  if (/\b(stop|стоп)\b/i.test(stopZone)) return "CLOSE";
+
+  // 3. Nationality-Check (Эксклюзіўнасць)
+  const exclusiveMarkers = [
+    "філіппінці", "філіпінці", "індія", "индия", "англомовні", 
+    "англоязычные", "philippines", "india", "english", "columbia", "колумбія"
+  ];
+  
+  // Правяраем і тэкст, і назву калонкі
+  const hasExclusiveMarker = exclusiveMarkers.some(m => lowerText.includes(m) || lowerColumn.includes(m));
+  
+  if (hasExclusiveMarker) {
+    // Спіс нашых дазволеных краін з masterData
+    const whiteList = NATIONALITIES.map(n => n.value.toLowerCase());
+    const hasWhiteListCountry = whiteList.some(n => lowerText.includes(n));
+    
+    // Калі ёсць маркер "чужых" (напр. Індыя) і НЯМА згадкі нашых краін — ігнаруем
+    if (!hasWhiteListCountry) return "IGNORE";
+  }
+
+  // 4. Length-Check (твой парог 200 сімвалаў)
+  if (cleanText.length < 200) return "IGNORE";
+
+  return "PROCESS";
+}
 module.exports = {
   shouldIgnoreMessage,
   getMatchingIgnoreRegex,
@@ -412,4 +460,5 @@ module.exports = {
   getPrefixHash,
   shouldIgnorePostAI,
   isMarketingBonus,
+  checkVacancyGatekeeper,
 };

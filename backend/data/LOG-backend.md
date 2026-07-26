@@ -1189,3 +1189,15 @@ Google Cloud заблакаваў API доступ — усе мадэлі вя�
     - Fixed Progres archive filtering by checking the "Для кого:" field.
     - Implemented strict `FULL_VACANCY` filtering: now `UPDATE` and `INFO` categories are sent to Inbox instead of creating/updating vacancies.
 - `backend/services/trello.service.js`: Unified logic with Airtable to only process `FULL_VACANCY` as active records.
+## [2024-07-27] - Iron Gatekeeper & AI Safety
+### Added
+- `backend/utils/messageFilters.js`: Created `checkVacancyGatekeeper` function to filter records BEFORE AI processing.
+    - **STOP-detection**: Automatic closing of vacancies if "STOP" is found in the first 200 chars.
+    - **Nationality-filter**: Ignoring records exclusive to non-target groups (e.g., "Only Philippines").
+    - **Length-check**: 200-character threshold to prevent AI hallucinations on technical/empty records.
+### Changed
+- `backend/routes/vacancies.js`: 
+    - Integrated Gatekeeper into `/reparse` route to protect existing data from being overwritten by trash.
+    - Added safety check in `processVacancyMessage` to abort processing of low-quality text.
+- `backend/services/airtable.service.js`: Integrated Gatekeeper to skip/close records before calling Gemini, saving API quota.
+- `backend/routes/apply.js`: Fixed E11000 error by ensuring `telegramId` is not saved as `null` when absent.
