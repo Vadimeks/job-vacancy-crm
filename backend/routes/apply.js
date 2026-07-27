@@ -10,15 +10,20 @@ router.post("/", async (req, res) => {
   try {
     const { vacancyId, name, contactType, telegram, phone, ...rest } = req.body;
 
-    const candidate = new Candidate({
+    // 👈 ВЫПРАЎЛЕНА: Фікс E11000 для звычайнай формы (v8.6)
+    const candidateData = {
       name,
       contactType,
-      telegram,
       phone,
       source: "site",
       status: "new",
       ...rest,
-    });
+    };
+    // Запісваем толькі калі ёсць значэнне, каб пазбегнуць null у базе
+    if (telegram) candidateData.telegram = telegram;
+    if (req.body.telegramId) candidateData.telegramId = String(req.body.telegramId);
+
+    const candidate = new Candidate(candidateData);
 
     if (vacancyId) {
       candidate.appliedVacancies.push({

@@ -363,6 +363,7 @@ const finalStatus = isMetaInfo ? "archived" : (forcedStatus || (isLite ? "pendin
             isLowQuality: vData.isLowQuality || false,
             templateName: constructVacancyDisplayName({
               ...vData,
+              lastSnapshot: snapshot, // 👈 Захоўваем стары стан
               agencyName: finalAgency,
             }),
             sourceHash: sourceHash || undefined,
@@ -953,6 +954,22 @@ router.patch("/:id/favorite", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
+// 👈 ДАДАДЗЕНА: Масавае кіраванне папулярнымі (v8.6)
+router.post("/bulk-featured", async (req, res) => {
+  try {
+    const { ids, status } = req.body;
+    if (!ids || !Array.isArray(ids)) return res.status(400).json({ message: "IDs missing" });
+
+    await Vacancy.updateMany(
+      { _id: { $in: ids } },
+      { $set: { isFeaturedForCandidates: status } }
+    );
+    res.json({ message: "✅ Статус папулярных абноўлены" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 // 👈 ДАДАДЗЕНА: Пераключэнне статусу "Паказаць кандыдатам" (v8.0)
 router.patch("/:id/featured", async (req, res) => {
   try {
@@ -985,21 +1002,42 @@ async function retryPendingVacancies() {
   const pending = await Vacancy.find({ status: "pending_ai" });
   if (pending.length === 0) return;
 
+  const { analyzeAndCompareWithGemini } = require("../services/gemini.service");
+  const { checkVacancyGatekeeper } = require("../utils/messageFilters");
+
   for (const vac of pending) {
     console.log(`🔄 Рэтрай для ${vac.vacancyCode}...`);
-    await processVacancyMessage(
-      vac.rawText,
-      vac.sender || "System",
-      vac.agencyName,
-      vac.originalText,
-      vac.isTruncated,
-      vac.parsingResultType,
-      vac.sourceHash,
-      vac.sheetName,
-      vac._id,
-      vac.sourceType,
-      true // Прымусова Full
-    );
+    
+    const gateVerdict = checkVacancyGatekeeper(vac.rawText);
+    
+    // 👈 Эканомія токенаў: калі смецце — выдаляем, калі СТОП — закрываем без AI
+    if (gateVerdict === "IGNORE") {
+      await Vacancy.findByIdAndDelete(vac._id);
+      continue;
+    }
+    if (gateVerdict === "CLOSE") {
+      await Vacancy.findByIdAndUpdate(vac._id, { status: "closed", closingReason: "STOP у чарзе" });
+      continue;
+    }
+
+    const analysis = await analyzeAndCompareWithGemini(vac.rawText);
+    if (analysis && analysis.category === "FULL_VACANCY") {
+      await processVacancyMessage(
+        analysis.translatedFragments,
+        vac.sender || "System",
+        vac.agencyName,
+        vac.originalText,
+        vac.isTruncated,
+        vac.parsingResultType,
+        vac.sourceHash,
+        vac.sheetName,
+        vac._id,
+        vac.sourceType,
+        true 
+      );
+    } else {
+      await Vacancy.findByIdAndDelete(vac._id);
+    }
     await new Promise(r => setTimeout(r, 7000));
   }
 }
@@ -1134,11 +1172,11 @@ router.post("/:id/reparse", async (req, res) => {
       return res.status(400).json({ message: "Текст занадто короткий або не містить вакансії. AI-обробка скасована." });
     }
     
+    // 👈 АБНОЎЛЕНА: Дазваляем AI абнавіць палі нават пры СТОП, калі гэта ручны запыт (v8.6)
+    let forcedStatus = null;
     if (verdict === "CLOSE") {
-      vacancy.status = "closed";
-      vacancy.closingReason = "Знайдено маркер СТОП у тексті";
-      await vacancy.save();
-      return res.json({ message: "Вакансія закрита (знайдено маркер СТОП)", status: "closed" });
+      console.log("🔴 Ручны рэпарсінг: знойдзены СТОП, але працягваем для абнаўлення дадзеных.");
+      forcedStatus = "closed";
     }
     // 👈 ЗМЕНЕНА: Выклікаем Stage 1 для перакладу і сплітынгу (v6.8)
     const analysis = await analyzeAndCompareWithGemini(enrichedText);

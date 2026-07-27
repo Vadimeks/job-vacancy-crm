@@ -4,7 +4,7 @@ const Vacancy = require("../models/Vacancy");
 const UnprocessedMessage = require("../models/UnprocessedMessage");
 const { processVacancyMessage } = require("../routes/vacancies");
 const { analyzeAndCompareWithGemini } = require("./gemini.service");
-
+const { checkVacancyGatekeeper } = require("../utils/messageFilters");
 /**
  * Нармалізацыя назвы: выдаленне эмодзі і лішніх прабелаў
  */
@@ -219,7 +219,26 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
               console.log(`💾 Этап 4.5. Чарнавік Trello ${existingVacancy.vacancyCode} абноўлены.`);
             }
           }
+// 👈 ДАДАДЗЕНА: Жалезны Санітар (v8.6)
+          const gateVerdict = checkVacancyGatekeeper(rawTrelloDump, list.name);
+          let trelloTargetStatus = "active";
 
+          if (gateVerdict === "IGNORE") {
+            console.log(`⏭️ [Trello Gatekeeper] Смецце або кароткі тэкст: ${card.name}`);
+            stats.ignored++;
+            continue;
+          }
+
+          if (gateVerdict === "CLOSE") {
+            console.log(`🔴 [Trello Gatekeeper] СТОП-маркер: ${card.name}. Пропуск AI.`);
+            if (existingVacancy && existingVacancy.status !== "closed") {
+              existingVacancy.status = "closed";
+              existingVacancy.closingReason = "Маркер СТОП у Trello (Gatekeeper)";
+              await existingVacancy.save();
+            }
+            stats.ignored++;
+            continue; // 👈 ВЫПРАЎЛЕНА: Спыняем апрацоўку, не выклікаем AI
+          }
           // --- ЭТАП 5-7: AI АПРАЦОЎКА ---
           const analysis = await analyzeAndCompareWithGemini(finalTrelloText);
           // 🔍 ДЫЯГНОСТЫКА (часова, v8.3): правяраем гіпотэзу пра UPDATE, які пралазіць міма фільтра
@@ -259,7 +278,8 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
             card.id,
             list.name,
             existingVacancy ? existingVacancy._id : null,
-            "trello"
+            "trello",
+            trelloTargetStatus // 👈 ПЕРАДАЕМ СТАТУС
           );
 
           if (result && result.error) {

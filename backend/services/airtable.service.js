@@ -231,14 +231,15 @@ async function syncSingleSource(source) {
     }
     
     if (gateVerdict === "CLOSE") {
-      console.log(`🔴 [Gatekeeper Close] ${source.agencyName}: Знойдзены СТОП.`);
-      if (existingVacancy) {
+      console.log(`🔴 [Gatekeeper Close] ${source.agencyName}: Знойдзены СТОП-маркер. Пропуск AI.`);
+      if (existingVacancy && existingVacancy.status !== "closed") {
         existingVacancy.status = "closed";
         existingVacancy.closingReason = "Маркер СТОП у тэксце (Gatekeeper)";
         await existingVacancy.save();
+        console.log(`✅ Вакансія ${existingVacancy.vacancyCode} паспяхова закрыта.`);
       }
-      stats.ignored++; // Або stats.closed++ калі хочаш бачыць у статыстыцы
-      continue;
+      stats.ignored++;
+      continue; // 👈 ВЫПРАЎЛЕНА: Спыняем апрацоўку, не выклікаем AI
     }
     console.log(`🧠 Этап 5. AI апрацоўка: ${source.agencyName} | ID: ${airtableId}`);
     const analysis = await analyzeAndCompareWithGemini(rawAirtableDump, [], []);

@@ -427,7 +427,8 @@ function checkVacancyGatekeeper(text, columnName = "") {
   // 2. STOP-Check (шукаем у першых 200 сімвалах)
   const stopZone = lowerText.substring(0, 200);
   // Regex ловіць STOP, СТОП, СТОП-, STOP!!!! і г.д.
-  if (/\b(stop|стоп)\b/i.test(stopZone)) return "CLOSE";
+  // 👈 АБНОЎЛЕНА: пашыраны спіс стоп-маркераў (v8.6)
+if (/\b(stop|стоп|архів|архив|неактив|не актив)\b/i.test(stopZone)) return "CLOSE";
 
   // 3. Nationality-Check (Эксклюзіўнасць)
   const exclusiveMarkers = [

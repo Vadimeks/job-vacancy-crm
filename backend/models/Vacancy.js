@@ -188,6 +188,7 @@ const vacancySchema = new mongoose.Schema(
     closingReason: { type: String, default: "" }, // Прычына закрыцця (напр. "Знікла з Airtable" або "STOP")
     isFavorite: { type: Boolean, default: false, index: true },
     isFeaturedForCandidates: { type: Boolean, default: false, index: true }, // 👈 ДАДАДЗЕНА: для паказу на галоўнай
+    lastSnapshot: { type: Object, default: null }, // 👈 ДАДАДЗЕНА: для параўнання змен (v8.6)
     vacancyCode: { type: String, unique: true, sparse: true },
     // --- ДАДАДЗЕНА ДЛЯ ГЛАБАЛЬНАЙ АБАРОНЫ АД ДУБЛІКАТАЎ ---
     // Хэш зыходнага радка з табліцы. Дазваляе ігнараваць дублікаты вечна.

@@ -141,7 +141,8 @@ const candidateSchema = new mongoose.Schema(
     },
 
     // 👇 ДАДАНА: палі для Telegram-бота кандыдатаў
-    telegramId: { type: String, default: null },   // Унікальны ID карыстальніка ў Telegram
+    // 👈 ВЫПРАЎЛЕНА: Прыбраны default: null, каб sparse-індэкс працаваў карэктна (v8.6)
+telegramId: { type: String }, // Унікальны ID каристувальніка ў Telegram
     chatId: { type: String, default: null },        // ID чата для адпраўкі паведамленняў (String, не Number — JS не цягне вялікія int)
     subscribedToVacancies: { type: Boolean, default: false }, // Галачка "атрымліваць падыходзячыя вакансіі"
     additionalNotesTags: { type: [String], default: [] },     // Тэгі, здабытыя AI з вольнага тэксту кандыдата

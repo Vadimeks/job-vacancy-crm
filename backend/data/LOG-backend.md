@@ -1201,3 +1201,12 @@ Google Cloud заблакаваў API доступ — усе мадэлі вя�
     - Added safety check in `processVacancyMessage` to abort processing of low-quality text.
 - `backend/services/airtable.service.js`: Integrated Gatekeeper to skip/close records before calling Gemini, saving API quota.
 - `backend/routes/apply.js`: Fixed E11000 error by ensuring `telegramId` is not saved as `null` when absent.
+## [2024-07-27] - Data Integrity & Diff UI
+### Fixed
+- `backend/models/Candidate.js`: Removed `default: null` from `telegramId` to fix E11000 duplicate key error for non-Telegram users.
+- `backend/routes/apply.js`: Refactored main apply route to prevent saving explicit `null` values for Telegram fields.
+- `backend/routes/vacancies.js`: Fixed 404 error for `bulk-featured` route by correctly placing it before exports.
+- `backend/routes/vacancies.js`: Enhanced `retryPendingVacancies` (Watchdog) with Gatekeeper and Stage 1 classification to prevent "resurrecting" trash data.
+### Added
+- `backend/models/Vacancy.js`: Added `lastSnapshot` field to store previous state for comparison.
+- `frontend/src/components/vacancies/VacancyViewModal.jsx`: Implemented "Visual Diff" — recruiters can now see what exactly changed (Title, Salary, Location) after an AI update.
