@@ -351,7 +351,6 @@ const finalStatus = isMetaInfo ? "archived" : (forcedStatus || (isLite ? "pendin
         }
 
        // 🔄 РЭАЛЬНАЕ АБНАЎЛЕННЕ (v8.6 - Фікс snapshot)
-        const existing = await Vacancy.findById(currentExistingId);
         
         // Ствараем здымак палёў перад абнаўленнем
         const snapshot = existing ? {
