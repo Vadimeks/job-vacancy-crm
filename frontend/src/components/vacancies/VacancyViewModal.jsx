@@ -102,7 +102,14 @@ export default function VacancyViewModal({
  
  const [prevId, setPrevId] = useState(vacancy?._id);
   const [lastUpdated, setLastUpdated] = useState(vacancy?.updatedAt); // 👈 ДАДАДЗЕНА
-
+// 👈 ДАДАДЗЕНА: Логіка падсветкі змен (v8.6)
+  const getDiff = (field, currentValue) => {
+    if (mode === "public" || !v.lastSnapshot) return null;
+    const oldValue = v.lastSnapshot[field];
+    // Параўноўваем як радкі, ігнаруючы прабелы
+    if (!oldValue || String(oldValue).trim() === String(currentValue).trim()) return null;
+    return oldValue;
+  };
   if (vacancy?._id !== prevId || vacancy?.updatedAt !== lastUpdated) {
     setPrevId(vacancy?._id);
     setLastUpdated(vacancy?.updatedAt); // 👈 ЗАПАМІНАЕМ час абнаўлення
@@ -290,9 +297,18 @@ const handleGenerate = async () => {
             <h2 className="text-2xl font-black text-slate-900 leading-tight mb-4">
               {v.vacancydescription}
             </h2>
+            {getDiff("vacancydescription", v.vacancydescription) && (
+              <div className="mt-1 px-2 py-0.5 bg-amber-50 border border-amber-100 rounded text-[10px] text-amber-700 font-bold animate-pulse">
+                ⚠️ БУЛО: {v.lastSnapshot.vacancydescription}
+              </div>
+            )}
             <div className="space-y-1">
               <p className="text-base text-slate-700">
-                📍 <span className="font-semibold">Місто:</span>{" "}
+                📍 <span className="font-semibold">Місто:</span>{getDiff("location", v.location) && (
+                  <span className="block text-[10px] text-amber-600 font-bold mt-0.5 italic">
+                    (раніше: {v.lastSnapshot.location})
+                  </span>
+                )}{" "}
                 <span className="text-slate-700 font-bold">
                   {locationDisplay}
                 </span>
@@ -448,6 +464,11 @@ const handleGenerate = async () => {
             />
             <div className="space-y-1.5">
               <Row label="Ставка" value={v.salary?.rawSalaryDisplay || v.salary?.baseNetto} />
+              {getDiff("salary", v.salary?.rawSalaryDisplay || v.salary?.baseNetto) && (
+                <div className="ml-4 text-[10px] text-amber-600 font-bold italic">
+                  ↑ раніше ставка була: {v.lastSnapshot.salary}
+                </div>
+              )}
               <Row label="Студенти" value={v.salary?.studentNetto} />
               <Row label="Годин на місяць" value={v.salary?.hoursRange} />
               <Row label="Виплати" value={v.salary?.payoutDates} />
