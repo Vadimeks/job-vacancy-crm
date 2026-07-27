@@ -136,6 +136,13 @@ async function syncSingleSource(source) {
 
     if (shouldIgnore) {
       console.log(`⏭️ [Airtable Skip] ${source.agencyName}: Blacklist (Column: "${columnName}", Text: "${fieldsText.substring(0, 50)}...")`);
+      // 👈 ДАДАДЗЕНА: Закрываем вакансію, калі яна трапіла ў архіў/блэкліст агенцыі (v8.7)
+      if (existingVacancy && existingVacancy.status !== "closed") {
+        existingVacancy.status = "closed";
+        existingVacancy.closingReason = `Агенцкі Blacklist (${source.agencyName})`;
+        await existingVacancy.save();
+        console.log(`✅ Вакансія ${existingVacancy.vacancyCode} закрыта праз агенцкі фільтр.`);
+      }
       stats.ignored++;
       continue;
     }
@@ -186,13 +193,11 @@ async function syncSingleSource(source) {
         if (v && !k.toLowerCase().includes("rodo")) tempDump += `${k}: ${v}\n`;
       });
 
-      if (existingVacancy && existingVacancy.originalText === tempDump && existingVacancy.status === targetStatus) {
-        console.log(`⏭️ [Airtable Skip] ${source.agencyName}: Поўны дублікат у базе (ID: ${existingVacancy.vacancyCode})`);
-        stats.ignored++;
-        continue;
-      }
+      // 👈 ВЫПРАЎЛЕНА: Спачатку прысвойваем тэкст (v8.7)
+      rawAirtableDump = tempDump;
 
-      // 👈 ВЫПРАЎЛЕНА: Выклікаем Gatekeeper ТУТ, калі тэкст ужо сабраны (v8.6)
+      // 👈 ПЕРАНЕСЕНА ВЫШЭЙ: Жалезны Санітар (v8.7)
+      // Цяпер ён спрацуе нават калі тэкст не змяніўся, і закрые вакансію пры наяўнасці STOP
       const gateVerdict = checkVacancyGatekeeper(rawAirtableDump, columnName);
       
       if (gateVerdict === "IGNORE") {
@@ -202,7 +207,7 @@ async function syncSingleSource(source) {
       }
       
       if (gateVerdict === "CLOSE") {
-        console.log(`🔴 [Gatekeeper Close] ${source.agencyName}: Знойдзены СТОП-маркер. Пропуск AI.`);
+        console.log(`🔴 [Gatekeeper Close] ${source.agencyName}: Знойдзены СТОП-маркер.`);
         if (existingVacancy && existingVacancy.status !== "closed") {
           existingVacancy.status = "closed";
           existingVacancy.closingReason = "Маркер СТОП у тэксце (Gatekeeper)";
@@ -212,6 +217,15 @@ async function syncSingleSource(source) {
         stats.ignored++;
         continue;
       }
+
+      // 🛡️ ПРАВЕРКА НА ДУБЛІКАТ (v8.7)
+      // Цяпер яна ідзе ПАСЛЯ Санітара, таму не блакуе закрыццё
+      if (existingVacancy && existingVacancy.originalText === rawAirtableDump && existingVacancy.status === targetStatus) {
+        console.log(`⏭️ [Airtable Skip] ${source.agencyName}: Поўны дублікат у базе (ID: ${existingVacancy.vacancyCode})`);
+        stats.ignored++;
+        continue;
+      }
+      
       // 💾 ЗАХАВАННЕ ПРАГРЭСУ: Калі вакансія новая, ствараем яе як чарнавік
       if (!existingVacancy) {
         const vacanciesRoute = require("../routes/vacancies");

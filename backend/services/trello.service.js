@@ -185,13 +185,34 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
             console.log(`📦 Этап 4.5. Выкарыстоўваем захаваны тэкст Trello (Stage 0/1 пропуск)`);
             finalTrelloText = existingVacancy.rawText;
           } else {
-            // 🛡️ ПРАВЕРКА НА ЗМЕНЫ (калі вакансія актыўная і тэкст той жа — прапускаем)
-            if (existingVacancy && existingVacancy.originalText === rawTrelloDump && existingVacancy.status === "active") {
+            // 1. Будуем тэкст
+            finalTrelloText = `[SOURCE: TRELLO | AGENCY: ${source.agencyName}]\n${rawTrelloDump}`;
+
+            // 2. 👈 ПЕРАНЕСЕНА СЮДЫ: Жалезны Санітар (v8.7)
+            const gateVerdict = checkVacancyGatekeeper(rawTrelloDump, list.name);
+            
+            if (gateVerdict === "IGNORE") {
+              console.log(`⏭️ [Trello Gatekeeper] Смецце або кароткі тэкст: ${card.name}`);
               stats.ignored++;
               continue;
             }
 
-            finalTrelloText = `[SOURCE: TRELLO | AGENCY: ${source.agencyName}]\n${rawTrelloDump}`;
+            if (gateVerdict === "CLOSE") {
+              console.log(`🔴 [Trello Gatekeeper] СТОП-маркер: ${card.name}.`);
+              if (existingVacancy && existingVacancy.status !== "closed") {
+                existingVacancy.status = "closed";
+                existingVacancy.closingReason = "Маркер СТОП у Trello (Gatekeeper)";
+                await existingVacancy.save();
+              }
+              stats.ignored++;
+              continue;
+            }
+
+            // 3. 🛡️ ПРАВЕРКА НА ЗМЕНЫ (v8.7)
+            if (existingVacancy && existingVacancy.originalText === rawTrelloDump && existingVacancy.status === "active") {
+              stats.ignored++;
+              continue;
+            }
 
             // 💾 ЗАХАВАННЕ ПРАГРЭСУ: Калі вакансія новая, ствараем яе як чарнавік
             if (!existingVacancy) {
@@ -219,10 +240,6 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
               console.log(`💾 Этап 4.5. Чарнавік Trello ${existingVacancy.vacancyCode} абноўлены.`);
             }
           }
-finalTrelloText = `[SOURCE: TRELLO | AGENCY: ${source.agencyName}]\n${rawTrelloDump}`;
-
-            // 👈 ДАДАДЗЕНА: Жалезны Санітар для Trello (v8.6)
-            const gateVerdict = checkVacancyGatekeeper(rawTrelloDump, list.name);
             
             if (gateVerdict === "IGNORE") {
               console.log(`⏭️ [Trello Gatekeeper] Смецце або кароткі тэкст: ${card.name}`);
