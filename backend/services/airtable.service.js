@@ -192,8 +192,26 @@ async function syncSingleSource(source) {
         continue;
       }
 
-      rawAirtableDump = tempDump;
-
+      // 👈 ВЫПРАЎЛЕНА: Выклікаем Gatekeeper ТУТ, калі тэкст ужо сабраны (v8.6)
+      const gateVerdict = checkVacancyGatekeeper(rawAirtableDump, columnName);
+      
+      if (gateVerdict === "IGNORE") {
+        console.log(`⏭️ [Gatekeeper Skip] ${source.agencyName}: Смецце або кароткі тэкст.`);
+        stats.ignored++;
+        continue;
+      }
+      
+      if (gateVerdict === "CLOSE") {
+        console.log(`🔴 [Gatekeeper Close] ${source.agencyName}: Знойдзены СТОП-маркер. Пропуск AI.`);
+        if (existingVacancy && existingVacancy.status !== "closed") {
+          existingVacancy.status = "closed";
+          existingVacancy.closingReason = "Маркер СТОП у тэксце (Gatekeeper)";
+          await existingVacancy.save();
+          console.log(`✅ Вакансія ${existingVacancy.vacancyCode} паспяхова закрыта.`);
+        }
+        stats.ignored++;
+        continue;
+      }
       // 💾 ЗАХАВАННЕ ПРАГРЭСУ: Калі вакансія новая, ствараем яе як чарнавік
       if (!existingVacancy) {
         const vacanciesRoute = require("../routes/vacancies");
@@ -221,26 +239,7 @@ async function syncSingleSource(source) {
         console.log(`💾 Этап 4.5. Чарнавік Airtable ${existingVacancy.vacancyCode} абноўлены.`);
       }
     }
-// 👈 ДАДАДЗЕНА: Жалезны Санітар (v8.5)
-    const gateVerdict = checkVacancyGatekeeper(rawAirtableDump, columnName);
-    
-    if (gateVerdict === "IGNORE") {
-      console.log(`⏭️ [Gatekeeper Skip] ${source.agencyName}: Смецце або кароткі тэкст.`);
-      stats.ignored++;
-      continue;
-    }
-    
-    if (gateVerdict === "CLOSE") {
-      console.log(`🔴 [Gatekeeper Close] ${source.agencyName}: Знойдзены СТОП-маркер. Пропуск AI.`);
-      if (existingVacancy && existingVacancy.status !== "closed") {
-        existingVacancy.status = "closed";
-        existingVacancy.closingReason = "Маркер СТОП у тэксце (Gatekeeper)";
-        await existingVacancy.save();
-        console.log(`✅ Вакансія ${existingVacancy.vacancyCode} паспяхова закрыта.`);
-      }
-      stats.ignored++;
-      continue; // 👈 ВЫПРАЎЛЕНА: Спыняем апрацоўку, не выклікаем AI
-    }
+
     console.log(`🧠 Этап 5. AI апрацоўка: ${source.agencyName} | ID: ${airtableId}`);
     const analysis = await analyzeAndCompareWithGemini(rawAirtableDump, [], []);
     // 🔍 ДЫЯГНОСТЫКА (часова, v8.3): правяраем гіпотэзу пра UPDATE, які пралазіць міма фільтра

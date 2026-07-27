@@ -219,26 +219,29 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
               console.log(`💾 Этап 4.5. Чарнавік Trello ${existingVacancy.vacancyCode} абноўлены.`);
             }
           }
-// 👈 ДАДАДЗЕНА: Жалезны Санітар (v8.6)
-          const gateVerdict = checkVacancyGatekeeper(rawTrelloDump, list.name);
-          let trelloTargetStatus = "active";
+finalTrelloText = `[SOURCE: TRELLO | AGENCY: ${source.agencyName}]\n${rawTrelloDump}`;
 
-          if (gateVerdict === "IGNORE") {
-            console.log(`⏭️ [Trello Gatekeeper] Смецце або кароткі тэкст: ${card.name}`);
-            stats.ignored++;
-            continue;
-          }
-
-          if (gateVerdict === "CLOSE") {
-            console.log(`🔴 [Trello Gatekeeper] СТОП-маркер: ${card.name}. Пропуск AI.`);
-            if (existingVacancy && existingVacancy.status !== "closed") {
-              existingVacancy.status = "closed";
-              existingVacancy.closingReason = "Маркер СТОП у Trello (Gatekeeper)";
-              await existingVacancy.save();
+            // 👈 ДАДАДЗЕНА: Жалезны Санітар для Trello (v8.6)
+            const gateVerdict = checkVacancyGatekeeper(rawTrelloDump, list.name);
+            
+            if (gateVerdict === "IGNORE") {
+              console.log(`⏭️ [Trello Gatekeeper] Смецце або кароткі тэкст: ${card.name}`);
+              stats.ignored++;
+              continue;
             }
-            stats.ignored++;
-            continue; // 👈 ВЫПРАЎЛЕНА: Спыняем апрацоўку, не выклікаем AI
-          }
+
+            if (gateVerdict === "CLOSE") {
+              console.log(`🔴 [Trello Gatekeeper] СТОП-маркер: ${card.name}. Пропуск AI.`);
+              if (existingVacancy && existingVacancy.status !== "closed") {
+                existingVacancy.status = "closed";
+                existingVacancy.closingReason = "Маркер СТОП у Trello (Gatekeeper)";
+                await existingVacancy.save();
+              }
+              stats.ignored++;
+              continue;
+            }
+
+            // 💾 ЗАХАВАННЕ ПРАГРЭСУ: Калі вакансія новая...
           // --- ЭТАП 5-7: AI АПРАЦОЎКА ---
           const analysis = await analyzeAndCompareWithGemini(finalTrelloText);
           // 🔍 ДЫЯГНОСТЫКА (часова, v8.3): правяраем гіпотэзу пра UPDATE, які пралазіць міма фільтра
@@ -279,6 +282,7 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
             list.name,
             existingVacancy ? existingVacancy._id : null,
             "trello",
+            false, // forceFull (11-ы аргумент)
             trelloTargetStatus // 👈 ПЕРАДАЕМ СТАТУС
           );
 

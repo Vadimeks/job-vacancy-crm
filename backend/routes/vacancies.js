@@ -350,7 +350,16 @@ const finalStatus = isMetaInfo ? "archived" : (forcedStatus || (isLite ? "pendin
           continue;
         }
 
-       // 🔄 РЭАЛЬНАЕ АБНАЎЛЕННЕ
+       // 🔄 РЭАЛЬНАЕ АБНАЎЛЕННЕ (v8.6 - Фікс snapshot)
+        const existing = await Vacancy.findById(currentExistingId);
+        
+        // Ствараем здымак палёў перад абнаўленнем
+        const snapshot = existing ? {
+          vacancydescription: existing.vacancydescription,
+          salary: existing.salary?.rawSalaryDisplay || existing.salary?.baseNetto,
+          location: existing.location,
+          updatedAt: existing.updatedAt
+        } : null;
         const updated = await Vacancy.findByIdAndUpdate(
           currentExistingId,
           {
@@ -363,9 +372,10 @@ const finalStatus = isMetaInfo ? "archived" : (forcedStatus || (isLite ? "pendin
             isLowQuality: vData.isLowQuality || false,
             templateName: constructVacancyDisplayName({
               ...vData,
-              lastSnapshot: snapshot, // 👈 Захоўваем стары стан
+             
               agencyName: finalAgency,
             }),
+             lastSnapshot: snapshot, // 👈 Захоўваем стары стан
             sourceHash: sourceHash || undefined,
             status: finalStatus,
             // Пазначаем для рэдактара, толькі калі вакансія актыўная
@@ -1196,7 +1206,8 @@ router.post("/:id/reparse", async (req, res) => {
       vacancy.sheetName,
       vacancy._id,
       vacancy.sourceType,
-      true 
+      false, // forceFull
+      forcedStatus // 👈 ВЫПРАЎЛЕНА: перадаем статус (null або closed)
     );
     res.json(result);
   } catch (err) {
