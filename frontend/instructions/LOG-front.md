@@ -3198,3 +3198,11 @@ isInformative() / isSimpleMessage()
 ### Changed
 - `frontend/src/pages/Vacancies.jsx` & `Home.jsx`: Simplified location display for "po całej Polsce" to reduce visual clutter.
 - `frontend/src/pages/Home.jsx`: Refined "Featured" logic to always display exactly 4 vacancies (mixing active featured ones with the freshest active ones).
+## [v8.10] - 2026-07-29 - Паляпшэнне UX мадалкі вакансій
+
+### Added
+- `frontend/src/components/vacancies/VacancyViewModal.jsx`: Дададзены кнопкі хуткай змены статусу ("АКТИВ" / "СТОП") прама ў мадалку. Цяпер статус можна змяніць адным клікам без адкрыцця акна рэдагавання.
+- `frontend/src/components/vacancies/VacancyViewModal.jsx`: Укаранёна функцыя `handleStatusToggle`, якая абнаўляе стан вакансіі без закрыцця мадалкі.
+
+### Fixed
+- `frontend/src/pages/Vacancies.jsx`: Перапрацавана логіка выдалення вакансіі праз мадалку. Цяпер пасля выдалення мадалка не закрываецца, а аўтаматычна пераходзіць да наступнай вакансіі ў спісе (або да папярэдняй, калі выдаленая была апошняй). Гэта значна паскарае мануальную чыстку базы.

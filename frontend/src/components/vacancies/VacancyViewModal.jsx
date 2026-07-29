@@ -130,7 +130,14 @@ export default function VacancyViewModal({
   
   if (!vacancy) return null;
   const v = vacancy;
-
+const handleStatusToggle = async (newStatus) => {
+    try {
+      const res = await reparseVacancy(v._id, { status: newStatus }); // Мы выкарыстаем існуючы сэрвіс або створым просты update
+      if (onUpdate) onUpdate({ ...v, status: newStatus });
+    } catch (err) {
+      alert("Помилка змены статусу");
+    }
+  };
  const handleCopyTelegram = () => {
     // Калі рэдактар адкрыты — капіюем з яго, калі закрыты — з палёў вакансіі
     const textToCopy = showEditor 
@@ -838,7 +845,21 @@ const handleGenerate = async () => {
                 <RefreshCw size={16} className={isReparsing ? "animate-spin" : ""} />
                 <span className="hidden md:inline">{isReparsing ? "ОБРОБКА..." : "AI ОБНОВИТИ"}</span>
               </button>
-
+{/* 👈 ДАДАДЗЕНА: Хуткая змена статусу (v8.10) */}
+              <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
+                <button
+                  onClick={() => handleStatusToggle("active")}
+                  className={`px-3 py-1.5 rounded-lg text-[10px] font-black transition-all ${v.status === "active" ? "bg-emerald-500 text-white shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
+                >
+                  АКТИВ
+                </button>
+                <button
+                  onClick={() => handleStatusToggle("closed")}
+                  className={`px-3 py-1.5 rounded-lg text-[10px] font-black transition-all ${v.status === "closed" ? "bg-red-500 text-white shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
+                >
+                  СТОП
+                </button>
+              </div>
               <button
                 onClick={() => { onEdit(v); onClose(); }}
                 className="flex-1 md:flex-none px-4 md:px-8 py-2.5 md:py-3 bg-slate-100 hover:bg-slate-300 text-slate-700 text-xs md:text-sm font-bold rounded-xl border border-slate-700 transition-all flex items-center justify-center gap-1"
