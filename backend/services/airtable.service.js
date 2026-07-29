@@ -104,6 +104,15 @@ async function syncSingleSource(source) {
       global.isSyncRunning = false;
       return "STOP_ALL";
     }
+
+    // 👈 ДАДАДЗЕНА: Паўза, калі рэкрутэр выконвае ручную аперацыю (той жа механізм, што і ў sheets.service.js / trello.service.js)
+    if (!global.isManualSync && global.isManualActionInProgress) {
+      while (global.isManualActionInProgress) {
+        console.log(`⏳ [Airtable Sync] Фонавая аўтаматыка на паўзе: рэкрутэр працуе ўручную...`);
+        await new Promise(r => setTimeout(r, 5000));
+      }
+    }
+
     global.syncProgress.current = i + 1;
     
     let existingVacancy = await Vacancy.findOne({ airtableId });

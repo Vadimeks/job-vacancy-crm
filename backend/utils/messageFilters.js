@@ -162,7 +162,7 @@ const RECRUITER_CHAT_NOISE_EN = [
   /unfortunately/i,
   /good (day|morning|afternoon|evening)/i,
   /i am in contact/i,
-  /@[a-z_]+/i,
+  /(^|\s)@[a-z0-9_]+(?!\.[a-z]{2,})/i, // 👈 ВЫПРАЎЛЕНА: патрабуе пачатак слова перад @, каб не лавіць email (напр. Ryclanlih@gmail.com)
   /^(ok|okay|noted|understood|got it|sure|yes|no)[\s,.!]*$/i,
   /^(wait|waiting|checked|confirmed|agreed|done)[\s,.!]*$/i,
   /not (written|added|in system|working)/i,
@@ -172,7 +172,7 @@ const RECRUITER_CHAT_NOISE_EN = [
   /suggest (tomatoes|cucumbers)/i,
   /he (is|was|has) (agree|returned|in Germany|in Poland)/i,
   /something else can be/i,
-  /@[a-z_]+/i,
+ 
   /refused to work/i,
   /will arrive/i,
   /call you back/i,

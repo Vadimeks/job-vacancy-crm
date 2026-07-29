@@ -26,7 +26,8 @@ router.post("/agency", async (req, res) => {
   
   // 👈 СТАВІМ СТАТУС АДРАЗУ, каб фронтэнд не ўбачыў 'idle'
  global.isSyncRunning = true;
-  global.isManualActionInProgress = true; // 👈 ДАДАДЗЕНА: блакуем аўтаматыку
+    global.isManualActionInProgress = true; // 👈 ДАДАДЗЕНА: блакуем аўтаматыку
+    global.isManualSync = true; // 👈 ДАДАДЗЕНА: пазначаем, што гэта менавіта ручны запуск (v8.8 fix)
   global.syncProgress = { current: 0, total: 0, status: 'running', agency: agencies[0] };
   global.stopSyncRequested = false;
 
@@ -83,9 +84,10 @@ router.post("/agency", async (req, res) => {
       console.error(`❌ [Manual Sync] Крытычная памылка:`, err.message);
       global.syncProgress.status = 'error';
     } finally {
-      global.isSyncRunning = false;
-      global.isManualActionInProgress = false; // 👈 ДАДАДЗЕНА: вызваляем аўтаматыку
-    }
+    global.isSyncRunning = false;
+    global.isManualActionInProgress = false;
+    global.isManualSync = false; // 👈 ДАДАДЗЕНА: скідаем сцяг пасля завяршэння ручнога запуску
+  }
   });
 });
 

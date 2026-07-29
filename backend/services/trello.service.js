@@ -116,6 +116,15 @@ global.syncProgress.total = cards.length;
         if (global.stopSyncRequested) {
           console.log("🛑 [Trello] Сінхранізацыя перарвана карыстальнікам.");
           return "STOP_ALL";}
+
+        // 👈 ДАДАДЗЕНА: Паўза, калі рэкрутэр выконвае ручную аперацыю (той жа механізм, што і ў sheets.service.js)
+        if (!global.isManualSync && global.isManualActionInProgress) {
+          while (global.isManualActionInProgress) {
+            console.log("⏳ [Trello Sync] Фонавая аўтаматыка на паўзе: рэкрутэр працуе ўручную...");
+            await new Promise(r => setTimeout(r, 5000));
+          }
+        }
+
         const currentCardIndex = cardCounter;
         cardCounter++;
 
@@ -231,7 +240,7 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
               await draft.save();
               console.log(`💾 Этап 4.5. Тэкст Trello захаваны ў базу (Draft ${vacancyCode} створаны)`);
               existingVacancy = draft;
-            } else {
+              } else {
               // Абнаўляем існуючую вакансію новым тэкстам перад AI
               existingVacancy.rawText = finalTrelloText;
               existingVacancy.originalText = rawTrelloDump;
@@ -240,23 +249,6 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
               console.log(`💾 Этап 4.5. Чарнавік Trello ${existingVacancy.vacancyCode} абноўлены.`);
             }
           }
-            
-            if (gateVerdict === "IGNORE") {
-              console.log(`⏭️ [Trello Gatekeeper] Смецце або кароткі тэкст: ${card.name}`);
-              stats.ignored++;
-              continue;
-            }
-
-            if (gateVerdict === "CLOSE") {
-              console.log(`🔴 [Trello Gatekeeper] СТОП-маркер: ${card.name}. Пропуск AI.`);
-              if (existingVacancy && existingVacancy.status !== "closed") {
-                existingVacancy.status = "closed";
-                existingVacancy.closingReason = "Маркер СТОП у Trello (Gatekeeper)";
-                await existingVacancy.save();
-              }
-              stats.ignored++;
-              continue;
-            }
 
             // 💾 ЗАХАВАННЕ ПРАГРЭСУ: Калі вакансія новая...
           // --- ЭТАП 5-7: AI АПРАЦОЎКА ---
