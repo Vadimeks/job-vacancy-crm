@@ -132,9 +132,15 @@ async function syncSingleSource(source) {
         shouldIgnore = true;
       }
     } else if (source.agencyName === "JOB IMPULSE") {
-      if (columnName.includes("uncategorized") || columnName.includes("phillipinas") || columnName.includes("indian")) {
+      // 👈 АБНОЎЛЕНА: поўная блакіроўка непатрэбных катэгорый (v8.11)
+      if (
+        columnName.includes("uncategorized") || 
+        columnName.includes("philipinas") || 
+        columnName.includes("indian") 
+      ) {
         shouldIgnore = true;
       }
+    
    } else if (source.agencyName === "PROGRES") {
       // 👈 ВЫПРАЎЛЕНА: Progres выкарыстоўвае поле "Для кого:", а не назву калонкі (v8.3)
       const progresStatus = (fields["Для кого:"] || "").toLowerCase();

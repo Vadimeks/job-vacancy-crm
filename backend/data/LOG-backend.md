@@ -1265,3 +1265,15 @@ Google Cloud заблакаваў API доступ — усе мадэлі вя�
 рэкамендаваным доўгатэрміновым паляпшэннем, бо `global.*` не абараняе
 ад паралельных Render-інстансаў пры rolling-deploy ці ад лакальных
 скрыптоў, якія звяртаюцца да той жа базы незалежна.
+## [v8.9] - 2026-07-29 - Стабілізацыя сінхранізацыі і фільтрацыі
+
+### Fixed
+- `backend/services/trello.service.js`: Выдалены дублюючы блок кода, які выклікаў `ReferenceError: gateVerdict is not defined` і перарываў сінхранізацыю дошак.
+- `backend/services/sheets.service.js`: Умова паўзы `while (isManualActionInProgress)` абгорнута ў праверку `!global.isManualSync`, што вырашыла праблему дэдлока пры ручным запуску.
+- `backend/routes/sync.js`: Укаранёны сцяг `global.isManualSync` для карэктнай працы прыярытэтаў.
+- `backend/utils/messageFilters.js`: Выпраўлена рэгулярная выраза для Тэлеграм-нікнэймаў. Цяпер яна патрабуе мяжу слова перад `@`, што дазваляе email-адрасам кандыдатаў праходзіць фільтр "шуму".
+- `backend/services/airtable.service.js`: Дададзена логіка закрыцця вакансій пры трапленні ў агенцкі Blacklist (Manpower/Progres/Job Impulse).
+
+### Added
+- `backend/utils/messageFilters.js`: У гейткіпер дададзена праверка "Актуальність: Ні" па ўсім тэксце (без ліміту 200 сімвалаў) для Job Impulse.
+- `backend/services/airtable.service.js`: Дададзена праверка `isManualActionInProgress` для сінхранізацыі з Airtable.

@@ -454,7 +454,17 @@ if (/\b(stop|стоп|архів|архив|неактив|не актив)\b/i.
 
   // 4. Length-Check (твой парог 200 сімвалаў)
   if (cleanText.length < 200) return "IGNORE";
-
+// 👈 ДАДАДЗЕНА: Блакіроўка шаблонных інфа-картак па ключавых словах (v8.11)
+  const forbiddenTemplates = [
+    "анкета - подачи", "анкета подачі", "документы легального", "документи легального",
+    "warunki współpracy", "особенности трудоустройства", "частые вопросы", 
+    "примери обьявлений", "приклади оголошень"
+  ];
+  
+  if (forbiddenTemplates.some(t => lowerText.includes(t))) {
+    console.log(`⏭️ [Gatekeeper Ignore] Выяўлены шаблон інфа-карткі.`);
+    return "IGNORE";
+  }
   return "PROCESS";
 }
 module.exports = {
