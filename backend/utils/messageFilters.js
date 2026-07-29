@@ -421,7 +421,7 @@ function checkVacancyGatekeeper(text, columnName = "") {
     .replace(/Название колонки: [^\n]+/g, "")
     .trim();
 
-  const lowerText = cleanText.toLowerCase();
+ const lowerText = cleanText.toLowerCase();
   const lowerColumn = (columnName || "").toLowerCase();
 
   // 2. STOP-Check (шукаем у першых 200 сімвалах)
@@ -429,6 +429,10 @@ function checkVacancyGatekeeper(text, columnName = "") {
   // Regex ловіць STOP, СТОП, СТОП-, STOP!!!! і г.д.
   // 👈 АБНОЎЛЕНА: пашыраны спіс стоп-маркераў (v8.6)
 if (/\b(stop|стоп|архів|архив|неактив|не актив)\b/i.test(stopZone)) return "CLOSE";
+
+  // 👈 ДАДАДЗЕНА: Праверка "Актуальність/Актуальность: Ні/Нет" па ўсім тэксце,
+  // бо гэтае поле часта знаходзіцца далёка за межамі першых 200 сімвалаў (v8.10)
+  if (/актуальн(ість|ость)[^:\n]{0,25}:\s*(ні|нет|no)(?=[\s,.\n]|$)/i.test(lowerText)) return "CLOSE";
 
   // 3. Nationality-Check (Эксклюзіўнасць)
   const exclusiveMarkers = [
