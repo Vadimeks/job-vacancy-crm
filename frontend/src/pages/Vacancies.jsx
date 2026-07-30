@@ -1586,11 +1586,11 @@ const locationDisplay = isAllPoland ? "Уся Польща" : (v.country && v.co
               setEditVacancy(v);
             }}
             
-            onDelete={async (id) => {
-              // 👈 ВЫПРАЎЛЕНА: Пераход да наступнай вакансіі пры выдаленні (v8.10)
+           onDelete={async (id) => {
+              // 👈 ВЫПРАЎЛЕНА: пераход да наступнай вакансіі замест закрыцця мадалкі
               const nextVac = hasNext ? filtered[currentIndex + 1] : (hasPrev ? filtered[currentIndex - 1] : null);
               await handleDelete(id);
-              setViewVacancy(nextVac); // Калі наступнай няма, мадалка закрыецца (null)
+              setViewVacancy(nextVac);
             }}
             onMatch={(v) => {
               setViewVacancy(null);

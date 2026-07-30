@@ -4,7 +4,7 @@ import {
   ChevronLeft, ChevronRight, Sparkles, Send, 
   AlertCircle, Share2, Image, Link, Calendar, RefreshCw 
 } from "lucide-react";
-import { generateVacancyPreview, publishVacancy, reparseVacancy } from "../../services/api";
+import { generateVacancyPreview, publishVacancy, reparseVacancy, updateVacancy } from "../../services/api";
 const formatText = (text) => {
   if (!text || typeof text !== "string") return "";
 
@@ -132,8 +132,8 @@ export default function VacancyViewModal({
   const v = vacancy;
 const handleStatusToggle = async (newStatus) => {
     try {
-      const res = await reparseVacancy(v._id, { status: newStatus }); // Мы выкарыстаем існуючы сэрвіс або створым просты update
-      if (onUpdate) onUpdate({ ...v, status: newStatus });
+      const res = await updateVacancy(v._id, { status: newStatus }); // 👈 ВЫПРАЎЛЕНА: правільны лёгкі PUT замест цяжкага AI-рэпарсінгу
+      if (onUpdate) onUpdate(res.data); // 👈 ЗМЕНЕНА: бяром сапраўдны вынік з сервера, а не падстаўляем уручную
     } catch (err) {
       alert("Помилка змены статусу");
     }
@@ -861,7 +861,7 @@ const handleGenerate = async () => {
                 </button>
               </div>
               <button
-                onClick={() => { onEdit(v); onClose(); }}
+                onClick={() => onEdit(v)}
                 className="flex-1 md:flex-none px-4 md:px-8 py-2.5 md:py-3 bg-slate-100 hover:bg-slate-300 text-slate-700 text-xs md:text-sm font-bold rounded-xl border border-slate-700 transition-all flex items-center justify-center gap-1"
               >
                 <span>✏️</span>
