@@ -216,6 +216,16 @@ const startBot = async () => {
     }
   }
 };
+// 👈 ДАДАДЗЕНА: Апавяшчэнне распрацоўшчыка аб крытычных памылках (v8.14)
+const notifyDev = async (message) => {
+  if (!RECRUITER_CHAT_ID) return;
+  try {
+    const devMsg = `⚠️ <b>DEV LOG</b>\n\n${message}`;
+    await bot.telegram.sendMessage(RECRUITER_CHAT_ID, devMsg, { parse_mode: "HTML" });
+  } catch (err) {
+    console.error("❌ Памылка notifyDev:", err.message);
+  }
+};
 
 module.exports = {
   bot,
@@ -223,5 +233,7 @@ module.exports = {
   notifyRecruiter,
   notifyRecruiterAboutMatch,
   notifyRecruiterAboutShortMessage,
+  notifyDev, // 👈 Дадаем у экспарт
   startBot,
 };
+

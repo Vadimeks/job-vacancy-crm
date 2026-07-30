@@ -1277,3 +1277,8 @@ Google Cloud заблакаваў API доступ — усе мадэлі вя�
 ### Added
 - `backend/utils/messageFilters.js`: У гейткіпер дададзена праверка "Актуальність: Ні" па ўсім тэксце (без ліміту 200 сімвалаў) для Job Impulse.
 - `backend/services/airtable.service.js`: Дададзена праверка `isManualActionInProgress` для сінхранізацыі з Airtable.
+[v8.15] - 2026-07-30 - Архітэктурная стабілізацыя сінхранізацыі
+- Implemented DB-level lock (SyncState.isRunning) to prevent parallel syncs across process restarts.
+- Added "One Circle Per Day" logic: full sync starts only after 07:00 and only once a day.
+- Fixed OTTO: dynamic sheet selection (WEEK XX) in Google Sheets.
+- Added Dev Log Bot: critical sync errors are now sent directly to the recruiter's Telegram.

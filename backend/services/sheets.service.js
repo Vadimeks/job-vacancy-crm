@@ -9,7 +9,11 @@ const aiService = require("./ai.service");
 const scraperService = require("./scraper.service");
 const { analyzeAndCompareWithGemini, enrichTextWithDocs } = require("./gemini.service");
 const { processVacancyMessage } = require("../routes/vacancies");
-
+const {
+  sendToTelegram,
+  notifyRecruiterAboutMatch,
+  notifyDev, // 👈 Дадаць сюды
+} = require("./telegram.service");
 const auth = new google.auth.GoogleAuth({
   keyFile: path.join(process.cwd(), "google-creds.json"),
   scopes: ["https://www.googleapis.com/auth/spreadsheets.readonly"],
@@ -589,10 +593,40 @@ async function syncSheetVacancies(sourceId) {
   const foundHashesInSheet = new Set();
 
   try {
+    // 👈 ДАДАДЗЕНА: Дынамічны выбар ліста для OTTO (v8.14)
+    let actualSheetName = source.sheetName;
+
+    if (source.agencyName === "OTTO") {
+      try {
+        const meta = await sheets.spreadsheets.get({
+          spreadsheetId: source.spreadsheetId,
+          includeGridData: false
+        });
+        const titles = meta.data.sheets.map(s => s.properties.title);
+        
+        // Шукаем усе лісты WEEK XX (ігнаруючы рэгістр і прабелы) і бярэм з самым вялікім нумарам
+        const weekSheets = titles
+          .filter(t => /WEEK\s*\d+/i.test(t))
+          .map(t => ({ title: t, num: parseInt(t.match(/\d+/)[0]) }))
+          .sort((a, b) => b.num - a.num);
+
+        if (weekSheets.length > 0) {
+          actualSheetName = weekSheets[0].title;
+          if (actualSheetName !== source.sheetName) {
+            console.log(`📅 [OTTO] Знойдзены новы ліст: ${actualSheetName} (было: ${source.sheetName})`);
+            source.sheetName = actualSheetName;
+            await source.save(); // Захоўваем у базу, каб наступны раз не шукаць занова
+          }
+        }
+      } catch (metaErr) {
+        console.error("⚠️ Не ўдалося атрымаць спіс лістоў для OTTO:", metaErr.message);
+      }
+    }
+
     // Разумнае фармаванне назвы ліста: двукоссі патрэбны толькі калі ёсць прабелы
-    const safeSheetName = source.sheetName.includes(" ")
-      ? `'${source.sheetName}'`
-      : source.sheetName;
+    const safeSheetName = actualSheetName.includes(" ")
+      ? `'${actualSheetName}'`
+      : actualSheetName;
 
     const response = await sheets.spreadsheets.get({
       spreadsheetId: source.spreadsheetId,
@@ -1042,6 +1076,7 @@ async function syncSheetVacancies(sourceId) {
     console.log(`🏁 Сінхранізацыя ${source.sheetName} завершана.`);
   } catch (err) {
     console.error(`❌ Sync Error (${source.sheetName}):`, err.message);
+    await notifyDev(`❌ <b>Sheets Sync Error</b>\nAgency: ${source.agencyName}\nSheet: ${source.sheetName}\nError: ${err.message}`);
     await SyncHistory.create({
       agencyName: source.agencyName,
       sheetName: source.sheetName,

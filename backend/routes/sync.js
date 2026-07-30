@@ -18,8 +18,12 @@ router.post("/agency", async (req, res) => {
     return res.status(400).json({ message: "Спіс агенцый пусты" });
   }
 
-  if (global.isSyncRunning) {
-    return res.status(409).json({ message: "Сканаванне ўжо ідзе. Паспрабуйце пазней." });
+  // 👈 ПРАВЕРКА БЛАКІРОЎКІ Ў БД (v8.15)
+  const SyncState = require("../models/SyncState");
+  const currentLock = await SyncState.findOne({ key: "circular_sync_position" });
+  
+  if (currentLock?.isRunning && currentLock?.lockedAt > new Date(Date.now() - 60 * 60 * 1000)) {
+    return res.status(409).json({ message: "Сканаванне ўжо ідзе (заблакавана ў БД). Паспрабуйце пазней." });
   }
 
   console.log(`🚀 [Manual Sync] Запуск для: ${agencies.join(", ")}`);
@@ -34,7 +38,12 @@ router.post("/agency", async (req, res) => {
   res.json({ message: `Сканаванне для ${agencies.length} агенцый запушчана` });
 
   setImmediate(async () => {
-   
+   // Ставім блакіроўку ў БД для ручнога запуску
+    await SyncState.findOneAndUpdate(
+      { key: "circular_sync_position" },
+      { isRunning: true, lockedAt: new Date(), isComplete: false },
+      { upsert: true }
+    );
     global.stopSyncRequested = false; // 👈 Скідваем пры кожным старце
     let stopReason = null; // 'user' або 'limit'
 

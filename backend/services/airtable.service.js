@@ -7,6 +7,7 @@ const { analyzeAndCompareWithGemini } = require("./gemini.service");
 const airtableScraper = require("./airtableScraper.service");
 const SyncState = require("../models/SyncState"); 
 const { checkVacancyGatekeeper } = require("../utils/messageFilters");
+const { notifyDev } = require("./telegram.service"); // 👈 Дадаць імпарт
 /**
  * Сінхранізацыя Airtable з выкарыстаннем поўнага AI-пайплайна
  */
@@ -40,6 +41,7 @@ async function syncAirtable() {
 
     } catch (err) {
       console.error(`❌ [Airtable] Памылка ў ${source.agencyName}:`, err.message);
+      await notifyDev(`❌ <b>Airtable Sync Error</b>\nAgency: ${source.agencyName}\nError: ${err.message}`);
     }
     await new Promise(r => setTimeout(r, 5000));
   }

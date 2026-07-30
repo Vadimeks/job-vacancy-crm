@@ -4,6 +4,10 @@ const syncStateSchema = new mongoose.Schema(
   {
     key: { type: String, default: "circular_sync_position", unique: true },
     
+    // Стан выканання (DB-level lock)
+    isRunning: { type: Boolean, default: false },
+    lockedAt: { type: Date, default: null },
+
     // На якой крыніцы мы спыніліся ў мінулы раз
     lastSourceType: { 
       type: String, 
@@ -18,9 +22,9 @@ const syncStateSchema = new mongoose.Schema(
     // Спіс усіх крыніц у парадку "Кола", які мы прайшлі
     processedInCircle: [{ type: mongoose.Schema.Types.ObjectId }],
 
-    // 👈 ДАДАДЗЕНА: ці паспяхова завершана апошняе кола
+    // Ці паспяхова завершана апошняе кола
     isComplete: { type: Boolean, default: false },
-    lastFullCircleAt: { type: Date, default: null } // 👈 Дадаем дату фінішу поўнага кола
+    lastFullCircleAt: { type: Date, default: null } 
   },
   { timestamps: true }
 );

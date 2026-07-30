@@ -64,13 +64,31 @@ async function runSyncWithInsurance(forceRun = false) {
   const Vacancy = require("./models/Vacancy");
 
   try {
-// 👈 ДАДАДЗЕНА: абарона ад паралельных запускаў
-    if (global.isSyncRunning) {
-      console.log(`⏳ [Sync] Сінхранізацыя ўжо ідзе. Пропуск.`);
-      return;
+    // 1. Атамарная блакіроўка ў БД (v8.15)
+    // Калі isRunning: true І замок не "пратух" (менш за 1 гадзіну), то выходзім.
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+    
+    const lock = await SyncState.findOneAndUpdate(
+      { 
+        key: "circular_sync_position",
+        $or: [
+          { isRunning: false },
+          { lockedAt: { $lt: oneHourAgo } } // Абарона ад завіслых працэсаў
+        ]
+      },
+      { isRunning: true, lockedAt: new Date() },
+      { new: true, upsert: true }
+    );
+
+    if (!lock || (lock.isRunning && lock.lockedAt > new Date(Date.now() - 1000))) {
+      // Калі запыт не абнавіў дакумент (значыць, нехта іншы ўжо паставіў isRunning: true)
+      if (!forceRun) {
+        console.log(`⏳ [Sync] Сінхранізацыя заблакавана ў БД іншым працэсам. Пропуск.`);
+        return;
+      }
     }
-   
-global.isSyncRunning = true;
+
+    global.isSyncRunning = true; // Пакідаем для сумяшчальнасці з лакальнымі праверкамі
  if (global.isChatProcessing) {
       console.log(`⏳ [Sync] Канвеер чатаў заняты. Чакаем завяршэння (макс. 2 хвіліны)...`);
       const waitResult = await Promise.race([
@@ -188,8 +206,12 @@ global.isSyncRunning = true;
   } catch (err) {
     console.error("❌ [Sync] Памылка канвеера:", err.message);
   } finally {
-    // 👈 ДАДАДЗЕНА: заўсёды вызваляем флаг пасля заканчэння
     global.isSyncRunning = false;
+    // 👈 ВЫЗВАЛЯЕМ ЗАМОК У БД (v8.15)
+    await SyncState.findOneAndUpdate(
+      { key: "circular_sync_position" },
+      { isRunning: false }
+    );
   }
 } 
 // Правяраем стан канвеера кожныя 10 хвілін - ЗАКАМЕНТАВАНА КАБ СІНХРАНІЗАВАЦЬ УРУЧНУЮ

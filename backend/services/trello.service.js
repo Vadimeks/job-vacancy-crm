@@ -5,6 +5,7 @@ const UnprocessedMessage = require("../models/UnprocessedMessage");
 const { processVacancyMessage } = require("../routes/vacancies");
 const { analyzeAndCompareWithGemini } = require("./gemini.service");
 const { checkVacancyGatekeeper } = require("../utils/messageFilters");
+const { notifyDev } = require("./telegram.service"); // 👈 Дадаць імпарт
 /**
  * Нармалізацыя назвы: выдаленне эмодзі і лішніх прабелаў
  */
@@ -280,6 +281,9 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
           }
 
           // 🚀 Stage 2: БАТЧ-ПАРСІНГ (Адпраўляем усе фрагменты Трэла адразу)
+          // 👈 ВЫПРАЎЛЕНА: trelloTargetStatus нідзе не аб'яўляўся, кідаў ReferenceError і крашыў сінхранізацыю дошкі.
+          // Trello, у адрозненне ад Airtable, не мае логікі "closed" па назвах калонак — заўсёды "active".
+          const trelloTargetStatus = "active";
           const result = await processVacancyMessage(
             analysis.translatedFragments, // 👈 Перадаем увесь масіў
             "Trello",
@@ -392,6 +396,7 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
     );
   } catch (err) {
     console.error(`❌ [Trello] Sync Error (${source.boardName}):`, err.message);
+    await notifyDev(`❌ <b>Trello Sync Error</b>\nBoard: ${source.boardName}\nError: ${err.message}`);
   }
 }
 
