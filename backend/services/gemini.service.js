@@ -170,12 +170,12 @@ All output fragments MUST be in Ukrainian. If the input is in Russian or Polish,
 
 CLASSIFICATION RULES:
 - FULL_VACANCY: Detailed job ad. 
-!!! SPREADSHEET EXCEPTION: If the source is [SOURCE: SPREADSHEET_ROW], classify it as FULL_VACANCY even if it is shorter than 400 characters, provided it contains a City and Job Title.
-!!! FOR OTHER SOURCES: Must be 400+ characters AND contain a worker's rate (e.g., "25 zł/god"), Duties and City. If shorter than 400 chars and NOT a spreadsheet row, classify as UPDATE.
-!! LIST RULE: If the message contains a list of multiple short job summaries (like a digest), classify the WHOLE message as UPDATE and DO NOT split it.
+!!! SPREADSHEET RULE: If the source is [SOURCE: SPREADSHEET_ROW], NEVER classify it as NOISE. If it has a city and any job-related text, it is ALWAYS either FULL_VACANCY or UPDATE.
+!!! FOR OTHER SOURCES: Must be 400+ characters AND contain a worker's rate. !! LIST RULE: If the message contains a list of multiple short job summaries (like a digest), classify the WHOLE message as UPDATE and DO NOT split it.
 !!! MIXED MESSAGE: If a message contains one detailed vacancy (more than 400 characters) and several short ones (less than 400 characters each), extract ONLY the detailed one into translatedFragments and set category to FULL_VACANCY.
 !!! ANTI-CV RULE: If the text is a Job Application or CV from a candidate (e.g., "Шукаю роботу", "Ми працювали на складах", "Я водій", "2 сестри хочуть разом"), classify it as NOISE or UPDATE. NEVER classify a candidate's request as a FULL_VACANCY.
-- UPDATE: Any text shorter than 400 characters, short status changes (STOP, CLOSED), or lists of multiple short job summaries (digests).
+- UPDATE: Any text shorter than 400 characters (except spreadsheet rows), short status changes (STOP, CLOSED), or lists of multiple short job summaries (digests).
+!!! SPREADSHEET RULE: If a spreadsheet row is very short but contains a job update, use this category. NEVER use NOISE for spreadsheet rows that contain data.
 - TRUNCATED: A job ad that is clearly cut off (ends mid-sentence, mid-word, or ends with "..." / "…").
 - RECRUITER_INFO: Information about recruiter bonuses, partner terms, legal updates, or office rules. If a message is primarily about "money per candidate", it belongs here, Legal info, office hours, document rules, or general cooperation terms.
 - NOISE: Greetings, emojis only, system messages, or social chat.

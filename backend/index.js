@@ -88,13 +88,17 @@ async function runSyncWithInsurance(forceRun = false) {
       throw e;
     }
 
-    if (!lock || (lock.isRunning && lock.lockedAt > new Date(Date.now() - 1000))) {
-      // Калі запыт не абнавіў дакумент (значыць, нехта іншы ўжо паставіў isRunning: true)
+    // 👈 ВЫПРАЎЛЕНА: Калі lock === null, значыць дакумент не знайшоўся па ўмовах (isRunning: false або stale)
+    // Гэта значыць, што зараз нехта іншы ўжо трымае актыўны замок.
+    if (!lock) {
       if (!forceRun) {
-        console.log(`⏳ [Sync] Сінхранізацыя заблакавана ў БД іншым працэсам. Пропуск.`);
+        const current = await SyncState.findOne({ key: "circular_sync_position" });
+        console.log(`⏳ [Sync] Заблакавана ў БД. Замок пастаўлены: ${current?.lockedAt?.toLocaleString() || 'невядома'}. Пропуск.`);
         return;
       }
     }
+    
+    console.log("🔓 [Sync] Замок атрыманы, пачынаем працу.");
 
     global.isSyncRunning = true; // Пакідаем для сумяшчальнасці з лакальнымі праверкамі
  if (global.isChatProcessing) {
