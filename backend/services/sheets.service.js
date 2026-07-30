@@ -670,7 +670,11 @@ async function syncSheetVacancies(sourceId) {
       (v) => v.formattedValue || "",
     );
     // 👈 АБНАЎЛЯЕМ ПРАГРЭС (колькасць радкоў)
-    global.syncProgress.total = rowData.length - (headerRowIndex + 1);
+    // 👈 ВЫПРАЎЛЕНА: лічым толькі запоўненыя радкі для дакладнасці прагрэсу (v8.16)
+    const actualRows = rowData.slice(headerRowIndex + 1).filter(row => {
+      return row.values && row.values.some(v => v.formattedValue && v.formattedValue.trim() !== "");
+    });
+    global.syncProgress.total = actualRows.length;
     global.syncProgress.current = 0;
     console.log("📋 Загалоўкі:", headers.filter((h) => h.trim()).join(" | "));
 
@@ -701,12 +705,15 @@ async function syncSheetVacancies(sourceId) {
         return "STOP_ALL";
       }
       const cells = resolveMergedCells(i, rowData, merges);
+      
+      // 👈 ВЫПРАЎЛЕНА: дададзена праверка pixelSize для поўнага ігнаравання схаваных радкоў (v8.16)
+      const meta = rowData[i].rowMetadata;
       if (
-        rowData[i].rowMetadata?.hiddenByUser ||
-        rowData[i].rowMetadata?.hiddenByFilter ||
-        rowData[i].rowMetadata?.hiddenByParent // 👈 ДАДАДЗЕНА: групоўка радкоў (напр. MRÓWKI)
-      )
-        continue;
+        meta?.hiddenByUser || 
+        meta?.hiddenByFilter || 
+        meta?.hiddenByParent || 
+        meta?.pixelSize === 0
+      ) continue;
 
       // Перадаем headers і індэкс i для дакладнага вызначэння статусу і логаў
       const rowStatus = getRowStatus(cells, source.agencyName, headers, i);
@@ -948,9 +955,10 @@ async function syncSheetVacancies(sourceId) {
     // --- АЎТА-ЗАКРЫЦЦЁ ВАКАНСІЙ, ЯКІХ НЯМА Ў ТАБЛІЦЫ ---
     if (foundHashesInSheet.size > 0) {
       // Знаходзім вакансіі, якія будуць закрыты, каб захаваць іх ID для справаздачы
+      // 👈 ВЫПРАЎЛЕНА: закрываем вакансіі агенцыі па ўсіх лістах, калі іх няма ў бягучым скане (v8.16)
       const vacanciesToClose = await Vacancy.find({
         agencyName: source.agencyName,
-        sheetName: source.sheetName, // 👈 ДАДАДЗЕНА: шукаем толькі ў межах гэтага ліста
+        sourceType: "spreadsheet",
         status: "active",
         sourceHash: { $exists: true, $nin: Array.from(foundHashesInSheet) },
       }).select("_id vacancyCode vacancydescription position");
@@ -958,7 +966,7 @@ async function syncSheetVacancies(sourceId) {
       const closeResult = await Vacancy.updateMany(
         {
           agencyName: source.agencyName,
-          sheetName: source.sheetName, // 👈 ДАДАДЗЕНА: закрываем толькі свае
+          sourceType: "spreadsheet",
           status: "active",
           sourceHash: { $exists: true, $nin: Array.from(foundHashesInSheet) },
         },

@@ -1282,3 +1282,10 @@ Google Cloud заблакаваў API доступ — усе мадэлі вя�
 - Added "One Circle Per Day" logic: full sync starts only after 07:00 and only once a day.
 - Fixed OTTO: dynamic sheet selection (WEEK XX) in Google Sheets.
 - Added Dev Log Bot: critical sync errors are now sent directly to the recruiter's Telegram.
+[v8.16] - 2026-07-30 - Паляпшэнне дакладнасці сінхранізацыі табліц і фікс блакіроўкі
+Fixed
+- backend/services/sheets.service.js: Дададзена праверка `pixelSize: 0` у метададзеных радка. Цяпер схаваныя ў Google Sheets радкі ігнаруюцца карэктна, нават калі яны не пад фільтрам.
+- backend/services/sheets.service.js: Логіка аўта-закрыцця вакансій цяпер працуе ў межах усёй агенцыі (`agencyName`), а не аднаго ліста. Гэта дазваляе аўтаматычна закрываць вакансіі пры пераходзе на новы тыдзень (напр. з WEEK 23 на WEEK 29 у OTTO).
+- backend/index.js: Дададзена апрацоўка памылкі `E11000` (Duplicate Key) пры спробе атамарнага стварэння замка сінхранізацыі. Цяпер паралельныя запыты ад Watchdog і ручнога запуску не выклікаюць краш працэсу.
+- backend/services/gemini.service.js: У промпт Stage 1 дададзена выключэнне для крыніцы `SPREADSHEET_ROW`. AI цяпер дазваляе класіфікаваць кароткія радкі з табліц як `FULL_VACANCY`, калі там ёсць горад і пасада, што вырашае праблему пазнакі "NOISE" для вакансій OTTO.
+- backend/services/sheets.service.js: Абноўлены падлік `global.syncProgress.total`. Цяпер лічацца толькі радкі, якія маюць тэкставыя дадзеныя, што робіць прагрэс-бар у адмінцы дакладным.

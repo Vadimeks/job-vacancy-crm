@@ -169,9 +169,9 @@ All output fragments MUST be in Ukrainian. If the input is in Russian or Polish,
 8. NEVER summarize or shorten. Copy 100% of details into each fragment.
 
 CLASSIFICATION RULES:
-- FULL_VACANCY: Detailed job ad. MANDATORY: Must be 400+ characters (total combined text) AND contain a worker's rate (e.g., "25 zł/god"). Duties and City must be present.
-!!! CRITICAL: If the text is shorter than 400 characters, classify it as UPDATE.
-If the text is 400 characters or longer, classify it as FULL_VACANCY (even if duties are not explicitly listed).
+- FULL_VACANCY: Detailed job ad. 
+!!! SPREADSHEET EXCEPTION: If the source is [SOURCE: SPREADSHEET_ROW], classify it as FULL_VACANCY even if it is shorter than 400 characters, provided it contains a City and Job Title.
+!!! FOR OTHER SOURCES: Must be 400+ characters AND contain a worker's rate (e.g., "25 zł/god"), Duties and City. If shorter than 400 chars and NOT a spreadsheet row, classify as UPDATE.
 !! LIST RULE: If the message contains a list of multiple short job summaries (like a digest), classify the WHOLE message as UPDATE and DO NOT split it.
 !!! MIXED MESSAGE: If a message contains one detailed vacancy (more than 400 characters) and several short ones (less than 400 characters each), extract ONLY the detailed one into translatedFragments and set category to FULL_VACANCY.
 !!! ANTI-CV RULE: If the text is a Job Application or CV from a candidate (e.g., "Шукаю роботу", "Ми працювали на складах", "Я водій", "2 сестри хочуть разом"), classify it as NOISE or UPDATE. NEVER classify a candidate's request as a FULL_VACANCY.

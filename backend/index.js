@@ -64,21 +64,29 @@ async function runSyncWithInsurance(forceRun = false) {
   const Vacancy = require("./models/Vacancy");
 
   try {
-    // 1. Атамарная блакіроўка ў БД (v8.15)
-    // Калі isRunning: true І замок не "пратух" (менш за 1 гадзіну), то выходзім.
+  
+  // 1. Атамарная блакіроўка ў БД (v8.16 - з апрацоўкай E11000)
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
-    
-    const lock = await SyncState.findOneAndUpdate(
-      { 
-        key: "circular_sync_position",
-        $or: [
-          { isRunning: false },
-          { lockedAt: { $lt: oneHourAgo } } // Абарона ад завіслых працэсаў
-        ]
-      },
-      { isRunning: true, lockedAt: new Date() },
-      { new: true, upsert: true }
-    );
+    let lock;
+    try {
+      lock = await SyncState.findOneAndUpdate(
+        { 
+          key: "circular_sync_position",
+          $or: [
+            { isRunning: false },
+            { lockedAt: { $lt: oneHourAgo } }
+          ]
+        },
+        { isRunning: true, lockedAt: new Date() },
+        { new: true, upsert: true }
+      );
+    } catch (e) {
+      if (e.code === 11000) {
+        console.log("⏳ [Sync] Паралельны працэс ужо стварыў замок. Пропуск.");
+        return;
+      }
+      throw e;
+    }
 
     if (!lock || (lock.isRunning && lock.lockedAt > new Date(Date.now() - 1000))) {
       // Калі запыт не абнавіў дакумент (значыць, нехта іншы ўжо паставіў isRunning: true)
