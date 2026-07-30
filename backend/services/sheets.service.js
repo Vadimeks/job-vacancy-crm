@@ -801,7 +801,7 @@ async function syncSheetVacancies(sourceId) {
         console.log(
           `🔄 [Row ${i + 1}] ${existingVacancy.status === "pending_ai" ? "Даапрацоўка чаргі" : "Абнаўленне"}: ${existingVacancy.vacancyCode}`
         );
-      
+       }
 
       // --- ЭТАП 1: ЗБОР ДАДЗЕНЫХ ---
       console.log(`Этап 1. [Row ${i + 1}] Апрацоўка: ${rowTitle}`);
@@ -855,7 +855,7 @@ async function syncSheetVacancies(sourceId) {
           await existingVacancy.save();
           console.log(`💾 Этап 4.5. Чарнавік ${existingVacancy.vacancyCode} абноўлены новым тэкстам.`);
         }
-      }
+      
 // 🔍 ДЫЯГНОСТЫКА: Глядзім, што сабрана з радка табліцы (v8.18)
       if (source.agencyName === "OTTO") {
         console.log(`\n--- 📝 [DEBUG OTTO Row ${i + 1}] START ---`);
