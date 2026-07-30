@@ -218,7 +218,10 @@ async function analyzeAndCompareWithGemini(
 RECENT_CONTEXT: ${JSON.stringify([...recentMessages, ...recentVacancies].slice(0, 5))}
 NEW_MESSAGE: ${safeEnrichedText}
 `;
-
+// 🔍 ДЫЯГНОСТЫКА: Глядзім, што бачыць AI на Stage 1 (v8.18)
+    if (safeEnrichedText.includes("OTTO")) {
+      console.log("🧠 [AI Stage 1 Input]:", userContent);
+    }
   try {
     console.log(`🔍 Stage 1: Класіфікацыя і спліцінг (Tier 1)...`);
 

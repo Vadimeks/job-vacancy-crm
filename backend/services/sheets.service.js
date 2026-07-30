@@ -852,7 +852,12 @@ async function syncSheetVacancies(sourceId) {
           console.log(`💾 Этап 4.5. Чарнавік ${existingVacancy.vacancyCode} абноўлены новым тэкстам.`);
         }
       }
-
+// 🔍 ДЫЯГНОСТЫКА: Глядзім, што сабрана з радка табліцы (v8.18)
+      if (source.agencyName === "OTTO") {
+        console.log(`\n--- 📝 [DEBUG OTTO Row ${i + 1}] START ---`);
+        console.log(rawRowText);
+        console.log(`--- 📝 [DEBUG OTTO Row ${i + 1}] END (Length: ${rawRowText.length}) ---\n`);
+      }
       // --- ЭТАП 5-7: AI АПРАЦОЎКА ---
       const analysis = await analyzeAndCompareWithGemini(rawRowText, [], recentVacancies);
 
