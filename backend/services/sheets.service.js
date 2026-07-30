@@ -801,7 +801,7 @@ async function syncSheetVacancies(sourceId) {
         console.log(
           `🔄 [Row ${i + 1}] ${existingVacancy.status === "pending_ai" ? "Даапрацоўка чаргі" : "Абнаўленне"}: ${existingVacancy.vacancyCode}`
         );
-      }
+      
 
       // --- ЭТАП 1: ЗБОР ДАДЗЕНЫХ ---
       console.log(`Этап 1. [Row ${i + 1}] Апрацоўка: ${rowTitle}`);
@@ -809,8 +809,11 @@ async function syncSheetVacancies(sourceId) {
 
       let rawRowText = "";
 
-      // ПРАВЕРКА: Ці ёсць у нас ужо гатовы тэкст (пасля мінулага збою AI)?
-      
+      // 👈 ВЫПРАЎЛЕНА: адноўлена логіка праверкі чаргі і закрыты дужкі (v8.18)
+      if (existingVacancy && existingVacancy.rawText && existingVacancy.status === "pending_ai") {
+        console.log(`📦 Этап 4.5. Выкарыстоўваем захаваны тэкст (Stage 0/1 пропуск)`);
+        rawRowText = existingVacancy.rawText;
+      } else {
         // --- ЭТАП 2-4: ЗАГРУЗКА DRIVE / TELEGRAPH ---
         let externalContent = "";
         for (const { url, header } of externalUrls) {
@@ -818,12 +821,13 @@ async function syncSheetVacancies(sourceId) {
             const scraped = await scraperService.getExternalContent(url);
             if (scraped) externalContent += `\n\n--- ЗМЕСТ ПА СПАСЫЛЦЫ (${header}) ---\n${scraped}`;
           }
-        
+        } // 👈 ДАДАДЗЕНА ДУЖКА (закрывае цыкл спасылак)
 
         const rowBodyTextOnly = `[SOURCE: SPREADSHEET_ROW | AGENCY: ${source.agencyName}]\n${rowBodyText}`;
         
         // Выклікаем узбагачэнне (Этапы 2, 3, 4 унутры gemini.service)
         rawRowText = await enrichTextWithDocs(rowBodyTextOnly + externalContent);
+      } // 👈 ГЭТА ЗАКРЫВАЕ ELSE 
         
         // 💾 ЗАХАВАННЕ ПРАГРЭСУ: Калі вакансія новая, ствараем яе як чарнавік
         if (!existingVacancy) {
