@@ -858,10 +858,8 @@ async function syncSheetVacancies(sourceId) {
       
 // 🔍 ДЫЯГНОСТЫКА: Глядзім, што сабрана з радка табліцы (v8.18)
       if (source.agencyName === "OTTO") {
-        console.log(`\n--- 📝 [DEBUG OTTO Row ${i + 1}] START ---`);
-        console.log(rawRowText);
-        console.log(`--- 📝 [DEBUG OTTO Row ${i + 1}] END (Length: ${rawRowText.length}) ---\n`);
-      }
+  console.log(`📝 [OTTO Row ${i + 1}] Length: ${rawRowText.length}`);
+}
       // --- ЭТАП 5-7: AI АПРАЦОЎКА ---
       const analysis = await analyzeAndCompareWithGemini(rawRowText, [], recentVacancies);
 
