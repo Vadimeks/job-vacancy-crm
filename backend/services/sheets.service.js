@@ -733,7 +733,7 @@ async function syncSheetVacancies(sourceId) {
       );
 
       if (!rowBodyText.trim()) continue;
-
+let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была бачна ўсім (v8.19)
       // 2. Ствараем СЕМАНТЫЧНЫ ХЭШ (Агенцыя + Ліст + Якар)
       // Нармалізуем якар і назву ліста (ніжні рэгістр, выдаленне прабелаў), каб хэш быў стабільным
       // нават пры змене рэгістра назвы ўкладкі ў Google Sheets (v3.2)
@@ -807,7 +807,7 @@ async function syncSheetVacancies(sourceId) {
       console.log(`Этап 1. [Row ${i + 1}] Апрацоўка: ${rowTitle}`);
       foundHashesInSheet.add(rowHash);
 
-      let rawRowText = "";
+
 
       // 👈 ВЫПРАЎЛЕНА: адноўлена логіка праверкі чаргі і закрыты дужкі (v8.18)
       if (existingVacancy && existingVacancy.rawText && existingVacancy.status === "pending_ai") {

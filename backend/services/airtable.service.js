@@ -273,6 +273,13 @@ async function syncSingleSource(source) {
 
     console.log(`🧠 Этап 5. AI апрацоўка: ${source.agencyName} | ID: ${airtableId}`);
     const analysis = await analyzeAndCompareWithGemini(rawAirtableDump, [], []);
+
+    // 👈 ВЫПРАЎЛЕНА: Абарона ад крашу, калі AI недаступны (v8.19)
+    if (!analysis) {
+      console.warn(`⚠️ [Airtable] AI недаступны для запісу ${airtableId}. Пропуск.`);
+      stats.ignored++;
+      continue;
+    }
     // 🔍 ДЫЯГНОСТЫКА (часова, v8.3): правяраем гіпотэзу пра UPDATE, які пралазіць міма фільтра
     console.log(`🔍 [Category Debug] ${source.agencyName} | ID: ${airtableId} | Column: "${columnName}" | AI Category: ${analysis?.category || "NULL"} | Title: "${rawAirtableDump.substring(0, 60).replace(/\n/g, " ")}..."`);
     // 👈 ВЫПРАЎЛЕНА: Вакансія ствараецца ТОЛЬКІ пры FULL_VACANCY. Усё астатняе (UPDATE, INFO) — у Inbox (v8.3)

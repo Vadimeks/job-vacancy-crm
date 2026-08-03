@@ -166,7 +166,8 @@ All output fragments MUST be in Ukrainian. If the input is in Russian or Polish,
 5. SHARED INFO RULE: If the message contains a general block (e.g., "Contacts:", "General conditions:", "How to apply:") that applies to all vacancies, you MUST APPEND this block to the END of EVERY fragment in translatedFragments. Do not lose contact information.
 6. GOLDEN RULE: When in doubt — return ONE fragment. Incorrect splitting is far worse than not splitting.
 7. ALL fragments MUST be in UKRAINIAN ONLY.
-8. NEVER summarize or shorten. Copy 100% of details into each fragment.
+8. - NEVER summarize or shorten core job details. 
+- !!! EXCEPTION: If the text contains extremely long lists of bus stops, coordinates, or repetitive directions (more than 10 items), you MUST summarize them as "[Detailed transport list skipped]" to keep the response within limits.
 
 CLASSIFICATION RULES:
 - FULL_VACANCY: Detailed job ad. 

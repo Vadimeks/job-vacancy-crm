@@ -254,7 +254,15 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
             // 💾 ЗАХАВАННЕ ПРАГРЭСУ: Калі вакансія новая...
           // --- ЭТАП 5-7: AI АПРАЦОЎКА ---
           const analysis = await analyzeAndCompareWithGemini(finalTrelloText);
-          // 🔍 ДЫЯГНОСТЫКА (часова, v8.3): правяраем гіпотэзу пра UPDATE, які пралазіць міма фільтра
+
+          // 👈 ВЫПРАЎЛЕНА: Абарона ад крашу, калі AI недаступны (v8.19)
+          if (!analysis) {
+            console.warn(`⚠️ [Trello] AI недаступны для карткі "${card.name}". Пропуск.`);
+            stats.ignored++;
+            continue;
+          }
+
+          // 🔍 ДЫЯГНОСТЫКА (часова, v8.3): правяраем гіпотэзу пра UPDATE...
           console.log(`🔍 [Category Debug] ${source.agencyName} | Card: "${card.name}" | List: "${list.name}" | AI Category: ${analysis?.category || "NULL"}`);
 // 👈 ВЫПРАЎЛЕНА: Вакансія ствараецца ТОЛЬКІ пры FULL_VACANCY. Усё астатняе (UPDATE, INFO) — у Inbox (v8.3)
           if (analysis.category !== "FULL_VACANCY") {
