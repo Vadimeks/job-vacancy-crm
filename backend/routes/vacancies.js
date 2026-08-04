@@ -55,30 +55,15 @@ function buildSyntheticRawText(v) {
 // БЛОК 1: АПТЫМІЗАВАНЫ ГЕНЕРАТАР (толькі логіка падліку)
 // ============================================================
 async function generateVacancyCode() {
-  // Шукаем адну апошнюю вакансію з самым вялікім кодам
-  const lastVacancy = await Vacancy.findOne({}, { vacancyCode: 1 }).sort({
-    createdAt: -1, // 👈 ЗМЕНА: сартуем па даце, не па радку
-    // Было: vacancyCode: -1 — сартаванне як радок ("VAC-0099" > "VAC-0100" алфавітна)
-  });
-
-  let nextNum = 1;
-
-  if (lastVacancy && lastVacancy.vacancyCode) {
-    // Выцягваем лічбу з "VAC-0095" -> 95
-    const lastNum = parseInt(lastVacancy.vacancyCode.replace("VAC-", ""), 10);
-    if (!isNaN(lastNum)) {
-      nextNum = lastNum + 1;
-    }
-  }
-
-  // Абнаўляем Counter проста для парадку (неабавязкова, але карысна)
-  await Counter.findOneAndUpdate(
+  // 👈 ВЫПРАЎЛЕНА: Атамарная генерацыя кода праз $inc (v8.21)
+  // Гэта гарантуе унікальнасць нават пры паралельных запытах.
+  const counter = await Counter.findOneAndUpdate(
     { name: "vacancy" },
-    { $set: { seq: nextNum } },
-    { upsert: true },
+    { $inc: { seq: 1 } },
+    { new: true, upsert: true }
   );
 
-  return `VAC-${String(nextNum).padStart(4, "0")}`;
+  return `VAC-${String(counter.seq).padStart(4, "0")}`;
 }
 
 async function markInboxMessageAsProcessed(messageId) {

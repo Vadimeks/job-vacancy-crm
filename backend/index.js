@@ -50,7 +50,10 @@ app.use("/api/sync", require("./routes/sync")); // 👈 ДАДАДЗЕНА: ру
 // Падключэнне да БД
 mongoose
   .connect(process.env.MONGODB_URI)
-  .then(() => console.log("✅ MongoDB Connected"))
+  .then(() => {
+    console.log("✅ MongoDB Connected");
+    syncCountersWithDatabase(); // 👈 ВЫПРАЎЛЕНА: сінхранізуем лічыльнікі пры старце (v8.21)
+  })
   .catch(err => console.error("❌ MongoDB Connection Error:", err));
 
 // --- БЛОК РАЗУМНАЙ СІНХРАНІЗАЦЫІ (CRON + INSURANCE) ---
@@ -275,4 +278,35 @@ function startUserbot() {
   }
 
   spawnUserbot();
+}
+// 👈 ДАДАДЗЕНА: Сінхранізацыя лічыльнікаў з рэальнымі дадзенымі (v8.21)
+// Гэта патрэбна, каб пасля пераходу на $inc сістэма не пачала лічыць з 1.
+async function syncCountersWithDatabase() {
+  const Vacancy = require("./models/Vacancy");
+  const Candidate = require("./models/Candidate"); // 👈 ДАДАДЗЕНА
+  const Counter = require("./models/Counter");
+
+  try {
+    // 1. Сінхранізацыя для вакансій
+    const lastVac = await Vacancy.findOne({}, { vacancyCode: 1 }).sort({ createdAt: -1 });
+    if (lastVac && lastVac.vacancyCode) {
+      const lastNum = parseInt(lastVac.vacancyCode.replace("VAC-", ""), 10);
+      if (!isNaN(lastNum)) {
+        await Counter.findOneAndUpdate({ name: "vacancy" }, { $set: { seq: lastNum } }, { upsert: true });
+        console.log(`📊 [Init] Лічыльнік вакансій сінхранізаваны на: ${lastNum}`);
+      }
+    }
+
+    // 2. Сінхранізацыя для кандыдатаў (v8.21)
+    const lastCan = await Candidate.findOne({}, { candidateCode: 1 }).sort({ createdAt: -1 });
+    if (lastCan && lastCan.candidateCode) {
+      const lastNum = parseInt(lastCan.candidateCode.replace("CAN-", ""), 10);
+      if (!isNaN(lastNum)) {
+        await Counter.findOneAndUpdate({ name: "candidate" }, { $set: { seq: lastNum } }, { upsert: true });
+        console.log(`📊 [Init] Лічыльнік кандыдатаў сінхранізаваны на: ${lastNum}`);
+      }
+    }
+  } catch (err) {
+    console.error("❌ [Init] Памылка сінхранізацыі лічыльнікаў:", err.message);
+  }
 }

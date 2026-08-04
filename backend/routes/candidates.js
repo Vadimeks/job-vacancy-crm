@@ -2,6 +2,7 @@
 const express = require("express");
 const router = express.Router();
 const Candidate = require("../models/Candidate");
+const Counter = require("../models/Counter"); // 👈 ДАДАДЗЕНА (v8.21)
 const { matchVacanciesForCandidate } = require("../services/matching.service");
 
 // GET /api/candidates
@@ -80,14 +81,14 @@ router.get("/:id/match-vacancies", async (req, res) => {
 });
 // Функцыя генерацыі (дадай перад module.exports)
 async function generateCandidateCode() {
-  const Candidate = require("../models/Candidate");
-  const lastCandidate = await Candidate.findOne({}, { candidateCode: 1 }).sort({ createdAt: -1 });
-  let nextNum = 1;
-  if (lastCandidate && lastCandidate.candidateCode) {
-    const lastNum = parseInt(lastCandidate.candidateCode.replace("CAN-", ""), 10);
-    if (!isNaN(lastNum)) nextNum = lastNum + 1;
-  }
-  return `CAN-${String(nextNum).padStart(4, "0")}`;
+  // 👈 ВЫПРАЎЛЕНА: Атамарная генерацыя кода праз $inc (v8.21)
+  const counter = await Counter.findOneAndUpdate(
+    { name: "candidate" },
+    { $inc: { seq: 1 } },
+    { new: true, upsert: true }
+  );
+
+  return `CAN-${String(counter.seq).padStart(4, "0")}`;
 }
 
 router.post("/:id/history", async (req, res) => {

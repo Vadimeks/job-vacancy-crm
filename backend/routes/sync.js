@@ -93,10 +93,19 @@ router.post("/agency", async (req, res) => {
       console.error(`❌ [Manual Sync] Крытычная памылка:`, err.message);
       global.syncProgress.status = 'error';
     } finally {
-    global.isSyncRunning = false;
-    global.isManualActionInProgress = false;
-    global.isManualSync = false; // 👈 ДАДАДЗЕНА: скідаем сцяг пасля завяршэння ручнога запуску
-  }
+      global.isSyncRunning = false;
+      global.isManualActionInProgress = false;
+      global.isManualSync = false;
+      
+      // 👈 ВЫПРАЎЛЕНА: Прымусова вызваляем замок у БД пасля ручнога сканавання (v8.21)
+      const SyncState = require("../models/SyncState");
+      await SyncState.findOneAndUpdate(
+        { key: "circular_sync_position" },
+        { isRunning: false }
+      ).catch(err => console.error("⚠️ Не ўдалося вызваліць замок у БД:", err.message));
+      
+      console.log("🔓 [Manual Sync] Замок у БД вызвалены.");
+    }
   });
 });
 
