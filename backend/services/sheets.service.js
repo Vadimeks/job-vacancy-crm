@@ -125,6 +125,13 @@ const HEADER_KEYWORDS = [
   "od kiedy:",
   "stanowisko:",
   "kwatera",
+  // Staff Power 
+  "назва проекту/опис вакансії",
+  "оплата за кандидата",
+  "кількість кандидатів",
+  "дата виходу",
+  "місто роботи",
+  "агенція",
 ];
 
 /**
@@ -298,7 +305,13 @@ function getRowStatus(cells, agencyName, headers = [], rowIndex = 0) {
       }
     }
   }
-
+// 5. STAFF POWER: Калі колькасць кандыдатаў дакладна "0"
+    if (agencyName === "STAFF POWER" && h.includes("кількість кандидатів")) {
+      if (val === "0") {
+        console.log(`[Status Debug] Row: ${rowNum} | STAFF POWER: 0 кандыдатаў -> STOP`);
+        return "STOP";
+      }
+    }
   return "ACTIVE";
 }
 
@@ -356,6 +369,7 @@ function buildRowText(cells, headers, agencyName, sheetName) {
     "WORK&HUMAN": ["назва вакансії", "опис вакансії", "локалізалізація"],
     APOLO: ["вакансия", "офіс"],
     "PPG (BIEDRONKA)": ["projekt:", "region:", "stanowisko:"],
+    "STAFF POWER": ["назва проекту/опис вакансії", "місто роботи", "агенція"],
   };
 
   const agencyAnchors = ANCHOR_MAP[agencyName] || [];

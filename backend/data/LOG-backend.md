@@ -1310,3 +1310,9 @@ Fixed
 - **Manpower Cleanup:** Expanded filtering to catch informational cards (CV guides, partner payment terms, staff contacts, and legal document lists).
 - **Gatekeeper:** Added 8 new forbidden template markers to prevent AI from parsing non-vacancy records.
 - **Airtable Sync:** Added a smart length check for "Опис вакансії" templates to distinguish between empty placeholders and real job descriptions.
+## [v8.24] - 2024-05-22
+### Added
+- **New Source:** Integrated "STAFF POWER" Google Sheet via `seedSheetSources.js`.
+- **Sheets Sync:** Added custom anchor mapping for Staff Power (Project + City + Sub-agency) to ensure unique vacancy IDs.
+- **Sync Logic:** Implemented auto-stop rule for Staff Power: rows with "0" candidates are marked as CLOSED.
+- **AI Service:** Whitelisted "STAFF POWER" in `KNOWN_AGENCIES`.

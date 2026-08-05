@@ -52,6 +52,10 @@ const SOURCES = [
     agency: "APOLO",
     url: "https://docs.google.com/spreadsheets/d/1HYO05QEz6kMQUu-Keu6D51dnKS-8rvNm70YNIba5iZE/edit?gid=0#gid=0",
   },
+  {
+    agency: "STAFF POWER",
+    url: "https://docs.google.com/spreadsheets/d/19OHnpFuGvA8fypoGiYMFdBMUjynwIHRWvwHcuAVU8g8/edit?gid=0#gid=0",
+  },
 ];
 
 async function getSheetName(spreadsheetId, gid) {

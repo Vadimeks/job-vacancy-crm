@@ -78,6 +78,7 @@ const KNOWN_AGENCIES = [
 "MRÓWKI",
 "WORK&HUMAN",
 "RALEN",
+ "STAFF POWER",
 //trello
 "KREON",
   "NIDEN",
@@ -91,7 +92,6 @@ const KNOWN_AGENCIES = [
   "FWS",
   "KONO",
   "SG",
-  "STAFF POWER",
   //website
   "SOLANO",
   //without agency
