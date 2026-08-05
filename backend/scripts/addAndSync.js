@@ -41,16 +41,16 @@ const SheetSource = require("../models/SheetSource");
 const sheetsService = require("../services/sheets.service");
 
 const CONFIG = {
-  spreadsheetId: "13PN6zOZiDLAL-iLm58NSbsig4h_inXp-GfmNWxc53y8",
-  sheetName: "Польша",
-  agencyName: "INTRASERVICE",
+  spreadsheetId: "19OHnpFuGvA8fypoGiYMFdBMUjynwIHRWvwHcuAVU8g8",
+  sheetName: "Вакансії Staff Power Партнери",
+  agencyName: "STAFF POWER",
 };
 // КАНФІГУРАЦЫЯ: Калі хочаш апрацаваць УСЕ табліцы — пакінь null.
 // Калі адну канкрэтную — упішы яе spreadsheetId.
 
-const TARGET_SHEET_ID = "13PN6zOZiDLAL-iLm58NSbsig4h_inXp-GfmNWxc53y8";
-const TARGET_SHEET_NAME = "Польша";
-const TARGET_AGENCY_NAME = "INTRASERVICE";
+// const TARGET_SHEET_ID = "13PN6zOZiDLAL-iLm58NSbsig4h_inXp-GfmNWxc53y8";
+// const TARGET_SHEET_NAME = "Польша";
+// const TARGET_AGENCY_NAME = "INTRASERVICE";
 //---
 // const TARGET_SHEET_ID = "13PN6zOZiDLAL-iLm58NSbsig4h_inXp-GfmNWxc53y8";
 // const TARGET_SHEET_NAME = "Голандія";
@@ -96,6 +96,10 @@ const TARGET_AGENCY_NAME = "INTRASERVICE";
 // const TARGET_SHEET_ID = null;
 // const TARGET_SHEET_NAME = "";
 // const TARGET_AGENCY_NAME = "";
+//---
+const TARGET_SHEET_ID = "19OHnpFuGvA8fypoGiYMFdBMUjynwIHRWvwHcuAVU8g8";
+const TARGET_SHEET_NAME = "Вакансії Staff Power Партнери";
+const TARGET_AGENCY_NAME = "STAFF POWER";
 
 async function run() {
   try {

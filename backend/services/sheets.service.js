@@ -304,17 +304,20 @@ function getRowStatus(cells, agencyName, headers = [], rowIndex = 0) {
         return "STOP";
       }
     }
-  }
-// 5. STAFF POWER: Калі колькасць кандыдатаў дакладна "0"
+ 
+
+    // 5. STAFF POWER: Калі колькасць кандыдатаў дакладна "0"
     if (agencyName === "STAFF POWER" && h.includes("кількість кандидатів")) {
       if (val === "0") {
         console.log(`[Status Debug] Row: ${rowNum} | STAFF POWER: 0 кандыдатаў -> STOP`);
         return "STOP";
       }
     }
-  return "ACTIVE";
-}
+  } // канец цыкла for
 
+  return "ACTIVE";
+
+}
 /**
  * Здабывае значэнне, спасылку і нататку з адной ячэйкі.
  */
@@ -599,6 +602,9 @@ async function syncSheetVacancies(sourceId) {
 
   const stats = { added: 0, updated: 0, closed: 0, ignored: 0 };
   const details = [];
+  // Ініцыялізацыя прагрэсу (v8.26 fix)
+  global.syncProgress = { current: 0, total: 0, status: 'running', agency: source.agencyName };
+  global.stopSyncRequested = false;
   // 🔄 Чытаем стан "Кола" (Circular Sync)
   const SyncState = require("../models/SyncState");
   const syncState = await SyncState.findOne({ key: "circular_sync_position" }) || new SyncState();

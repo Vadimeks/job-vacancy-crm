@@ -1316,3 +1316,18 @@ Fixed
 - **Sheets Sync:** Added custom anchor mapping for Staff Power (Project + City + Sub-agency) to ensure unique vacancy IDs.
 - **Sync Logic:** Implemented auto-stop rule for Staff Power: rows with "0" candidates are marked as CLOSED.
 - **AI Service:** Whitelisted "STAFF POWER" in `KNOWN_AGENCIES`.
+## [v8.26] - 2024-05-22
+### Fixed
+- **Sheets Sync:** Fixed `ReferenceError: h is not defined` by moving Staff Power logic inside the header loop.
+- **Sheets Sync:** Fixed `TypeError` during progress initialization by ensuring `global.syncProgress` is defined before setting `total`.
+- **Gatekeeper:** Updated `forbiddenTemplates` with Manpower-specific markers to filter out non-vacancy cards.
+## [v8.27] - 2024-05-22
+### Fixed
+- **Gatekeeper:** Removed "опис вакансії" from global forbidden templates. This marker was causing false positives for Staff Power and other sources where "Опис вакансії" is used as a column header.
+- **Gatekeeper:** Fixed log encoding issue (replaced corrupted character with standard emoji).
+- **Staff Power Sync:** Verified that vacancies are now correctly passing through Stage 2 parsing after the filter adjustment.
+## [v8.27] - 2024-05-22
+### Fixed
+- **Gatekeeper:** Выдалены маркер "опис вакансії", які блакаваў STAFF POWER.
+- **Staff Power:** Поўная інтэграцыя завершана. Сістэма паспяхова спампоўвае апісанні з Google Docs і стварае актыўныя вакансіі.
+- **Sync:** Пацверджана стабільная праца Stage 2 (Groq/Vertex) для новых крыніц.
