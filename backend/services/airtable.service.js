@@ -88,6 +88,7 @@ async function syncSingleSource(source) {
     const row = records[i];
     const airtableId = row.id;
     const fields = row.fields;
+    const cardTitle = (fields["Назва"] || "").toLowerCase().trim(); // 👈 Здабываем загаловак для дакладнай фільтрацыі
     const columnName = (row.columnName || row.fields["Название колонки"] || "").toLowerCase();
     // 👈 ВЫПРАЎЛЕНА: Бяспечны збор тэксту без [object Object] (v8.4)
     const fieldsText = Object.values(fields)
@@ -128,23 +129,40 @@ async function syncSingleSource(source) {
     // --- 1. ІНДЫВІДУАЛЬНАЯ ФІЛЬТРАЦЫЯ (Blacklist v8.22) ---
     let shouldIgnore = false;
     if (source.agencyName === "MANPOWER") {
+      // А) Праверка слупкоў (Катэгорый) — тут усё застаецца як было
       const isBadColumn = 
         columnName.includes("rodo") || 
         columnName.includes("uncategorized") || 
         columnName.includes("виплата") ||
-        columnName.includes("выплата");
+        columnName.includes("1500");
 
+      // Б) Праверка менавіта ЗАГАЛОЎКА (каб не забіць апісанне вакансіі)
+      const isTrashTitle = 
+        cardTitle.includes("як створити cv") || 
+        cardTitle.includes("документи для uz") || 
+        cardTitle.includes("оплата фоп") ||
+        cardTitle.includes("про manpower") ||
+        cardTitle.includes("контакт з нами") ||
+        cardTitle.includes("умови співпраці") ||
+        cardTitle.includes("wniosek o udzielenie") ||
+        cardTitle.includes("oświadczenie o przekroczeniu") ||
+        (cardTitle === "опис вакансії" && fieldsText.length < 600); // Толькі калі загаловак пусты і тэксту мала
+
+      // В) Праверка на рэкруцэрскія маркеры (якіх НІКОЛІ няма ў вакансіях для кандыдатаў)
+      const isRecruiterOnly = 
+        fieldsText.includes("винагороду за кандидатів") || 
+        fieldsText.includes("прайс в документі ексель");
+
+      // Г) Праверка метак (Тэгаў)
       const isBadLabel = 
         fieldsText.includes("архів") || 
         fieldsText.includes("архив") || 
         fieldsText.includes("тимчасово") || 
         fieldsText.includes("временно") ||
-        fieldsText.includes("anglo") || 
-        fieldsText.includes("англійськ") ||
         fieldsText.includes("азія") || 
         fieldsText.includes("azja");
 
-      if (isBadColumn || isBadLabel) {
+      if (isBadColumn || isTrashTitle || isRecruiterOnly || isBadLabel) {
         shouldIgnore = true;
       }
     } else if (source.agencyName === "JOB IMPULSE") {

@@ -1305,3 +1305,8 @@ Fixed
 - **Airtable Sync:** Enhanced Manpower filtering logic. Added "Виплата 1500", "RODO_2026", and "Тимчасово" to the blacklist.
 - **Airtable Sync:** Implemented forced auto-closing for vacancies that moved to ignored columns or labels in the source.
 - **Gatekeeper:** Added "Uzbekistan", "Tajikistan", "Kyrgyzstan", "Nepal", and "Asia" to the nationality stop-list in `messageFilters.js` to prevent AI processing of unwanted regions.
+## [v8.23] - 2024-05-22
+### Fixed
+- **Manpower Cleanup:** Expanded filtering to catch informational cards (CV guides, partner payment terms, staff contacts, and legal document lists).
+- **Gatekeeper:** Added 8 new forbidden template markers to prevent AI from parsing non-vacancy records.
+- **Airtable Sync:** Added a smart length check for "Опис вакансії" templates to distinguish between empty placeholders and real job descriptions.

@@ -459,13 +459,24 @@ if (/\b(stop|стоп|архів|архив|неактив|не актив)\b/i.
   const forbiddenTemplates = [
     "анкета - подачи", "анкета подачі", "документы легального", "документи легального",
     "warunki współpracy", "особенности трудоустройства", "частые вопросы", 
-    "примери обьявлений", "приклади оголошень"
+    "примери обьявлений", "приклади оголошень",
+    "як створити cv", "документи для uz", "оплата фоп", "про manpower", 
+    "контакт з нами", "умови співпраці", "wniosek o udzielenie", 
+    "oświadczenie o przekroczeniu", "опис вакансії"
   ];
   
-  if (forbiddenTemplates.some(t => lowerText.includes(t))) {
-    console.log(`⏭️ [Gatekeeper Ignore] Выяўлены шаблон інфа-карткі.`);
+  // Правяраем, ці пачынаецца тэкст з забароненага шаблона (загаловак)
+    // Правяраем, ці ёсць забаронены шаблон у пачатку тэксту (загаловак)
+  const isForbidden = forbiddenTemplates.some(t => {
+    const index = lowerText.indexOf(t);
+    return index >= 0 && index < 80; // Шукаем толькі ў першых 80 сімвалах (загаловак)
+  });
+
+  if (isForbidden) {
+    console.log(`走️ [Gatekeeper Ignore] Выяўлены шаблон інфа-карткі ў загалоўку.`);
     return "IGNORE";
   }
+    
   return "PROCESS";
 }
 module.exports = {
