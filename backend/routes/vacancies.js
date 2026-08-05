@@ -367,6 +367,11 @@ const finalStatus = isMetaInfo ? "archived" : (forcedStatus || (isLite ? "pendin
           },
           { new: true },
         );
+        if (!updated) {
+          console.error(`❌ Не ўдалося абнавіць вакансію з ID: ${currentExistingId}`);
+          currentExistingId = null;
+          continue;
+        }
         console.log(`✅ Вакансія абноўлена: ${updated.vacancyCode} (Статус: ${finalStatus})`);
         savedVacancies.push(updated);
         currentExistingId = null;
