@@ -509,7 +509,7 @@ async function findVacancyByExternalDocLink(agencyName, externalUrls) {
 
   const docLinks = (externalUrls || [])
     .map(u => u.url)
-    .filter(url => url.includes("docs.google.com") || url.includes("drive.google.com"));
+    .filter(url => url && (url.includes("docs.google.com") || url.includes("drive.google.com")));
 
   if (docLinks.length === 0) return null;
 
@@ -518,37 +518,6 @@ async function findVacancyByExternalDocLink(agencyName, externalUrls) {
     sourceType: "spreadsheet",
     status: { $in: ["active", "closed", "pending_ai"] },
     $or: docLinks.map(link => {
-      const cleanLink = escapeRegExp(link.split('?')[0]);
-      return {
-        $or: [
-          { rawText: { $regex: cleanLink, $options: 'i' } },
-          { originalText: { $regex: cleanLink, $options: 'i' } }
-        ]
-      };
-    })
-  });
-}
-
-
-// 👈 АБНОЎЛЕНА: Палепшаны пошук вакансіі па спасылках (v6.5)
-async function findVacancyByExternalDocLink(agencyName, externalUrls) {
-  // 🛡️ Ахова PPG: для гэтай агенцыі шаблонныя дакументы агульныя для розных гарадоў,
-  // таму пошук па спасылцы тут забаронены, каб не зліць розныя лакацыі ў адну.
-  if (agencyName === "PPG (BIEDRONKA)") return null;
-
-  const docLinks = (externalUrls || [])
-    .map(u => u.url)
-    .filter(url => url.includes("docs.google.com") || url.includes("drive.google.com"));
-
-  if (docLinks.length === 0) return null;
-
-  return await Vacancy.findOne({
-    agencyName,
-    sourceType: "spreadsheet",
-    // 👈 ДАДАДЗЕНА: шукаем і сярод чарнавікоў (pending_ai), каб не пладзіць іх
-    status: { $in: ["active", "closed", "pending_ai"] },
-    $or: docLinks.map(link => {
-      // 👈 ЗМЕНЕНА: выкарыстоўваем escapeRegExp для бяспекі
       const cleanLink = escapeRegExp(link.split('?')[0]);
       return {
         $or: [
@@ -654,8 +623,9 @@ async function syncSheetVacancies(sourceId) {
       includeGridData: true,
     });
 
-    const rowData = response.data.sheets[0].data[0].rowData;
-    // 👈 ДАДАДЗЕНА: здабываем інфармацыю аб аб'яднаных ячэйках (для BISAR і падобных)
+    const gridData = response.data.sheets[0].data[0];
+    const rowData = gridData.rowData;
+    const rowMetadata = gridData.rowMetadata || []; // 👈 Атрымліваем масіў метаданых усіх радкоў
     const merges = response.data.sheets[0].merges || [];
     if (!rowData || rowData.length < 1) {
       console.log("⚠️ Табліца пустая.");
@@ -727,7 +697,7 @@ async function syncSheetVacancies(sourceId) {
       const cells = resolveMergedCells(i, rowData, merges);
       
       // 👈 ВЫПРАЎЛЕНА: дададзена праверка pixelSize для поўнага ігнаравання схаваных радкоў (v8.16)
-      const meta = rowData[i].rowMetadata;
+      const meta = rowMetadata[i];
       if (
         meta?.hiddenByUser || 
         meta?.hiddenByFilter || 
