@@ -435,10 +435,11 @@ if (/\b(stop|стоп|архів|архив|неактив|не актив)\b/i.
   if (/актуальн(ість|ость)[^:\n]{0,25}:\s*(ні|нет|no)(?=[\s,.\n]|$)/i.test(lowerText)) return "CLOSE";
 
   // 3. Nationality-Check (Эксклюзіўнасць)
-  const exclusiveMarkers = [
-    "філіппінці", "філіпінці", "індія", "индия", "англомовні", 
-    "англоязычные", "philippines", "india", "english", "columbia", "колумбія"
-  ];
+ const exclusiveMarkers = [
+  "філіппінці", "філіпінці", "індія", "индия", "англомовні", 
+  "англоязычные", "philippines", "india", "english", "columbia", "колумбія",
+  "узбекистан", "таджикистан", "киргизстан", "непал", "азия", "азія", "azja" // 👈 Дададзена для Manpower
+];
   
   // Правяраем і тэкст, і назву калонкі
   const hasExclusiveMarker = exclusiveMarkers.some(m => lowerText.includes(m) || lowerColumn.includes(m));

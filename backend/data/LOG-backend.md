@@ -1300,3 +1300,8 @@ Fixed
 - backend/routes/sync.js: Выпраўлена памылка 409. Цяпер замок сінхранізацыі ў БД гарантавана здымаецца ў блоку `finally`, нават калі працэс завяршыўся памылкай.
 - backend/routes/vacancies.js & backend/routes/candidates.js: Укаранёна атамарная генерацыя кодаў (VAC-XXXX, CAN-XXXX) праз MongoDB `$inc`. Гэта цалкам ліквідуе памылкі дублікатаў (E11000) пры паралельнай працы сэрвісаў.
 - backend/index.js: Дададзена функцыя `syncCountersWithDatabase`, якая пры старце сервера аўтаматычна падцягвае лічыльнікі да максімальных значэнняў у базе. Гэта забяспечвае бясшвоўны пераход на новую сістэму генерацыі кодаў.
+## [v8.22] - 2024-05-22
+### Fixed
+- **Airtable Sync:** Enhanced Manpower filtering logic. Added "Виплата 1500", "RODO_2026", and "Тимчасово" to the blacklist.
+- **Airtable Sync:** Implemented forced auto-closing for vacancies that moved to ignored columns or labels in the source.
+- **Gatekeeper:** Added "Uzbekistan", "Tajikistan", "Kyrgyzstan", "Nepal", and "Asia" to the nationality stop-list in `messageFilters.js` to prevent AI processing of unwanted regions.

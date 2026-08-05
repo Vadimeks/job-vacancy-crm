@@ -125,12 +125,26 @@ async function syncSingleSource(source) {
     if (i < startIndex) continue;
 
 
-    // --- 1. ІНДЫВІДУАЛЬНАЯ ФІЛЬТРАЦЫЯ (Blacklist) ---
+    // --- 1. ІНДЫВІДУАЛЬНАЯ ФІЛЬТРАЦЫЯ (Blacklist v8.22) ---
     let shouldIgnore = false;
     if (source.agencyName === "MANPOWER") {
-      if (columnName.includes("згода rodo") || columnName.includes("uncategorized") || 
-          columnName.includes("архів") || columnName.includes("архив") ||
-          fieldsText.includes("азія") || fieldsText.includes("azja")) {
+      const isBadColumn = 
+        columnName.includes("rodo") || 
+        columnName.includes("uncategorized") || 
+        columnName.includes("виплата") ||
+        columnName.includes("выплата");
+
+      const isBadLabel = 
+        fieldsText.includes("архів") || 
+        fieldsText.includes("архив") || 
+        fieldsText.includes("тимчасово") || 
+        fieldsText.includes("временно") ||
+        fieldsText.includes("anglo") || 
+        fieldsText.includes("англійськ") ||
+        fieldsText.includes("азія") || 
+        fieldsText.includes("azja");
+
+      if (isBadColumn || isBadLabel) {
         shouldIgnore = true;
       }
     } else if (source.agencyName === "JOB IMPULSE") {
@@ -152,13 +166,13 @@ async function syncSingleSource(source) {
     }
 
     if (shouldIgnore) {
-      console.log(`⏭️ [Airtable Skip] ${source.agencyName}: Blacklist (Column: "${columnName}", Text: "${fieldsText.substring(0, 50)}...")`);
-      // 👈 ДАДАДЗЕНА: Закрываем вакансію, калі яна трапіла ў архіў/блэкліст агенцыі (v8.7)
+      console.log(`⏭️ [Airtable Skip] ${source.agencyName}: Blacklist (Column: "${columnName}")`);
+      // 👈 Прымусова закрываем, калі яна была актыўная
       if (existingVacancy && existingVacancy.status !== "closed") {
         existingVacancy.status = "closed";
-        existingVacancy.closingReason = `Агенцкі Blacklist (${source.agencyName})`;
+        existingVacancy.closingReason = `Агенцкі Blacklist/Архіў (${source.agencyName})`;
         await existingVacancy.save();
-        console.log(`✅ Вакансія ${existingVacancy.vacancyCode} закрыта праз агенцкі фільтр.`);
+        console.log(`✅ Вакансія ${existingVacancy.vacancyCode} закрыта праз фільтр.`);
       }
       stats.ignored++;
       continue;
