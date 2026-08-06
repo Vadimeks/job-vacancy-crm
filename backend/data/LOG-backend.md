@@ -1346,3 +1346,12 @@ Fixed
 - **Sync Stability:** Fixed a critical bug where vacancies were incorrectly marked as CLOSED if the synchronization process was interrupted by AI rate limits. Now, auto-closing only triggers if the entire source is processed.
 - **Logging:** Removed verbose "RAW FAILED JSON" output from `ai.service.js` to keep production logs clean.
 - **Agencies:** Temporarily disabled "PERSONEL SERVICE" (both chat and sheets) as per request.
+## [v8.29] - 2026-08-06
+### Fixed
+- **Multi-sheet auto-close bug:** `syncSheetVacancies` (sheets.service.js) closed active vacancies belonging to *other* sheets of the same agency on every scan (e.g. scanning "Польша" would close active vacancies from "Голандія"/"Opiekunki" for INTRASERVICE, and vice versa — a "carousel" effect where each sheet scan wiped out the previous one's results). Added `sheetName: source.sheetName` to both the `Vacancy.find()` and `Vacancy.updateMany()` filters in the auto-close block, so closure now only applies within the current sheet.
+- **Auto-close safety guard:** Auto-close now only runs when the scan reached the end of the sheet (`global.syncProgress.current >= actualRows.length`). Prevents premature closing of vacancies from the unscanned remainder of a sheet if the sync was interrupted mid-way (e.g. by an AI rate-limit/cooldown).
+
+### Data hygiene
+- Paused `SheetSource` "Opiekunki" (INTRASERVICE) — agency not relevant, no longer scanned.
+- Paused `TrelloSource` "PERSONEL SERVICE" — temporary suspension of cooperation confirmed; verified no other active source (Sheets/Airtable) references this agency.
+- Verified `SheetSource`/`TrelloSource`/`AirtableSource` collections for duplicate BISAR entries — none found, single active BISAR sheet source confirmed correct.

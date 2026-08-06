@@ -955,6 +955,7 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
       // 👈 ВЫПРАЎЛЕНА: закрываем вакансіі агенцыі па ўсіх лістах, калі іх няма ў бягучым скане (v8.16)
       const vacanciesToClose = await Vacancy.find({
         agencyName: source.agencyName,
+        sheetName: source.sheetName, // 👈 ДАДАДЗЕНА: закрываем толькі ў межах гэтага ліста (фікс "каруселі")
         sourceType: "spreadsheet",
         status: "active",
         sourceHash: { $exists: true, $nin: Array.from(foundHashesInSheet) },
@@ -963,6 +964,7 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
       const closeResult = await Vacancy.updateMany(
         {
           agencyName: source.agencyName,
+          sheetName: source.sheetName, // 👈 ДАДАДЗЕНА
           sourceType: "spreadsheet",
           status: "active",
           sourceHash: { $exists: true, $nin: Array.from(foundHashesInSheet) },
