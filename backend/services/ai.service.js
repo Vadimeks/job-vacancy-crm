@@ -878,10 +878,7 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true, full
             return { data: repaired, isLowQuality, modelUsed: model.name }; // 👈 Дадалі modelUsed
           } catch (e) {
             console.warn(`⚠️ Мадэль ${model.name} вярнула невылечны JSON.`);
-            // 👈 ДАДАДЗЕНА: вывад сырога адказу для дыягностыкі (v6.7)
-            console.log("--- RAW FAILED JSON START ---");
-            console.log(fullText);
-            console.log("--- RAW FAILED JSON END ---");
+           
             lastErrorWasJson = true;
             throw new Error("INVALID_JSON");
           }

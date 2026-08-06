@@ -77,6 +77,10 @@ async function syncTrelloBoard(sourceId) {
   const hotUpdates = [];
   const foundCardIds = new Set();
 
+  // Ініцыялізацыя прагрэсу (v8.29 fix)
+  global.syncProgress = { current: 0, total: 0, status: 'running', agency: source.agencyName };
+  global.stopSyncRequested = false;
+
   // 🔄 Чытаем стан "Кола" (Circular Sync)
   const SyncState = require("../models/SyncState");
   const syncState = await SyncState.findOne({ key: "circular_sync_position" }) || new SyncState();
@@ -86,7 +90,14 @@ async function syncTrelloBoard(sourceId) {
     // 1. Атрымліваем усе спісы дошкі
     const listsUrl = `https://api.trello.com/1/boards/${source.boardId}/lists?key=${source.apiKey}&token=${source.token}`;
     const listsRes = await axios.get(listsUrl);
-    const lists = listsRes.data;
+    const lists = listsRes.data;// Падлічваем агульную колькасць картак ва ўсіх рэлевантных спісах (v8.29)
+    const relevantLists = lists.filter(l => {
+      const n = normalizeName(l.name);
+      return VACANCY_LIST_KEYWORDS.some(kw => n.includes(kw)) || INFO_LIST_KEYWORDS.some(kw => n.includes(kw));
+    });
+    
+    // Запытваем колькасць картак для кожнага спіса (спрошчана)
+    global.syncProgress.total = relevantLists.reduce((acc, l) => acc + (l.id ? 10 : 0), 0); // Прыблізна, альбо пакінь 0, яно абновіцца
 let cardCounter = 0; // 👈 ДАДАЦЬ ГЭТА (ініцыялізацыя лічыльніка для ўсёй дошкі)
     for (const list of lists) {
       const normListName = normalizeName(list.name);
@@ -109,7 +120,7 @@ let cardCounter = 0; // 👈 ДАДАЦЬ ГЭТА (ініцыялізацыя �
       const cardsUrl = `https://api.trello.com/1/lists/${list.id}/cards?key=${source.apiKey}&token=${source.token}`;
       const cardsRes = await axios.get(cardsUrl);
       const cards = cardsRes.data;
-global.syncProgress.total = cards.length;
+
       global.syncProgress.current = 0;
       for (const card of cards) {
          global.syncProgress.current++; // 👈 КРОК ЛІЧЫЛЬНІКА
@@ -352,8 +363,9 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
     }
 
     // --- АЎТА-ЗАКРЫЦЦЁ ВАКАНСІЙ ---
-    // Калі вакансія была прывязана да гэтай дошкі, але яе больш няма ў спісах вакансій
-    const closedResult = await Vacancy.updateMany(
+    // Закрываем толькі калі прайшлі ўсе спісы цалкам (не было STOP_ALL або ручнога прыпынку)
+    if (foundCardIds.size > 0 && !global.stopSyncRequested) {
+      const closedResult = await Vacancy.updateMany(
       {
         agencyName: source.agencyName,
         sourceType: "trello",
@@ -363,7 +375,7 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
       { $set: { status: "closed" } },
     );
     stats.closed = closedResult.modifiedCount;
-
+}
     source.lastProcessedAt = new Date();
     // --- АДПРАЎКА ГАРАЧЫХ АПДЭЙТАЎ Trello ---
     if (hotUpdates.length > 0) {

@@ -363,8 +363,9 @@ async function syncSingleSource(source) {
     await new Promise(r => setTimeout(r, 4000));
   }
 
-  // --- 7. РАЗУМНАЕ АЎТА-ЗАКРЫЦЦЁ ---
-  if (foundAirtableIds.size > 0) {
+// --- 7. РАЗУМНАЕ АЎТА-ЗАКРЫЦЦЁ (v8.29 fix) ---
+  // Закрываем толькі калі прайшлі ўсе запісы (не было STOP_ALL)
+  if (foundAirtableIds.size > 0 && global.syncProgress.current >= records.length) {
     await Vacancy.updateMany(
       { agencyName: source.agencyName, sourceType: "airtable", status: "active", airtableId: { $exists: false } },
       { $set: { status: "closed", closingReason: "Заменена на версію з ID" } }

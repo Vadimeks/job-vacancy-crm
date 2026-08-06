@@ -1336,3 +1336,13 @@ Fixed
 - **Sheets Sync:** Выпраўлена памылка доступу да `rowMetadata`. Цяпер сістэма правільна ігнаруе прыхаваныя і адфільтраваныя радкі ў Google Sheets.
 - **Code Cleanup:** Уніфікавана функцыя `findVacancyByExternalDocLink` (пакінута версія v6.8), выдалены дублікаты кода ў `getRowStatus`.
 - **Staff Power:** Выпраўлена праблема "лішніх" вакансій — цяпер скрапер бачыць толькі 7 актуальных пазіцый.
+## [v8.29] - 2024-05-22
+### Fixed
+- **Trello Sync:** Выпраўлена сінтаксічная памылка (адсутная дужка), якая ламала ўвесь файл пасля ўкаранення абароны ад перарывання.
+- **Trello Sync:** Выдалены залішні перазапіс `global.syncProgress.total` унутры цыкла па спісах.
+- **Airtable Sync:** Пацверджана карэктнасць логікі аўта-закрыцця праз праверку індэкса апрацаваных запісаў.
+## [v8.29] - 2024-05-22
+### Fixed
+- **Sync Stability:** Fixed a critical bug where vacancies were incorrectly marked as CLOSED if the synchronization process was interrupted by AI rate limits. Now, auto-closing only triggers if the entire source is processed.
+- **Logging:** Removed verbose "RAW FAILED JSON" output from `ai.service.js` to keep production logs clean.
+- **Agencies:** Temporarily disabled "PERSONEL SERVICE" (both chat and sheets) as per request.

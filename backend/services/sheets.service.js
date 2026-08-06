@@ -949,8 +949,8 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
       await new Promise((r) => setTimeout(r, 5000));
     }
 
-    // --- АЎТА-ЗАКРЫЦЦЁ ВАКАНСІЙ, ЯКІХ НЯМА Ў ТАБЛІЦЫ ---
-    if (foundHashesInSheet.size > 0) {
+    // --- АЎТА-ЗАКРЫЦЦЁ ВАКАНСІЙ (v8.29 fix) ---
+    if (foundHashesInSheet.size > 0 && global.syncProgress.current >= actualRows.length) {
       // Знаходзім вакансіі, якія будуць закрыты, каб захаваць іх ID для справаздачы
       // 👈 ВЫПРАЎЛЕНА: закрываем вакансіі агенцыі па ўсіх лістах, калі іх няма ў бягучым скане (v8.16)
       const vacanciesToClose = await Vacancy.find({
