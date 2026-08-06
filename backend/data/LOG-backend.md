@@ -1355,3 +1355,100 @@ Fixed
 - Paused `SheetSource` "Opiekunki" (INTRASERVICE) — agency not relevant, no longer scanned.
 - Paused `TrelloSource` "PERSONEL SERVICE" — temporary suspension of cooperation confirmed; verified no other active source (Sheets/Airtable) references this agency.
 - Verified `SheetSource`/`TrelloSource`/`AirtableSource` collections for duplicate BISAR entries — none found, single active BISAR sheet source confirmed correct.
+
+--------
+# 📋 Nova Work Agency CRM — План развіцця (checkpoint v8.29+)
+
+## ✅ Зроблена (на дадзены момант)
+
+### Сінхранізацыя і стабільнасць
+- Атамарныя лічыльнікі (`$inc`) для VAC-/CAN- кодаў — фікс E11000 duplicate key.
+- DB-level lock (SyncState) супраць паралельных запускаў.
+- Watchdog: праверка чаргі кожныя 10 хв, поўнае кола раз/суткі пасля 07:00.
+- Dev Log Bot — крытычныя памылкі ляцяць у асабісты чат.
+- Стабілізаваны AI Stage 1 (абарона ад `category of null`).
+- Аўта-закрыццё вакансій, якіх няма ў крыніцы, працуе.
+
+### AI-пайплайн
+- Stage 1 (Gemini): класіфікацыя, пераклад, спліцінг.
+- Stage 2 (Groq/Vertex): структураваны парсінг.
+- Gatekeeper: адсяканне смецця/STOP да выкліку AI.
+
+### Frontend & UX
+- HR-рэдактар: генерацыя прэв'ю + публікацыя ў ТГ.
+- Visual Diff пасля AI-абнаўлення.
+- Канбан для кандыдатаў.
+- Mini App (анкета) з аўта-матчынгам.
+
+### Крыніцы
+- Дададзена новая табліца STAFF POWER (агенцыя ўжо была, табліцы не хапала).
+
+---
+
+## 🔴 Крытычныя баги (патрабуюць прыярытэтнага фіксу)
+
+### 1. Multi-sheet auto-close bug (INTRASERVICE і падобныя мульты-лістовыя агенцыі)
+**Сімптом:** пры некалькіх лістах у адной агенцыі (напр. INTRASERVICE: "Польша" + "Голандія" + "Opiekunki") кожнае наступнае сканаванне ліста закрывае актыўныя вакансіі з **іншых** лістоў той жа агенцыі.
+**Прычына:** у `sheets.service.js`, блок аўта-закрыцця фільтруе толькі па `agencyName`, без `sheetName`.
+**Фікс:** дадаць `sheetName: source.sheetName` у `Vacancy.find(...)` і `Vacancy.updateMany(...)` у блоку аўта-закрыцця.
+**Статус:** прапанаваны, **не пацверджана, што задэплоены** — трэба праверыць/дадаць нанова.
+
+### 2. "Склейванне" розных вакансій па агульнай спасылцы (Staff Power/Bisar)
+**Сімптом:** розныя радкі (напр. Row 7 і Row 8) абнаўляюць адзін і той жа VAC-код.
+**Прычына:** `findVacancyByExternalDocLink` занадта агрэсіўна шукае супадзенні па агульным Google Doc (тыпу інструкцыі), не гледзячы на назву вакансіі.
+**Фікс:** дадаць параметр `currentRowTitle` і праверку канфлікту ключавых слоў (карщик/швачка/склад і г.д.) перад аб'яднаннем.
+**Статус:** прапанаваны код гатовы, чакае ўкаранення.
+
+### 3. Personel Service ўсё яшчэ скануецца
+**Сімптом:** агенцыя закаментаваная ў seed-скрыпце, але старыя крыніцы ў базе застаюцца `active`.
+**Фікс:** аднаразовы скрыпт `updateMany({ agencyName: "PERSONEL SERVICE" }, { status: "paused" })` для `SheetSource` і `TrelloSource`.
+**Статус:** не выканана.
+
+---
+
+## 🛠 План далейшых дзеянняў (па прыярытэце)
+
+### Крок 1 — Фікс мульты-лістовага аўта-закрыцця (backend, sheets.service.js)
+Дадаць `sheetName` у фільтры closing-блока. **Найвышэйшы прыярытэт** — без гэтага любая мульты-лістовая агенцыя (Intraservice і магчыма іншыя) губляе дадзеныя пры кожным цыкле.
+
+### Крок 2 — Фікс "склейвання" вакансій (backend, sheets.service.js)
+Перапісаць `findVacancyByExternalDocLink` з праверкай назвы (`currentRowTitle`).
+
+### Крок 3 — Паўза Personel Service
+Разавы скрыпт/роўт для пастаноўкі status: paused ва ўсіх крыніцах гэтай агенцыі.
+
+### Крок 4 — Зачыстка Manpower (Airtable)
+- Пашырыць blacklist у `airtable.service.js` (rodo, uncategorized, виплата/выплата, архів/архив, тимчасово/временно, anglo/англійськ, azja/азія, канкрэтныя "чужыя" нацыянальнасці).
+- Дадаць у Gatekeeper (`messageFilters.js`) спіс `badNationalities`.
+- Пераканацца, што `shouldIgnore === true` → калі вакансія ўжо `active` у базе — прымусова `closed`.
+
+### Крок 5 — Telegram
+- Змена `TELEGRAM_CHANNEL_ID` на новы канал публікацыі.
+- Гарантаваць кнопку "Адгукнуцца" пад кожным постам.
+- Даналадзіць `/start survey` флоу ў боце кандыдатаў + апавяшчэнні рэкрутэра.
+
+### Крок 6 — Публічны фронтэнд (Landing для кандыдатаў)
+- `PublicLayout.jsx` — чысты інтэрфейс без адмінкі.
+- `Home.jsx` — блок "Папулярныя вакансіі" (Featured, фільтр па даце ≤10 дзён).
+- `Jobs.jsx` — публічны пошук са спрошчанымі фільтрамі.
+
+### Крок 7 — Новыя крыніцы
+STAFF POWER ужо дададзена. Праверыць, ці патрэбныя яшчэ табліцы для іншых агенцый.
+
+---
+
+## 📂 Файлы, якія спатрэбяцца ў першую чаргу наступнай сесіі
+1. `backend/services/sheets.service.js` (Крокі 1–2, самае крытычнае)
+2. `backend/routes/sync.js` / скрыпт для паўзы Personel Service (Крок 3)
+3. `backend/services/airtable.service.js` + `backend/utils/messageFilters.js` (Крок 4)
+4. `backend/services/telegram.service.js`, `.env` (Крок 5)
+5. `frontend/src/App.jsx`, `frontend/src/pages/Home.jsx`, `frontend/src/components/Layout.jsx` (Крок 6)
+-------
+
+## [v8.31] - 2026-08-06
+### Added
+- **Short-row filter for spreadsheet sources:** `syncSheetVacancies` (sheets.service.js) now checks the final enriched row text (after doc/link enrichment, prefix stripped) against a 200-character minimum *before* calling AI Stage 1. Previously, the `SPREADSHEET RULE` in the Stage 1 prompt forced any row with a city + job-related text to be classified as `FULL_VACANCY`, even when the row had no salary/duties/schedule info (e.g. a missing or empty attached document) — producing near-empty vacancy cards (e.g. VAC-3234, OTTO). Such rows are now routed straight to the Inbox digest (`hotUpdates`, type `UPDATE`) without an AI call.
+- Rows below the threshold no longer touch existing `active` vacancies (left untouched); stale `pending_ai` drafts created for such rows are deleted instead of persisting indefinitely.
+
+### Files changed
+- `backend/services/sheets.service.js`

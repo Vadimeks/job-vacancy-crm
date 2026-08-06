@@ -818,7 +818,40 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
         // Выклікаем узбагачэнне (Этапы 2, 3, 4 унутры gemini.service)
         rawRowText = await enrichTextWithDocs(rowBodyTextOnly + externalContent);
       } // 👈 ГЭТА ЗАКРЫВАЕ ELSE 
-        
+
+      // --- ЭТАП 1.5: ФІЛЬТР КАРОТКІХ РАДКОЎ (v8.31) ---
+      // Калі пасля ўзбагачэння (уключна з дакументамі па спасылках) тэкст усё яшчэ
+      // занадта кароткі — гэта неінфарматыўны радок (напр. без стаўкі/апісання абавязкаў,
+      // без дадатковага дакумента). Такія радкі не нясуць дастаткова дадзеных для AI-парсінгу
+      // і раней прапускаліся ў AI праз спецыяльнае "SPREADSHEET RULE" у прампце, ствараючы
+      // амаль пустыя вакансіі (напр. VAC-3234 OTTO). Цяпер адсякаем іх ДА выкліку AI.
+      const strippedForLengthCheck = rawRowText
+        .replace(/^\[SOURCE: SPREADSHEET_ROW \| AGENCY: [^\]]*\]\n?/, "")
+        .trim();
+
+      if (strippedForLengthCheck.length < 200) {
+        console.log(
+          `⏭️ [Row ${i + 1}] Занадта кароткі тэкст (${strippedForLengthCheck.length} сімв., парог 200) — у Inbox без выкліку AI.`,
+        );
+
+        // Калі гэта чарнавік (pending_ai) — выдаляем яго, каб не вісеў у базе назаўжды
+        if (existingVacancy && existingVacancy.status === "pending_ai") {
+          await Vacancy.findByIdAndDelete(existingVacancy._id);
+        }
+        // Калі вакансія была ACTIVE — яе НЕ чапаем (не закрываем, не абнаўляем)
+
+        hotUpdates.push({
+          row: i + 1,
+          title: rowTitle,
+          code: existingVacancy?.status === "active" ? existingVacancy.vacancyCode : undefined,
+          content: strippedForLengthCheck,
+          type: "UPDATE",
+        });
+
+        stats.ignored++;
+        continue;
+      }
+
         // 💾 ЗАХАВАННЕ ПРАГРЭСУ: Калі вакансія новая, ствараем яе як чарнавік
         if (!existingVacancy) {
           const vacanciesRoute = require("../routes/vacancies");
