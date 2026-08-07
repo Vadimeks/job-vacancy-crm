@@ -25,6 +25,7 @@ const CronLog = require("./models/CronLog");
 const app = express();
 // 👈 ГЛАБАЛЬНЫ ПРАГРЭС СІНХРАНІЗАЦЫІ
 global.syncProgress = { current: 0, total: 0, status: 'idle', agency: null };
+global.sessionLogs = []; // Масіў для збору тэхнічных логаў сканавання
 global.stopSyncRequested = false;
 global.isManualActionInProgress = false; // 👈 ДАДАДЗЕНА: прыярытэт ручных дзеянняў (reparse, publish і г.д.)
 app.use(cors());
@@ -222,7 +223,18 @@ async function runSyncWithInsurance(forceRun = false) {
     console.error("❌ [Sync] Памылка канвеера:", err.message);
   } finally {
     global.isSyncRunning = false;
-    // 👈 ВЫЗВАЛЯЕМ ЗАМОК У БД (v8.15)
+    
+    // 📂 ГЕНЕРАЦЫЯ І АДПРАЎКА ЛОГ-ФАЙЛА (v8.32)
+    if (global.sessionLogs && global.sessionLogs.length > 0) {
+      const { sendLogsToDev } = require("./services/telegram.service");
+      const logContent = global.sessionLogs.join("\n");
+      const dateStr = new Date().toISOString().split('T')[0];
+      const fileName = `sync_log_${dateStr}.txt`;
+      
+      await sendLogsToDev(logContent, fileName);
+      global.sessionLogs = []; // Ачышчаем пасля адпраўкі
+    }
+
     await SyncState.findOneAndUpdate(
       { key: "circular_sync_position" },
       { isRunning: false }

@@ -226,7 +226,29 @@ const notifyDev = async (message) => {
     console.error("❌ Памылка notifyDev:", err.message);
   }
 };
+/**
+ * Адпраўляе тэкставы лог як файл .txt у ТГ распрацоўшчыка
+ */
+async function sendLogsToDev(content, fileName) {
+  try {
+    const FormData = require("form-data");
+    const form = new FormData();
+    form.append("chat_id", process.env.DEV_CHAT_ID);
+    form.append("caption", `📄 Тэхнічная справаздача сканавання (${new Date().toLocaleString()})`);
+    form.append("document", Buffer.from(content), {
+      filename: fileName,
+      contentType: "text/plain",
+    });
 
+    await axios.post(
+      `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendDocument`,
+      form,
+      { headers: form.getHeaders() }
+    );
+  } catch (err) {
+    console.error("❌ Памылка адпраўкі лог-файла ў ТГ:", err.message);
+  }
+}
 module.exports = {
   bot,
   sendToTelegram,
@@ -235,5 +257,6 @@ module.exports = {
   notifyRecruiterAboutShortMessage,
   notifyDev, // 👈 Дадаем у экспарт
   startBot,
+   sendLogsToDev,
 };
 

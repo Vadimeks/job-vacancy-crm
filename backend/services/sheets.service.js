@@ -34,7 +34,12 @@ const PPG_DOCS_MAP = {
   "Ligentia": "1vvTTXzxnjFQATWNym91FVS3mC969bmxU",
   "INPOST": "15Esh_9yE71fCBo2KBHk_osH0bPmJ0h24"
 };
-
+function logger(msg) {
+  const time = new Date().toLocaleTimeString();
+  const fullMsg = `[${time}] ${msg}`;
+  console.log(fullMsg); // Дублюем у кансоль Render
+  if (global.sessionLogs) global.sessionLogs.push(fullMsg);
+}
 // 📅 Функцыя праверкі: ці з'яўляецца дата мінулай
 function isDateInPast(dateStr) {
   if (!dateStr || dateStr.trim() === "" || dateStr.includes("-")) return false;
@@ -584,7 +589,7 @@ async function syncSheetVacancies(sourceId) {
   const source = await SheetSource.findById(sourceId);
   if (!source || source.status === "paused") return;
 
-  console.log(
+  logger(
     `📊 Пачатак сінхранізацыі: ${source.sheetName} (${source.agencyName})`,
   );
 
@@ -621,13 +626,13 @@ async function syncSheetVacancies(sourceId) {
         if (weekSheets.length > 0) {
           actualSheetName = weekSheets[0].title;
           if (actualSheetName !== source.sheetName) {
-            console.log(`📅 [OTTO] Знойдзены новы ліст: ${actualSheetName} (было: ${source.sheetName})`);
+            logger(`📅 [OTTO] Знойдзены новы ліст: ${actualSheetName} (было: ${source.sheetName})`);
             source.sheetName = actualSheetName;
             await source.save(); // Захоўваем у базу, каб наступны раз не шукаць занова
           }
         }
       } catch (metaErr) {
-        console.error("⚠️ Не ўдалося атрымаць спіс лістоў для OTTO:", metaErr.message);
+        logger("⚠️ Не ўдалося атрымаць спіс лістоў для OTTO:", metaErr.message);
       }
     }
 
@@ -647,7 +652,7 @@ async function syncSheetVacancies(sourceId) {
     const rowMetadata = gridData.rowMetadata || []; // 👈 Атрымліваем масіў метаданых усіх радкоў
     const merges = response.data.sheets[0].merges || [];
     if (!rowData || rowData.length < 1) {
-      console.log("⚠️ Табліца пустая.");
+      logger("⚠️ Табліца пустая.");
       return;
     }
 
@@ -668,11 +673,11 @@ async function syncSheetVacancies(sourceId) {
     }
 
     if (headerRowIndex === -1) {
-      console.log("⚠️ Не ўдалося знайсці радок загалоўкаў.");
+      logger("⚠️ Не ўдалося знайсці радок загалоўкаў.");
       return;
     }
 
-    console.log(`✅ Загалоўкі знойдзены ў радку №${headerRowIndex + 1}`);
+    logger(`✅ Загалоўкі знойдзены ў радку №${headerRowIndex + 1}`);
 
     // Захоўваем загалоўкі як масіў радкоў (індэкс = нумар слупка)
     const headers = (rowData[headerRowIndex].values || []).map(
@@ -685,7 +690,7 @@ async function syncSheetVacancies(sourceId) {
     });
     global.syncProgress.total = actualRows.length;
     global.syncProgress.current = 0;
-    console.log("📋 Загалоўкі:", headers.filter((h) => h.trim()).join(" | "));
+    logger("📋 Загалоўкі:", headers.filter((h) => h.trim()).join(" | "));
 
     // --- КРОК 2: Загружаем апошнія вакансіі для кантэксту дэдуплікацыі ---
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
@@ -704,13 +709,13 @@ async function syncSheetVacancies(sourceId) {
       // 👈 ВЫПРАЎЛЕНА: Чакаем, толькі калі гэта фонавы Watchdog, а не сам ручны запуск (v8.8)
       if (!global.isManualSync && global.isManualActionInProgress) {
         while (global.isManualActionInProgress) {
-          console.log("⏳ [Sync] Фонавая аўтаматыка на паўзе: рэкрутэр працуе ўручную...");
+          logger("⏳ [Sync] Фонавая аўтаматыка на паўзе: рэкрутэр працуе ўручную...");
           await new Promise(r => setTimeout(r, 5000)); // Чакаем 5 секунд і правяраем зноў
         }
       }
       if (i < startIndex) continue;
  if (global.stopSyncRequested) {
-        console.log("🛑 [Sheets] Сінхранізацыя перарвана карыстальнікам.");
+        logger("🛑 [Sheets] Сінхранізацыя перарвана карыстальнікам.");
         return "STOP_ALL";
       }
       const cells = resolveMergedCells(i, rowData, merges);
@@ -765,7 +770,7 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
       if (!existingVacancy && externalUrls.length > 0) {
         const foundByLink = await findVacancyByExternalDocLink(source.agencyName, externalUrls, rowTitle);
         if (foundByLink) {
-          console.log(
+          logger(
             `🔗 [Sync] Знойдзена супадзенне па Google Doc для ${foundByLink.vacancyCode}. "Лечым" хэш.`,
           );
           foundByLink.sourceHash = rowHash; // Абнаўляем хэш на новы, каб наступны раз знайшлося адразу
@@ -807,20 +812,20 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
           continue;
         }
         
-        console.log(
+        logger(
           `🔄 [Row ${i + 1}] ${existingVacancy.status === "pending_ai" ? "Даапрацоўка чаргі" : "Абнаўленне"}: ${existingVacancy.vacancyCode}`
         );
        }
 
       // --- ЭТАП 1: ЗБОР ДАДЗЕНЫХ ---
-      console.log(`Этап 1. [Row ${i + 1}] Апрацоўка: ${rowTitle}`);
+      logger(`Этап 1. [Row ${i + 1}] Апрацоўка: ${rowTitle}`);
       foundHashesInSheet.add(rowHash);
 
 
 
       // 👈 ВЫПРАЎЛЕНА: адноўлена логіка праверкі чаргі і закрыты дужкі (v8.18)
       if (existingVacancy && existingVacancy.rawText && existingVacancy.status === "pending_ai") {
-        console.log(`📦 Этап 4.5. Выкарыстоўваем захаваны тэкст (Stage 0/1 пропуск)`);
+        logger(`📦 Этап 4.5. Выкарыстоўваем захаваны тэкст (Stage 0/1 пропуск)`);
         rawRowText = existingVacancy.rawText;
       } else {
         // --- ЭТАП 2-4: ЗАГРУЗКА DRIVE / TELEGRAPH ---
@@ -849,7 +854,7 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
         .trim();
 
       if (strippedForLengthCheck.length < 200) {
-        console.log(
+        logger(
           `⏭️ [Row ${i + 1}] Занадта кароткі тэкст (${strippedForLengthCheck.length} сімв., парог 200) — у Inbox без выкліку AI.`,
         );
 
@@ -887,7 +892,7 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
             originalText: rowBodyText
           });
           await draft.save();
-          console.log(`💾 Этап 4.5. Тэкст захаваны ў базу (Draft ${vacancyCode} створаны)`);
+          logger(`💾 Этап 4.5. Тэкст захаваны ў базу (Draft ${vacancyCode} створаны)`);
           existingVacancy = draft;
         } else if (existingVacancy.originalText !== rowBodyText) {
           // Калі вакансія была, але тэкст у табліцы змяніўся — абнаўляем rawText і ставім pending_ai
@@ -895,12 +900,12 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
           existingVacancy.originalText = rowBodyText;
           existingVacancy.status = "pending_ai";
           await existingVacancy.save();
-          console.log(`💾 Этап 4.5. Чарнавік ${existingVacancy.vacancyCode} абноўлены новым тэкстам.`);
+          logger(`💾 Этап 4.5. Чарнавік ${existingVacancy.vacancyCode} абноўлены новым тэкстам.`);
         }
       
 // 🔍 ДЫЯГНОСТЫКА: Глядзім, што сабрана з радка табліцы (v8.18)
       if (source.agencyName === "OTTO") {
-  console.log(`📝 [OTTO Row ${i + 1}] Length: ${rawRowText.length}`);
+  logger(`📝 [OTTO Row ${i + 1}] Length: ${rawRowText.length}`);
 }
       // --- ЭТАП 5-7: AI АПРАЦОЎКА ---
       const analysis = await analyzeAndCompareWithGemini(rawRowText, [], recentVacancies);
@@ -912,7 +917,7 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
         continue; 
       }
 
-      console.log(
+     logger(
         `🧠 AI Verdict [Row ${i + 1}]: Category=${analysis.category}, Verdict=${analysis.comparison?.verdict || "NEW"}`,
       );
 
@@ -972,7 +977,7 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
           !existingVacancy;
 
         if (isRecognizedOld) {
-          console.log(
+          logger(
             `⏭️ AI пазнаў старую вакансію (Verdict: ${analysis.comparison?.verdict}). Пропуск стварэння новага ID.`,
           );
           stats.ignored++;
@@ -1027,7 +1032,7 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
       );
 
       if (closeResult.modifiedCount > 0) {
-        console.log(
+        logger(
           `✅ Аўта-закрыццё: ${closeResult.modifiedCount} вакансій агенцыі ${source.agencyName} больш не ў табліцы.`,
         );
         stats.closed += closeResult.modifiedCount;
@@ -1049,14 +1054,9 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
       status: "success",
     });
 
-    // --- СПРАВАЗДАЧА Ў INBOX ---
-    if (
-      stats.added > 0 ||
-      stats.updated > 0 ||
-      stats.closed > 0 ||
-      stats.ignored > 0
-    ) {
-      let reportText = `📊 **Звіт: ${source.agencyName} (${source.sheetName})**\n`;
+      // --- СПРАВАЗДАЧА (v8.32) ---
+    if (stats.added > 0 || stats.updated > 0 || stats.closed > 0 || stats.ignored > 0) {
+      let reportText = `📊 Звіт: ${source.agencyName} (${source.sheetName})\n`;
 
       if (stats.added > 0) {
         const addedNames = details.filter((d) => d.startsWith("✨")).join("\n");
@@ -1080,15 +1080,17 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
       }
       reportText += `\n⏭️ Ігноровано (дублі): ${stats.ignored}`;
 
-      await new UnprocessedMessage({
-        sender: "System",
-        agencyName: source.agencyName,
-        text: reportText,
-        category: "info",
-        source: "google_sheets",
-        processed: false,
-        aiAnalyzed: true,
-      }).save();
+      if (global.isManualSync) {
+        await new UnprocessedMessage({
+          sender: "System",
+          agencyName: source.agencyName,
+          text: reportText,
+          category: "info",
+          source: "google_sheets",
+          processed: false,
+          aiAnalyzed: true,
+        }).save();
+      }
     }
     // --- АДПРАЎКА ГАРАЧЫХ АПДЭЙТАЎ АДЗІНЫМ БЛОКАМ ---
     if (hotUpdates.length > 0) {
@@ -1111,17 +1113,19 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
       });
 
       // Захоўваем адно агульнае паведамленне (абмяжоўваем 4000 сімвалаў)
-      await new UnprocessedMessage({
-        sender: "System",
-        agencyName: source.agencyName,
-        text: hotText.substring(0, 4000),
-        category: "update",
-        source: "google_sheets",
-        processed: false,
-        aiAnalyzed: true,
-      }).save();
+      if (global.isManualSync) {
+        await new UnprocessedMessage({
+          sender: "System",
+          agencyName: source.agencyName,
+          text: hotText.substring(0, 4000),
+          category: "update",
+          source: "google_sheets",
+          processed: false,
+          aiAnalyzed: true,
+        }).save();
+      }
 
-      console.log(
+      logger(
         `📦 Згрупавана ${hotUpdates.length} апдэйтаў у адно паведамленне Inbox.`,
       );
     }
@@ -1132,9 +1136,9 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
     );
     source.lastProcessedAt = new Date();
     await source.save();
-    console.log(`🏁 Сінхранізацыя ${source.sheetName} завершана.`);
+    logger(`🏁 Сінхранізацыя ${source.sheetName} завершана.`);
   } catch (err) {
-    console.error(`❌ Sync Error (${source.sheetName}):`, err.message);
+    logger(`❌ Sync Error (${source.sheetName}): ${err.message}`);
     await notifyDev(`❌ <b>Sheets Sync Error</b>\nAgency: ${source.agencyName}\nSheet: ${source.sheetName}\nError: ${err.message}`);
     await SyncHistory.create({
       agencyName: source.agencyName,
@@ -1143,14 +1147,12 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
       errorMessage: err.message,
     });
 
-    // 👈 ДАДАДЗЕНА: калі памылка звязана з AI — спыняем усю сінхранізацыю
-    // Было: catch заўжды вяртаў undefined, syncAllSheets працягваў цыкл нават пры AI Cooldown
     const isAiError =
       err.message?.includes("AI_COOLDOWN") ||
       err.message?.includes("ALL_AI_MODELS_FAILED");
 
     if (isAiError) {
-      console.error("🛑 AI недаступны. Спыняем сінхранізацыю ўсіх табліц.");
+      logger("🛑 AI недаступны. Спыняем сінхранізацыю ўсіх табліц.");
       return "STOP_ALL";
     }
   }

@@ -1460,3 +1460,15 @@ STAFF POWER ужо дададзена. Праверыць, ці патрэбны
 
 ### Changed
 - **Deactivation:** Поўнасцю адключаны і замарожаны агенцыя "PERSONEL SERVICE" і ліст "Opiekunki" (Intraservice). Яны выдалены са спісаў `KNOWN_AGENCIES`, `TRANSLATION_MAP`, `CHAT_AGENCY_MAP` і `ANCHOR_MAP`. У базе даных гэтыя крыніцы пераведзены ў статус `paused`.
+## [v8.32] - 2024-05-22
+### Added
+- **Technical Logging System:** Укаранёна сістэма збору тэхнічных логаў у масіў `global.sessionLogs`. Па завяршэнні поўнага кола сінхранізацыі (Watchdog) сістэма аўтаматычна фармуе `.txt` файл і адпраўляе яго ў Telegram распрацоўшчыка праз `sendLogsToDev`.
+- **Inbox Noise Reduction:** Справаздачы аб выніках сканавання табліц (`stats.added`, `stats.updated` і г.д.) цяпер адпраўляюцца ў Inbox толькі пры ручным запуску (`global.isManualSync`). Пры аўтаматычным сканаванні яны ідуць толькі ў тэхнічны лог-файл.
+
+### Fixed
+- **Deduplication (Staff Power/Bisar):** Палепшана функцыя `findVacancyByExternalDocLink`. Цяпер яна прымае `rowTitle` і правярае наяўнасць кірылічных ключавых слоў ("оператор", "швачка", "склад" і г.д.). Гэта прадухіляе памылковае "склейванне" розных вакансій, якія маюць аднолькавыя спасылкі на агульныя дакументы.
+- **Gatekeeper Diagnostics:** У `messageFilters.js` дададзена падрабязнае лагіраванне. Цяпер у кансолі Render відаць дакладную прычыну ігнаравання або закрыцця вакансіі (STOP-маркер, даўжыня тэксту або нацыянальнасць).
+- **Data Integrity:** Выкананы скрыпт рамонту, які выправіў метаданыя `sheetName` і аднавіў статус `active` для 20 вакансій Intraservice (Польшча/Галандыя).
+
+### Changed
+- **Deactivation:** Поўнасцю адключаны і пастаўлены на паўзу ў базе даных агенцыя "PERSONEL SERVICE" і ліст "Opiekunki" (Intraservice). Выдалены ўсе згадкі і якары з кода (`KNOWN_AGENCIES`, `ANCHOR_MAP` і інш.).
