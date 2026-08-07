@@ -414,48 +414,53 @@ function getMatchingIgnoreRegex(text) {
 function checkVacancyGatekeeper(text, columnName = "") {
   if (!text) return "IGNORE";
 
-  // 1. Ачыстка ад тэхнічнага смецця Airtable для дакладнай праверкі даўжыні
   const cleanText = text
     .replace(/\[Airtable ID: [^\]]+\]/g, "")
     .replace(/Назва колонки: [^\n]+/g, "")
     .replace(/Название колонки: [^\n]+/g, "")
     .trim();
 
- const lowerText = cleanText.toLowerCase();
+  const lowerText = cleanText.toLowerCase();
   const lowerColumn = (columnName || "").toLowerCase();
 
-  // 2. STOP-Check (шукаем у першых 200 сімвалах)
+  // 2. STOP-Check
   const stopZone = lowerText.substring(0, 200);
-  // Regex ловіць STOP, СТОП, СТОП-, STOP!!!! і г.д.
-  // 👈 АБНОЎЛЕНА: пашыраны спіс стоп-маркераў (v8.6)
-if (/\b(stop|стоп|архів|архив|неактив|не актив)\b/i.test(stopZone)) return "CLOSE";
+  if (/\b(stop|стоп|архів|архив|неактив|не актив)\b/i.test(stopZone)) {
+    console.log(`🔴 [Gatekeeper Close] Знойдзены STOP-маркер у пачатку тэксту.`);
+    return "CLOSE";
+  }
 
-  // 👈 ДАДАДЗЕНА: Праверка "Актуальність/Актуальность: Ні/Нет" па ўсім тэксце,
-  // бо гэтае поле часта знаходзіцца далёка за межамі першых 200 сімвалаў (v8.10)
-  if (/актуальн(ість|ость)[^:\n]{0,25}:\s*(ні|нет|no)(?=[\s,.\n]|$)/i.test(lowerText)) return "CLOSE";
+  if (/актуальн(ість|ость)[^:\n]{0,25}:\s*(ні|нет|no)(?=[\s,.\n]|$)/i.test(lowerText)) {
+    console.log(`🔴 [Gatekeeper Close] Маркер Актуальнасць: НІ.`);
+    return "CLOSE";
+  }
 
-  // 3. Nationality-Check (Эксклюзіўнасць)
- const exclusiveMarkers = [
-  "філіппінці", "філіпінці", "індія", "индия", "англомовні", 
-  "англоязычные", "philippines", "india", "english", "columbia", "колумбія",
-  "узбекистан", "таджикистан", "киргизстан", "непал", "азия", "азія", "azja" // 👈 Дададзена для Manpower
-];
+  // 3. Nationality-Check
+  const exclusiveMarkers = [
+    "філіппінці", "філіпінці", "індія", "индия", "англомовні", 
+    "англоязычные", "philippines", "india", "english", "columbia", "колумбія",
+    "узбекистан", "таджикистан", "киргизстан", "непал", "азия", "азія", "azja"
+  ];
   
-  // Правяраем і тэкст, і назву калонкі
   const hasExclusiveMarker = exclusiveMarkers.some(m => lowerText.includes(m) || lowerColumn.includes(m));
   
   if (hasExclusiveMarker) {
-    // Спіс нашых дазволеных краін з masterData
     const whiteList = NATIONALITIES.map(n => n.value.toLowerCase());
     const hasWhiteListCountry = whiteList.some(n => lowerText.includes(n));
     
-    // Калі ёсць маркер "чужых" (напр. Індыя) і НЯМА згадкі нашых краін — ігнаруем
-    if (!hasWhiteListCountry) return "IGNORE";
+    if (!hasWhiteListCountry) {
+      console.log(`⏭️ [Gatekeeper Ignore] Чужая нацыянальнасць (Азія/Англамоўныя).`);
+      return "IGNORE";
+    }
   }
 
-  // 4. Length-Check (твой парог 200 сімвалаў)
-  if (cleanText.length < 200) return "IGNORE";
-// 👈 ДАДАДЗЕНА: Блакіроўка шаблонных інфа-картак па ключавых словах (v8.11)
+  // 4. Length-Check
+  if (cleanText.length < 200) {
+    console.log(`⏭️ [Gatekeeper Ignore] Занадта кароткі тэкст (${cleanText.length} сімв.).`);
+    return "IGNORE";
+  }
+
+  // 5. Шаблон-Check
   const forbiddenTemplates = [
     "анкета - подачи", "анкета подачі", "документы легального", "документи легального",
     "warunki współpracy", "особенности трудоустройства", "частые вопросы", 
@@ -465,11 +470,9 @@ if (/\b(stop|стоп|архів|архив|неактив|не актив)\b/i.
     "oświadczenie o przekroczeniu", 
   ];
   
-  // Правяраем, ці пачынаецца тэкст з забароненага шаблона (загаловак)
-    // Правяраем, ці ёсць забаронены шаблон у пачатку тэксту (загаловак)
   const isForbidden = forbiddenTemplates.some(t => {
     const index = lowerText.indexOf(t);
-    return index >= 0 && index < 80; // Шукаем толькі ў першых 80 сімвалах (загаловак)
+    return index >= 0 && index < 80;
   });
 
   if (isForbidden) {

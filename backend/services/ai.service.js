@@ -82,7 +82,7 @@ const KNOWN_AGENCIES = [
 //trello
 "KREON",
   "NIDEN",
-  "PERSONEL SERVICE",
+  // "PERSONEL SERVICE",
   //airtable
   "JOB IMPULSE",
   "PROGRES",
@@ -368,8 +368,8 @@ function normalizeAgency(raw) {
     НИДЕН: "NIDEN",
     НІДЕН: "NIDEN",
     ОТТО: "OTTO",
-    "ПЕРСОНЕЛ СЕРВИС": "PERSONEL SERVICE",
-    "ПЕРСОНЕЛ СЕРВІС": "PERSONEL SERVICE",
+    // "ПЕРСОНЕЛ СЕРВИС": "PERSONEL SERVICE",
+    // "ПЕРСОНЕЛ СЕРВІС": "PERSONEL SERVICE",
     ПРОГРЕСС: "PROGRES",
     ПРОГРЕС: "PROGRES",
     РАЛЕН: "RALEN",

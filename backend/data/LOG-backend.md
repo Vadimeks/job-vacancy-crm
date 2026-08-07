@@ -1452,3 +1452,11 @@ STAFF POWER ужо дададзена. Праверыць, ці патрэбны
 
 ### Files changed
 - `backend/services/sheets.service.js`
+## [v8.32] - 2024-05-22
+### Fixed
+- **Deduplication (Staff Power/Bisar):** Палепшана функцыя `findVacancyByExternalDocLink`. Цяпер яна прымае `rowTitle` і правярае наяўнасць кірылічных ключавых слоў ("оператор", "швачка", "склад" і г.д.). Гэта дазваляе адрозніваць розныя вакансіі, якія спасылаюцца на адзін і той жа агульны Google Doc.
+- **Gatekeeper Diagnostics:** У `messageFilters.js` дададзена падрабязнае лагіраванне (`console.log`). Цяпер у логах Render відаць канкрэтную прычыну адхілення паведамлення (STOP-маркер, занадта кароткі тэкст або неадпаведнасць нацыянальнасці).
+- **Data Integrity:** Выкананы скрыпт `repairIntraservice.js`, які аднавіў 20 памылкова закрытых вакансій Intraservice і праставіў ім карэктныя `sheetName` ("Польша"/"Голандія").
+
+### Changed
+- **Deactivation:** Поўнасцю адключаны і замарожаны агенцыя "PERSONEL SERVICE" і ліст "Opiekunki" (Intraservice). Яны выдалены са спісаў `KNOWN_AGENCIES`, `TRANSLATION_MAP`, `CHAT_AGENCY_MAP` і `ANCHOR_MAP`. У базе даных гэтыя крыніцы пераведзены ў статус `paused`.

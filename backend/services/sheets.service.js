@@ -362,13 +362,11 @@ function buildRowText(cells, headers, agencyName, sheetName) {
       "комментарий", // 👈 Дадаем для ўнікальнасці хэша (Row 8 vs Row 9)
     ],
     INTRASERVICE:
-      sheetName === "Opiekunki"
-        ? ["lokalizacja/ podopieczny"]
-        : sheetName === "Голандія"
-          ? ["вакансия/ опис", "название в crm"]
-          : sheetName === "Польша"
-            ? ["вакансия", "название в crm", "место работы"]
-            : [],
+  sheetName === "Голандія"
+    ? ["вакансия/ опис", "название в crm"]
+    : sheetName === "Польша"
+      ? ["вакансия", "название в crm", "место работы"]
+      : [],
     "WORK&HUMAN": ["назва вакансії", "опис вакансії", "локалізалізація"],
     APOLO: ["вакансия", "офіс"],
     "PPG (BIEDRONKA)": ["projekt:", "region:", "stanowisko:"],
@@ -502,9 +500,7 @@ function escapeRegExp(str) {
 }
 
 // 👈 АБНОЎЛЕНА: Палепшаны пошук вакансіі па спасылках (v6.8)
-async function findVacancyByExternalDocLink(agencyName, externalUrls) {
-  // 🛡️ Ахова PPG: для гэтай агенцыі шаблонныя дакументы агульныя для розных гарадоў,
-  // таму пошук па спасылцы тут забаронены, каб не зліць розныя лакацыі ў адну.
+async function findVacancyByExternalDocLink(agencyName, externalUrls, rowTitle = "") {
   if (agencyName === "PPG (BIEDRONKA)") return null;
 
   const docLinks = (externalUrls || [])
@@ -513,7 +509,7 @@ async function findVacancyByExternalDocLink(agencyName, externalUrls) {
 
   if (docLinks.length === 0) return null;
 
-  return await Vacancy.findOne({
+  const existing = await Vacancy.findOne({
     agencyName,
     sourceType: "spreadsheet",
     status: { $in: ["active", "closed", "pending_ai"] },
@@ -527,6 +523,29 @@ async function findVacancyByExternalDocLink(agencyName, externalUrls) {
       };
     })
   });
+
+  if (existing && rowTitle) {
+    const keywords = [
+      "карщик", "карщік", "operator", "оператор", "навантажувач", "погрузчик", 
+      "швачка", "швея", "склад", "magazynier", "виробництво", "производство", 
+      "пакування", "упаковка", "монтер", "монтажник", "курка", "куриное", "мясо"
+    ];
+    
+    const lowerRowTitle = rowTitle.toLowerCase();
+    const lowerExistingTitle = (existing.vacancydescription || "").toLowerCase();
+
+    // Калі ў новым радку ёсць ключавое слова, якога няма ў знойдзенай вакансіі — гэта КАНФЛІКТ
+    const conflict = keywords.find(kw => 
+      lowerRowTitle.includes(kw) && !lowerExistingTitle.includes(kw)
+    );
+
+    if (conflict) {
+      console.log(`⚠️ [Match Conflict] Знойдзена супадзенне па спасылцы, але загалоўкі розныя (Ключ: ${conflict}). Ствараем новую.`);
+      return null;
+    }
+  }
+
+  return existing;
 }
 /**
  * Вяртае масіў ячэек для радка rowIndex,
@@ -744,7 +763,7 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
 
       // 👈 ДАДАДЗЕНА: Fallback-пошук, калі хэш змяніўся, але Google Doc супадае (v6.4)
       if (!existingVacancy && externalUrls.length > 0) {
-        const foundByLink = await findVacancyByExternalDocLink(source.agencyName, externalUrls);
+        const foundByLink = await findVacancyByExternalDocLink(source.agencyName, externalUrls, rowTitle);
         if (foundByLink) {
           console.log(
             `🔗 [Sync] Знойдзена супадзенне па Google Doc для ${foundByLink.vacancyCode}. "Лечым" хэш.`,
