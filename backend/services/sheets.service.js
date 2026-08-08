@@ -678,9 +678,8 @@ async function syncSheetVacancies(sourceId) {
     global.logger(`✅ Загалоўкі знойдзены ў радку №${headerRowIndex + 1}`);
 
     // Захоўваем загалоўкі як масіў радкоў (індэкс = нумар слупка)
-    const headers = (rowData[headerRowIndex].values || []).map(
-      (v) => v.formattedValue || "",
-    );
+    const headerCells = resolveMergedCells(headerRowIndex, rowData, merges);
+const headers = headerCells.map((v) => v?.formattedValue || "");
     // 👈 ДАДАДЗЕНА: Падтрымка двухпавярховых загалоўкаў (v8.33)
     if (headerRowIndex > 0) {
       const prevRowValues = (rowData[headerRowIndex - 1].values || []).map(v => v.formattedValue || "");
