@@ -53,7 +53,7 @@ async function getCardComments(cardId, apiKey, token) {
     const response = await axios.get(url);
     return response.data.map((action) => action.data.text).join("\n\n");
   } catch (err) {
-    console.error(
+    global.logger(
       `[Trello] Error fetching comments for ${cardId}:`,
       err.message,
     );
@@ -68,7 +68,7 @@ async function syncTrelloBoard(sourceId) {
   const source = await TrelloSource.findById(sourceId);
   if (!source || source.status === "paused") return;
 
-  console.log(
+  global.logger(
     `\n🗂️ [Trello] Пачатак сінхранізацыі: ${source.boardName} (${source.agencyName})`,
   );
 
@@ -112,7 +112,7 @@ let cardCounter = 0; // 👈 ДАДАЦЬ ГЭТА (ініцыялізацыя �
 
       if (!isVacancyList && !isInfoList) continue;
 
-      console.log(
+      global.logger(
         `  📂 Апрацоўка спіса: "${list.name}" (Тып: ${isVacancyList ? "VACANCY" : "INFO"})`,
       );
 
@@ -126,13 +126,13 @@ let cardCounter = 0; // 👈 ДАДАЦЬ ГЭТА (ініцыялізацыя �
          global.syncProgress.current++; // 👈 КРОК ЛІЧЫЛЬНІКА
           // 👈 ПРАВЕРКА НА ПРЫПЫНАК
         if (global.stopSyncRequested) {
-          console.log("🛑 [Trello] Сінхранізацыя перарвана карыстальнікам.");
+          global.logger("🛑 [Trello] Сінхранізацыя перарвана карыстальнікам.");
           return "STOP_ALL";}
 
         // 👈 ДАДАДЗЕНА: Паўза, калі рэкрутэр выконвае ручную аперацыю (той жа механізм, што і ў sheets.service.js)
         if (!global.isManualSync && global.isManualActionInProgress) {
           while (global.isManualActionInProgress) {
-            console.log("⏳ [Trello Sync] Фонавая аўтаматыка на паўзе: рэкрутэр працуе ўручную...");
+            global.logger("⏳ [Trello Sync] Фонавая аўтаматыка на паўзе: рэкрутэр працуе ўручную...");
             await new Promise(r => setTimeout(r, 5000));
           }
         }
@@ -169,25 +169,29 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
 
         // 📏 ФІЛЬТР ДАЎЖЫНІ (Крок 3.1)
         if (rawTrelloDump.length < 200) {
-          console.log(`⏭️ Пропуск карткі ${card.name}: занадта кароткая (${rawTrelloDump.length} сімв.)`);
+          global.logger(`⏭️ Пропуск карткі ${card.name}: занадта кароткая (${rawTrelloDump.length} сімв.)`);
           stats.ignored++;
           continue;
         }
 
         if (rawTrelloDump.length >= 200 && rawTrelloDump.length < 400) {
-          console.log(`📥 Кароткая картка (${rawTrelloDump.length} сімв.) -> Inbox`);
-          await new UnprocessedMessage({
-            sender: source.agencyName,
-            agencyName: source.agencyName,
-            text: `[Trello: ${list.name}]\n${rawTrelloDump}`,
-            source: "trello",
-            category: "update",
-            processed: false,
-            aiAnalyzed: true
-          }).save();
+          global.logger(`📥 Кароткая картка (${rawTrelloDump.length} сімв.) -> ${global.isManualSync ? 'Inbox' : 'Толькі ў лог'}`);
+          if (global.isManualSync) {
+            await new UnprocessedMessage({
+              sender: source.agencyName,
+              agencyName: source.agencyName,
+              text: `[Trello: ${list.name}]\n${rawTrelloDump}`,
+              source: "trello",
+              category: "update",
+              processed: false,
+              aiAnalyzed: true
+            }).save();
+          }
           stats.ignored++;
           continue;
         }
+          
+        
 
         if (isVacancyList) {
           // --- ЛОГІКА ВАКАНСІЙ ---
@@ -197,13 +201,13 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
 });
 
           // --- ЭТАП 1: ЗБОР ДАДЗЕНЫХ ---
-          console.log(`Этап 1. [Trello] Апрацоўка: ${card.name}`);
+          global.logger(`Этап 1. [Trello] Апрацоўка: ${card.name}`);
 
           let finalTrelloText = "";
 
           // ПРАВЕРКА: Ці ёсць у нас ужо гатовы тэкст (пасля мінулага збою AI)?
           if (existingVacancy && existingVacancy.rawText && existingVacancy.status === "pending_ai") {
-            console.log(`📦 Этап 4.5. Выкарыстоўваем захаваны тэкст Trello (Stage 0/1 пропуск)`);
+            global.logger(`📦 Этап 4.5. Выкарыстоўваем захаваны тэкст Trello (Stage 0/1 пропуск)`);
             finalTrelloText = existingVacancy.rawText;
           } else {
             // 1. Будуем тэкст
@@ -213,13 +217,13 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
             const gateVerdict = checkVacancyGatekeeper(rawTrelloDump, list.name);
             
             if (gateVerdict === "IGNORE") {
-              console.log(`⏭️ [Trello Gatekeeper] Смецце або кароткі тэкст: ${card.name}`);
+              global.logger(`⏭️ [Trello Gatekeeper] Смецце або кароткі тэкст: ${card.name}`);
               stats.ignored++;
               continue;
             }
 
             if (gateVerdict === "CLOSE") {
-              console.log(`🔴 [Trello Gatekeeper] СТОП-маркер: ${card.name}.`);
+              global.logger(`🔴 [Trello Gatekeeper] СТОП-маркер: ${card.name}.`);
               if (existingVacancy && existingVacancy.status !== "closed") {
                 existingVacancy.status = "closed";
                 existingVacancy.closingReason = "Маркер СТОП у Trello (Gatekeeper)";
@@ -250,7 +254,7 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
                 originalText: rawTrelloDump
               });
               await draft.save();
-              console.log(`💾 Этап 4.5. Тэкст Trello захаваны ў базу (Draft ${vacancyCode} створаны)`);
+              global.logger(`💾 Этап 4.5. Тэкст Trello захаваны ў базу (Draft ${vacancyCode} створаны)`);
               existingVacancy = draft;
               } else {
               // Абнаўляем існуючую вакансію новым тэкстам перад AI
@@ -258,7 +262,7 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
               existingVacancy.originalText = rawTrelloDump;
               existingVacancy.status = "pending_ai";
               await existingVacancy.save();
-              console.log(`💾 Этап 4.5. Чарнавік Trello ${existingVacancy.vacancyCode} абноўлены.`);
+              global.logger(`💾 Этап 4.5. Чарнавік Trello ${existingVacancy.vacancyCode} абноўлены.`);
             }
           }
 
@@ -268,33 +272,35 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
 
           // 👈 ВЫПРАЎЛЕНА: Абарона ад крашу, калі AI недаступны (v8.19)
           if (!analysis) {
-            console.warn(`⚠️ [Trello] AI недаступны для карткі "${card.name}". Пропуск.`);
+            global.logger(`⚠️ [Trello] AI недаступны для карткі "${card.name}". Пропуск.`);
             stats.ignored++;
             continue;
           }
-
+ 
           // 🔍 ДЫЯГНОСТЫКА (часова, v8.3): правяраем гіпотэзу пра UPDATE...
-          console.log(`🔍 [Category Debug] ${source.agencyName} | Card: "${card.name}" | List: "${list.name}" | AI Category: ${analysis?.category || "NULL"}`);
+          global.logger(`🔍 [Category Debug] ${source.agencyName} | Card: "${card.name}" | List: "${list.name}" | AI Category: ${analysis?.category || "NULL"}`);
 // 👈 ВЫПРАЎЛЕНА: Вакансія ствараецца ТОЛЬКІ пры FULL_VACANCY. Усё астатняе (UPDATE, INFO) — у Inbox (v8.3)
           if (analysis.category !== "FULL_VACANCY") {
             const msgCategory = analysis.category === "UPDATE" ? "update" : "info";
-            console.log(`📥 [Trello] Катэгорыя ${analysis.category} -> Адпраўка ў Inbox як ${msgCategory}`);
-            
-            await new UnprocessedMessage({
-              sender: source.agencyName,
-              agencyName: source.agencyName,
-              text: `[Trello: ${list.name}]\n${rawTrelloDump}`,
-              source: "trello",
-              category: msgCategory,
-              processed: false,
-              aiAnalyzed: true
-            }).save();
+            global.logger(`📥 [Trello] Катэгорыя ${analysis.category} -> ${global.isManualSync ? 'Адпраўка ў Inbox' : 'Толькі ў лог'}`);
+            if (global.isManualSync) {
+              await new UnprocessedMessage({
+                sender: source.agencyName,
+                agencyName: source.agencyName,
+                text: `[Trello: ${list.name}]\n${rawTrelloDump}`,
+                source: "trello",
+                category: msgCategory,
+                processed: false,
+                aiAnalyzed: true
+              }).save();
+            }
             stats.ignored++;
             continue;
           }
+          
           if (!analysis || !analysis.translatedFragments) {
             // 👈 ЗМЕНЕНА: Не спыняем усю дошку, проста прапускаем картку (v5.6)
-            console.error(`⚠️ [Trello] AI памылка для "${card.name}". Картка застаецца ў pending_ai. Пропуск.`);
+            global.logger(`⚠️ [Trello] AI памылка для "${card.name}". Картка застаецца ў pending_ai. Пропуск.`);
             stats.ignored++;
             continue; 
           }
@@ -320,7 +326,7 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
 
           if (result && result.error) {
             if (result.error.includes("AI_COOLDOWN") || result.error.includes("ALL_AI_MODELS_FAILED")) {
-              console.error("🛑 Спыняем Trello: AI недаступны.");
+              global.logger("🛑 Спыняем Trello: AI недаступны.");
               // Запамінаем пазіцыю перад выхадам
               await SyncState.findOneAndUpdate(
                 { key: "circular_sync_position" },
@@ -393,16 +399,18 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
         }
       });
 
-      await new UnprocessedMessage({
-        sender: "Trello System",
-        agencyName: source.agencyName,
-        text: hotText.substring(0, 4000),
-        category: "info",
-        source: "trello",
-        processed: false,
-        aiAnalyzed: true,
-      }).save();
-      console.log(`📦 Згрупавана ${hotUpdates.length} інфа-картак Trello.`);
+      if (global.isManualSync) {
+        await new UnprocessedMessage({
+          sender: "Trello System",
+          agencyName: source.agencyName,
+          text: hotText.substring(0, 4000),
+          category: "info",
+          source: "trello",
+          processed: false,
+          aiAnalyzed: true,
+        }).save();
+      }
+      global.logger(`📦 Згрупавана ${hotUpdates.length} інфа-картак Trello.`);
     }
     // Калі прайшлі ўсю дошку — скідаем індэкс
     await SyncState.findOneAndUpdate(
@@ -411,11 +419,11 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
     );
     await source.save();
 
-    console.log(
+    global.logger(
       `🏁 [Trello] Сінхранізацыя завершана: +${stats.added} вакансій, 🔄 ${stats.updated} абноўлена, ⏭️ ${stats.ignored} ігнаравана, +${stats.info} інфа, 🛑 ${stats.closed} закрыта.`, // 👈 ЗМЕНА: дададзены updated і ignored
     );
   } catch (err) {
-    console.error(`❌ [Trello] Sync Error (${source.boardName}):`, err.message);
+    global.logger(`❌ [Trello] Sync Error (${source.boardName}): ${err.message}`);
     await notifyDev(`❌ <b>Trello Sync Error</b>\nBoard: ${source.boardName}\nError: ${err.message}`);
   }
 }
@@ -434,7 +442,7 @@ async function syncAllTrelloBoards() {
     _id: { $nin: processedIds }
   });
 
-  console.log(`🚀 Сінхранізацыя Trello: ${sources.length} дошак (прапушчана: ${processedIds.length})`);
+  global.logger(`🚀 Сінхранізацыя Trello: ${sources.length} дошак (прапушчана: ${processedIds.length})`);
 
   for (const source of sources) {
     const result = await syncTrelloBoard(source._id);

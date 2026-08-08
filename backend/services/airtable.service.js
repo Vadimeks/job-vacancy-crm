@@ -22,14 +22,14 @@ async function syncAirtable() {
     _id: { $nin: processedIds }
   }).sort({ shareId: -1, agencyName: 1 });
 
-  console.log(`\n💎 [Airtable] Сінхранізацыя: ${sources.length} агенцый (прапушчана: ${processedIds.length})`);
+  global.logger(`\n💎 [Airtable] Сінхранізацыя: ${sources.length} агенцый (прапушчана: ${processedIds.length})`);
 
   for (const source of sources) {
     try {
       const result = await syncSingleSource(source);
       
       if (result === "STOP_ALL") {
-        console.error("🛑 [Airtable] AI недаступны. Спыняем усе крыніцы.");
+        global.logger("🛑 [Airtable] AI недаступны. Спыняем усе крыніцы.");
         return "STOP_ALL";
       }
 
@@ -40,7 +40,7 @@ async function syncAirtable() {
       );
 
     } catch (err) {
-      console.error(`❌ [Airtable] Памылка ў ${source.agencyName}:`, err.message);
+      global.logger(`❌ [Airtable] Памылка ў ${source.agencyName}: ${err.message}`);
       await notifyDev(`❌ <b>Airtable Sync Error</b>\nAgency: ${source.agencyName}\nError: ${err.message}`);
     }
     await new Promise(r => setTimeout(r, 5000));
@@ -48,13 +48,13 @@ async function syncAirtable() {
 }
 
 async function syncSingleSource(source) {
-  console.log(`\n🚀 Сканаванне: ${source.boardName} (${source.agencyName})`);
+  global.logger(`\n🚀 Сканаванне: ${source.boardName} (${source.agencyName})`);
 
   let records = [];
   if (source.shareId) {
     const scraped = await airtableScraper.fetchSharedData(source.shareId);
     if (!scraped || scraped.length === 0) {
-      console.log(`⚠️ Запісаў не знойдзена для ${source.agencyName}.`);
+      global.logger(`⚠️ Запісаў не знойдзена для ${source.agencyName}.`);
       return;
     }
     records = scraped;
@@ -66,12 +66,12 @@ async function syncSingleSource(source) {
       });
       records = response.data.records || [];
     } catch (apiErr) {
-      console.error(`❌ [API Error] ${source.agencyName}:`, apiErr.message);
+      global.logger(`❌ [Airtable] Памылка ў ${source.agencyName}: ${err.message}`);
       return;
     }
   }
 
-  console.log(`📦 Атрымана запісаў: ${records.length}`);
+  global.logger(`📦 Атрымана запісаў: ${records.length}`);
 // 👈 Ініцыялізацыя прагрэсу
   global.syncProgress = { current: 0, total: records.length, status: 'running', agency: source.agencyName };
   global.stopSyncRequested = false;
@@ -98,11 +98,11 @@ async function syncSingleSource(source) {
     
     // 🔍 ДЫЯГНОСТЫКА: Глядзім на структуру першага запісу
     if (i === startIndex) {
-      console.log(`🔍 [Airtable Debug] Sample Record (${source.agencyName}): ID=${airtableId}, Column="${columnName}", Fields Keys=[${Object.keys(row.fields).join(", ")}]`);
+      global.logger(`🔍 [Airtable Debug] Sample Record (${source.agencyName}): ID=${airtableId}, Column="${columnName}", Fields Keys=[${Object.keys(row.fields).join(", ")}]`);
     }
     // 👈 Праверка на прыпынак карыстальнікам
     if (global.stopSyncRequested) {
-      console.log(`🛑 [Airtable] Сінхранізацыя ${source.agencyName} перарвана карыстальнікам.`);
+      global.logger(`🛑 [Airtable] Сінхранізацыя ${source.agencyName} перарвана карыстальнікам.`);
       global.syncProgress.status = 'interrupted';
       global.isSyncRunning = false;
       return "STOP_ALL";
@@ -111,7 +111,7 @@ async function syncSingleSource(source) {
     // 👈 ДАДАДЗЕНА: Паўза, калі рэкрутэр выконвае ручную аперацыю (той жа механізм, што і ў sheets.service.js / trello.service.js)
     if (!global.isManualSync && global.isManualActionInProgress) {
       while (global.isManualActionInProgress) {
-        console.log(`⏳ [Airtable Sync] Фонавая аўтаматыка на паўзе: рэкрутэр працуе ўручную...`);
+        global.logger(`⏳ [Airtable Sync] Фонавая аўтаматыка на паўзе: рэкрутэр працуе ўручную...`);
         await new Promise(r => setTimeout(r, 5000));
       }
     }
@@ -184,13 +184,13 @@ async function syncSingleSource(source) {
     }
 
     if (shouldIgnore) {
-      console.log(`⏭️ [Airtable Skip] ${source.agencyName}: Blacklist (Column: "${columnName}")`);
+      global.logger(`⏭️ [Airtable Skip] ${source.agencyName}: Blacklist (Column: "${columnName}")`);
       // 👈 Прымусова закрываем, калі яна была актыўная
       if (existingVacancy && existingVacancy.status !== "closed") {
         existingVacancy.status = "closed";
         existingVacancy.closingReason = `Агенцкі Blacklist/Архіў (${source.agencyName})`;
         await existingVacancy.save();
-        console.log(`✅ Вакансія ${existingVacancy.vacancyCode} закрыта праз фільтр.`);
+        global.logger(`✅ Вакансія ${existingVacancy.vacancyCode} закрыта праз фільтр.`);
       }
       stats.ignored++;
       continue;
@@ -203,7 +203,7 @@ async function syncSingleSource(source) {
         columnName.includes(col.toLowerCase().trim())
       );
       if (!isIncluded && columnName !== "актуальное") {
-         console.log(`⏭️ [Airtable Skip] ${source.agencyName}: Не ў белым спісе (Column: "${columnName}")`);
+         global.logger(`⏭️ [Airtable Skip] ${source.agencyName}: Не ў белым спісе (Column: "${columnName}")`);
         stats.ignored++;
         continue;
       }
@@ -213,7 +213,7 @@ async function syncSingleSource(source) {
     if (source.syncRules && source.syncRules.checkField) {
       const actual = fields[source.syncRules.checkField];
       if (actual && String(actual).toLowerCase().trim() !== String(source.syncRules.checkValue).toLowerCase().trim()) {
-         console.log(`⏭️ [Airtable Skip] ${source.agencyName}: Не прайшло па syncRules (${source.syncRules.checkField}: "${actual}")`);
+         global.logger(`⏭️ [Airtable Skip] ${source.agencyName}: Не прайшло па syncRules (${source.syncRules.checkField}: "${actual}")`);
         stats.ignored++;
         continue;
       }
@@ -232,7 +232,7 @@ async function syncSingleSource(source) {
 
     // ПРАВЕРКА: Ці ёсць у нас ужо гатовы тэкст (пасля мінулага збою AI)?
     if (existingVacancy && existingVacancy.rawText && existingVacancy.status === "pending_ai") {
-      console.log(`📦 Этап 4.5. Выкарыстоўваем захаваны тэкст Airtable (Stage 0/1 пропуск)`);
+      global.logger(`📦 Этап 4.5. Выкарыстоўваем захаваны тэкст Airtable (Stage 0/1 пропуск)`);
       rawAirtableDump = existingVacancy.rawText;
     } else {
       // 🛡️ ПРАВЕРКА НА ЗМЕНЫ (калі вакансія актыўная і тэкст той жа — прапускаем)
@@ -250,18 +250,18 @@ async function syncSingleSource(source) {
       const gateVerdict = checkVacancyGatekeeper(rawAirtableDump, columnName);
       
       if (gateVerdict === "IGNORE") {
-        console.log(`⏭️ [Gatekeeper Skip] ${source.agencyName}: Смецце або кароткі тэкст.`);
+        global.logger(`⏭️ [Gatekeeper Skip] ${source.agencyName}: Смецце або кароткі тэкст.`);
         stats.ignored++;
         continue;
       }
       
       if (gateVerdict === "CLOSE") {
-        console.log(`🔴 [Gatekeeper Close] ${source.agencyName}: Знойдзены СТОП-маркер.`);
+        global.logger(`🔴 [Gatekeeper Close] ${source.agencyName}: Знойдзены СТОП-маркер.`);
         if (existingVacancy && existingVacancy.status !== "closed") {
           existingVacancy.status = "closed";
           existingVacancy.closingReason = "Маркер СТОП у тэксце (Gatekeeper)";
           await existingVacancy.save();
-          console.log(`✅ Вакансія ${existingVacancy.vacancyCode} паспяхова закрыта.`);
+          global.logger(`✅ Вакансія ${existingVacancy.vacancyCode} паспяхова закрыта.`);
         }
         stats.ignored++;
         continue;
@@ -270,7 +270,7 @@ async function syncSingleSource(source) {
       // 🛡️ ПРАВЕРКА НА ДУБЛІКАТ (v8.7)
       // Цяпер яна ідзе ПАСЛЯ Санітара, таму не блакуе закрыццё
       if (existingVacancy && existingVacancy.originalText === rawAirtableDump && existingVacancy.status === targetStatus) {
-        console.log(`⏭️ [Airtable Skip] ${source.agencyName}: Поўны дублікат у базе (ID: ${existingVacancy.vacancyCode})`);
+        global.logger(`⏭️ [Airtable Skip] ${source.agencyName}: Поўны дублікат у базе (ID: ${existingVacancy.vacancyCode})`);
         stats.ignored++;
         continue;
       }
@@ -291,7 +291,7 @@ async function syncSingleSource(source) {
           originalText: rawAirtableDump
         });
         await draft.save();
-        console.log(`💾 Этап 4.5. Тэкст Airtable захаваны ў базу (Draft ${vacancyCode} створаны)`);
+        global.logger(`💾 Этап 4.5. Тэкст Airtable захаваны ў базу (Draft ${vacancyCode} створаны)`);
         existingVacancy = draft;
       } else if (existingVacancy.originalText !== rawAirtableDump) {
         // Калі тэкст змяніўся — абнаўляем чарнавік перад AI
@@ -299,42 +299,44 @@ async function syncSingleSource(source) {
         existingVacancy.originalText = rawAirtableDump;
         existingVacancy.status = "pending_ai";
         await existingVacancy.save();
-        console.log(`💾 Этап 4.5. Чарнавік Airtable ${existingVacancy.vacancyCode} абноўлены.`);
+        global.logger(`💾 Этап 4.5. Чарнавік Airtable ${existingVacancy.vacancyCode} абноўлены.`);
       }
     }
 
-    console.log(`🧠 Этап 5. AI апрацоўка: ${source.agencyName} | ID: ${airtableId}`);
+    global.logger(`🧠 Этап 5. AI апрацоўка: ${source.agencyName} | ID: ${airtableId}`);
     const analysis = await analyzeAndCompareWithGemini(rawAirtableDump, [], []);
 
     // 👈 ВЫПРАЎЛЕНА: Абарона ад крашу, калі AI недаступны (v8.19)
     if (!analysis) {
-      console.warn(`⚠️ [Airtable] AI недаступны для запісу ${airtableId}. Пропуск.`);
+      global.logger(`⚠️ [Airtable] AI недаступны для запісу ${airtableId}. Пропуск.`);
       stats.ignored++;
       continue;
     }
     // 🔍 ДЫЯГНОСТЫКА (часова, v8.3): правяраем гіпотэзу пра UPDATE, які пралазіць міма фільтра
-    console.log(`🔍 [Category Debug] ${source.agencyName} | ID: ${airtableId} | Column: "${columnName}" | AI Category: ${analysis?.category || "NULL"} | Title: "${rawAirtableDump.substring(0, 60).replace(/\n/g, " ")}..."`);
+    global.logger(`🔍 [Category Debug] ${source.agencyName} | ID: ${airtableId} | Column: "${columnName}" | AI Category: ${analysis?.category || "NULL"} | Title: "${rawAirtableDump.substring(0, 60).replace(/\n/g, " ")}..."`);
     // 👈 ВЫПРАЎЛЕНА: Вакансія ствараецца ТОЛЬКІ пры FULL_VACANCY. Усё астатняе (UPDATE, INFO) — у Inbox (v8.3)
     if (analysis.category !== "FULL_VACANCY") {
       const msgCategory = analysis.category === "UPDATE" ? "update" : "info";
-      console.log(`📥 [Airtable] Катэгорыя ${analysis.category} -> Адпраўка ў Inbox як ${msgCategory}`);
+      global.logger(`📥 [Airtable] Катэгорыя ${analysis.category} -> ${global.isManualSync ? 'Адпраўка ў Inbox' : 'Толькі ў лог'}`);
       
-      await new UnprocessedMessage({
-        sender: source.agencyName,
-        agencyName: source.agencyName,
-        text: `[Airtable: ${columnName || "API"}]\n${rawAirtableDump}`,
-        source: "airtable",
-        category: msgCategory,
-        processed: false,
-        aiAnalyzed: true
-      }).save();
+      if (global.isManualSync) {
+        await new UnprocessedMessage({
+          sender: source.agencyName,
+          agencyName: source.agencyName,
+          text: `[Airtable: ${columnName || "API"}]\n${rawAirtableDump}`,
+          source: "airtable",
+          category: msgCategory,
+          processed: false,
+          aiAnalyzed: true
+        }).save();
+      }
       stats.ignored++;
       continue; 
     }
     // 🛡️ SAFETY SWITCH: Калі AI "ляснуў", запамінаем індэкс і спыняемся
     if (!analysis || !analysis.translatedFragments) {
       // 👈 ЗМЕНЕНА: Не спыняем Airtable, ідзем далей (v5.6)
-      console.error(`⚠️ [Airtable] AI памылка для запісу ${airtableId}. Пропуск.`);
+      global.logger(`⚠️ [Airtable] AI памылка для запісу ${airtableId}. Пропуск.`);
       stats.ignored++;
       continue;
     }
@@ -352,7 +354,7 @@ async function syncSingleSource(source) {
       const isRecentlyCreated = result.createdAt && (Date.now() - new Date(result.createdAt).getTime() < 60000);
       if (isRecentlyCreated && !existingVacancy) stats.added++; else stats.updated++;
     } else if (result?.error) {
-      console.error(`🛑 [Airtable] AI Cooldown у парсеры. Спыняем на індэксе ${i}.`);
+      global.logger(`🛑 [Airtable] AI Cooldown у парсеры. Спыняем на індэксе ${i}.`);
       await SyncState.findOneAndUpdate(
         { key: "circular_sync_position" },
         { lastSourceType: "airtable", lastSourceId: source._id, lastIndex: i },
@@ -381,7 +383,7 @@ async function syncSingleSource(source) {
   // Скідваем індэкс пасля паспяховага завяршэння ўсёй табліцы
   await SyncState.findOneAndUpdate({ key: "circular_sync_position" }, { lastIndex: 0 });
 
-  console.log(`🏁 [${source.agencyName}] Завершана: +${stats.added} новых, 🔄 ${stats.updated} абноўлена, 🛑 ${stats.closed} закрыта, ⏭️ ${stats.ignored} прапушчана.`);
+  global.logger(`🏁 [${source.agencyName}] Завершана: +${stats.added} новых, 🔄 ${stats.updated} абноўлена, 🛑 ${stats.closed} закрыта, ⏭️ ${stats.ignored} прапушчана.`);
   
 }
 

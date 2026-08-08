@@ -34,12 +34,7 @@ const PPG_DOCS_MAP = {
   "Ligentia": "1vvTTXzxnjFQATWNym91FVS3mC969bmxU",
   "INPOST": "15Esh_9yE71fCBo2KBHk_osH0bPmJ0h24"
 };
-function logger(msg) {
-  const time = new Date().toLocaleTimeString();
-  const fullMsg = `[${time}] ${msg}`;
-  console.log(fullMsg); // Дублюем у кансоль Render
-  if (global.sessionLogs) global.sessionLogs.push(fullMsg);
-}
+
 // 📅 Функцыя праверкі: ці з'яўляецца дата мінулай
 function isDateInPast(dateStr) {
   if (!dateStr || dateStr.trim() === "" || dateStr.includes("-")) return false;
@@ -215,7 +210,7 @@ function getRowStatus(cells, agencyName, headers = [], rowIndex = 0) {
     const isColor = isGreen || isOrange;
 
     // 🔍 ДЭБАГ: Цяпер з нумарам радка і тыпам колеру
-    console.log(
+    global.logger(
       `[Color Debug] Row: ${rowNum} | Agency: RALEN | Title: ${cells[0]?.formattedValue?.substring(0, 15)} | R:${r.toFixed(3)} G:${g.toFixed(3)} B:${b.toFixed(3)} | StyleRGB: ${sr.toFixed(3)}/${sg.toFixed(3)}/${sb.toFixed(3)} | Theme: ${bgStyle?.themeColor || "NONE"} | Result: ${isColor ? "ACTIVE" : "STOP"}`,
     );
 
@@ -225,7 +220,7 @@ function getRowStatus(cells, agencyName, headers = [], rowIndex = 0) {
   // 2. OTTO — заўсёды ACTIVE (прыхаваныя радкі адсякаюцца раней)
   if (agencyName === "OTTO") {
     // 👈 ДАДАДЗЕНА: лог для уніфікацыі з іншымі агенцыямі
-    console.log(
+    global.logger(
       `[Status Debug] Row: ${rowNum} | Agency: OTTO | Column: "auto" | Value: "always active" | Result: ACTIVE`,
     );
     return "ACTIVE";
@@ -277,7 +272,7 @@ function getRowStatus(cells, agencyName, headers = [], rowIndex = 0) {
       (agencyName === "MRÓWKI" && !statusValue) ||
       (agencyName === "BISAR" && !statusValue); // 👈 ДАДАДЗЕНА: пустая ячэйка BISAR = STOP
 
-    console.log(
+    global.logger(
       `[Status Debug] Row: ${rowNum} | Agency: ${agencyName} | Column: "${foundHeaderName}" | Value: "${statusValue}" | Result: ${isStop ? "STOP" : "ACTIVE"}`,
     );
 
@@ -299,13 +294,13 @@ function getRowStatus(cells, agencyName, headers = [], rowIndex = 0) {
 
     if (agencyName === "APOLO" && h.includes("вихід / приїзд")) {
       if (isDateInPast(val)) {
-        console.log(`[Status Debug] Row: ${rowNum} | APOLO: Дата ў мінулым (${val}) -> STOP`);
+        global.logger(`[Status Debug] Row: ${rowNum} | APOLO: Дата ў мінулым (${val}) -> STOP`);
         return "STOP";
       }
     }
     if (agencyName === "PPG (BIEDRONKA)" && h.includes("od kiedy:")) {
       if (val && isDateInPast(val)) {
-        console.log(`[Status Debug] Row: ${rowNum} | PPG: Дата ў мінулым (${val}) -> STOP`);
+        global.logger(`[Status Debug] Row: ${rowNum} | PPG: Дата ў мінулым (${val}) -> STOP`);
         return "STOP";
       }
     }
@@ -314,7 +309,7 @@ function getRowStatus(cells, agencyName, headers = [], rowIndex = 0) {
     // 5. STAFF POWER: Калі колькасць кандыдатаў дакладна "0"
     if (agencyName === "STAFF POWER" && h.includes("кількість кандидатів")) {
       if (val === "0") {
-        console.log(`[Status Debug] Row: ${rowNum} | STAFF POWER: 0 кандыдатаў -> STOP`);
+       global.logger(`[Status Debug] Row: ${rowNum} | STAFF POWER: 0 кандыдатаў -> STOP`);
         return "STOP";
       }
     }
@@ -486,7 +481,7 @@ function buildRowText(cells, headers, agencyName, sheetName) {
       externalUrls.push({ url: docUrl, header: "Апісанне пасады" });
       parts.push(`[Дадатковае апісанне пасады: ${docUrl}]`);
       // 👈 Абноўлены лог з вывадам ID
-      console.log(`🔗 [PPG Match] Знойдзены дакумент для ${ppgBrand}/${ppgPosition} -> ID: ${foundDocId}`);
+      global.logger(`🔗 [PPG Match] Знойдзены дакумент для ${ppgBrand}/${ppgPosition} -> ID: ${foundDocId}`);
     }
   }
   if (apoloGender.length > 0) {
@@ -545,7 +540,7 @@ async function findVacancyByExternalDocLink(agencyName, externalUrls, rowTitle =
     );
 
     if (conflict) {
-      console.log(`⚠️ [Match Conflict] Знойдзена супадзенне па спасылцы, але загалоўкі розныя (Ключ: ${conflict}). Ствараем новую.`);
+      global.logger(`⚠️ [Match Conflict] Знойдзена супадзенне па спасылцы, але загалоўкі розныя (Ключ: ${conflict}). Ствараем новую.`);
       return null;
     }
   }
@@ -589,7 +584,7 @@ async function syncSheetVacancies(sourceId) {
   const source = await SheetSource.findById(sourceId);
   if (!source || source.status === "paused") return;
 
-  logger(
+  global.logger(
     `📊 Пачатак сінхранізацыі: ${source.sheetName} (${source.agencyName})`,
   );
 
@@ -626,13 +621,13 @@ async function syncSheetVacancies(sourceId) {
         if (weekSheets.length > 0) {
           actualSheetName = weekSheets[0].title;
           if (actualSheetName !== source.sheetName) {
-            logger(`📅 [OTTO] Знойдзены новы ліст: ${actualSheetName} (было: ${source.sheetName})`);
+            global.logger(`📅 [OTTO] Знойдзены новы ліст: ${actualSheetName} (было: ${source.sheetName})`);
             source.sheetName = actualSheetName;
             await source.save(); // Захоўваем у базу, каб наступны раз не шукаць занова
           }
         }
       } catch (metaErr) {
-        logger("⚠️ Не ўдалося атрымаць спіс лістоў для OTTO:", metaErr.message);
+        global.logger("⚠️ Не ўдалося атрымаць спіс лістоў для OTTO:", metaErr.message);
       }
     }
 
@@ -652,7 +647,7 @@ async function syncSheetVacancies(sourceId) {
     const rowMetadata = gridData.rowMetadata || []; // 👈 Атрымліваем масіў метаданых усіх радкоў
     const merges = response.data.sheets[0].merges || [];
     if (!rowData || rowData.length < 1) {
-      logger("⚠️ Табліца пустая.");
+      global.logger("⚠️ Табліца пустая.");
       return;
     }
 
@@ -673,11 +668,11 @@ async function syncSheetVacancies(sourceId) {
     }
 
     if (headerRowIndex === -1) {
-      logger("⚠️ Не ўдалося знайсці радок загалоўкаў.");
+      global.logger("⚠️ Не ўдалося знайсці радок загалоўкаў.");
       return;
     }
 
-    logger(`✅ Загалоўкі знойдзены ў радку №${headerRowIndex + 1}`);
+    global.logger(`✅ Загалоўкі знойдзены ў радку №${headerRowIndex + 1}`);
 
     // Захоўваем загалоўкі як масіў радкоў (індэкс = нумар слупка)
     const headers = (rowData[headerRowIndex].values || []).map(
@@ -690,7 +685,7 @@ async function syncSheetVacancies(sourceId) {
     });
     global.syncProgress.total = actualRows.length;
     global.syncProgress.current = 0;
-    logger("📋 Загалоўкі:", headers.filter((h) => h.trim()).join(" | "));
+    global.logger("📋 Загалоўкі:", headers.filter((h) => h.trim()).join(" | "));
 
     // --- КРОК 2: Загружаем апошнія вакансіі для кантэксту дэдуплікацыі ---
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
@@ -709,13 +704,13 @@ async function syncSheetVacancies(sourceId) {
       // 👈 ВЫПРАЎЛЕНА: Чакаем, толькі калі гэта фонавы Watchdog, а не сам ручны запуск (v8.8)
       if (!global.isManualSync && global.isManualActionInProgress) {
         while (global.isManualActionInProgress) {
-          logger("⏳ [Sync] Фонавая аўтаматыка на паўзе: рэкрутэр працуе ўручную...");
+          global.logger("⏳ [Sync] Фонавая аўтаматыка на паўзе: рэкрутэр працуе ўручную...");
           await new Promise(r => setTimeout(r, 5000)); // Чакаем 5 секунд і правяраем зноў
         }
       }
       if (i < startIndex) continue;
  if (global.stopSyncRequested) {
-        logger("🛑 [Sheets] Сінхранізацыя перарвана карыстальнікам.");
+        global.logger("🛑 [Sheets] Сінхранізацыя перарвана карыстальнікам.");
         return "STOP_ALL";
       }
       const cells = resolveMergedCells(i, rowData, merges);
@@ -770,7 +765,7 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
       if (!existingVacancy && externalUrls.length > 0) {
         const foundByLink = await findVacancyByExternalDocLink(source.agencyName, externalUrls, rowTitle);
         if (foundByLink) {
-          logger(
+          global.logger(
             `🔗 [Sync] Знойдзена супадзенне па Google Doc для ${foundByLink.vacancyCode}. "Лечым" хэш.`,
           );
           foundByLink.sourceHash = rowHash; // Абнаўляем хэш на новы, каб наступны раз знайшлося адразу
@@ -812,20 +807,20 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
           continue;
         }
         
-        logger(
+        global.logger(
           `🔄 [Row ${i + 1}] ${existingVacancy.status === "pending_ai" ? "Даапрацоўка чаргі" : "Абнаўленне"}: ${existingVacancy.vacancyCode}`
         );
        }
 
       // --- ЭТАП 1: ЗБОР ДАДЗЕНЫХ ---
-      logger(`Этап 1. [Row ${i + 1}] Апрацоўка: ${rowTitle}`);
+      global.logger(`Этап 1. [Row ${i + 1}] Апрацоўка: ${rowTitle}`);
       foundHashesInSheet.add(rowHash);
 
 
 
       // 👈 ВЫПРАЎЛЕНА: адноўлена логіка праверкі чаргі і закрыты дужкі (v8.18)
       if (existingVacancy && existingVacancy.rawText && existingVacancy.status === "pending_ai") {
-        logger(`📦 Этап 4.5. Выкарыстоўваем захаваны тэкст (Stage 0/1 пропуск)`);
+        global.logger(`📦 Этап 4.5. Выкарыстоўваем захаваны тэкст (Stage 0/1 пропуск)`);
         rawRowText = existingVacancy.rawText;
       } else {
         // --- ЭТАП 2-4: ЗАГРУЗКА DRIVE / TELEGRAPH ---
@@ -854,7 +849,7 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
         .trim();
 
       if (strippedForLengthCheck.length < 200) {
-        logger(
+        global.logger(
           `⏭️ [Row ${i + 1}] Занадта кароткі тэкст (${strippedForLengthCheck.length} сімв., парог 200) — у Inbox без выкліку AI.`,
         );
 
@@ -892,7 +887,7 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
             originalText: rowBodyText
           });
           await draft.save();
-          logger(`💾 Этап 4.5. Тэкст захаваны ў базу (Draft ${vacancyCode} створаны)`);
+          global.logger(`💾 Этап 4.5. Тэкст захаваны ў базу (Draft ${vacancyCode} створаны)`);
           existingVacancy = draft;
         } else if (existingVacancy.originalText !== rowBodyText) {
           // Калі вакансія была, але тэкст у табліцы змяніўся — абнаўляем rawText і ставім pending_ai
@@ -900,12 +895,12 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
           existingVacancy.originalText = rowBodyText;
           existingVacancy.status = "pending_ai";
           await existingVacancy.save();
-          logger(`💾 Этап 4.5. Чарнавік ${existingVacancy.vacancyCode} абноўлены новым тэкстам.`);
+          global.logger(`💾 Этап 4.5. Чарнавік ${existingVacancy.vacancyCode} абноўлены новым тэкстам.`);
         }
       
 // 🔍 ДЫЯГНОСТЫКА: Глядзім, што сабрана з радка табліцы (v8.18)
       if (source.agencyName === "OTTO") {
-  logger(`📝 [OTTO Row ${i + 1}] Length: ${rawRowText.length}`);
+  global.logger(`📝 [OTTO Row ${i + 1}] Length: ${rawRowText.length}`);
 }
       // --- ЭТАП 5-7: AI АПРАЦОЎКА ---
       const analysis = await analyzeAndCompareWithGemini(rawRowText, [], recentVacancies);
@@ -917,7 +912,7 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
         continue; 
       }
 
-     logger(
+     global.logger(
         `🧠 AI Verdict [Row ${i + 1}]: Category=${analysis.category}, Verdict=${analysis.comparison?.verdict || "NEW"}`,
       );
 
@@ -977,7 +972,7 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
           !existingVacancy;
 
         if (isRecognizedOld) {
-          logger(
+          global.logger(
             `⏭️ AI пазнаў старую вакансію (Verdict: ${analysis.comparison?.verdict}). Пропуск стварэння новага ID.`,
           );
           stats.ignored++;
@@ -1032,7 +1027,7 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
       );
 
       if (closeResult.modifiedCount > 0) {
-        logger(
+        global.logger(
           `✅ Аўта-закрыццё: ${closeResult.modifiedCount} вакансій агенцыі ${source.agencyName} больш не ў табліцы.`,
         );
         stats.closed += closeResult.modifiedCount;
@@ -1125,7 +1120,7 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
         }).save();
       }
 
-      logger(
+      global.logger(
         `📦 Згрупавана ${hotUpdates.length} апдэйтаў у адно паведамленне Inbox.`,
       );
     }
@@ -1136,9 +1131,9 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
     );
     source.lastProcessedAt = new Date();
     await source.save();
-    logger(`🏁 Сінхранізацыя ${source.sheetName} завершана.`);
+    global.logger(`🏁 Сінхранізацыя ${source.sheetName} завершана.`);
   } catch (err) {
-    logger(`❌ Sync Error (${source.sheetName}): ${err.message}`);
+    global.logger(`❌ Sync Error (${source.sheetName}): ${err.message}`);
     await notifyDev(`❌ <b>Sheets Sync Error</b>\nAgency: ${source.agencyName}\nSheet: ${source.sheetName}\nError: ${err.message}`);
     await SyncHistory.create({
       agencyName: source.agencyName,
@@ -1152,7 +1147,7 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
       err.message?.includes("ALL_AI_MODELS_FAILED");
 
     if (isAiError) {
-      logger("🛑 AI недаступны. Спыняем сінхранізацыю ўсіх табліц.");
+      global.logger("🛑 AI недаступны. Спыняем сінхранізацыю ўсіх табліц.");
       return "STOP_ALL";
     }
   }
@@ -1169,7 +1164,7 @@ async function syncAllSheets() {
     _id: { $nin: processedIds } 
   });
 
-  console.log(`🚀 Запуск сінхранізацыі для ${sources.length} табліц (прапушчана: ${processedIds.length})...`);
+  global.logger(`🚀 Запуск сінхранізацыі для ${sources.length} табліц (прапушчана: ${processedIds.length})...`);
 
   for (const source of sources) {
     const result = await syncSheetVacancies(source._id);

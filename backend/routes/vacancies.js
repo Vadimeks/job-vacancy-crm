@@ -190,9 +190,7 @@ function sanitizeTelegramMarkdown(text) {
       const lastIndex = sanitized.lastIndexOf(char);
       sanitized =
         sanitized.substring(0, lastIndex) + sanitized.substring(lastIndex + 1);
-      console.log(
-        `⚠️ Выпраўлены няпарны сімвал фарматавання [ ${char} ] у тэксце вакансіі.`,
-      );
+      global.logger(`⚠️ Выпраўлены няпарны сімвал фарматавання [ ${char} ] у тэксце вакансіі.`,);
     }
   });
 
@@ -225,9 +223,7 @@ async function processVacancyMessage(
    forceFull = false,
    forcedStatus = null // 👈 Новы параметр
 ) {
-  console.log(
-    `\n--- 🤖 Stage 2: Groq-парсінг для ${preDefinedAgency || "Manual"} ---`,
-  );
+  global.logger(`--- 🤖 Stage 2: Groq-парсінг для ${preDefinedAgency || "Manual"} ---`);
   try {
     const savedVacancies = [];
      // 👈 ДАДАДЗЕНА: Ахова ад галюцынацый (v8.5)
@@ -372,7 +368,7 @@ const finalStatus = isMetaInfo ? "archived" : (forcedStatus || (isLite ? "pendin
           currentExistingId = null;
           continue;
         }
-        console.log(`✅ Вакансія абноўлена: ${updated.vacancyCode} (Статус: ${finalStatus})`);
+        global.logger(`✅ Вакансія абноўлена: ${updated.vacancyCode} (Статус: ${finalStatus})`);
         savedVacancies.push(updated);
         currentExistingId = null;
       }  else {
@@ -399,7 +395,7 @@ const finalStatus = isMetaInfo ? "archived" : (forcedStatus || (isLite ? "pendin
         });
 
         const saved = await newVacancy.save();
-        console.log(`✅ Вакансія створана: ${vacancyCode} (Статус: ${finalStatus})`);
+        global.logger(`✅ Вакансія створана: ${vacancyCode} (Статус: ${finalStatus})`);
         savedVacancies.push(saved);
       }
     }
@@ -1005,7 +1001,7 @@ async function retryPendingVacancies() {
   const { checkVacancyGatekeeper } = require("../utils/messageFilters");
 
   for (const vac of pending) {
-    console.log(`🔄 Рэтрай для ${vac.vacancyCode}...`);
+    global.logger(`🔄 Рэтрай для ${vac.vacancyCode}...`);
     
     const gateVerdict = checkVacancyGatekeeper(vac.rawText);
     

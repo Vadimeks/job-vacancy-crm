@@ -25,9 +25,15 @@ const CronLog = require("./models/CronLog");
 const app = express();
 // 👈 ГЛАБАЛЬНЫ ПРАГРЭС СІНХРАНІЗАЦЫІ
 global.syncProgress = { current: 0, total: 0, status: 'idle', agency: null };
-global.sessionLogs = []; // Масіў для збору тэхнічных логаў сканавання
 global.stopSyncRequested = false;
-global.isManualActionInProgress = false; // 👈 ДАДАДЗЕНА: прыярытэт ручных дзеянняў (reparse, publish і г.д.)
+global.isManualActionInProgress = false;
+global.sessionLogs = [];
+global.logger = (msg) => {
+  const time = new Date().toLocaleString('be-BY', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  const fullMsg = `[${time}] ${msg}`;
+  console.log(fullMsg);
+  global.sessionLogs.push(fullMsg);
+};
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -102,7 +108,7 @@ async function runSyncWithInsurance(forceRun = false) {
       }
     }
     
-    console.log("🔓 [Sync] Замок атрыманы, пачынаем працу.");
+    global.logger("🔓 [Sync] Замок атрыманы, пачынаем працу.");
 
     global.isSyncRunning = true; // Пакідаем для сумяшчальнасці з лакальнымі праверкамі
  if (global.isChatProcessing) {
@@ -125,7 +131,7 @@ async function runSyncWithInsurance(forceRun = false) {
 
    // 0. ПРЫЯРЫТЭТ: Калі рэкрутэр зараз нешта робіць уручную — аўтаматыка нават не спрабуе пачаць
     if (global.isManualActionInProgress && !forceRun) {
-      console.log("⏳ [Sync] Аўтаматыка чакае: рэкрутэр выконвае ручную аперацыю...");
+      global.logger("⏳ [Sync] Аўтаматыка чакае: рэкрутэр выконвае ручную аперацыю...");
       return;
     }
 
@@ -165,7 +171,7 @@ async function runSyncWithInsurance(forceRun = false) {
 
     if (!shouldRun) return; // Ціха выходзім, калі рабіць няма чаго
 
-    console.log(`⏰ [Sync] Трыгер: ${reason}. Пачынаем працу...`);
+    global.logger(`⏰ [Sync] Трыгер: ${reason}. Пачынаем працу...`);
 
     // Калі пачынаем менавіта НОВАЕ кола — чысцім спіс апрацаваных
     if (isTimeForNewCircle && !isCircleIncomplete && !hasPendingAi) {
@@ -174,16 +180,16 @@ async function runSyncWithInsurance(forceRun = false) {
         { isComplete: false, processedInCircle: [], lastIndex: 0 },
         { upsert: true }
       );
-      console.log("🔄 [Sync] Спіс крыніц ачышчаны для новага кола.");
+      global.logger("🔄 [Sync] Спіс крыніц ачышчаны для новага кола.");
     }
      // 2.5. ПРЫЯРЫТЭТ: Калі ёсць pending_ai — спачатку разграбаем іх!
     if (hasPendingAi) {
-      console.log("🧹 [Sync] Знойдзены вакансіі ў чарзе. Запуск даапрацоўкі...");
+      global.logger("🧹 [Sync] Знойдзены вакансіі ў чарзе. Запуск даапрацоўкі...");
       await retryPendingVacancies();
       // Калі мы толькі што разграбалі чаргу, не трэба адразу ісці ў табліцы, 
       // дамо AI адпачыць да наступнага цыкла watchdog.
       if (!forceRun) {
-        console.log("✅ [Sync] Чаргу апрацавана. Спыняем бягучы цыкл.");
+        global.logger("✅ [Sync] Чаргу апрацавана. Спыняем бягучы цыкл.");
         global.isSyncRunning = false;
         return;
       }
@@ -215,9 +221,9 @@ async function runSyncWithInsurance(forceRun = false) {
         },
         { upsert: true }
       );
-      console.log("✅ [Sync] Кола завершана паспяхова. Наступны поўны запуск праз 4 гадзіны.");
+      global.logger("✅ [Sync] Кола завершана паспяхова. Наступны поўны запуск праз 4 гадзіны.");
     } else {
-      console.log("⚠️ [Sync] Кола перарвана памылкай AI. Watchdog паспрабуе яшчэ раз праз 10 хвілін.");
+      global.logger("⚠️ [Sync] Кола перарвана памылкай AI. Watchdog паспрабуе яшчэ раз праз 10 хвілін.");
     }
   } catch (err) {
     console.error("❌ [Sync] Памылка канвеера:", err.message);
