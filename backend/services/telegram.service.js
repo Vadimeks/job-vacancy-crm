@@ -1,5 +1,6 @@
 // backend/services/telegram.service.js
 const { Telegraf, Markup } = require("telegraf");
+const axios = require("axios");
 
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
 const CHANNEL_ID = process.env.TELEGRAM_CHANNEL_ID;
@@ -234,7 +235,8 @@ async function sendLogsToDev(content, fileName) {
   try {
     const FormData = require("form-data");
     const form = new FormData();
-    form.append("chat_id", process.env.DEV_CHAT_ID);
+    form.append("chat_id", process.env.RECRUITER_CHAT_ID);
+
     form.append("caption", `📄 Тэхнічная справаздача сканавання (${new Date().toLocaleString()})`);
     form.append("document", Buffer.from(content), {
       filename: fileName,
