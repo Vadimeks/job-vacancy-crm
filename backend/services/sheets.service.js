@@ -861,7 +861,7 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
       // без дадатковага дакумента). Такія радкі не нясуць дастаткова дадзеных для AI-парсінгу
       // і раней прапускаліся ў AI праз спецыяльнае "SPREADSHEET RULE" у прампце, ствараючы
       // амаль пустыя вакансіі (напр. VAC-3234 OTTO). Цяпер адсякаем іх ДА выкліку AI.
-      const strippedForLengthCheck = rawRowText
+      
   const strippedForLengthCheck = rawRowText.replace(/^\[SOURCE: SPREADSHEET_ROW \| AGENCY: [^\]]*\]\n?/, "").trim();
 
 // Узбагачаем тэкст дакументамі
