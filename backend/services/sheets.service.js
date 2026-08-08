@@ -862,31 +862,33 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
       // і раней прапускаліся ў AI праз спецыяльнае "SPREADSHEET RULE" у прампце, ствараючы
       // амаль пустыя вакансіі (напр. VAC-3234 OTTO). Цяпер адсякаем іх ДА выкліку AI.
       const strippedForLengthCheck = rawRowText
-        .replace(/^\[SOURCE: SPREADSHEET_ROW \| AGENCY: [^\]]*\]\n?/, "")
-        .trim();
+  const strippedForLengthCheck = rawRowText.replace(/^\[SOURCE: SPREADSHEET_ROW \| AGENCY: [^\]]*\]\n?/, "").trim();
 
-      if (strippedForLengthCheck.length < 200) {
-        global.logger(
-          `⏭️ [Row ${i + 1}] Занадта кароткі тэкст (${strippedForLengthCheck.length} сімв., парог 200) — у Inbox без выкліку AI.`,
-        );
+// Узбагачаем тэкст дакументамі
+const enrichedText = await enrichTextWithDocs(rawRowText);
 
-        // Калі гэта чарнавік (pending_ai) — выдаляем яго, каб не вісеў у базе назаўжды
-        if (existingVacancy && existingVacancy.status === "pending_ai") {
-          await Vacancy.findByIdAndDelete(existingVacancy._id);
-        }
-        // Калі вакансія была ACTIVE — яе НЕ чапаем (не закрываем, не абнаўляем)
+// Калі няма дадатковых дакументаў і тэкст сапраўды кароткі — у Inbox
+if (enrichedText.length < 200 && externalUrls.length === 0) {
+  global.logger(
+    `⏭️ [Row ${i + 1}] Занадта кароткі тэкст (${enrichedText.length} сімв., парог 200) — у Inbox без выкліку AI.`,
+  );
 
-        hotUpdates.push({
-          row: i + 1,
-          title: rowTitle,
-          code: existingVacancy?.status === "active" ? existingVacancy.vacancyCode : undefined,
-          content: strippedForLengthCheck,
-          type: "UPDATE",
-        });
+  if (existingVacancy && existingVacancy.status === "pending_ai") {
+    await Vacancy.findByIdAndDelete(existingVacancy._id);
+  }
 
-        stats.ignored++;
-        continue;
-      }
+  hotUpdates.push({
+    row: i + 1,
+    title: rowTitle,
+    code: existingVacancy?.status === "active" ? existingVacancy.vacancyCode : undefined,
+    content: enrichedText,
+    type: "UPDATE",
+  });
+
+  stats.ignored++;
+  continue;
+}
+
 
         // 💾 ЗАХАВАННЕ ПРАГРЭСУ: Калі вакансія новая, ствараем яе як чарнавік
         if (!existingVacancy) {
