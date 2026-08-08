@@ -73,6 +73,8 @@ async function syncTrelloBoard(sourceId) {
   );
 
   const stats = { added: 0, updated: 0, closed: 0, ignored: 0, info: 0 };
+  const failedRows = [];
+
   const details = [];
   const hotUpdates = [];
   const foundCardIds = new Set();
@@ -311,40 +313,43 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
           // Trello, у адрозненне ад Airtable, не мае логікі "closed" па назвах калонак — заўсёды "active".
           const trelloTargetStatus = "active";
           const result = await processVacancyMessage(
-            analysis.translatedFragments, // 👈 Перадаем увесь масіў
-            "Trello",
-            source.agencyName,
-            rawTrelloDump,
-            false,
-            analysis.category,
-            card.id,
-            list.name,
-            existingVacancy ? existingVacancy._id : null,
-            "trello",
-            false, // forceFull (11-ы аргумент)
-            trelloTargetStatus // 👈 ПЕРАДАЕМ СТАТУС
-          );
+  analysis.translatedFragments,
+  "Trello",
+  source.agencyName,
+  rawTrelloDump,
+  false,
+  analysis.category,
+  card.id,
+  list.name,
+  existingVacancy ? existingVacancy._id : null,
+  "trello",
+  false,
+  trelloTargetStatus
+);
 
-          if (result && result.error) {
-            if (result.error.includes("AI_COOLDOWN") || result.error.includes("ALL_AI_MODELS_FAILED")) {
-              global.logger("🛑 Спыняем Trello: AI недаступны.");
-              // Запамінаем пазіцыю перад выхадам
-              await SyncState.findOneAndUpdate(
-                { key: "circular_sync_position" },
-                { lastSourceType: "trello", lastSourceId: source._id, lastIndex: currentCardIndex },
-                { upsert: true }
-              );
-              return "STOP_ALL";
-            }
-          } else if (result) {
-            if (existingVacancy) {
-              stats.updated++;
-              details.push(`🔄 [${result.vacancyCode}] ${card.name}`);
-            } else {
-              stats.added++;
-              details.push(`✨ [${result.vacancyCode}] ${card.name}`);
-            }
-          }
+if (result && result.error) {
+  global.logger(`⚠️ [Trello] Вакансія "${card.name}" не дапрацавана. Прычына: ${result.error}`);
+  failedRows.push({ id: card.id, title: card.name, reason: result.error });
+
+  if (result.error.includes("AI_COOLDOWN") || result.error.includes("ALL_AI_MODELS_FAILED")) {
+    global.logger("🛑 Спыняем Trello: AI недаступны.");
+    await SyncState.findOneAndUpdate(
+      { key: "circular_sync_position" },
+      { lastSourceType: "trello", lastSourceId: source._id, lastIndex: currentCardIndex },
+      { upsert: true }
+    );
+    return "STOP_ALL";
+  }
+} else if (result) {
+  if (existingVacancy) {
+    stats.updated++;
+    details.push(`🔄 [${result.vacancyCode}] ${card.name}`);
+  } else {
+    stats.added++;
+    details.push(`✨ [${result.vacancyCode}] ${card.name}`);
+  }
+}
+
         } else if (isInfoList) {
           // --- ЛОГІКА INFO (ЗБОР У ДАЙДЖЭСТ) ---
           const textHash =
@@ -419,6 +424,12 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
       { lastIndex: 0 }
     );
     await source.save();
+if (failedRows.length > 0) {
+  global.logger(`⚠️ [Trello] Не дапрацавана ${failedRows.length} картак. Яны застаюцца ў чарзе pending_ai.`);
+  failedRows.forEach(fr => {
+    global.logger(`⏭️ [Pending] Card ${fr.id} (${fr.title}) — Прычына: ${fr.reason}`);
+  });
+}
 
     global.logger(
       `🏁 [Trello] Сінхранізацыя завершана: +${stats.added} вакансій, 🔄 ${stats.updated} абноўлена, ⏭️ ${stats.ignored} ігнаравана, +${stats.info} інфа, 🛑 ${stats.closed} закрыта.`, // 👈 ЗМЕНА: дададзены updated і ignored

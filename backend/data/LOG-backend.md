@@ -1485,3 +1485,65 @@ STAFF POWER ужо дададзена. Праверыць, ці патрэбны
 
 ### Changed
 - **Дэактывацыя крыніц:** Поўнасцю адключаны і пастаўлены на паўзу ў базе даных агенцыя "PERSONEL SERVICE" і ліст "Opiekunki" (Intraservice). Выдалены ўсе згадкі і якары з кода.
+# 📊 Лог развіцця (08.08.2026)
+
+## ✅ Што зроблена
+- **telegram.service.js**
+  - Замянілі `DEV_CHAT_ID` на `RECRUITER_CHAT_ID` у `sendLogsToDev`.
+  - Дададзена агульная функцыя `flushSessionLogs()` для адзінага флашу лаг‑буфера.
+- **index.js**
+  - Дададзены сцяг `didRealWork` у `runSyncWithInsurance`.
+  - Flush лаг‑буфера цяпер адбываецца толькі калі была рэальная праца або памылка.
+- **sync.js**
+  - Замянілі дубляваны код адпраўкі лаг‑файла на выкарыстанне `flushSessionLogs()`.
+  - Ручны запуск цяпер адразу адпраўляе лаг адным файлам у канцы.
+- **messageFilters.js**
+  - Дададзена лагаванне пры IGNORE: паказваецца маркер і фрагмент тэксту.
+- **sheets.service.js**
+  - Дададзены масіў `failedRows`.
+  - Лагаванне збояў пры `savedVac.error`.
+  - Падсумак у канцы: колькі радкоў засталося ў `pending_ai`.
+- **airtable.service.js**
+  - Дададзены масіў `failedRows`.
+  - Лагаванне збояў пры `result.error`.
+  - Падсумак у канцы: колькі запісаў засталося ў `pending_ai`.
+- **trello.service.js**
+  - Дададзены масіў `failedRows`.
+  - Лагаванне збояў пры `result.error`.
+  - Падсумак у канцы: колькі картак засталося ў `pending_ai`.
+
+## 🔎 Аналіз пасля дыялогу з Claude
+- **Праблема 1 (Telegram‑лагі):** watchdog кожныя 10 хвілін рабіў flush і рваў лагі напалам.  
+  ➝ Вырашана праз сцяг `didRealWork` і flush толькі пры рэальнай працы + flush у ручным запуску.
+- **Праблема 2 (APOLO загалоўкі):** аб’яднаныя ячэйкі не чыталіся, спасылкі губляліся.  
+  ➝ Вырашана праз `resolveMergedCells` + fallback на радок вышэй.
+- **Праблема 3 (Gatekeeper):** правіла па нацыянальнасці было правільнае, але пераклад AI часам губляў «Україна».  
+  ➝ Дададзена лагаванне маркера і фрагмента тэксту для дыягностыкі.
+- **Праблема 4 (бачнасць збояў):** пры памылках AI або Gatekeeper радкі заставаліся ў `pending_ai`, але гэта не было бачна ў лагу.  
+  ➝ Дададзена лагаванне збояў і падсумак у канцы для ўсіх сэрвісаў (Sheets, Airtable, Trello).
+
+## 📌 План далейшых дзеянняў
+1. Правесці поўны ручны скан для ўсіх агенцый і праверыць, што лагі прыходзяць адным файлам з падсумкам.
+2. Адсочваць у лагу радкі/запісы/карткі, якія засталіся ў `pending_ai`, і перасканоўваць іх пры неабходнасці.
+3. Пры патрэбе пашырыць лагаванне Gatekeeper (напрыклад, паказваць не толькі маркер, але і спіс краін, якія былі распазнаныя).
+4. Падрыхтаваць асобны модуль для агульнай апрацоўкі збояў, каб не дубляваць код у кожным сэрвісе.
+
+---
+## 💾 Commit
+feat(logging): unify flush and add pending_ai visibility
+
+telegram.service.js: replace DEV_CHAT_ID with RECRUITER_CHAT_ID, add flushSessionLogs()
+
+index.js: add didRealWork flag, flush only on real work or error
+
+sync.js: use flushSessionLogs() for manual sync logs
+
+messageFilters.js: log marker and text fragment on IGNORE
+
+sheets.service.js: add failedRows, log errors, show pending_ai summary
+
+airtable.service.js: add failedRows, log errors, show pending_ai summary
+
+trello.service.js: add failedRows, log errors, show pending_ai summary
+
+

@@ -93,20 +93,13 @@ router.post("/agency", async (req, res) => {
       console.error(`❌ [Manual Sync] Крытычная памылка:`, err.message);
       global.syncProgress.status = 'error';
    } finally {
-      if (global.sessionLogs && global.sessionLogs.length > 0) {
-        try {
-          const { sendLogsToDev } = require("../services/telegram.service");
-          const logContent = global.sessionLogs.join("\n");
-          const dateStr = new Date().toLocaleString('be-BY').replace(/[:.]/g, '-');
-          const fileName = `manual_sync_${dateStr}.txt`;
-          
-          console.log(`📤 Адпраўка лога (${global.sessionLogs.length} радкоў) у ТГ...`);
-          await sendLogsToDev(logContent, fileName);
-        } catch (logErr) {
-          console.error("❌ Памылка адпраўкі логаў:", logErr.message);
-        }
-        global.sessionLogs = []; 
-      }
+      const { flushSessionLogs } = require("../services/telegram.service");
+const dateStr = new Date().toLocaleString('be-BY').replace(/[:.]/g, '-');
+const fileName = `manual_sync_${dateStr}.txt`;
+
+console.log(`📤 Адпраўка лога (${global.sessionLogs.length} радкоў) у ТГ...`);
+await flushSessionLogs(fileName);
+
 
       global.isSyncRunning = false;
       global.isManualActionInProgress = false;

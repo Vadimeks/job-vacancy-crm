@@ -231,7 +231,7 @@ const notifyDev = async (message) => {
  * Адпраўляе тэкставы лог як файл .txt у ТГ распрацоўшчыка
  */
 async function sendLogsToDev(content, fileName) {
-   console.log(`📡 ТГ-Бот: Адпраўка файла ${fileName} у чат ${process.env.DEV_CHAT_ID}`); // 👈 Дадаць
+   console.log(`📡 ТГ-Бот: Адпраўка файла ${fileName} у чат ${process.env.RECRUITER_CHAT_ID}`); 
   try {
     const FormData = require("form-data");
     const form = new FormData();
@@ -252,14 +252,22 @@ async function sendLogsToDev(content, fileName) {
     console.error("❌ Памылка адпраўкі лог-файла ў ТГ:", err.message);
   }
 }
+async function flushSessionLogs(fileName) {
+  if (!global.sessionLogs || global.sessionLogs.length === 0) return;
+  const content = global.sessionLogs.join("\n");
+  await sendLogsToDev(content, fileName);
+  global.sessionLogs = [];
+}
+
 module.exports = {
   bot,
   sendToTelegram,
   notifyRecruiter,
   notifyRecruiterAboutMatch,
   notifyRecruiterAboutShortMessage,
-  notifyDev, // 👈 Дадаем у экспарт
+  notifyDev,
   startBot,
    sendLogsToDev,
+   flushSessionLogs,
 };
 

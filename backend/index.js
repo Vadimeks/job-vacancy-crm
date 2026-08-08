@@ -72,6 +72,8 @@ async function runSyncWithInsurance(forceRun = false) {
   const taskName = "global-sync";
   const SyncState = require("./models/SyncState");
   const Vacancy = require("./models/Vacancy");
+  let didRealWork = false;
+
 
   try {
   
@@ -170,7 +172,7 @@ async function runSyncWithInsurance(forceRun = false) {
     }
 
     if (!shouldRun) return; // Ціха выходзім, калі рабіць няма чаго
-
+didRealWork = true; // 👈 тут усталёўваем, што сапраўды пачалася праца
     global.logger(`⏰ [Sync] Трыгер: ${reason}. Пачынаем працу...`);
 
     // Калі пачынаем менавіта НОВАЕ кола — чысцім спіс апрацаваных
@@ -231,15 +233,14 @@ async function runSyncWithInsurance(forceRun = false) {
     global.isSyncRunning = false;
     
     // 📂 ГЕНЕРАЦЫЯ І АДПРАЎКА ЛОГ-ФАЙЛА (v8.32)
-    if (global.sessionLogs && global.sessionLogs.length > 0) {
-      const { sendLogsToDev } = require("./services/telegram.service");
-      const logContent = global.sessionLogs.join("\n");
-      const dateStr = new Date().toISOString().split('T')[0];
-      const fileName = `sync_log_${dateStr}.txt`;
-      
-      await sendLogsToDev(logContent, fileName);
-      global.sessionLogs = []; // Ачышчаем пасля адпраўкі
-    }
+    const { flushSessionLogs } = require("./services/telegram.service");
+const dateStr = new Date().toISOString().split('T')[0];
+const fileName = `sync_log_${dateStr}.txt`;
+
+if (didRealWork || err) {
+  await flushSessionLogs(fileName);
+}
+
 
     await SyncState.findOneAndUpdate(
       { key: "circular_sync_position" },

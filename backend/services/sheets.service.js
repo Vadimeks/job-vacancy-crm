@@ -591,6 +591,7 @@ async function syncSheetVacancies(sourceId) {
   );
 
   const stats = { added: 0, updated: 0, closed: 0, ignored: 0 };
+  const failedRows = [];
   const details = [];
   // Ініцыялізацыя прагрэсу (v8.26 fix)
   global.syncProgress = { current: 0, total: 0, status: 'running', agency: source.agencyName };
@@ -1002,6 +1003,11 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
           if (existingVacancy) stats.updated++; else stats.added++;
           details.push(`✨ [${savedVac.vacancyCode}] ${rowTitle} (Row: ${i + 1})`);
         }
+        else if (savedVac?.error) {
+  global.logger(`⚠️ [Sheets] Вакансія ў радку ${i + 1} не дапрацавана. Прычына: ${savedVac.error}`);
+  failedRows.push({ row: i + 1, title: rowTitle, reason: savedVac.error });
+}
+
       }
 
       await new Promise((r) => setTimeout(r, 5000));
@@ -1137,6 +1143,13 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
     );
     source.lastProcessedAt = new Date();
     await source.save();
+    if (failedRows.length > 0) {
+  global.logger(`⚠️ [Sheets] Не дапрацавана ${failedRows.length} радкоў. Яны застаюцца ў чарзе pending_ai.`);
+  failedRows.forEach(fr => {
+    global.logger(`⏭️ [Pending] Row ${fr.row} (${fr.title}) — Прычына: ${fr.reason}`);
+  });
+}
+
     global.logger(`🏁 Сінхранізацыя ${source.sheetName} завершана.`);
   } catch (err) {
     global.logger(`❌ Sync Error (${source.sheetName}): ${err.message}`);

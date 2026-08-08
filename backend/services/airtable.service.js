@@ -82,6 +82,7 @@ async function syncSingleSource(source) {
 
   const foundAirtableIds = new Set();
   const stats = { added: 0, updated: 0, ignored: 0, closed: 0 };
+const failedRows = [];
 
   // 🔄 2. Адзіны цыкл па запісах
   for (let i = 0; i < records.length; i++) {
@@ -343,25 +344,32 @@ async function syncSingleSource(source) {
 
     // 🚀 БАТЧ-ВЫКЛІК: Адпраўляем усе фрагменты Airtable адным запытам
     const result = await processVacancyMessage(
-      analysis.translatedFragments, // 👈 Перадаем увесь масіў
-      "Airtable", source.agencyName, rawAirtableDump, false,
-      analysis.category, airtableId, columnName, 
-      existingVacancy ? existingVacancy._id : null, "airtable",
-      false, targetStatus
-    );
+  analysis.translatedFragments,
+  "Airtable", source.agencyName, rawAirtableDump, false,
+  analysis.category, airtableId, columnName, 
+  existingVacancy ? existingVacancy._id : null, "airtable",
+  false, targetStatus
+);
 
-    if (result && !result.error) {
-      const isRecentlyCreated = result.createdAt && (Date.now() - new Date(result.createdAt).getTime() < 60000);
-      if (isRecentlyCreated && !existingVacancy) stats.added++; else stats.updated++;
-    } else if (result?.error) {
-      global.logger(`🛑 [Airtable] AI Cooldown у парсеры. Спыняем на індэксе ${i}.`);
-      await SyncState.findOneAndUpdate(
-        { key: "circular_sync_position" },
-        { lastSourceType: "airtable", lastSourceId: source._id, lastIndex: i },
-        { upsert: true }
-      );
-      return "STOP_ALL";
-    }
+if (result && !result.error) {
+  const isRecentlyCreated = result.createdAt && (Date.now() - new Date(result.createdAt).getTime() < 60000);
+  if (isRecentlyCreated && !existingVacancy) stats.added++; else stats.updated++;
+} else if (result?.error) {
+  global.logger(`⚠️ [Airtable] Вакансія ў запісе ${airtableId} не дапрацавана. Прычына: ${result.error}`);
+  failedRows.push({ id: airtableId, title: cardTitle || "Без назви", reason: result.error });
+
+  // Калі гэта AI Cooldown — спыняем увесь цыкл
+  if (result.error.includes("AI_COOLDOWN")) {
+    global.logger(`🛑 [Airtable] AI Cooldown у парсеры. Спыняем на індэксе ${i}.`);
+    await SyncState.findOneAndUpdate(
+      { key: "circular_sync_position" },
+      { lastSourceType: "airtable", lastSourceId: source._id, lastIndex: i },
+      { upsert: true }
+    );
+    return "STOP_ALL";
+  }
+}
+
     await new Promise(r => setTimeout(r, 4000));
   }
 
@@ -382,6 +390,12 @@ async function syncSingleSource(source) {
 
   // Скідваем індэкс пасля паспяховага завяршэння ўсёй табліцы
   await SyncState.findOneAndUpdate({ key: "circular_sync_position" }, { lastIndex: 0 });
+if (failedRows.length > 0) {
+  global.logger(`⚠️ [Airtable] Не дапрацавана ${failedRows.length} запісаў. Яны застаюцца ў чарзе pending_ai.`);
+  failedRows.forEach(fr => {
+    global.logger(`⏭️ [Pending] ID ${fr.id} (${fr.title}) — Прычына: ${fr.reason}`);
+  });
+}
 
   global.logger(`🏁 [${source.agencyName}] Завершана: +${stats.added} новых, 🔄 ${stats.updated} абноўлена, 🛑 ${stats.closed} закрыта, ⏭️ ${stats.ignored} прапушчана.`);
   

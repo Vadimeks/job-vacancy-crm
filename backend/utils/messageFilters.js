@@ -444,15 +444,19 @@ function checkVacancyGatekeeper(text, columnName = "") {
   
   const hasExclusiveMarker = exclusiveMarkers.some(m => lowerText.includes(m) || lowerColumn.includes(m));
   
-  if (hasExclusiveMarker) {
-    const whiteList = NATIONALITIES.map(n => n.value.toLowerCase());
-    const hasWhiteListCountry = whiteList.some(n => lowerText.includes(n));
-    
-    if (!hasWhiteListCountry) {
-      console.log(`⏭️ [Gatekeeper Ignore] Чужая нацыянальнасць (Азія/Англамоўныя).`);
-      return "IGNORE";
+ if (hasExclusiveMarker) {
+  const whiteList = NATIONALITIES.map(n => n.value.toLowerCase());
+  const hasWhiteListCountry = whiteList.some(n => lowerText.includes(n));
+  
+  if (!hasWhiteListCountry) {
+    // 👈 Дадаем лагаванне, каб бачыць чаму радок адхілены
+    if (global.logger) {
+      global.logger(`⛔ [Gatekeeper] Нацыянальны блок: маркер "${exclusiveMarkers.find(m => lowerText.includes(m))}" знойдзены, але дазволеных краін няма. Фрагмент: "${lowerText.substring(0, 250)}"`);
     }
+    return "IGNORE";
   }
+}
+
 
   // 4. Length-Check
   if (cleanText.length < 200) {
