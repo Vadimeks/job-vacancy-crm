@@ -133,21 +133,7 @@ const HEADER_KEYWORDS = [
   "місто роботи",
   "агенція",
   // APOLO
-   "ч", "ж", "пари", "2 тиждні", "місяць",
-   "ВАКАНСИЯ",
-  	"к-сть",
-    	"приїзд",
-       	"вихід",
-         	"СТАТЬ",
-          		"ГРОМАДЯНСТВО",
-               	"ОФІС",
-               	"ЖИТЛО",
-               	"ОПЛАТА",
-				"Ч",
-				"Ж",
-				"ПАРИ",
-				"2 тиждні",
-				"місяць"
+   "вакансия", "к-сть", "приїзд", "вихід", "стать", "громадянство", "офіс", "житло", "оплата", "ч", "ж", "пари", "2 тиждні", "місяць"
 ];
 
 /**
@@ -695,6 +681,13 @@ async function syncSheetVacancies(sourceId) {
     const headers = (rowData[headerRowIndex].values || []).map(
       (v) => v.formattedValue || "",
     );
+    // 👈 ДАДАДЗЕНА: Падтрымка двухпавярховых загалоўкаў (v8.33)
+    if (headerRowIndex > 0) {
+      const prevRowValues = (rowData[headerRowIndex - 1].values || []).map(v => v.formattedValue || "");
+      for (let j = 0; j < headers.length; j++) {
+        if (!headers[j] && prevRowValues[j]) headers[j] = prevRowValues[j];
+      }
+    }
     // 👈 АБНАЎЛЯЕМ ПРАГРЭС (колькасць радкоў)
     // 👈 ВЫПРАЎЛЕНА: лічым толькі запоўненыя радкі для дакладнасці прагрэсу (v8.16)
     const actualRows = rowData.slice(headerRowIndex + 1).filter(row => {
@@ -862,33 +855,28 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
       // і раней прапускаліся ў AI праз спецыяльнае "SPREADSHEET RULE" у прампце, ствараючы
       // амаль пустыя вакансіі (напр. VAC-3234 OTTO). Цяпер адсякаем іх ДА выкліку AI.
       
-  const strippedForLengthCheck = rawRowText.replace(/^\[SOURCE: SPREADSHEET_ROW \| AGENCY: [^\]]*\]\n?/, "").trim();
+// --- ЭТАП 1.5: ФІЛЬТР КАРОТКІХ РАДКОЎ (v8.33) ---
+      const strippedForLengthCheck = rawRowText.replace(/^\[SOURCE: SPREADSHEET_ROW \| AGENCY: [^\]]*\]\n?/, "").trim();
 
-// Узбагачаем тэкст дакументамі
-const enrichedText = await enrichTextWithDocs(rawRowText);
+      // Калі тэкст кароткі І няма спасылак (значыць, няма чаго ўзбагачаць) — у Inbox
+      if (strippedForLengthCheck.length < 200 && externalUrls.length === 0) {
+        global.logger(`⏭️ [Row ${i + 1}] Занадта кароткі тэкст (${strippedForLengthCheck.length} сімв.) і няма спасылак — у Inbox.`);
 
-// Калі няма дадатковых дакументаў і тэкст сапраўды кароткі — у Inbox
-if (enrichedText.length < 200 && externalUrls.length === 0) {
-  global.logger(
-    `⏭️ [Row ${i + 1}] Занадта кароткі тэкст (${enrichedText.length} сімв., парог 200) — у Inbox без выкліку AI.`,
-  );
+        if (existingVacancy && existingVacancy.status === "pending_ai") {
+          await Vacancy.findByIdAndDelete(existingVacancy._id);
+        }
 
-  if (existingVacancy && existingVacancy.status === "pending_ai") {
-    await Vacancy.findByIdAndDelete(existingVacancy._id);
-  }
+        hotUpdates.push({
+          row: i + 1,
+          title: rowTitle,
+          code: existingVacancy?.status === "active" ? existingVacancy.vacancyCode : undefined,
+          content: strippedForLengthCheck,
+          type: "UPDATE",
+        });
 
-  hotUpdates.push({
-    row: i + 1,
-    title: rowTitle,
-    code: existingVacancy?.status === "active" ? existingVacancy.vacancyCode : undefined,
-    content: enrichedText,
-    type: "UPDATE",
-  });
-
-  stats.ignored++;
-  continue;
-}
-
+        stats.ignored++;
+        continue;
+      }
 
         // 💾 ЗАХАВАННЕ ПРАГРЭСУ: Калі вакансія новая, ствараем яе як чарнавік
         if (!existingVacancy) {
