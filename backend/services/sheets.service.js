@@ -132,6 +132,8 @@ const HEADER_KEYWORDS = [
   "дата виходу",
   "місто роботи",
   "агенція",
+  // APOLO
+   "ч", "ж", "пари", "2 тиждні", "місяць",
 ];
 
 /**
@@ -656,14 +658,15 @@ async function syncSheetVacancies(sourceId) {
 
     for (let i = 0; i < Math.min(rowData.length, 20); i++) {
       const rowValues = (rowData[i].values || []).map((v) =>
-        (v.formattedValue || "").toLowerCase(),
+        (v.formattedValue || "").toLowerCase().trim(),
       );
       const matchCount = rowValues.filter((rv) =>
-        HEADER_KEYWORDS.some((kw) => rv.includes(kw)),
+        HEADER_KEYWORDS.some((kw) => rv === kw || rv.includes(kw)),
       ).length;
-      if (matchCount >= 2) {
+      
+      if (matchCount >= 3) { // 👈 Павялічылі да 3
         headerRowIndex = i;
-        break;
+        // Прыбіраем break, каб калі 5-ы радок таксама падыходзіць, ён стаў асноўным
       }
     }
 
@@ -685,7 +688,7 @@ async function syncSheetVacancies(sourceId) {
     });
     global.syncProgress.total = actualRows.length;
     global.syncProgress.current = 0;
-    global.logger("📋 Загалоўкі:", headers.filter((h) => h.trim()).join(" | "));
+    global.logger(`📋 Загалоўкі: ${headers.filter((h) => h.trim()).join(" | ")}`);
 
     // --- КРОК 2: Загружаем апошнія вакансіі для кантэксту дэдуплікацыі ---
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
@@ -803,11 +806,7 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
         // Пропуск (Resume) спрацуе ТОЛЬКІ калі тэкст супадае І статус ужо ACTIVE.
         // Калі статус pending_ai — мы НЕ прапускаем, а ідзем далей на апрацоўку.
         if (existingVacancy.originalText === rowBodyText && existingVacancy.status !== "pending_ai") {
-          stats.ignored++;
-          continue;
-        }
-        if (existingVacancy.originalText === rowBodyText && existingVacancy.status !== "pending_ai") {
-          global.logger(`⏭️ [Row ${i + 1}] Дублікат (прапушчана)`);
+          global.logger(`⏭️ [Row ${i + 1}] Дублікат (прапушчана)`); // 👈 Дадаць гэты радок
           stats.ignored++;
           continue;
         }

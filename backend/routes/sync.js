@@ -93,29 +93,30 @@ router.post("/agency", async (req, res) => {
       console.error(`❌ [Manual Sync] Крытычная памылка:`, err.message);
       global.syncProgress.status = 'error';
    } finally {
-      global.isSyncRunning = false;
-      global.isManualActionInProgress = false;
-      global.isManualSync = false;
-
-      // 📂 ГЕНЕРАЦЫЯ І АДПРАЎКА ЛОГ-ФАЙЛА (v8.32)
       if (global.sessionLogs && global.sessionLogs.length > 0) {
         try {
           const { sendLogsToDev } = require("../services/telegram.service");
           const logContent = global.sessionLogs.join("\n");
-          const dateStr = new Date().toISOString().split('T')[0];
+          const dateStr = new Date().toLocaleString('be-BY').replace(/[:.]/g, '-');
           const fileName = `manual_sync_${dateStr}.txt`;
+          
+          console.log(`📤 Адпраўка лога (${global.sessionLogs.length} радкоў) у ТГ...`);
           await sendLogsToDev(logContent, fileName);
         } catch (logErr) {
-          console.error("❌ Памылка пры адпраўцы логаў:", logErr.message);
+          console.error("❌ Памылка адпраўкі логаў:", logErr.message);
         }
-        global.sessionLogs = []; // Ачышчаем пасля спробы адпраўкі
+        global.sessionLogs = []; 
       }
+
+      global.isSyncRunning = false;
+      global.isManualActionInProgress = false;
+      global.isManualSync = false;
       
       const SyncState = require("../models/SyncState");
       await SyncState.findOneAndUpdate(
         { key: "circular_sync_position" },
         { isRunning: false }
-      ).catch(err => console.error("⚠️ Не ўдалося вызваліць замок у БД:", err.message));
+      ).catch(err => console.error("⚠️ Не ўдалося вызваліць замок:", err.message));
       
       console.log("🔓 [Manual Sync] Замок у БД вызвалены.");
     }

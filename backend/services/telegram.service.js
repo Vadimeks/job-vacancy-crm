@@ -230,6 +230,7 @@ const notifyDev = async (message) => {
  * Адпраўляе тэкставы лог як файл .txt у ТГ распрацоўшчыка
  */
 async function sendLogsToDev(content, fileName) {
+   console.log(`📡 ТГ-Бот: Адпраўка файла ${fileName} у чат ${process.env.DEV_CHAT_ID}`); // 👈 Дадаць
   try {
     const FormData = require("form-data");
     const form = new FormData();
