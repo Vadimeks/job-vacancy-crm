@@ -92,12 +92,25 @@ router.post("/agency", async (req, res) => {
     } catch (err) {
       console.error(`❌ [Manual Sync] Крытычная памылка:`, err.message);
       global.syncProgress.status = 'error';
-    } finally {
+   } finally {
       global.isSyncRunning = false;
       global.isManualActionInProgress = false;
       global.isManualSync = false;
+
+      // 📂 ГЕНЕРАЦЫЯ І АДПРАЎКА ЛОГ-ФАЙЛА (v8.32)
+      if (global.sessionLogs && global.sessionLogs.length > 0) {
+        try {
+          const { sendLogsToDev } = require("../services/telegram.service");
+          const logContent = global.sessionLogs.join("\n");
+          const dateStr = new Date().toISOString().split('T')[0];
+          const fileName = `manual_sync_${dateStr}.txt`;
+          await sendLogsToDev(logContent, fileName);
+        } catch (logErr) {
+          console.error("❌ Памылка пры адпраўцы логаў:", logErr.message);
+        }
+        global.sessionLogs = []; // Ачышчаем пасля спробы адпраўкі
+      }
       
-      // 👈 ВЫПРАЎЛЕНА: Прымусова вызваляем замок у БД пасля ручнога сканавання (v8.21)
       const SyncState = require("../models/SyncState");
       await SyncState.findOneAndUpdate(
         { key: "circular_sync_position" },

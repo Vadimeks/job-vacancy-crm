@@ -235,6 +235,7 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
 
             // 3. 🛡️ ПРАВЕРКА НА ЗМЕНЫ (v8.7)
             if (existingVacancy && existingVacancy.originalText === rawTrelloDump && existingVacancy.status === "active") {
+              global.logger(`⏭️ [Trello Skip] Дублікат: ${card.name}`);
               stats.ignored++;
               continue;
             }

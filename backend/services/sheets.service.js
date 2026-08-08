@@ -806,7 +806,11 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
           stats.ignored++;
           continue;
         }
-        
+        if (existingVacancy.originalText === rowBodyText && existingVacancy.status !== "pending_ai") {
+          global.logger(`⏭️ [Row ${i + 1}] Дублікат (прапушчана)`);
+          stats.ignored++;
+          continue;
+        }
         global.logger(
           `🔄 [Row ${i + 1}] ${existingVacancy.status === "pending_ai" ? "Даапрацоўка чаргі" : "Абнаўленне"}: ${existingVacancy.vacancyCode}`
         );
