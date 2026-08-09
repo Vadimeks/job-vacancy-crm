@@ -1007,15 +1007,18 @@ async function retryPendingVacancies() {
     
     // 👈 Эканомія токенаў: калі смецце — выдаляем, калі СТОП — закрываем без AI
     if (gateVerdict === "IGNORE") {
+      global.logger(`🗑️ [Retry] ${vac.vacancyCode} выдалены: Gatekeeper IGNORE (смецце/чужая нацыянальнасць).`); // 👈 ДАДАДЗЕНА: лог
       await Vacancy.findByIdAndDelete(vac._id);
       continue;
     }
     if (gateVerdict === "CLOSE") {
+      global.logger(`🔴 [Retry] ${vac.vacancyCode} закрыты: Gatekeeper CLOSE (STOP-маркер).`); // 👈 ДАДАДЗЕНА: лог
       await Vacancy.findByIdAndUpdate(vac._id, { status: "closed", closingReason: "STOP у чарзе" });
       continue;
     }
 
     const analysis = await analyzeAndCompareWithGemini(vac.rawText);
+
     if (analysis && analysis.category === "FULL_VACANCY") {
       await processVacancyMessage(
         analysis.translatedFragments,
@@ -1030,7 +1033,29 @@ async function retryPendingVacancies() {
         vac.sourceType,
         true 
       );
+    } else if (!analysis) {
+      // 👈 ЗМЕНЕНА: AI часова недаступны (ліміты/cooldown) — НЕ выдаляем і не прапускаем далей.
+      // Спыняем усю чаргу: гэты і ўсе наступныя запісы застаюцца ў pending_ai
+      // і будуць падхоплены наступным запускам (watchdog ці ручным) з таго ж месца.
+      global.logger(`⏳ [Retry] AI недаступны. Спыняем даапрацоўку чаргі на ${vac.vacancyCode}. Астатнія запісы застаюцца ў pending_ai.`);
+      break;
+    } else if (analysis.category === "NOISE") {
+      // 👈 ДАДАДЗЕНА: толькі сапраўднае смецце выдаляецца
+      global.logger(`🗑️ [Retry] ${vac.vacancyCode} выдалены: AI вызначыў катэгорыю NOISE (смецце).`);
+      await Vacancy.findByIdAndDelete(vac._id);
     } else {
+      // 👈 ДАДАДЗЕНА: UPDATE / RECRUITER_INFO і інш. — не выдаляем дадзеныя, пераносім у Inbox
+      const msgCategory = analysis.category === "RECRUITER_INFO" ? "info" : "update";
+      global.logger(`📥 [Retry] ${vac.vacancyCode}: катэгорыя ${analysis.category} -> перанос у Inbox.`);
+      await new UnprocessedMessage({
+        sender: vac.sender || "System",
+        agencyName: vac.agencyName,
+        text: analysis.translatedFragments?.join("\n\n---\n\n") || vac.rawText,
+        source: vac.sourceType || "manual",
+        category: msgCategory,
+        processed: false,
+        aiAnalyzed: true,
+      }).save();
       await Vacancy.findByIdAndDelete(vac._id);
     }
     await new Promise(r => setTimeout(r, 7000));

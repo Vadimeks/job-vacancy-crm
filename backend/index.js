@@ -73,7 +73,7 @@ async function runSyncWithInsurance(forceRun = false) {
   const SyncState = require("./models/SyncState");
   const Vacancy = require("./models/Vacancy");
   let didRealWork = false;
-
+let caughtError = null; // 👈 асобная зменная для памылкі, каб не канфліктаваць з catch(err) па-за яго вобласцю бачнасці
 
   try {
   
@@ -227,9 +227,10 @@ didRealWork = true; // 👈 тут усталёўваем, што сапраўд
     } else {
       global.logger("⚠️ [Sync] Кола перарвана памылкай AI. Watchdog паспрабуе яшчэ раз праз 10 хвілін.");
     }
-  } catch (err) {
-    console.error("❌ [Sync] Памылка канвеера:", err.message);
-  } finally {
+ } catch (err) {
+  caughtError = err; // 👈 захоўваем у вонкавую зменную, каб finally мог яе бачыць
+  console.error("❌ [Sync] Памылка канвеера:", err.message);
+} finally {
     global.isSyncRunning = false;
     
     // 📂 ГЕНЕРАЦЫЯ І АДПРАЎКА ЛОГ-ФАЙЛА (v8.32)
@@ -237,7 +238,7 @@ didRealWork = true; // 👈 тут усталёўваем, што сапраўд
 const dateStr = new Date().toISOString().split('T')[0];
 const fileName = `sync_log_${dateStr}.txt`;
 
-if (didRealWork || err) {
+if (didRealWork || caughtError) {
   await flushSessionLogs(fileName);
 }
 

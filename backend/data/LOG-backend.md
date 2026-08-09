@@ -1547,3 +1547,17 @@ airtable.service.js: add failedRows, log errors, show pending_ai summary
 trello.service.js: add failedRows, log errors, show pending_ai summary
 
 
+## [v8.35] - 2026-08-09
+### Fixed
+- **Critical data-loss bug in `retryPendingVacancies()` (vacancies.js):** When Stage 1 AI (`analyzeAndCompareWithGemini`) returned `null` due to transient unavailability (rate limits, `ALL_AI_MODELS_FAILED`, provider cooldown), the pending vacancy was **permanently deleted** instead of being retried. This silently destroyed real vacancy data whenever the AI chain was under load (e.g. VAC-3391 disappearing with no trace). Now the queue processing **stops** (`break`) at the first AI-unavailable record — all remaining `pending_ai` items are left untouched and are naturally picked up by the next scheduled or manual run, preserving processing order and never skipping/losing a record.
+- **Silent categorization deletions:** Records where AI successfully classified the text as `UPDATE`/`RECRUITER_INFO`/other non-`FULL_VACANCY`, non-`NOISE` categories were deleted outright. They are now routed to the Inbox (`UnprocessedMessage`) for manual review, matching the existing behavior already used in `sheets.service.js`/`airtable.service.js`/`trello.service.js`. Only genuine `NOISE` verdicts are deleted.
+- **Visibility:** All three outcomes of `retryPendingVacancies()` (Gatekeeper IGNORE, Gatekeeper CLOSE, AI unavailable, NOISE, non-vacancy category) now log via `global.logger`, appearing in the Telegram sync digest instead of vanishing silently.
+- **`index.js` — `ReferenceError: err is not defined` crashing the sync lock release:** The `finally` block referenced `err`, a variable scoped only inside `catch (err) {}`. When no error occurred (the common "nothing to do" watchdog tick), this threw and skipped `SyncState.findOneAndUpdate({ isRunning: false })`, permanently stranding the DB-level sync lock (`isRunning: true`) until the 1-hour stale-lock fallback. This silently blocked both the watchdog and manual sync (`409` responses) for hours. Introduced a dedicated `caughtError` variable set inside `catch`, referenced in `finally` instead of `err`.
+
+### Added
+- **`backend/scripts/unlockSync.js`:** One-off script to force-clear a stuck `SyncState.isRunning` lock in MongoDB, used to recover from the above crash while the fix was pending deployment.
+
+### Files changed
+- `backend/routes/vacancies.js`
+- `backend/index.js`
+- `backend/scripts/unlockSync.js` (new)
