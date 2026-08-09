@@ -527,22 +527,30 @@ async function findVacancyByExternalDocLink(agencyName, externalUrls, rowTitle =
   });
 
   if (existing && rowTitle) {
-    const keywords = [
-      "карщик", "карщік", "operator", "оператор", "навантажувач", "погрузчик", 
-      "швачка", "швея", "склад", "magazynier", "виробництво", "производство", 
-      "пакування", "упаковка", "монтер", "монтажник", "курка", "куриное", "мясо"
-    ];
-    
-    const lowerRowTitle = rowTitle.toLowerCase();
-    const lowerExistingTitle = (existing.vacancydescription || "").toLowerCase();
+    // 👈 ЗМЕНЕНА (v8.36): замест жорсткага спіса ключавых слоў — параўнанне значных слоў тытулаў.
+    // Стары падыход прапускаў канфлікт, калі ў новым тытуле не было НІВОДНАГА са спіса
+    // (напр. "Оператор офсетних машин" супраць "Слюсар" — ні адно слова не было ў спісе,
+    // конфлікт не выяўляўся, і розныя вакансіі памылкова аб'ядноўваліся ў адну).
+    const STOP_WORDS = new Set([
+      "на", "у", "в", "і", "й", "та", "з", "із", "для", "до", "по", "без", "або",
+      "на", "the", "and", "for", "with",
+    ]);
 
-    // Калі ў новым радку ёсць ключавое слова, якога няма ў знойдзенай вакансіі — гэта КАНФЛІКТ
-    const conflict = keywords.find(kw => 
-      lowerRowTitle.includes(kw) && !lowerExistingTitle.includes(kw)
-    );
+    const extractSignificantWords = (title) =>
+      (title || "")
+        .toLowerCase()
+        .replace(/[^a-zа-яёіў0-9\s]/gi, " ")
+        .split(/\s+/)
+        .filter((w) => w.length > 3 && !STOP_WORDS.has(w));
 
-    if (conflict) {
-      global.logger(`⚠️ [Match Conflict] Знойдзена супадзенне па спасылцы, але загалоўкі розныя (Ключ: ${conflict}). Ствараем новую.`);
+    const newWords = extractSignificantWords(rowTitle);
+    const existingWords = extractSignificantWords(existing.vacancydescription || "");
+
+    const hasCommonWord = newWords.some((w) => existingWords.includes(w));
+
+    // Калі ёсць значныя словы ў абодвух тытулах, але паміж імі няма НІВОДНАГА супадзення — канфлікт
+    if (newWords.length > 0 && existingWords.length > 0 && !hasCommonWord) {
+      global.logger(`⚠️ [Match Conflict] Знойдзена супадзенне па спасылцы, але тытулы не маюць агульных слоў ("${rowTitle}" vs "${existing.vacancydescription}"). Ствараем новую.`);
       return null;
     }
   }
