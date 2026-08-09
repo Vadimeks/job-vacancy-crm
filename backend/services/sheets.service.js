@@ -656,20 +656,27 @@ async function syncSheetVacancies(sourceId) {
 
     // --- КРОК 1: ПОШУК РАДКА ЗАГАЛОЎКАЎ ---
     let headerRowIndex = -1;
+let bestMatchCount = 0;
 
-    for (let i = 0; i < Math.min(rowData.length, 20); i++) {
-      const rowValues = (rowData[i].values || []).map((v) =>
-        (v.formattedValue || "").toLowerCase().trim(),
-      );
-      const matchCount = rowValues.filter((rv) =>
-        HEADER_KEYWORDS.some((kw) => rv === kw || rv.includes(kw)),
-      ).length;
-      
-      if (matchCount >= 3) { // 👈 Павялічылі да 3
-        headerRowIndex = i;
-        // Прыбіраем break, каб калі 5-ы радок таксама падыходзіць, ён стаў асноўным
-      }
-    }
+for (let i = 0; i < Math.min(rowData.length, 20); i++) {
+  const rowValues = (rowData[i].values || []).map((v) =>
+    (v.formattedValue || "").toLowerCase().trim(),
+  );
+
+  // 🛡️ Ахова: сапраўдны загаловак не мае вельмі доўгіх значэнняў ячэек —
+  // гэта прыкмета радка з апісаннем вакансіі, а не загалоўка табліцы (v8.34)
+  const hasLongCell = rowValues.some((v) => v.length > 60);
+  if (hasLongCell) continue;
+
+  const matchCount = rowValues.filter((rv) =>
+    HEADER_KEYWORDS.some((kw) => rv === kw || rv.includes(kw)),
+  ).length;
+
+  if (matchCount >= 3 && matchCount >= bestMatchCount) {
+    bestMatchCount = matchCount;
+    headerRowIndex = i;
+  }
+}
 
     if (headerRowIndex === -1) {
       global.logger("⚠️ Не ўдалося знайсці радок загалоўкаў.");
