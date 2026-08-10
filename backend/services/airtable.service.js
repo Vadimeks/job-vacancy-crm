@@ -118,7 +118,10 @@ const failedRows = [];
     }
 
     global.syncProgress.current = i + 1;
-    
+    // 👈 ДАДАДЗЕНА (v8.36): Heartbeat
+    if (i % 5 === 0) {
+      await SyncState.findOneAndUpdate({ key: "circular_sync_position" }, { lockedAt: new Date() });}
+      
     let existingVacancy = await Vacancy.findOne({ airtableId });
     // 🛡️ Ахова ад памылковага закрыцця: рэгіструем ID адразу
     foundAirtableIds.add(airtableId);

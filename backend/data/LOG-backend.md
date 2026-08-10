@@ -1561,3 +1561,9 @@ trello.service.js: add failedRows, log errors, show pending_ai summary
 - `backend/routes/vacancies.js`
 - `backend/index.js`
 - `backend/scripts/unlockSync.js` (new)
+
+### v8.36
+- **Heartbeat System**: Уведзена пастаяннае абнаўленне `lockedAt` у Sheets, Trello і Airtable. Гэта спыняе дубляванне запускаў, калі скан ідзе больш за 60 хвілін.
+- **Smart Conflict Detection**: Заменены жорсткі спіс ключавых слоў на алгарытм параўнання значных слоў тытулаў. Вырашана праблема "склейвання" розных вакансій з аднолькавым Google Doc (фікс для MRÓWKI).
+- **Header Fallback Fix**: Умацавана логіка вызначэння загалоўкаў. Сістэма больш не падцягвае службовы тэкст з радкоў вышэй (фікс зруху загалоўкаў у MRÓWKI).
+- **Log Filtering**: Watchdog больш не стварае асобныя файлы ў Telegram, калі ён проста правяраў чаргу `pending_ai`.

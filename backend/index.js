@@ -74,7 +74,7 @@ async function runSyncWithInsurance(forceRun = false) {
   const Vacancy = require("./models/Vacancy");
   let didRealWork = false;
 let caughtError = null; // 👈 асобная зменная для памылкі, каб не канфліктаваць з catch(err) па-за яго вобласцю бачнасці
-
+ let isQueueOnlyRun = false; // 👈 ДАДАДЗЕНА: адрозніваем "толькі чарга" ад "поўны цыкл"
   try {
   
   // 1. Атамарная блакіроўка ў БД (v8.16 - з апрацоўкай E11000)
@@ -192,6 +192,7 @@ didRealWork = true; // 👈 тут усталёўваем, што сапраўд
       // дамо AI адпачыць да наступнага цыкла watchdog.
       if (!forceRun) {
         global.logger("✅ [Sync] Чаргу апрацавана. Спыняем бягучы цыкл.");
+        isQueueOnlyRun = true; // 👈 ДАДАДЗЕНА: гэты запуск не патрабуе асобнага дайджэста
         global.isSyncRunning = false;
         return;
       }
@@ -238,7 +239,8 @@ didRealWork = true; // 👈 тут усталёўваем, што сапраўд
 const dateStr = new Date().toISOString().split('T')[0];
 const fileName = `sync_log_${dateStr}.txt`;
 
-if (didRealWork || caughtError) {
+// 👈 ЗМЕНЕНА: флаш логаў толькі калі была рэальная праца (не толькі чарга) або памылка
+if ((didRealWork && !isQueueOnlyRun) || caughtError) {
   await flushSessionLogs(fileName);
 }
 

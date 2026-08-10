@@ -125,7 +125,13 @@ let cardCounter = 0; // 👈 ДАДАЦЬ ГЭТА (ініцыялізацыя �
 
       global.syncProgress.current = 0;
       for (const card of cards) {
-         global.syncProgress.current++; // 👈 КРОК ЛІЧЫЛЬНІКА
+        global.syncProgress.current++; // 👈 Гэты радок у цябе ўжо ёсць
+
+        // 👈 ДАДАДЗЕНА (v8.36): Heartbeat
+        if (global.syncProgress.current % 5 === 0) {
+          const SyncState = require("../models/SyncState");
+          await SyncState.findOneAndUpdate({ key: "circular_sync_position" }, { lockedAt: new Date() });
+        }
           // 👈 ПРАВЕРКА НА ПРЫПЫНАК
         if (global.stopSyncRequested) {
           global.logger("🛑 [Trello] Сінхранізацыя перарвана карыстальнікам.");

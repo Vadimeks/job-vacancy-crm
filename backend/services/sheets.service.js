@@ -420,7 +420,8 @@ function buildRowText(cells, headers, agencyName, sheetName) {
       "активна",
       "закрыто",
     ].includes(value.trim().toLowerCase());
-    if (!title && value && hasLetters && value.length > 2 && !isStatusWord) {
+    // 👈 ЗМЕНЕНА: не бяром назву вакансіі са слупка нацыянальнасці (фікс для MRÓWKI)
+    if (!title && value && hasLetters && value.length > 2 && !isStatusWord && !headerLower.includes("національн")) {
       title = value.trim();
     }
 
@@ -527,13 +528,10 @@ async function findVacancyByExternalDocLink(agencyName, externalUrls, rowTitle =
   });
 
   if (existing && rowTitle) {
-    // 👈 ЗМЕНЕНА (v8.36): замест жорсткага спіса ключавых слоў — параўнанне значных слоў тытулаў.
-    // Стары падыход прапускаў канфлікт, калі ў новым тытуле не было НІВОДНАГА са спіса
-    // (напр. "Оператор офсетних машин" супраць "Слюсар" — ні адно слова не было ў спісе,
-    // конфлікт не выяўляўся, і розныя вакансіі памылкова аб'ядноўваліся ў адну).
+    // 👈 ЗМЕНЕНА (v8.36): параўнанне значных слоў тытулаў замест жорсткага спіса
     const STOP_WORDS = new Set([
       "на", "у", "в", "і", "й", "та", "з", "із", "для", "до", "по", "без", "або",
-      "на", "the", "and", "for", "with",
+      "the", "and", "for", "with",
     ]);
 
     const extractSignificantWords = (title) =>
@@ -548,7 +546,7 @@ async function findVacancyByExternalDocLink(agencyName, externalUrls, rowTitle =
 
     const hasCommonWord = newWords.some((w) => existingWords.includes(w));
 
-    // Калі ёсць значныя словы ў абодвух тытулах, але паміж імі няма НІВОДНАГА супадзення — канфлікт
+    // Калі значныя словы ёсць у абодвух, але супадзенняў нуль — гэта розныя вакансіі (канфлікт)
     if (newWords.length > 0 && existingWords.length > 0 && !hasCommonWord) {
       global.logger(`⚠️ [Match Conflict] Знойдзена супадзенне па спасылцы, але тытулы не маюць агульных слоў ("${rowTitle}" vs "${existing.vacancydescription}"). Ствараем новую.`);
       return null;
@@ -700,7 +698,10 @@ const headers = headerCells.map((v) => v?.formattedValue || "");
     if (headerRowIndex > 0) {
       const prevRowValues = (rowData[headerRowIndex - 1].values || []).map(v => v.formattedValue || "");
       for (let j = 0; j < headers.length; j++) {
-        if (!headers[j] && prevRowValues[j]) headers[j] = prevRowValues[j];
+        // 👈 ЗМЕНЕНА: бяром з радка вышэй, толькі калі гэта падобна на загаловак (кароткі тэкст без лічбаў)
+    if (!headers[j] && prevRowValues[j] && prevRowValues[j].length < 25 && !/\d/.test(prevRowValues[j])) {
+      headers[j] = prevRowValues[j];
+    }
       }
     }
     // 👈 АБНАЎЛЯЕМ ПРАГРЭС (колькасць радкоў)
@@ -725,6 +726,11 @@ const headers = headerCells.map((v) => v?.formattedValue || "");
     // --- КРОК 3: ЦЫКЛ ПА РАДКАХ ---
    for (let i = headerRowIndex + 1; i < rowData.length; i++) {
     global.syncProgress.current++; // 👈 КРОК ЛІЧЫЛЬНІКА
+    // 👈 ДАДАДЗЕНА (v8.36): Heartbeat — абнаўляем замок, каб Watchdog не "скраў" яго пры доўгім сканаванні
+    if (i % 5 === 0) {
+      await SyncState.findOneAndUpdate({ key: "circular_sync_position" }, { lockedAt: new Date() });
+    }
+    
       // Пропуск, калі мы яшчэ не дайшлі да патрэбнага індэкса ў гэтым коле
       // 👈 ВЫПРАЎЛЕНА: Чакаем, толькі калі гэта фонавы Watchdog, а не сам ручны запуск (v8.8)
       if (!global.isManualSync && global.isManualActionInProgress) {
