@@ -250,7 +250,7 @@ if (didRealWork || caughtError) {
   }
 } 
 // Правяраем стан канвеера кожныя 10 хвілін - ЗАКАМЕНТАВАНА КАБ СІНХРАНІЗАВАЦЬ УРУЧНУЮ
-cron.schedule("*/10 * * * *", async () => {
+cron.schedule("*/30 * * * *", async () => {
   console.log("🔍 [Watchdog] Праверка чаргі і стану сінхранізацыі...");
   await runSyncWithInsurance();
 })
