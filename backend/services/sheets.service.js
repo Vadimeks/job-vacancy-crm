@@ -372,7 +372,7 @@ function buildRowText(cells, headers, agencyName, sheetName) {
     "WORK&HUMAN": ["назва вакансії", "опис вакансії", "локалізалізація"],
     APOLO: ["вакансия", "офіс"],
     "PPG (BIEDRONKA)": ["projekt:", "region:", "stanowisko:"],
-    "STAFF POWER": ["назва проекту/опис вакансії", "місто роботи", "агенція"],
+    "STAFF POWER": ["назва проекту", "опис вакансії", "місто роботи", "агенція"],
   };
 
   const agencyAnchors = ANCHOR_MAP[agencyName] || [];
@@ -699,9 +699,10 @@ const headers = headerCells.map((v) => v?.formattedValue || "");
       const prevRowValues = (rowData[headerRowIndex - 1].values || []).map(v => v.formattedValue || "");
       for (let j = 0; j < headers.length; j++) {
         // 👈 ЗМЕНЕНА: бяром з радка вышэй, толькі калі гэта падобна на загаловак (кароткі тэкст без лічбаў)
-    if (!headers[j] && prevRowValues[j] && prevRowValues[j].length < 25 && !/\d/.test(prevRowValues[j])) {
-      headers[j] = prevRowValues[j];
-    }
+    // 👈 ЗМЕНЕНА: бяром з радка вышэй, толькі калі гэта падобна на загаловак (кароткі тэкст без лічбаў)
+        if (!headers[j] && prevRowValues[j] && prevRowValues[j].length < 25 && !/\d/.test(prevRowValues[j])) {
+          headers[j] = prevRowValues[j];
+        }
       }
     }
     // 👈 АБНАЎЛЯЕМ ПРАГРЭС (колькасць радкоў)
@@ -725,9 +726,11 @@ const headers = headerCells.map((v) => v?.formattedValue || "");
 
     // --- КРОК 3: ЦЫКЛ ПА РАДКАХ ---
    for (let i = headerRowIndex + 1; i < rowData.length; i++) {
-    global.syncProgress.current++; // 👈 КРОК ЛІЧЫЛЬНІКА
-    // 👈 ДАДАДЗЕНА (v8.36): Heartbeat — абнаўляем замок, каб Watchdog не "скраў" яго пры доўгім сканаванні
-    if (i % 5 === 0) {
+    global.syncProgress.current++; // 👈 Гэты радок у цябе ўжо ёсць
+
+    // 👈 ДАДАДЗЕНА (v8.36): Heartbeat — абнаўляем замок кожныя 5 радкоў, каб Watchdog не "скраў" яго
+    if (global.syncProgress.current % 5 === 0) {
+      const SyncState = require("../models/SyncState");
       await SyncState.findOneAndUpdate({ key: "circular_sync_position" }, { lockedAt: new Date() });
     }
     
