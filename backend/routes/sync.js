@@ -127,19 +127,5 @@ router.post("/stop", (req, res) => {
   if (global.syncProgress) global.syncProgress.status = 'stopping';
   res.json({ message: "Запыт на прыпынак адпраўлены" });
 });
-// 👈 ЧАСОВЫ РОЎТ ДЛЯ АЧЫСТКІ (выканаць адзін раз і выдаліць)
-router.get("/cleanup-personel", async (req, res) => {
-  try {
-    const { default: mongoose } = require("mongoose");
-    const SheetSource = require("../models/SheetSource");
-    const TrelloSource = require("../models/TrelloSource");
 
-    const sResult = await SheetSource.updateMany({ agencyName: "PERSONEL SERVICE" }, { status: "paused" });
-    const tResult = await TrelloSource.updateMany({ agencyName: "PERSONEL SERVICE" }, { status: "paused" });
-
-    res.json({ message: "✅ Personel Service paused", sheets: sResult.modifiedCount, trello: tResult.modifiedCount });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
 module.exports = router;
