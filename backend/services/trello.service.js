@@ -97,10 +97,11 @@ async function syncTrelloBoard(sourceId) {
       const n = normalizeName(l.name);
       return VACANCY_LIST_KEYWORDS.some(kw => n.includes(kw)) || INFO_LIST_KEYWORDS.some(kw => n.includes(kw));
     });
-    
+    let cardCounter = 0; // 👈 ДАДАЦЬ ГЭТА (ініцыялізацыя лічыльніка для ўсёй дошкі)
+    global.syncProgress.current = 0;
     // Запытваем колькасць картак для кожнага спіса (спрошчана)
     global.syncProgress.total = relevantLists.reduce((acc, l) => acc + (l.id ? 10 : 0), 0); // Прыблізна, альбо пакінь 0, яно абновіцца
-let cardCounter = 0; // 👈 ДАДАЦЬ ГЭТА (ініцыялізацыя лічыльніка для ўсёй дошкі)
+
     for (const list of lists) {
       const normListName = normalizeName(list.name);
 
@@ -123,7 +124,7 @@ let cardCounter = 0; // 👈 ДАДАЦЬ ГЭТА (ініцыялізацыя �
       const cardsRes = await axios.get(cardsUrl);
       const cards = cardsRes.data;
 
-      global.syncProgress.current = 0;
+      
       for (const card of cards) {
         global.syncProgress.current++; // 👈 Гэты радок у цябе ўжо ёсць
 
