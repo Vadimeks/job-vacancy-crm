@@ -26,12 +26,14 @@ const sendToTelegram = async (postText, vacancyId = null, file = null) => {
     if (Array.isArray(vacancyId) && vacancyId.length > 0) {
       // ВАРЫЯНТ А: Дайджэст (масіў ID)
       const Vacancy = require("../models/Vacancy");
-      const vacs = await Vacancy.find({ _id: { $in: vacancyId } }).select('vacancyCode');
+      // 👈 ЗМЕНЕНА: выбіраем і код, і апісанне для фолбэка
+      const vacs = await Vacancy.find({ _id: { $in: vacancyId } }).select('vacancyCode vacancydescription');
       
       // Будуем сетку: па 2 кнопкі ў радку
       for (let i = 0; i < vacs.length; i += 2) {
         const row = vacs.slice(i, i + 2).map(v => ({
-          text: `✅ Цікавить ${v.vacancyCode}`,
+          // 👈 ЗМЕНЕНА: калі няма кода, бяром кавалак назвы, альбо дэфолт "Цікавить"
+          text: `✅ ${v.vacancyCode || v.vacancydescription?.substring(0, 15) || 'Цікавить'}`,
           url: `https://t.me/${process.env.TELEGRAM_BOT_USERNAME}?start=apply_${v._id}`
         }));
         inline_keyboard.push(row);

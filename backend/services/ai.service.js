@@ -781,7 +781,7 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true, full
     }
 
     console.log(`[AI Request] Model: ${model.name} | Provider: ${model.provider} | Mode: ${isSequentialGroq ? 'Sequential' : 'Batch'}`);
-    let retries = 1;
+    let retries = 3;
 
     while (retries >= 0) {
       try {
@@ -885,14 +885,15 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true, full
         }
 
         return { data: fullText.trim(), isLowQuality: false, modelUsed: model.name }; // 👈 Дадалі modelUsed
-      } catch (error) {
-        // 👈 ЗМЕНЕНА: Дададзены RATE_LIMIT і 429 у спіс рэтраяў (v5.7)
-        const isRateLimitErr = error.message?.includes("RATE_LIMIT") || error.message?.includes("429");
+      }  catch (error) {
+        // 👈 АБНОЎЛЕНА (v8.37): Разумныя паўзы пры Rate Limits
+        const isRateLimitErr = error.message?.includes("429") || error.message?.includes("RATE_LIMIT") || error.message?.includes("quota");
         const isRetryable = error.message.includes("SERVER_ERROR") || error.name === "AbortError" || isRateLimitErr;
 
         if (isRetryable && retries > 0) {
-          const waitTime = isRateLimitErr ? 3000 : 2000; // Калі ліміт — чакаем крыху даўжэй
-          console.warn(`⚠️ Часовая памылка (${model.name}): ${error.message}. Паўтор праз ${waitTime/1000}с...`);
+          // Паўза павялічваецца з кожнай спробай: 5с, 10с, 15с
+          const waitTime = (4 - retries) * 5000; 
+          console.warn(`⏳ [AI] Ліміт або збой (${model.name}). Спроба ${4 - retries}/3 праз ${waitTime/1000}с...`);
           retries--;
           await new Promise((r) => setTimeout(r, waitTime));
           continue;
@@ -909,8 +910,8 @@ async function executeAIRequest(systemPrompt, userContent, jsonMode = true, full
 
         if (isRateLimit) {
           // 👈 ЗМЕНЕНА: Дыферэнцыраваная замарозка (v5.6)
-          // Vertex (платны) — 2 хвіліны, астатнія (бясплатныя) — 30 хвілін
-          const freezeMinutes = model.provider === "vertex" ? 2 : 30;
+          // Vertex (платны) — 2 хвіліны, астатнія (бясплатныя) — 15 хвілін
+          const freezeMinutes = model.provider === "vertex" ? 2 : 15;
           PROVIDER_FREEZE[model.provider] = Date.now() + freezeMinutes * 60 * 1000;
           console.warn(`🚫 [AI] Правайдэр ${model.provider} дасягнуў ліміту. Замарожана на ${freezeMinutes} хв.`);
         }
