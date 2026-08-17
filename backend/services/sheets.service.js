@@ -1037,13 +1037,19 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
       await new Promise((r) => setTimeout(r, 5000));
     }
 
-    // --- АЎТА-ЗАКРЫЦЦЁ ВАКАНСІЙ (v8.29 fix) ---
+    // --- АЎТА-ЗАКРЫЦЦЁ ВАКАНСІЙ (v8.29 fix, v8.38 case-insensitive sheetName) ---
     if (foundHashesInSheet.size > 0 && global.syncProgress.current >= actualRows.length) {
+      // 👈 ДАДАДЗЕНА (v8.38): нячулае да рэгістру параўнанне sheetName.
+      // Раней дакладнае (case-sensitive) супадзенне магло не бачыць вакансіі,
+      // запісаныя пад іншым рэгістрам назвы ліста (напр. "Вакансії" vs "ВАКАНСІЇ"
+      // пры дублікатах SheetSource), і памылкова іх закрываць.
+      const sheetNameRegex = new RegExp(`^${escapeRegExp(source.sheetName)}$`, "i");
+
       // Знаходзім вакансіі, якія будуць закрыты, каб захаваць іх ID для справаздачы
       // 👈 ВЫПРАЎЛЕНА: закрываем вакансіі агенцыі па ўсіх лістах, калі іх няма ў бягучым скане (v8.16)
       const vacanciesToClose = await Vacancy.find({
         agencyName: source.agencyName,
-        sheetName: source.sheetName, // 👈 ДАДАДЗЕНА: закрываем толькі ў межах гэтага ліста (фікс "каруселі")
+        sheetName: sheetNameRegex, // 👈 ЗМЕНЕНА (v8.38): было source.sheetName (case-sensitive)
         sourceType: "spreadsheet",
         status: "active",
         sourceHash: { $exists: true, $nin: Array.from(foundHashesInSheet) },
@@ -1052,7 +1058,7 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
       const closeResult = await Vacancy.updateMany(
         {
           agencyName: source.agencyName,
-          sheetName: source.sheetName, // 👈 ДАДАДЗЕНА
+          sheetName: sheetNameRegex, // 👈 ЗМЕНЕНА (v8.38): было source.sheetName (case-sensitive)
           sourceType: "spreadsheet",
           status: "active",
           sourceHash: { $exists: true, $nin: Array.from(foundHashesInSheet) },
