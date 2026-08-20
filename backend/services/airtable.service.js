@@ -279,26 +279,9 @@ const failedRows = [];
         continue;
       }
       
-      // 💾 ЗАХАВАННЕ ПРАГРЭСУ: Калі вакансія новая, ствараем яе як чарнавік
-      if (!existingVacancy) {
-        const vacanciesRoute = require("../routes/vacancies");
-        const vacancyCode = await vacanciesRoute.generateVacancyCode();
-        
-        const draft = new Vacancy({
-          vacancyCode,
-          airtableId: airtableId,
-          sourceHash: airtableId, // Для Airtable ID запісу — гэта хэш
-          agencyName: source.agencyName,
-          sourceType: "airtable",
-          status: "pending_ai",
-          rawText: rawAirtableDump,
-          originalText: rawAirtableDump
-        });
-        await draft.save();
-        global.logger(`💾 Этап 4.5. Тэкст Airtable захаваны ў базу (Draft ${vacancyCode} створаны)`);
-        existingVacancy = draft;
-      } else if (existingVacancy.originalText !== rawAirtableDump) {
-        // Калі тэкст змяніўся — абнаўляем чарнавік перад AI
+      // 💾 ЗАХАВАННЕ ПРАГРЭСУ (v8.40): Абнаўляем толькі калі ўжо звязана па ID. 
+      // Калі ID новы — пакідаем existingVacancy = null, каб спрацаваў семантычны пошук у processVacancyMessage.
+      if (existingVacancy && existingVacancy.originalText !== rawAirtableDump) {
         existingVacancy.rawText = rawAirtableDump;
         existingVacancy.originalText = rawAirtableDump;
         existingVacancy.status = "pending_ai";

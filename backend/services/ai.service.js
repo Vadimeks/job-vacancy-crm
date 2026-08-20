@@ -1211,6 +1211,11 @@ DESCRIPTION & NOTES:
 - RULE 1: In case of conflict (Dates, Age, Gender, City, Position Name), the PRIMARY SOURCE has 100% PRIORITY.
 - RULE 2 (SALARY FALLBACK): If PRIMARY SOURCE contains only a recruiter bonus (e.g., "500 zł"), move it to forRecruiter.internalNotes AND extract the worker's actual salary (e.g., "4810 brutto") from the SECONDARY SOURCE. 
 - RULE 3 (RAW DISPLAY): Always populate "salary.rawSalaryDisplay" with the most complete salary info found (e.g., "27 zł/god" or "4810 brutto").
+- RULE 4 (TAG/LABEL PRIORITY): The source data may include a structured tag/label field (e.g., "Мітки:", "Теги:", or Trello card labels), separate from the free-text description. If such a tag makes an explicit, unambiguous statement about one of these three points, the TAG has 100% PRIORITY over the free-text description whenever they conflict, or whenever the description says nothing on that point:
+  • Gender: tag "РОБОТА ДЛЯ ЧОЛОВІКІВ" → gender MUST be ["Чоловіки"] only. Tag "РОБОТА ДЛЯ ЖІНОК" → gender MUST be ["Жінки"] only. Tag "РОБОТА ДЛЯ СІМ.ПАР, Ж.,Ч." → gender MUST be ["Чоловіки","Жінки","Пари","Сім'ї"]. Ignore any conflicting gender statement in the description text.
+  • Accommodation for children: tag "ПОСЕЛЕННЯ З ДІТЬМИ" → accommodation.withChildren MUST be true, even if the description says nothing about children or says otherwise.
+  • UDT document: tag "UDT" → requirements.standardDocs MUST include "UDT", even if the description does not mention it.
+  Tags that are only category labels (e.g., "СКЛАДИ") carry no priority — treat them as ordinary context, same as any other text.
 !!! CRITICAL RULE: In case of any conflict (Salary, Dates, Age, Gender, City, Position Name), the PRIMARY SOURCE has 100% PRIORITY. Use LINK_CONTENT only to fill in missing details (like full duties description), never to overwrite facts from the PRIMARY SOURCE.
 CONDITIONS:
 - specificNuances: array of objects { "category": "CATEGORY_NAME", "text": "detail" }.

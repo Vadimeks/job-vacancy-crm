@@ -356,6 +356,7 @@ const finalStatus = isMetaInfo ? "archived" : (forcedStatus || (isLite ? "pendin
               agencyName: finalAgency,
             }),
              lastSnapshot: snapshot, // 👈 Захоўваем стары стан
+            airtableId: (sourceType === "airtable") ? sourceHash : undefined, // 👈 АБНОЎЛЕНА (v8.40): прывязваем новы ID да існуючай вакансіі
             sourceHash: sourceHash || undefined,
             status: finalStatus,
             // Пазначаем для рэдактара, толькі калі вакансія актыўная

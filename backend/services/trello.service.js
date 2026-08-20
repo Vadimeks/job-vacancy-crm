@@ -249,25 +249,9 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
               continue;
             }
 
-            // 💾 ЗАХАВАННЕ ПРАГРЭСУ: Калі вакансія новая, ствараем яе як чарнавік
-            if (!existingVacancy) {
-              const vacanciesRoute = require("../routes/vacancies");
-              const vacancyCode = await vacanciesRoute.generateVacancyCode();
-              
-              const draft = new Vacancy({
-                vacancyCode,
-                sourceHash: card.id, // Для Trello ID карткі — гэта хэш
-                agencyName: source.agencyName,
-                sourceType: "trello",
-                status: "pending_ai",
-                rawText: finalTrelloText,
-                originalText: rawTrelloDump
-              });
-              await draft.save();
-              global.logger(`💾 Этап 4.5. Тэкст Trello захаваны ў базу (Draft ${vacancyCode} створаны)`);
-              existingVacancy = draft;
-              } else {
-              // Абнаўляем існуючую вакансію новым тэкстам перад AI
+            // 💾 ЗАХАВАННЕ ПРАГРЭСУ (v8.40): Абнаўляем толькі калі ўжо звязана па ID.
+            // Калі ID новы — пакідаем existingVacancy = null, каб спрацаваў семантычны пошук у processVacancyMessage.
+            if (existingVacancy && existingVacancy.originalText !== rawTrelloDump) {
               existingVacancy.rawText = finalTrelloText;
               existingVacancy.originalText = rawTrelloDump;
               existingVacancy.status = "pending_ai";
@@ -276,7 +260,6 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
             }
           }
 
-            // 💾 ЗАХАВАННЕ ПРАГРЭСУ: Калі вакансія новая...
           // --- ЭТАП 5-7: AI АПРАЦОЎКА ---
           const analysis = await analyzeAndCompareWithGemini(finalTrelloText);
 

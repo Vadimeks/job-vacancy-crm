@@ -413,13 +413,8 @@ function buildRowText(cells, headers, agencyName, sheetName) {
 
     // 2. Вызначаем назву для справаздачы
     const hasLetters = /[a-zA-Zа-яёіўА-ЯЁІЎ]/.test(value);
-    const isStatusWord = [
-      "активная",
-      "приоритет",
-      "акция",
-      "активна",
-      "закрыто",
-    ].includes(value.trim().toLowerCase());
+    // 👈 АБНОЎЛЕНА (v8.40): дададзены "стоп", каб пазбегнуць Match Conflict, калі назва пасады пустая (фікс для MRÓWKI)
+const isStatusWord = ["активная", "приоритет", "акция", "активна", "закрыто", "стоп", "stop"].includes(value.trim().toLowerCase());
     // 👈 ЗМЕНЕНА: не бяром назву вакансіі са слупка нацыянальнасці (фікс для MRÓWKI)
     if (!title && value && hasLetters && value.length > 2 && !isStatusWord && !headerLower.includes("національн")) {
       title = value.trim();
