@@ -158,7 +158,9 @@ All output fragments MUST be in Ukrainian. If the input is in Russian or Polish,
    Each independent offer MUST have ALL FOUR: its own job title + its own city + its own salary + its own duties. DO NOT split lists of short summaries (less than 400 characters each); keep them as one fragment in the UPDATE category.
 3. DO NOT SPLIT if:
    - The message describes ONE vacancy broken into sections (💰 Оплата, ⚙️ Обов'язки, etc.).
-   - The message contains multiple job titles (e.g., "Welder / Saw Operator" or "Helper / Machine Operator") that share the SAME city, SAME salary, and SAME accommodation. This is ONE vacancy with multiple duties.
+   // 👈 АБНОЎЛЕНА (v8.55): дазваляем спліцінг, калі ў пасад розныя заробкі або абавязкі (фікс Gestamp/SFC)
+   - The message contains multiple job titles (e.g., "Welder / Saw Operator") ONLY if they share the EXACT same salary and requirements.
+   - If titles have DIFFERENT salaries (e.g., "Packer: 27zł, Forklift: 30zł") or DIFFERENT duties — you MUST SPLIT them into separate fragments.
    - The same vacancy is repeated in different languages (Russian, Ukrainian, Polish). Treat it as ONE vacancy.
 3.1. MULTI-CITY RULE: If a message contains ONE job description but lists multiple cities (e.g., "Biedronka: Pasym, Ryn, Pisz"), DO NOT split it into fragments. Keep it as ONE fragment. The parser in Stage 2 will handle the list of cities.
 4. MULTI-LANGUAGE RULE: If the enriched text contains the same vacancy in multiple languages (e.g., Ukrainian and Russian), merge them into one Ukrainian fragment. 

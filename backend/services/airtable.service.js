@@ -122,7 +122,10 @@ const failedRows = [];
     if (i % 5 === 0) {
       await SyncState.findOneAndUpdate({ key: "circular_sync_position" }, { lockedAt: new Date() });}
       
-    let existingVacancy = await Vacancy.findOne({ airtableId });
+    // 👈 ЗМЕНЕНА (v8.55): дадана sourceHash: airtableId, каб пры сплітынгу знаходзіць
+    // менавіта "радзіцельскі"/адзінкавы запіс, а не выпадковае дзіця сям'і (у дзяцей
+    // airtableId той жа, але sourceHash = "${airtableId}-N")
+    let existingVacancy = await Vacancy.findOne({ airtableId, sourceHash: airtableId });
     // 🛡️ Ахова ад памылковага закрыцця: рэгіструем ID адразу
     foundAirtableIds.add(airtableId);
 
@@ -187,14 +190,16 @@ const failedRows = [];
       }
     }
 
-    if (shouldIgnore) {
+       if (shouldIgnore) {
       global.logger(`⏭️ [Airtable Skip] ${source.agencyName}: Blacklist (Column: "${columnName}")`);
-      // 👈 Прымусова закрываем, калі яна была актыўная
-      if (existingVacancy && existingVacancy.status !== "closed") {
-        existingVacancy.status = "closed";
-        existingVacancy.closingReason = `Агенцкі Blacklist/Архіў (${source.agencyName})`;
-        await existingVacancy.save();
-        global.logger(`✅ Вакансія ${existingVacancy.vacancyCode} закрыта праз фільтр.`);
+      // 👈 ЗМЕНЕНА (v8.55): закрываем УСЮ сям'ю (бацька застаецца archived і не чапаецца,
+      // бо яго status ніколі не "active"/"pending_ai")
+      const closedFamily = await Vacancy.updateMany(
+        { airtableId, status: { $in: ["active", "pending_ai"] } },
+        { $set: { status: "closed", closingReason: `Агенцкі Blacklist/Архіў (${source.agencyName})` } }
+      );
+      if (closedFamily.modifiedCount > 0) {
+        global.logger(`✅ Закрыта ${closedFamily.modifiedCount} вакансій сям'і (ID: ${airtableId}) праз фільтр.`);
       }
       stats.ignored++;
       continue;
@@ -259,22 +264,28 @@ const failedRows = [];
         continue;
       }
       
-      if (gateVerdict === "CLOSE") {
+            if (gateVerdict === "CLOSE") {
         global.logger(`🔴 [Gatekeeper Close] ${source.agencyName}: Знойдзены СТОП-маркер.`);
-        if (existingVacancy && existingVacancy.status !== "closed") {
-          existingVacancy.status = "closed";
-          existingVacancy.closingReason = "Маркер СТОП у тэксце (Gatekeeper)";
-          await existingVacancy.save();
-          global.logger(`✅ Вакансія ${existingVacancy.vacancyCode} паспяхова закрыта.`);
+        // 👈 ЗМЕНЕНА (v8.55): закрываем УСЮ сям'ю дзяцей, бацька застаецца archived
+        const closedFamily = await Vacancy.updateMany(
+          { airtableId, status: { $in: ["active", "pending_ai"] } },
+          { $set: { status: "closed", closingReason: "Маркер СТОП у тэксце (Gatekeeper)" } }
+        );
+        if (closedFamily.modifiedCount > 0) {
+          global.logger(`✅ Закрыта ${closedFamily.modifiedCount} вакансій сям'і (ID: ${airtableId}) праз Gatekeeper.`);
         }
         stats.ignored++;
         continue;
       }
 
-      // 🛡️ ПРАВЕРКА НА ДУБЛІКАТ (v8.7)
+            // 🛡️ ПРАВЕРКА НА ДУБЛІКАТ (v8.7)
       // Цяпер яна ідзе ПАСЛЯ Санітара, таму не блакуе закрыццё
-      if (existingVacancy && existingVacancy.originalText === rawAirtableDump && existingVacancy.status === targetStatus) {
-        global.logger(`⏭️ [Airtable Skip] ${source.agencyName}: Поўны дублікат у базе (ID: ${existingVacancy.vacancyCode})`);
+      // 👈 ЗМЕНЕНА (v8.55): для бацькоўскага запісу (isSplitParent) статус заўсёды "archived"
+      // і ніколі не супадзе з targetStatus — таму для яго параўноўваем толькі тэкст
+      const isDuplicateText = existingVacancy && existingVacancy.originalText === rawAirtableDump &&
+        (existingVacancy.isSplitParent || existingVacancy.status === targetStatus);
+      if (isDuplicateText) {
+        global.logger(`⏭️ [Airtable Skip] ${source.agencyName}: Поўны дублікат у базе (ID: ${existingVacancy.vacancyCode || existingVacancy.airtableId})`);
         stats.ignored++;
         continue;
       }
@@ -328,33 +339,108 @@ const failedRows = [];
       continue;
     }
 
-    // 🚀 БАТЧ-ВЫКЛІК: Адпраўляем усе фрагменты Airtable адным запытам
-    const result = await processVacancyMessage(
-  analysis.translatedFragments,
-  "Airtable", source.agencyName, rawAirtableDump, false,
-  analysis.category, airtableId, columnName, 
-  existingVacancy ? existingVacancy._id : null, "airtable",
-  false, targetStatus
-);
+        // 👈 ДАДАДЗЕНА (v8.55): вызначаем, ці гэта картка з некалькімі пасадамі (сплітынг)
+    const fragments = analysis.translatedFragments;
+    const isSplitCard = fragments.length > 1;
 
-if (result && !result.error) {
-  const isRecentlyCreated = result.createdAt && (Date.now() - new Date(result.createdAt).getTime() < 60000);
-  if (isRecentlyCreated && !existingVacancy) stats.added++; else stats.updated++;
-} else if (result?.error) {
-  global.logger(`⚠️ [Airtable] Вакансія ў запісе ${airtableId} не дапрацавана. Прычына: ${result.error}`);
-  failedRows.push({ id: airtableId, title: cardTitle || "Без назви", reason: result.error });
+    if (isSplitCard) {
+      global.logger(`🧩 [Airtable Split] ${source.agencyName}: картка ${airtableId} разбітая на ${fragments.length} пасад(ы).`);
 
-  // Калі гэта AI Cooldown — спыняем увесь цыкл
-  if (result.error.includes("AI_COOLDOWN")) {
-    global.logger(`🛑 [Airtable] AI Cooldown у парсеры. Спыняем на індэксе ${i}.`);
-    await SyncState.findOneAndUpdate(
-      { key: "circular_sync_position" },
-      { lastSourceType: "airtable", lastSourceId: source._id, lastIndex: i },
-      { upsert: true }
-    );
-    return "STOP_ALL";
-  }
-}
+      // 1. Захоўваем/абнаўляем радзіцельскі запіс (не паказваецца рэкрутэру, толькі для параўнання тэксту карткі)
+      await Vacancy.findOneAndUpdate(
+        { airtableId, sourceHash: airtableId },
+        {
+          $set: {
+            agencyName: source.agencyName,
+            sourceType: "airtable",
+            sheetName: columnName,
+            airtableId,
+            sourceHash: airtableId,
+            isSplitParent: true,
+            status: "archived",
+            originalText: rawAirtableDump,
+            rawText: rawAirtableDump,
+          },
+        },
+        { upsert: true }
+      );
+
+      // 2. Апрацоўваем кожную пасаду асобна, са сваім унікальным sourceHash (airtableId-1, -2, ...)
+      const usedHashes = [];
+      let splitFailed = false;
+
+      for (let idx = 0; idx < fragments.length; idx++) {
+        const childHash = `${airtableId}-${idx + 1}`;
+        usedHashes.push(childHash);
+
+        const childResult = await processVacancyMessage(
+          [fragments[idx]],
+          "Airtable", source.agencyName, rawAirtableDump, false,
+          analysis.category, childHash, columnName,
+          null, "airtable",
+          false, targetStatus
+        );
+
+        if (childResult && !childResult.error) {
+          const isRecentlyCreated = childResult.createdAt && (Date.now() - new Date(childResult.createdAt).getTime() < 60000);
+          if (isRecentlyCreated) stats.added++; else stats.updated++;
+        } else if (childResult?.error) {
+          global.logger(`⚠️ [Airtable Split] Пасада ${childHash} не дапрацавана. Прычына: ${childResult.error}`);
+          failedRows.push({ id: childHash, title: cardTitle || "Без назви", reason: childResult.error });
+
+          if (childResult.error.includes("AI_COOLDOWN")) {
+            global.logger(`🛑 [Airtable] AI Cooldown у парсеры (сплітынг). Спыняем на індэксе ${i}.`);
+            await SyncState.findOneAndUpdate(
+              { key: "circular_sync_position" },
+              { lastSourceType: "airtable", lastSourceId: source._id, lastIndex: i },
+              { upsert: true }
+            );
+            splitFailed = true;
+            break;
+          }
+        }
+      }
+
+      if (splitFailed) return "STOP_ALL";
+
+      // 3. Закрываем пасады, якіх больш няма ў картцы (калі колькасць паменшылася)
+      const staleChildren = await Vacancy.updateMany(
+        { airtableId, sourceHash: { $ne: airtableId, $nin: usedHashes }, status: { $in: ["active", "pending_ai"] } },
+        { $set: { status: "closed", closingReason: "Пасада больш не згадваецца ў картцы" } }
+      );
+      if (staleChildren.modifiedCount > 0) {
+        global.logger(`✅ [Airtable Split] Закрыта ${staleChildren.modifiedCount} пасад(ы), якіх больш няма ў картцы ${airtableId}.`);
+        stats.closed += staleChildren.modifiedCount;
+      }
+
+    } else {
+      // 🚀 БАТЧ-ВЫКЛІК: звычайная (несплітаваная) картка — паводзіны без змен
+      const result = await processVacancyMessage(
+        fragments,
+        "Airtable", source.agencyName, rawAirtableDump, false,
+        analysis.category, airtableId, columnName,
+        existingVacancy ? existingVacancy._id : null, "airtable",
+        false, targetStatus
+      );
+
+      if (result && !result.error) {
+        const isRecentlyCreated = result.createdAt && (Date.now() - new Date(result.createdAt).getTime() < 60000);
+        if (isRecentlyCreated && !existingVacancy) stats.added++; else stats.updated++;
+      } else if (result?.error) {
+        global.logger(`⚠️ [Airtable] Вакансія ў запісе ${airtableId} не дапрацавана. Прычына: ${result.error}`);
+        failedRows.push({ id: airtableId, title: cardTitle || "Без назви", reason: result.error });
+
+        if (result.error.includes("AI_COOLDOWN")) {
+          global.logger(`🛑 [Airtable] AI Cooldown у парсеры. Спыняем на індэксе ${i}.`);
+          await SyncState.findOneAndUpdate(
+            { key: "circular_sync_position" },
+            { lastSourceType: "airtable", lastSourceId: source._id, lastIndex: i },
+            { upsert: true }
+          );
+          return "STOP_ALL";
+        }
+      }
+    }
 
     await new Promise(r => setTimeout(r, 4000));
   }

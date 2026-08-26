@@ -194,7 +194,8 @@ const vacancySchema = new mongoose.Schema(
     // Хэш зыходнага радка з табліцы. Дазваляе ігнараваць дублікаты вечна.
     sourceHash: { type: String, index: true },
     isLowQuality: { type: Boolean, default: false }, // 👈 Пазнака, што JSON быў біты або адрамантаваны
-     airtableId: { type: String, default: null, index: true }, // 👈 ДАДАЦЬ ГЭТА (ID запісу ў Airtable)
+         airtableId: { type: String, default: null, index: true }, // 👈 ДАДАЦЬ ГЭТА (ID запісу ў Airtable)
+    isSplitParent: { type: Boolean, default: false, index: true }, // 👈 ДАДАДЗЕНА (v8.55): пазначае "радзіцельскі" запіс пры сплітынгу адной карткі Airtable на некалькі пасад. Такія запісы захоўваюцца ў базе (для параўнання тэксту карткі), але не паказваюцца рэкрутэру (status: "archived") — рэальныя вакансіі гэта яго "дзеці" з sourceHash кшталту "${airtableId}-1", "${airtableId}-2" і г.д.
     // -----------------------------------------------------
   },
   { timestamps: true },
