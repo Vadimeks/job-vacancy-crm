@@ -285,7 +285,7 @@ const finalStatus = isMetaInfo ? "archived" : (forcedStatus || (isLite ? "pendin
       const vData = vacancyDataList[idx];
       const finalAgency = preDefinedAgency || vData.agencyName || "Manual";
 
-      // 👈 АБНОЎЛЕНА (v8.62): Калі AI разбіў адзін запіс на некалькі пасад, робім хэш унікальным для кожнай (ID-1, ID-2...)
+      // 👈 АБНОЎЛЕНА (v8.63): Унікальны хэш для кожнага аб'екта ў масіве (гарантыя сплітынгу)
       const effectiveHash = (vacancyDataList.length > 1 && sourceHash) 
         ? `${sourceHash}-${idx + 1}` 
         : sourceHash;

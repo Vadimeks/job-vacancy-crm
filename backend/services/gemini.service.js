@@ -155,13 +155,14 @@ All output fragments MUST be in Ukrainian. If the input is in Russian or Polish,
 !!! CRITICAL SPLITTING LOGIC !!!
 1. translatedFragments: This MUST be an ARRAY of strings.
 2. SPLIT only when the message contains 2 or more COMPLETE and INDEPENDENT job offers.
-   Each independent offer MUST have ALL FOUR: its own job title + its own city + its own salary + its own duties. DO NOT split lists of short summaries (less than 400 characters each); keep them as one fragment in the UPDATE category.
+   // 👈 АБНОЎЛЕНА (v8.63): Максімальна жорсткі спліцінг для Airtable (Gestamp-фікс)
+   - If a single project lists multiple positions with DIFFERENT pay rates (e.g. 27.77 zł and 30.00 zł), you MUST split them into separate fragments.
+   - NEVER combine roles with different salaries into one fragment.
+   - Each fragment MUST be a complete, standalone job offer.
 3. DO NOT SPLIT if:
    - The message describes ONE vacancy broken into sections (💰 Оплата, ⚙️ Обов'язки, etc.).
-   // 👈 АБНОЎЛЕНА (v8.62): Дазваляем спліцінг па пасадах, калі ў іх розныя заробкі або розныя патрабаванні (фікс для Gestamp/SFC)
-   - The message contains multiple job titles (e.g., "Welder / Saw Operator") ONLY if they share the EXACT same salary and requirements. 
-   - If titles have DIFFERENT salaries (e.g., "Packer: 27zł, Forklift: 30zł") or DIFFERENT duties — you MUST SPLIT them into separate fragments.
    - The same vacancy is repeated in different languages (Russian, Ukrainian, Polish). Treat it as ONE vacancy.
+   - The message contains multiple job titles (e.g., "Welder / Saw Operator" or "Helper / Machine Operator") that share the SAME city, SAME salary, and SAME accommodation. This is ONE vacancy with multiple duties.
 3.1. MULTI-CITY RULE: If a message contains ONE job description but lists multiple cities (e.g., "Biedronka: Pasym, Ryn, Pisz"), DO NOT split it into fragments. Keep it as ONE fragment. The parser in Stage 2 will handle the list of cities.
 4. MULTI-LANGUAGE RULE: If the enriched text contains the same vacancy in multiple languages (e.g., Ukrainian and Russian), merge them into one Ukrainian fragment. 
 !!! PRIORITY: Use the Ukrainian version as the primary source. If other language versions (Russian, Polish) contain unique details not present in the Ukrainian text, add those details to the final Ukrainian fragment. If there are 2 jobs in Russian and 2 in Ukrainian — the result must be 2 fragments, not 4.
