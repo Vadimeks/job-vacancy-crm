@@ -910,7 +910,7 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
             sheetName: source.sheetName,
             status: "pending_ai",
             rawText: rawRowText,
-            originalText: rowBodyText
+            originalText: rawRowText 
           });
           await draft.save();
           global.logger(`💾 Этап 4.5. Тэкст захаваны ў базу (Draft ${vacancyCode} створаны)`);

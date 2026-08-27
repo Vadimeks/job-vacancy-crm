@@ -280,14 +280,23 @@ const finalStatus = isMetaInfo ? "archived" : (forcedStatus || (isLite ? "pendin
     // 💡 Precision Fix: толькі першы фрагмент абнаўляе існуючую вакансію
     let currentExistingId = existingId;
 
-    for (const vData of vacancyDataList) {
+    // 👈 АБНОЎЛЕНА (v8.62): Дадаем індэкс idx для стварэння ўнікальных хэшаў пры сплітынгу пасад
+    for (let idx = 0; idx < vacancyDataList.length; idx++) {
+      const vData = vacancyDataList[idx];
       const finalAgency = preDefinedAgency || vData.agencyName || "Manual";
 
+      // 👈 АБНОЎЛЕНА (v8.62): Калі AI разбіў адзін запіс на некалькі пасад, робім хэш унікальным для кожнай (ID-1, ID-2...)
+      const effectiveHash = (vacancyDataList.length > 1 && sourceHash) 
+        ? `${sourceHash}-${idx + 1}` 
+        : sourceHash;
+
       // 🔍 ЛОГІКА ПОШУКУ ДУБЛІКАТАЎ (v4.5 - Smart Hybrid Search)
+
       if (!currentExistingId) {
          // 1. Прыярытэт па хэшы (для табліц і трэла)
         if (sourceHash) {
-          const byHash = await Vacancy.findOne({ sourceHash, status: { $in: ["active", "pending_ai"] } });
+         // 👈 АБНОЎЛЕНА (v8.62): Шукаем менавіта па effectiveHash
+const byHash = await Vacancy.findOne({ sourceHash: effectiveHash, status: { $in: ["active", "pending_ai"] } });
           if (byHash) currentExistingId = byHash._id;
         }
 
@@ -351,7 +360,7 @@ const finalStatus = isMetaInfo ? "archived" : (forcedStatus || (isLite ? "pendin
             agencyName: finalAgency,
             sourceType: sourceType,
             originalText: newOriginalText,
-           rawText: (vacancyDataList.length > 1) ? buildSyntheticRawText(vData) : (vData.rawText || (Array.isArray(enrichedText) ? enrichedText.join("\n\n---\n\n") : enrichedText)),
+           rawText: (Array.isArray(enrichedText) ? enrichedText.join("\n\n---\n\n") : enrichedText), // 👈 Заўсёды поўны тэкст
             sheetName: sheetName || vData.sheetName,
             isLowQuality: vData.isLowQuality || false,
             templateName: constructVacancyDisplayName({
@@ -361,7 +370,7 @@ const finalStatus = isMetaInfo ? "archived" : (forcedStatus || (isLite ? "pendin
             }),
              lastSnapshot: snapshot, // 👈 Захоўваем стары стан
                         airtableId: (sourceType === "airtable") ? (realAirtableId || sourceHash) : undefined, // 👈 ЗМЕНЕНА (v8.56): пры сплітынгу sourceHash — гэта хэш дзіцяці, а не сапраўдны airtableId
-            sourceHash: sourceHash || undefined,
+            sourceHash: effectiveHash || undefined, // 👈 Унікальны хэш пасады
             status: finalStatus,
             // Пазначаем для рэдактара, толькі калі вакансія актыўная
             postOutdated: finalStatus === "active" ? true : false,
@@ -391,10 +400,10 @@ const finalStatus = isMetaInfo ? "archived" : (forcedStatus || (isLite ? "pendin
           vacancyCode,
           isLowQuality: vData.isLowQuality || false,
           originalText: originalText || enrichedText,
-          rawText: (vacancyDataList.length > 1) ? buildSyntheticRawText(vData) : (vData.rawText || (Array.isArray(enrichedText) ? enrichedText.join("\n\n---\n\n") : enrichedText)),
+          rawText: (Array.isArray(enrichedText) ? enrichedText.join("\n\n---\n\n") : enrichedText), // 👈 Заўсёды поўны тэкст
           isTruncated,
           parsingResultType,
-          sourceHash,
+          sourceHash: effectiveHash, // 👈 Унікальны хэш пасады
           airtableId: (sourceType === "airtable") ? (realAirtableId || sourceHash) : undefined, // 👈 ДАДАДЗЕНА (v8.56): раней гэтае поле не запаўнялася пры стварэнні новай вакансіі — новыя Airtable-карткі назаўжды "губляліся" для аўта-закрыцця
           status: finalStatus,
           postOutdated: finalStatus === "active" ? true : false,
