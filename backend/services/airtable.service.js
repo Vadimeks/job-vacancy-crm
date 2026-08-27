@@ -373,12 +373,14 @@ const failedRows = [];
         const childHash = `${airtableId}-${idx + 1}`;
         usedHashes.push(childHash);
 
-        const childResult = await processVacancyMessage(
+                const childResult = await processVacancyMessage(
           [fragments[idx]],
           "Airtable", source.agencyName, rawAirtableDump, false,
           analysis.category, childHash, columnName,
           null, "airtable",
-          false, targetStatus
+          false, targetStatus,
+          airtableId // 👈 ДАДАДЗЕНА (v8.56): сапраўдны airtableId карткі, асобна ад childHash (sourceHash),
+          // каб поле airtableId у базе заўсёды было правільным для аўта-закрыцця "знікла з Airtable"
         );
 
         if (childResult && !childResult.error) {

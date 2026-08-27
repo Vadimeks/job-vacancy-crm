@@ -221,7 +221,11 @@ async function processVacancyMessage(
   existingId = null, // 👈 ДАДАДЗЕНА: ID для абнаўлення
   sourceType = "manual", // 👈 ДАДАДЗЕНА
    forceFull = false,
-   forcedStatus = null // 👈 Новы параметр
+   forcedStatus = null, // 👈 Новы параметр
+   realAirtableId = null // 👈 ДАДАДЗЕНА (v8.56): сапраўдны airtableId картцы.
+   // Патрэбны асобна ад sourceHash, бо для "дзяцей" пры сплітынгу sourceHash = "${airtableId}-N",
+   // а поле airtableId у базе павінна заўсёды заставацца сапраўдным ID карткі (для аўта-закрыцця "знікла з Airtable").
+   // Калі не перададзены — паводзіны як раней (sourceHash выкарыстоўваецца наўпрост).
 ) {
   global.logger(`--- 🤖 Stage 2: Groq-парсінг для ${preDefinedAgency || "Manual"} ---`);
   try {
@@ -356,7 +360,7 @@ const finalStatus = isMetaInfo ? "archived" : (forcedStatus || (isLite ? "pendin
               agencyName: finalAgency,
             }),
              lastSnapshot: snapshot, // 👈 Захоўваем стары стан
-            airtableId: (sourceType === "airtable") ? sourceHash : undefined, // 👈 АБНОЎЛЕНА (v8.40): прывязваем новы ID да існуючай вакансіі
+                        airtableId: (sourceType === "airtable") ? (realAirtableId || sourceHash) : undefined, // 👈 ЗМЕНЕНА (v8.56): пры сплітынгу sourceHash — гэта хэш дзіцяці, а не сапраўдны airtableId
             sourceHash: sourceHash || undefined,
             status: finalStatus,
             // Пазначаем для рэдактара, толькі калі вакансія актыўная
@@ -375,7 +379,7 @@ const finalStatus = isMetaInfo ? "archived" : (forcedStatus || (isLite ? "pendin
       }  else {
         // ✨ ЛОГІКА СТВАРЭННЯ НОВАЙ
         const vacancyCode = await generateVacancyCode();
-        const newVacancy = new Vacancy({
+                const newVacancy = new Vacancy({
           ...vData,
           agencyName: finalAgency,
           sourceType: sourceType,
@@ -391,6 +395,7 @@ const finalStatus = isMetaInfo ? "archived" : (forcedStatus || (isLite ? "pendin
           isTruncated,
           parsingResultType,
           sourceHash,
+          airtableId: (sourceType === "airtable") ? (realAirtableId || sourceHash) : undefined, // 👈 ДАДАДЗЕНА (v8.56): раней гэтае поле не запаўнялася пры стварэнні новай вакансіі — новыя Airtable-карткі назаўжды "губляліся" для аўта-закрыцця
           status: finalStatus,
           postOutdated: finalStatus === "active" ? true : false,
         });
