@@ -72,7 +72,7 @@ const HEADER_KEYWORDS = [
   "выходы",
   "количество мест",
   "возраст",
-  // INTRASERVICE Голандія / Opiekunki
+  // INTRASERVICE Голландія 
   "rekrutacji",
   "lokalizacja",
   "wynagrodzenie",
@@ -364,7 +364,7 @@ function buildRowText(cells, headers, agencyName, sheetName) {
       "комментарий", // 👈 Дадаем для ўнікальнасці хэша (Row 8 vs Row 9)
     ],
     INTRASERVICE:
-  sheetName === "Голандія"
+  sheetName === "Голландія"
     ? ["вакансия/ опис", "название в crm"]
     : sheetName === "Польша"
       ? ["вакансия", "название в crm", "место работы"]

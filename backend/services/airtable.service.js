@@ -346,24 +346,32 @@ const failedRows = [];
     if (isSplitCard) {
       global.logger(`🧩 [Airtable Split] ${source.agencyName}: картка ${airtableId} разбітая на ${fragments.length} пасад(ы).`);
 
-      // 1. Захоўваем/абнаўляем радзіцельскі запіс (не паказваецца рэкрутэру, толькі для параўнання тэксту карткі)
-      await Vacancy.findOneAndUpdate(
-        { airtableId, sourceHash: airtableId },
-        {
-          $set: {
-            agencyName: source.agencyName,
-            sourceType: "airtable",
-            sheetName: columnName,
-            airtableId,
-            sourceHash: airtableId,
-            isSplitParent: true,
-            status: "archived",
-            originalText: rawAirtableDump,
-            rawText: rawAirtableDump,
-          },
-        },
-        { upsert: true }
-      );
+            // 1. Захоўваем/абнаўляем радзіцельскі запіс (не паказваецца рэкрутэру, толькі для параўнання тэксту карткі)
+      // 👈 ЗМЕНЕНА (v8.64): findOneAndUpdate+upsert ніколі не задаваў vacancyCode, а поле
+      // мае unique+sparse індэкс — два розныя бацькі без vacancyCode білі адзін аднаго
+      // (E11000 dup key: vacancyCode: null). Цяпер бацька заўсёды атрымлівае ўласны код.
+      let parentVacancy = await Vacancy.findOne({ airtableId, sourceHash: airtableId });
+      if (!parentVacancy) {
+        const { generateVacancyCode } = require("../routes/vacancies");
+        parentVacancy = new Vacancy({
+          vacancyCode: await generateVacancyCode(),
+          airtableId,
+          sourceHash: airtableId,
+          agencyName: source.agencyName,
+          sourceType: "airtable",
+          sheetName: columnName,
+          isSplitParent: true,
+          status: "archived",
+          originalText: rawAirtableDump,
+          rawText: rawAirtableDump,
+        });
+      } else {
+        parentVacancy.sheetName = columnName;
+        parentVacancy.originalText = rawAirtableDump;
+        parentVacancy.rawText = rawAirtableDump;
+        parentVacancy.status = "archived";
+      }
+      await parentVacancy.save();
 
       // 2. Апрацоўваем кожную пасаду асобна, са сваім унікальным sourceHash (airtableId-1, -2, ...)
       const usedHashes = [];

@@ -53,7 +53,7 @@ const CONFIG = {
 // const TARGET_AGENCY_NAME = "INTRASERVICE";
 //---
 // const TARGET_SHEET_ID = "13PN6zOZiDLAL-iLm58NSbsig4h_inXp-GfmNWxc53y8";
-// const TARGET_SHEET_NAME = "Голандія";
+// const TARGET_SHEET_NAME = "Голландія";
 // const TARGET_AGENCY_NAME = "INTRASERVICE";
 //---
 // const TARGET_SHEET_ID = "13PN6zOZiDLAL-iLm58NSbsig4h_inXp-GfmNWxc53y8";
