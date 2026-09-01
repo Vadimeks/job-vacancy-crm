@@ -3,7 +3,7 @@ const AirtableSource = require("../models/AirtableSource");
 const Vacancy = require("../models/Vacancy");
 const UnprocessedMessage = require("../models/UnprocessedMessage");
 const { processVacancyMessage } = require("../routes/vacancies");
-const { analyzeAndCompareWithGemini } = require("./gemini.service");
+const { analyzeAndCompareWithGemini, enrichTextWithDocs } = require("./gemini.service"); // 👈 ДАДАДЗЕНА (v8.67): enrichTextWithDocs для Gatekeeper
 const airtableScraper = require("./airtableScraper.service");
 const SyncState = require("../models/SyncState"); 
 const { checkVacancyGatekeeper } = require("../utils/messageFilters");
@@ -251,12 +251,19 @@ const failedRows = [];
         if (v && !k.toLowerCase().includes("rodo")) tempDump += `${k}: ${v}\n`;
       });
 
-      // 👈 ВЫПРАЎЛЕНА: Спачатку прысвойваем тэкст (v8.7)
+            // 👈 ВЫПРАЎЛЕНА: Спачатку прысвойваем тэкст (v8.7)
       rawAirtableDump = tempDump;
+
+      // 👈 ДАДАДЗЕНА (v8.67): узбагачаем тэкст спасылкамі на Google Docs ДА праверкі Gatekeeper.
+      // Раней Gatekeeper бачыў толькі "сыры" дамп палёў, і кароткія карткі PPG/APOLO/OTTO,
+      // чый рэальны змест ляжыць у прыкладзеным дакуменце, маглі памылкова адсякацца
+      // альбо, наадварот, сапраўды пустыя карткі (толькі "[Airtable ID: ...]") маглі
+      // праслізнуць — цяпер даўжыня правяраецца на паўнавартасным, узбагачаным тэксце.
+      const enrichedForGate = await enrichTextWithDocs(rawAirtableDump);
 
       // 👈 ПЕРАНЕСЕНА ВЫШЭЙ: Жалезны Санітар (v8.7)
       // Цяпер ён спрацуе нават калі тэкст не змяніўся, і закрые вакансію пры наяўнасці STOP
-      const gateVerdict = checkVacancyGatekeeper(rawAirtableDump, columnName);
+      const gateVerdict = checkVacancyGatekeeper(enrichedForGate, columnName);
       
       if (gateVerdict === "IGNORE") {
         global.logger(`⏭️ [Gatekeeper Skip] ${source.agencyName}: Смецце або кароткі тэкст.`);
@@ -301,8 +308,14 @@ const failedRows = [];
       }
     }
 
-    global.logger(`🧠 Этап 5. AI апрацоўка: ${source.agencyName} | ID: ${airtableId}`);
-    const analysis = await analyzeAndCompareWithGemini(rawAirtableDump, [], []);
+        global.logger(`🧠 Этап 5. AI апрацоўка: ${source.agencyName} | ID: ${airtableId}`);
+    // 👈 ЗМЕНЕНА (v8.67): перадаём ужо ўзбагачаны тэкст (калі ён быў пабудаваны вышэй),
+    // каб не рабіць паўторны запыт да Google Drive — analyzeAndCompareWithGemini
+    // сам не будзе ўзбагачаць паўторна дзякуючы ахове "--- ЗМЕСТ" ужо ў тэксце.
+    const analysis = await analyzeAndCompareWithGemini(
+      typeof enrichedForGate !== "undefined" ? enrichedForGate : rawAirtableDump,
+      [], []
+    );
 
     // 👈 ВЫПРАЎЛЕНА: Абарона ад крашу, калі AI недаступны (v8.19)
     if (!analysis) {

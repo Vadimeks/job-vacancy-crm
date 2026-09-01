@@ -1708,3 +1708,13 @@ trello.service.js: add failedRows, log errors, show pending_ai summary
   ранейшы GESTAMP-бацька) — рэкамендавана выдаліць гэтыя дакументы
   ўручную (`{ isSplitParent: true, vacancyCode: { $exists: false } }`)
   перад наступным скане, каб пазбегнуць паўторнага канфлікту.
+
+  ## [2026-08-29] — Бэкенд: Паляпшэнне Gatekeeper і фіналізацыя сплітынгу (v8.67)
+
+### ⚙️ Backend
+- **`airtable.service.js` & `trello.service.js`**: Укаранёна папярэдняе ўзбагачэнне тэксту праз `enrichTextWithDocs` перад праверкай `checkVacancyGatekeeper`. Цяпер кароткія карткі (PPG, APOLO, OTTO), якія маюць спасылкі на Google Docs, не адсякаюцца па ліміце даўжыні (200 сімвалаў), бо Санітар бачыць поўны змест дакумента.
+- **`airtable.service.js`**: Выпраўлена памылка `E11000 duplicate key error (vacancyCode: null)` для бацькоўскіх запісаў сплітынгу. Цяпер `isSplitParent` заўсёды атрымлівае ўнікальны код праз `generateVacancyCode()`.
+- **`ai.service.js`**: Абноўлены `isHousingFree` — дададзена больш жорсткая праверка на камунальныя плацяжы ("мунальн") і перыядычныя вылікі з зарплаты, каб пазбегнуць ілжывых "бясплатных" пазнак.
+
+### 🗄️ Data hygiene
+- Выдалены "бітыя" бацькоўскія запісы сплітынгу без `vacancyCode` праз запыт `{ isSplitParent: true, vacancyCode: { $exists: false } }`.

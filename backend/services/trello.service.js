@@ -3,7 +3,7 @@ const TrelloSource = require("../models/TrelloSource");
 const Vacancy = require("../models/Vacancy");
 const UnprocessedMessage = require("../models/UnprocessedMessage");
 const { processVacancyMessage } = require("../routes/vacancies");
-const { analyzeAndCompareWithGemini } = require("./gemini.service");
+const { analyzeAndCompareWithGemini, enrichTextWithDocs } = require("./gemini.service"); // 👈 ДАДАДЗЕНА (v8.67): enrichTextWithDocs для правільнага фільтра даўжыні
 const { checkVacancyGatekeeper } = require("../utils/messageFilters");
 const { notifyDev } = require("./telegram.service"); // 👈 Дадаць імпарт
 /**
@@ -167,7 +167,7 @@ async function syncTrelloBoard(sourceId) {
           source.token,
         );
 
-        // Фармуем сыры дамп для AI
+                // Фармуем сыры дамп для AI
 
         const rawTrelloDump = `
 ${card.name}
@@ -176,15 +176,21 @@ ${card.desc}
 ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
         `.trim();
 
-        // 📏 ФІЛЬТР ДАЎЖЫНІ (Крок 3.1)
-        if (rawTrelloDump.length < 200) {
-          global.logger(`⏭️ Пропуск карткі ${card.name}: занадта кароткая (${rawTrelloDump.length} сімв.)`);
+        // 👈 ДАДАДЗЕНА (v8.67): узбагачаем спасылкамі на Google Docs ДА фільтра даўжыні.
+        // Раней даўжыня правяралася на сырым дампе карткі — кароткія карткі, чый рэальны
+        // змест ляжыць у прыкладзеным дакуменце, маглі памылкова адсякацца тут, не паспяваючы
+        // дайсці да ўзбагачэння (яно раней адбывалася толькі ўнутры analyzeAndCompareWithGemini).
+        const enrichedTrelloDump = await enrichTextWithDocs(rawTrelloDump);
+
+        // 📏 ФІЛЬТР ДАЎЖЫНІ (Крок 3.1) — цяпер на ўзбагачаным тэксце
+        if (enrichedTrelloDump.length < 200) {
+          global.logger(`⏭️ Пропуск карткі ${card.name}: занадта кароткая (${enrichedTrelloDump.length} сімв.)`);
           stats.ignored++;
           continue;
         }
 
-        if (rawTrelloDump.length >= 200 && rawTrelloDump.length < 400) {
-          global.logger(`📥 Кароткая картка (${rawTrelloDump.length} сімв.) -> ${global.isManualSync ? 'Inbox' : 'Толькі ў лог'}`);
+        if (enrichedTrelloDump.length >= 200 && enrichedTrelloDump.length < 400) {
+          global.logger(`📥 Кароткая картка (${enrichedTrelloDump.length} сімв.) -> ${global.isManualSync ? 'Inbox' : 'Толькі ў лог'}`);
           if (global.isManualSync) {
             await new UnprocessedMessage({
               sender: source.agencyName,
@@ -219,11 +225,12 @@ ${comments ? `\n--- КАМЕНТАРЫ ---\n${comments}` : ""}
             global.logger(`📦 Этап 4.5. Выкарыстоўваем захаваны тэкст Trello (Stage 0/1 пропуск)`);
             finalTrelloText = existingVacancy.rawText;
           } else {
-            // 1. Будуем тэкст
-            finalTrelloText = `[SOURCE: TRELLO | AGENCY: ${source.agencyName}]\n${rawTrelloDump}`;
+                        // 1. Будуем тэкст (ужо на аснове ўзбагачанага дампа)
+            finalTrelloText = `[SOURCE: TRELLO | AGENCY: ${source.agencyName}]\n${enrichedTrelloDump}`;
 
             // 2. 👈 ПЕРАНЕСЕНА СЮДЫ: Жалезны Санітар (v8.7)
-            const gateVerdict = checkVacancyGatekeeper(rawTrelloDump, list.name);
+            // 👈 ЗМЕНЕНА (v8.67): правяраем на ўзбагачаным тэксце, гэтак жа, як і даўжыню вышэй
+            const gateVerdict = checkVacancyGatekeeper(enrichedTrelloDump, list.name);
             
             if (gateVerdict === "IGNORE") {
               global.logger(`⏭️ [Trello Gatekeeper] Смецце або кароткі тэкст: ${card.name}`);
