@@ -418,8 +418,10 @@ const isStatusWord = ["активная", "приоритет", "акция", "�
     // 👈 ЗМЕНЕНА: не бяром назву вакансіі са слупка нацыянальнасці (фікс для MRÓWKI)
   // 👈 ДАДАДЗЕНА (v8.68): для BISAR слупок "МІСТО" ідзе першым і забіраў тытул раней,
     // чым код даходзіў да слупка "ПРОЕКТ" (дзе сапраўдная назва пасады)
-    const isBisarCityColumn = agencyName === "BISAR" && headerLower.includes("місто");
-    if (!title && value && hasLetters && value.length > 2 && !isStatusWord && !headerLower.includes("національн") && !isBisarCityColumn) {
+    
+    // 👈 АБНОЎЛЕНА (v8.69): для BISAR ігнаруем і горад, і адрас офіса, каб тытулам стала назва праекта
+    const isBisarTechnicalColumn = agencyName === "BISAR" && (headerLower.includes("місто") || headerLower.includes("адреса"));
+    if (!title && value && hasLetters && value.length > 2 && !isStatusWord && !headerLower.includes("національн") && !isBisarTechnicalColumn) {
       title = value.trim();
     }
 
@@ -966,7 +968,10 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
           );
 
         // Замест стварэння паведамлення — дадаем у масіў
-        if (rawRowText.length < 400 && hasVacancySignal) {
+       // 👈 ДАДАДЗЕНА (v8.69): фільтр тэхнічных радкоў-загалоўкаў (як у APOLO радок 5)
+        const isJunkTitle = ["вакансия", "вакансія", "проект", "статус"].includes(rowTitle.toLowerCase().trim());
+
+        if (rawRowText.length < 400 && hasVacancySignal && !isJunkTitle) {
           hotUpdates.push({
             row: i + 1,
             title: rowTitle,
