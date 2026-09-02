@@ -979,8 +979,9 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
           );
 
         // Замест стварэння паведамлення — дадаем у масіў
-       // 👈 ДАДАДЗЕНА (v8.69): фільтр тэхнічных радкоў-загалоўкаў
+        // 👈 ДАДАДЗЕНА (v8.71): фільтр тэхнічных радкоў-загалоўкаў (як у APOLO радок 5)
         const isJunkTitle = ["вакансия", "вакансія", "проект", "статус"].includes(rowTitle.toLowerCase().trim());
+
         if (rawRowText.length < 400 && hasVacancySignal && !isJunkTitle) {
           hotUpdates.push({
             row: i + 1,
