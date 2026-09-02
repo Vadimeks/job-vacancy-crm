@@ -34,7 +34,7 @@ async function getAccessToken() {
 
 const AI_CHAIN = [
   { provider: "gemini_studio", name: "gemini-2.5-flash" },
-  { provider: "groq", name: "llama-3.3-70b-specdec" },
+  { provider: "groq", name: "llama-3.3-70b-versatile" },
   { provider: "vertex", name: "gemini-2.5-flash" },
   // 👈 ЗМЕНА: Vertex AI часова выключаны (білінг)
   // { provider: "vertex", name: "gemini-2.5-flash" },
