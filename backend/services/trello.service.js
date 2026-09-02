@@ -428,8 +428,28 @@ if (failedRows.length > 0) {
   });
 }
 
+    // --- СУМАРНАЯ СПРАВАЗДАЧА Ў INBOX (v8.68) ---
+    if (global.isManualSync && (stats.added > 0 || stats.updated > 0 || stats.closed > 0 || stats.info > 0)) {
+      let reportText = `📊 Звіт Trello: ${source.agencyName} (${source.boardName})\n`;
+      if (stats.added > 0) reportText += `\n✨ **Нові: ${stats.added}**`;
+      if (stats.updated > 0) reportText += `\n🔄 **Оновлені: ${stats.updated}**`;
+      if (stats.closed > 0) reportText += `\n🛑 **Закриті: ${stats.closed}**`;
+      if (stats.info > 0) reportText += `\nℹ️ **Інфо-картки: ${stats.info}**`;
+      reportText += `\n⏭️ Ігноровано: ${stats.ignored}`;
+
+      await new UnprocessedMessage({
+        sender: "Trello System",
+        agencyName: source.agencyName,
+        text: reportText,
+        category: "info",
+        source: "trello",
+        processed: false,
+        aiAnalyzed: true,
+      }).save();
+    }
+
     global.logger(
-      `🏁 [Trello] Сінхранізацыя завершана: +${stats.added} вакансій, 🔄 ${stats.updated} абноўлена, ⏭️ ${stats.ignored} ігнаравана, +${stats.info} інфа, 🛑 ${stats.closed} закрыта.`, // 👈 ЗМЕНА: дададзены updated і ignored
+      `🏁 [Trello] Сінхранізацыя завершана: +${stats.added} вакансій, 🔄 ${stats.updated} абноўлена, ⏭️ ${stats.ignored} ігнаравана, +${stats.info} інфа, 🛑 ${stats.closed} закрыта.`,
     );
   } catch (err) {
     global.logger(`❌ [Trello] Sync Error (${source.boardName}): ${err.message}`);

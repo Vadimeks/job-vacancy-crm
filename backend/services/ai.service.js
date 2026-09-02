@@ -123,6 +123,10 @@ const BRAND_BLACKLIST = [
   "магазин",
   "store",
 ];
+const BRAND_FIX_MAP = {
+  "FAURECJA": "FAURECIA",
+  // Сюды можна будзе дадаваць іншыя варыянты напісання
+};
 const COUNTRY_MAP = {
   німеччина: "Germany",
   германия: "Germany",
@@ -419,7 +423,8 @@ function validateBrand(raw) {
   )
     return null;
   if (brand.length < 2) return null;
-
+// 👈 ДАДАДЗЕНА (v8.68): нармалізацыя вядомых брэндаў (напр. FAURECJA -> FAURECIA)
+  if (BRAND_FIX_MAP[brand]) brand = BRAND_FIX_MAP[brand];
   return brand;
 }
 /**

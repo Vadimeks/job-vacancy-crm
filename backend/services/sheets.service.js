@@ -416,7 +416,10 @@ function buildRowText(cells, headers, agencyName, sheetName) {
     // 👈 АБНОЎЛЕНА (v8.40): дададзены "стоп", каб пазбегнуць Match Conflict, калі назва пасады пустая (фікс для MRÓWKI)
 const isStatusWord = ["активная", "приоритет", "акция", "активна", "закрыто", "стоп", "stop","aktywna", "nieaktualne", "rezerwa"].includes(value.trim().toLowerCase());
     // 👈 ЗМЕНЕНА: не бяром назву вакансіі са слупка нацыянальнасці (фікс для MRÓWKI)
-    if (!title && value && hasLetters && value.length > 2 && !isStatusWord && !headerLower.includes("національн")) {
+  // 👈 ДАДАДЗЕНА (v8.68): для BISAR слупок "МІСТО" ідзе першым і забіраў тытул раней,
+    // чым код даходзіў да слупка "ПРОЕКТ" (дзе сапраўдная назва пасады)
+    const isBisarCityColumn = agencyName === "BISAR" && headerLower.includes("місто");
+    if (!title && value && hasLetters && value.length > 2 && !isStatusWord && !headerLower.includes("національн") && !isBisarCityColumn) {
       title = value.trim();
     }
 
@@ -537,13 +540,17 @@ async function findVacancyByExternalDocLink(agencyName, externalUrls, rowTitle =
         .filter((w) => w.length > 3 && !STOP_WORDS.has(w));
 
     const newWords = extractSignificantWords(rowTitle);
-    const existingWords = extractSignificantWords(existing.vacancydescription || "");
+    // 👈 ЗМЕНЕНА (v8.68): параўноўваем з пачаткам originalText (сыры, неперакладзены тэкст радка),
+    // а не з vacancydescription (гатовы AI-загаловак). Гэта дазваляе пазнаваць дублікаты
+    // ў рускамоўных лістах (напр. Галандыя), дзе мова крыніцы адрозніваецца ад мовы ў базе.
+    const existingOriginalStart = (existing.originalText || "").substring(0, 400);
+    const existingWords = extractSignificantWords(existingOriginalStart);
 
     const hasCommonWord = newWords.some((w) => existingWords.includes(w));
 
     // Калі значныя словы ёсць у абодвух, але супадзенняў нуль — гэта розныя вакансіі (канфлікт)
     if (newWords.length > 0 && existingWords.length > 0 && !hasCommonWord) {
-      global.logger(`⚠️ [Match Conflict] Знойдзена супадзенне па спасылцы, але тытулы не маюць агульных слоў ("${rowTitle}" vs "${existing.vacancydescription}"). Ствараем новую.`);
+      global.logger(`⚠️ [Match Conflict] Знойдзена супадзенне па спасылцы, але тытулы не маюць агульных слоў ("${rowTitle}" vs "${existingOriginalStart.substring(0, 80)}..."). Ствараем новую.`);
       return null;
     }
   }

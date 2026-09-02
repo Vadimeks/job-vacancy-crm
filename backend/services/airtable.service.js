@@ -492,6 +492,25 @@ if (failedRows.length > 0) {
   });
 }
 
+  // --- СУМАРНАЯ СПРАВАЗДАЧА Ў INBOX (v8.68) ---
+  if (global.isManualSync && (stats.added > 0 || stats.updated > 0 || stats.closed > 0)) {
+    let reportText = `📊 Звіт Airtable: ${source.agencyName} (${source.boardName})\n`;
+    if (stats.added > 0) reportText += `\n✨ **Нові: ${stats.added}**`;
+    if (stats.updated > 0) reportText += `\n🔄 **Оновлені: ${stats.updated}**`;
+    if (stats.closed > 0) reportText += `\n🛑 **Закриті: ${stats.closed}**`;
+    reportText += `\n⏭️ Ігноровано: ${stats.ignored}`;
+
+    await new UnprocessedMessage({
+      sender: "System",
+      agencyName: source.agencyName,
+      text: reportText,
+      category: "info",
+      source: "airtable",
+      processed: false,
+      aiAnalyzed: true,
+    }).save();
+  }
+
   global.logger(`🏁 [${source.agencyName}] Завершана: +${stats.added} новых, 🔄 ${stats.updated} абноўлена, 🛑 ${stats.closed} закрыта, ⏭️ ${stats.ignored} прапушчана.`);
   
 }
