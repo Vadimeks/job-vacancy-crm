@@ -22,7 +22,9 @@ router.post("/agency", async (req, res) => {
   const SyncState = require("../models/SyncState");
   const currentLock = await SyncState.findOne({ key: "circular_sync_position" });
   
-  if (currentLock?.isRunning && currentLock?.lockedAt > new Date(Date.now() - 60 * 60 * 1000)) {
+ // 👈 АБНОЎЛЕНА (v8.69): Самавылечны замок. Калі сервер перазагрузіўся, global.isSyncRunning будзе false, 
+  // і мы дазволім запуск, нават калі ў БД застаўся стары замок (ghost lock).
+  if (currentLock?.isRunning && currentLock?.lockedAt > new Date(Date.now() - 60 * 60 * 1000) && global.isSyncRunning) {
     return res.status(409).json({ message: "Сканаванне ўжо ідзе (заблакавана ў БД). Паспрабуйце пазней." });
   }
 
@@ -122,10 +124,15 @@ router.get("/progress", (req, res) => {
 });
 
 // POST /api/sync/stop
-router.post("/stop", (req, res) => {
+router.post("/stop", async (req, res) => {
   global.stopSyncRequested = true;
   if (global.syncProgress) global.syncProgress.status = 'stopping';
-  res.json({ message: "Запыт на прыпынак адпраўлены" });
+  
+  // 👈 ДАДАДЗЕНА (v8.69): Прымусова здымаем замок у БД пры націску STOP
+  const SyncState = require("../models/SyncState");
+  await SyncState.findOneAndUpdate({ key: "circular_sync_position" }, { isRunning: false });
+  
+  res.json({ message: "Запыт на прыпынак адпраўлены, замок зняты" });
 });
 
 module.exports = router;

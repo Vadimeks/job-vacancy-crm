@@ -104,6 +104,17 @@ const failedRows = [];
     // 👈 Праверка на прыпынак карыстальнікам
     if (global.stopSyncRequested) {
       global.logger(`🛑 [Airtable] Сінхранізацыя ${source.agencyName} перарвана карыстальнікам.`);
+      if (global.isManualSync) {
+        const progress = `(Перарвана: ${i + 1}/${records.length})`;
+        let reportText = `⚠️ Звіт (частковий) Airtable: ${source.agencyName} ${progress}\n`;
+        if (stats.added > 0) reportText += `\n✨ Нові: ${stats.added}`;
+        if (stats.updated > 0) reportText += `\n🔄 Оновлені: ${stats.updated}`;
+        if (stats.closed > 0) reportText += `\n🛑 Закриті: ${stats.closed}`;
+        await new UnprocessedMessage({
+          sender: "System", agencyName: source.agencyName, text: reportText,
+          category: "info", source: "airtable", processed: false, aiAnalyzed: true
+        }).save();
+      }
       global.syncProgress.status = 'interrupted';
       global.isSyncRunning = false;
       return "STOP_ALL";

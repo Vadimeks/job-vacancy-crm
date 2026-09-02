@@ -136,7 +136,23 @@ async function syncTrelloBoard(sourceId) {
           // 👈 ПРАВЕРКА НА ПРЫПЫНАК
         if (global.stopSyncRequested) {
           global.logger("🛑 [Trello] Сінхранізацыя перарвана карыстальнікам.");
-          return "STOP_ALL";}
+          
+          // 👈 ДАДАДЗЕНА (v8.69): справаздача пры прымусовым прыпынку
+          if (global.isManualSync) {
+            const progress = `(Перарвана: ${global.syncProgress.current}/${global.syncProgress.total})`;
+            let reportText = `⚠️ Звіт (частковы) Trello: ${source.agencyName} ${progress}\n`;
+            if (stats.added > 0) reportText += `\n✨ Нові: ${stats.added}`;
+            if (stats.updated > 0) reportText += `\n🔄 Оновлені: ${stats.updated}`;
+            if (stats.closed > 0) reportText += `\n🛑 Закриті: ${stats.closed}`;
+            if (stats.info > 0) reportText += `\nℹ️ Інфо-картки: ${stats.info}`;
+
+            await new UnprocessedMessage({
+              sender: "Trello System", agencyName: source.agencyName, text: reportText,
+              category: "info", source: "trello", processed: false, aiAnalyzed: true
+            }).save();
+          }
+          return "STOP_ALL";
+        }
 
         // 👈 ДАДАДЗЕНА: Паўза, калі рэкрутэр выконвае ручную аперацыю (той жа механізм, што і ў sheets.service.js)
         if (!global.isManualSync && global.isManualActionInProgress) {

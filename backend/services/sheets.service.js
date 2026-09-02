@@ -419,7 +419,7 @@ const isStatusWord = ["активная", "приоритет", "акция", "�
   // 👈 ДАДАДЗЕНА (v8.68): для BISAR слупок "МІСТО" ідзе першым і забіраў тытул раней,
     // чым код даходзіў да слупка "ПРОЕКТ" (дзе сапраўдная назва пасады)
     
-    // 👈 АБНОЎЛЕНА (v8.69): для BISAR ігнаруем і горад, і адрас офіса, каб тытулам стала назва праекта
+   // 👈 АБНОЎЛЕНА (v8.69): для BISAR ігнаруем і горад, і адрас офіса
     const isBisarTechnicalColumn = agencyName === "BISAR" && (headerLower.includes("місто") || headerLower.includes("адреса"));
     if (!title && value && hasLetters && value.length > 2 && !isStatusWord && !headerLower.includes("національн") && !isBisarTechnicalColumn) {
       title = value.trim();
@@ -749,6 +749,17 @@ const headers = headerCells.map((v) => v?.formattedValue || "");
       if (i < startIndex) continue;
  if (global.stopSyncRequested) {
         global.logger("🛑 [Sheets] Сінхранізацыя перарвана карыстальнікам.");
+        if (global.isManualSync) {
+          const progress = `(Перарвана: ${global.syncProgress.current}/${global.syncProgress.total})`;
+          let reportText = `⚠️ Звіт (частковы) Sheets: ${source.agencyName} ${progress}\n`;
+          if (stats.added > 0) reportText += `\n✨ Нові: ${stats.added}`;
+          if (stats.updated > 0) reportText += `\n🔄 Оновлені: ${stats.updated}`;
+          if (stats.closed > 0) reportText += `\n🛑 Закриті: ${stats.closed}`;
+          await new UnprocessedMessage({
+            sender: "System", agencyName: source.agencyName, text: reportText,
+            category: "info", source: "google_sheets", processed: false, aiAnalyzed: true
+          }).save();
+        }
         return "STOP_ALL";
       }
       const cells = resolveMergedCells(i, rowData, merges);
@@ -968,9 +979,8 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
           );
 
         // Замест стварэння паведамлення — дадаем у масіў
-       // 👈 ДАДАДЗЕНА (v8.69): фільтр тэхнічных радкоў-загалоўкаў (як у APOLO радок 5)
+       // 👈 ДАДАДЗЕНА (v8.69): фільтр тэхнічных радкоў-загалоўкаў
         const isJunkTitle = ["вакансия", "вакансія", "проект", "статус"].includes(rowTitle.toLowerCase().trim());
-
         if (rawRowText.length < 400 && hasVacancySignal && !isJunkTitle) {
           hotUpdates.push({
             row: i + 1,
