@@ -504,7 +504,7 @@ function escapeRegExp(str) {
 
 // 👈 АБНОЎЛЕНА: Палепшаны пошук вакансіі па спасылках (v6.8)
 async function findVacancyByExternalDocLink(agencyName, externalUrls, rowTitle = "") {
-  if (agencyName === "PPG (BIEDRONKA)") return null;
+  if (agencyName === "PPG (BIEDRONKA)" || agencyName === "BISAR") return null; // 👈 ЗМЕНЕНА (v8.71): BISAR давярае толькі хэшу радка
 
   const docLinks = (externalUrls || [])
     .map(u => u.url)
@@ -979,8 +979,10 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
           );
 
         // Замест стварэння паведамлення — дадаем у масіў
-        // 👈 ДАДАДЗЕНА (v8.71): фільтр тэхнічных радкоў-загалоўкаў (як у APOLO радок 5)
-        const isJunkTitle = ["вакансия", "вакансія", "проект", "статус"].includes(rowTitle.toLowerCase().trim());
+
+        // 👈 ДАДАДЗЕНА (v8.71): фільтр тэхнічных радкоў-загалоўкаў
+        const junkTitles = ["вакансия", "вакансія", "проект", "статус", "назва", "№", "місто", "город"];
+        const isJunkTitle = junkTitles.includes(rowTitle.toLowerCase().trim());
 
         if (rawRowText.length < 400 && hasVacancySignal && !isJunkTitle) {
           hotUpdates.push({
@@ -1134,18 +1136,18 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
         reportText += `\n🛑 Закриті: 0\n`;
       }
       reportText += `\n⏭️ Ігноровано (дублі): ${stats.ignored}`;
-
-      if (global.isManualSync) {
-        await new UnprocessedMessage({
-          sender: "System",
-          agencyName: source.agencyName,
-          text: reportText,
-          category: "info",
-          source: "google_sheets",
-          processed: false,
-          aiAnalyzed: true,
-        }).save();
-      }
+// 👈 ДАДАДЗЕНА (v8.71): захаванне справаздачы (цяпер і для аўтасканавання)
+      await new UnprocessedMessage({
+        sender: "System",
+        agencyName: source.agencyName,
+        text: reportText,
+        category: "info",
+        source: "google_sheets",
+        processed: false,
+        aiAnalyzed: true,
+      }).save();
+    
+      
     }
     // --- АДПРАЎКА ГАРАЧЫХ АПДЭЙТАЎ АДЗІНЫМ БЛОКАМ ---
     if (hotUpdates.length > 0) {
@@ -1167,18 +1169,17 @@ let rawRowText = ""; // 👈 Аб'яўляем тут, каб яна была б
         }
       });
 
+  
       // Захоўваем адно агульнае паведамленне (абмяжоўваем 4000 сімвалаў)
-      if (global.isManualSync) {
-        await new UnprocessedMessage({
-          sender: "System",
-          agencyName: source.agencyName,
-          text: hotText.substring(0, 4000),
-          category: "update",
-          source: "google_sheets",
-          processed: false,
-          aiAnalyzed: true,
-        }).save();
-      }
+      await new UnprocessedMessage({
+        sender: "System",
+        agencyName: source.agencyName,
+        text: hotText.substring(0, 4000),
+        category: "update",
+        source: "google_sheets",
+        processed: false,
+        aiAnalyzed: true,
+      }).save();
 
       global.logger(
         `📦 Згрупавана ${hotUpdates.length} апдэйтаў у адно паведамленне Inbox.`,
